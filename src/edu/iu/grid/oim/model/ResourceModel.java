@@ -71,7 +71,7 @@ public class ResourceModel extends Model {
 			stmt.close(); 
 			
 			LogModel log = new LogModel(con);
-			//log.
+			log.insert("resource", stmt.toString());
 		} catch(SQLException e) {
 			log.error(e.getMessage());
 		}
