@@ -688,6 +688,37 @@ CREATE TABLE `virtualorganization` (
 SET character_set_client = @saved_cs_client;
 
 --
+-- Table structure for table 'field_of_science
+--
+
+DROP TABLE IF EXISTS `field_of_science`;
+SET @saved_cs_client     = @@character_set_client;
+SET character_set_client = utf8;
+CREATE TABLE field_of_science 
+        (id INTEGER NOT NULL AUTO_INCREMENT, 
+        name VARCHAR(512) NOT NULL, 
+        CONSTRAINT PK_field_of_science PRIMARY KEY (id)) 
+ENGINE = INNODB;
+SET character_set_client = @saved_cs_client;
+
+DROP TABLE IF EXISTS `vo_field_of_science`;
+SET @saved_cs_client     = @@character_set_client;
+SET character_set_client = utf8;
+CREATE TABLE vo_field_of_science 
+        (vo_id INTEGER NOT NULL, 
+        science_id INTEGER NOT NULL, 
+        CONSTRAINT PK_vo_field_of_science PRIMARY KEY (vo_id, science_id))
+ENGINE = INNODB;
+SET character_set_client = @saved_cs_client;
+
+ALTER TABLE vo_field_of_science ADD CONSTRAINT vo_vo_field_of_science 
+        FOREIGN KEY (vo_id) REFERENCES virtualorganization (id);
+
+ALTER TABLE vo_field_of_science ADD CONSTRAINT field_of_science_vo_field_of_science 
+FOREIGN KEY (science_id) REFERENCES field_of_science (id);
+
+
+--
 -- Table structure for table `vo_contact`
 --
 

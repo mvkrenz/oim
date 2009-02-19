@@ -26,12 +26,15 @@ UPDATE service svc SET svc.service_group_id=(SELECT service_group_id FROM oim.se
 
 INSERT INTO metric_service (SELECT metric_id,service_id,critical FROM oim.metric_service);
 
+INSERT INTO field_of_science (SELECT id,name FROM oim.field_of_science);
 
 INSERT INTO facility (SELECT facility_id,name,description,active,disable FROM oim.facility);
 
 INSERT INTO supportcenter (SELECT sc_id,short_name,long_name,description,community,active,disable,footprints_id FROM oim.supportcenter);
 
 INSERT INTO virtualorganization (SELECT vo_id,short_name,long_name,description,primary_url,aup_url,membership_services_url,purpose_url,support_url,app_description,community,sc_id,parent_vo_id,active,disable,footprints_id FROM oim.virtualorganization);
+
+INSERT INTO vo_field_of_science (SELECT vo_id,science_id FROM oim.vo_field_of_science);
 
 INSERT INTO vo_report_name (SELECT id,reporting_name,vo_id FROM oim.vo_report_name);
 
