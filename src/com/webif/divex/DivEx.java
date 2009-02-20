@@ -1,8 +1,8 @@
 package com.webif.divex;
 import java.util.HashMap;
 
-public abstract class Div {
-	static private HashMap<String, Div> nodes = new HashMap<String, Div>();	
+public abstract class DivEx {
+	static private HashMap<String, DivEx> nodes = new HashMap<String, DivEx>();	
 	static private int next_nodeid = 0;
 
 	private String nodeid;
@@ -21,7 +21,7 @@ public abstract class Div {
 	public static String outputUpdatecode()
 	{
 		String code = "";
-		for(Div d : Div.nodes.values()) {
+		for(DivEx d : DivEx.nodes.values()) {
 			if(d.needupdate) {
 				code += "$(\"#"+d.nodeid+"\").load(\"divex?action=load&nodeid="+d.nodeid+"\");";
 				d.needupdate = false;
@@ -29,10 +29,10 @@ public abstract class Div {
 		}	
 		return code;
 	}
-	public Div() {
+	public DivEx() {
 		nodeid = "divex_"+next_nodeid;
 		++next_nodeid;
-		Div.nodes.put(nodeid, this);
+		DivEx.nodes.put(nodeid, this);
 	}
 	
 	final public String render() {
@@ -71,8 +71,8 @@ public abstract class Div {
 	    return out.toString();
 	}
 	
-	public static Div findNode(String nodeid) {
-		Div node = nodes.get(nodeid);
+	public static DivEx findNode(String nodeid) {
+		DivEx node = nodes.get(nodeid);
 		return node;
 	}
 }

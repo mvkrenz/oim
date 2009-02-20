@@ -32,18 +32,18 @@ public class DivexServlet extends HttpServlet {
 		
 		//get our application
     	HttpSession session = request.getSession();
-    	Div app = (Div)session.getAttribute("divex");
+    	DivEx app = (DivEx)session.getAttribute("divex");
 		
 		//find the target node and process action
 		String action = request.getParameter("action");
 		String nodeid = request.getParameter("nodeid");	
-		Div div = Div.findNode(nodeid);
+		DivEx div = DivEx.findNode(nodeid);
 		Event e = new Event();
 		if(div != null && action != null) {
 			if(action.compareTo("click") == 0) {
 				div.onClick(e);
 				response.setContentType("text/javascript");
-				writer.print(Div.outputUpdatecode());		
+				writer.print(DivEx.outputUpdatecode());		
 			} else if(action.compareTo("load") == 0) {
 				response.setContentType("text/html");
 				writer.print(div.toHtml());

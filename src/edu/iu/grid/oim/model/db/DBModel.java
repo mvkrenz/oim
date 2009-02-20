@@ -1,4 +1,4 @@
-package edu.iu.grid.oim.model;
+package edu.iu.grid.oim.model.db;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -10,14 +10,14 @@ import java.sql.SQLException;
 import org.apache.log4j.Logger;
 
 import edu.iu.grid.oim.lib.Authorization;
-import edu.iu.grid.oim.model.record.IRecord;
+import edu.iu.grid.oim.model.db.record.IRecord;
 
-public class Model {
-    static Logger log = Logger.getLogger(Model.class);  
+public class DBModel {
+    static Logger log = Logger.getLogger(DBModel.class);  
     protected Connection con;
     protected Authorization auth;
     
-    public Model(Connection _con, Authorization _auth) {
+    public DBModel(Connection _con, Authorization _auth) {
     	con = _con;
     	auth = _auth;
     }

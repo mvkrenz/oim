@@ -1,4 +1,4 @@
-package edu.iu.grid.oim.model;
+package edu.iu.grid.oim.model.db;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -6,10 +6,12 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import org.apache.log4j.Logger;
 
+import edu.iu.grid.oim.lib.Action;
 import edu.iu.grid.oim.lib.Authorization;
-import edu.iu.grid.oim.model.record.CertificateDNRecord;
+import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
+import edu.iu.grid.oim.model.db.record.CertificateDNRecord;
 
-public class CertificateDNModel extends Model {
+public class CertificateDNModel extends DBModel {
     static Logger log = Logger.getLogger(CertificateDNModel.class);  
     
     public CertificateDNModel(Connection _con, Authorization _auth) 
@@ -17,8 +19,9 @@ public class CertificateDNModel extends Model {
     	super(_con, _auth);
     }
     
-	public CertificateDNRecord findByDN(String dn_string)
+	public CertificateDNRecord findByDN(String dn_string) throws AuthorizationException
 	{
+		auth.check(Action.select_certificate_dn);
 		ResultSet rs = null;
 		try {
 			PreparedStatement pstmt = con.prepareStatement(

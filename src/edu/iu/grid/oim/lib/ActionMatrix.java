@@ -13,32 +13,50 @@ public class ActionMatrix {
 			switch(action) {
 			case select_resource:
 			case select_facility:
+			case log:
+			case select_certificate_dn:
 				return true;
 			}
+			break;
 		case 1: //OSG End User
 			switch(action) {
 			case select_resource:
 			case select_facility:
+			case log:
+			case select_certificate_dn:
 					return true;
 			}
+			break;
 		case 3: //OSG Security Staff
 			switch(action) {
 			case select_resource:
 			case select_facility:
+			case log:
+			case select_certificate_dn:
 					return true;
 			}
+			break;
 		case 4: //OSG GOC Staff
 			switch(action) {
 			case select_resource:
 			case insert_resource:
 			case update_resource:
+				
 			case select_facility:
 			case insert_facility:
 			case update_facility:
+				
+			case select_vo:
+			case insert_vo:
+			case update_vo:
+				
+			case log:
+			case select_certificate_dn:
 					return true;
 			}
+			break;
 		default:
-			log.warn("allows() called with unknown auth_type_id");
+			log.warn("allows() called with unknown auth_type_id : " + auth_type_id);
 		}
 		return false;
 	}

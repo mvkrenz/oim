@@ -1,11 +1,14 @@
-package edu.iu.grid.oim.model;
+package edu.iu.grid.oim.model.db;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import org.apache.log4j.Logger;
 
-public class FacilityModel extends Model {
+import edu.iu.grid.oim.lib.Action;
+import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
+
+public class FacilityModel extends DBModel {
     static Logger log = Logger.getLogger(FacilityModel.class);  
     
     public FacilityModel(
@@ -15,8 +18,9 @@ public class FacilityModel extends Model {
     	super(_con, _auth);
     }
     
-	public ResultSet getAllFacilities()
+	public ResultSet getAllFacilities() throws AuthorizationException
 	{
+		auth.check(Action.select_facility);
 		ResultSet rs = null;
 		try {
 			Statement stmt = con.createStatement();

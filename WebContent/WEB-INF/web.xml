@@ -28,6 +28,33 @@
 		<servlet-class>
 		com.webif.divex.DivexServlet</servlet-class>
 	</servlet>
+	<servlet>
+		<description>
+		</description>
+		<display-name>
+		HomeServlet</display-name>
+		<servlet-name>HomeServlet</servlet-name>
+		<servlet-class>
+		edu.iu.grid.oim.servlet.HomeServlet</servlet-class>
+	</servlet>
+	<servlet>
+		<description>
+		</description>
+		<display-name>
+		ErrorServlet</display-name>
+		<servlet-name>ErrorServlet</servlet-name>
+		<servlet-class>
+		edu.iu.grid.oim.servlet.ErrorServlet</servlet-class>
+	</servlet>
+	<servlet>
+		<description>
+		</description>
+		<display-name>
+		VOServlet</display-name>
+		<servlet-name>VOServlet</servlet-name>
+		<servlet-class>
+		edu.iu.grid.oim.servlet.VOServlet</servlet-class>
+	</servlet>
 	<servlet-mapping>
 		<servlet-name>KoukanServlet</servlet-name>
 		<url-pattern>/koukan</url-pattern>
@@ -40,6 +67,18 @@
 		<servlet-name>DivexServlet</servlet-name>
 		<url-pattern>/divex</url-pattern>
 	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>HomeServlet</servlet-name>
+		<url-pattern>/home</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>ErrorServlet</servlet-name>
+		<url-pattern>/error</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>VOServlet</servlet-name>
+		<url-pattern>/vo</url-pattern>
+	</servlet-mapping>
 	<welcome-file-list>
 		<welcome-file>index.html</welcome-file>
 		<welcome-file>index.htm</welcome-file>
@@ -48,4 +87,14 @@
 		<welcome-file>default.htm</welcome-file>
 		<welcome-file>default.jsp</welcome-file>
 	</welcome-file-list>
+	
+	<error-page>
+     <error-code>404</error-code>
+     <location>/error</location>
+   </error-page>
+<error-page>
+	<exception-type>java.lang.Exception</exception-type>
+    <location>/error</location>
+</error-page>
+
 </web-app>

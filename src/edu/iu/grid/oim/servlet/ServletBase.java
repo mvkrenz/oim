@@ -1,0 +1,61 @@
+package edu.iu.grid.oim.servlet;
+
+import java.io.IOException;
+import java.sql.Connection;
+import java.util.ArrayList;
+
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.servlet.Servlet;
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
+import javax.sql.DataSource;
+import javax.servlet.http.HttpServlet;
+
+import org.apache.log4j.Logger;
+
+import edu.iu.grid.oim.model.MenuItem;
+import edu.iu.grid.oim.view.ContentView;
+import edu.iu.grid.oim.view.MenuView;
+
+public class ServletBase extends HttpServlet {
+    static Logger log = Logger.getLogger(ServletBase.class);  
+    protected Connection con = null;
+
+	public void init(ServletConfig conf) throws ServletException {
+		super.init(conf);
+		
+		//cache oim db connection
+		try
+		{
+			Context initContext = new InitialContext();
+			Context envContext  = (Context)initContext.lookup("java:/comp/env");
+			DataSource ds = (DataSource)envContext.lookup("jdbc/oim");
+			con = ds.getConnection();
+			log.info("OIM DB connection:" + con.toString());
+			initContext.close();
+		}
+		catch(Exception es)
+		{
+			es.printStackTrace();
+		}
+	}
+	
+	protected MenuView createMenuView(String baseurl, String current)
+	{
+		ArrayList<MenuItem> menu = new ArrayList<MenuItem>();
+		menu.add(new MenuItem("Home", "home"));
+		menu.add(new MenuItem("Virtual Organization", "vo"));		
+		//menu.add(new MenuItem("Personal Profile", "profile"));
+		//menu.add(new MenuItem("Resource", "resource"));
+		MenuView menuview = new MenuView(baseurl, menu, current);
+		return menuview;
+	}
+	
+	public String baseURL()
+	{
+		//TODO - figure this out dynamicly.
+		return "/oim";
+	}
+
+}

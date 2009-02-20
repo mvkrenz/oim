@@ -1,11 +1,11 @@
 package edu.iu.grid.oim.view.divex;
 
-import com.webif.divex.Div;
+import com.webif.divex.DivEx;
 
-public class Counter extends Div {
-	ApplicationView app;
+public class CounterDE extends DivEx {
+	TestApplicationDE app;
 	
-	public Counter(ApplicationView _app) {
+	public CounterDE(TestApplicationDE _app) {
 		app = _app;
 	}
     public String toHtml() {

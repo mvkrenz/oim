@@ -1,4 +1,4 @@
-package edu.iu.grid.oim.model;
+package edu.iu.grid.oim.model.db;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -10,9 +10,9 @@ import org.apache.log4j.Logger;
 import edu.iu.grid.oim.lib.Action;
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
-import edu.iu.grid.oim.model.record.ResourceRecord;
+import edu.iu.grid.oim.model.db.record.ResourceRecord;
 
-public class ResourceModel extends Model {
+public class ResourceModel extends DBModel {
     static Logger log = Logger.getLogger(ResourceModel.class);  
     
     public ResourceModel(java.sql.Connection con, Authorization auth) 
@@ -20,8 +20,9 @@ public class ResourceModel extends Model {
     	super(con, auth);
     }
     
-	public ResultSet getAllResources()
+	public ResultSet getAllResources() throws AuthorizationException
 	{
+		auth.check(Action.select_resource);
 		ResultSet rs = null;
 		try {
 			Statement stmt = con.createStatement();
@@ -34,8 +35,9 @@ public class ResourceModel extends Model {
 		return rs;
 	}
 	
-	public ResultSet getResourceByGroupBy(int group_id)
+	public ResultSet getResourceByGroupBy(int group_id) throws AuthorizationException
 	{
+		auth.check(Action.select_resource);
 		ResultSet rs = null;
 		try {
 			PreparedStatement pstmt = con.prepareStatement(
@@ -70,7 +72,7 @@ public class ResourceModel extends Model {
 			stmt.executeUpdate(); 
 			stmt.close(); 
 			
-			LogModel log = new LogModel(con);
+			LogModel log = new LogModel(con, auth);
 			log.insert("resource", stmt.toString());
 		} catch(SQLException e) {
 			log.error(e.getMessage());

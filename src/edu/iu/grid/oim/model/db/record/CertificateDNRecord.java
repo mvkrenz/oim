@@ -1,4 +1,4 @@
-package edu.iu.grid.oim.model.record;
+package edu.iu.grid.oim.model.db.record;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

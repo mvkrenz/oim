@@ -1,4 +1,4 @@
-package edu.iu.grid.oim.model;
+package edu.iu.grid.oim.model.db;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -8,20 +8,23 @@ import java.sql.Timestamp;
 
 import org.apache.log4j.Logger;
 
+import edu.iu.grid.oim.lib.Action;
 import edu.iu.grid.oim.lib.Authorization;
+import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
 
-public class LogModel extends Model {
+public class LogModel extends DBModel {
     static Logger log = Logger.getLogger(LogModel.class);  
     
     //enum Type {authenticate, insert, update, delete}
     
-    public LogModel(Connection _con) 
+    public LogModel(Connection _con, Authorization _auth) 
     {
-    	super(_con, null);
+    	super(_con, _auth);
     }
     
-    public void insert(String tablename, String sql)
+    public void insert(String tablename, String sql) throws AuthorizationException
     {
+		auth.check(Action.log);
 		try {
 			PreparedStatement stmt = null;
 
