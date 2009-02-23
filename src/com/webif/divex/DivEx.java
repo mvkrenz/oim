@@ -38,12 +38,12 @@ public abstract class DivEx {
 	final public String render() {
 		String html = "";
 		html += "<div class='divex' id='"+nodeid+"' onclick='divex_click(this);'>";
-		html += toHtml();
+		html += toHTML();
 		html += "</div>";
 		return html;
 	}
 	
-	abstract protected String toHtml();
+	abstract public String toHTML();
 	
 	protected void onClick(Event e) {
 	}

@@ -56,4 +56,11 @@ public class DBModel {
     		return null;
     	}
     }
+    
+    protected Boolean isAccessibleType(Integer type_id)
+    {
+    	//In the future, we can restrict access to
+    	//only certain type_id
+    	return true;
+    }
 }

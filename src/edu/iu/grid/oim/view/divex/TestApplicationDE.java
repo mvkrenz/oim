@@ -7,7 +7,7 @@ public class TestApplicationDE extends DivEx {
 	public DivEx display = new CounterDE(this);
 	public DivEx plusbutton = new PlusButtonDE(this);
 	
-	public String toHtml() 
+	public String toHTML() 
 	{
 		String out = "";
 		out += plusbutton.render();

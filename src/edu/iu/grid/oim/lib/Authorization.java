@@ -16,7 +16,17 @@ public class Authorization {
 	
 	private String user_dn = null;
     private Integer dn_id = null;
-    private int auth_type_id = 0; //0 = guest
+    private Integer auth_type_id = null; //null = guest
+    private Integer person_id = null;
+    
+    public String getUserDN()
+    {
+    	return user_dn;
+    }
+    public Integer getPersonID()
+    {
+    	return person_id;
+    }
     
 	public void check(Action action) throws AuthorizationException
 	{
@@ -30,7 +40,7 @@ public class Authorization {
 	{
 	}
 	
-	public Authorization(HttpServletRequest request, Connection con) 
+	public Authorization(HttpServletRequest request, Connection con) throws AuthorizationException 
 	{
 		//pull authenticated user dn
 		
@@ -50,22 +60,20 @@ public class Authorization {
 		
 		log.info("Authenticated User DN: "+user_dn);
 		
+		//find DNID
 		CertificateDNModel model = new CertificateDNModel(con, new Authorization());
 		CertificateDNRecord certdn;
-		try {
-			certdn = model.findByDN(user_dn);
-			if(certdn == null) {
-				log.info("The DN not found in Certificate table");
-			} else {
-				dn_id = certdn.getID();
-				auth_type_id = certdn.getAuthTypeID();
-				log.debug("The dn_id is " + dn_id);
-				log.debug("The auth_type_id is " + auth_type_id);
-			}
-		} catch (AuthorizationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}		
+		certdn = model.findByDN(user_dn);
+		if(certdn == null) {
+			log.info("The DN not found in Certificate table");
+		} else {
+			dn_id = certdn.id;
+			auth_type_id = certdn.auth_type_id;
+			person_id = certdn.person_id;
+			log.debug("The dn_id is " + dn_id);
+			log.debug("The auth_type_id is " + auth_type_id);
+			log.debug("The person_id is " + person_id);
+		}	
 	}
 	
 	public class AuthorizationException extends ServletException 

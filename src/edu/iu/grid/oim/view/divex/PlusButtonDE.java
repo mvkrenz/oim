@@ -9,7 +9,7 @@ public class PlusButtonDE extends DivEx {
 	public PlusButtonDE(TestApplicationDE _app) {
 		app = _app;
 	}
-    public String toHtml() {
+    public String toHTML() {
         return "<b>Plus</b>";   
     }
 	protected void onClick(Event e) {

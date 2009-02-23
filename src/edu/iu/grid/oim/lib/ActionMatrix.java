@@ -6,10 +6,10 @@ import org.apache.log4j.Logger;
 public class ActionMatrix {
     static Logger log = Logger.getLogger(ActionMatrix.class);  
     
-	static public Boolean allows(Action action, int auth_type_id)
+	static public Boolean allows(Action action, Integer auth_type_id)
 	{
-		switch(auth_type_id) {
-		case 0: //guest
+		if(auth_type_id == null) {
+			//guest
 			switch(action) {
 			case select_resource:
 			case select_facility:
@@ -17,7 +17,9 @@ public class ActionMatrix {
 			case select_certificate_dn:
 				return true;
 			}
-			break;
+			return false;
+		}
+		switch(auth_type_id) {
 		case 1: //OSG End User
 			switch(action) {
 			case select_resource:

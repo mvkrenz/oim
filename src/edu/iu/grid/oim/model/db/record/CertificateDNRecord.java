@@ -5,10 +5,10 @@ import java.sql.SQLException;
 
 public class CertificateDNRecord implements IRecord {
 
-	private Integer id;
-	private String dn_string;
-	private Integer person_id;
-	private Integer auth_type_id;
+	public Integer id;
+	public String dn_string;
+	public Integer person_id;
+	public Integer auth_type_id;
 	
 	public String getTableName()
 	{
@@ -26,13 +26,5 @@ public class CertificateDNRecord implements IRecord {
 	//for creating new record
 	public CertificateDNRecord()
 	{
-	}
-	
-	public Integer getID() {
-		return id;
-	}
-	public Integer getAuthTypeID()
-	{
-		return auth_type_id;
 	}
 }

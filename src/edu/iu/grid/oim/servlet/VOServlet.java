@@ -3,20 +3,20 @@ package edu.iu.grid.oim.servlet;
 import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Set;
 
-import javax.servlet.RequestDispatcher;
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 
 import edu.iu.grid.oim.lib.Authorization;
-import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
-import edu.iu.grid.oim.model.db.ResourceModel;
 import edu.iu.grid.oim.model.db.VOModel;
 import edu.iu.grid.oim.model.db.record.VORecord;
+import edu.iu.grid.oim.view.ButtonView;
 import edu.iu.grid.oim.view.ContentView;
 import edu.iu.grid.oim.view.MenuView;
 import edu.iu.grid.oim.view.Page;
@@ -36,16 +36,19 @@ public class VOServlet extends ServletBase implements Servlet {
 		Authorization auth = new Authorization(request, con);
 		VOModel model = new VOModel(con, auth);
 		vos = model.getAllVOs();
+		Set<Integer> accessible_ids = model.getAccessibleIDs();
+		log.debug(accessible_ids);
 			
 		//construct view
 		MenuView menuview = createMenuView(baseURL(), "vo");
-		ContentView contentview = createContentView(vos);
+		ContentView contentview = createContentView(vos, accessible_ids);
 		Page page = new Page(menuview, contentview);
 		
 		response.getWriter().print(page.toHTML());
 	}
 	
-	protected ContentView createContentView(ResultSet vos) throws ServletException
+	protected ContentView createContentView(ResultSet vos, Set<Integer> accessible_ids) 
+		throws ServletException
 	{
 		ContentView contentview = new ContentView();	
 		contentview.add("<h1>Virtual Organization</h1>");
@@ -64,9 +67,14 @@ public class VOServlet extends ServletBase implements Servlet {
 				contentview.add("<tr><th>Support URL</th><td>"+nullImageFilter(rec.support_url)+"</td></tr>");
 				contentview.add("<tr><th>App Description</th><td>"+nullImageFilter(rec.app_description)+"</td></tr>");
 				contentview.add("<tr><th>Community</td><td>"+nullImageFilter(rec.community)+"</th></tr>");
+
+				if(accessible_ids.contains(rec.id)) {
+					contentview.add("<tr><th></th><td>");
+					contentview.add(new ButtonView("Edit", ServletBase.baseURL()+"/voedit?vo_id=" + rec.id));
+					contentview.add("</td></tr>");
+				}
+				
 				contentview.add("</table>");
-				
-				
 			}
 		} catch (SQLException e) {
 	        throw new ServletException(e);
@@ -80,6 +88,6 @@ public class VOServlet extends ServletBase implements Servlet {
 		if(str == null) {
 			return "<img src='"+baseURL()+"/images/null.png'/>";
 		}
-		return str;
+		return StringEscapeUtils.escapeHtml(str);
 	}
 }

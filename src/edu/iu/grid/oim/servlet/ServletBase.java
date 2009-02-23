@@ -46,16 +46,13 @@ public class ServletBase extends HttpServlet {
 		ArrayList<MenuItem> menu = new ArrayList<MenuItem>();
 		menu.add(new MenuItem("Home", "home"));
 		menu.add(new MenuItem("Virtual Organization", "vo"));		
-		//menu.add(new MenuItem("Personal Profile", "profile"));
-		//menu.add(new MenuItem("Resource", "resource"));
 		MenuView menuview = new MenuView(baseurl, menu, current);
 		return menuview;
 	}
 	
-	public String baseURL()
+	static public String baseURL()
 	{
 		//TODO - figure this out dynamicly.
 		return "/oim";
 	}
-
 }

@@ -16,6 +16,7 @@ public class ContentView implements View {
 		children.add(new DivExWrapper(de));
 	}
 	
+	//depricate this - danger of XSS
 	public void add(String html) {
 		children.add(new HtmlView(html));
 	}

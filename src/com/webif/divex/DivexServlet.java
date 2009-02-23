@@ -46,7 +46,7 @@ public class DivexServlet extends HttpServlet {
 				writer.print(DivEx.outputUpdatecode());		
 			} else if(action.compareTo("load") == 0) {
 				response.setContentType("text/html");
-				writer.print(div.toHtml());
+				writer.print(div.toHTML());
 			} 
 		}	
     	

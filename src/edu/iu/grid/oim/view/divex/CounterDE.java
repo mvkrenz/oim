@@ -8,7 +8,7 @@ public class CounterDE extends DivEx {
 	public CounterDE(TestApplicationDE _app) {
 		app = _app;
 	}
-    public String toHtml() {
+    public String toHTML() {
         return "Count is: " + app.count;   
     }
 }

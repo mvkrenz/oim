@@ -4,12 +4,16 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 
 import edu.iu.grid.oim.lib.Action;
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
+import edu.iu.grid.oim.model.db.record.VOContactRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
 
 public class VOModel extends DBModel {
@@ -33,6 +37,54 @@ public class VOModel extends DBModel {
 			log.error(e.getMessage());
 		}
 		return rs;
+	}
+	
+	//returns all record id that the user has access to
+	public Set<Integer> getAccessibleIDs()
+	{
+		Set<Integer> list = new HashSet<Integer>();
+		ResultSet rs = null;
+		try {
+			PreparedStatement stmt = null;
+
+			String sql = "SELECT * FROM vo_contact WHERE person_id = ?";
+			stmt = con.prepareStatement(sql); 
+			stmt.setInt(1, auth.getPersonID());
+
+			rs = stmt.executeQuery();
+			while(rs.next()) {
+				VOContactRecord rec = new VOContactRecord(rs);
+				if(isAccessibleType(rec.type_id)) {
+					list.add(rec.vo_id);
+				}
+			}
+		} catch(SQLException e) {
+			log.error(e.getMessage());
+		}	
+		
+		return list;
+	}
+	
+	public VORecord getVO(int vo_id) throws AuthorizationException
+	{
+		auth.check(Action.select_vo);
+		ResultSet rs = null;
+		try {
+			PreparedStatement stmt = null;
+
+			String sql = "SELECT * FROM virtualorganization WHERE id = ?";
+			stmt = con.prepareStatement(sql); 
+			stmt.setInt(1, vo_id);
+
+			rs = stmt.executeQuery();
+			if(rs.next()) {
+				return new VORecord(rs);
+			}
+			log.warn("Couldn't find vo where id = " + vo_id);
+		} catch(SQLException e) {
+			log.error(e.getMessage());
+		}
+		return null;
 	}
 	/*
 	public void insertVO(VORecord rec) throws AuthorizationException
