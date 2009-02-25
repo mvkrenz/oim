@@ -17,9 +17,6 @@ import edu.iu.grid.oim.view.Page;
 import edu.iu.grid.oim.view.View;
 import edu.iu.grid.oim.view.divex.TestApplicationDE;
 
-/**
- * Servlet implementation class HomeServlet
- */
 public class HomeServlet extends ServletBase  {
 	private static final long serialVersionUID = 1L;
     static Logger log = Logger.getLogger(HomeServlet.class);  

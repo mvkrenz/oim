@@ -3,6 +3,7 @@ package edu.iu.grid.oim.servlet;
 import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.Set;
 
 import javax.servlet.Servlet;
@@ -20,8 +21,14 @@ import edu.iu.grid.oim.view.ButtonView;
 import edu.iu.grid.oim.view.ContentView;
 import edu.iu.grid.oim.view.MenuView;
 import edu.iu.grid.oim.view.Page;
+import edu.iu.grid.oim.view.View;
+import edu.iu.grid.oim.view.divex.ContactsDE;
+import edu.iu.grid.oim.view.form.FormElementBase;
+import edu.iu.grid.oim.view.form.FormView;
+import edu.iu.grid.oim.view.form.TextFormElement;
 
 import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.validator.UrlValidator;
 
 public class VOEditServlet extends ServletBase implements Servlet {
 	private static final long serialVersionUID = 1L;
@@ -34,50 +41,105 @@ public class VOEditServlet extends ServletBase implements Servlet {
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{
-		String vo_id_str = request.getParameter("vo_id");
-		VORecord vo = null;
-		if(vo_id_str != null) {
-			//edit record
-			int vo_id = Integer.parseInt(vo_id_str);
-			Authorization auth = new Authorization(request, con);
-			VOModel model = new VOModel(con, auth);
-			vo = model.getVO(vo_id);
-		} else {
-			//new record
-			vo = new VORecord();
+		showForm(request, response, false);
+	}
+	
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
+	{
+		String action = request.getParameter("action");
+		if(action.compareTo("update") == 0) {
+			showForm(request, response, true);
+		} else if(action.compareTo("new") == 0) {
+			showForm(request, response, true);
 		}
+	}
+	
+	private VORecord getRecord(HttpServletRequest request)
+	{
+		VORecord rec = new VORecord();
+		rec.name = request.getParameter("name");
+		rec.primary_url = request.getParameter("primary_url");
+		rec.aup_url = request.getParameter("aup_url");
+		return rec;
+	}
+	
+	/*
+	private Boolean validate(VORecord rec) {
+		Boolean valid = true;
+	
+	    String[] schemes = {"http","https"};
+	    UrlValidator urlValidator = new UrlValidator(schemes);
+		if (!urlValidator.isValid(rec.primary_url)) {
+			valid = false;
+			notes.put("primary_url", "Must be");
+		}
+	
+		contentview.add("<div><input type=\"edit\" name=\"primary_url\" value=\""+
+				StringEscapeUtils.escapeHtml(vo.primary_url)+"\"></input></div>");	
 		
-		//construct view
+		return valid;
+	}
+	*/
+	
+	private void showForm(HttpServletRequest request, HttpServletResponse response, Boolean submit) throws ServletException, IOException
+	{
+		ContentView contentview;
+		
+		String vo_id_str = request.getParameter("vo_id");
+		if(vo_id_str != null) {
+			int vo_id = Integer.parseInt(vo_id_str);
+			String action = ServletBase.baseURL()+"/voedit?action=update&vo_id=" + vo_id;
+			FormView form = new FormView(action);
+			VORecord vo;
+			if(submit) {
+				//edit record submitted
+				vo = getRecord(request);
+				populateForm(form, vo, true);
+			} else {
+				Authorization auth = new Authorization(request, con);
+				VOModel model = new VOModel(con, auth);
+				vo = model.getVO(vo_id);
+				populateForm(form, vo, false);
+			}
+			contentview = createEditView(form);
+		} else {
+			String action = ServletBase.baseURL()+"/voedit?action=new";
+			FormView form = new FormView(action);
+			
+			VORecord vo;
+			if(submit) {
+				//new record submitted
+				vo = getRecord(request);
+				populateForm(form, vo, true);
+			} else {
+				//new record - just create default record
+				vo = new VORecord();
+				populateForm(form, vo, false);
+			}
+			contentview = createNewView(form);
+		}
+	
 		MenuView menuview = createMenuView(baseURL(), "vo");
-		ContentView contentview = createView(vo);
-
 		Page page = new Page(menuview, contentview);
-		
 		response.getWriter().print(page.toHTML());
 	}
 	
-	protected ContentView createView(VORecord vo) 
-		throws ServletException
+	private View populateForm(FormView form, VORecord vo, Boolean validate)
 	{
-		ContentView contentview = new ContentView();
-		
-		String action;
-		if(vo.id != null) {
-			//edit vo
-			contentview.add("<h1>Edit Virtual Organization</h1>");
-			action = ServletBase.baseURL()+"/voedit?action=update&vo_id=" + vo.id;
-		} else {
-			//new vo
-			contentview.add("<h1>Add Virtual Organization</h1>");	
-			action = ServletBase.baseURL()+"/voedit?action=new";
+		Boolean valid = true;
+		FormElementBase elem = new TextFormElement("name", "Name");
+		elem.setValue(vo.name);
+		if(validate) {
+		    String[] schemes = {"http","https"};
+		    UrlValidator urlValidator = new UrlValidator(schemes);
+			if (!urlValidator.isValid(vo.name)) {
+				valid = false;
+				elem.setError("Please enter valid URL");
+			}
 		}
-
-		contentview.add("<form action=\""+action+"\" method=\"post\">\n");
-
-		contentview.add("<span>Name:</span>");
-		contentview.add("<div><input type=\"edit\" name=\"name\" value=\""+
-				StringEscapeUtils.escapeHtml(vo.name)+"\"></input></div>");
+		form.add(elem);
 		
+/*		
 		contentview.add("<span>Long Name:</span>");
 		contentview.add("<div><input type=\"edit\" name=\"long_name\" value=\""+
 				StringEscapeUtils.escapeHtml(vo.long_name)+"\"></input></div>");
@@ -113,13 +175,36 @@ public class VOEditServlet extends ServletBase implements Servlet {
 		contentview.add("<span>Community:</span>");
 		contentview.add("<div><input type=\"edit\" name=\"community\" value=\""+
 				StringEscapeUtils.escapeHtml(vo.community)+"\"></input></div>");
-				
-		contentview.add("</form>\n");
+*/		
+		return form;
+
+	}
+	
+	protected ContentView createEditView(FormView form) throws ServletException
+	{
+		ContentView contentview = new ContentView();
+		contentview.add("<h1>Edit Virtual Organization</h1>");
+	
+		contentview.add("<h2>Details</h2>");
+		contentview.add(form);
+		
+		contentview.add("<h2>Contact Information</h2>");
+		contentview.add(new ContactsDE());
+		
 		return contentview;
 	}
 	
-	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		// TODO Auto-generated method stub
+	protected ContentView createNewView(FormView form) throws ServletException
+	{
+		ContentView contentview = new ContentView();
+		contentview.add("<h1>Add Virtual Organization</h1>");	
+	
+		contentview.add("<h2>Details</h2>");
+		contentview.add(form);
+		
+		contentview.add("<h2>Contact Information</h2>");
+		contentview.add(new ContactsDE());
+		
+		return contentview;
 	}
-
 }

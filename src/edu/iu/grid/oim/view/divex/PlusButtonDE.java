@@ -14,6 +14,6 @@ public class PlusButtonDE extends DivEx {
     }
 	protected void onClick(Event e) {
 		app.count++;
-		app.display.update();
+		app.display.redraw();
 	}
 }

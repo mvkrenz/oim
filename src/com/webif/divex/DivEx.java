@@ -48,7 +48,7 @@ public abstract class DivEx {
 	protected void onClick(Event e) {
 	}
 	
-	public void update() {
+	public void redraw() {
 		needupdate = true;
 	}
 

@@ -1,0 +1,236 @@
+/*
+	Design by Free CSS Templates
+	http://www.freecsstemplates.org
+	Released for free under a Creative Commons Attribution 2.5 License
+*/
+/* Basic */
+*
+{
+	margin: 0em;
+	padding: 0em;
+}
+h1,h2
+{
+}
+body
+{
+	font-family: "trebuchet ms", sans-serif;
+	color: #555555;
+	font-size: 11pt;
+}
+a
+{
+	color: #996611;
+}
+table tr
+{
+vertical-align: top;
+}
+
+#header {
+	padding-left: 70px;
+    background: #195866 url('images/n1.gif') repeat-x;
+	height: 60px;
+}
+#header h1 a
+{
+	color: #fff;
+	text-decoration: none;
+}
+#header h1
+{
+    padding-top: 7px;
+	font-size: 15pt;
+}
+#header h2
+{
+	color: #EfE8C2;
+	font-weight: normal;
+	font-size: 13pt;
+}
+/* Menu */
+#menu
+{
+	background-image: url('images/a3.gif');
+	background-repeat: repeat-x;
+	background-position: bottom left;
+	padding: 0.3em 2.5em 0.3em 2.5em;
+}
+#menu ul
+{
+	list-style: none;
+}
+#menu li
+{
+	display: inline;
+}
+#menu li a
+{
+	font-size: 1.1em;
+	font-weight: bold;
+	#text-transform: lowercase;
+	color: #5D5F53;
+	text-decoration: none;
+	margin-right: 1em;
+}
+#menu li a:hover
+{
+	color: #6B7E09;
+	text-decoration: underline;
+}
+#menu li.selected a
+{
+    color: green;
+}
+
+.menu
+{
+	background-color: black;
+	padding: 0.3em 2.5em 0.3em 28px;
+}
+.menu span
+{
+    padding-left: 10px;
+    padding-right: 10px;
+}
+.menu a
+{
+	font-size: 12px;
+	font-weight: bold;
+	color: #888;
+	text-decoration: none;
+}
+.menu a:hover
+{
+	color: #6B7E09;
+	text-decoration: underline;
+}
+.menu span.selected a
+{
+    color: #fff;
+}
+/* Content */
+#content
+{
+	padding: 5px 330px 30px 30px;
+	line-height: 1.6em;
+	background: url('images/a4.gif') repeat-x top left;
+    font-size: 11px;
+	font-family: verdana, "trebuchet ms", sans-serif;
+}
+#content h1
+{
+	color: #5D5F53;
+	border-bottom: dotted 1px #aaa;
+	padding-bottom: 0.3em;
+}
+#content h2, #content h3
+{
+	color: #5D5F53;
+	border-bottom: dotted 1px #aaa;
+	padding-bottom: 0.3em;
+}
+#content p
+{
+	margin-bottom: 10px;
+}
+#content h1,h2
+{
+	margin-bottom: 10px;
+font-size: 15px;
+}
+
+#content h3,h4,h5,h6
+{
+	margin-bottom: 3px;
+font-size: 11px;
+}
+#content ul
+{
+	margin-bottom: 1.5em;
+	padding-left: 1em;
+}
+#content blockquote
+{
+	padding: 1em;
+	margin-bottom: 1.5em;
+	background-color: #FFFCD8;
+	background-image: url('images/a5.gif');
+	background-repeat: no-repeat;
+	background-position: top left;
+	border: dotted 1px #DFD999;
+}
+#content blockquote p
+{
+	margin-bottom: 0em;
+}
+#content table.real
+{
+	margin-bottom: 1.5em;
+}
+#content table.real th
+{
+	text-align: left;
+	font-weight: bold;
+	padding: 0.5em;
+}
+#content table.real td
+{
+	padding: 0.5em;
+}
+#content table.real tr.rowA
+{
+	background-color: #EAEFE0;
+	color: inherit;
+}
+#content table.real tr.rowB
+{
+	background-color: #F9FFEF;
+	color: inherit;
+}
+#breadcrumb
+{
+	color: #5D5F53;
+	margin-bottom: 5px;
+}
+#sideContent h3
+{
+	background: url('images/a1.gif') no-repeat;
+	height: 27px;
+	font-size: 1.0em;
+	font-weight: bold;
+	padding-left: 15px;
+	padding-top: 10px;
+	color: #5D5F53;
+    margin-top: 15px;
+    margin-bottom: 10px;
+}
+/* Tertiary Content */
+#sideContent
+{
+	font-size: 11px;
+	font-family: verdana, "trebuchet ms", sans-serif;
+	float: right;
+	width: 300px;
+	padding-right: 0px;
+	padding-top: 10px;
+}
+/* Footer */
+#footer
+{
+	background: url('images/a4.gif') repeat-x top left;
+	border-top: solid 1px #D0D4BB;
+	padding: 1.0em 3.5em 1.0em 3.5em;
+	font-size: 0.8em;
+	text-align: left;
+}
+.clear
+{
+	clear: both;
+}
+
+#logo {
+position:absolute;
+top:6px;
+left:0px;
+}
