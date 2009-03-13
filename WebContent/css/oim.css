@@ -2,11 +2,11 @@ table.record_table
 {
 	padding-bottom: 5px;
 	margin-bottom: 5px;
-	border-bottom: solid 1px #ddd;
 }
 table.record_table th
 {
 	text-align: left;
+	width: 200px;
 }
 
 form input[type='text']
@@ -21,4 +21,10 @@ form span
 form div
 {
 	margin-left: 20px;
+}
+
+textarea
+{
+	width: 400px;
+	height: 100px;
 }

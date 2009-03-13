@@ -56,8 +56,8 @@ public class VOServlet extends ServletBase implements Servlet {
 		try {
 			while(vos.next()) {
 				VORecord rec = new VORecord(vos);
+				contentview.add("<h2>"+nullImageFilter(rec.name)+"</h2>");
 				contentview.add("<table class='record_table'>");
-				contentview.add("<tr><th width='180px'>Name</th><td>"+nullImageFilter(rec.name)+"</td></tr>");
 				contentview.add("<tr><th>Long Name</th><td>"+nullImageFilter(rec.long_name)+"</td></tr>");
 				contentview.add("<tr><th>Description</th><td>"+nullImageFilter(rec.description)+"</td></tr>");
 				contentview.add("<tr><th>Primary URL</th><td>"+nullImageFilter(rec.primary_url)+"</td></tr>");

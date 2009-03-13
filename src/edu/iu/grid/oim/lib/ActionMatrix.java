@@ -52,6 +52,10 @@ public class ActionMatrix {
 			case insert_vo:
 			case update_vo:
 				
+			case select_sc:
+			case insert_sc:
+			case update_sc:
+				
 			case log:
 			case select_certificate_dn:
 					return true;

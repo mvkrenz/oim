@@ -2,11 +2,11 @@ package edu.iu.grid.oim.view.form;
 
 import org.apache.commons.lang.StringEscapeUtils;
 
-public class TextFormElement extends FormElementBase 
+public class TextareaFormElement extends FormElementBase 
 {	
 	String value;
 	
-	public TextFormElement(String _name, String _label, String _value)
+	public TextareaFormElement(String _name, String _label, String _value)
 	{
 		super(_name, _label);
 		value = _value;
@@ -19,8 +19,7 @@ public class TextFormElement extends FormElementBase
 		String out = "";
 		out += "<span>"+label+":</span>";
 		out += "<div>";
-		out += "<input type=\"edit\" name=\""+name+"\" value=\""+
-				StringEscapeUtils.escapeHtml(value)+"\"></input>";
+		out += "<textarea name=\""+name+"\">"+ StringEscapeUtils.escapeHtml(value) + "</textarea>";
 		out += "</div>";
 		return out;
 	}

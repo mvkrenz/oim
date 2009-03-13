@@ -14,6 +14,10 @@ public enum Action {
 	insert_vo,
 	update_vo,
 	
+	select_sc,
+	insert_sc,
+	update_sc,
+	
 	log, //insert entry to log table
 	select_certificate_dn,
 }
