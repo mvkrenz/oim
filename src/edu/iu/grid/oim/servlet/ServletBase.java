@@ -21,7 +21,7 @@ import edu.iu.grid.oim.model.MenuItem;
 import edu.iu.grid.oim.view.ContentView;
 import edu.iu.grid.oim.view.MenuView;
 import edu.iu.grid.oim.view.Page;
-import edu.iu.grid.oim.view.divex.ContactsDE;
+import edu.iu.grid.oim.view.divex.ContactsDivex;
 
 public class ServletBase extends HttpServlet {
     static Logger log = Logger.getLogger(ServletBase.class);  
@@ -60,33 +60,6 @@ public class ServletBase extends HttpServlet {
 		MenuView menuview = new MenuView(baseurl, menu, current);
 		return menuview;
 	}
-	/*
-	//generic success page
-	protected Page createSuccessPage(String current)
-	{
-		ContentView contentview = new ContentView();
-		contentview.add("<h1>Success!</h1>");
-		contentview.add("Whatever you were doing was successful.");
-		
-		contentview.add(new ContactsDE());
-		MenuView menuview = createMenuView(baseURL(), current);
-		Page page = new Page(menuview, contentview);
-		return page;
-	}
-
-	//generic error page
-	protected Page createErrorPage(String current)
-	{
-		ContentView contentview = new ContentView();
-		contentview.add("<h1>Error!</h1>");
-		contentview.add("Whatever you were doing was successful.");
-		
-		contentview.add(new ContactsDE());
-		MenuView menuview = createMenuView(baseURL(), current);
-		Page page = new Page(menuview, contentview);
-		return page;
-	}
-	*/
 	static public String baseURL()
 	{
 		//TODO - figure this out dynamicly.

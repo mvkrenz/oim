@@ -12,9 +12,7 @@ public class DivExWrapper implements View {
 	
 	public String toHTML() {
 		String out = "";
-		out += DivEx.bootcode();//TODO -- I have to do this only once per page.. how can I automate this?
 		out += de.render();
 		return out;
 	}
-
 }

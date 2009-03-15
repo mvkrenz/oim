@@ -3,10 +3,11 @@ package edu.iu.grid.oim.view.divex;
 import com.webif.divex.DivEx;
 import com.webif.divex.Event;
 
-public class PlusButtonDE extends DivEx {
-	TestApplicationDE app;
+public class PlusButtonDivex extends DivEx {
+	TestApplicationDivex app;
 	
-	public PlusButtonDE(TestApplicationDE _app) {
+	public PlusButtonDivex(TestApplicationDivex _app) {
+		super(_app);
 		app = _app;
 	}
     public String toHTML() {

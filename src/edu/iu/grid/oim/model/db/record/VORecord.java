@@ -3,6 +3,7 @@ package edu.iu.grid.oim.model.db.record;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+
 public class VORecord implements IRecord {
 
 	public Integer id;

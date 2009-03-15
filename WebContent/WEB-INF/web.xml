@@ -5,15 +5,6 @@
 		<description>
 		</description>
 		<display-name>
-		KoukanServlet</display-name>
-		<servlet-name>KoukanServlet</servlet-name>
-		<servlet-class>
-		com.koukan.test.KoukanServlet</servlet-class>
-	</servlet>
-	<servlet>
-		<description>
-		</description>
-		<display-name>
 		MainServlet</display-name>
 		<servlet-name>MainServlet</servlet-name>
 		<servlet-class>
@@ -65,10 +56,6 @@
 		edu.iu.grid.oim.servlet.VOEditServlet</servlet-class>
 	</servlet>
 	<servlet-mapping>
-		<servlet-name>KoukanServlet</servlet-name>
-		<url-pattern>/koukan</url-pattern>
-	</servlet-mapping>
-	<servlet-mapping>
 		<servlet-name>MainServlet</servlet-name>
 		<url-pattern>/MainServlet</url-pattern>
 	</servlet-mapping>
@@ -93,12 +80,7 @@
 		<url-pattern>/voedit</url-pattern>
 	</servlet-mapping>
 	<welcome-file-list>
-		<welcome-file>index.html</welcome-file>
-		<welcome-file>index.htm</welcome-file>
 		<welcome-file>index.jsp</welcome-file>
-		<welcome-file>default.html</welcome-file>
-		<welcome-file>default.htm</welcome-file>
-		<welcome-file>default.jsp</welcome-file>
 	</welcome-file-list>
 	
 	<error-page>

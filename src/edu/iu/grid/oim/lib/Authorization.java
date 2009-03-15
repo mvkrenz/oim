@@ -1,5 +1,7 @@
 package edu.iu.grid.oim.lib;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.security.cert.X509Certificate;
 import java.sql.Connection;
 
@@ -54,8 +56,20 @@ public class Authorization {
 		//in order to test this locally (with no Apache SSL handling..)
 		//let's override DN to my DN.
 		if(request.getLocalName().compareTo("localhost") == 0) {
-			log.debug("Server on localhost. Overriding the DN to Soichi's");
-			user_dn = "/DC=org/DC=doegrids/OU=People/CN=Soichi Hayashi 461343";
+			InetAddress addr;
+			try {
+				addr = InetAddress.getLocalHost();
+		        byte[] ipAddr = addr.getAddress();
+		        String hostname = addr.getHostName();
+
+				log.debug("Server on localhost.");
+		        if(hostname.compareTo("HAYASHIS") == 0) {
+					log.debug("Server on localhost. Overriding the DN to Soichi's");
+					user_dn = "/DC=org/DC=doegrids/OU=People/CN=Soichi Hayashi 461343";
+		        }				
+			} catch (UnknownHostException e) {
+				//ignore then..
+			}
 		}
 		
 		log.info("Authenticated User DN: "+user_dn);

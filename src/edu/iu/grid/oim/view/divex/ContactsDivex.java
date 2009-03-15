@@ -5,15 +5,21 @@ import java.util.ArrayList;
 import com.webif.divex.DivEx;
 import com.webif.divex.Event;
 
-public class ContactsDE extends DivEx {
+public class ContactsDivex extends DivEx {
+	public ContactsDivex(DivEx parent) {
+		super(parent);
+		// TODO Auto-generated constructor stub
+	}
+
 	ArrayList<Integer> contacts = new ArrayList<Integer>();
 	
 	DivEx addbutton = new AddButton(this);
 	
 	class AddButton extends DivEx
 	{
-		ContactsDE parent;
-		public AddButton(ContactsDE _parent) {
+		ContactsDivex parent;
+		public AddButton(ContactsDivex _parent) {
+			super(_parent);
 			parent = _parent;
 		}
 	    public String toHTML() {

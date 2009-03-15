@@ -7,7 +7,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
+
 
 /**
  * Servlet implementation class DivexServlet
@@ -30,27 +30,42 @@ public class DivexServlet extends HttpServlet {
 		//prevent ie6 cacheing of loaded content
 		response.setHeader("Cache-Control","no-cache, must-revalidate");
 		
-		//get our application
-    	HttpSession session = request.getSession();
-    	DivEx app = (DivEx)session.getAttribute("divex");
+		//get this sessions's divex root
+		DivExRoot root = DivExRoot.getInstance(request);
 		
 		//find the target node and process action
 		String action = request.getParameter("action");
 		String nodeid = request.getParameter("nodeid");	
-		DivEx div = DivEx.findNode(nodeid);
-		Event e = new Event();
-		if(div != null && action != null) {
-			if(action.compareTo("click") == 0) {
-				div.onClick(e);
-				response.setContentType("text/javascript");
-				writer.print(DivEx.outputUpdatecode());		
-			} else if(action.compareTo("load") == 0) {
-				response.setContentType("text/html");
-				writer.print(div.toHTML());
-			} 
-		}	
-    	
-    	session.setAttribute("divex", app);
+		DivEx div = root.findNode(nodeid);
+		if(div == null) {
+			//ooops.. maybe we lost something here?
+			response.setContentType("text/javascript");
+			writer.print("alert('Lost session. Reloading page...'); window.location.reload();");			
+		} else {
+			if(action != null) {
+				
+				System.out.println(action + " on " + nodeid);
+				
+				if(action.compareTo("click") == 0) {
+					response.setContentType("text/javascript");
+					synchronized(root) {
+						div.click();
+						writer.print(root.outputUpdatecode());
+					}
+				} else if(action.compareTo("change") == 0) {
+					response.setContentType("text/javascript");
+					String value = request.getParameter("value");
+					synchronized(root) {
+						div.change(value);
+						writer.print(root.outputUpdatecode());
+					}
+				} else if(action.compareTo("load") == 0) {
+					//we don't synchronize load action - since it should be read-only
+					response.setContentType("text/html");
+					writer.print(div.toHTML());
+				}
+			}	
+		}
 	}
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
