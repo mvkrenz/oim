@@ -1,5 +1,6 @@
 package edu.iu.grid.oim.view.divex;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 
 import com.webif.divex.ButtonDE;
@@ -8,11 +9,16 @@ import com.webif.divex.Event;
 import com.webif.divex.EventListener;
 import com.webif.divex.form.IFormElementDE;
 
+import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
+
 abstract public class FormDivex extends DivEx {
 	
-	public ButtonDE submitbutton = new ButtonDE(this, "Submit");
-	public ButtonDE cancelbutton;
+	//URL to go after cancel or submit button is selected
 	private String origin_url;
+	
+	public ButtonDE submitbutton;
+	public ButtonDE cancelbutton;
+	
 	
 	//private String error;
 	private Boolean valid;
@@ -20,12 +26,14 @@ abstract public class FormDivex extends DivEx {
 	public FormDivex(DivEx parent, String _origin_url)
 	{
 		super(parent);
-		//register button event listener
+		
+		origin_url = _origin_url;
+		
+		submitbutton = new ButtonDE(this, "Submit");
 		submitbutton.addEventListener(new EventListener() {
 			public void handleEvent(Event e) { submit(); }
 		});
 		
-		origin_url = _origin_url;
 		cancelbutton = new ButtonDE(this, "Cancel");
 		cancelbutton.setStyle(ButtonDE.Style.ALINK);
 		cancelbutton.addEventListener(new EventListener() {
@@ -35,19 +43,12 @@ abstract public class FormDivex extends DivEx {
 		});
 	}
 	
-	public void setCancelUrl(String _url)
-	{
-
-	}
-	
 	private void submit()
 	{
 		if(isValid()) {
 			if(doSubmit()) {
 				alert("Your form has been submitted");
 				redirect(origin_url);	
-			} else {
-				alert("Form submission has failed. Please try again.");
 			}
 		} else {
 			//error = "Please correct the issues before submitting your form.";

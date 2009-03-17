@@ -4,21 +4,21 @@ import java.util.ArrayList;
 
 import com.webif.divex.DivEx;
 
-public class ContentView implements View {
+public class ContentView implements IView {
 
-	private ArrayList<View> children = new ArrayList<View>();
+	private ArrayList<IView> children = new ArrayList<IView>();
 	
-	public void add(View v) {
+	public void add(IView v) {
 		children.add(v);
 	}
 	
 	public void add(DivEx de) {
-		children.add(new DivExWrapper(de));
+		add(new DivExWrapper(de));
 	}
 	
 	//depricate this - danger of XSS
 	public void add(String html) {
-		children.add(new HtmlView(html));
+		add(new HtmlView(html));
 	}
 	
 	public String toHTML() {
@@ -28,7 +28,7 @@ public class ContentView implements View {
 		out += "<div id=\"breadcrumb\">You are here &gt; Somewhere &gt; Somewhere</div>";
 		
 		//output child content
-		for(View v : children) {
+		for(IView v : children) {
 			out += v.toHTML();
 		}
 		out += "</div>\n";

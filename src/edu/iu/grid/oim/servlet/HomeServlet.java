@@ -16,8 +16,8 @@ import edu.iu.grid.oim.model.MenuItem;
 import edu.iu.grid.oim.view.ContentView;
 import edu.iu.grid.oim.view.MenuView;
 import edu.iu.grid.oim.view.Page;
-import edu.iu.grid.oim.view.View;
-import edu.iu.grid.oim.view.divex.TestApplicationDivex;
+import edu.iu.grid.oim.view.IView;
+import edu.iu.grid.oim.view.SideContentView;
 
 public class HomeServlet extends ServletBase  {
 	private static final long serialVersionUID = 1L;
@@ -30,19 +30,11 @@ public class HomeServlet extends ServletBase  {
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{
-		//init sample divex app (just to see how this could work)
-		TestApplicationDivex test_deapp = 
-			(TestApplicationDivex)request.getSession().getAttribute("test_divex");
-		if(test_deapp == null) {
-			test_deapp = new TestApplicationDivex(DivExRoot.getInstance(request));
-			request.getSession().setAttribute("test_divex", test_deapp);
-		}
 		
 		MenuView menuview = createMenuView(baseURL(), "home");
 		ContentView contentview = createContentView();
-		contentview.add(test_deapp);
-		
-		Page page = new Page(menuview, contentview);
+				
+		Page page = new Page(menuview, contentview, new SideContentView());
 		response.getWriter().print(page.toHTML());
 	}
 	

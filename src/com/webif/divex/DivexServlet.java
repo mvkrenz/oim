@@ -25,6 +25,8 @@ public class DivexServlet extends HttpServlet {
     
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
 	{
+		//request.setCharacterEncoding("UTF-8");
+		
 		PrintWriter writer = response.getWriter();
 		
 		//prevent ie6 cacheing of loaded content
@@ -48,8 +50,9 @@ public class DivexServlet extends HttpServlet {
 				
 				if(action.compareTo("click") == 0) {
 					response.setContentType("text/javascript");
+					String value = request.getParameter("value");
 					synchronized(root) {
-						div.click();
+						div.click(value);
 						writer.print(root.outputUpdatecode());
 					}
 				} else if(action.compareTo("change") == 0) {
@@ -69,7 +72,7 @@ public class DivexServlet extends HttpServlet {
 	}
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		// TODO Auto-generated method stub
+		doGet(request, response);
 	}
 
 }

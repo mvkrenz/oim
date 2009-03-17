@@ -1,46 +1,55 @@
 package com.webif.divex;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public abstract class DivEx {
 
 	private String nodeid;
-	private String redirect_url;
 	private Boolean needupdate = false;
-	private Boolean scrolltoshow = false;
-	private String alert_message;
+	private String js = "";
+	private HashMap<String, String> div_attr = new HashMap();
+	
 	protected ArrayList<DivEx> childnodes = new ArrayList();
+	
+	
+	//set attr to apply to the div
+	public void setAttr(String attr, String value)
+	{
+		div_attr.put(attr, value);
+	}
 	
 	public void alert(String msg)
 	{
-		alert_message = msg;
+		js += "alert('"+msg+"');";
 	}
-	public void redirect(String _url) {
-		redirect_url = _url;
+	public void js(String _js)
+	{
+		js += _js;
 	}
+	public void redirect(String url) {
+		js += "document.location = '"+url+"';";
+	}
+	public void scrollToShow() {
+		js += "var targetOffset = $(\"#"+nodeid+"\").offset().top;";
+		js += "$('html,body').animate({scrollTop: targetOffset}, 500);";
+	}
+
 	private ArrayList<EventListener> event_listeners = new ArrayList();
 	
 	public String getNodeID() { return nodeid; }
 
+	//DivEx Servlet calls this on *root* upon completion of event handler
 	public String outputUpdatecode()
 	{
-		String code = "";
-
-		if(alert_message != null) {
-			code += "alert('"+alert_message+"');";
-			alert_message = null;
-		}
-		if(redirect_url != null) {
-			code += "document.location = '"+redirect_url+"';";
-			redirect_url = null;
-		}
-		if(scrolltoshow) {
-			code += "var targetOffset = $(\"#"+nodeid+"\").offset().top;";
-			code += "$('html,body').animate({scrollTop: targetOffset}, 500);";
-			scrolltoshow = false;
-		}
+		//start with user specified js code
+		String code = js;
+		js = "";
+		
+		//find child nodes who needs update
 		if(needupdate) {
 			String success = "";
 			code += "$(\"#"+nodeid+"\").load(\"divex?action=load&nodeid="+nodeid+"\", function(){"+success+"});";
+			//I don't need to update any of my child - parent will redraw all of it.
 			setNeedupdate(false);
 		}
 		for(DivEx d : childnodes) {
@@ -65,6 +74,8 @@ public abstract class DivEx {
 		if(parent != null) {
 			parent.addChild(this);
 		}
+		
+		div_attr.put("class", "divex");
 	}
 	
 	public void addChild(DivEx child)
@@ -88,15 +99,28 @@ public abstract class DivEx {
 	//divex.load action will only call toHTML to redraw the content
 	//whatever you put here will remains until any of the parent redraws
 	public String render() {
+		String attrs = "";
+		for(String attr : div_attr.keySet()) {
+			String value = div_attr.get(attr);
+			attrs += attr + "=\""+value+"\"";
+		}
+		
 		String html = "";
-		html += "<div class='divex' id='"+nodeid+"' onclick='divex_click(this);'>";
+		html += "<div "+attrs+" id='"+nodeid+"' onclick='divex_click(this.id);'>";
 		html += toHTML();
 		html += "</div>";
 		return html;
 	}
 	
-	//override this to put your dynamic content
-	abstract public String toHTML();
+	//override this to draw your divex. by default, it just called toHTML on all children
+	public String toHTML()
+	{
+		String html = "";
+		for(DivEx child : childnodes) {
+			html += child.render();
+		}
+		return html;
+	}
 	
 	public void addEventListener(EventListener listener)
 	{
@@ -110,9 +134,9 @@ public abstract class DivEx {
 		}
 	}
 	
-	public void click()
+	public void click(String value)
 	{
-		ClickEvent e = new ClickEvent();
+		ClickEvent e = new ClickEvent(value);
 		this.onClick(e);
 		notifyEventListeners(e);
 	}	
@@ -132,10 +156,6 @@ public abstract class DivEx {
 	//once drawing is done, needudpate = false will be performec recursively
 	public void redraw() {
 		needupdate = true;
-	}
-	public void scrollToShow() {
-		scrolltoshow = true;
-		System.out.print("scolling request on "+this.nodeid);
 	}
 	
 	public static String encodeHTML(String s)

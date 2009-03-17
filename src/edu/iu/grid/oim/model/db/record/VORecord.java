@@ -36,11 +36,19 @@ public class VORecord implements IRecord {
 		support_url = rs.getString("support_url");
 		app_description = rs.getString("app_description");
 		community = rs.getString("community");
+		
 		sc_id = rs.getInt("sc_id");
+		if(rs.wasNull()) sc_id = null;
+		
 		parent_vo_id = rs.getInt("parent_vo_id");
+		if(rs.wasNull()) parent_vo_id = null;
+		
 		active = rs.getBoolean("active");
 		disable = rs.getBoolean("disable");
+		
 		footprints_id = rs.getString("footprints_id");		 
+		if(rs.wasNull()) footprints_id = null;
+		
 	}
 	
 	//for creating new record

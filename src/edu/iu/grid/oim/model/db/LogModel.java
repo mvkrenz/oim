@@ -22,17 +22,17 @@ public class LogModel extends DBModel {
     	super(_con, _auth);
     }
     
-    public void insert(String tablename, String sql) throws AuthorizationException
+    public void insert(String type, Integer key, String detail) throws AuthorizationException
     {
 		auth.check(Action.log);
 		try {
 			PreparedStatement stmt = null;
 
-			String logsql = "INSERT INTO log (`type`, `table`, `new_value`) VALUES (?, ?, ?)";
+			String logsql = "INSERT INTO log (`type`, `key`, `detail`) VALUES (?, ?, ?)";
 			stmt = con.prepareStatement(logsql); 
-			stmt.setString(1, "insert");
-			stmt.setString(2, tablename);
-			stmt.setString(3, sql);
+			stmt.setString(1, type);
+			stmt.setInt(2, key);
+			stmt.setString(3, detail);
 
 			stmt.executeUpdate(); 
 			stmt.close(); 
@@ -41,27 +41,4 @@ public class LogModel extends DBModel {
 			log.error(e.getMessage());
 		}  	
     }
-/*    
-	public Integer Authenticate(Integer dn_id, String url, String method)
-	{
-		ResultSet rs = null;
-		try {
-			PreparedStatement stmt = null;
-
-			String sql = "INSERT INTO log (`type`, `dn_id`, `comment`, `key`) VALUES (?, ?, ?, ?)";
-			stmt = con.prepareStatement(sql); 
-			stmt.setString(1, "authenticate");
-			stmt.setInt(2, dn_id);
-			stmt.setString(3, method);
-			stmt.setString(4, url);
-
-			stmt.executeUpdate(); 
-			stmt.close(); 
-
-		} catch(SQLException e) {
-			log.error(e.getMessage());
-		}
-		return null;
-	}
-*/
 }

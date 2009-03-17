@@ -17,17 +17,13 @@ public class ButtonDE extends DivEx {
 	
 		switch(style) {
 		case BUTTON:
-			html += "<input type='button' id='"+getNodeID()+"' onclick='divex_click(this);' value='"+title+"'>";
+			html += "<input type='button' id='"+getNodeID()+"' onclick='divex_click(this.id);' value='"+title+"' />";
 			break;
 		case ALINK:
-			html += "<a href='#' id='"+getNodeID()+"' onclick='divex_click(this);return false;'>"+title+"</a>";
+			html += "<a href='#' id='"+getNodeID()+"' onclick='divex_click(this.id);return false;'>"+title+"</a>";
 			break;
 		}
 
 		return html;
-	}
-	public String toHTML() {
-		// TODO Auto-generated method stub
-		return null;
 	}
 }

@@ -1,10 +1,25 @@
 
 
-function divex_click(node) {
-	//"console.dir(node);
-	$.getScript('divex?nodeid='+node.id+'&action=click');
+/*value is optional for click event*/
+function divex_click(id, value) {
+	$.post("divex", 
+			{ 	nodeid: id,
+				action: "click",
+				value : value },
+			function(js) {
+					eval(js);
+			}
+	);
 }
 
-function divex_change(node, value) {
-	$.getScript('divex?nodeid='+node.id+'&action=change&value='+escape(value));
+function divex_change(id, value)
+{
+	$.post("divex", 
+		{ 	nodeid: id,
+			action: "change",
+			value: value },
+		function(js) {
+				eval(js);
+		}
+	);
 }

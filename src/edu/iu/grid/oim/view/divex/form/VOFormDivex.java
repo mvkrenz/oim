@@ -1,30 +1,55 @@
 package edu.iu.grid.oim.view.divex.form;
 
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.HashMap;
 
+import org.apache.log4j.Logger;
+
 import com.webif.divex.DivEx;
-import com.webif.divex.form.IFormElementDE;
+import com.webif.divex.form.CheckBoxFormElementDE;
 import com.webif.divex.form.SelectFormElementDE;
 import com.webif.divex.form.TextAreaFormElementDE;
 import com.webif.divex.form.TextFormElementDE;
-import com.webif.divex.form.validator.RequiredValidator;
+import com.webif.divex.form.validator.UniqueValidator;
 import com.webif.divex.form.validator.UrlValidator;
 
+import edu.iu.grid.oim.lib.Authorization;
+import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
+import edu.iu.grid.oim.model.db.SCModel;
+import edu.iu.grid.oim.model.db.VOModel;
+import edu.iu.grid.oim.model.db.record.SCRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
 import edu.iu.grid.oim.view.divex.FormDivex;
 
 public class VOFormDivex extends FormDivex 
 {
-	public VOFormDivex(DivEx parent, VORecord rec, String origin_url, 
-			HashMap<Integer, String> scs,
-			HashMap<Integer, String> othervos)
+    static Logger log = Logger.getLogger(VOFormDivex.class); 
+    
+    protected Connection con = null;
+	protected Authorization auth;
+	private Integer id;
+	
+	public VOFormDivex(DivEx parent, VORecord rec, String origin_url, Connection _con, Authorization _auth) throws AuthorizationException, SQLException
 	{	
 		super(parent, origin_url);
+		con = _con;
+		auth = _auth;
+	
+		id = rec.id;
 		
 		{
+			//pull vos for unique validator
+			HashMap<Integer, String> vos = getVOs();
+			if(id != null) {
+				//if doing update, remove my own name (I can use my own name)
+				vos.remove(id);
+			}
 			TextFormElementDE elem = new TextFormElementDE(this, "name");
 			elem.setLabel("Name");
 			elem.setValue(rec.name);
+			elem.setValidator(new UniqueValidator<String>(vos.values()));
 			elem.setRequired(true);
 		}
 		
@@ -104,29 +129,71 @@ public class VOFormDivex extends FormDivex
 		}
 		
 		{
-			SelectFormElementDE elem = new SelectFormElementDE(this, "sc_id", scs);
+			SelectFormElementDE elem = new SelectFormElementDE(this, "sc_id", getSCs());
 			elem.setLabel("Support Center");
 			elem.setValue(rec.sc_id);
 			elem.setRequired(true);
 		}
 		
 		{
-			SelectFormElementDE elem = new SelectFormElementDE(this, "parent_vo_id", othervos);
+			//if vo_id is set (for update) remove that from possible value.
+			HashMap<Integer, String> vos = getVOs();
+			if(rec.id != null) {
+				vos.remove(rec.id);
+			}
+			
+			SelectFormElementDE elem = new SelectFormElementDE(this, "parent_vo_id", vos);
 			elem.setLabel("Parent Virtual Organization");
 			elem.setValue(rec.parent_vo_id);
 		}
-		/*
+		
 		{
 			CheckBoxFormElementDE elem = new CheckBoxFormElementDE(this, "active");
 			elem.setLabel("Active");
-			elem.setValueFromBoolean(rec.active);
+			elem.setValue(rec.active);
 		}
-		*/
+		
+		{
+			CheckBoxFormElementDE elem = new CheckBoxFormElementDE(this, "disable");
+			elem.setLabel("Disabled");
+			elem.setValue(rec.disable);
+		}	
 	}
-
+	
+	private HashMap<Integer, String> getSCs() throws AuthorizationException, SQLException
+	{
+		//pull all SCs
+		ResultSet scs = null;
+		SCModel model = new SCModel(con, auth);
+		scs = model.getAll();
+		HashMap<Integer, String> keyvalues = new HashMap<Integer, String>();
+		while(scs.next()) {
+			SCRecord rec = new SCRecord(scs);
+			keyvalues.put(rec.id, rec.name);
+		}
+		return keyvalues;
+	}
+	
+	private HashMap<Integer, String> getVOs() throws AuthorizationException, SQLException
+	{
+		//pull all VOs
+		ResultSet vos = null;
+		VOModel model = new VOModel(con, auth);
+		vos = model.getAll();
+		HashMap<Integer, String> keyvalues = new HashMap<Integer, String>();
+		while(vos.next()) {
+			VORecord rec = new VORecord(vos);
+			keyvalues.put(rec.id, rec.name);
+		}
+		return keyvalues;
+	}
+	
 	protected Boolean doSubmit() {
+		
+		//Construct VORecord
 		VORecord rec = new VORecord();
-			
+		rec.id = id;
+		
 		{
 			TextFormElementDE elem = (TextFormElementDE) getElement("name");
 			rec.name = elem.getValue();
@@ -187,14 +254,38 @@ public class VOFormDivex extends FormDivex
 			rec.parent_vo_id = elem.getValue();
 		}	
 		
-		//public Boolean active;
-		//public Boolean disable;
-		
 		{	
 			TextFormElementDE elem = (TextFormElementDE) getElement("footprints_id");
 			rec.footprints_id = elem.getValue();
 		}	
-		System.out.println("do submit form");
+		
+		{	
+			CheckBoxFormElementDE elem = (CheckBoxFormElementDE) getElement("active");
+			rec.active = elem.getValue();
+		}	
+		
+		{	
+			CheckBoxFormElementDE elem = (CheckBoxFormElementDE) getElement("disable");
+			rec.disable = elem.getValue();
+		}	
+		
+		//Do insert / update to our DB
+		try {
+			VOModel model = new VOModel(con, auth);
+			if(rec.id == null) {
+				model.insert(rec);
+			} else {
+				model.update(rec);
+			}
+		} catch (AuthorizationException e) {
+			log.error(e);
+			return false;
+		} catch (SQLException e) {
+			log.error(e);
+			alert(e.getMessage());
+			return false;
+		}
+
 		return true;
 	}
 }

@@ -1,5 +1,7 @@
 package com.webif.divex.form;
 
+import org.apache.commons.lang.StringEscapeUtils;
+
 import com.webif.divex.ChangeEvent;
 import com.webif.divex.DivEx;
 import com.webif.divex.form.validator.IFormElementValidator;
@@ -48,11 +50,13 @@ public class TextAreaFormElementDE extends DivEx implements IFormElementDE  {
 		redraw();
 		
 		//if required, run RequiredValidator
-		RequiredValidator req = RequiredValidator.getInstance();
-		if(value == null || !req.isValid(value)) {
-			error = req.getMessage();
-			valid = false;
-			return;
+		if(required == true) {
+			RequiredValidator req = RequiredValidator.getInstance();
+			if(value == null || !req.isValid(value)) {
+				error = req.getMessage();
+				valid = false;
+				return;
+			}
 		}
 		
 		//then run the optional validation
@@ -77,19 +81,19 @@ public class TextAreaFormElementDE extends DivEx implements IFormElementDE  {
 	
 	public String toHTML() {
 		String html = "";
-		html += "<label for='"+name+"'>"+label+"</label><br/>";
+		html += "<label for='"+name+"'>"+StringEscapeUtils.escapeHtml(label)+"</label><br/>";
 		String current_value = value;
 		if(value == null) {
 			current_value = "";
 		} 
-		html += "<textarea name='"+name+"' onblur='divex_change(this.parentNode, this.value);'>";
-		html += current_value;
+		html += "<textarea name='"+name+"' onblur='divex_change(\""+getNodeID()+"\", this.value);'>";
+		html += StringEscapeUtils.escapeHtml(current_value);
 		html += "</textarea>";
 		if(required) {
 			html += " * Required";
 		}
 		if(error != null) {
-			html += "<p class='elementerror'>"+error+"</p>";
+			html += "<p class='elementerror'>"+StringEscapeUtils.escapeHtml(error)+"</p>";
 		}
 
 		return html;

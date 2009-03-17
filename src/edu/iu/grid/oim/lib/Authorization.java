@@ -32,9 +32,14 @@ public class Authorization {
     
 	public void check(Action action) throws AuthorizationException
 	{
-		if(!ActionMatrix.allows(action, auth_type_id)) {
+		if(!allows(action)) {
 			throw new AuthorizationException("Action "+action.toString()+" is not allowed for auth_type_id:" + auth_type_id);
 		}
+	}
+	
+	public Boolean allows(Action action)
+	{
+		return ActionMatrix.allows(action, auth_type_id);
 	}
 	
 	//use this ctor ton construct default guest Authorization object

@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 import edu.iu.grid.oim.model.MenuItem;
 
-public class MenuView implements View {
+public class MenuView implements IView {
 	private ArrayList<MenuItem> menu;
 	private String baseurl;
 	private String current;

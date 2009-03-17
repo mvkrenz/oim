@@ -15,6 +15,7 @@ import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
 import edu.iu.grid.oim.model.db.record.SCContactRecord;
 import edu.iu.grid.oim.model.db.record.SCRecord;
+import edu.iu.grid.oim.model.db.record.VORecord;
 
 public class SCModel extends DBModel {
     static Logger log = Logger.getLogger(SCModel.class);  
@@ -24,7 +25,7 @@ public class SCModel extends DBModel {
     	super(con, auth);
     }
     
-	public ResultSet getAllSCs() throws AuthorizationException
+	public ResultSet getAll() throws AuthorizationException
 	{
 		auth.check(Action.select_sc);
 		ResultSet rs = null;
@@ -65,7 +66,7 @@ public class SCModel extends DBModel {
 		return list;
 	}
 	
-	public SCRecord getSC(int sc_id) throws AuthorizationException
+	public SCRecord get(int sc_id) throws AuthorizationException
 	{
 		auth.check(Action.select_sc);
 		ResultSet rs = null;
@@ -86,6 +87,7 @@ public class SCModel extends DBModel {
 		}
 		return null;
 	}
+
 	/*
 	public void insertVO(VORecord rec) throws AuthorizationException
 	{

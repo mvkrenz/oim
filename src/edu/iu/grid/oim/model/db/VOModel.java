@@ -24,97 +24,168 @@ public class VOModel extends DBModel {
     	super(con, auth);
     }
     
-	public ResultSet getAllVOs() throws AuthorizationException
+	public ResultSet getAll() throws AuthorizationException, SQLException
 	{
 		auth.check(Action.select_vo);
 		ResultSet rs = null;
-		try {
-			Statement stmt = con.createStatement();
-		    if (stmt.execute("SELECT * FROM virtualorganization")) {
-		    	 rs = stmt.getResultSet();
-		    }
-		} catch(SQLException e) {
-			log.error(e.getMessage());
-		}
+
+		Statement stmt = con.createStatement();
+	    if (stmt.execute("SELECT * FROM virtualorganization")) {
+	    	 rs = stmt.getResultSet();
+	    }
+	    
 		return rs;
 	}
 	
 	//returns all record id that the user has access to
-	public Set<Integer> getAccessibleIDs()
+	public Set<Integer> getAccessibleIDs() throws SQLException, AuthorizationException
 	{
+		auth.check(Action.select_vo);
 		Set<Integer> list = new HashSet<Integer>();
 		ResultSet rs = null;
-		try {
-			PreparedStatement stmt = null;
 
-			String sql = "SELECT * FROM vo_contact WHERE person_id = ?";
-			stmt = con.prepareStatement(sql); 
-			stmt.setInt(1, auth.getPersonID());
+		PreparedStatement stmt = null;
 
-			rs = stmt.executeQuery();
-			while(rs.next()) {
-				VOContactRecord rec = new VOContactRecord(rs);
-				if(isAccessibleType(rec.type_id)) {
-					list.add(rec.vo_id);
-				}
+		String sql = "SELECT * FROM vo_contact WHERE person_id = ?";
+		stmt = con.prepareStatement(sql); 
+		stmt.setInt(1, auth.getPersonID());
+
+		rs = stmt.executeQuery();
+		while(rs.next()) {
+			VOContactRecord rec = new VOContactRecord(rs);
+			if(isAccessibleType(rec.type_id)) {
+				list.add(rec.vo_id);
 			}
-		} catch(SQLException e) {
-			log.error(e.getMessage());
-		}	
-		
+		}
+	
 		return list;
 	}
 	
-	public VORecord getVO(int vo_id) throws AuthorizationException
+	public VORecord get(int vo_id) throws AuthorizationException, SQLException
 	{
 		auth.check(Action.select_vo);
 		ResultSet rs = null;
-		try {
-			PreparedStatement stmt = null;
 
-			String sql = "SELECT * FROM virtualorganization WHERE id = ?";
-			stmt = con.prepareStatement(sql); 
-			stmt.setInt(1, vo_id);
+		PreparedStatement stmt = null;
 
-			rs = stmt.executeQuery();
-			if(rs.next()) {
-				return new VORecord(rs);
-			}
-			log.warn("Couldn't find vo where id = " + vo_id);
-		} catch(SQLException e) {
-			log.error(e.getMessage());
+		String sql = "SELECT * FROM virtualorganization WHERE id = ?";
+		stmt = con.prepareStatement(sql); 
+		stmt.setInt(1, vo_id);
+
+		rs = stmt.executeQuery();
+		if(rs.next()) {
+			return new VORecord(rs);
 		}
+		log.warn("Couldn't find vo where id = " + vo_id);
+
 		return null;
 	}
-	/*
-	public void insertVO(VORecord rec) throws AuthorizationException
+	
+	public void insert(VORecord rec) throws AuthorizationException, SQLException
 	{
 		auth.check(Action.insert_vo);
-		try {
-			PreparedStatement stmt = null;
+		PreparedStatement stmt = null;
 
-			String sql = "INSERT INTO virtualorganization VALUES (null, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-			stmt = con.prepareStatement(sql); 
-			stmt.setString(1, rec.name);
-			stmt.setString(2, rec.description);
-			stmt.setString(3, rec.fqdn);
-			stmt.setString(4, rec.url);
-			stmt.setBoolean(5, rec.interop_bdii);
-			stmt.setBoolean(6, rec.interop_monitoring);
-			stmt.setBoolean(7, rec.interop_accounting);
-			stmt.setString(8, rec.wlcg_accounting_name);
-			stmt.setBoolean(9, rec.active);
-			stmt.setBoolean(10, rec.disable);
-			stmt.setInt(11, rec.resource_group_id);
-			stmt.executeUpdate(); 
-			stmt.close(); 
-			
-			LogModel log = new LogModel(con, auth);
-			log.insert("resource", stmt.toString());
-		} catch(SQLException e) {
-			log.error(e.getMessage());
+		String sql = "INSERT INTO virtualorganization "+
+			" VALUES (null, ?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+		stmt = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS); 
+		
+		stmt.setString(1, rec.name);
+		stmt.setString(2, rec.long_name);
+		stmt.setString(3, rec.description);
+		stmt.setString(4, rec.primary_url);
+		stmt.setString(5, rec.aup_url);
+		stmt.setString(6, rec.membership_services_url);
+		stmt.setString(7, rec.purpose_url);
+		stmt.setString(8, rec.support_url);		
+		stmt.setString(9, rec.app_description);
+		stmt.setString(10, rec.community);
+		stmt.setInt(11, rec.sc_id);
+		
+		if(rec.parent_vo_id == null) {
+			stmt.setNull(12, java.sql.Types.INTEGER);
+		} else {
+			stmt.setInt(12, rec.parent_vo_id);	
 		}
+		
+		stmt.setBoolean(13, rec.active);					
+		stmt.setBoolean(14, rec.disable);	
+		stmt.setString(15, rec.footprints_id);	
+		
+		stmt.executeUpdate();
+		
+		//pull generated id
+		ResultSet keys = stmt.getGeneratedKeys();
+		Integer id = null;
+		if (keys != null) {
+			if (keys.next()) {
+				id = keys.getInt(1);
+			}
+		}
+		
+		LogModel log = new LogModel(con, auth);
+		log.insert("insert_vo", id, stmt.toString());
+		
+		stmt.close();
 	}
-	*/
+	
+	public void update(VORecord rec) throws AuthorizationException, SQLException
+	{
+		auth.check(Action.update_vo);
+		PreparedStatement stmt = null;
+
+		String sql = "UPDATE virtualorganization SET "+
+			"name=?, long_name=?, description=?, primary_url=?, aup_url=?, membership_services_url=?, "+
+			"purpose_url=?, support_url=?, app_description=?, community=?, sc_id=?, parent_vo_id=?, active=?, disable=?, footprints_id=? "+
+			"WHERE id=?";
+		stmt = con.prepareStatement(sql); 
+		
+		stmt.setString(1, rec.name);
+		stmt.setString(2, rec.long_name);
+		stmt.setString(3, rec.description);
+		stmt.setString(4, rec.primary_url);
+		stmt.setString(5, rec.aup_url);
+		stmt.setString(6, rec.membership_services_url);
+		stmt.setString(7, rec.purpose_url);
+		stmt.setString(8, rec.support_url);		
+		stmt.setString(9, rec.app_description);
+		stmt.setString(10, rec.community);
+		stmt.setInt(11, rec.sc_id);
+		
+		if(rec.parent_vo_id == null) {
+			stmt.setNull(12, java.sql.Types.INTEGER);
+		} else {
+			stmt.setInt(12, rec.parent_vo_id);	
+		}
+		
+		stmt.setBoolean(13, rec.active);					
+		stmt.setBoolean(14, rec.disable);	
+		stmt.setString(15, rec.footprints_id);	
+		
+		stmt.setInt(16, rec.id);
+		
+		stmt.executeUpdate(); 
+		LogModel log = new LogModel(con, auth);
+		log.insert("update_vo", rec.id, stmt.toString());
+		
+		stmt.close(); 	
+	}
+	
+	public void delete(int id) throws AuthorizationException, SQLException
+	{
+		auth.check(Action.delete_vo);
+		PreparedStatement stmt = null;
+
+		String sql = "DELETE FROM virtualorganization WHERE id=?";
+		stmt = con.prepareStatement(sql); 
+		
+		stmt.setInt(1, id);
+		
+		stmt.executeUpdate(); 
+		LogModel log = new LogModel(con, auth);
+		log.insert("delete_vo", id, stmt.toString());
+		
+		stmt.close(); 	
+	}
 }
 

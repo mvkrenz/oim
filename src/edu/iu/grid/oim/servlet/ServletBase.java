@@ -13,6 +13,7 @@ import javax.sql.DataSource;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 
 import edu.iu.grid.oim.lib.Authorization;
@@ -21,7 +22,6 @@ import edu.iu.grid.oim.model.MenuItem;
 import edu.iu.grid.oim.view.ContentView;
 import edu.iu.grid.oim.view.MenuView;
 import edu.iu.grid.oim.view.Page;
-import edu.iu.grid.oim.view.divex.ContactsDivex;
 
 public class ServletBase extends HttpServlet {
     static Logger log = Logger.getLogger(ServletBase.class);  
@@ -60,9 +60,31 @@ public class ServletBase extends HttpServlet {
 		MenuView menuview = new MenuView(baseurl, menu, current);
 		return menuview;
 	}
-	static public String baseURL()
+	public String baseURL()
 	{
 		//TODO - figure this out dynamicly.
 		return "/oim";
+	}
+	
+	//if value is null, show a icon that indicates that the value is null
+	public String valueFilter(String str)
+	{
+		if(str == null) {
+			return "<img src='"+baseURL()+"/images/null.png' alt='null'/>";
+		}
+		return StringEscapeUtils.escapeHtml(str);
+	}
+	public String boolFilter(Boolean b)
+	{
+		if(b) {
+			return "True";
+		} else {
+			return "False";
+		}
+	}
+	
+	boolean debug()
+	{
+		return (getServletContext().getInitParameter("debug").compareTo("true") == 0);	
 	}
 }

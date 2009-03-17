@@ -1,6 +1,9 @@
 package com.webif.divex.form;
 
 import java.util.HashMap;
+
+import org.apache.commons.lang.StringEscapeUtils;
+
 import com.webif.divex.ChangeEvent;
 import com.webif.divex.DivEx;
 import com.webif.divex.form.validator.IFormElementValidator;
@@ -29,8 +32,8 @@ public class SelectFormElementDE extends DivEx implements IFormElementDE
 	public String toHTML() 
 	{
 		String out = "";
-		out += "<label for='"+name+"'>"+label+"</label><br/>";
-		out += "<select name='"+name+"' onchange='divex_change(this.parentNode, this.value);'>";
+		out += "<label for='"+name+"'>"+StringEscapeUtils.escapeHtml(label)+"</label><br/>";
+		out += "<select name='"+name+"' onchange='divex_change(\""+getNodeID()+"\", this.value);'>";
 		out += "<option value=\"\">(Please Select)</option>";
 
 		for(Integer v : keyvalues.keySet()) {
@@ -39,14 +42,14 @@ public class SelectFormElementDE extends DivEx implements IFormElementDE
 			if(v == value) {
 				selected = "selected=selected";
 			}
-			out += "<option value=\""+v+"\" "+selected+">"+name+"</option>";
+			out += "<option value=\""+v+"\" "+selected+">"+StringEscapeUtils.escapeHtml(name)+"</option>";
 		}
 		out += "</select>";
 		if(required) {
 			out += " * Required";
 		}
 		if(error != null) {
-			out += "<p class='elementerror'>"+error+"</p>";
+			out += "<p class='elementerror'>"+StringEscapeUtils.escapeHtml(error)+"</p>";
 		}
 		return out;
 	}
@@ -78,10 +81,12 @@ public class SelectFormElementDE extends DivEx implements IFormElementDE
 		redraw();
 		
 		//if required, run RequiredValidator
-		if(value == null) {
-			error = "Please muyst select an item.";
-			valid = false;
-			return;
+		if(required == true) {
+			if(value == null) {
+				error = "Please select an item.";
+				valid = false;
+				return;
+			}
 		}
 		
 		//then run the optional validation

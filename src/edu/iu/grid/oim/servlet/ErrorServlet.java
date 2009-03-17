@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletResponse;
 import edu.iu.grid.oim.view.ContentView;
 import edu.iu.grid.oim.view.MenuView;
 import edu.iu.grid.oim.view.Page;
+import edu.iu.grid.oim.view.SideContentView;
 
 /**
  * Servlet implementation class ErrorServlet
@@ -32,7 +33,7 @@ public class ErrorServlet extends ServletBase {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		MenuView menuview = createMenuView(baseURL(), null);
 		ContentView contentview = createContentView(request);		
-		Page page = new Page(menuview, contentview);
+		Page page = new Page(menuview, contentview, new SideContentView());
 		
 		response.getWriter().print(page.toHTML());
 	}
@@ -43,13 +44,16 @@ public class ErrorServlet extends ServletBase {
         
 		contentview.add("<h2>Oops!</h2>");
 		contentview.add("<p>Sorry, we have encountered a problem.</p>");
-		contentview.add("<table>");
-        for (int i = 0; i < vars.length; i++) {
-    		contentview.add("<TR><TD>" + vars[i] + "</TD><TD>" +
-                request.getAttribute(vars[i]) + 
-                "</TD></TR>");
-        }
-        contentview.add("</table>");
+		
+		if(debug()) {
+			contentview.add("<table>");
+	        for (int i = 0; i < vars.length; i++) {
+	    		contentview.add("<TR><TD>" + vars[i] + "</TD><TD>" +
+	                request.getAttribute(vars[i]) + 
+	                "</TD></TR>");
+	        }
+	        contentview.add("</table>");
+		}
 		
 		return contentview;
 	}

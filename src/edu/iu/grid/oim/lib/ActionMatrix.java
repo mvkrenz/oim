@@ -15,6 +15,7 @@ public class ActionMatrix {
 			case select_facility:
 			case log:
 			case select_certificate_dn:
+			case select_vo:
 				return true;
 			}
 			return false;
@@ -26,6 +27,7 @@ public class ActionMatrix {
 			case select_facility:
 			case log:
 			case select_certificate_dn:
+			case select_vo:
 					return true;
 			}
 			break;
@@ -35,6 +37,7 @@ public class ActionMatrix {
 			case select_facility:
 			case log:
 			case select_certificate_dn:
+			case select_vo:
 					return true;
 			}
 			break;
@@ -48,9 +51,11 @@ public class ActionMatrix {
 			case insert_facility:
 			case update_facility:
 				
+			case admin_vo:
 			case select_vo:
 			case insert_vo:
 			case update_vo:
+			case delete_vo:
 				
 			case select_sc:
 			case insert_sc:
