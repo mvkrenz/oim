@@ -48,7 +48,9 @@ public abstract class DivEx {
 		//find child nodes who needs update
 		if(needupdate) {
 			String success = "";
+			
 			code += "$(\"#"+nodeid+"\").load(\"divex?action=load&nodeid="+nodeid+"\", function(){"+success+"});";
+			
 			//I don't need to update any of my child - parent will redraw all of it.
 			setNeedupdate(false);
 		}
@@ -102,18 +104,18 @@ public abstract class DivEx {
 		String attrs = "";
 		for(String attr : div_attr.keySet()) {
 			String value = div_attr.get(attr);
-			attrs += attr + "=\""+value+"\"";
+			attrs += attr + "=\""+value+"\" ";
 		}
 		
 		String html = "";
 		html += "<div "+attrs+" id='"+nodeid+"' onclick='divex_click(this.id);'>";
-		html += toHTML();
+		html += renderInside();
 		html += "</div>";
 		return html;
 	}
 	
-	//override this to draw your divex. by default, it just called toHTML on all children
-	public String toHTML()
+	//override this to draw the inside of your div.
+	public String renderInside()
 	{
 		String html = "";
 		for(DivEx child : childnodes) {

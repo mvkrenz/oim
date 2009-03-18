@@ -16,7 +16,7 @@ import edu.iu.grid.oim.model.MenuItem;
 import edu.iu.grid.oim.view.ContentView;
 import edu.iu.grid.oim.view.MenuView;
 import edu.iu.grid.oim.view.Page;
-import edu.iu.grid.oim.view.IView;
+import edu.iu.grid.oim.view.View;
 import edu.iu.grid.oim.view.SideContentView;
 
 public class HomeServlet extends ServletBase  {

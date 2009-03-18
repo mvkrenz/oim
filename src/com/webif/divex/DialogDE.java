@@ -28,7 +28,7 @@ public class DialogDE extends DivEx {
 		}
 	}
 
-	public String toHTML() {
+	public String renderInside() {
 		String html = "";
 		if(show) {
 			html += message;

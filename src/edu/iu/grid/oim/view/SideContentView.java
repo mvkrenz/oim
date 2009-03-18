@@ -5,11 +5,11 @@ import java.util.ArrayList;
 import com.webif.divex.DivEx;
 
 //put each content under a side content header
-public class SideContentView implements IView {
+public class SideContentView extends View {
 
-	private ArrayList<IView> children = new ArrayList<IView>();
+	private ArrayList<View> children = new ArrayList<View>();
 	
-	public void add(String title, IView v) {
+	public void add(String title, View v) {
 		children.add(new HtmlView("<h3>"+title+"</h3>"));
 		children.add(v);
 	}
@@ -25,7 +25,7 @@ public class SideContentView implements IView {
 	
 	public String toHTML() {
 		String out = "<div id=\"sideContent\">\n";
-		for(IView v : children) {
+		for(View v : children) {
 			out += v.toHTML();
 		}
 		out += "</div>";

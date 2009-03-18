@@ -19,7 +19,6 @@ abstract public class FormDivex extends DivEx {
 	public ButtonDE submitbutton;
 	public ButtonDE cancelbutton;
 	
-	
 	//private String error;
 	private Boolean valid;
 	
@@ -95,7 +94,7 @@ abstract public class FormDivex extends DivEx {
 		return null;
 	}
 
-	public String toHTML() 
+	public String renderInside() 
 	{
 		String out = "";
 		

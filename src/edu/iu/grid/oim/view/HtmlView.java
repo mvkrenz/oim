@@ -1,6 +1,6 @@
 package edu.iu.grid.oim.view;
 
-public class HtmlView implements IView {
+public class HtmlView extends View {
 
 	private String html;
 	public HtmlView(String _html) {

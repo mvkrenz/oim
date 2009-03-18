@@ -65,7 +65,7 @@ public class DivexServlet extends HttpServlet {
 				} else if(action.compareTo("load") == 0) {
 					//we don't synchronize load action - since it should be read-only
 					response.setContentType("text/html");
-					writer.print(div.toHTML());
+					writer.print(div.renderInside());
 				}
 			}	
 		}

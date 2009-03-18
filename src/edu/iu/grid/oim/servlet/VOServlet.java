@@ -26,9 +26,14 @@ import edu.iu.grid.oim.model.db.record.SCRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
 import edu.iu.grid.oim.view.ContentView;
 import edu.iu.grid.oim.view.HtmlView;
+import edu.iu.grid.oim.view.View;
 import edu.iu.grid.oim.view.MenuView;
 import edu.iu.grid.oim.view.Page;
+import edu.iu.grid.oim.view.RecordTableView;
 import edu.iu.grid.oim.view.SideContentView;
+import edu.iu.grid.oim.view.TableView;
+import edu.iu.grid.oim.view.Utils;
+import edu.iu.grid.oim.view.TableView.Row;
 
 public class VOServlet extends ServletBase implements Servlet {
 	private static final long serialVersionUID = 1L;
@@ -76,29 +81,29 @@ public class VOServlet extends ServletBase implements Servlet {
 		while(vos.next()) {
 			
 			VORecord rec = new VORecord(vos);
-			contentview.add("<h2>"+valueFilter(rec.name)+"</h2>");
-			contentview.add("<table class='record_table' summary='record detail'>");
-			contentview.add("<tr><th>Long Name</th><td>"+valueFilter(rec.long_name)+"</td></tr>");
-			contentview.add("<tr><th>Description</th><td>"+valueFilter(rec.description)+"</td></tr>");
-			contentview.add("<tr><th>Primary URL</th><td>"+valueFilter(rec.primary_url)+"</td></tr>");
-			contentview.add("<tr><th>AUP URL</th><td>"+valueFilter(rec.aup_url)+"</td></tr>");
-			contentview.add("<tr><th>Membership Services URL</th><td>"+valueFilter(rec.membership_services_url)+"</td></tr>");
-			contentview.add("<tr><th>Purpose URL</th><td>"+valueFilter(rec.purpose_url)+"</td></tr>");
-			contentview.add("<tr><th>Support URL</th><td>"+valueFilter(rec.support_url)+"</td></tr>");
-			contentview.add("<tr><th>App Description</th><td>"+valueFilter(rec.app_description)+"</td></tr>");
-			contentview.add("<tr><th>Community</th><td>"+valueFilter(rec.community)+"</td></tr>");
-			contentview.add("<tr><th>Footprints ID</th><td>"+valueFilter(rec.footprints_id)+"</td></tr>");
-
-			contentview.add("<tr><th>Support Center</th><td>"+valueFilter(getSCName(rec.sc_id))+"</td></tr>");
-			contentview.add("<tr><th>Parent Virtual Organization</th><td>"+valueFilter(getParentVOName(rec.parent_vo_id))+"</td></tr>");
+			contentview.add("<h2>"+Utils.strFilter(rec.name)+"</h2>");
 			
-			contentview.add("<tr><th>Active</th><td>"+boolFilter(rec.active)+"</td></tr>");
-			contentview.add("<tr><th>Disable</th><td>"+boolFilter(rec.disable)+"</td></tr>");
+			RecordTableView table = new RecordTableView();
+			contentview.add(table);
+			table.setClass("record_table");
+			table.addRow("Long Name", rec.long_name);
+			table.addRow("Description", rec.description);
+			table.addRow("Primary URL", rec.primary_url);
+			table.addRow("AUP URL", rec.aup_url);
+			table.addRow("Membership Services URL", rec.membership_services_url);
+			table.addRow("Purpose URL", rec.purpose_url);
+			table.addRow("Support URL", rec.support_url);
+			table.addRow("App Description", rec.app_description);
+			table.addRow("Community", rec.community);
+			table.addRow("Footprints ID", rec.footprints_id);
+			table.addRow("Support Center", getSCName(rec.sc_id));
+			table.addRow("Parent Virtual Organization", getParentVOName(rec.parent_vo_id));
+			table.addRow("Active", rec.active);
+			table.addRow("Disable", rec.disable);
 			
-			
-			if(accessible_ids == null || accessible_ids.contains(rec.id)) {
-				contentview.add("<tr><th></th><td>");	
-			
+			//add edit / delete button
+			if(accessible_ids == null || accessible_ids.contains(rec.id)) {	
+				
 				class EditButtonDE extends ButtonDE
 				{
 					String url;
@@ -111,9 +116,9 @@ public class VOServlet extends ServletBase implements Servlet {
 						redirect(url);
 					}
 				};
-
-				contentview.add(new EditButtonDE(root, baseURL()+"/voedit?vo_id=" + rec.id));
-				contentview.add(new HtmlView(" or "));
+				
+				table.add(new EditButtonDE(root, baseURL()+"/voedit?vo_id=" + rec.id));
+				table.add(" or ");
 
 				class DeleteDialogDE extends DialogDE
 				{
@@ -141,26 +146,22 @@ public class VOServlet extends ServletBase implements Servlet {
 					}
 				}
 			
-				final DialogDE delete_dialog = new DeleteDialogDE(root, rec);
-				contentview.add(delete_dialog);
+				final DeleteDialogDE delete_dialog = new DeleteDialogDE(root, rec);
+				table.add(delete_dialog);
 			
 				class DeleteButtonDE extends ButtonDE
 				{
-					int id;
-					public DeleteButtonDE(DivEx parent, int _id, String _name)
+					public DeleteButtonDE(DivEx parent, String _name)
 					{
 						super(parent, "Delete");
-						id = _id;
 						setStyle(ButtonDE.Style.ALINK);
 					}
 					protected void onClick(ClickEvent e) {
 						delete_dialog.open();
 					}
 				};
-				contentview.add(new DeleteButtonDE(root, rec.id, rec.name));
-				contentview.add("</td></tr>");
+				table.add(new DeleteButtonDE(root, rec.name));
 			}
-			contentview.add("</table>");
 		}
 		
 		return contentview;

@@ -1,13 +1,13 @@
 package edu.iu.grid.oim.view;
 
-public class Page implements IView {
-	private IView header;
-	private IView menu;
-	private IView content;
-	private IView footer;
-	private IView side;
+public class Page extends View {
+	private View header;
+	private View menu;
+	private View content;
+	private View footer;
+	private View side;
 	
-	public Page(IView _menu, IView _content, IView _side)
+	public Page(View _menu, View _content, View _side)
 	{
 		header = new HtmlFileView("header.html");
 		footer = new HtmlFileView("footer.html");

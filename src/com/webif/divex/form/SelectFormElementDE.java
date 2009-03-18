@@ -29,7 +29,7 @@ public class SelectFormElementDE extends DivEx implements IFormElementDE
 		keyvalues = _keyvalues;
 	}
 	
-	public String toHTML() 
+	public String renderInside() 
 	{
 		String out = "";
 		out += "<label for='"+name+"'>"+StringEscapeUtils.escapeHtml(label)+"</label><br/>";

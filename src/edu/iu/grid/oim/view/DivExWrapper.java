@@ -2,7 +2,7 @@ package edu.iu.grid.oim.view;
 
 import com.webif.divex.DivEx;
 
-public class DivExWrapper implements IView {
+public class DivExWrapper extends View {
 
 	private DivEx de;
 	

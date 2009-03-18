@@ -16,7 +16,7 @@ public class CheckBoxFormElementDE extends DivEx implements IFormElementDE {
 		name = _name; 
 	}
 	
-	public String toHTML() {
+	public String renderInside() {
 		String checked = "";
 		if(value == true) { //value should never be null by design
 			checked = "checked=checked";

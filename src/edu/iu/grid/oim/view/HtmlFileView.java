@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
-public class HtmlFileView implements IView {
+public class HtmlFileView extends View {
 
 	private String content;
 	

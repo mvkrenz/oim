@@ -38,7 +38,6 @@ public class VOFormDivex extends FormDivex
 		auth = _auth;
 	
 		id = rec.id;
-		
 		{
 			//pull vos for unique validator
 			HashMap<Integer, String> vos = getVOs();

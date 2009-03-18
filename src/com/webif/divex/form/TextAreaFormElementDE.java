@@ -79,7 +79,7 @@ public class TextAreaFormElementDE extends DivEx implements IFormElementDE  {
 		validate();
 	}
 	
-	public String toHTML() {
+	public String renderInside() {
 		String html = "";
 		html += "<label for='"+name+"'>"+StringEscapeUtils.escapeHtml(label)+"</label><br/>";
 		String current_value = value;

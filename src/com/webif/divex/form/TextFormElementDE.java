@@ -26,7 +26,7 @@ public class TextFormElementDE extends DivEx implements IFormElementDE {
 		name = _name; 
 	}
 	
-	public String toHTML() {
+	public String renderInside() {
 		String html = "";
 		html += "<label for='"+name+"'>"+StringEscapeUtils.escapeHtml(label)+"</label><br/>";
 		String current_value = value;

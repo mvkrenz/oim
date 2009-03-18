@@ -66,23 +66,6 @@ public class ServletBase extends HttpServlet {
 		return "/oim";
 	}
 	
-	//if value is null, show a icon that indicates that the value is null
-	public String valueFilter(String str)
-	{
-		if(str == null) {
-			return "<img src='"+baseURL()+"/images/null.png' alt='null'/>";
-		}
-		return StringEscapeUtils.escapeHtml(str);
-	}
-	public String boolFilter(Boolean b)
-	{
-		if(b) {
-			return "True";
-		} else {
-			return "False";
-		}
-	}
-	
 	boolean debug()
 	{
 		return (getServletContext().getInitParameter("debug").compareTo("true") == 0);	

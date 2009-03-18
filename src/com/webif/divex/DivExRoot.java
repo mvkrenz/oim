@@ -16,7 +16,7 @@ public class DivExRoot extends DivEx
 		super(null);
 	}
 
-	public String toHTML() {
+	public String renderInside() {
 		//root don't display anything
 		return null;
 	}
