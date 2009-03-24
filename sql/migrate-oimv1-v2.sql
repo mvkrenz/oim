@@ -32,7 +32,18 @@ INSERT INTO facility (SELECT facility_id,name,description,active,disable FROM oi
 
 INSERT INTO supportcenter (SELECT sc_id,short_name,long_name,description,community,active,disable,footprints_id FROM oim.supportcenter);
 
-INSERT INTO virtualorganization (SELECT vo_id,short_name,long_name,description,primary_url,aup_url,membership_services_url,purpose_url,support_url,app_description,community,sc_id,parent_vo_id,active,disable,footprints_id FROM oim.virtualorganization);
+INSERT INTO virtualorganization 
+	(SELECT vo_id,short_name,long_name,description,
+	primary_url,aup_url,membership_services_url,purpose_url,
+	support_url,app_description,community,sc_id,
+	active,disable,footprints_id 
+	FROM oim.virtualorganization);
+
+INSERT INTO vo_vo (child_id, parent_id)
+	(SELECT vo_id, parent_vo_id
+	FROM oim.virtualorganization 
+	WHERE parent_vo_id IS NOT NULL);
+
 
 INSERT INTO vo_field_of_science (SELECT vo_id,science_id FROM oim.vo_field_of_science);
 
@@ -44,17 +55,25 @@ INSERT INTO vo_fqan (SELECT id,fqan,vo_report_name_id FROM oim.vo_fqan);
 INSERT INTO person 
 	(id, first_name, middle_name, last_name, primary_email, secondary_email, 
 	primary_phone, primary_phone_ext, secondary_phone, secondary_phone_ext, 
-	address_line_1, address_line_2, city, state, zipcode, country, group_contact, 
+	address_line_1, address_line_2, city, state, zipcode, country,
 	active, disable) 
 	(SELECT person_id, first_name, middle_name, last_name, primary_email, secondary_email, 
 	primary_phone, primary_phone_ext, secondary_phone, secondary_phone_ext, 
-	address_line_1, address_line_2, city, state, zipcode, cntry.name, group_contact, 
+	address_line_1, address_line_2, city, state, zipcode, cntry.name,
 	active, disable 
 	FROM oim.person pers 
-	LEFT JOIN oim.country cntry ON (cntry.ccode=pers.ccode));
+	LEFT JOIN oim.country cntry ON (cntry.ccode=pers.ccode)
+	WHERE pers.group_contact=0);
+
+-- Insert group_contacts into mailing_list
+INSERT INTO mailing_list
+	(id, name, email)
+	(SELECT person_id, CONCAT(first_name, " ", last_name), primary_email
+	FROM oim.person pers 
+	WHERE pers.group_contact=1);
 
 INSERT INTO certificate_dn (id,dn_string,person_id) (SELECT dn_id, dn_string, person_id FROM oim.certificate_dn);
-UPDATE person SET optional_submitter_dn_id=(SELECT optional_submitter_dn_id FROM oim.person oldPerson WHERE oldPerson.person_id=person.id);
+-- UPDATE person SET optional_submitter_dn_id=(SELECT optional_submitter_dn_id FROM oim.person oldPerson WHERE oldPerson.person_id=person.id);
 
 INSERT INTO site (SELECT site_id,site.name,long_name,description,address_line_1,address_line_2,city,state,zipcode, Ctry.name, longitude,latitude,sc_id,facility_id,submitter_dn_id,active,disable FROM oim.site JOIN oim.country Ctry ON (Ctry.ccode=site.ccode));
 
