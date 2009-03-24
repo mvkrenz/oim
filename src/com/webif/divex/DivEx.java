@@ -11,7 +11,6 @@ public abstract class DivEx {
 	
 	protected ArrayList<DivEx> childnodes = new ArrayList();
 	
-	
 	//set attr to apply to the div
 	public void setAttr(String attr, String value)
 	{
@@ -74,15 +73,20 @@ public abstract class DivEx {
 		nodeid = DivExRoot.getNewNodeID();
 		
 		if(parent != null) {
-			parent.addChild(this);
+			parent.add(this);
 		}
 		
 		div_attr.put("class", "divex");
 	}
 	
-	public void addChild(DivEx child)
+	public void add(DivEx child)
 	{
 		childnodes.add(child);
+	}
+	
+	public void add(String html)
+	{
+		childnodes.add(new StaticDE(html));
 	}
 	
 	//recursively do search

@@ -3,6 +3,7 @@ package edu.iu.grid.oim.view.divex.form;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.apache.log4j.Logger;
@@ -17,8 +18,13 @@ import com.webif.divex.form.validator.UrlValidator;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
+import edu.iu.grid.oim.model.db.ContactTypeModel;
+import edu.iu.grid.oim.model.db.PersonModel;
 import edu.iu.grid.oim.model.db.SCModel;
+import edu.iu.grid.oim.model.db.VOContactModel;
 import edu.iu.grid.oim.model.db.VOModel;
+import edu.iu.grid.oim.model.db.record.ContactTypeRecord;
+import edu.iu.grid.oim.model.db.record.PersonRecord;
 import edu.iu.grid.oim.model.db.record.SCRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
 import edu.iu.grid.oim.view.divex.FormDivex;
@@ -37,6 +43,8 @@ public class VOFormDivex extends FormDivex
 		con = _con;
 		auth = _auth;
 	
+		parent.add("<h3>Details</h3>");
+		
 		id = rec.id;
 		{
 			//pull vos for unique validator
@@ -157,6 +165,28 @@ public class VOFormDivex extends FormDivex
 			elem.setLabel("Disabled");
 			elem.setValue(rec.disable);
 		}	
+		
+		//contact information
+		parent.add("<h3>Contact Information</h3>");
+		
+		//contacts
+		VOContactModel vocmodel = new VOContactModel(con, auth);
+		ContactTypeModel ctmodel = new ContactTypeModel(con, auth);
+		PersonModel pmodel = new PersonModel(con, auth);
+		HashMap<Integer, ArrayList<Integer>> voclist = vocmodel.get(rec.id);
+		for(Integer type_id : voclist.keySet()) {
+			ArrayList<Integer> clist = voclist.get(type_id);
+			ContactTypeRecord ctrec = ctmodel.get(type_id);
+			
+			String cliststr = "";
+			for(Integer person_id : clist) {
+				PersonRecord person = pmodel.get(person_id);
+				cliststr += person.getFullName() + "<br/>";
+			}
+			
+			parent.add(ctrec.name + "<br/>");
+			parent.add(cliststr);
+		}
 	}
 	
 	private HashMap<Integer, String> getSCs() throws AuthorizationException, SQLException

@@ -14,14 +14,13 @@ import edu.iu.grid.oim.model.db.record.CertificateDNRecord;
 public class CertificateDNModel extends DBModel {
     static Logger log = Logger.getLogger(CertificateDNModel.class);  
     
-    public CertificateDNModel(Connection _con, Authorization _auth) 
+    public CertificateDNModel(Connection _con) 
     {
-    	super(_con, _auth);
+    	super(_con, null);
     }
     
 	public CertificateDNRecord findByDN(String dn_string) throws AuthorizationException
 	{
-		auth.check(Action.select_certificate_dn);
 		ResultSet rs = null;
 		try {
 			PreparedStatement pstmt = con.prepareStatement(

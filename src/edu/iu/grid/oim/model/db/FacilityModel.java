@@ -18,9 +18,9 @@ public class FacilityModel extends DBModel {
     	super(_con, _auth);
     }
     
-	public ResultSet getAllFacilities() throws AuthorizationException
+	public ResultSet getAll() throws AuthorizationException
 	{
-		auth.check(Action.select_facility);
+		auth.check(Action.read_facility);
 		ResultSet rs = null;
 		try {
 			Statement stmt = con.createStatement();

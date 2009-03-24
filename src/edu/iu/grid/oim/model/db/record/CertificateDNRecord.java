@@ -10,10 +10,12 @@ public class CertificateDNRecord implements IRecord {
 	public Integer person_id;
 	public Integer auth_type_id;
 	
+	/*
 	public String getTableName()
 	{
 		return "certificate_dn";
 	}
+	*/
 	
 	//load from existing record
 	public CertificateDNRecord(ResultSet rs) throws SQLException {

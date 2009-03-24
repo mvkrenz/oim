@@ -7,7 +7,7 @@ public class RecordTableView extends TableView {
 	public void addRow(String header, String value)
 	{
 		Row row = new Row();
-		insertRow(row);
+		addRow(row);
 		row.addHeaderCell(header);
 		row.addCell(value);
 	}
@@ -15,15 +15,15 @@ public class RecordTableView extends TableView {
 	public void addRow(String header, Boolean value)
 	{
 		Row row = new Row();
-		insertRow(row);
+		addRow(row);
 		row.addHeaderCell(header);
 		row.addCell(value);
 	}
 	public void addHtmlRow(String header, String html)
 	{
 		Row row = new Row();
-		insertRow(row);
-		row.addHeaderCell("");
+		addRow(row);
+		row.addHeaderCell(header);
 		row.addHtmlCell(html);
 	}
 }

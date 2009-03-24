@@ -66,7 +66,6 @@ public class VOEditServlet extends ServletBase implements Servlet {
 		//put the form in a view and display
 		ContentView contentview = new ContentView();
 		contentview.add("<h1>"+title+"</h1>");	
-		contentview.add("<h2>VO Details</h2>");
 		contentview.add(form);
 		
 		Page page = new Page(createMenuView(baseURL(), current_page), contentview, createSideView());

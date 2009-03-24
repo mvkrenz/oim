@@ -80,7 +80,7 @@ public class Authorization {
 		log.info("Authenticated User DN: "+user_dn);
 		
 		//find DNID
-		CertificateDNModel model = new CertificateDNModel(con, new Authorization());
+		CertificateDNModel model = new CertificateDNModel(con);
 		CertificateDNRecord certdn;
 		certdn = model.findByDN(user_dn);
 		if(certdn == null) {

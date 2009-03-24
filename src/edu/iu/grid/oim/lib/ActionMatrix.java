@@ -11,11 +11,13 @@ public class ActionMatrix {
 		if(auth_type_id == null) {
 			//guest
 			switch(action) {
-			case select_resource:
-			case select_facility:
-			case log:
-			case select_certificate_dn:
-			case select_vo:
+			case read_resource:
+			case read_facility:
+			case read_vo:
+				
+			case read_person:
+			case read_sccontact:
+			case read_vocontact:
 				return true;
 			}
 			return false;
@@ -23,46 +25,52 @@ public class ActionMatrix {
 		switch(auth_type_id) {
 		case 1: //OSG End User
 			switch(action) {
-			case select_resource:
-			case select_facility:
-			case log:
-			case select_certificate_dn:
-			case select_vo:
+			case read_resource:
+			case read_facility:
+			case read_vo:
+				
+			case read_person:
+			case read_sccontact:
+			case read_vocontact:
 					return true;
 			}
 			break;
 		case 3: //OSG Security Staff
 			switch(action) {
-			case select_resource:
-			case select_facility:
-			case log:
-			case select_certificate_dn:
-			case select_vo:
+			case read_resource:
+			case read_facility:
+			case read_vo:
+				
+			case read_person:
+			case read_sccontact:
+			case read_vocontact:
 					return true;
 			}
 			break;
 		case 4: //OSG GOC Staff
 			switch(action) {
-			case select_resource:
-			case insert_resource:
-			case update_resource:
+			case read_resource:
+			case write_resource:
 				
-			case select_facility:
-			case insert_facility:
-			case update_facility:
+			case read_facility:
+			case write_facility:
 				
+			case read_vo:
+			case write_vo:
 			case admin_vo:
-			case select_vo:
-			case insert_vo:
-			case update_vo:
-			case delete_vo:
 				
-			case select_sc:
-			case insert_sc:
-			case update_sc:
+			case read_sc:
+			case write_sc:
+			case admin_sc:
 				
-			case log:
-			case select_certificate_dn:
+			case read_person:
+			case write_person:
+				
+			case read_vocontact:
+			case write_vocontact:
+				
+			case read_sccontact:
+			case write_sccontact:
 					return true;
 			}
 			break;

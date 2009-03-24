@@ -24,7 +24,7 @@ public class LogModel extends DBModel {
     
     public void insert(String type, Integer key, String detail) throws AuthorizationException
     {
-		auth.check(Action.log);
+    	//no auth check... accessing log table is non-auth action
 		try {
 			PreparedStatement stmt = null;
 

@@ -27,7 +27,7 @@ public class SCModel extends DBModel {
     
 	public ResultSet getAll() throws AuthorizationException
 	{
-		auth.check(Action.select_sc);
+		auth.check(Action.read_sc);
 		ResultSet rs = null;
 		try {
 			Statement stmt = con.createStatement();
@@ -40,8 +40,29 @@ public class SCModel extends DBModel {
 		return rs;
 	}
 	
+	public ArrayList<SCRecord> getAllAccessible() throws AuthorizationException, SQLException
+	{
+		auth.check(Action.read_sc);
+		ResultSet rs = null;
+		ArrayList<SCRecord> list = new ArrayList();
+
+		Statement stmt = con.createStatement();
+	    if (stmt.execute("SELECT * FROM supportcenter")) {
+	    	 rs = stmt.getResultSet();
+	    }
+	    
+	    Set<Integer> accessible = getAccessibleIDs();
+	    while(rs.next()) {
+	    	SCRecord rec = new SCRecord(rs);
+	    	if(accessible == null || accessible.contains(rec.id)) {
+	    		list.add(rec);
+	    	}
+	    }	    
+		return list;
+	}
+	
 	//returns all record id that the user has access to
-	public Set<Integer> getAccessibleIDs()
+	private Set<Integer> getAccessibleIDs()
 	{
 		Set<Integer> list = new HashSet<Integer>();
 		ResultSet rs = null;
@@ -55,7 +76,7 @@ public class SCModel extends DBModel {
 			rs = stmt.executeQuery();
 			while(rs.next()) {
 				SCContactRecord rec = new SCContactRecord(rs);
-				if(isAccessibleType(rec.type_id)) {
+				if(auth.allows(Action.admin_sc) || isAccessibleType(rec.type_id)) {
 					list.add(rec.sc_id);
 				}
 			}
@@ -68,7 +89,7 @@ public class SCModel extends DBModel {
 	
 	public SCRecord get(int sc_id) throws AuthorizationException
 	{
-		auth.check(Action.select_sc);
+		auth.check(Action.read_sc);
 		ResultSet rs = null;
 		try {
 			PreparedStatement stmt = null;

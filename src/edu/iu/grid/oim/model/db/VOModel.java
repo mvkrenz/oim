@@ -26,7 +26,7 @@ public class VOModel extends DBModel {
     
 	public ResultSet getAll() throws AuthorizationException, SQLException
 	{
-		auth.check(Action.select_vo);
+		auth.check(Action.read_vo);
 		ResultSet rs = null;
 
 		Statement stmt = con.createStatement();
@@ -37,10 +37,32 @@ public class VOModel extends DBModel {
 		return rs;
 	}
 	
-	//returns all record id that the user has access to
-	public Set<Integer> getAccessibleIDs() throws SQLException, AuthorizationException
+	public ArrayList<VORecord> getAllAccessible() throws AuthorizationException, SQLException
 	{
-		auth.check(Action.select_vo);
+		auth.check(Action.read_vo);
+		ResultSet rs = null;
+		ArrayList<VORecord> list = new ArrayList();
+
+		Statement stmt = con.createStatement();
+	    if (stmt.execute("SELECT * FROM virtualorganization")) {
+	    	 rs = stmt.getResultSet();
+	    }
+	    
+	    Set<Integer> accessible = getAccessibleIDs();
+	   
+	    while(rs.next()) {
+	    	VORecord rec = new VORecord(rs);
+	    	if(accessible.contains(rec.id)) {
+	    		list.add(rec);
+	    	}
+	    }	    
+		return list;
+	}
+	
+	//returns all record id that the user has access to
+	private Set<Integer> getAccessibleIDs() throws SQLException, AuthorizationException
+	{
+		auth.check(Action.read_vocontact);
 		Set<Integer> list = new HashSet<Integer>();
 		ResultSet rs = null;
 
@@ -52,18 +74,17 @@ public class VOModel extends DBModel {
 
 		rs = stmt.executeQuery();
 		while(rs.next()) {
-			VOContactRecord rec = new VOContactRecord(rs);
-			if(isAccessibleType(rec.type_id)) {
+			VOContactRecord rec = new VOContactRecord(rs);	    
+			if(auth.allows(Action.admin_vo) || isAccessibleType(rec.type_id)) {
 				list.add(rec.vo_id);
 			}
 		}
-	
 		return list;
 	}
 	
 	public VORecord get(int vo_id) throws AuthorizationException, SQLException
 	{
-		auth.check(Action.select_vo);
+		auth.check(Action.read_vo);
 		ResultSet rs = null;
 
 		PreparedStatement stmt = null;
@@ -83,7 +104,7 @@ public class VOModel extends DBModel {
 	
 	public void insert(VORecord rec) throws AuthorizationException, SQLException
 	{
-		auth.check(Action.insert_vo);
+		auth.check(Action.write_vo);
 		PreparedStatement stmt = null;
 
 		String sql = "INSERT INTO virtualorganization "+
@@ -131,7 +152,7 @@ public class VOModel extends DBModel {
 	
 	public void update(VORecord rec) throws AuthorizationException, SQLException
 	{
-		auth.check(Action.update_vo);
+		auth.check(Action.write_vo);
 		PreparedStatement stmt = null;
 
 		String sql = "UPDATE virtualorganization SET "+
@@ -173,7 +194,7 @@ public class VOModel extends DBModel {
 	
 	public void delete(int id) throws AuthorizationException, SQLException
 	{
-		auth.check(Action.delete_vo);
+		auth.check(Action.write_vo);
 		PreparedStatement stmt = null;
 
 		String sql = "DELETE FROM virtualorganization WHERE id=?";

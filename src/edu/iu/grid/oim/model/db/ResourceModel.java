@@ -22,7 +22,7 @@ public class ResourceModel extends DBModel {
     
 	public ResultSet getAll() throws AuthorizationException
 	{
-		auth.check(Action.select_resource);
+		auth.check(Action.read_resource);
 		ResultSet rs = null;
 		try {
 			Statement stmt = con.createStatement();
@@ -35,9 +35,9 @@ public class ResourceModel extends DBModel {
 		return rs;
 	}
 	
-	public ResultSet getResourceByGroupBy(int group_id) throws AuthorizationException
+	public ResultSet getAllByGroupBy(int group_id) throws AuthorizationException
 	{
-		auth.check(Action.select_resource);
+		auth.check(Action.read_resource);
 		ResultSet rs = null;
 		try {
 			PreparedStatement pstmt = con.prepareStatement(
@@ -52,7 +52,7 @@ public class ResourceModel extends DBModel {
 	
 	public void insert(ResourceRecord rec) throws AuthorizationException, SQLException
 	{
-		auth.check(Action.insert_resource);
+		auth.check(Action.write_resource);
 		PreparedStatement stmt = null;
 
 		String sql = "INSERT INTO resource VALUES (null, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";

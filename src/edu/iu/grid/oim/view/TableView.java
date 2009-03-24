@@ -20,7 +20,7 @@ public class TableView extends View {
 			{
 				switch(style) {
 				case NORMAL:
-					return "<td>"+html+"</td>";
+					return "<td class=\"record_data\">"+html+"</td>";
 				case HEADER:
 					return "<th>"+html+"</th>";
 				}
@@ -59,9 +59,17 @@ public class TableView extends View {
 		cls = _cls;
 	}
 
-	public void insertRow(Row row)
+	public void addRow(Row row)
 	{
 		rows.add(row);
+	}
+	
+	public void addRow(String header, View view)
+	{
+		Row row = new Row();
+		addRow(row);
+		row.addHeaderCell(header);
+		row.addHtmlCell(view.toHTML());
 	}
 	
 	public String toHTML() {

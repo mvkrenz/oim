@@ -3,10 +3,16 @@ table.record_table
 	padding-bottom: 5px;
 	margin-bottom: 5px;
 }
+
+table.record_table td.record_data
+{
+	border-bottom: 1px solid #ccc;
+}
+
 table.record_table th
 {
 	text-align: left;
-	width: 200px;
+	width: 160px;
 }
 
 .form input[type='text']
