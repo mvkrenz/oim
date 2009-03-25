@@ -18,7 +18,6 @@ public class VORecord implements IRecord {
 	public String app_description;
 	public String community;
 	public Integer sc_id;
-	public Integer parent_vo_id;
 	public Boolean active;
 	public Boolean disable;
 	public String footprints_id;
@@ -39,9 +38,6 @@ public class VORecord implements IRecord {
 		
 		sc_id = rs.getInt("sc_id");
 		if(rs.wasNull()) sc_id = null;
-		
-		parent_vo_id = rs.getInt("parent_vo_id");
-		if(rs.wasNull()) parent_vo_id = null;
 		
 		active = rs.getBoolean("active");
 		disable = rs.getBoolean("disable");

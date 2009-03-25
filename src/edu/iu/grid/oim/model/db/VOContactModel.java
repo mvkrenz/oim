@@ -4,27 +4,78 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
 
-import edu.iu.grid.oim.lib.Action;
+import org.apache.log4j.Logger;
+
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
 import edu.iu.grid.oim.model.db.record.VOContactRecord;
 
-public class VOContactModel extends ContactModel {
-
+public class VOContactModel extends DBModel {
+    static Logger log = Logger.getLogger(VOContactModel.class); 
+	public static HashMap<Integer/*vo_id*/, ArrayList<VOContactRecord>> cache = null;
+	
 	public VOContactModel(Connection _con, Authorization _auth) {
-		super(_con, _auth, "vo_contact", "vo_id");
+		super(_con, _auth);
 		// TODO Auto-generated constructor stub
 	}
 	
-	public HashMap<Integer, ArrayList<Integer>> get(int sc_id) throws AuthorizationException, SQLException
+	public HashMap<Integer/*type_id*/, ArrayList<Integer/*person_id*/>> get(int vo_id) throws AuthorizationException, SQLException
+	{	
+		fillCache();
+
+		HashMap<Integer, ArrayList<Integer>> list = new HashMap();
+		Integer key = new Integer(vo_id);
+		if(cache.containsKey(key)) {
+
+			ArrayList<VOContactRecord> recs = cache.get(key);
+			for(VOContactRecord rec : recs) {
+				//group records by type_id and create lists of person_id
+				ArrayList<Integer> a = null;
+				if(!list.containsKey(rec.type_id)) {
+					//never had this type
+					a = new ArrayList<Integer>();
+					list.put(rec.type_id, a);
+				} else {
+					a = list.get(rec.type_id);
+				}	
+				a.add(rec.person_id);
+			}
+			return list;
+		}
+		
+		log.warn("Couldn't find any record where vo_id = " + vo_id);
+		return list;
+	}
+	
+	synchronized private void fillCache() throws SQLException
 	{
-		auth.check(Action.read_vocontact);
-		return getRecords(sc_id);
+		if(cache != null) {
+			return;
+		}
+		
+		cache = new HashMap();
+		
+		String sql = "SELECT * FROM vo_contact";
+		PreparedStatement stmt = null;
+		stmt = con.prepareStatement(sql); 
+		ResultSet rs = stmt.executeQuery();
+
+		while(rs.next()) {
+			VOContactRecord rec = new VOContactRecord(rs);
+			
+			//group records by vo_id and put it in the cache
+			ArrayList<VOContactRecord> a = null;
+			if(!cache.containsKey(rec.vo_id)) {
+				//never had this type
+				a = new ArrayList<VOContactRecord>();
+				cache.put(rec.vo_id, a);
+			} else {
+				a = cache.get(rec.vo_id);
+			}
+			a.add(rec);
+		}
 	}
 }

@@ -12,7 +12,6 @@ import edu.iu.grid.oim.view.divex.FormDivex;
 
 public class SelectFormElementDE extends DivEx implements IFormElementDE 
 {	
-	protected String name;
 	protected String label;
 	protected Integer value;
 	protected String error;
@@ -23,17 +22,18 @@ public class SelectFormElementDE extends DivEx implements IFormElementDE
 	
 	HashMap<Integer, String> keyvalues;
 	
-	public SelectFormElementDE(FormDivex form, String _name, HashMap<Integer, String> _keyvalues) {
-		super(form);
-		name = _name; 
+	public SelectFormElementDE(DivEx parent, HashMap<Integer, String> _keyvalues) {
+		super(parent);
 		keyvalues = _keyvalues;
 	}
 	
 	public String renderInside() 
 	{
 		String out = "";
-		out += "<label for='"+name+"'>"+StringEscapeUtils.escapeHtml(label)+"</label><br/>";
-		out += "<select name='"+name+"' onchange='divex_change(\""+getNodeID()+"\", this.value);'>";
+		if(label != null) {
+			out += "<label>"+StringEscapeUtils.escapeHtml(label)+"</label><br/>";
+		}
+		out += "<select onchange='divex_change(\""+getNodeID()+"\", this.value);'>";
 		out += "<option value=\"\">(Please Select)</option>";
 
 		for(Integer v : keyvalues.keySet()) {
@@ -54,7 +54,6 @@ public class SelectFormElementDE extends DivEx implements IFormElementDE
 		return out;
 	}
 	
-	public String getName() { return name; }
 	public void setLabel(String _label) { label = _label; }
 	public void setValidator(IFormElementValidator<Integer> _validator) { validator = _validator; }
 	

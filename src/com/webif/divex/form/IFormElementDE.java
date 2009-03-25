@@ -10,5 +10,4 @@ import edu.iu.grid.oim.view.divex.FormDivex;
 
 abstract public interface IFormElementDE {
 	public Boolean isValid();
-	public String getName();
 }

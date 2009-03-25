@@ -4,15 +4,19 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.HashMap;
+
 import org.apache.log4j.Logger;
 
 import edu.iu.grid.oim.lib.Action;
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
+import edu.iu.grid.oim.model.db.record.ContactTypeRecord;
 import edu.iu.grid.oim.model.db.record.PersonRecord;
 import edu.iu.grid.oim.model.db.record.SCRecord;
 
 public class PersonModel extends DBModel {
     static Logger log = Logger.getLogger(PersonModel.class);  
+	public static HashMap<Integer, PersonRecord> cache = null;
     
     public PersonModel(
     		java.sql.Connection _con, 
@@ -21,40 +25,38 @@ public class PersonModel extends DBModel {
     	super(_con, _auth);
     }
     
-	public ResultSet getAll() throws AuthorizationException
+	public HashMap<Integer, PersonRecord> getAll() throws SQLException
 	{
-		auth.check(Action.read_person);
-		ResultSet rs = null;
-		try {
-			Statement stmt = con.createStatement();
-		    if (stmt.execute("SELECT * FROM person")) {
-		    	 rs = stmt.getResultSet();
-		    }
-		} catch(SQLException e) {
-			log.error(e.getMessage());
-		}
-		return rs;
+		fillCache();
+		return cache;
 	}
 	
-	public PersonRecord get(int person_id) throws AuthorizationException
+	public PersonRecord get(int id) throws SQLException
 	{
-		auth.check(Action.read_person);
-		ResultSet rs = null;
-		try {
-			PreparedStatement stmt = null;
+		fillCache();
 
-			String sql = "SELECT * FROM person WHERE id = ?";
-			stmt = con.prepareStatement(sql); 
-			stmt.setInt(1, person_id);
-
-			rs = stmt.executeQuery();
-			if(rs.next()) {
-				return new PersonRecord(rs);
-			}
-			log.warn("Couldn't find person where id = " + person_id);
-		} catch(SQLException e) {
-			log.error(e.getMessage());
+		Integer key = new Integer(id);
+		if(cache.containsKey(key)) {
+			return cache.get(key);
 		}
+		log.warn("Couldn't find person where id = " + id);
 		return null;
+	}
+	
+	synchronized private void fillCache() throws SQLException
+	{
+		if(cache != null) {
+			return;
+		}
+		PreparedStatement stmt = null;
+		cache = new HashMap<Integer, PersonRecord>();
+
+		String sql = "SELECT * from person";
+		stmt = con.prepareStatement(sql); 
+		ResultSet rs = stmt.executeQuery();
+		while(rs.next()) {
+			PersonRecord rec = new PersonRecord(rs);
+			cache.put(rec.id, rec);
+		}
 	}
 }

@@ -22,7 +22,6 @@ public class ResourceModel extends DBModel {
     
 	public ResultSet getAll() throws AuthorizationException
 	{
-		auth.check(Action.read_resource);
 		ResultSet rs = null;
 		try {
 			Statement stmt = con.createStatement();
@@ -37,7 +36,6 @@ public class ResourceModel extends DBModel {
 	
 	public ResultSet getAllByGroupBy(int group_id) throws AuthorizationException
 	{
-		auth.check(Action.read_resource);
 		ResultSet rs = null;
 		try {
 			PreparedStatement pstmt = con.prepareStatement(

@@ -58,9 +58,8 @@ public class VOServlet extends ServletBase implements Servlet {
 		//pull list of all vos
 		ArrayList<VORecord> vos = null;
 		VOModel model = new VOModel(con, auth);
-		Set<Integer> accessible_ids = null;
 		try {
-			vos = model.getAllAccessible();
+			vos = model.getAllEditable();
 		
 			//construct view
 			MenuView menuview = createMenuView(baseURL(), "vo");
@@ -81,8 +80,11 @@ public class VOServlet extends ServletBase implements Servlet {
 		ContentView contentview = new ContentView();	
 		contentview.add("<h1>Virtual Organization</h1>");
 		
+		VOContactModel vocmodel = new VOContactModel(con, auth);
+		ContactTypeModel ctmodel = new ContactTypeModel(con, auth);
+		PersonModel pmodel = new PersonModel(con, auth);
+		
 		for(VORecord rec : vos) {
-
 			contentview.add("<h2>"+Utils.strFilter(rec.name)+"</h2>");
 			
 			RecordTableView table = new RecordTableView();
@@ -99,14 +101,10 @@ public class VOServlet extends ServletBase implements Servlet {
 			table.addRow("Community", rec.community);
 			table.addRow("Footprints ID", rec.footprints_id);
 			table.addRow("Support Center", getSCName(rec.sc_id));
-			table.addRow("Parent Virtual Organization", getParentVOName(rec.parent_vo_id));
 			table.addRow("Active", rec.active);
 			table.addRow("Disable", rec.disable);
 			
 			//contacts
-			VOContactModel vocmodel = new VOContactModel(con, auth);
-			ContactTypeModel ctmodel = new ContactTypeModel(con, auth);
-			PersonModel pmodel = new PersonModel(con, auth);
 			HashMap<Integer, ArrayList<Integer>> voclist = vocmodel.get(rec.id);
 			for(Integer type_id : voclist.keySet()) {
 				ArrayList<Integer> clist = voclist.get(type_id);
@@ -120,6 +118,7 @@ public class VOServlet extends ServletBase implements Servlet {
 				
 				table.addHtmlRow(ctrec.name, cliststr);
 			}
+			
 
 			class EditButtonDE extends ButtonDE
 			{
@@ -135,8 +134,6 @@ public class VOServlet extends ServletBase implements Servlet {
 			};
 			
 			table.add(new EditButtonDE(root, baseURL()+"/voedit?vo_id=" + rec.id));
-			table.add(" or ");
-
 			class DeleteDialogDE extends DialogDE
 			{
 				VORecord rec;
@@ -163,56 +160,32 @@ public class VOServlet extends ServletBase implements Servlet {
 				}
 			}
 		
-			final DeleteDialogDE delete_dialog = new DeleteDialogDE(root, rec);
-			table.add(delete_dialog);
-		
-			class DeleteButtonDE extends ButtonDE
-			{
-				public DeleteButtonDE(DivEx parent, String _name)
+			if(auth.allows(Action.admin_vo)) {
+				final DeleteDialogDE delete_dialog = new DeleteDialogDE(root, rec);
+				table.add(" or ");
+				table.add(delete_dialog);
+				
+				class DeleteButtonDE extends ButtonDE
 				{
-					super(parent, "Delete");
-					setStyle(ButtonDE.Style.ALINK);
-				}
-				protected void onClick(ClickEvent e) {
-					delete_dialog.open();
-				}
-			};
-			table.add(new DeleteButtonDE(root, rec.name));
+					public DeleteButtonDE(DivEx parent, String _name)
+					{
+						super(parent, "Delete");
+						setStyle(ButtonDE.Style.ALINK);
+					}
+					protected void onClick(ClickEvent e) {
+						delete_dialog.open();
+					}
+				};
+				table.add(new DeleteButtonDE(root, rec.name));
+			}	
+
 		}
 		
 		return contentview;
 	}
-	
-	private TableView createContactTable(int vo_id)
-	{
-		TableView table = new TableView();
-		table.setClass("contact_table");
-		Row row;
-		
-		row = table.new Row();
-		table.addRow(row);
-		row.addHeaderCell("Submitter");
-		row.addCell("divex 1");
-		row.addCell("divex 2");
-		row.addCell("divex 3");
-		
-		row = table.new Row();
-		table.addRow(row);
-		row.addHeaderCell("Security");
-		row.addCell("divex 1");
-		row.addCell("divex 2");
-		row.addCell("divex 3");
 
-		row = table.new Row();
-		table.addRow(row);
-		row.addHeaderCell("Operationss");
-		row.addCell("divex 1");
-		row.addCell("divex 2");
-		row.addCell("divex 3");
-		
-		return table;
-	}
 	
+	/*
 	private String getParentVOName(Integer parent_vo_id) throws AuthorizationException, SQLException
 	{
 		if(parent_vo_id == null) return null;
@@ -223,6 +196,7 @@ public class VOServlet extends ServletBase implements Servlet {
 		}
 		return parent.name;
 	}
+	*/
 	
 	private String getSCName(Integer sc_id) throws AuthorizationException, SQLException
 	{

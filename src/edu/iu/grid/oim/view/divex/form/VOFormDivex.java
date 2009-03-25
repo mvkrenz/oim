@@ -9,6 +9,7 @@ import java.util.HashMap;
 import org.apache.log4j.Logger;
 
 import com.webif.divex.DivEx;
+import com.webif.divex.StaticDE;
 import com.webif.divex.form.CheckBoxFormElementDE;
 import com.webif.divex.form.SelectFormElementDE;
 import com.webif.divex.form.TextAreaFormElementDE;
@@ -37,156 +38,141 @@ public class VOFormDivex extends FormDivex
 	protected Authorization auth;
 	private Integer id;
 	
+	private TextFormElementDE name;
+	private TextFormElementDE long_name;
+	private TextAreaFormElementDE description;
+	private TextFormElementDE primary_url;
+	private TextFormElementDE aup_url;
+	private TextFormElementDE membership_services_url;
+	private TextFormElementDE purpose_url;
+	private TextFormElementDE support_url;
+	private TextAreaFormElementDE app_description;
+	private TextAreaFormElementDE community;
+	private TextFormElementDE footprints_id;
+	private SelectFormElementDE sc_id;
+	private CheckBoxFormElementDE active;
+	private CheckBoxFormElementDE disable;
+	
 	public VOFormDivex(DivEx parent, VORecord rec, String origin_url, Connection _con, Authorization _auth) throws AuthorizationException, SQLException
 	{	
 		super(parent, origin_url);
 		con = _con;
 		auth = _auth;
 	
-		parent.add("<h3>Details</h3>");
+		new StaticDE(this, "<h3>Details</h3>");
 		
 		id = rec.id;
-		{
-			//pull vos for unique validator
-			HashMap<Integer, String> vos = getVOs();
-			if(id != null) {
-				//if doing update, remove my own name (I can use my own name)
-				vos.remove(id);
-			}
-			TextFormElementDE elem = new TextFormElementDE(this, "name");
-			elem.setLabel("Name");
-			elem.setValue(rec.name);
-			elem.setValidator(new UniqueValidator<String>(vos.values()));
-			elem.setRequired(true);
+
+		//pull vos for unique validator
+		HashMap<Integer, String> vos = getVOs();
+		if(id != null) {
+			//if doing update, remove my own name (I can use my own name)
+			vos.remove(id);
 		}
+		name = new TextFormElementDE(this);
+		name.setLabel("Name");
+		name.setValue(rec.name);
+		name.setValidator(new UniqueValidator<String>(vos.values()));
+		name.setRequired(true);
 		
-		{
-			TextFormElementDE elem = new TextFormElementDE(this, "long_name");
-			elem.setLabel("Long Name");
-			elem.setValue(rec.long_name);
-			elem.setRequired(true);
-		}
-		
-		{
-			TextAreaFormElementDE elem = new TextAreaFormElementDE(this, "description");
-			elem.setLabel("Description");
-			elem.setValue(rec.description);
-			elem.setRequired(true);
-		}
-		
-		{
-			TextFormElementDE elem = new TextFormElementDE(this, "primary_url");
-			elem.setLabel("Primary URL");
-			elem.setValue(rec.primary_url);
-			elem.setValidator(UrlValidator.getInstance());
-			elem.setRequired(true);
-		}
-		
-		{
-			TextFormElementDE elem = new TextFormElementDE(this, "aup_url");
-			elem.setLabel("AUP URL");
-			elem.setValue(rec.aup_url);
-			elem.setValidator(UrlValidator.getInstance());
-			elem.setRequired(true);
-		}
-		
-		{
-			TextFormElementDE elem = new TextFormElementDE(this, "membership_services_url");
-			elem.setLabel("Membership Services URL");
-			elem.setValue(rec.membership_services_url);
-			elem.setValidator(UrlValidator.getInstance());
-			elem.setRequired(true);
-		}
-		
-		{
-			TextFormElementDE elem = new TextFormElementDE(this, "purpose_url");
-			elem.setLabel("Purpose URL"); 
-			elem.setValue(rec.purpose_url);
-			elem.setValidator(UrlValidator.getInstance());
-			elem.setRequired(true);
-		}
-		
-		{
-			TextFormElementDE elem = new TextFormElementDE(this, "support_url");
-			elem.setLabel("Support URL"); 
-			elem.setValue(rec.support_url);
-			elem.setValidator(UrlValidator.getInstance());
-			elem.setRequired(true);
-		}
-		
-		{
-			TextAreaFormElementDE elem = new TextAreaFormElementDE(this, "app_description");
-			elem.setLabel("App Description");
-			elem.setValue(rec.app_description);
-			elem.setRequired(true);
-		}
-		
-		{
-			TextAreaFormElementDE elem = new TextAreaFormElementDE(this, "community");
-			elem.setLabel("Community");
-			elem.setValue(rec.community);
-			elem.setRequired(true);
-		}
-		
-		{
-			TextFormElementDE elem = new TextFormElementDE(this, "footprints_id");
-			elem.setLabel("Footprints ID");
-			elem.setValue(rec.footprints_id);
-			elem.setRequired(true);
-		}
-		
-		{
-			SelectFormElementDE elem = new SelectFormElementDE(this, "sc_id", getSCs());
-			elem.setLabel("Support Center");
-			elem.setValue(rec.sc_id);
-			elem.setRequired(true);
-		}
-		
-		{
-			//if vo_id is set (for update) remove that from possible value.
-			HashMap<Integer, String> vos = getVOs();
-			if(rec.id != null) {
-				vos.remove(rec.id);
-			}
-			
-			SelectFormElementDE elem = new SelectFormElementDE(this, "parent_vo_id", vos);
-			elem.setLabel("Parent Virtual Organization");
-			elem.setValue(rec.parent_vo_id);
-		}
-		
-		{
-			CheckBoxFormElementDE elem = new CheckBoxFormElementDE(this, "active");
-			elem.setLabel("Active");
-			elem.setValue(rec.active);
-		}
-		
-		{
-			CheckBoxFormElementDE elem = new CheckBoxFormElementDE(this, "disable");
-			elem.setLabel("Disabled");
-			elem.setValue(rec.disable);
-		}	
+		long_name = new TextFormElementDE(this);
+		long_name.setLabel("Long Name");
+		long_name.setValue(rec.long_name);
+		long_name.setRequired(true);
+				
+		description = new TextAreaFormElementDE(this);
+		description.setLabel("Description");
+		description.setValue(rec.description);
+		description.setRequired(true);
+
+		primary_url = new TextFormElementDE(this);
+		primary_url.setLabel("Primary URL");
+		primary_url.setValue(rec.primary_url);
+		primary_url.setValidator(UrlValidator.getInstance());
+		primary_url.setRequired(true);
+
+		aup_url = new TextFormElementDE(this);
+		aup_url.setLabel("AUP URL");
+		aup_url.setValue(rec.aup_url);
+		aup_url.setValidator(UrlValidator.getInstance());
+		aup_url.setRequired(true);
+
+		membership_services_url = new TextFormElementDE(this);
+		membership_services_url.setLabel("Membership Services URL");
+		membership_services_url.setValue(rec.membership_services_url);
+		membership_services_url.setValidator(UrlValidator.getInstance());
+		membership_services_url.setRequired(true);
+
+		purpose_url = new TextFormElementDE(this);
+		purpose_url.setLabel("Purpose URL"); 
+		purpose_url.setValue(rec.purpose_url);
+		purpose_url.setValidator(UrlValidator.getInstance());
+		purpose_url.setRequired(true);
+
+		support_url = new TextFormElementDE(this);
+		support_url.setLabel("Support URL"); 
+		support_url.setValue(rec.support_url);
+		support_url.setValidator(UrlValidator.getInstance());
+		support_url.setRequired(true);
+
+		app_description = new TextAreaFormElementDE(this);
+		app_description.setLabel("App Description");
+		app_description.setValue(rec.app_description);
+		app_description.setRequired(true);
+
+		community = new TextAreaFormElementDE(this);
+		community.setLabel("Community");
+		community.setValue(rec.community);
+		community.setRequired(true);
+
+		footprints_id = new TextFormElementDE(this);
+		footprints_id.setLabel("Footprints ID");
+		footprints_id.setValue(rec.footprints_id);
+		footprints_id.setRequired(true);
+
+		sc_id = new SelectFormElementDE(this, getSCs());
+		sc_id.setLabel("Support Center");
+		sc_id.setValue(rec.sc_id);
+		sc_id.setRequired(true);
+
+		active = new CheckBoxFormElementDE(this);
+		active.setLabel("Active");
+		active.setValue(rec.active);
+
+		disable = new CheckBoxFormElementDE(this);
+		disable.setLabel("Disabled");
+		disable.setValue(rec.disable);
 		
 		//contact information
-		parent.add("<h3>Contact Information</h3>");
+		new StaticDE(this, "<h3>Contact Information</h3>");
 		
 		//contacts
 		VOContactModel vocmodel = new VOContactModel(con, auth);
-		ContactTypeModel ctmodel = new ContactTypeModel(con, auth);
-		PersonModel pmodel = new PersonModel(con, auth);
 		HashMap<Integer, ArrayList<Integer>> voclist = vocmodel.get(rec.id);
-		for(Integer type_id : voclist.keySet()) {
-			ArrayList<Integer> clist = voclist.get(type_id);
-			ContactTypeRecord ctrec = ctmodel.get(type_id);
-			
-			String cliststr = "";
+		ContactTypeModel ctmodel = new ContactTypeModel(con, auth);
+		renderContactEditor(voclist, ctmodel.get(1));//submitter
+		renderContactEditor(voclist, ctmodel.get(2));//security contact
+		renderContactEditor(voclist, ctmodel.get(3));//admin contact
+		renderContactEditor(voclist, ctmodel.get(5));//misc contact
+		renderContactEditor(voclist, ctmodel.get(6));//vo manager
+		renderContactEditor(voclist, ctmodel.get(7));//notification contact
+		renderContactEditor(voclist, ctmodel.get(10));//VO report contact
+	}
+	
+	private void renderContactEditor(HashMap<Integer, ArrayList<Integer>> voclist, ContactTypeRecord ctrec) throws SQLException
+	{
+		new StaticDE(this, "<h4>" + ctrec.name + "</h4>");
+		
+		ArrayList<Integer> clist = voclist.get(ctrec.id);
+		if(clist != null) {
+			PersonModel pmodel = new PersonModel(con, auth);
 			for(Integer person_id : clist) {
 				PersonRecord person = pmodel.get(person_id);
-				cliststr += person.getFullName() + "<br/>";
+				TextFormElementDE text = new TextFormElementDE(this);
+				text.setValue(person.getFullName());
 			}
-			
-			parent.add(ctrec.name + "<br/>");
-			parent.add(cliststr);
 		}
+		TextFormElementDE newcontact = new TextFormElementDE(this);
 	}
 	
 	private HashMap<Integer, String> getSCs() throws AuthorizationException, SQLException
@@ -222,81 +208,21 @@ public class VOFormDivex extends FormDivex
 		//Construct VORecord
 		VORecord rec = new VORecord();
 		rec.id = id;
-		
-		{
-			TextFormElementDE elem = (TextFormElementDE) getElement("name");
-			rec.name = elem.getValue();
-		}
-		
-		{
-			TextFormElementDE elem = (TextFormElementDE) getElement("long_name");
-			rec.long_name = elem.getValue();
-		}
-		
-		{
-			TextAreaFormElementDE elem = (TextAreaFormElementDE) getElement("description");
-			rec.description = elem.getValue();
-		}
-		
-		{
-			TextFormElementDE elem = (TextFormElementDE) getElement("primary_url");
-			rec.primary_url = elem.getValue();
-		}
-		
-		{
-			TextFormElementDE elem = (TextFormElementDE) getElement("aup_url");
-			rec.aup_url = elem.getValue();
-		}
-		
-		{
-			TextFormElementDE elem = (TextFormElementDE) getElement("membership_services_url");
-			rec.membership_services_url = elem.getValue();
-		}
-		
-		{
-			TextFormElementDE elem = (TextFormElementDE) getElement("purpose_url");
-			rec.purpose_url = elem.getValue();
-		}
-		
-		{
-			TextFormElementDE elem = (TextFormElementDE) getElement("support_url");
-			rec.support_url = elem.getValue();
-		}
-		
-		{
-			TextAreaFormElementDE elem = (TextAreaFormElementDE) getElement("app_description");
-			rec.app_description = elem.getValue();
-		}
-		
-		{
-			TextAreaFormElementDE elem = (TextAreaFormElementDE) getElement("community");
-			rec.community = elem.getValue();
-		}
-		
-		{
-			SelectFormElementDE elem = (SelectFormElementDE) getElement("sc_id");
-			rec.sc_id = elem.getValue();
-		}
-		
-		{
-			SelectFormElementDE elem = (SelectFormElementDE) getElement("parent_vo_id");
-			rec.parent_vo_id = elem.getValue();
-		}	
-		
-		{	
-			TextFormElementDE elem = (TextFormElementDE) getElement("footprints_id");
-			rec.footprints_id = elem.getValue();
-		}	
-		
-		{	
-			CheckBoxFormElementDE elem = (CheckBoxFormElementDE) getElement("active");
-			rec.active = elem.getValue();
-		}	
-		
-		{	
-			CheckBoxFormElementDE elem = (CheckBoxFormElementDE) getElement("disable");
-			rec.disable = elem.getValue();
-		}	
+	
+		rec.name = name.getValue();
+		rec.long_name = long_name.getValue();
+		rec.description = description.getValue();
+		rec.primary_url = primary_url.getValue();
+		rec.aup_url = aup_url.getValue();
+		rec.membership_services_url = membership_services_url.getValue();
+		rec.purpose_url = purpose_url.getValue();
+		rec.support_url = support_url.getValue();
+		rec.app_description = app_description.getValue();
+		rec.community = community.getValue();
+		rec.sc_id = sc_id.getValue();
+		rec.footprints_id = footprints_id.getValue();
+		rec.active = active.getValue();
+		rec.disable = disable.getValue();
 		
 		//Do insert / update to our DB
 		try {

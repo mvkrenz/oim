@@ -20,7 +20,6 @@ public class FacilityModel extends DBModel {
     
 	public ResultSet getAll() throws AuthorizationException
 	{
-		auth.check(Action.read_facility);
 		ResultSet rs = null;
 		try {
 			Statement stmt = con.createStatement();

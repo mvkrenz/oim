@@ -27,7 +27,6 @@ public class SCModel extends DBModel {
     
 	public ResultSet getAll() throws AuthorizationException
 	{
-		auth.check(Action.read_sc);
 		ResultSet rs = null;
 		try {
 			Statement stmt = con.createStatement();
@@ -42,29 +41,31 @@ public class SCModel extends DBModel {
 	
 	public ArrayList<SCRecord> getAllAccessible() throws AuthorizationException, SQLException
 	{
-		auth.check(Action.read_sc);
-		ResultSet rs = null;
 		ArrayList<SCRecord> list = new ArrayList();
-
-		Statement stmt = con.createStatement();
-	    if (stmt.execute("SELECT * FROM supportcenter")) {
-	    	 rs = stmt.getResultSet();
+		
+		ResultSet rs = getAll();
+   
+	    if(auth.allows(Action.admin_sc)) {
+	    	//admin can edit all scs
+		    while(rs.next()) {
+		    	list.add(new SCRecord(rs));
+		    }	    	
+	    } else {
+		    ArrayList<Integer> accessible = getAccessibleIDs();
+		    while(rs.next()) {
+		    	SCRecord rec = new SCRecord(rs);
+		    	if(accessible.contains(rec.id)) {
+		    		list.add(rec);
+		    	}
+		    }	    	
 	    }
-	    
-	    Set<Integer> accessible = getAccessibleIDs();
-	    while(rs.next()) {
-	    	SCRecord rec = new SCRecord(rs);
-	    	if(accessible == null || accessible.contains(rec.id)) {
-	    		list.add(rec);
-	    	}
-	    }	    
 		return list;
 	}
 	
 	//returns all record id that the user has access to
-	private Set<Integer> getAccessibleIDs()
+	private ArrayList<Integer> getAccessibleIDs()
 	{
-		Set<Integer> list = new HashSet<Integer>();
+		ArrayList<Integer> list = new ArrayList<Integer>();
 		ResultSet rs = null;
 		try {
 			PreparedStatement stmt = null;
@@ -89,7 +90,6 @@ public class SCModel extends DBModel {
 	
 	public SCRecord get(int sc_id) throws AuthorizationException
 	{
-		auth.check(Action.read_sc);
 		ResultSet rs = null;
 		try {
 			PreparedStatement stmt = null;

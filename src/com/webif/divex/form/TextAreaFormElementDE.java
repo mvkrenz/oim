@@ -10,7 +10,6 @@ import edu.iu.grid.oim.view.divex.FormDivex;
 
 public class TextAreaFormElementDE extends DivEx implements IFormElementDE  {
 	
-	protected String name;
 	protected String label;
 	protected String value;
 	protected String error;
@@ -20,11 +19,9 @@ public class TextAreaFormElementDE extends DivEx implements IFormElementDE  {
 	
 	protected IFormElementValidator validator = null;
 	
-	public TextAreaFormElementDE(FormDivex form, String _name) { 
-		super(form);
-		name = _name; 
+	public TextAreaFormElementDE(DivEx parent) { 
+		super(parent);
 	}
-	public String getName() { return name; }
 	public void setLabel(String _label) { label = _label; }
 	public void setValidator(IFormElementValidator _validator) { validator = _validator; }
 	public void setValue(String _value)	
@@ -81,12 +78,14 @@ public class TextAreaFormElementDE extends DivEx implements IFormElementDE  {
 	
 	public String renderInside() {
 		String html = "";
-		html += "<label for='"+name+"'>"+StringEscapeUtils.escapeHtml(label)+"</label><br/>";
+		if(label != null) {
+			html += "<label>"+StringEscapeUtils.escapeHtml(label)+"</label><br/>";
+		}
 		String current_value = value;
 		if(value == null) {
 			current_value = "";
 		} 
-		html += "<textarea name='"+name+"' onblur='divex_change(\""+getNodeID()+"\", this.value);'>";
+		html += "<textarea onblur='divex_change(\""+getNodeID()+"\", this.value);'>";
 		html += StringEscapeUtils.escapeHtml(current_value);
 		html += "</textarea>";
 		if(required) {

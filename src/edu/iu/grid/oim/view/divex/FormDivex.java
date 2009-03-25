@@ -1,15 +1,10 @@
 package edu.iu.grid.oim.view.divex;
 
-import java.sql.SQLException;
-import java.util.ArrayList;
-
 import com.webif.divex.ButtonDE;
 import com.webif.divex.DivEx;
 import com.webif.divex.Event;
 import com.webif.divex.EventListener;
 import com.webif.divex.form.IFormElementDE;
-
-import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
 
 abstract public class FormDivex extends DivEx {
 	
@@ -82,6 +77,7 @@ abstract public class FormDivex extends DivEx {
 		return valid;
 	}
 	
+	/*
 	public IFormElementDE getElement(String name) {
 		for(DivEx child : childnodes) {
 			if(child instanceof IFormElementDE) { 
@@ -93,24 +89,16 @@ abstract public class FormDivex extends DivEx {
 		}
 		return null;
 	}
+	*/
 
 	public String renderInside() 
 	{
 		String out = "";
 		
-		out += "<div class='form'>";
-		/*
-		if(error != null) {
-			out += "<p class='formerror'>" + error + "</p>";
-		}
-		*/
-		
+		out += "<div class='form'>";	
 		for(DivEx child : childnodes) {
-			if(child instanceof IFormElementDE) { 
-				out += "<p class='element'>";
-				out += child.render();
-				out += "</p>\n";
-			}
+			if(child == submitbutton || child == cancelbutton) continue;
+			out += "<p>" + child.render() + "</p>";
 		}
 
 		out += submitbutton.render();

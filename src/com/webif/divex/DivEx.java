@@ -84,11 +84,6 @@ public abstract class DivEx {
 		childnodes.add(child);
 	}
 	
-	public void add(String html)
-	{
-		childnodes.add(new StaticDE(html));
-	}
-	
 	//recursively do search
 	public DivEx findNode(String _nodeid)
 	{

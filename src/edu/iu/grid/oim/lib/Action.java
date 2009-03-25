@@ -1,31 +1,31 @@
 package edu.iu.grid.oim.lib;
 
 //these are the actions that are used by this application.
-public enum Action {
-	//model access for resource table
-	read_resource,
+public enum Action 
+{
+	login,
+	
+	//in general, write access is for accessing records that the user is a contact of the record
+	//in general, admin allows full read/write/delete access to any records within that table
+	
 	write_resource,
+	admin_resource,
 	
-	//model access for facility table
-	read_facility,
 	write_facility,
-	
-	//model access for vo / vocontact table
-	read_vo,
+	admin_facility,
+		
 	write_vo,
 	admin_vo,
-
-	read_sccontact,
+	
 	write_sccontact,
+	admin_sccontact,
 	
-	read_vocontact,
 	write_vocontact,
-	
-	//model access for supportcenter table
-	read_sc,
+	admin_vocontact,
+
 	write_sc,
 	admin_sc,
 	
-	read_person,
-	write_person
+	write_person,
+	admin_person
 }

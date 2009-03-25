@@ -11,7 +11,6 @@ import edu.iu.grid.oim.view.divex.FormDivex;
 
 public class TextFormElementDE extends DivEx implements IFormElementDE {
 	
-	protected String name;
 	protected String label;
 	protected String value;
 	protected String error;
@@ -21,19 +20,20 @@ public class TextFormElementDE extends DivEx implements IFormElementDE {
 	
 	protected IFormElementValidator<String> validator = null;
 	
-	public TextFormElementDE(FormDivex form, String _name) {
-		super(form);
-		name = _name; 
+	public TextFormElementDE(DivEx parent) {
+		super(parent);
 	}
 	
 	public String renderInside() {
 		String html = "";
-		html += "<label for='"+name+"'>"+StringEscapeUtils.escapeHtml(label)+"</label><br/>";
+		if(label != null) {
+			html += "<label>"+StringEscapeUtils.escapeHtml(label)+"</label><br/>";
+		}
 		String current_value = value;
 		if(value == null) {
 			current_value = "";
 		}
-		html += "<input type='text' name='"+name+"' onblur='divex_change(\""+getNodeID()+"\", this.value);' value=\""+StringEscapeUtils.escapeHtml(current_value)+"\"/>";
+		html += "<input type='text' onblur='divex_change(\""+getNodeID()+"\", this.value);' value=\""+StringEscapeUtils.escapeHtml(current_value)+"\"/>";
 		if(required) {
 			html += " * Required";
 		}
@@ -44,7 +44,6 @@ public class TextFormElementDE extends DivEx implements IFormElementDE {
 		return html;
 	}
 
-	public String getName() { return name; }
 	public void setLabel(String _label) { label = _label; }
 	public void setValidator(IFormElementValidator<String> _validator) { validator = _validator; }
 	public void setValue(String _value)	

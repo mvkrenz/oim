@@ -17,29 +17,38 @@ import edu.iu.grid.oim.model.db.record.VORecord;
 
 public class ContactTypeModel extends DBModel {
 
-
-	//tablename - such as "sc_contact";
-	//fkey - such as "sc_id" which maps the foreign key
+	public static HashMap<Integer, ContactTypeRecord> cache = null;
+		
 	public ContactTypeModel(Connection _con, Authorization _auth) {
 		super(_con, _auth);
 	}
 	
 	public ContactTypeRecord get(int id) throws SQLException
 	{
-		PreparedStatement stmt = null;
-
-		String sql = "SELECT * from contact_type where id = ?";
-		stmt = con.prepareStatement(sql); 
-		stmt.setInt(1, id);
-	
-		ResultSet rs = stmt.executeQuery();
-
-		rs = stmt.executeQuery();
-		if(rs.next()) {
-			return new ContactTypeRecord(rs);
+		fillCache();
+		Integer key = new Integer(id);
+		if(cache.containsKey(key)) {
+			return cache.get(key);
 		}
+		
 		log.warn("Couldn't find contact_type where id = " + id);
-
 		return null;
+	}
+	
+	synchronized private void fillCache() throws SQLException
+	{
+		if(cache != null) {
+			return;
+		}
+		PreparedStatement stmt = null;
+		cache = new HashMap<Integer, ContactTypeRecord>();
+
+		String sql = "SELECT * from contact_type";
+		stmt = con.prepareStatement(sql); 
+		ResultSet rs = stmt.executeQuery();
+		while(rs.next()) {
+			ContactTypeRecord rec = new ContactTypeRecord(rs);
+			cache.put(rec.id, rec);
+		}
 	}
 }

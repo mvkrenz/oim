@@ -6,14 +6,12 @@ import edu.iu.grid.oim.view.divex.FormDivex;
 import org.apache.commons.lang.StringEscapeUtils;
 
 public class CheckBoxFormElementDE extends DivEx implements IFormElementDE {
-	
-	protected String name;
+
 	protected String label;
 	protected Boolean value = false;
 	
-	public CheckBoxFormElementDE(FormDivex form, String _name) {
-		super(form);
-		name = _name; 
+	public CheckBoxFormElementDE(DivEx parent) {
+		super(parent);
 	}
 	
 	public String renderInside() {
@@ -22,12 +20,13 @@ public class CheckBoxFormElementDE extends DivEx implements IFormElementDE {
 			checked = "checked=checked";
 		}
 		String html = "";
-		html += "<input type='checkbox' name='"+name+"' onchange='divex_change(\""+getNodeID()+"\", this.checked);' "+checked+"/>";
-		html += " <label for='"+name+"'>"+StringEscapeUtils.escapeHtml(label)+"</label><br/>";
+		html += "<input type='checkbox' onchange='divex_change(\""+getNodeID()+"\", this.checked);' "+checked+"/>";
+		if(label != null) {
+			html += " <label>"+StringEscapeUtils.escapeHtml(label)+"</label><br/>";
+		}
 		return html;
 	}
 
-	public String getName() { return name; }
 	public void setLabel(String _label) { label = _label; }
 	public void setValue(Boolean _value)	
 	{ 

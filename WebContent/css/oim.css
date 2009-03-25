@@ -2,6 +2,7 @@ table.record_table
 {
 	padding-bottom: 5px;
 	margin-bottom: 5px;
+	width: 100%;
 }
 
 table.record_table td.record_data

@@ -14,8 +14,6 @@ public class PersonRecord implements IRecord {
 	public String primary_phone_ext, secondary_phone_ext;
 	public String address_line_1, address_line_2;
 	public String city, state, zipcode, country;
-	public Integer group_contact;
-	public Integer optional_submitter_dn_id;
 	public Boolean active;
 	public Boolean disable;
 	public String contact_preference;
@@ -44,12 +42,6 @@ public class PersonRecord implements IRecord {
 		state = rs.getString("state");
 		zipcode = rs.getString("zipcode");
 		country = rs.getString("country");
-		
-		group_contact = rs.getInt("group_contact");
-		if(rs.wasNull()) group_contact = null;
-		
-		optional_submitter_dn_id = rs.getInt("optional_submitter_dn_id");
-		if(rs.wasNull()) optional_submitter_dn_id = null;
 		
 		active = rs.getBoolean("active");
 		disable = rs.getBoolean("disable");
