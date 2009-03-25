@@ -27,14 +27,13 @@ public class SCContactModel extends DBModel {
 		// TODO Auto-generated constructor stub
 	}
 	
-	public HashMap<Integer/*type_id*/, ArrayList<Integer/*person_id*/>> get(int sc_id) throws AuthorizationException, SQLException
+	public HashMap<Integer/*type_id*/, ArrayList<Integer/*person_id*/>> get(Integer sc_id) throws AuthorizationException, SQLException
 	{	
 		fillCache();
 		
 		HashMap<Integer, ArrayList<Integer>> list = new HashMap();
-		Integer key = new Integer(sc_id);
-		if(cache.containsKey(key)) {
-			ArrayList<SCContactRecord> recs = cache.get(key);
+		if(cache.containsKey(sc_id)) {
+			ArrayList<SCContactRecord> recs = cache.get(sc_id);
 			for(SCContactRecord rec : recs) {
 				//group records by type_id and create lists of person_id
 				ArrayList<Integer> a = null;

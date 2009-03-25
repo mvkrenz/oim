@@ -22,15 +22,13 @@ public class VOContactModel extends DBModel {
 		// TODO Auto-generated constructor stub
 	}
 	
-	public HashMap<Integer/*type_id*/, ArrayList<Integer/*person_id*/>> get(int vo_id) throws AuthorizationException, SQLException
+	public HashMap<Integer/*type_id*/, ArrayList<Integer/*person_id*/>> get(Integer vo_id) throws AuthorizationException, SQLException
 	{	
 		fillCache();
 
 		HashMap<Integer, ArrayList<Integer>> list = new HashMap();
-		Integer key = new Integer(vo_id);
-		if(cache.containsKey(key)) {
-
-			ArrayList<VOContactRecord> recs = cache.get(key);
+		if(cache.containsKey(vo_id)) {
+			ArrayList<VOContactRecord> recs = cache.get(vo_id);
 			for(VOContactRecord rec : recs) {
 				//group records by type_id and create lists of person_id
 				ArrayList<Integer> a = null;

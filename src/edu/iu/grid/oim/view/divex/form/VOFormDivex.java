@@ -148,7 +148,7 @@ public class VOFormDivex extends FormDivex
 		
 		//contacts
 		VOContactModel vocmodel = new VOContactModel(con, auth);
-		HashMap<Integer, ArrayList<Integer>> voclist = vocmodel.get(rec.id);
+		HashMap<Integer, ArrayList<Integer>> voclist = vocmodel.get(id);
 		ContactTypeModel ctmodel = new ContactTypeModel(con, auth);
 		renderContactEditor(voclist, ctmodel.get(1));//submitter
 		renderContactEditor(voclist, ctmodel.get(2));//security contact

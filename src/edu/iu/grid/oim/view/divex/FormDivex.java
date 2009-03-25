@@ -97,7 +97,9 @@ abstract public class FormDivex extends DivEx {
 		
 		out += "<div class='form'>";	
 		for(DivEx child : childnodes) {
+			//we display submit / cancel button at the end
 			if(child == submitbutton || child == cancelbutton) continue;
+			
 			out += "<p>" + child.render() + "</p>";
 		}
 
