@@ -11,7 +11,8 @@ INSERT INTO downtime_action (SELECT downtime_action_id,downtime_action_name,down
 
 INSERT INTO downtime_class (SELECT downtime_class_id,downtime_class_name,downtime_class_desc FROM oim.downtime_class);
 
-INSERT INTO downtime_severity (SELECT downtime_severity_id,downtime_severity_name,downtime_severity_wlcg_name,downtime_severity_desc FROM oim.downtime_severity);
+INSERT INTO downtime_severity 
+	(SELECT downtime_severity_id,downtime_severity_name,downtime_severity_wlcg_name,downtime_severity_desc FROM oim.downtime_severity);
 
 INSERT INTO metric (SELECT metric_id,name,common_name,abbrev,description,time_interval,fresh_for,help_url,wlcg_metric_type FROM oim.metric);
 
@@ -74,40 +75,53 @@ INSERT INTO mailing_list
 INSERT INTO dn (id,dn_string,person_id) (SELECT dn_id, dn_string, person_id FROM oim.certificate_dn);
 -- UPDATE person SET optional_submitter_dn_id=(SELECT optional_submitter_dn_id FROM oim.person oldPerson WHERE oldPerson.person_id=person.id);
 
-INSERT INTO site (SELECT site_id,site.name,long_name,description,address_line_1,address_line_2,city,state,zipcode, Ctry.name, longitude,latitude,sc_id,facility_id,submitter_dn_id,active,disable FROM oim.site JOIN oim.country Ctry ON (Ctry.ccode=site.ccode));
+INSERT INTO site 
+	(SELECT site_id,site.name,long_name,description,
+	address_line_1,address_line_2,city,state,zipcode, 
+	Ctry.name, longitude,latitude,sc_id,facility_id,
+	submitter_dn_id,active,disable 
+	FROM oim.site 
+	JOIN oim.country Ctry ON (Ctry.ccode=site.ccode));
 
 INSERT INTO resource_group (SELECT resource_group_id,name,description,site_id,osg_grid_type_id,active,disable FROM oim.resource_group);
 
 INSERT INTO resource
-	(SELECT res.resource_id, name, description, fqdn, url, resExt.interop_bdii,
-		resExt.interop_monitoring, resExt.interop_accounting,
-		resExt.wlcg_accounting_name, active, disable ,1
-	FROM oim.resource res
-	LEFT JOIN oim.resource_ext_attributes resExt ON (res.resource_id=resExt.resource_id));
--- UPDATE resource res SET res.resource_group_id=(SELECT resource_group_id FROM oim.resource_resource_group resResGrp WHERE resResGrp.resource_id=res.id);
+        (SELECT res.resource_id, name, description, fqdn, url, resExt.interop_bdii,
+                resExt.interop_monitoring, resExt.interop_accounting,
+                resExt.wlcg_accounting_name, active, disable ,1
+        FROM oim.resource res
+        LEFT JOIN oim.resource_ext_attributes resExt ON (res.resource_id=resExt.resource_id));
+UPDATE resource res SET res.resource_group_id=(SELECT resource_group_id FROM oim.resource_resource_group resResGrp WHERE resResGrp.resource_id=res.id);
 
 INSERT INTO vo_resource_ownership (SELECT resource_id,vo_id,percent FROM oim.vo_resource_ownership);
 
 -- If need be
--- SELECT dn_id, COUNT(person_id) FROM oim.dn_auth_type ORDER BY COUNT(person_id);
+-- SELECT dn_id, COUNT(person_id) FROM oim.dn_auth_type GROUP BY dn_id ORDER BY COUNT(person_id);
 -- DELETE FROM oim.dn_auth_type WHERE dn_id=65 AND person_id=0;
-INSERT INTO dn_authorization_type (SELECT dn_id, authorization_type_id FROM oim.dn_auth_type where active = 1);
+INSERT INTO dn_authorization_type (SELECT dn_id, auth_type_id FROM oim.dn_auth_type where active = 1);
 
-INSERT INTO resource_service (SELECT service_id, resource_id, uri, FALSE, FALSE FROM oim.resource_service);
+INSERT INTO resource_service (service_id, resource_id, endpoint_override, hidden, central)
+	(SELECT service_id, resource_id, uri, FALSE, FALSE FROM oim.resource_service);
 UPDATE resource_service SET central=TRUE WHERE service_id>=101 AND service_id<=106 ; -- Set central flag if service id > 100 < 107
 UPDATE resource_service SET hidden=TRUE WHERE service_id=107;   -- Set hidden flag if service was hidden CE/SE before
 UPDATE resource_service SET service_id=1  WHERE service_id=107; -- only hidden CEs thus far AFAIK, so setting it to CE
 
-INSERT INTO resource_service_SE_details (SELECT resource_id,service_id,read_location,write_location,server_list_regex FROM oim.resource_service_SE_details);
+UPDATE resource_service res SET server_list_regex=
+	(SELECT server_list_regex FROM oim.resource_service_SE_details oimres 
+	WHERE oimres.resource_id=res.resource_id AND oimres.service_id=res.service_id);
 
 INSERT INTO resource_alias (resource_id, resource_alias) (SELECT resource_id, resource_alias FROM oim.resource_alias);
 
+-- AG
 INSERT INTO resource_contact (SELECT person_id,resource_id,type_id,rank_id FROM oim.resource_contact);
 
+-- AG
 INSERT INTO sc_contact (SELECT person_id,sc_id,type_id,rank_id FROM oim.sc_contact);
 
+-- AG
 INSERT INTO vo_contact (SELECT person_id,vo_id,type_id,rank_id FROM oim.vo_contact);
 
+-- AG
 INSERT INTO vo_report_contact (SELECT person_id,vo_report_name_id FROM oim.vo_report_contact);
 
 INSERT INTO resource_downtime (SELECT downtime_id,timestamp,start_time,end_time,downtime_summary,
