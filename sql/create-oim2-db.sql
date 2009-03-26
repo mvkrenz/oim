@@ -120,19 +120,19 @@ CREATE TABLE `dn` (
 SET character_set_client = @saved_cs_client;
 
 --
--- Table structure for table `dn_auth_type`
+-- Table structure for table `dn_authorization_type`
 --
 
-DROP TABLE IF EXISTS `dn_auth_type`;
+DROP TABLE IF EXISTS `dn_authorization_type`;
 SET @saved_cs_client     = @@character_set_client;
 SET character_set_client = utf8;
-CREATE TABLE `dn_auth_type` (
+CREATE TABLE `dn_authorization_type` (
   `dn_id` int(11) NOT NULL,
-  `auth_type_id` int(11) NOT NULL,
-  PRIMARY KEY  (`dn_id`,`auth_type_id`),
-  KEY `FK_dn_auth_type` USING BTREE (`auth_type_id`),
-  CONSTRAINT `dn_auth_type_ibfk_1` FOREIGN KEY (`dn_id`) REFERENCES `dn` (`id`),
-  CONSTRAINT `FK_dn_auth_type_1` FOREIGN KEY (`auth_type_id`) REFERENCES `authorization_type` (`id`)
+  `authorization_type_id` int(11) NOT NULL,
+  PRIMARY KEY  (`dn_id`,`authorization_type_id`),
+  KEY `FK_dn_authorization_type` USING BTREE (`authorization_type_id`),
+  CONSTRAINT `dn_authorization_type_ibfk_1` FOREIGN KEY (`dn_id`) REFERENCES `dn` (`id`),
+  CONSTRAINT `FK_dn_authorization_type_1` FOREIGN KEY (`authorization_type_id`) REFERENCES `authorization_type` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Will help enable various type of authorizations for a DN (i.';
 SET character_set_client = @saved_cs_client;
 
@@ -235,15 +235,15 @@ DROP TABLE IF EXISTS `downtime_publish_wlcg`;
 SET @saved_cs_client     = @@character_set_client;
 SET character_set_client = utf8;
 CREATE TABLE `downtime_publish_wlcg` (
-  `downtime_id` int(11) NOT NULL,
+  `resource_downtime_id` int(11) NOT NULL,
   `downtime_action_id` int(11) NOT NULL,
   `publish_status` int(11) default '0' COMMENT 'This will be NULL initially unless set to some value. So for example, value 100 could be success; while 1,2,3, ... 99 could be the number of failed attempts made to publish.',
   `timestamp` timestamp NOT NULL default '0000-00-00 00:00:00',
   `disable` tinyint(1) NOT NULL COMMENT 'Disable field to supersede value of publish_status. If this is set to TRUE, then record will never be published.',
-  PRIMARY KEY  (`downtime_id`,`downtime_action_id`),
+  PRIMARY KEY  (`resource_downtime_id`,`downtime_action_id`),
   KEY `downtime_action_downtime_publish_wlcg` (`downtime_action_id`),
   CONSTRAINT `downtime_action_downtime_publish_wlcg` FOREIGN KEY (`downtime_action_id`) REFERENCES `downtime_action` (`id`),
-  CONSTRAINT `resource_downtime_downtime_publish_wlcg` FOREIGN KEY (`downtime_id`) REFERENCES `resource_downtime` (`id`)
+  CONSTRAINT `resource_downtime_downtime_publish_wlcg` FOREIGN KEY (`resource_downtime_id`) REFERENCES `resource_downtime` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 SET character_set_client = @saved_cs_client;
 
@@ -506,14 +506,14 @@ SET character_set_client = utf8;
 CREATE TABLE `resource_contact` (
   `person_id` int(11) NOT NULL,
   `resource_id` int(11) NOT NULL,
-  `type_id` int(11) NOT NULL,
-  `rank_id` int(11) NOT NULL,
-  PRIMARY KEY  (`person_id`,`resource_id`,`type_id`,`rank_id`),
+  `contact_type_id` int(11) NOT NULL,
+  `contact_rank_id` int(11) NOT NULL,
+  PRIMARY KEY  (`person_id`,`resource_id`,`contact_type_id`,`contact_rank_id`),
   KEY `resource_resource_contact` (`resource_id`),
-  KEY `contact_type_resource_contact` (`type_id`),
-  KEY `contact_rank_resource_contact` (`rank_id`),
-  CONSTRAINT `contact_rank_resource_contact` FOREIGN KEY (`rank_id`) REFERENCES `contact_rank` (`id`),
-  CONSTRAINT `contact_type_resource_contact` FOREIGN KEY (`type_id`) REFERENCES `contact_type` (`id`),
+  KEY `contact_type_resource_contact` (`contact_type_id`),
+  KEY `contact_rank_resource_contact` (`contact_rank_id`),
+  CONSTRAINT `contact_rank_resource_contact` FOREIGN KEY (`contact_rank_id`) REFERENCES `contact_rank` (`id`),
+  CONSTRAINT `contact_type_resource_contact` FOREIGN KEY (`contact_type_id`) REFERENCES `contact_type` (`id`),
   CONSTRAINT `person_resource_contact` FOREIGN KEY (`person_id`) REFERENCES `person` (`id`),
   CONSTRAINT `resource_resource_contact` FOREIGN KEY (`resource_id`) REFERENCES `resource` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
@@ -557,11 +557,11 @@ DROP TABLE IF EXISTS `resource_downtime_service`;
 SET @saved_cs_client     = @@character_set_client;
 SET character_set_client = utf8;
 CREATE TABLE `resource_downtime_service` (
-  `downtime_id` int(11) NOT NULL,
+  `resource_downtime_id` int(11) NOT NULL,
   `service_id` int(11) NOT NULL,
-  PRIMARY KEY  (`downtime_id`,`service_id`),
+  PRIMARY KEY  (`resource_downtime_id`,`service_id`),
   KEY `service_resource_downtime_service` (`service_id`),
-  CONSTRAINT `resource_downtime_resource_downtime_service` FOREIGN KEY (`downtime_id`) REFERENCES `resource_downtime` (`id`),
+  CONSTRAINT `resource_downtime_resource_downtime_service` FOREIGN KEY (`resource_downtime_id`) REFERENCES `resource_downtime` (`id`),
   CONSTRAINT `service_resource_downtime_service` FOREIGN KEY (`service_id`) REFERENCES `service` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 SET character_set_client = @saved_cs_client;
@@ -624,14 +624,14 @@ SET character_set_client = utf8;
 CREATE TABLE `sc_contact` (
   `person_id` int(11) NOT NULL,
   `sc_id` int(11) NOT NULL,
-  `type_id` int(11) NOT NULL,
-  `rank_id` int(11) NOT NULL,
-  PRIMARY KEY  (`person_id`,`sc_id`,`type_id`,`rank_id`),
+  `contact_type_id` int(11) NOT NULL,
+  `contact_rank_id` int(11) NOT NULL,
+  PRIMARY KEY  (`person_id`,`sc_id`,`contact_type_id`,`contact_rank_id`),
   KEY `sc_sc_contact` (`sc_id`),
-  KEY `contact_type_sc_contact` (`type_id`),
-  KEY `contact_rank_sc_contact` (`rank_id`),
-  CONSTRAINT `contact_rank_sc_contact` FOREIGN KEY (`rank_id`) REFERENCES `contact_rank` (`id`),
-  CONSTRAINT `contact_type_sc_contact` FOREIGN KEY (`type_id`) REFERENCES `contact_type` (`id`),
+  KEY `contact_type_sc_contact` (`contact_type_id`),
+  KEY `contact_rank_sc_contact` (`contact_rank_id`),
+  CONSTRAINT `contact_rank_sc_contact` FOREIGN KEY (`contact_rank_id`) REFERENCES `contact_rank` (`id`),
+  CONSTRAINT `contact_type_sc_contact` FOREIGN KEY (`contact_type_id`) REFERENCES `contact_type` (`id`),
   CONSTRAINT `person_sc_contact` FOREIGN KEY (`person_id`) REFERENCES `person` (`id`),
   CONSTRAINT `sc_sc_contact` FOREIGN KEY (`sc_id`) REFERENCES `sc` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
@@ -765,14 +765,14 @@ SET character_set_client = utf8;
 CREATE TABLE `vo_contact` (
   `person_id` int(11) NOT NULL,
   `vo_id` int(11) NOT NULL,
-  `type_id` int(11) NOT NULL,
-  `rank_id` int(11) NOT NULL,
-  PRIMARY KEY  (`person_id`,`vo_id`,`type_id`,`rank_id`),
+  `contact_type_id` int(11) NOT NULL,
+  `contact_rank_id` int(11) NOT NULL,
+  PRIMARY KEY  (`person_id`,`vo_id`,`contact_type_id`,`contact_rank_id`),
   KEY `vo_vo_contact` (`vo_id`),
-  KEY `contact_type_vo_contact` (`type_id`),
-  KEY `contact_rank_vo_contact` (`rank_id`),
-  CONSTRAINT `contact_rank_vo_contact` FOREIGN KEY (`rank_id`) REFERENCES `contact_rank` (`id`),
-  CONSTRAINT `contact_type_vo_contact` FOREIGN KEY (`type_id`) REFERENCES `contact_type` (`id`),
+  KEY `contact_type_vo_contact` (`contact_type_id`),
+  KEY `contact_rank_vo_contact` (`contact_rank_id`),
+  CONSTRAINT `contact_rank_vo_contact` FOREIGN KEY (`contact_rank_id`) REFERENCES `contact_rank` (`id`),
+  CONSTRAINT `contact_type_vo_contact` FOREIGN KEY (`contact_type_id`) REFERENCES `contact_type` (`id`),
   CONSTRAINT `person_vo_contact` FOREIGN KEY (`person_id`) REFERENCES `person` (`id`),
   CONSTRAINT `vo_vo_contact` FOREIGN KEY (`vo_id`) REFERENCES `vo` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
@@ -787,10 +787,10 @@ SET @saved_cs_client     = @@character_set_client;
 SET character_set_client = utf8;
 CREATE TABLE `vo_field_of_science` (
   `vo_id` int(11) NOT NULL,
-  `science_id` int(11) NOT NULL,
-  PRIMARY KEY  (`vo_id`,`science_id`),
-  KEY `field_of_science_vo_field_of_science` (`science_id`),
-  CONSTRAINT `field_of_science_vo_field_of_science` FOREIGN KEY (`science_id`) REFERENCES `field_of_science` (`id`),
+  `field_of_science_id` int(11) NOT NULL,
+  PRIMARY KEY  (`vo_id`,`field_of_science_id`),
+  KEY `field_of_science_vo_field_of_science` (`field_of_science_id`),
+  CONSTRAINT `field_of_science_vo_field_of_science` FOREIGN KEY (`field_of_science_id`) REFERENCES `field_of_science` (`id`),
   CONSTRAINT `vo_vo_field_of_science` FOREIGN KEY (`vo_id`) REFERENCES `vo` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 SET character_set_client = @saved_cs_client;
@@ -822,16 +822,16 @@ SET character_set_client = utf8;
 CREATE TABLE `vo_report_contact` (
   `person_id` int(11) NOT NULL,
   `vo_report_name_id` int(11) NOT NULL,
-  `type_id` int(11) NOT NULL,
-  `rank_id` int(11) NOT NULL,
-  PRIMARY KEY  (`person_id`,`vo_report_name_id`,`type_id`,`rank_id`),
-  KEY `contact_type_vo_report_contact` (`type_id`),
-  KEY `contact_rank_vo_report_contact` (`rank_id`),
+  `contact_type_id` int(11) NOT NULL,
+  `contact_rank_id` int(11) NOT NULL,
+  PRIMARY KEY  (`person_id`,`vo_report_name_id`,`contact_type_id`,`contact_rank_id`),
+  KEY `contact_type_vo_report_contact` (`contact_type_id`),
+  KEY `contact_rank_vo_report_contact` (`contact_rank_id`),
   KEY `vo_report_name_vo_report_contact` (`vo_report_name_id`),
   CONSTRAINT `vo_report_name_vo_report_contact` FOREIGN KEY (`vo_report_name_id`) REFERENCES `vo_report_name` (`id`),
   CONSTRAINT `person_vo_report_contact` FOREIGN KEY (`person_id`) REFERENCES `person` (`id`),
-  CONSTRAINT `contact_rank_vo_report_contact` FOREIGN KEY (`rank_id`) REFERENCES `contact_rank` (`id`),
-  CONSTRAINT `contact_type_vo_report_contact` FOREIGN KEY (`type_id`) REFERENCES `contact_type` (`id`)
+  CONSTRAINT `contact_rank_vo_report_contact` FOREIGN KEY (`contact_rank_id`) REFERENCES `contact_rank` (`id`),
+  CONSTRAINT `contact_type_vo_report_contact` FOREIGN KEY (`contact_type_id`) REFERENCES `contact_type` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 SET character_set_client = @saved_cs_client;
 
@@ -895,11 +895,12 @@ DROP TABLE IF EXISTS `vo_vo`;
 SET @saved_cs_client     = @@character_set_client;
 SET character_set_client = utf8;
 CREATE TABLE `vo_vo` (
-  `child_id` int(11) NOT NULL,
-  `parent_id` int(11) NOT NULL,
-  PRIMARY KEY  (`child_id`),
-  KEY `parent_id` (`parent_id`),
-  CONSTRAINT `vo_vo_ibfk_1` FOREIGN KEY (`child_id`) REFERENCES `vo` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
+  `child_vo_id` int(11) NOT NULL,
+  `parent_vo_id` int(11) NOT NULL,
+  PRIMARY KEY  (`child_vo_id`),
+  KEY `parent_vo_id` (`parent_vo_id`),
+  CONSTRAINT `vo_vo_ibfk_1` FOREIGN KEY (`child_vo_id`) REFERENCES `vo` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION,
+  CONSTRAINT `vo_vo_ibfk_2` FOREIGN KEY (`parent_vo_id`) REFERENCES `vo` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 SET character_set_client = @saved_cs_client;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
