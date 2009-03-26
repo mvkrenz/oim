@@ -112,10 +112,10 @@ SET character_set_client = utf8;
 CREATE TABLE `dn` (
   `id` int(11) NOT NULL auto_increment,
   `dn_string` varchar(1024) collate utf8_unicode_ci NOT NULL,
-  `person_id` int(11) NOT NULL,
+  `contact_id` int(11) NOT NULL,
   PRIMARY KEY  (`id`),
-  KEY `person_dn` (`person_id`),
-  CONSTRAINT `person_dn` FOREIGN KEY (`person_id`) REFERENCES `person` (`id`)
+  KEY `contact_dn` (`contact_id`),
+  CONSTRAINT `contact_dn` FOREIGN KEY (`contact_id`) REFERENCES `contact` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=145 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 SET character_set_client = @saved_cs_client;
 
@@ -146,7 +146,6 @@ SET character_set_client = utf8;
 CREATE TABLE `contact_rank` (
   `id` int(11) NOT NULL auto_increment,
   `name` varchar(512) collate utf8_unicode_ci NOT NULL,
-  `max_no_contacts` int(11) NOT NULL default '1' COMMENT 'There can be one primary and secondary contacts but unlimited tertiary contacts - use max_no_contacts field to enforce this.',
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 SET character_set_client = @saved_cs_client;
@@ -161,8 +160,8 @@ SET character_set_client = utf8;
 CREATE TABLE `contact_type` (
   `id` int(11) NOT NULL auto_increment,
   `name` varchar(512) collate utf8_unicode_ci NOT NULL,
-  `max_no_contacts` int(11) NOT NULL default '1' COMMENT 'This field can be used to specify how many contacts there can be of a particular type; for example, there can be a primary and a secondary operations contact but only one (primary) submitter contact. Default is 1.',
-  `require_dn` tinyint(1) NOT NULL default '0' COMMENT 'This field can be used to specify that for a particular contact_type, a record in a corresponding xyz_contact entity will be required to provide a dn_id field. This can be useful if, say, we want to mandate that a submitter (of a resource, site, etc.) nee',
+  `allow_secondary` tinyint(1) NOT NULL default '0' COMMENT 'Does this contact type allow a secondary contact?',
+  `allow_tertiary`  tinyint(1) NOT NULL default '0' COMMENT 'Does this contact type allow tertiary contacts?',
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 SET character_set_client = @saved_cs_client;
@@ -315,21 +314,6 @@ CREATE TABLE `log` (
 ) ENGINE=InnoDB AUTO_INCREMENT=58 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Log table to store all OIM-DB changes for auditing purposes.';
 SET character_set_client = @saved_cs_client;
 
---
--- Table structure for table `mailing_list`
---
-
-DROP TABLE IF EXISTS `mailing_list`;
-SET @saved_cs_client     = @@character_set_client;
-SET character_set_client = utf8;
-CREATE TABLE `mailing_list` (
-  `id` int(11) NOT NULL auto_increment,
-  `name` varchar(512) collate utf8_unicode_ci NOT NULL,
-  `email` varchar(256) collate utf8_unicode_ci NOT NULL,
-  PRIMARY KEY  (`id`),
-  KEY `email` (`email`(255))
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Table to store mailing list entries formerly stored in perso';
-SET character_set_client = @saved_cs_client;
 
 --
 -- Table structure for table `metric`
@@ -398,7 +382,7 @@ CREATE TABLE `notification` (
   `key` varchar(512) collate utf8_unicode_ci NOT NULL,
   `format` varchar(512) collate utf8_unicode_ci NOT NULL,
   `frequency` varchar(512) collate utf8_unicode_ci NOT NULL,
-  `person_id` int(11) NOT NULL,
+  `contact_id` int(11) NOT NULL,
   `timestamp` timestamp NOT NULL default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP,
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Notification table - who wants to be notified on what change';
@@ -420,17 +404,15 @@ CREATE TABLE `osg_grid_type` (
 SET character_set_client = @saved_cs_client;
 
 --
--- Table structure for table `person`
+-- Table structure for table `contact`
 --
 
-DROP TABLE IF EXISTS `person`;
+DROP TABLE IF EXISTS `contact`;
 SET @saved_cs_client     = @@character_set_client;
 SET character_set_client = utf8;
-CREATE TABLE `person` (
+CREATE TABLE `contact` (
   `id` int(11) NOT NULL auto_increment,
-  `first_name` text collate utf8_unicode_ci,
-  `middle_name` text collate utf8_unicode_ci,
-  `last_name` text collate utf8_unicode_ci,
+  `name` varchar(512) collate utf8_unicode_ci,
   `primary_email` varchar(128) collate utf8_unicode_ci NOT NULL default 'foo@bar.com_CHANGE_THIS',
   `secondary_email` varchar(128) collate utf8_unicode_ci default NULL,
   `primary_phone` varchar(32) collate utf8_unicode_ci NOT NULL default '1-234-567-8900_CHANGE_THIS',
@@ -443,13 +425,14 @@ CREATE TABLE `person` (
   `state` text collate utf8_unicode_ci,
   `zipcode` text collate utf8_unicode_ci,
   `country` varchar(512) collate utf8_unicode_ci default NULL COMMENT 'Fill in using country table data in web code',
-  `optional_submitter_dn_id` int(11) default NULL,
+  `person` tinyint(1) NOT NULL default '0' COMMENT 'This field indicates if a contact is a human being (true) or a mailing list (false)',
+  `submitter_dn_id` int(11) default NULL,
   `active` tinyint(1) NOT NULL default '0' COMMENT 'The active field has to be set by the programmatic interface, it''s set to false by default.',
   `disable` tinyint(1) NOT NULL default '0' COMMENT 'The disable field supersedes the active flag, and can be used to permanently inactivate a record. It has to be set by the programmatic interface, it''s set to false by default.',
   `contact_preference` text collate utf8_unicode_ci COMMENT 'this field can be used to store snippets about person like if they want you to avoid calling them, etc.',
   PRIMARY KEY  (`id`),
-  KEY `dn_person` (`optional_submitter_dn_id`),
-  CONSTRAINT `dn_person` FOREIGN KEY (`optional_submitter_dn_id`) REFERENCES `dn` (`id`)
+  KEY `dn_person` (`submitter_dn_id`),
+  CONSTRAINT `dn_person` FOREIGN KEY (`submitter_dn_id`) REFERENCES `dn` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=265 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='<strong><u>Person</u></strong>: Information about any person';
 SET character_set_client = @saved_cs_client;
 
@@ -504,17 +487,17 @@ DROP TABLE IF EXISTS `resource_contact`;
 SET @saved_cs_client     = @@character_set_client;
 SET character_set_client = utf8;
 CREATE TABLE `resource_contact` (
-  `person_id` int(11) NOT NULL,
+  `contact_id` int(11) NOT NULL,
   `resource_id` int(11) NOT NULL,
   `contact_type_id` int(11) NOT NULL,
   `contact_rank_id` int(11) NOT NULL,
-  PRIMARY KEY  (`person_id`,`resource_id`,`contact_type_id`,`contact_rank_id`),
+  PRIMARY KEY  (`contact_id`,`resource_id`,`contact_type_id`,`contact_rank_id`),
   KEY `resource_resource_contact` (`resource_id`),
   KEY `contact_type_resource_contact` (`contact_type_id`),
   KEY `contact_rank_resource_contact` (`contact_rank_id`),
   CONSTRAINT `contact_rank_resource_contact` FOREIGN KEY (`contact_rank_id`) REFERENCES `contact_rank` (`id`),
   CONSTRAINT `contact_type_resource_contact` FOREIGN KEY (`contact_type_id`) REFERENCES `contact_type` (`id`),
-  CONSTRAINT `person_resource_contact` FOREIGN KEY (`person_id`) REFERENCES `person` (`id`),
+  CONSTRAINT `contact_resource_contact` FOREIGN KEY (`contact_id`) REFERENCES `contact` (`id`),
   CONSTRAINT `resource_resource_contact` FOREIGN KEY (`resource_id`) REFERENCES `resource` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 SET character_set_client = @saved_cs_client;
@@ -622,17 +605,17 @@ DROP TABLE IF EXISTS `sc_contact`;
 SET @saved_cs_client     = @@character_set_client;
 SET character_set_client = utf8;
 CREATE TABLE `sc_contact` (
-  `person_id` int(11) NOT NULL,
+  `contact_id` int(11) NOT NULL,
   `sc_id` int(11) NOT NULL,
   `contact_type_id` int(11) NOT NULL,
   `contact_rank_id` int(11) NOT NULL,
-  PRIMARY KEY  (`person_id`,`sc_id`,`contact_type_id`,`contact_rank_id`),
+  PRIMARY KEY  (`contact_id`,`sc_id`,`contact_type_id`,`contact_rank_id`),
   KEY `sc_sc_contact` (`sc_id`),
   KEY `contact_type_sc_contact` (`contact_type_id`),
   KEY `contact_rank_sc_contact` (`contact_rank_id`),
   CONSTRAINT `contact_rank_sc_contact` FOREIGN KEY (`contact_rank_id`) REFERENCES `contact_rank` (`id`),
   CONSTRAINT `contact_type_sc_contact` FOREIGN KEY (`contact_type_id`) REFERENCES `contact_type` (`id`),
-  CONSTRAINT `person_sc_contact` FOREIGN KEY (`person_id`) REFERENCES `person` (`id`),
+  CONSTRAINT `contact_sc_contact` FOREIGN KEY (`contact_id`) REFERENCES `contact` (`id`),
   CONSTRAINT `sc_sc_contact` FOREIGN KEY (`sc_id`) REFERENCES `sc` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 SET character_set_client = @saved_cs_client;
@@ -763,17 +746,17 @@ DROP TABLE IF EXISTS `vo_contact`;
 SET @saved_cs_client     = @@character_set_client;
 SET character_set_client = utf8;
 CREATE TABLE `vo_contact` (
-  `person_id` int(11) NOT NULL,
+  `contact_id` int(11) NOT NULL,
   `vo_id` int(11) NOT NULL,
   `contact_type_id` int(11) NOT NULL,
   `contact_rank_id` int(11) NOT NULL,
-  PRIMARY KEY  (`person_id`,`vo_id`,`contact_type_id`,`contact_rank_id`),
+  PRIMARY KEY  (`contact_id`,`vo_id`,`contact_type_id`,`contact_rank_id`),
   KEY `vo_vo_contact` (`vo_id`),
   KEY `contact_type_vo_contact` (`contact_type_id`),
   KEY `contact_rank_vo_contact` (`contact_rank_id`),
   CONSTRAINT `contact_rank_vo_contact` FOREIGN KEY (`contact_rank_id`) REFERENCES `contact_rank` (`id`),
   CONSTRAINT `contact_type_vo_contact` FOREIGN KEY (`contact_type_id`) REFERENCES `contact_type` (`id`),
-  CONSTRAINT `person_vo_contact` FOREIGN KEY (`person_id`) REFERENCES `person` (`id`),
+  CONSTRAINT `contact_vo_contact` FOREIGN KEY (`contact_id`) REFERENCES `contact` (`id`),
   CONSTRAINT `vo_vo_contact` FOREIGN KEY (`vo_id`) REFERENCES `vo` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 SET character_set_client = @saved_cs_client;
@@ -820,16 +803,16 @@ DROP TABLE IF EXISTS `vo_report_contact`;
 SET @saved_cs_client     = @@character_set_client;
 SET character_set_client = utf8;
 CREATE TABLE `vo_report_contact` (
-  `person_id` int(11) NOT NULL,
+  `contact_id` int(11) NOT NULL,
   `vo_report_name_id` int(11) NOT NULL,
   `contact_type_id` int(11) NOT NULL,
   `contact_rank_id` int(11) NOT NULL,
-  PRIMARY KEY  (`person_id`,`vo_report_name_id`,`contact_type_id`,`contact_rank_id`),
+  PRIMARY KEY  (`contact_id`,`vo_report_name_id`,`contact_type_id`,`contact_rank_id`),
   KEY `contact_type_vo_report_contact` (`contact_type_id`),
   KEY `contact_rank_vo_report_contact` (`contact_rank_id`),
   KEY `vo_report_name_vo_report_contact` (`vo_report_name_id`),
   CONSTRAINT `vo_report_name_vo_report_contact` FOREIGN KEY (`vo_report_name_id`) REFERENCES `vo_report_name` (`id`),
-  CONSTRAINT `person_vo_report_contact` FOREIGN KEY (`person_id`) REFERENCES `person` (`id`),
+  CONSTRAINT `contact_vo_report_contact` FOREIGN KEY (`contact_id`) REFERENCES `contact` (`id`),
   CONSTRAINT `contact_rank_vo_report_contact` FOREIGN KEY (`contact_rank_id`) REFERENCES `contact_rank` (`id`),
   CONSTRAINT `contact_type_vo_report_contact` FOREIGN KEY (`contact_type_id`) REFERENCES `contact_type` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;

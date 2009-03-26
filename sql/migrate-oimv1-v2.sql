@@ -3,9 +3,14 @@ USE oimnew;
 
 INSERT INTO authorization_type (SELECT auth_type_id,description FROM oim.authorization_type);
 
-INSERT INTO contact_type (SELECT type_id,description,max_no_contacts,require_dn FROM oim.contact_type);
+INSERT INTO contact_type (id,name)
+	(SELECT type_id,description FROM oim.contact_type);
+UPDATE contact_type SET allow_secondary=1 WHERE 
+	id IN (SELECT type_id FROM oim.contact_type WHERE max_no_contacts>1);
+UPDATE contact_type SET allow_tertiary=1 WHERE 
+	id IN (SELECT type_id FROM oim.contact_type WHERE max_no_contacts>2);
 
-INSERT INTO contact_rank (SELECT rank_id, description,max_no_contacts FROM oim.contact_rank);
+INSERT INTO contact_rank (SELECT rank_id, description FROM oim.contact_rank);
 
 INSERT INTO downtime_action (SELECT downtime_action_id,downtime_action_name,downtime_action_desc FROM oim.downtime_action);
 
@@ -51,29 +56,35 @@ INSERT INTO vo_report_name (SELECT id,reporting_name,vo_id FROM oim.vo_report_na
 
 INSERT INTO vo_fqan (SELECT id,fqan,vo_report_name_id FROM oim.vo_fqan);
 
--- Insert person records without submiter_dn for now - will update later
-INSERT INTO person
-	(id, first_name, middle_name, last_name, primary_email, secondary_email,
+-- Insert contact records without submiter_dn for now - will update later
+INSERT INTO contact
+	(id, name, primary_email, secondary_email,
 	primary_phone, primary_phone_ext, secondary_phone, secondary_phone_ext,
 	address_line_1, address_line_2, city, state, zipcode, country,
 	active, disable)
-	(SELECT person_id, first_name, middle_name, last_name, primary_email, secondary_email,
+	(SELECT person_id, CONCAT(first_name,' ', middle_name, ' ', last_name),
+	primary_email, secondary_email,
 	primary_phone, primary_phone_ext, secondary_phone, secondary_phone_ext, 
 	address_line_1, address_line_2, city, state, zipcode, cntry.name,
 	active, disable 
 	FROM oim.person pers 
 	LEFT JOIN oim.country cntry ON (cntry.ccode=pers.ccode)
-	WHERE pers.group_contact=0);
+);
+
+UPDATE contact SET person=TRUE WHERE id IN 
+	(SELECT person_id FROM oim.person WHERE group_contact = 0);
+UPDATE contact SET person=FALSE WHERE id IN 
+	(SELECT person_id FROM oim.person WHERE group_contact = 1);
 
 -- Insert group_contacts into mailing_list
-INSERT INTO mailing_list
-	(id, name, email)
-	(SELECT person_id, CONCAT(first_name, " ", last_name), primary_email
-	FROM oim.person pers
-	WHERE pers.group_contact=1);
+-- INSERT INTO mailing_list
+--	(id, name, email)
+--	(SELECT person_id, CONCAT(first_name, " ", last_name), primary_email
+--	FROM oim.person pers
+--	WHERE pers.group_contact=1);
 
-INSERT INTO dn (id,dn_string,person_id) (SELECT dn_id, dn_string, person_id FROM oim.certificate_dn);
--- UPDATE person SET optional_submitter_dn_id=(SELECT optional_submitter_dn_id FROM oim.person oldPerson WHERE oldPerson.person_id=person.id);
+INSERT INTO dn (id,dn_string,contact_id) (SELECT dn_id, dn_string, person_id FROM oim.certificate_dn);
+UPDATE contact SET submitter_dn_id=(SELECT optional_submitter_dn_id FROM oim.person oldPerson WHERE oldPerson.person_id=contact.id);
 
 INSERT INTO site 
 	(SELECT site_id,site.name,long_name,description,
@@ -112,17 +123,13 @@ UPDATE resource_service res SET server_list_regex=
 
 INSERT INTO resource_alias (resource_id, resource_alias) (SELECT resource_id, resource_alias FROM oim.resource_alias);
 
--- AG
 INSERT INTO resource_contact (SELECT person_id,resource_id,type_id,rank_id FROM oim.resource_contact);
 
--- AG
 INSERT INTO sc_contact (SELECT person_id,sc_id,type_id,rank_id FROM oim.sc_contact);
 
--- AG
 INSERT INTO vo_contact (SELECT person_id,vo_id,type_id,rank_id FROM oim.vo_contact);
 
--- AG
-INSERT INTO vo_report_contact (SELECT person_id,vo_report_name_id FROM oim.vo_report_contact);
+INSERT INTO vo_report_contact (SELECT person_id,vo_report_name_id,type_id,rank_id FROM oim.vo_report_contact);
 
 INSERT INTO resource_downtime (SELECT downtime_id,timestamp,start_time,end_time,downtime_summary,
 	downtime_class_id,downtime_severity_id,resource_id,dn_id,disable FROM oim.resource_downtime);
@@ -143,8 +150,8 @@ INSERT INTO action (id, name) values (1, "write_resource"),
 (10, "admin_vocontact"),
 (11, "write_sc"),
 (12, "admin_sc"),
-(13, "write_person"),
-(14, "admin_person");
+(13, "write_contact"),
+(14, "admin_contact");
 
 INSERT INTO `authorization_type_action` (`authorization_type_id`,`action_id`) VALUES
  (4,1),
