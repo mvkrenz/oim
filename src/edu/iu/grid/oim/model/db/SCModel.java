@@ -5,6 +5,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -22,44 +24,47 @@ public class SCModel extends DBModel {
     public SCModel(java.sql.Connection con, Authorization auth) 
     {
     	super(con, auth);
-    }
-    
-	public ResultSet getAll() throws AuthorizationException, SQLException
-	{
-		ResultSet rs = null;
-		Statement stmt = con.createStatement();
-	    if (stmt.execute("SELECT * FROM sc")) {
-	    	 rs = stmt.getResultSet();
-	    }
+    }    
 
-		return rs;
+	public static HashMap<Integer/*sc_id*/, SCRecord> cache = null;
+    synchronized public void fillCache() throws AuthorizationException, SQLException
+	{
+		if(cache == null) {
+			cache = new HashMap();
+			ResultSet rs = null;
+			Statement stmt = con.createStatement();
+		    if (stmt.execute("SELECT * FROM sc")) {
+		    	 rs = stmt.getResultSet();
+		    }
+		    while(rs.next()) {
+		    	SCRecord rec = new SCRecord(rs);
+		    	cache.put(rec.id, rec);
+		    }	
+		}
 	}
 	
-	public ArrayList<SCRecord> getAllAccessible() throws AuthorizationException, SQLException
-	{
-		ArrayList<SCRecord> list = new ArrayList();
-		
-		ResultSet rs = getAll();
+	public Collection<SCRecord> getAllEditable() throws AuthorizationException, SQLException
+	{	
+		fillCache();
    
 	    if(auth.allows("admin_sc")) {
 	    	//admin can edit all scs
-		    while(rs.next()) {
-		    	list.add(new SCRecord(rs));
-		    }	    	
+	    	return cache.values();
 	    } else {
-	    	HashSet<Integer> accessible = getAccessibleIDs();
-		    while(rs.next()) {
-		    	SCRecord rec = new SCRecord(rs);
+	    	//only select record that is editable
+			ArrayList<SCRecord> list = new ArrayList();
+	    	HashSet<Integer> accessible = getEditableIDs();
+		    for(SCRecord rec : cache.values()) {
 		    	if(accessible.contains(rec.id)) {
 		    		list.add(rec);
 		    	}
 		    }	    	
+		    return list;
 	    }
-		return list;
 	}
 	
 	//returns all record id that the user has access to
-	private HashSet<Integer> getAccessibleIDs() throws SQLException
+	private HashSet<Integer> getEditableIDs() throws SQLException
 	{
 		HashSet<Integer> list = new HashSet<Integer>();
 		ResultSet rs = null;
@@ -81,22 +86,14 @@ public class SCModel extends DBModel {
 		return list;
 	}
 	
+	public Collection<SCRecord> getAll() throws AuthorizationException, SQLException {
+		fillCache();
+		return cache.values();
+	}
 	public SCRecord get(int sc_id) throws AuthorizationException, SQLException
 	{
-		ResultSet rs = null;
-		PreparedStatement stmt = null;
-
-		String sql = "SELECT * FROM sc WHERE id = ?";
-		stmt = con.prepareStatement(sql); 
-		stmt.setInt(1, sc_id);
-
-
-		rs = stmt.executeQuery();
-		if(rs.next()) {
-			return new SCRecord(rs);
-		}
-		log.warn("Couldn't find sc where id = " + sc_id);
-		return null;
+		fillCache();
+		return cache.get(sc_id);
 	}
 }
 

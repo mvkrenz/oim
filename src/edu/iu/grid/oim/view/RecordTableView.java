@@ -4,6 +4,11 @@ import edu.iu.grid.oim.view.TableView;
 
 public class RecordTableView extends TableView {
 	
+	public RecordTableView()
+	{
+		setClass("record_table");
+	}
+	
 	public void addRow(String header, String value)
 	{
 		Row row = new Row();

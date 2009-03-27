@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 
 import org.apache.log4j.Logger;
@@ -178,13 +179,10 @@ public class VOFormDE extends FormDE
 	
 	private HashMap<Integer, String> getSCs() throws AuthorizationException, SQLException
 	{
-		//pull all SCs
-		ResultSet scs = null;
 		SCModel model = new SCModel(con, auth);
-		scs = model.getAll();
+		Collection<SCRecord> scs = model.getAll();
 		HashMap<Integer, String> keyvalues = new HashMap<Integer, String>();
-		while(scs.next()) {
-			SCRecord rec = new SCRecord(scs);
+		for(SCRecord rec : scs) {
 			keyvalues.put(rec.id, rec.name);
 		}
 		return keyvalues;

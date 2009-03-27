@@ -48,7 +48,7 @@ public class VOModel extends DBModel {
 		    }	    	
 	    } else {
 	    	//non-admin need to lookup vo_contact table
-	    	HashSet<Integer> accessible = getAccessibleIDs();
+	    	HashSet<Integer> accessible = getEditableIDs();
 		    while(rs.next()) {
 		    	VORecord rec = new VORecord(rs);
 		    	if(accessible.contains(rec.id)) {
@@ -60,7 +60,7 @@ public class VOModel extends DBModel {
 	}
 	
 	//returns all record id that the user has access to
-	private HashSet<Integer> getAccessibleIDs() throws SQLException, AuthorizationException
+	private HashSet<Integer> getEditableIDs() throws SQLException, AuthorizationException
 	{
 		HashSet<Integer> list = new HashSet<Integer>();
 		ResultSet rs = null;

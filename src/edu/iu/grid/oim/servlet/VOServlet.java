@@ -88,7 +88,6 @@ public class VOServlet extends ServletBase implements Servlet {
 			
 			RecordTableView table = new RecordTableView();
 			contentview.add(table);
-			table.setClass("record_table");
 			table.addRow("Long Name", rec.long_name);
 			table.addRow("Description", rec.description);
 			table.addRow("Primary URL", rec.primary_url);
