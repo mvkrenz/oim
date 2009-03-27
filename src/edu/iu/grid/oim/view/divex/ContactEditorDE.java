@@ -121,7 +121,7 @@ public class ContactEditorDE extends DivEx {
 		}
 		public String renderInside()
 		{
-			String out = "<span class=\"contact\">"; 
+			String out = "<span class=\"contact round\">"; 
 			out += person.name;
 			out += removebutton.render();
 			out += "</span>&nbsp;";

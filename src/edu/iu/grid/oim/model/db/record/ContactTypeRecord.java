@@ -7,17 +7,9 @@ public class ContactTypeRecord implements IRecord {
 
 	public Integer id;
 	public String name;
-
 	public Integer require_dn;
-
 	public Boolean allow_secondary;
 	public Boolean allow_tertiary;
-
-	
-	public String getTableName()
-	{
-		return "contact_type";
-	}
 	
 	//load from existing record
 	public ContactTypeRecord(ResultSet rs) throws SQLException {

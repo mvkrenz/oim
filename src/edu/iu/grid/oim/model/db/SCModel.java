@@ -26,8 +26,8 @@ public class SCModel extends DBModel {
     	super(con, auth);
     }    
 
-	public static HashMap<Integer/*sc_id*/, SCRecord> cache = null;
-    synchronized public void fillCache() throws AuthorizationException, SQLException
+	private static HashMap<Integer/*sc_id*/, SCRecord> cache = null;
+	public void fillCache() throws AuthorizationException, SQLException
 	{
 		if(cache == null) {
 			cache = new HashMap();
@@ -42,6 +42,10 @@ public class SCModel extends DBModel {
 		    }	
 		}
 	}
+	public void emptyCache() //used after we do insert/update
+    {
+	 	cache = null;
+    }
 	
 	public Collection<SCRecord> getAllEditable() throws AuthorizationException, SQLException
 	{	

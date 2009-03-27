@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Set;
 
@@ -21,15 +22,18 @@ import com.webif.divex.DivExRoot;
 import com.webif.divex.Event;
 
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
+import edu.iu.grid.oim.model.db.ContactRankModel;
 import edu.iu.grid.oim.model.db.ContactTypeModel;
 import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.SCContactModel;
 import edu.iu.grid.oim.model.db.SCModel;
 import edu.iu.grid.oim.model.db.VOContactModel;
 import edu.iu.grid.oim.model.db.VOModel;
+import edu.iu.grid.oim.model.db.record.ContactRankRecord;
 import edu.iu.grid.oim.model.db.record.ContactTypeRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.SCRecord;
+import edu.iu.grid.oim.model.db.record.VOContactRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
 import edu.iu.grid.oim.view.ContentView;
 import edu.iu.grid.oim.view.HtmlView;
@@ -55,7 +59,7 @@ public class VOServlet extends ServletBase implements Servlet {
 		setAuth(request);
 		
 		//pull list of all vos
-		ArrayList<VORecord> vos = null;
+		Collection<VORecord> vos = null;
 		VOModel model = new VOModel(con, auth);
 		try {
 			vos = model.getAllEditable();
@@ -73,16 +77,12 @@ public class VOServlet extends ServletBase implements Servlet {
 		}
 	}
 	
-	protected ContentView createContentView(final DivExRoot root, ArrayList<VORecord> vos) 
+	protected ContentView createContentView(final DivExRoot root, Collection<VORecord> vos) 
 		throws ServletException, SQLException
 	{
 		ContentView contentview = new ContentView();	
 		contentview.add("<h1>Virtual Organization</h1>");
-		
-		VOContactModel vocmodel = new VOContactModel(con, auth);
-		ContactTypeModel ctmodel = new ContactTypeModel(con, auth);
-		ContactModel pmodel = new ContactModel(con, auth);
-		
+	
 		for(VORecord rec : vos) {
 			contentview.add("<h2>"+Utils.strFilter(rec.name)+"</h2>");
 			
@@ -102,22 +102,31 @@ public class VOServlet extends ServletBase implements Servlet {
 			table.addRow("Active", rec.active);
 			table.addRow("Disable", rec.disable);
 			
+			VOContactModel vocmodel = new VOContactModel(con, auth);
+			ContactTypeModel ctmodel = new ContactTypeModel(con, auth);
+			ContactRankModel crmodel = new ContactRankModel(con, auth);
+			ContactModel pmodel = new ContactModel(con, auth);
+			
 			//contacts
-			HashMap<Integer, ArrayList<Integer>> voclist = vocmodel.get(rec.id);
+			HashMap<Integer, ArrayList<VOContactRecord>> voclist = vocmodel.get(rec.id);
 			for(Integer type_id : voclist.keySet()) {
-				ArrayList<Integer> clist = voclist.get(type_id);
+				ArrayList<VOContactRecord> clist = voclist.get(type_id);
 				ContactTypeRecord ctrec = ctmodel.get(type_id);
 				
 				String cliststr = "";
-				for(Integer contact_id : clist) {
-					ContactRecord person = pmodel.get(contact_id);
-					cliststr += person.name + "<br/>";
+				for(VOContactRecord vcrec : clist) {
+					ContactRecord person = pmodel.get(vcrec.contact_id);
+					ContactRankRecord rank = crmodel.get(vcrec.contact_rank_id);
+
+					cliststr += "<div class='contact contact_"+rank.name+"'>";
+					cliststr += person.name;
+					cliststr += "</div>";
+					
 				}
 				
 				table.addHtmlRow(ctrec.name, cliststr);
 			}
 			
-
 			class EditButtonDE extends ButtonDE
 			{
 				String url;

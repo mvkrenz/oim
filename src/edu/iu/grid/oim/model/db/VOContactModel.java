@@ -22,24 +22,24 @@ public class VOContactModel extends DBModel {
 		// TODO Auto-generated constructor stub
 	}
 	
-	public HashMap<Integer/*type_id*/, ArrayList<Integer/*contact_id*/>> get(Integer vo_id) throws AuthorizationException, SQLException
+	public HashMap<Integer/*type_id*/, ArrayList<VOContactRecord>> get(Integer vo_id) throws AuthorizationException, SQLException
 	{	
 		fillCache();
 
-		HashMap<Integer, ArrayList<Integer>> list = new HashMap();
+		HashMap<Integer, ArrayList<VOContactRecord>> list = new HashMap();
 		if(cache.containsKey(vo_id)) {
 			ArrayList<VOContactRecord> recs = cache.get(vo_id);
 			for(VOContactRecord rec : recs) {
 				//group records by type_id and create lists of contact_id
-				ArrayList<Integer> a = null;
+				ArrayList<VOContactRecord> array = null;
 				if(!list.containsKey(rec.contact_type_id)) {
 					//never had this type
-					a = new ArrayList<Integer>();
-					list.put(rec.contact_type_id, a);
+					array = new ArrayList<VOContactRecord>();
+					list.put(rec.contact_type_id, array);
 				} else {
-					a = list.get(rec.contact_type_id);
+					array = list.get(rec.contact_type_id);
 				}	
-				a.add(rec.contact_id);
+				array.add(rec);
 			}
 			return list;
 		}
@@ -56,7 +56,7 @@ public class VOContactModel extends DBModel {
 		
 		cache = new HashMap();
 		
-		String sql = "SELECT * FROM vo_contact";
+		String sql = "SELECT * FROM vo_contact order by contact_rank_id";
 		PreparedStatement stmt = null;
 		stmt = con.prepareStatement(sql); 
 		ResultSet rs = stmt.executeQuery();

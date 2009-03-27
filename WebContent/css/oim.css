@@ -9,6 +9,8 @@ table.record_table
 padding-bottom: 5px;
 margin-bottom: 5px;
 width: 100%;
+border-collapse: collapse;
+line-height: 180%;
 }
 
 table.record_table td.record_data
@@ -19,7 +21,8 @@ border-bottom: 1px solid #ccc;
 table.record_table th
 {
 text-align: left;
-width: 160px;
+width: 220px;
+border-bottom: 1px solid #ccc;
 }
 
 .form input[type='text']
@@ -70,7 +73,7 @@ padding-left:25px;
 }
 
 /*round*/
-p.elementerror, .contact_editor span.contact
+.round
 {
 -moz-border-radius-topleft: 5px;
 -moz-border-radius-topright: 5px;
@@ -89,4 +92,25 @@ display: none;
 div.inline
 {
 display: inline;
+}
+
+div.contact
+{
+background-position: 0px 2px;
+background-repeat:no-repeat;
+padding-left:20px;
+}
+
+div.contact_Primary
+{
+background-image:url(../images/star_red.png);
+
+}
+div.contact_Secondary
+{
+background-image:url(../images/star_blue.png);
+}
+div.contact_Tertiary
+{
+background-image:url(../images/star_green.png);
 }

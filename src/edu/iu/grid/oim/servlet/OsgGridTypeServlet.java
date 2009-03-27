@@ -67,7 +67,6 @@ public class OsgGridTypeServlet extends ServletBase implements Servlet {
 			
 			RecordTableView table = new RecordTableView();
 			contentview.add(table);
-			table.setClass("record_table");
 			table.addRow("Description", rec.description);
 			
 			class EditButtonDE extends ButtonDE

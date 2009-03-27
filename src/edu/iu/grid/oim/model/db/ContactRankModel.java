@@ -10,19 +10,20 @@ import java.util.HashMap;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
+import edu.iu.grid.oim.model.db.record.ContactRankRecord;
 import edu.iu.grid.oim.model.db.record.ContactTypeRecord;
 import edu.iu.grid.oim.model.db.record.VOContactRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
 
-public class ContactTypeModel extends DBModel {
+public class ContactRankModel extends DBModel {
 
-	public static HashMap<Integer, ContactTypeRecord> cache = null;
+	public static HashMap<Integer, ContactRankRecord> cache = null;
 		
-	public ContactTypeModel(Connection _con, Authorization _auth) {
+	public ContactRankModel(Connection _con, Authorization _auth) {
 		super(_con, _auth);
 	}
 	
-	public ContactTypeRecord get(int id) throws SQLException
+	public ContactRankRecord get(int id) throws SQLException
 	{
 		fillCache();
 		Integer key = new Integer(id);
@@ -38,13 +39,13 @@ public class ContactTypeModel extends DBModel {
 	{
 		if(cache == null) {
 			PreparedStatement stmt = null;
-			cache = new HashMap<Integer, ContactTypeRecord>();
+			cache = new HashMap<Integer, ContactRankRecord>();
 	
-			String sql = "SELECT * from contact_type";
+			String sql = "SELECT * from contact_rank";
 			stmt = con.prepareStatement(sql); 
 			ResultSet rs = stmt.executeQuery();
 			while(rs.next()) {
-				ContactTypeRecord rec = new ContactTypeRecord(rs);
+				ContactRankRecord rec = new ContactRankRecord(rs);
 				cache.put(rec.id, rec);
 			}
 		}

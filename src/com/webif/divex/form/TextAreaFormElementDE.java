@@ -92,7 +92,7 @@ public class TextAreaFormElementDE extends DivEx implements IFormElementDE  {
 			html += " * Required";
 		}
 		if(error != null) {
-			html += "<p class='elementerror'>"+StringEscapeUtils.escapeHtml(error)+"</p>";
+			html += "<p class='elementerror round'>"+StringEscapeUtils.escapeHtml(error)+"</p>";
 		}
 
 		return html;

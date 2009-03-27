@@ -81,7 +81,7 @@ public class TableView extends View {
 		}
 		
 		//display toolbar
-		out += "<tr><th></th><td>"+super.toHTML()+"</td></tr>";
+		out += "<tr><td></td><td>"+super.toHTML()+"</td></tr>";
 		
 		out += "</table>";
 		return out;

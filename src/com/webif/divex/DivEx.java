@@ -13,6 +13,15 @@ public abstract class DivEx {
 	private String js = "";
 	private HashMap<String, String> div_attr = new HashMap();
 	
+	public DivEx(DivEx _parent) {
+		nodeid = DivExRoot.getNewNodeID();
+		if(_parent != null) {
+			_parent.add(this);
+		}
+		
+		div_attr.put("class", "divex"); //what is this really for? so that user can put border:0px stuff for .divex?
+	}
+	
 	protected ArrayList<DivEx> childnodes = new ArrayList();
 	
 	//set attr to apply to the div
@@ -41,8 +50,8 @@ public abstract class DivEx {
 	
 	public String getNodeID() { return nodeid; }
 
-	//DivEx Servlet calls this on *root* upon completion of event handler
-	public String outputUpdatecode()
+	//DivEx calls this on *root* upon completion of event handler
+	protected String outputUpdatecode()
 	{
 		//start with user specified js code
 		String code = js;
@@ -51,15 +60,15 @@ public abstract class DivEx {
 		//find child nodes who needs update
 		if(needupdate) {
 			String success = "";
-			
 			code += "$(\"#"+nodeid+"\").load(\"divex?action=load&nodeid="+nodeid+"\", function(){"+success+"});";
-			
 			//I don't need to update any of my child - parent will redraw all of it.
 			setNeedupdate(false);
+		} else {
+			//see if any of my children needs update
+			for(DivEx d : childnodes) {
+				code += d.outputUpdatecode();
+			}
 		}
-		for(DivEx d : childnodes) {
-			code += d.outputUpdatecode();
-		}	
 		
 		return code;
 	}
@@ -71,15 +80,6 @@ public abstract class DivEx {
 		for(DivEx node : childnodes) {
 			node.setNeedupdate(b);
 		}
-	}
-	
-	public DivEx(DivEx _parent) {
-		nodeid = DivExRoot.getNewNodeID();
-		if(_parent != null) {
-			_parent.add(this);
-		}
-		
-		div_attr.put("class", "divex");
 	}
 	
 	public void add(DivEx child)
@@ -135,28 +135,22 @@ public abstract class DivEx {
 	{
 		String action = request.getParameter("action");
 		if(action.compareTo("load") == 0) {
-			//we don't synchronize load action - load should be read-only
 			PrintWriter writer = response.getWriter();
 			response.setContentType("text/html");
 			writer.print(renderInside());
 		} else if(action.compareTo("request") == 0) {
-			//we don't synchronize request action - request is like a load, but it could be anything
 			this.onRequest(request, response);
 		} else {
-			//synchronize the entire divex event handling - for now.
-			synchronized(root) {
-				Event e = new Event(request, response);
+			Event e = new Event(request, response);
 
-				//handle my event handler
-				this.onEvent(e);
-				
-				//notify event listener
-				for(EventListener listener : event_listeners) {
-					listener.handleEvent(e);
-				}
+			//handle my event handler
+			this.onEvent(e);
+			//notify event listener
+			for(EventListener listener : event_listeners) {
+				listener.handleEvent(e);
 			}
 
-			//emit all requested code
+			//emit all requested update code
 			PrintWriter writer = response.getWriter();
 			response.setContentType("text/javascript");
 			writer.print(root.outputUpdatecode());

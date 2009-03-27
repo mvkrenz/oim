@@ -29,4 +29,11 @@ public class DivExRoot extends DivEx
     	}
     	return root;
 	}
+	
+	//override it with public interface since this is root. user can call this at root to emit
+	//all update code
+	public String outputUpdatecode()
+	{
+		return super.outputUpdatecode();
+	}
 }

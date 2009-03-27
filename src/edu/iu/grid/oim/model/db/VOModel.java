@@ -5,6 +5,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -12,6 +14,7 @@ import org.apache.log4j.Logger;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
+import edu.iu.grid.oim.model.db.record.SCRecord;
 import edu.iu.grid.oim.model.db.record.VOContactRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
 
@@ -23,40 +26,50 @@ public class VOModel extends DBModel {
     	super(con, auth);
     }
     
-	public ResultSet getAll() throws AuthorizationException, SQLException
-	{
-		ResultSet rs = null;
-
-		Statement stmt = con.createStatement();
-	    if (stmt.execute("SELECT * FROM vo")) {
-	    	 rs = stmt.getResultSet();
-	    }
-	    
-		return rs;
+	public Collection<VORecord> getAll() throws AuthorizationException, SQLException {
+		fillCache();
+		return cache.values();
 	}
 	
-	public ArrayList<VORecord> getAllEditable() throws AuthorizationException, SQLException
+	private static HashMap<Integer/*vo_id*/, VORecord> cache = null;
+    public void fillCache() throws AuthorizationException, SQLException
 	{
-		ArrayList<VORecord> list = new ArrayList();
-
-	    ResultSet rs = getAll();
-	    
-	    if(auth.allows("admin_vo")) {
-	    	//admin can edit all vos
-		    while(rs.next()) {
-		    	list.add(new VORecord(rs));
-		    }	    	
-	    } else {
-	    	//non-admin need to lookup vo_contact table
-	    	HashSet<Integer> accessible = getEditableIDs();
+		if(cache == null) {
+			cache = new HashMap();
+			ResultSet rs = null;
+			Statement stmt = con.createStatement();
+		    if (stmt.execute("SELECT * FROM vo")) {
+		    	 rs = stmt.getResultSet();
+		    }
 		    while(rs.next()) {
 		    	VORecord rec = new VORecord(rs);
+		    	cache.put(rec.id, rec);
+		    }	
+		}
+	}
+    public void emptyCache() //used after we do insert/update
+    {
+   		cache = null;
+    }
+	
+	public Collection<VORecord> getAllEditable() throws AuthorizationException, SQLException
+	{	
+		fillCache();
+   
+	    if(auth.allows("admin_vo")) {
+	    	//admin can edit all scs
+	    	return cache.values();
+	    } else {
+	    	//only select record that is editable
+			ArrayList<VORecord> list = new ArrayList();
+	    	HashSet<Integer> accessible = getEditableIDs();
+		    for(VORecord rec : cache.values()) {
 		    	if(accessible.contains(rec.id)) {
 		    		list.add(rec);
 		    	}
-		    }	    
+		    }	    	
+		    return list;
 	    }
-		return list;
 	}
 	
 	//returns all record id that the user has access to
@@ -83,25 +96,12 @@ public class VOModel extends DBModel {
 	
 	public VORecord get(int vo_id) throws AuthorizationException, SQLException
 	{
-		ResultSet rs = null;
-
-		PreparedStatement stmt = null;
-
-		String sql = "SELECT * FROM vo WHERE id = ?";
-		stmt = con.prepareStatement(sql); 
-		stmt.setInt(1, vo_id);
-
-		rs = stmt.executeQuery();
-		if(rs.next()) {
-			return new VORecord(rs);
-		}
-		log.warn("Couldn't find vo where id = " + vo_id);
-
-		return null;
+		fillCache();
+		return cache.get(vo_id);
 	}
 	
 	public void insert(VORecord rec) throws AuthorizationException, SQLException
-	{
+	{	
 		auth.check("write_vo");
 		PreparedStatement stmt = null;
 
@@ -140,6 +140,7 @@ public class VOModel extends DBModel {
 		log.insert("insert_vo", id, stmt.toString());
 		
 		stmt.close();
+		emptyCache();
 	}
 	
 	public void update(VORecord rec) throws AuthorizationException, SQLException
@@ -174,8 +175,10 @@ public class VOModel extends DBModel {
 		log.insert("update_vo", rec.id, stmt.toString());
 		
 		stmt.close(); 	
+		emptyCache();
 	}
 	
+	/*
 	public void delete(int id) throws AuthorizationException, SQLException
 	{
 		auth.check("admin_vo");
@@ -191,6 +194,8 @@ public class VOModel extends DBModel {
 		log.insert("delete_vo", id, stmt.toString());
 		
 		stmt.close(); 	
+		emptyCache();
 	}
+	*/
 }
 

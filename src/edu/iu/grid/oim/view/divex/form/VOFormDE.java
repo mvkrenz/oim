@@ -20,14 +20,17 @@ import com.webif.divex.form.validator.UrlValidator;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
+import edu.iu.grid.oim.model.db.ContactRankModel;
 import edu.iu.grid.oim.model.db.ContactTypeModel;
 import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.SCModel;
 import edu.iu.grid.oim.model.db.VOContactModel;
 import edu.iu.grid.oim.model.db.VOModel;
+import edu.iu.grid.oim.model.db.record.ContactRankRecord;
 import edu.iu.grid.oim.model.db.record.ContactTypeRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.SCRecord;
+import edu.iu.grid.oim.model.db.record.VOContactRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
 import edu.iu.grid.oim.view.divex.ContactEditorDE;
 import edu.iu.grid.oim.view.divex.FormDE;
@@ -150,7 +153,7 @@ public class VOFormDE extends FormDE
 		
 		//contacts
 		VOContactModel vocmodel = new VOContactModel(con, auth);
-		HashMap<Integer, ArrayList<Integer>> voclist = vocmodel.get(id);
+		HashMap<Integer, ArrayList<VOContactRecord>> voclist = vocmodel.get(id);
 		ContactTypeModel ctmodel = new ContactTypeModel(con, auth);
 		renderContactEditor(voclist, ctmodel.get(1));//submitter
 		renderContactEditor(voclist, ctmodel.get(2));//security contact
@@ -162,16 +165,19 @@ public class VOFormDE extends FormDE
 		renderContactEditor(voclist, ctmodel.get(10));//VO report contact
 	}
 	
-	private void renderContactEditor(HashMap<Integer, ArrayList<Integer>> voclist, ContactTypeRecord ctrec) throws SQLException
+	private void renderContactEditor(HashMap<Integer, ArrayList<VOContactRecord>> voclist, ContactTypeRecord ctrec) throws SQLException
 	{
 		new StaticDE(this, "<h4>" + ctrec.name + "</h4>");
 		ContactModel pmodel = new ContactModel(con, auth);
+		ContactRankModel crmodel = new ContactRankModel(con, auth);
 		
 		ContactEditorDE editor = new ContactEditorDE(this, pmodel);
-		ArrayList<Integer> clist = voclist.get(ctrec.id);
+		ArrayList<VOContactRecord> clist = voclist.get(ctrec.id);
 		if(clist != null) {
-			for(Integer contact_id : clist) {
-				ContactRecord person = pmodel.get(contact_id);
+			for(VOContactRecord rec : clist) {
+				ContactRecord person = pmodel.get(rec.contact_id);
+				ContactRankRecord rank = crmodel.get(rec.contact_rank_id);
+				
 				editor.addSelected(person);
 			}
 		}
@@ -191,12 +197,10 @@ public class VOFormDE extends FormDE
 	private HashMap<Integer, String> getVOs() throws AuthorizationException, SQLException
 	{
 		//pull all VOs
-		ResultSet vos = null;
 		VOModel model = new VOModel(con, auth);
-		vos = model.getAll();
+		Collection<VORecord> vos = model.getAll();
 		HashMap<Integer, String> keyvalues = new HashMap<Integer, String>();
-		while(vos.next()) {
-			VORecord rec = new VORecord(vos);
+		for(VORecord rec : vos) {
 			keyvalues.put(rec.id, rec.name);
 		}
 		return keyvalues;

@@ -49,7 +49,7 @@ public class SelectFormElementDE extends DivEx implements IFormElementDE
 			out += " * Required";
 		}
 		if(error != null) {
-			out += "<p class='elementerror'>"+StringEscapeUtils.escapeHtml(error)+"</p>";
+			out += "<p class='elementerror round'>"+StringEscapeUtils.escapeHtml(error)+"</p>";
 		}
 		return out;
 	}
