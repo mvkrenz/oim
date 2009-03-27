@@ -88,7 +88,7 @@ public class VOModel extends DBModel {
 
 		PreparedStatement stmt = null;
 
-		String sql = "SELECT * FROM virtualorganization WHERE id = ?";
+		String sql = "SELECT * FROM vo WHERE id = ?";
 		stmt = con.prepareStatement(sql); 
 		stmt.setInt(1, vo_id);
 
@@ -106,7 +106,7 @@ public class VOModel extends DBModel {
 		auth.check(Action.write_vo);
 		PreparedStatement stmt = null;
 
-		String sql = "INSERT INTO virtualorganization "+
+		String sql = "INSERT INTO vo "+
 			" VALUES (null, ?,?, ?,?, ?,?, ?,?, ?,?, ?,?, ?,?)";
 		stmt = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS); 
 		
@@ -156,7 +156,7 @@ public class VOModel extends DBModel {
 		auth.check(Action.write_vo);
 		PreparedStatement stmt = null;
 
-		String sql = "UPDATE virtualorganization SET "+
+		String sql = "UPDATE vo SET "+
 			"name=?, long_name=?, description=?, primary_url=?, aup_url=?, membership_services_url=?, "+
 			"purpose_url=?, support_url=?, app_description=?, community=?, sc_id=?, active=?, disable=?, footprints_id=? "+
 			"WHERE id=?";
@@ -198,7 +198,7 @@ public class VOModel extends DBModel {
 		auth.check(Action.admin_vo);
 		PreparedStatement stmt = null;
 
-		String sql = "DELETE FROM virtualorganization WHERE id=?";
+		String sql = "DELETE FROM vo WHERE id=?";
 		stmt = con.prepareStatement(sql); 
 		
 		stmt.setInt(1, id);
