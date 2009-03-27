@@ -57,6 +57,7 @@ public class ServletBase extends HttpServlet {
 		ArrayList<MenuItem> menu = new ArrayList<MenuItem>();
 		menu.add(new MenuItem("Home", "home"));
 		menu.add(new MenuItem("Virtual Organization", "vo"));		
+		menu.add(new MenuItem("OSG Grid Type", "osg_grid_type"));		
 		MenuView menuview = new MenuView(menu, current);
 		return menuview;
 	}
