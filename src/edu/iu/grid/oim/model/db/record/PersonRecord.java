@@ -6,25 +6,21 @@ import java.sql.SQLException;
 public class PersonRecord implements IRecord {
 
 	public Integer id;
-	public String first_name;
-	public String middle_name;
-	public String last_name;
+	public String name;
 	public String primary_email, secondary_email;
 	public String primary_phone, secondary_phone;
 	public String primary_phone_ext, secondary_phone_ext;
 	public String address_line_1, address_line_2;
 	public String city, state, zipcode, country;
+	public Boolean person;
 	public Boolean active;
 	public Boolean disable;
 	public String contact_preference;
 	
 	//load from existing record
 	public PersonRecord(ResultSet rs) throws SQLException {
-		id = rs.getInt("id");
-		
-		first_name = rs.getString("first_name");
-		middle_name = rs.getString("middle_name");
-		last_name = rs.getString("last_name");
+		id 		= rs.getInt("id");
+		name 	= rs.getString("name");
 		
 		primary_email = rs.getString("primary_email");
 		secondary_email = rs.getString("secondary_email");
@@ -43,6 +39,7 @@ public class PersonRecord implements IRecord {
 		zipcode = rs.getString("zipcode");
 		country = rs.getString("country");
 		
+		person = rs.getBoolean("person");
 		active = rs.getBoolean("active");
 		disable = rs.getBoolean("disable");
 		
@@ -55,8 +52,4 @@ public class PersonRecord implements IRecord {
 	{
 	}
 	
-	public String getFullName()
-	{
-		return first_name + " " + last_name;
-	}
 }

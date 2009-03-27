@@ -18,8 +18,7 @@ public class ContactRankRecord implements IRecord {
 	public ContactRankRecord(ResultSet rs) throws SQLException {
 		id 				= rs.getInt("id");
 		name 			= rs.getString("name");
-		max_no_contacts = rs.getInt("max_no_contacts"); 
-			}
+	}
 	
 	//for creating new record
 	public ContactRankRecord()

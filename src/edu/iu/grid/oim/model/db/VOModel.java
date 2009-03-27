@@ -29,7 +29,7 @@ public class VOModel extends DBModel {
 		ResultSet rs = null;
 
 		Statement stmt = con.createStatement();
-	    if (stmt.execute("SELECT * FROM virtualorganization")) {
+	    if (stmt.execute("SELECT * FROM vo")) {
 	    	 rs = stmt.getResultSet();
 	    }
 	    
@@ -70,12 +70,12 @@ public class VOModel extends DBModel {
 
 		String sql = "SELECT * FROM vo_contact WHERE person_id = ?";
 		stmt = con.prepareStatement(sql); 
-		stmt.setInt(1, auth.getPersonID());
+		stmt.setInt(1, auth.getContactID());
 
 		rs = stmt.executeQuery();
 		while(rs.next()) {
 			VOContactRecord rec = new VOContactRecord(rs);	    
-			if(isAccessibleType(rec.type_id)) {
+			if(isAccessibleType(rec.contact_type_id)) {
 				list.add(rec.vo_id);
 			}
 		}

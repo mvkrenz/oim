@@ -30,7 +30,7 @@ public class SCModel extends DBModel {
 		ResultSet rs = null;
 		try {
 			Statement stmt = con.createStatement();
-		    if (stmt.execute("SELECT * FROM supportcenter")) {
+		    if (stmt.execute("SELECT * FROM sc")) {
 		    	 rs = stmt.getResultSet();
 		    }
 		} catch(SQLException e) {
@@ -72,7 +72,7 @@ public class SCModel extends DBModel {
 
 			String sql = "SELECT * FROM sc_contact WHERE person_id = ?";
 			stmt = con.prepareStatement(sql); 
-			stmt.setInt(1, auth.getPersonID());
+			stmt.setInt(1, auth.getContactID());
 
 			rs = stmt.executeQuery();
 			while(rs.next()) {
@@ -94,7 +94,7 @@ public class SCModel extends DBModel {
 		try {
 			PreparedStatement stmt = null;
 
-			String sql = "SELECT * FROM supportcenter WHERE id = ?";
+			String sql = "SELECT * FROM sc WHERE id = ?";
 			stmt = con.prepareStatement(sql); 
 			stmt.setInt(1, sc_id);
 

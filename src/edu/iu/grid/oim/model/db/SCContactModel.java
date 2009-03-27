@@ -44,7 +44,7 @@ public class SCContactModel extends DBModel {
 				} else {
 					a = list.get(rec.type_id);
 				}	
-				a.add(rec.person_id);
+				a.add(rec.contact_id);
 			}
 			return list;
 		}

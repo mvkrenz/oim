@@ -32,14 +32,14 @@ public class VOContactModel extends DBModel {
 			for(VOContactRecord rec : recs) {
 				//group records by type_id and create lists of person_id
 				ArrayList<Integer> a = null;
-				if(!list.containsKey(rec.type_id)) {
+				if(!list.containsKey(rec.contact_type_id)) {
 					//never had this type
 					a = new ArrayList<Integer>();
-					list.put(rec.type_id, a);
+					list.put(rec.contact_type_id, a);
 				} else {
-					a = list.get(rec.type_id);
+					a = list.get(rec.contact_type_id);
 				}	
-				a.add(rec.person_id);
+				a.add(rec.contact_id);
 			}
 			return list;
 		}

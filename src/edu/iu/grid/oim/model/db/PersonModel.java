@@ -51,7 +51,7 @@ public class PersonModel extends DBModel {
 		PreparedStatement stmt = null;
 		cache = new HashMap<Integer, PersonRecord>();
 
-		String sql = "SELECT * from person";
+		String sql = "SELECT * from contact";
 		stmt = con.prepareStatement(sql); 
 		ResultSet rs = stmt.executeQuery();
 		while(rs.next()) {

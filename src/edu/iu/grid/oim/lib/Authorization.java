@@ -16,30 +16,30 @@ import edu.iu.grid.oim.model.db.record.CertificateDNRecord;
 public class Authorization {
 	static Logger log = Logger.getLogger(Authorization.class);  
 	
-	private String user_dn = null;
-    private Integer dn_id = null;
-    private Integer auth_type_id = null; //null = guest
-    private Integer person_id = null;
+	private String user_dn 		= null;
+    private Integer dn_id  		= null;
+    private Integer contact_id 	= null;
+    private Integer authorization_type_id = null; //null = guest
     
     public String getUserDN()
     {
     	return user_dn;
     }
-    public Integer getPersonID()
+    public Integer getContactID()
     {
-    	return person_id;
+    	return contact_id;
     }
     
 	public void check(Action action) throws AuthorizationException
 	{
 		if(!allows(action)) {
-			throw new AuthorizationException("Action "+action.toString()+" is not allowed for auth_type_id:" + auth_type_id);
+			throw new AuthorizationException("Action "+action.toString()+" is not allowed for auth_type_id:" + authorization_type_id);
 		}
 	}
 	
 	public Boolean allows(Action action)
 	{
-		return ActionMatrix.allows(action, auth_type_id);
+		return ActionMatrix.allows(action, authorization_type_id);
 	}
 	
 	//use this ctor ton construct default guest Authorization object
@@ -86,17 +86,17 @@ public class Authorization {
 		
 		//find DNID
 		CertificateDNModel model = new CertificateDNModel(con);
-		CertificateDNRecord certdn;
-		certdn = model.findByDN(user_dn);
-		if(certdn == null) {
+		CertificateDNRecord dn;
+		dn = model.findByDN(user_dn);
+		if(dn == null) {
 			log.info("The DN not found in Certificate table");
 		} else {
-			dn_id = certdn.id;
-			auth_type_id = certdn.auth_type_id;
-			person_id = certdn.person_id;
+			dn_id = dn.id;
+			authorization_type_id = dn.authorization_type_id;
+			contact_id = dn.contact_id;
 			log.debug("The dn_id is " + dn_id);
-			log.debug("The auth_type_id is " + auth_type_id);
-			log.debug("The person_id is " + person_id);
+			log.debug("The authorization_type_id is " + authorization_type_id);
+			log.debug("The contact_id is " + contact_id);
 		}	
 	}
 	

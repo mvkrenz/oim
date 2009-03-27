@@ -113,7 +113,7 @@ public class VOServlet extends ServletBase implements Servlet {
 				String cliststr = "";
 				for(Integer person_id : clist) {
 					PersonRecord person = pmodel.get(person_id);
-					cliststr += person.getFullName() + "<br/>";
+					cliststr += person.name + "<br/>";
 				}
 				
 				table.addHtmlRow(ctrec.name, cliststr);

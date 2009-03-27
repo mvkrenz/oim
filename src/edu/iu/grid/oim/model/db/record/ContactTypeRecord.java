@@ -7,20 +7,20 @@ public class ContactTypeRecord implements IRecord {
 
 	public Integer id;
 	public String name;
-	public Integer max_no_contacts;
-	public Integer require_dn;
+	public Boolean allow_secondary;
+	public Boolean allow_tertiary;
 	
 	public String getTableName()
 	{
-		return "certificate_dn";
+		return "contact_type";
 	}
 	
 	//load from existing record
 	public ContactTypeRecord(ResultSet rs) throws SQLException {
-		id = rs.getInt("id");
+		id   = rs.getInt("id");
 		name = rs.getString("name");
-		max_no_contacts = rs.getInt("max_no_contacts");
-		require_dn = rs.getInt("require_dn");
+		allow_secondary = rs.getBoolean("allow_secondary");
+		allow_tertiary  = rs.getBoolean("allow_tertiary");
 	}
 	
 	//for creating new record

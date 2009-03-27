@@ -5,14 +5,14 @@ import java.sql.SQLException;
 
 public class SCContactRecord implements IRecord {
 
-	public Integer person_id;
+	public Integer contact_id;
 	public Integer sc_id;
 	public Integer type_id;
 	public Integer rank_id;
 	
 	//load from existing record
 	public SCContactRecord(ResultSet rs) throws SQLException {
-		person_id = rs.getInt("person_id");
+		contact_id = rs.getInt("contact_id");
 		sc_id = rs.getInt("sc_id");
 		type_id = rs.getInt("type_id");
 		rank_id = rs.getInt("rank_id");

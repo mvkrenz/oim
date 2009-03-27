@@ -24,7 +24,10 @@ public class CertificateDNModel extends DBModel {
 		ResultSet rs = null;
 		try {
 			PreparedStatement pstmt = con.prepareStatement(
-	                "SELECT * FROM certificate_dn where dn_string = ?");
+	                "SELECT dn.*, dn_authorization_type.authorization_type_id "+
+	                " FROM dn " +
+	                " 	JOIN dn_authorization_type ON dn_authorization_type.dn_id=dn.id"+
+	                " WHERE dn_string = ?");
 	        pstmt.setString(1, dn_string);
 	        rs = pstmt.executeQuery();
 	        if(rs.next()) {

@@ -5,17 +5,17 @@ import java.sql.SQLException;
 
 public class VOContactRecord implements IRecord {
 
-	public Integer person_id;
+	public Integer contact_id;
 	public Integer vo_id;
-	public Integer type_id;
-	public Integer rank_id;
+	public Integer contact_type_id;
+	public Integer contact_rank_id;
 	
 	//load from existing record
 	public VOContactRecord(ResultSet rs) throws SQLException {
-		person_id = rs.getInt("person_id");
-		vo_id = rs.getInt("vo_id");
-		type_id = rs.getInt("type_id");
-		rank_id = rs.getInt("rank_id");
+		contact_id 	= rs.getInt("contact_id");
+		vo_id 		= rs.getInt("vo_id");
+		contact_type_id = rs.getInt("contact_type_id");
+		contact_rank_id = rs.getInt("contact_rank_id");
 	}
 	
 	//for creating new record

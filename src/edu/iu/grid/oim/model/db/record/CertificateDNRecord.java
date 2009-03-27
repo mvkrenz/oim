@@ -7,22 +7,22 @@ public class CertificateDNRecord implements IRecord {
 
 	public Integer id;
 	public String dn_string;
-	public Integer person_id;
-	public Integer auth_type_id;
+	public Integer contact_id;
+	public Integer authorization_type_id;
 	
 	/*
 	public String getTableName()
 	{
-		return "certificate_dn";
+		return "dn";
 	}
 	*/
 	
 	//load from existing record
 	public CertificateDNRecord(ResultSet rs) throws SQLException {
-		id = rs.getInt("id");
-		dn_string = rs.getString("dn_string");
-		person_id = rs.getInt("person_id");
-		auth_type_id = rs.getInt("auth_type_id");
+		id 			= rs.getInt("id");
+		dn_string 	= rs.getString("dn_string");
+		contact_id 	= rs.getInt("contact_id");
+		authorization_type_id = rs.getInt("authorization_type_id");
 	}
 	
 	//for creating new record

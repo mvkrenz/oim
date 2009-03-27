@@ -169,7 +169,7 @@ public class VOFormDivex extends FormDivex
 			for(Integer person_id : clist) {
 				PersonRecord person = pmodel.get(person_id);
 				TextFormElementDE text = new TextFormElementDE(this);
-				text.setValue(person.getFullName());
+				text.setValue(person.name);
 			}
 		}
 		TextFormElementDE newcontact = new TextFormElementDE(this);
