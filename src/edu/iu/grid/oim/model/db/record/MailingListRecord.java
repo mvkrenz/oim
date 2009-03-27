@@ -9,11 +9,6 @@ public class MailingListRecord implements IRecord {
 	public String name;
 	public String email;
 	
-	public String getTableName()
-	{
-		return "mailing_list";
-	}
-	
 	//load from existing record
 	public MailingListRecord(ResultSet rs) throws SQLException {
 		id 	  = rs.getInt("id");

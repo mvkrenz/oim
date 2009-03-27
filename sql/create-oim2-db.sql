@@ -19,7 +19,7 @@
 -- Current Database: `oimnew`
 --
 
-CREATE DATABASE /*!32312 IF NOT EXISTS*/ `oimnew` /*!40100 DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci */;
+CREATE DATABASE IF NOT EXISTS `oimnew` /*!40100 DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci */;
 
 USE `oimnew`;
 

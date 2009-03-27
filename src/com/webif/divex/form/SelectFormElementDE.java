@@ -4,11 +4,11 @@ import java.util.HashMap;
 
 import org.apache.commons.lang.StringEscapeUtils;
 
-import com.webif.divex.ChangeEvent;
 import com.webif.divex.DivEx;
+import com.webif.divex.Event;
 import com.webif.divex.form.validator.IFormElementValidator;
 
-import edu.iu.grid.oim.view.divex.FormDivex;
+import edu.iu.grid.oim.view.divex.FormDE;
 
 public class SelectFormElementDE extends DivEx implements IFormElementDE 
 {	
@@ -33,7 +33,7 @@ public class SelectFormElementDE extends DivEx implements IFormElementDE
 		if(label != null) {
 			out += "<label>"+StringEscapeUtils.escapeHtml(label)+"</label><br/>";
 		}
-		out += "<select onchange='divex_change(\""+getNodeID()+"\", this.value);'>";
+		out += "<select onchange='divex(\""+getNodeID()+"\", \"change\", this.value);'>";
 		out += "<option value=\"\">(Please Select)</option>";
 
 		for(Integer v : keyvalues.keySet()) {
@@ -103,9 +103,9 @@ public class SelectFormElementDE extends DivEx implements IFormElementDE
 		valid = true;
 	}
 	
-	public void onChange(ChangeEvent event) {
+	public void onEvent(Event event) {
 		try {
-			value = Integer.parseInt(event.newvalue);
+			value = Integer.parseInt(event.getValue());
 		} catch (NumberFormatException e) {
 			value = null;
 		}

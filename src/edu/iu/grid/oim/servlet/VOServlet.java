@@ -15,21 +15,20 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.log4j.Logger;
 
 import com.webif.divex.ButtonDE;
-import com.webif.divex.ClickEvent;
 import com.webif.divex.DialogDE;
 import com.webif.divex.DivEx;
 import com.webif.divex.DivExRoot;
+import com.webif.divex.Event;
 
-import edu.iu.grid.oim.lib.Action;
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
 import edu.iu.grid.oim.model.db.ContactTypeModel;
-import edu.iu.grid.oim.model.db.PersonModel;
+import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.SCContactModel;
 import edu.iu.grid.oim.model.db.SCModel;
 import edu.iu.grid.oim.model.db.VOContactModel;
 import edu.iu.grid.oim.model.db.VOModel;
 import edu.iu.grid.oim.model.db.record.ContactTypeRecord;
-import edu.iu.grid.oim.model.db.record.PersonRecord;
+import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.SCRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
 import edu.iu.grid.oim.view.ContentView;
@@ -62,7 +61,7 @@ public class VOServlet extends ServletBase implements Servlet {
 			vos = model.getAllEditable();
 		
 			//construct view
-			MenuView menuview = createMenuView(baseURL(), "vo");
+			MenuView menuview = createMenuView("vo");
 			DivExRoot root = DivExRoot.getInstance(request);
 			ContentView contentview = createContentView(root, vos);
 			Page page = new Page(menuview, contentview, createSideView(root));
@@ -82,7 +81,7 @@ public class VOServlet extends ServletBase implements Servlet {
 		
 		VOContactModel vocmodel = new VOContactModel(con, auth);
 		ContactTypeModel ctmodel = new ContactTypeModel(con, auth);
-		PersonModel pmodel = new PersonModel(con, auth);
+		ContactModel pmodel = new ContactModel(con, auth);
 		
 		for(VORecord rec : vos) {
 			contentview.add("<h2>"+Utils.strFilter(rec.name)+"</h2>");
@@ -111,8 +110,8 @@ public class VOServlet extends ServletBase implements Servlet {
 				ContactTypeRecord ctrec = ctmodel.get(type_id);
 				
 				String cliststr = "";
-				for(Integer person_id : clist) {
-					PersonRecord person = pmodel.get(person_id);
+				for(Integer contact_id : clist) {
+					ContactRecord person = pmodel.get(contact_id);
 					cliststr += person.name + "<br/>";
 				}
 				
@@ -128,12 +127,12 @@ public class VOServlet extends ServletBase implements Servlet {
 					super(parent, "Edit");
 					url = _url;
 				}
-				protected void onClick(ClickEvent e) {
+				protected void onEvent(Event e) {
 					redirect(url);
 				}
 			};
 			
-			table.add(new EditButtonDE(root, baseURL()+"/voedit?vo_id=" + rec.id));
+			table.add(new EditButtonDE(root, BaseURL()+"/voedit?vo_id=" + rec.id));
 			class DeleteDialogDE extends DialogDE
 			{
 				VORecord rec;
@@ -142,8 +141,8 @@ public class VOServlet extends ServletBase implements Servlet {
 					super(parent, "Delete " + _rec.name, "Are you sure you want to delete this Virtual Organization and associated contacts?");
 					rec = _rec;
 				}
-				protected void onClick(ClickEvent e) {
-					if(e.value.compareTo("ok") == 0) {
+				protected void onEvent(Event e) {
+					if(e.getValue().compareTo("ok") == 0) {
 						VOModel model = new VOModel(con, auth);
 						try {
 							model.delete(rec.id);
@@ -160,7 +159,7 @@ public class VOServlet extends ServletBase implements Servlet {
 				}
 			}
 		
-			if(auth.allows(Action.admin_vo)) {
+			if(auth.allows("admin_vo")) {
 				final DeleteDialogDE delete_dialog = new DeleteDialogDE(root, rec);
 				table.add(" or ");
 				table.add(delete_dialog);
@@ -172,7 +171,7 @@ public class VOServlet extends ServletBase implements Servlet {
 						super(parent, "Delete");
 						setStyle(ButtonDE.Style.ALINK);
 					}
-					protected void onClick(ClickEvent e) {
+					protected void onEvent(Event e) {
 						delete_dialog.open();
 					}
 				};
@@ -183,20 +182,6 @@ public class VOServlet extends ServletBase implements Servlet {
 		
 		return contentview;
 	}
-
-	
-	/*
-	private String getParentVOName(Integer parent_vo_id) throws AuthorizationException, SQLException
-	{
-		if(parent_vo_id == null) return null;
-		VOModel model = new VOModel(con, auth);
-		VORecord parent = model.get(parent_vo_id);	
-		if(parent == null) {
-			return null;
-		}
-		return parent.name;
-	}
-	*/
 	
 	private String getSCName(Integer sc_id) throws AuthorizationException, SQLException
 	{
@@ -221,7 +206,7 @@ public class VOServlet extends ServletBase implements Servlet {
 				super(parent, "Add New Virtual Organization");
 				url = _url;
 			}
-			protected void onClick(ClickEvent e) {
+			protected void onEvent(Event e) {
 				redirect(url);
 			}
 		};

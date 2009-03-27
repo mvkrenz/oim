@@ -2,12 +2,12 @@ package com.webif.divex.form;
 
 import org.apache.commons.lang.StringEscapeUtils;
 
-import com.webif.divex.ChangeEvent;
+import com.webif.divex.Event;
 import com.webif.divex.DivEx;
 import com.webif.divex.form.validator.IFormElementValidator;
 import com.webif.divex.form.validator.RequiredValidator;
 
-import edu.iu.grid.oim.view.divex.FormDivex;
+import edu.iu.grid.oim.view.divex.FormDE;
 
 public class TextFormElementDE extends DivEx implements IFormElementDE {
 	
@@ -33,14 +33,13 @@ public class TextFormElementDE extends DivEx implements IFormElementDE {
 		if(value == null) {
 			current_value = "";
 		}
-		html += "<input type='text' onblur='divex_change(\""+getNodeID()+"\", this.value);' value=\""+StringEscapeUtils.escapeHtml(current_value)+"\"/>";
+		html += "<input type='text' onblur='divex(\""+getNodeID()+"\", \"change\", this.value);' value=\""+StringEscapeUtils.escapeHtml(current_value)+"\"/>";
 		if(required) {
 			html += " * Required";
 		}
 		if(error != null) {
 			html += "<p class='elementerror'>"+StringEscapeUtils.escapeHtml(error)+"</p>";
 		}
-		html += "</input>";
 		return html;
 	}
 
@@ -92,8 +91,8 @@ public class TextFormElementDE extends DivEx implements IFormElementDE {
 		valid = true;
 	}
 	
-	public void onChange(ChangeEvent e) {
-		value = e.newvalue;
+	public void onEvent(Event e) {
+		value = e.getValue();
 		validate();
 	}
 }

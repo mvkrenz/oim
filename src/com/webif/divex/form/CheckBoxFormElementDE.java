@@ -1,8 +1,9 @@
 package com.webif.divex.form;
 
-import com.webif.divex.ChangeEvent;
 import com.webif.divex.DivEx;
-import edu.iu.grid.oim.view.divex.FormDivex;
+import com.webif.divex.Event;
+
+import edu.iu.grid.oim.view.divex.FormDE;
 import org.apache.commons.lang.StringEscapeUtils;
 
 public class CheckBoxFormElementDE extends DivEx implements IFormElementDE {
@@ -20,7 +21,7 @@ public class CheckBoxFormElementDE extends DivEx implements IFormElementDE {
 			checked = "checked=checked";
 		}
 		String html = "";
-		html += "<input type='checkbox' onchange='divex_change(\""+getNodeID()+"\", this.checked);' "+checked+"/>";
+		html += "<input type='checkbox' onchange='divex(\""+getNodeID()+"\", \"change\", this.checked);' "+checked+"/>";
 		if(label != null) {
 			html += " <label>"+StringEscapeUtils.escapeHtml(label)+"</label><br/>";
 		}
@@ -47,8 +48,8 @@ public class CheckBoxFormElementDE extends DivEx implements IFormElementDE {
 		return true;
 	}
 	
-	public void onChange(ChangeEvent e) {
-		if(e.newvalue.compareTo("true") == 0) {
+	public void onEvent(Event e) {
+		if(e.getValue().compareTo("true") == 0) {
 			value = true;
 		} else {
 			value = false;

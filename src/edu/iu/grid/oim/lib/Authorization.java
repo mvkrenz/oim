@@ -4,22 +4,26 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.security.cert.X509Certificate;
 import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.Collection;
+import java.util.HashSet;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.log4j.Logger;
 
-import edu.iu.grid.oim.model.db.CertificateDNModel;
-import edu.iu.grid.oim.model.db.record.CertificateDNRecord;
+import edu.iu.grid.oim.model.db.AuthorizationModel;
+import edu.iu.grid.oim.model.db.record.DNRecord;
 
 //provide client the authorization information
 public class Authorization {
 	static Logger log = Logger.getLogger(Authorization.class);  
 	
-	private String user_dn 		= null;
-    private Integer dn_id  		= null;
-    private Integer contact_id 	= null;
-    private Integer authorization_type_id = null; //null = guest
+	private String user_dn = null;
+    private Integer dn_id = null;
+    private Integer contact_id = null;
+    
+    private HashSet<String> actions = new HashSet();
     
     public String getUserDN()
     {
@@ -30,16 +34,17 @@ public class Authorization {
     	return contact_id;
     }
     
-	public void check(Action action) throws AuthorizationException
+	public void check(String action) throws AuthorizationException
 	{
 		if(!allows(action)) {
-			throw new AuthorizationException("Action "+action.toString()+" is not allowed for auth_type_id:" + authorization_type_id);
+			throw new AuthorizationException("Action ["+action+"] is not allowed for dn_id:" + dn_id);
 		}
 	}
 	
-	public Boolean allows(Action action)
+	public Boolean allows(String action)
 	{
-		return ActionMatrix.allows(action, authorization_type_id);
+		return actions.contains(action);
+
 	}
 	
 	//use this ctor ton construct default guest Authorization object
@@ -47,7 +52,7 @@ public class Authorization {
 	{
 	}
 	
-	public Authorization(HttpServletRequest request, Connection con) throws AuthorizationException 
+	public Authorization(HttpServletRequest request, Connection con) 
 	{
 		//pull authenticated user dn
 		
@@ -64,14 +69,17 @@ public class Authorization {
 			InetAddress addr;
 			try {
 				addr = InetAddress.getLocalHost();
-		        byte[] ipAddr = addr.getAddress();
+		        //byte[] ipAddr = addr.getAddress();
 		        String hostname = addr.getHostName();
 
 				log.debug("Server on localhost." +hostname);
 		        if(hostname.compareTo("HAYASHIS") == 0) {
 					log.debug("Server on localhost. Overriding the DN to Soichi's");
 					user_dn = "/DC=org/DC=doegrids/OU=People/CN=Soichi Hayashi 461343";
-		        }				
+		        } else if(hostname.compareTo("ARVIND-PC") == 0) {
+		        	log.debug("Server on lcoalhost, and it's Arvind's laptop. Overriding the DN to Arvind's");
+		        	user_dn = "/DC=org/DC=doegrids/OU=People/CN=Arvind Gopu 369621";
+		        }
 		        else if ((hostname.compareTo("LAV-AG-DESKTOP") == 0) || 
 		        		(hostname.compareTo("SATRIANI") == 0)){
 					log.debug("Server on localhost. Overriding the DN to Arvind's");
@@ -85,19 +93,29 @@ public class Authorization {
 		log.info("Authenticated User DN: "+user_dn);
 		
 		//find DNID
-		CertificateDNModel model = new CertificateDNModel(con);
-		CertificateDNRecord dn;
-		dn = model.findByDN(user_dn);
-		if(dn == null) {
-			log.info("The DN not found in Certificate table");
-		} else {
-			dn_id = dn.id;
-			authorization_type_id = dn.authorization_type_id;
-			contact_id = dn.contact_id;
-			log.debug("The dn_id is " + dn_id);
-			log.debug("The authorization_type_id is " + authorization_type_id);
-			log.debug("The contact_id is " + contact_id);
-		}	
+		AuthorizationModel model = new AuthorizationModel(con);
+		DNRecord certdn;
+
+		try {
+			certdn = model.findByDN(user_dn);
+			if(certdn == null) {
+				log.info("The DN not found in Certificate table");
+			} else {
+				dn_id = certdn.id;		
+				Collection<Integer> auth_type_ids = model.getAuthTypes(dn_id);
+				for(Integer auth_type_id : auth_type_ids) {
+					Collection<Integer> aids = model.getActionIDs(auth_type_id);
+					for(Integer aid : aids) {
+						actions.add(model.getAction(aid));
+					}
+				}
+			}	
+		} catch (AuthorizationException e) {
+			log.error(e);
+		} catch (SQLException e) {
+			log.error(e);
+		}
+
 	}
 	
 	public class AuthorizationException extends ServletException 

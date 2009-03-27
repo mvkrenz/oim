@@ -7,7 +7,6 @@ import java.sql.Statement;
 
 import org.apache.log4j.Logger;
 
-import edu.iu.grid.oim.lib.Action;
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
 import edu.iu.grid.oim.model.db.record.ResourceRecord;
@@ -50,7 +49,7 @@ public class ResourceModel extends DBModel {
 	
 	public void insert(ResourceRecord rec) throws AuthorizationException, SQLException
 	{
-		auth.check(Action.write_resource);
+		auth.check("write_resource");
 		PreparedStatement stmt = null;
 
 		String sql = "INSERT INTO resource VALUES (null, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";

@@ -2,11 +2,11 @@ package com.webif.divex.form;
 
 import org.apache.commons.lang.StringEscapeUtils;
 
-import com.webif.divex.ChangeEvent;
+import com.webif.divex.Event;
 import com.webif.divex.DivEx;
 import com.webif.divex.form.validator.IFormElementValidator;
 import com.webif.divex.form.validator.RequiredValidator;
-import edu.iu.grid.oim.view.divex.FormDivex;
+import edu.iu.grid.oim.view.divex.FormDE;
 
 public class TextAreaFormElementDE extends DivEx implements IFormElementDE  {
 	
@@ -71,8 +71,8 @@ public class TextAreaFormElementDE extends DivEx implements IFormElementDE  {
 		valid = true;
 	}
 	
-	public void onChange(ChangeEvent e) {
-		value = e.newvalue;
+	public void onEvent(Event e) {
+		value = e.getValue();
 		validate();
 	}
 	
@@ -85,7 +85,7 @@ public class TextAreaFormElementDE extends DivEx implements IFormElementDE  {
 		if(value == null) {
 			current_value = "";
 		} 
-		html += "<textarea onblur='divex_change(\""+getNodeID()+"\", this.value);'>";
+		html += "<textarea onblur='divex(\""+getNodeID()+"\", \"change\", this.value);'>";
 		html += StringEscapeUtils.escapeHtml(current_value);
 		html += "</textarea>";
 		if(required) {

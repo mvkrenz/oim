@@ -12,8 +12,8 @@ public class VOContactRecord implements IRecord {
 	
 	//load from existing record
 	public VOContactRecord(ResultSet rs) throws SQLException {
-		contact_id 	= rs.getInt("contact_id");
-		vo_id 		= rs.getInt("vo_id");
+		contact_id = rs.getInt("contact_id");
+		vo_id = rs.getInt("vo_id");
 		contact_type_id = rs.getInt("contact_type_id");
 		contact_rank_id = rs.getInt("contact_rank_id");
 	}

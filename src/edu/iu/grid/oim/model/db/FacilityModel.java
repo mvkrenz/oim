@@ -5,7 +5,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import org.apache.log4j.Logger;
 
-import edu.iu.grid.oim.lib.Action;
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
 
 public class FacilityModel extends DBModel {
@@ -18,17 +17,13 @@ public class FacilityModel extends DBModel {
     	super(_con, _auth);
     }
     
-	public ResultSet getAll() throws AuthorizationException
+	public ResultSet getAll() throws AuthorizationException, SQLException
 	{
 		ResultSet rs = null;
-		try {
-			Statement stmt = con.createStatement();
-		    if (stmt.execute("SELECT * FROM facility")) {
-		    	 rs = stmt.getResultSet();
-		    }
-		} catch(SQLException e) {
-			log.error(e.getMessage());
-		}
+		Statement stmt = con.createStatement();
+	    if (stmt.execute("SELECT * FROM facility")) {
+	    	 rs = stmt.getResultSet();
+	    }
 		return rs;
 	}
 }

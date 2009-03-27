@@ -20,19 +20,20 @@ import com.webif.divex.form.validator.UrlValidator;
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
 import edu.iu.grid.oim.model.db.ContactTypeModel;
-import edu.iu.grid.oim.model.db.PersonModel;
+import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.SCModel;
 import edu.iu.grid.oim.model.db.VOContactModel;
 import edu.iu.grid.oim.model.db.VOModel;
 import edu.iu.grid.oim.model.db.record.ContactTypeRecord;
-import edu.iu.grid.oim.model.db.record.PersonRecord;
+import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.SCRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
-import edu.iu.grid.oim.view.divex.FormDivex;
+import edu.iu.grid.oim.view.divex.ContactEditorDE;
+import edu.iu.grid.oim.view.divex.FormDE;
 
-public class VOFormDivex extends FormDivex 
+public class VOFormDE extends FormDE 
 {
-    static Logger log = Logger.getLogger(VOFormDivex.class); 
+    static Logger log = Logger.getLogger(VOFormDE.class); 
     
     protected Connection con = null;
 	protected Authorization auth;
@@ -53,7 +54,7 @@ public class VOFormDivex extends FormDivex
 	private CheckBoxFormElementDE active;
 	private CheckBoxFormElementDE disable;
 	
-	public VOFormDivex(DivEx parent, VORecord rec, String origin_url, Connection _con, Authorization _auth) throws AuthorizationException, SQLException
+	public VOFormDE(DivEx parent, VORecord rec, String origin_url, Connection _con, Authorization _auth) throws AuthorizationException, SQLException
 	{	
 		super(parent, origin_url);
 		con = _con;
@@ -153,6 +154,7 @@ public class VOFormDivex extends FormDivex
 		renderContactEditor(voclist, ctmodel.get(1));//submitter
 		renderContactEditor(voclist, ctmodel.get(2));//security contact
 		renderContactEditor(voclist, ctmodel.get(3));//admin contact
+		renderContactEditor(voclist, ctmodel.get(4));//operational contact
 		renderContactEditor(voclist, ctmodel.get(5));//misc contact
 		renderContactEditor(voclist, ctmodel.get(6));//vo manager
 		renderContactEditor(voclist, ctmodel.get(7));//notification contact
@@ -162,17 +164,16 @@ public class VOFormDivex extends FormDivex
 	private void renderContactEditor(HashMap<Integer, ArrayList<Integer>> voclist, ContactTypeRecord ctrec) throws SQLException
 	{
 		new StaticDE(this, "<h4>" + ctrec.name + "</h4>");
+		ContactModel pmodel = new ContactModel(con, auth);
 		
+		ContactEditorDE editor = new ContactEditorDE(this, pmodel);
 		ArrayList<Integer> clist = voclist.get(ctrec.id);
 		if(clist != null) {
-			PersonModel pmodel = new PersonModel(con, auth);
-			for(Integer person_id : clist) {
-				PersonRecord person = pmodel.get(person_id);
-				TextFormElementDE text = new TextFormElementDE(this);
-				text.setValue(person.name);
+			for(Integer contact_id : clist) {
+				ContactRecord person = pmodel.get(contact_id);
+				editor.addSelected(person);
 			}
 		}
-		TextFormElementDE newcontact = new TextFormElementDE(this);
 	}
 	
 	private HashMap<Integer, String> getSCs() throws AuthorizationException, SQLException
@@ -227,6 +228,7 @@ public class VOFormDivex extends FormDivex
 		//Do insert / update to our DB
 		try {
 			VOModel model = new VOModel(con, auth);
+			VOContactModel cmodel = new VOContactModel(con, auth);
 			if(rec.id == null) {
 				model.insert(rec);
 			} else {

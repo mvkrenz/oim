@@ -10,18 +10,12 @@ public class CpuInfoRecord implements IRecord {
 	public Float normalization_constant;
 	public String notes;
 
-	public String getTableName()
-	{
-		return "cpu_info";
-	}
-	
 	//load from existing record
 	public CpuInfoRecord(ResultSet rs) throws SQLException {
-		id 				= rs.getInt("id");
-		name 			= rs.getString("name");
-		
+		id = rs.getInt("id");
+		name = rs.getString("name");
 		normalization_constant = rs.getFloat("normalization_constant");
-		notes 			= rs.getString("notes");
+		notes = rs.getString("notes");
 	}	
 	
 	//for creating new record

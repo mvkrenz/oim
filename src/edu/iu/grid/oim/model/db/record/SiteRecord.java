@@ -3,7 +3,6 @@ package edu.iu.grid.oim.model.db.record;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-
 public class SiteRecord implements IRecord {
 
 	public Integer id;
@@ -40,7 +39,6 @@ public class SiteRecord implements IRecord {
 		
 		sc_id = rs.getInt("sc_id");
 		facility_id = rs.getInt("facility_id");
-		submitter_dn_id = rs.getInt("submitter_dn_id");
 		active = rs.getBoolean("active");
 		disable = rs.getBoolean("disable");
 	}

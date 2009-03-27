@@ -40,7 +40,7 @@ public class DialogDE extends DivEx {
 						"$(this).dialog(\"close\");"+
 					"}, "+
 					"Ok: function() { "+ 
-						"divex_click('"+getNodeID()+"', 'ok');"+
+						"divex('"+getNodeID()+"', 'click', 'ok');"+
 						"$(this).dialog(\"close\");"+
 					"}"+
 				"}"+

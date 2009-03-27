@@ -1,9 +1,13 @@
 package com.webif.divex;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public abstract class DivEx {
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
+public abstract class DivEx {
 	private String nodeid;
 	private Boolean needupdate = false;
 	private String js = "";
@@ -69,11 +73,10 @@ public abstract class DivEx {
 		}
 	}
 	
-	public DivEx(DivEx parent) {
+	public DivEx(DivEx _parent) {
 		nodeid = DivExRoot.getNewNodeID();
-		
-		if(parent != null) {
-			parent.add(this);
+		if(_parent != null) {
+			_parent.add(this);
 		}
 		
 		div_attr.put("class", "divex");
@@ -96,9 +99,9 @@ public abstract class DivEx {
 	}
 	
 	//if you have a custom controller that uses more fundamental html element, override this
-	//but don't forget to put all of the dynamic part of the content to toHTML()
-	//divex.load action will only call toHTML to redraw the content
-	//whatever you put here will remains until any of the parent redraws
+	//but don't forget to put all of the dynamic part of the content to renderInside()
+	//divex.load action will only call renderInside to redraw the content
+	//whatever you put in render() will remains until any of its parent redraws
 	public String render() {
 		String attrs = "";
 		for(String attr : div_attr.keySet()) {
@@ -107,7 +110,7 @@ public abstract class DivEx {
 		}
 		
 		String html = "";
-		html += "<div "+attrs+" id='"+nodeid+"' onclick='divex_click(this.id);'>";
+		html += "<div "+attrs+" id='"+nodeid+"'>";
 		html += renderInside();
 		html += "</div>";
 		return html;
@@ -127,31 +130,49 @@ public abstract class DivEx {
 	{
 		event_listeners.add(listener);
 	}
-	
-	private void notifyEventListeners(Event e)
+		
+	public void doGet(DivExRoot root, HttpServletRequest request, HttpServletResponse response) throws IOException
 	{
-		for(EventListener listener : event_listeners) {
-			listener.handleEvent(e);
+		String action = request.getParameter("action");
+		if(action.compareTo("load") == 0) {
+			//we don't synchronize load action - load should be read-only
+			PrintWriter writer = response.getWriter();
+			response.setContentType("text/html");
+			writer.print(renderInside());
+		} else if(action.compareTo("request") == 0) {
+			//we don't synchronize request action - request is like a load, but it could be anything
+			this.onRequest(request, response);
+		} else {
+			//synchronize the entire divex event handling - for now.
+			synchronized(root) {
+				Event e = new Event(request, response);
+
+				//handle my event handler
+				this.onEvent(e);
+				
+				//notify event listener
+				for(EventListener listener : event_listeners) {
+					listener.handleEvent(e);
+				}
+			}
+
+			//emit all requested code
+			PrintWriter writer = response.getWriter();
+			response.setContentType("text/javascript");
+			writer.print(root.outputUpdatecode());
 		}
 	}
 	
-	public void click(String value)
-	{
-		ClickEvent e = new ClickEvent(value);
-		this.onClick(e);
-		notifyEventListeners(e);
-	}	
+	//events are things like click, drag, change.. you are responsible for updating 
+	//the internal state of the target div, and framework will call outputUpdatecode()
+	//to emit re-load request which will then re-render the divs that are changed.
+	//Override this to handle local events (for remote events, use listener)
+	protected void onEvent(Event e) {}
 	
-	public void change(String newvalue)
-	{
-		ChangeEvent e = new ChangeEvent(newvalue);
-		this.onChange(e);
-		notifyEventListeners(e);
-	}
-	
-	//override these to handle local events (for remote events, use listener)
-	protected void onClick(ClickEvent e) {}
-	protected void onChange(ChangeEvent e) {}
+	//request are things like outputting XML or JSON back to browser without changing
+	//any internal state. it's like load but it doesn't return html necessary. it could
+	//be XML, JSON, Image, etc.. The framework will not emit any update code
+	protected void onRequest(HttpServletRequest request, HttpServletResponse response) {}
 	
 	//only set needupdate on myself - since load will redraw all its children
 	//once drawing is done, needudpate = false will be performec recursively

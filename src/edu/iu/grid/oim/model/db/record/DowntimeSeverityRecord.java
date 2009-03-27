@@ -10,11 +10,6 @@ public class DowntimeSeverityRecord implements IRecord {
 	public String wlcg_name;
 	public String description;
 	
-	public String getTableName()
-	{
-		return "downtime_severity";
-	}
-	
 	//load from existing record
 	public DowntimeSeverityRecord(ResultSet rs) throws SQLException {
 		id			= rs.getInt("id");

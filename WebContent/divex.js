@@ -1,25 +1,13 @@
 
 
 /*value is optional for click event*/
-function divex_click(id, value) {
+function divex(id, action, value) {
 	$.post("divex", 
 			{ 	nodeid: id,
-				action: "click",
+				action: action,
 				value : value },
 			function(js) {
 					eval(js);
 			}
-	);
-}
-
-function divex_change(id, value)
-{
-	$.post("divex", 
-		{ 	nodeid: id,
-			action: "change",
-			value: value },
-		function(js) {
-				eval(js);
-		}
 	);
 }

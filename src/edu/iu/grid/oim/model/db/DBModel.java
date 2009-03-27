@@ -17,7 +17,8 @@ public class DBModel {
     protected Connection con;
     protected Authorization auth;
     
-    public DBModel(Connection _con, Authorization _auth) {
+    public DBModel(Connection _con, Authorization _auth) 
+    {
     	con = _con;
     	auth = _auth;
     }

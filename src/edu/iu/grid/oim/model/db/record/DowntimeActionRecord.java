@@ -9,11 +9,6 @@ public class DowntimeActionRecord implements IRecord {
 	public String name;
 	public String description;
 	
-	public String getTableName()
-	{
-		return "downtime_action";
-	}
-	
 	//load from existing record
 	public DowntimeActionRecord(ResultSet rs) throws SQLException {
 		id			= rs.getInt("id");

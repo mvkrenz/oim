@@ -4,19 +4,13 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
-
 import org.apache.log4j.Logger;
 
-import edu.iu.grid.oim.lib.Action;
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
 import edu.iu.grid.oim.model.db.record.SCContactRecord;
-import edu.iu.grid.oim.model.db.record.VOContactRecord;
 
 public class SCContactModel extends DBModel {
     static Logger log = Logger.getLogger(SCContactModel.class); 
@@ -27,7 +21,7 @@ public class SCContactModel extends DBModel {
 		// TODO Auto-generated constructor stub
 	}
 	
-	public HashMap<Integer/*type_id*/, ArrayList<Integer/*person_id*/>> get(Integer sc_id) throws AuthorizationException, SQLException
+	public HashMap<Integer/*type_id*/, ArrayList<Integer/*contact_id*/>> get(Integer sc_id) throws AuthorizationException, SQLException
 	{	
 		fillCache();
 		
@@ -35,7 +29,7 @@ public class SCContactModel extends DBModel {
 		if(cache.containsKey(sc_id)) {
 			ArrayList<SCContactRecord> recs = cache.get(sc_id);
 			for(SCContactRecord rec : recs) {
-				//group records by type_id and create lists of person_id
+				//group records by type_id and create lists of contact_id
 				ArrayList<Integer> a = null;
 				if(!list.containsKey(rec.type_id)) {
 					//never had this type

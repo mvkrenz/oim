@@ -52,15 +52,16 @@ public class ServletBase extends HttpServlet {
 		auth = new Authorization(request, con);
 	}
 	
-	protected MenuView createMenuView(String baseurl, String current)
+	protected MenuView createMenuView(String current)
 	{
 		ArrayList<MenuItem> menu = new ArrayList<MenuItem>();
 		menu.add(new MenuItem("Home", "home"));
 		menu.add(new MenuItem("Virtual Organization", "vo"));		
-		MenuView menuview = new MenuView(baseurl, menu, current);
+		MenuView menuview = new MenuView(menu, current);
 		return menuview;
 	}
-	public String baseURL()
+	
+	static public String BaseURL()
 	{
 		//TODO - figure this out dynamicly.
 		return "/oim";

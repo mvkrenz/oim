@@ -10,12 +10,7 @@ public class CertificateAuthorityRecord implements IRecord {
 	public String file_id;
 	public String md5sum;
 	public Integer disable;
-	
-	public String getTableName()
-	{
-		return "certificate_authority";
-	}
-	
+		
 	//load from existing record
 	public CertificateAuthorityRecord(ResultSet rs) throws SQLException {
 		id 		 = rs.getInt("id");

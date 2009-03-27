@@ -19,7 +19,7 @@ import edu.iu.grid.oim.view.ContentView;
 import edu.iu.grid.oim.view.HtmlView;
 import edu.iu.grid.oim.view.Page;
 import edu.iu.grid.oim.view.SideContentView;
-import edu.iu.grid.oim.view.divex.form.VOFormDivex;
+import edu.iu.grid.oim.view.divex.form.VOFormDE;
 
 public class VOEditServlet extends ServletBase implements Servlet {
 	private static final long serialVersionUID = 1L;
@@ -42,7 +42,6 @@ public class VOEditServlet extends ServletBase implements Servlet {
 		if(vo_id_str != null) {
 			//pull record to update
 			int vo_id = Integer.parseInt(vo_id_str);
-			Authorization auth = new Authorization(request, con);
 			VOModel model = new VOModel(con, auth);
 			try {
 				rec = model.get(vo_id);
@@ -55,10 +54,10 @@ public class VOEditServlet extends ServletBase implements Servlet {
 			title = "New Virtual Organization";	
 		}
 	
-		VOFormDivex form;
-		String origin_url = baseURL()+"/"+current_page;
+		VOFormDE form;
+		String origin_url = BaseURL()+"/"+current_page;
 		try {
-			form = new VOFormDivex(DivExRoot.getInstance(request), rec, origin_url, con, auth);
+			form = new VOFormDE(DivExRoot.getInstance(request), rec, origin_url, con, auth);
 		} catch (SQLException e) {
 			throw new ServletException(e);
 		}
@@ -68,7 +67,11 @@ public class VOEditServlet extends ServletBase implements Servlet {
 		contentview.add("<h1>"+title+"</h1>");	
 		contentview.add(form);
 		
-		Page page = new Page(createMenuView(baseURL(), current_page), contentview, createSideView());
+		Page page = new Page(createMenuView(current_page), contentview, createSideView());
+		page.addExternalCSS(BaseURL()+"/jquery/plugin/jquery.autocomplete.css");
+		page.addExternalJS(BaseURL()+"/jquery/plugin/jquery.autocomplete.js");
+		
+		page.addExternalJS(BaseURL()+"/voedit.js");
 		response.getWriter().print(page.toHTML());
 	}
 	

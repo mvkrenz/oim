@@ -7,13 +7,7 @@ public class ContactRankRecord implements IRecord {
 
 	public Integer id;
 	public String name;
-	public Integer max_no_contacts;
-	
-	public String getTableName()
-	{
-		return "contact_rank";
-	}
-	
+		
 	//load from existing record
 	public ContactRankRecord(ResultSet rs) throws SQLException {
 		id 				= rs.getInt("id");

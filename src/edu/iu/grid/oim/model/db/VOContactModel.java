@@ -22,7 +22,7 @@ public class VOContactModel extends DBModel {
 		// TODO Auto-generated constructor stub
 	}
 	
-	public HashMap<Integer/*type_id*/, ArrayList<Integer/*person_id*/>> get(Integer vo_id) throws AuthorizationException, SQLException
+	public HashMap<Integer/*type_id*/, ArrayList<Integer/*contact_id*/>> get(Integer vo_id) throws AuthorizationException, SQLException
 	{	
 		fillCache();
 
@@ -30,7 +30,7 @@ public class VOContactModel extends DBModel {
 		if(cache.containsKey(vo_id)) {
 			ArrayList<VOContactRecord> recs = cache.get(vo_id);
 			for(VOContactRecord rec : recs) {
-				//group records by type_id and create lists of person_id
+				//group records by type_id and create lists of contact_id
 				ArrayList<Integer> a = null;
 				if(!list.containsKey(rec.contact_type_id)) {
 					//never had this type

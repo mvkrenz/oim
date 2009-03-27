@@ -10,7 +10,6 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 
-import edu.iu.grid.oim.lib.Action;
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
 import edu.iu.grid.oim.model.db.record.SCContactRecord;
@@ -25,17 +24,14 @@ public class SCModel extends DBModel {
     	super(con, auth);
     }
     
-	public ResultSet getAll() throws AuthorizationException
+	public ResultSet getAll() throws AuthorizationException, SQLException
 	{
 		ResultSet rs = null;
-		try {
-			Statement stmt = con.createStatement();
-		    if (stmt.execute("SELECT * FROM sc")) {
-		    	 rs = stmt.getResultSet();
-		    }
-		} catch(SQLException e) {
-			log.error(e.getMessage());
-		}
+		Statement stmt = con.createStatement();
+	    if (stmt.execute("SELECT * FROM sc")) {
+	    	 rs = stmt.getResultSet();
+	    }
+
 		return rs;
 	}
 	
@@ -45,13 +41,13 @@ public class SCModel extends DBModel {
 		
 		ResultSet rs = getAll();
    
-	    if(auth.allows(Action.admin_sc)) {
+	    if(auth.allows("admin_sc")) {
 	    	//admin can edit all scs
 		    while(rs.next()) {
 		    	list.add(new SCRecord(rs));
 		    }	    	
 	    } else {
-		    ArrayList<Integer> accessible = getAccessibleIDs();
+	    	HashSet<Integer> accessible = getAccessibleIDs();
 		    while(rs.next()) {
 		    	SCRecord rec = new SCRecord(rs);
 		    	if(accessible.contains(rec.id)) {
@@ -63,81 +59,44 @@ public class SCModel extends DBModel {
 	}
 	
 	//returns all record id that the user has access to
-	private ArrayList<Integer> getAccessibleIDs()
+	private HashSet<Integer> getAccessibleIDs() throws SQLException
 	{
-		ArrayList<Integer> list = new ArrayList<Integer>();
+		HashSet<Integer> list = new HashSet<Integer>();
 		ResultSet rs = null;
-		try {
-			PreparedStatement stmt = null;
 
-			String sql = "SELECT * FROM sc_contact WHERE person_id = ?";
-			stmt = con.prepareStatement(sql); 
-			stmt.setInt(1, auth.getContactID());
+		PreparedStatement stmt = null;
 
-			rs = stmt.executeQuery();
-			while(rs.next()) {
-				SCContactRecord rec = new SCContactRecord(rs);
-				if(auth.allows(Action.admin_sc) || isAccessibleType(rec.type_id)) {
-					list.add(rec.sc_id);
-				}
+		String sql = "SELECT * FROM sc_contact WHERE contact_id = ?";
+		stmt = con.prepareStatement(sql); 
+		stmt.setInt(1, auth.getContactID());
+
+		rs = stmt.executeQuery();
+		while(rs.next()) {
+			SCContactRecord rec = new SCContactRecord(rs);
+			if(auth.allows("admin_sc") || isAccessibleType(rec.type_id)) {
+				list.add(rec.sc_id);
 			}
-		} catch(SQLException e) {
-			log.error(e.getMessage());
-		}	
+		}
 		
 		return list;
 	}
 	
-	public SCRecord get(int sc_id) throws AuthorizationException
+	public SCRecord get(int sc_id) throws AuthorizationException, SQLException
 	{
 		ResultSet rs = null;
-		try {
-			PreparedStatement stmt = null;
+		PreparedStatement stmt = null;
 
-			String sql = "SELECT * FROM sc WHERE id = ?";
-			stmt = con.prepareStatement(sql); 
-			stmt.setInt(1, sc_id);
+		String sql = "SELECT * FROM sc WHERE id = ?";
+		stmt = con.prepareStatement(sql); 
+		stmt.setInt(1, sc_id);
 
-			rs = stmt.executeQuery();
-			if(rs.next()) {
-				return new SCRecord(rs);
-			}
-			log.warn("Couldn't find sc where id = " + sc_id);
-		} catch(SQLException e) {
-			log.error(e.getMessage());
+
+		rs = stmt.executeQuery();
+		if(rs.next()) {
+			return new SCRecord(rs);
 		}
+		log.warn("Couldn't find sc where id = " + sc_id);
 		return null;
 	}
-
-	/*
-	public void insertVO(VORecord rec) throws AuthorizationException
-	{
-		auth.check(Action.insert_vo);
-		try {
-			PreparedStatement stmt = null;
-
-			String sql = "INSERT INTO virtualorganization VALUES (null, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-			stmt = con.prepareStatement(sql); 
-			stmt.setString(1, rec.name);
-			stmt.setString(2, rec.description);
-			stmt.setString(3, rec.fqdn);
-			stmt.setString(4, rec.url);
-			stmt.setBoolean(5, rec.interop_bdii);
-			stmt.setBoolean(6, rec.interop_monitoring);
-			stmt.setBoolean(7, rec.interop_accounting);
-			stmt.setString(8, rec.wlcg_accounting_name);
-			stmt.setBoolean(9, rec.active);
-			stmt.setBoolean(10, rec.disable);
-			stmt.setInt(11, rec.resource_group_id);
-			stmt.executeUpdate(); 
-			stmt.close(); 
-			
-			LogModel log = new LogModel(con, auth);
-			log.insert("resource", stmt.toString());
-		} catch(SQLException e) {
-			log.error(e.getMessage());
-		}
-	}
-	*/
 }
 

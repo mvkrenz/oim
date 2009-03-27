@@ -9,11 +9,6 @@ public class OsgGridTypeRecord implements IRecord {
 	public String name;
 	public String description;
 	
-	public String getTableName()
-	{
-		return "osg_grid_type";
-	}
-	
 	//load from existing record
 	public OsgGridTypeRecord(ResultSet rs) throws SQLException {
 		id = rs.getInt("id");

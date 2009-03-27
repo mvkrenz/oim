@@ -31,7 +31,7 @@ public class ErrorServlet extends ServletBase {
     }
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		MenuView menuview = createMenuView(baseURL(), null);
+		MenuView menuview = createMenuView(null);
 		ContentView contentview = createContentView(request);		
 		Page page = new Page(menuview, contentview, new SideContentView());
 		

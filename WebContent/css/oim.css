@@ -1,35 +1,59 @@
+a img
+{
+border: none;
+vertical-align: middle;
+}
+
 table.record_table
 {
-	padding-bottom: 5px;
-	margin-bottom: 5px;
-	width: 100%;
+padding-bottom: 5px;
+margin-bottom: 5px;
+width: 100%;
 }
 
 table.record_table td.record_data
 {
-	border-bottom: 1px solid #ccc;
+border-bottom: 1px solid #ccc;
 }
 
 table.record_table th
 {
-	text-align: left;
-	width: 160px;
+text-align: left;
+width: 160px;
 }
 
 .form input[type='text']
 {
-	width: 300px;
+width: 300px;
 }
 
 .form span
 {
-	font-weight: bold;
+font-weight: bold;
+}
+.contact_editor span.contact
+{
+background-color: #ddd;
+border: 1px solid #aaa;
+padding: 3px;
+}
+.contact_editor
+{
+border: 1px solid #ccc;
+padding: 2px;
+}
+.contact_editor .ac_input
+{
+border: 0px;
+margin: 2px;
+margin-bottom: 4px;
+width: 100px;
 }
 
 .form textarea
 {
-	width: 400px;
-	height: 80px;
+width: 400px;
+height: 80px;
 }
 
 p.elementerror
@@ -43,7 +67,11 @@ background-repeat:no-repeat;
 margin: 2px;
 padding: 5px;
 padding-left:25px;
+}
 
+/*round*/
+p.elementerror, .contact_editor span.contact
+{
 -moz-border-radius-topleft: 5px;
 -moz-border-radius-topright: 5px;
 -moz-border-radius-bottomright: 5px;
@@ -57,4 +85,8 @@ padding-left:25px;
 div.hidden
 {
 display: none;
+}
+div.inline
+{
+display: inline;
 }

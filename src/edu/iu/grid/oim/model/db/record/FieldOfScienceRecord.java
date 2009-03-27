@@ -8,11 +8,6 @@ public class FieldOfScienceRecord implements IRecord {
 	public Integer id;
 	public String name;
 	
-	public String getTableName()
-	{
-		return "field_of_science";
-	}
-	
 	//load from existing record
 	public FieldOfScienceRecord(ResultSet rs) throws SQLException {
 		id = rs.getInt("id");

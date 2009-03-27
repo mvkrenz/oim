@@ -31,7 +31,7 @@ public class HomeServlet extends ServletBase  {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{
 		
-		MenuView menuview = createMenuView(baseURL(), "home");
+		MenuView menuview = createMenuView("home");
 		ContentView contentview = createContentView();
 				
 		Page page = new Page(menuview, contentview, new SideContentView());
