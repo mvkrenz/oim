@@ -76,12 +76,8 @@ public class Authorization {
 		        if(hostname.compareTo("HAYASHIS") == 0) {
 					log.debug("Server on localhost. Overriding the DN to Soichi's");
 					user_dn = "/DC=org/DC=doegrids/OU=People/CN=Soichi Hayashi 461343";
-		        } else if(hostname.compareTo("ARVIND-PC") == 0) {
-		        	log.debug("Server on lcoalhost, and it's Arvind's laptop. Overriding the DN to Arvind's");
-		        	user_dn = "/DC=org/DC=doegrids/OU=People/CN=Arvind Gopu 369621";
-		        }
-		        else if ((hostname.compareTo("LAV-AG-DESKTOP") == 0) || 
-		        		(hostname.compareTo("SATRIANI") == 0)){
+		        } else if ((hostname.compareTo("LAV-AG-DESKTOP") == 0) || 
+		        	(hostname.compareTo("SATRIANI") == 0)){
 					log.debug("Server on localhost. Overriding the DN to Arvind's");
 					user_dn = "/DC=org/DC=doegrids/OU=People/CN=Arvind Gopu 369621";
 		        }				

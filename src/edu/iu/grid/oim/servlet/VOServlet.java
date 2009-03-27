@@ -131,8 +131,8 @@ public class VOServlet extends ServletBase implements Servlet {
 					redirect(url);
 				}
 			};
-			
 			table.add(new EditButtonDE(root, BaseURL()+"/voedit?vo_id=" + rec.id));
+			/*
 			class DeleteDialogDE extends DialogDE
 			{
 				VORecord rec;
@@ -177,6 +177,7 @@ public class VOServlet extends ServletBase implements Servlet {
 				};
 				table.add(new DeleteButtonDE(root, rec.name));
 			}	
+			*/
 
 		}
 		
