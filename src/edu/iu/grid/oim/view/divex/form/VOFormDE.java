@@ -64,7 +64,7 @@ public class VOFormDE extends FormDE
 		con = _con;
 		auth = _auth;
 	
-		new StaticDE(this, "<h3>Details</h3>");
+		new StaticDE(this, "<h2>Details</h2>");
 		
 		id = rec.id;
 
@@ -149,7 +149,7 @@ public class VOFormDE extends FormDE
 		disable.setValue(rec.disable);
 		
 		//contact information
-		new StaticDE(this, "<h3>Contact Information</h3>");
+		new StaticDE(this, "<h2>Contact Information</h2>");
 		
 		//contacts
 		VOContactModel vocmodel = new VOContactModel(con, auth);
@@ -167,18 +167,24 @@ public class VOFormDE extends FormDE
 	
 	private void renderContactEditor(HashMap<Integer, ArrayList<VOContactRecord>> voclist, ContactTypeRecord ctrec) throws SQLException
 	{
-		new StaticDE(this, "<h4>" + ctrec.name + "</h4>");
-		ContactModel pmodel = new ContactModel(con, auth);
-		ContactRankModel crmodel = new ContactRankModel(con, auth);
-		
-		ContactEditorDE editor = new ContactEditorDE(this, pmodel);
+		new StaticDE(this, "<h3>" + ctrec.name + "</h3>");
+		ContactModel pmodel = new ContactModel(con, auth);		
+		ContactEditorDE editor = new ContactEditorDE(this, pmodel, ctrec.allow_secondary, ctrec.allow_tertiary);
 		ArrayList<VOContactRecord> clist = voclist.get(ctrec.id);
 		if(clist != null) {
 			for(VOContactRecord rec : clist) {
 				ContactRecord person = pmodel.get(rec.contact_id);
-				ContactRankRecord rank = crmodel.get(rec.contact_rank_id);
-				
-				editor.addSelected(person);
+				switch(rec.contact_rank_id) {
+				case 1:
+					editor.addSelected(person, ContactEditorDE.Rank.PRIMARY);
+					break;
+				case 2:
+					editor.addSelected(person, ContactEditorDE.Rank.SECONDARY);
+					break;
+				case 3:
+					editor.addSelected(person, ContactEditorDE.Rank.TERTIARY);
+					break;
+				}
 			}
 		}
 	}

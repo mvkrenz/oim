@@ -118,10 +118,9 @@ public class VOServlet extends ServletBase implements Servlet {
 					ContactRecord person = pmodel.get(vcrec.contact_id);
 					ContactRankRecord rank = crmodel.get(vcrec.contact_rank_id);
 
-					cliststr += "<div class='contact contact_"+rank.name+"'>";
+					cliststr += "<div class='contact_rank contact_"+rank.name+"'>";
 					cliststr += person.name;
 					cliststr += "</div>";
-					
 				}
 				
 				table.addHtmlRow(ctrec.name, cliststr);

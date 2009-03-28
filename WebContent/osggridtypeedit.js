@@ -1,4 +1,4 @@
-
+//is this really used?
 function setAutocomplete(node)
 {
     node.each(function(i, dom) {

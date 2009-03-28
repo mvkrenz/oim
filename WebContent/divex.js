@@ -2,6 +2,10 @@
 
 /*value is optional for click event*/
 function divex(id, action, value) {
+	/* .ajax doesn't support unicode
+	 *
+	 */
+	/*
 	$.ajax({
 		  url: "divex",
 		  cache: false,
@@ -15,5 +19,14 @@ function divex(id, action, value) {
 			  alert("Oops! We seems to have lost a connection to the server. Please try again.");
 		  }
 	});
+	*/
+		$.post("divex", 
+				{ 	nodeid: id,
+					action: action,
+					value : value },
+				function(js) {
+						eval(js);
+				}
+		);
 
 }

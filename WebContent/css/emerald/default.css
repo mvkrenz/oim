@@ -112,7 +112,7 @@ vertical-align: top;
 /* Content */
 #content
 {
-	padding: 5px 330px 30px 30px;
+	padding: 5px 280px 30px 30px;
 	line-height: 1.6em;
 	background: url('images/a4.gif') repeat-x top left;
     font-size: 11px;
@@ -124,7 +124,13 @@ vertical-align: top;
 	border-bottom: dotted 1px #aaa;
 	padding-bottom: 0.3em;
 }
-#content h2, #content h3
+#content h2
+{
+	color: white;
+	background-color: gray;
+	padding: 4px;
+}
+#content h3
 {
 	color: #5D5F53;
 	border-bottom: dotted 1px #aaa;
@@ -136,7 +142,7 @@ vertical-align: top;
 }
 #content h1,h2
 {
-	margin-bottom: 10px;
+margin-bottom: 10px;
 font-size: 15px;
 }
 
@@ -211,7 +217,7 @@ font-size: 11px;
 	font-size: 11px;
 	font-family: verdana, "trebuchet ms", sans-serif;
 	float: right;
-	width: 300px;
+	width: 250px;
 	padding-right: 0px;
 	padding-top: 10px;
 }
@@ -228,6 +234,19 @@ font-size: 11px;
 {
 	clear: both;
 }
+
+
+input[type='text'], textarea
+{
+border: 1px solid #ccc;
+padding: 5px;
+}
+select
+{
+border: 1px solid #ccc;
+}
+
+
 
 #logo {
 position:absolute;

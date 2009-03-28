@@ -48,7 +48,7 @@ public class OsgGridTypeFormDE extends FormDE
 		con = _con;
 		auth = _auth;
 	
-		new StaticDE(this, "<h3>Details</h3>");
+		//new StaticDE(this, "<h2>Details</h2>");
 		
 		id = rec.id;
 

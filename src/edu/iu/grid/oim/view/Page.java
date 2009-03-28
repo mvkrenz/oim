@@ -32,7 +32,7 @@ public class Page extends View {
 	
 	public void addExternalJS(String url)
 	{
-		header_addon += "<script src=\""+url+"\"></script>";
+		header_addon += "<script type=\"text/javascript\" src=\""+url+"\"></script>";
 	}
 	public void addExternalCSS(String url)
 	{

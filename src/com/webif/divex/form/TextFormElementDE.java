@@ -15,6 +15,12 @@ public class TextFormElementDE extends DivEx implements IFormElementDE {
 	protected String value;
 	protected String error;
 	
+	private int width = 400;
+	public void setWidth(int _width)
+	{
+		width = _width;
+	}
+	
 	private Boolean valid;
 	protected Boolean required = false;
 	
@@ -33,7 +39,7 @@ public class TextFormElementDE extends DivEx implements IFormElementDE {
 		if(value == null) {
 			current_value = "";
 		}
-		html += "<input type='text' onblur='divex(\""+getNodeID()+"\", \"change\", this.value);' value=\""+StringEscapeUtils.escapeHtml(current_value)+"\"/>";
+		html += "<input type='text' style='width: "+width+"px;' onchange='divex(\""+getNodeID()+"\", \"change\", this.value);' value=\""+StringEscapeUtils.escapeHtml(current_value)+"\"/>";
 		if(required) {
 			html += " * Required";
 		}

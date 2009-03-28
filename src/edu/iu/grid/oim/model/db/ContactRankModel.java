@@ -6,6 +6,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 
 import edu.iu.grid.oim.lib.Authorization;
@@ -35,6 +36,10 @@ public class ContactRankModel extends DBModel {
 		return null;
 	}
 	
+	public Collection<ContactRankRecord> getAll() throws SQLException {
+		fillCache();
+		return cache.values();
+	}
 	private void fillCache() throws SQLException
 	{
 		if(cache == null) {

@@ -100,7 +100,7 @@ abstract public class FormDE extends DivEx {
 			//we display submit / cancel button at the end
 			if(child == submitbutton || child == cancelbutton) continue;
 			
-			out += "<p>" + child.render() + "</p>";
+			out += "<div class=\"form_element\">" + child.render() + "</div>";
 		}
 
 		out += submitbutton.render();
