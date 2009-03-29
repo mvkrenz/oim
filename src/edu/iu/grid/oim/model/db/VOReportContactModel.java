@@ -14,29 +14,30 @@ import org.apache.log4j.Logger;
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
 import edu.iu.grid.oim.model.db.record.VOContactRecord;
+import edu.iu.grid.oim.model.db.record.VOReportContactRecord;
 
-public class VOContactModel extends DBModel {
-    static Logger log = Logger.getLogger(VOContactModel.class); 
-	public static HashMap<Integer/*vo_id*/, ArrayList<VOContactRecord>> cache = null;
+public class VOReportContactModel extends DBModel {
+    static Logger log = Logger.getLogger(VOReportContactModel.class); 
+	public static HashMap<Integer/*vo_id*/, ArrayList<VOReportContactRecord>> cache = null;
 	
-	public VOContactModel(Connection _con, Authorization _auth) {
+	public VOReportContactModel(Connection _con, Authorization _auth) {
 		super(_con, _auth);
 		// TODO Auto-generated constructor stub
 	}
 	
-	public HashMap<Integer/*type_id*/, ArrayList<VOContactRecord>> get(Integer vo_id) throws AuthorizationException, SQLException
+	public HashMap<Integer/*type_id*/, ArrayList<VOReportContactRecord>> get(Integer vo_report_name_id) throws AuthorizationException, SQLException
 	{	
 		fillCache();
 
-		HashMap<Integer, ArrayList<VOContactRecord>> list = new HashMap();
-		if(cache.containsKey(vo_id)) {
-			ArrayList<VOContactRecord> recs = cache.get(vo_id);
-			for(VOContactRecord rec : recs) {
+		HashMap<Integer, ArrayList<VOReportContactRecord>> list = new HashMap();
+		if(cache.containsKey(vo_report_name_id)) {
+			ArrayList<VOReportContactRecord> recs = cache.get(vo_report_name_id);
+			for(VOReportContactRecord rec : recs) {
 				//group records by type_id and create lists of contact_id
-				ArrayList<VOContactRecord> array = null;
+				ArrayList<VOReportContactRecord> array = null;
 				if(!list.containsKey(rec.contact_type_id)) {
 					//never had this type
-					array = new ArrayList<VOContactRecord>();
+					array = new ArrayList<VOReportContactRecord>();
 					list.put(rec.contact_type_id, array);
 				} else {
 					array = list.get(rec.contact_type_id);
@@ -46,7 +47,7 @@ public class VOContactModel extends DBModel {
 			return list;
 		}
 		
-		log.warn("Couldn't find any record where vo_id = " + vo_id);
+		log.warn("Couldn't find any record where vo_id = " + vo_report_name_id);
 		return list;
 	}
 	
@@ -55,21 +56,21 @@ public class VOContactModel extends DBModel {
 		if(cache == null) {
 			cache = new HashMap();
 			
-			String sql = "SELECT * FROM vo_contact order by contact_rank_id";
+			String sql = "SELECT * FROM vo_report_contact order by contact_rank_id";
 			PreparedStatement stmt = con.prepareStatement(sql); 
 			ResultSet rs = stmt.executeQuery();
 	
 			while(rs.next()) {
-				VOContactRecord rec = new VOContactRecord(rs);
+				VOReportContactRecord rec = new VOReportContactRecord(rs);
 				
 				//group records by vo_id and put it in the cache
-				ArrayList<VOContactRecord> a = null;
-				if(!cache.containsKey(rec.vo_id)) {
+				ArrayList<VOReportContactRecord> a = null;
+				if(!cache.containsKey(rec.vo_report_name_id)) {
 					//never had this type
-					a = new ArrayList<VOContactRecord>();
-					cache.put(rec.vo_id, a);
+					a = new ArrayList<VOReportContactRecord>();
+					cache.put(rec.vo_report_name_id, a);
 				} else {
-					a = cache.get(rec.vo_id);
+					a = cache.get(rec.vo_report_name_id);
 				}
 				a.add(rec);
 			}
@@ -80,7 +81,7 @@ public class VOContactModel extends DBModel {
    		cache = null;
     }
 
-	public void update(Integer vo_id, ArrayList<VOContactRecord> contactRecords) throws AuthorizationException, SQLException 
+	public void update(Integer vo_report_name_id, ArrayList<VOReportContactRecord> contactRecords) throws AuthorizationException, SQLException 
 	{
 		auth.check("write_vocontact");
 	
@@ -89,14 +90,14 @@ public class VOContactModel extends DBModel {
 
 		//remove all current contacts
 		try {
-			String sql = "DELETE FROM vo_contact where vo_id = ?";
+			String sql = "DELETE FROM vo_report_contact where vo_id = ?";
 			PreparedStatement stmt = con.prepareStatement(sql);
-			stmt.setInt(1, vo_id);
+			stmt.setInt(1, vo_report_name_id);
 			stmt.executeUpdate();
 			logstr += stmt.toString()+"\n";
 		} catch (SQLException e) {
 			con.rollback();
-			log.error("Failed to remove previous records for vo_id: " + vo_id);
+			log.error("Failed to remove previous records for vo_id: " + vo_report_name_id);
 			throw new SQLException(e);
 		}
 		
@@ -106,9 +107,9 @@ public class VOContactModel extends DBModel {
 			" VALUES (?, ?, ?, ?)";
 			PreparedStatement stmt = con.prepareStatement(sql); 
 			
-			for(VOContactRecord rec : contactRecords) {
+			for(VOReportContactRecord rec : contactRecords) {
 				stmt.setInt(1, rec.contact_id);
-				stmt.setInt(2, vo_id);
+				stmt.setInt(2, vo_report_name_id);
 				stmt.setInt(3, rec.contact_type_id);
 				stmt.setInt(4, rec.contact_rank_id);
 				stmt.addBatch();
@@ -119,7 +120,7 @@ public class VOContactModel extends DBModel {
 			
 		} catch (BatchUpdateException e) {
 			con.rollback();
-			log.error("Failed to insert new records for vo_id: " + vo_id);
+			log.error("Failed to insert new records for vo_id: " + vo_report_name_id);
 			throw new SQLException(e);
 		} 
 		
@@ -127,7 +128,7 @@ public class VOContactModel extends DBModel {
 		con.setAutoCommit(true);
 		
 		LogModel lmodel = new LogModel(con, auth);
-		lmodel.insert("update_vocontact", vo_id, logstr);
+		lmodel.insert("update_vocontact", vo_report_name_id, logstr);
 				
 		emptyCache();
 	}

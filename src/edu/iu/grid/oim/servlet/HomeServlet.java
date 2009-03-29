@@ -33,7 +33,6 @@ public class HomeServlet extends ServletBase  {
 		
 		MenuView menuview = createMenuView("home");
 		ContentView contentview = createContentView();
-				
 		Page page = new Page(menuview, contentview, new SideContentView());
 		response.getWriter().print(page.toHTML());
 	}

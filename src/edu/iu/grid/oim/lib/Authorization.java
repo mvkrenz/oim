@@ -29,6 +29,10 @@ public class Authorization {
     {
     	return user_dn;
     }
+    public Integer getDNID()
+    {
+    	return dn_id;
+    }
     public Integer getContactID()
     {
     	return contact_id;

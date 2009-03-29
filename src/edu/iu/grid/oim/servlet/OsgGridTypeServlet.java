@@ -3,6 +3,7 @@ package edu.iu.grid.oim.servlet;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
@@ -37,15 +38,15 @@ public class OsgGridTypeServlet extends ServletBase implements Servlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{	
 		setAuth(request);
-		
-		//pull list of all grid types
-		ArrayList<OsgGridTypeRecord> ogts = null;
-		OsgGridTypeModel model = new OsgGridTypeModel(con, auth);
+		auth.check("admin_osg_grid_type");
+
 		try {
-			ogts = model.getAllEditable();
 			//construct view
 			MenuView menuview = createMenuView("osg_grid_type");
 			DivExRoot root = DivExRoot.getInstance(request);
+			
+			OsgGridTypeModel model = new OsgGridTypeModel(con, auth);
+			HashMap<Integer, OsgGridTypeRecord> ogts = model.getAll();
 			ContentView contentview = createContentView(root, ogts);
 			Page page = new Page(menuview, contentview, createSideView(root));
 			
@@ -56,13 +57,13 @@ public class OsgGridTypeServlet extends ServletBase implements Servlet {
 		}
 	}
 	
-	protected ContentView createContentView(final DivExRoot root, ArrayList<OsgGridTypeRecord> ogts) 
+	protected ContentView createContentView(final DivExRoot root, HashMap<Integer, OsgGridTypeRecord> ogts) 
 		throws ServletException, SQLException
 	{
 		ContentView contentview = new ContentView();	
 		contentview.add("<h1>OSG Grid Types</h1>");
 		
-		for(OsgGridTypeRecord rec : ogts) {
+		for(OsgGridTypeRecord rec : ogts.values()) {
 			contentview.add("<h2>"+Utils.strFilter(rec.name)+"</h2>");
 			
 			RecordTableView table = new RecordTableView();

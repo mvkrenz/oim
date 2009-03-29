@@ -24,11 +24,13 @@ public class LogModel extends DBModel {
     	//no auth check... accessing log table is non-auth action
 		PreparedStatement stmt = null;
 
-		String logsql = "INSERT INTO log (`type`, `key`, `detail`) VALUES (?, ?, ?)";
+		String logsql = "INSERT INTO log (`type`, `key`, `detail`, `comment`, `dn_id`) VALUES (?, ?, ?, ?, ?)";
 		stmt = con.prepareStatement(logsql); 
 		stmt.setString(1, type);
 		stmt.setInt(2, key);
 		stmt.setString(3, detail);
+		stmt.setString(4, null);
+		stmt.setInt(5, auth.getDNID());
 
 		stmt.executeUpdate(); 
 		stmt.close(); 

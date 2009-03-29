@@ -74,12 +74,10 @@ public class OsgGridTypeFormDE extends FormDE
 	private HashMap<Integer, String> getOsgGridTypes() throws AuthorizationException, SQLException
 	{
 		//pull all OsgGridTypes
-		ResultSet osg_grid_types = null;
 		OsgGridTypeModel model = new OsgGridTypeModel(con, auth);
-		osg_grid_types = model.getAll();
+		HashMap<Integer, OsgGridTypeRecord> osg_grid_types = model.getAll();
 		HashMap<Integer, String> keyvalues = new HashMap<Integer, String>();
-		while(osg_grid_types.next()) {
-			OsgGridTypeRecord rec = new OsgGridTypeRecord(osg_grid_types);
+		for(OsgGridTypeRecord rec : osg_grid_types.values()) {
 			keyvalues.put(rec.id, rec.name);
 		}
 		return keyvalues;

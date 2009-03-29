@@ -40,7 +40,7 @@ public class TableView extends View {
 			cells.add(new Cell(Utils.strFilter(value), TableView.CellStyle.HEADER));
 		}
 		public void addHtmlCell(String html) {
-			cells.add(new Cell(html, TableView.CellStyle.NORMAL));
+			cells.add(new Cell(Utils.nullStrFilter(html), TableView.CellStyle.NORMAL));
 		}
 		public String toHTML()
 		{

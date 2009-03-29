@@ -25,16 +25,21 @@ import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
 import edu.iu.grid.oim.model.db.ContactRankModel;
 import edu.iu.grid.oim.model.db.ContactTypeModel;
 import edu.iu.grid.oim.model.db.ContactModel;
+import edu.iu.grid.oim.model.db.FieldOfScienceModel;
 import edu.iu.grid.oim.model.db.SCContactModel;
 import edu.iu.grid.oim.model.db.SCModel;
 import edu.iu.grid.oim.model.db.VOContactModel;
+import edu.iu.grid.oim.model.db.VOFieldOfScienceModel;
 import edu.iu.grid.oim.model.db.VOModel;
+import edu.iu.grid.oim.model.db.VOReportContactModel;
 import edu.iu.grid.oim.model.db.record.ContactRankRecord;
 import edu.iu.grid.oim.model.db.record.ContactTypeRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
+import edu.iu.grid.oim.model.db.record.FieldOfScienceRecord;
 import edu.iu.grid.oim.model.db.record.SCRecord;
 import edu.iu.grid.oim.model.db.record.VOContactRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
+import edu.iu.grid.oim.model.db.record.VOReportContactRecord;
 import edu.iu.grid.oim.view.ContentView;
 import edu.iu.grid.oim.view.HtmlView;
 import edu.iu.grid.oim.view.View;
@@ -85,6 +90,7 @@ public class VOServlet extends ServletBase implements Servlet {
 	
 		for(VORecord rec : vos) {
 			contentview.add("<h2>"+Utils.strFilter(rec.name)+"</h2>");
+	
 			
 			RecordTableView table = new RecordTableView();
 			contentview.add(table);
@@ -101,13 +107,23 @@ public class VOServlet extends ServletBase implements Servlet {
 			table.addRow("Support Center", getSCName(rec.sc_id));
 			table.addRow("Active", rec.active);
 			table.addRow("Disable", rec.disable);
+			table.addHtmlRow("Field of Scicnce", getFieldOfScience(rec.id));
 			
-			VOContactModel vocmodel = new VOContactModel(con, auth);
+			//pull parent VO
+			VOModel model = new VOModel(con, auth);
+			VORecord parent_vo_rec = model.getParentVO(rec.id);
+			String parent_vo_name = null;
+			if(parent_vo_rec != null) {
+				parent_vo_name = parent_vo_rec.name;
+			}
+			table.addHtmlRow("Parent VO", parent_vo_name);
+						
 			ContactTypeModel ctmodel = new ContactTypeModel(con, auth);
 			ContactRankModel crmodel = new ContactRankModel(con, auth);
 			ContactModel pmodel = new ContactModel(con, auth);
 			
-			//contacts
+			//contacts (only shows contacts that are filled out)
+			VOContactModel vocmodel = new VOContactModel(con, auth);
 			HashMap<Integer, ArrayList<VOContactRecord>> voclist = vocmodel.get(rec.id);
 			for(Integer type_id : voclist.keySet()) {
 				ArrayList<VOContactRecord> clist = voclist.get(type_id);
@@ -191,7 +207,7 @@ public class VOServlet extends ServletBase implements Servlet {
 		return contentview;
 	}
 	
-	private String getSCName(Integer sc_id) throws AuthorizationException, SQLException
+	private String getSCName(Integer sc_id) throws SQLException
 	{
 		if(sc_id == null) return null;
 		SCModel model = new SCModel(con, auth);
@@ -202,6 +218,21 @@ public class VOServlet extends ServletBase implements Servlet {
 		return sc.name;
 	}
 	
+	private String getFieldOfScience(Integer vo_id) throws SQLException
+	{
+		VOFieldOfScienceModel model = new VOFieldOfScienceModel(con, auth);
+		ArrayList<FieldOfScienceRecord> list = model.get(vo_id);
+
+		if(list == null) {
+			return null;
+		}
+		String out = "";
+		for(FieldOfScienceRecord rec : list) {
+			out += rec.name + "<br/>";
+		}
+		return out;
+	}
+
 	private SideContentView createSideView(DivExRoot root)
 	{
 		SideContentView view = new SideContentView();

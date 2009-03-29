@@ -34,6 +34,7 @@ import edu.iu.grid.oim.model.db.record.VOContactRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
 import edu.iu.grid.oim.view.divex.ContactEditorDE;
 import edu.iu.grid.oim.view.divex.FormDE;
+import edu.iu.grid.oim.view.divex.ContactEditorDE.Rank;
 
 public class VOFormDE extends FormDE 
 {
@@ -57,17 +58,31 @@ public class VOFormDE extends FormDE
 	private SelectFormElementDE sc_id;
 	private CheckBoxFormElementDE active;
 	private CheckBoxFormElementDE disable;
+	private SelectFormElementDE parent_vo;
+	
+	//contact types to edit
+	private int contact_types[] = {
+		1, //submitter
+		2, //security contact
+		3, //admin contact
+		4, //operational contact
+		5, //misc contact
+		6, //vo manager
+		7, //notification contat
+		10, //VO report contact
+	};
+	private HashMap<Integer, ContactEditorDE> contact_editors = new HashMap();
 	
 	public VOFormDE(DivEx parent, VORecord rec, String origin_url, Connection _con, Authorization _auth) throws AuthorizationException, SQLException
 	{	
 		super(parent, origin_url);
 		con = _con;
 		auth = _auth;
-	
-		new StaticDE(this, "<h2>Details</h2>");
 		
 		id = rec.id;
-
+		
+		new StaticDE(this, "<h2>Details</h2>");
+		
 		//pull vos for unique validator
 		HashMap<Integer, String> vos = getVOs();
 		if(id != null) {
@@ -148,24 +163,25 @@ public class VOFormDE extends FormDE
 		disable.setLabel("Disabled");
 		disable.setValue(rec.disable);
 		
-		//contact information
-		new StaticDE(this, "<h2>Contact Information</h2>");
+		parent_vo = new SelectFormElementDE(this, vos);
+		parent_vo.setLabel("Parent VO");
+		VOModel model = new VOModel(con, auth);
+		VORecord parent_vo_rec = model.getParentVO(rec.id);
+		if(parent_vo_rec != null) {
+			parent_vo.setValue(parent_vo_rec.id);
+		}
 		
-		//contacts
+		new StaticDE(this, "<h2>Contact Information</h2>");
 		VOContactModel vocmodel = new VOContactModel(con, auth);
 		HashMap<Integer, ArrayList<VOContactRecord>> voclist = vocmodel.get(id);
 		ContactTypeModel ctmodel = new ContactTypeModel(con, auth);
-		renderContactEditor(voclist, ctmodel.get(1));//submitter
-		renderContactEditor(voclist, ctmodel.get(2));//security contact
-		renderContactEditor(voclist, ctmodel.get(3));//admin contact
-		renderContactEditor(voclist, ctmodel.get(4));//operational contact
-		renderContactEditor(voclist, ctmodel.get(5));//misc contact
-		renderContactEditor(voclist, ctmodel.get(6));//vo manager
-		renderContactEditor(voclist, ctmodel.get(7));//notification contact
-		renderContactEditor(voclist, ctmodel.get(10));//VO report contact
+		for(int contact_type_id : contact_types) {
+			contact_editors.put(contact_type_id, createContactEditor(voclist, ctmodel.get(contact_type_id)));
+		}
 	}
 	
-	private void renderContactEditor(HashMap<Integer, ArrayList<VOContactRecord>> voclist, ContactTypeRecord ctrec) throws SQLException
+	
+	private ContactEditorDE createContactEditor(HashMap<Integer, ArrayList<VOContactRecord>> voclist, ContactTypeRecord ctrec) throws SQLException
 	{
 		new StaticDE(this, "<h3>" + ctrec.name + "</h3>");
 		ContactModel pmodel = new ContactModel(con, auth);		
@@ -174,20 +190,13 @@ public class VOFormDE extends FormDE
 		if(clist != null) {
 			for(VOContactRecord rec : clist) {
 				ContactRecord person = pmodel.get(rec.contact_id);
-				switch(rec.contact_rank_id) {
-				case 1:
-					editor.addSelected(person, ContactEditorDE.Rank.PRIMARY);
-					break;
-				case 2:
-					editor.addSelected(person, ContactEditorDE.Rank.SECONDARY);
-					break;
-				case 3:
-					editor.addSelected(person, ContactEditorDE.Rank.TERTIARY);
-					break;
-				}
+				editor.addSelected(person, rec.contact_rank_id);
 			}
 		}
+		return editor;
 	}
+	
+
 	
 	private HashMap<Integer, String> getSCs() throws AuthorizationException, SQLException
 	{
@@ -235,13 +244,21 @@ public class VOFormDE extends FormDE
 		
 		//Do insert / update to our DB
 		try {
+			//process detail information
 			VOModel model = new VOModel(con, auth);
-			VOContactModel cmodel = new VOContactModel(con, auth);
 			if(rec.id == null) {
-				model.insert(rec);
+				rec.id = model.insert(rec);
 			} else {
 				model.update(rec);
 			}
+			
+			//process contact information
+			VOContactModel cmodel = new VOContactModel(con, auth);
+			cmodel.update(rec.id, getContactRecords());
+			
+			//process parent_vo
+			model.updateParentVOID(rec.id, parent_vo.getValue());
+	
 		} catch (AuthorizationException e) {
 			log.error(e);
 			return false;
@@ -252,5 +269,27 @@ public class VOFormDE extends FormDE
 		}
 
 		return true;
+	}
+	
+	//retrieve contact records from the contact editor
+	private ArrayList<VOContactRecord> getContactRecords()
+	{
+		ArrayList<VOContactRecord> list = new ArrayList();
+		
+		for(Integer type_id : contact_editors.keySet()) 
+		{
+			ContactEditorDE editor = contact_editors.get(type_id);
+			HashMap<ContactRecord, Integer> contacts = editor.getContactRecords();
+			for(ContactRecord contact : contacts.keySet()) {
+				VOContactRecord rec = new VOContactRecord();
+				Integer rank_id = contacts.get(contact);
+				rec.contact_id = contact.id;
+				rec.contact_type_id = type_id;
+				rec.contact_rank_id = rank_id;
+				list.add(rec);
+			}
+		}
+		
+		return list;
 	}
 }

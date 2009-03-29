@@ -1,5 +1,6 @@
 package edu.iu.grid.oim.model.db;
 
+import java.sql.BatchUpdateException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -32,7 +33,7 @@ public class VOModel extends DBModel {
 	}
 	
 	private static HashMap<Integer/*vo_id*/, VORecord> cache = null;
-    public void fillCache() throws AuthorizationException, SQLException
+    public void fillCache() throws SQLException
 	{
 		if(cache == null) {
 			cache = new HashMap();
@@ -52,7 +53,7 @@ public class VOModel extends DBModel {
    		cache = null;
     }
 	
-	public Collection<VORecord> getAllEditable() throws AuthorizationException, SQLException
+	public Collection<VORecord> getAllEditable() throws SQLException
 	{	
 		fillCache();
    
@@ -73,7 +74,7 @@ public class VOModel extends DBModel {
 	}
 	
 	//returns all record id that the user has access to
-	private HashSet<Integer> getEditableIDs() throws SQLException, AuthorizationException
+	private HashSet<Integer> getEditableIDs() throws SQLException
 	{
 		HashSet<Integer> list = new HashSet<Integer>();
 		ResultSet rs = null;
@@ -94,13 +95,30 @@ public class VOModel extends DBModel {
 		return list;
 	}
 	
-	public VORecord get(int vo_id) throws AuthorizationException, SQLException
+	public VORecord get(int vo_id) throws SQLException
 	{
 		fillCache();
 		return cache.get(vo_id);
 	}
 	
-	public void insert(VORecord rec) throws AuthorizationException, SQLException
+	public VORecord getParentVO(int child_vo_id) throws SQLException
+	{
+		//lookup parent_vo from vo_vo table
+		PreparedStatement stmt = null;
+
+		String sql = "SELECT * FROM vo_vo WHERE child_vo_id = ?";
+		stmt = con.prepareStatement(sql); 
+		stmt.setInt(1, child_vo_id);
+		ResultSet rs = stmt.executeQuery();
+		if(rs.next()) {
+			return get(rs.getInt("parent_vo_id"));
+		} 
+		return null;
+		
+	}
+	
+	/* returns new record id*/
+	public Integer insert(VORecord rec) throws AuthorizationException, SQLException
 	{	
 		auth.check("write_vo");
 		PreparedStatement stmt = null;
@@ -141,6 +159,54 @@ public class VOModel extends DBModel {
 		
 		stmt.close();
 		emptyCache();
+		
+		return id;
+	}
+	
+	public void updateParentVOID(Integer child_vo_id, Integer parent_vo_id) throws SQLException, AuthorizationException
+	{
+		auth.check("write_vo");	 //TODO - should I create write_vo_vo? I feel this should be part of write_vo..
+		String logstr = "";
+		con.setAutoCommit(false);
+
+		//remove current mapping
+		try {
+			String sql = "DELETE FROM vo_vo where child_vo_id = ?";
+			PreparedStatement stmt = con.prepareStatement(sql);
+			stmt.setInt(1, child_vo_id);
+			stmt.executeUpdate();
+			logstr += stmt.toString()+"\n";
+		} catch (SQLException e) {
+			con.rollback();
+			log.error("Failed to remove previous records for child_vo_id: " + child_vo_id);
+			throw new SQLException(e);
+		}
+		
+		//insert new vo_vo records 
+		if(parent_vo_id != null) {
+			//if parent_vo_id is null, don't insert anythin
+			try {
+				String sql = "INSERT INTO vo_vo (child_vo_id, parent_vo_id) VALUES (?, ?)";
+				PreparedStatement stmt = con.prepareStatement(sql); 
+				stmt.setInt(1, child_vo_id);
+				stmt.setInt(2, parent_vo_id);
+				stmt.executeUpdate();
+				logstr += stmt.toString()+"\n";
+				
+			} catch (SQLException e) {
+				con.rollback();
+				log.error("Failed to insert new records for child_vo_id: " + child_vo_id);
+				throw new SQLException(e);
+			} 
+		}
+		
+		con.commit();
+		con.setAutoCommit(true);
+		
+		LogModel lmodel = new LogModel(con, auth);
+		lmodel.insert("update_vo_vo", child_vo_id, logstr);
+				
+		emptyCache();
 	}
 	
 	public void update(VORecord rec) throws AuthorizationException, SQLException
@@ -177,7 +243,7 @@ public class VOModel extends DBModel {
 		stmt.close(); 	
 		emptyCache();
 	}
-	
+
 	/*
 	public void delete(int id) throws AuthorizationException, SQLException
 	{

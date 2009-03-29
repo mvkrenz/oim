@@ -27,7 +27,7 @@ public class SCModel extends DBModel {
     }    
 
 	private static HashMap<Integer/*sc_id*/, SCRecord> cache = null;
-	public void fillCache() throws AuthorizationException, SQLException
+	public void fillCache() throws SQLException
 	{
 		if(cache == null) {
 			cache = new HashMap();
@@ -47,7 +47,7 @@ public class SCModel extends DBModel {
 	 	cache = null;
     }
 	
-	public Collection<SCRecord> getAllEditable() throws AuthorizationException, SQLException
+	public Collection<SCRecord> getAllEditable() throws SQLException
 	{	
 		fillCache();
    
@@ -90,11 +90,11 @@ public class SCModel extends DBModel {
 		return list;
 	}
 	
-	public Collection<SCRecord> getAll() throws AuthorizationException, SQLException {
+	public Collection<SCRecord> getAll() throws SQLException {
 		fillCache();
 		return cache.values();
 	}
-	public SCRecord get(int sc_id) throws AuthorizationException, SQLException
+	public SCRecord get(int sc_id) throws SQLException
 	{
 		fillCache();
 		return cache.get(sc_id);

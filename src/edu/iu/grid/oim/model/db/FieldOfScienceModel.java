@@ -10,39 +10,34 @@ import java.util.HashMap;
 import org.apache.log4j.Logger;
 
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
+import edu.iu.grid.oim.model.db.record.FieldOfScienceRecord;
 import edu.iu.grid.oim.model.db.record.OsgGridTypeRecord;
 
-public class OsgGridTypeModel extends DBModel {
-    static Logger log = Logger.getLogger(OsgGridTypeModel.class);  
+public class FieldOfScienceModel extends DBModel {
+    static Logger log = Logger.getLogger(FieldOfScienceModel.class);  
+    private static HashMap<Integer, FieldOfScienceRecord> cache = null;
 	
-    private static HashMap<Integer, OsgGridTypeRecord> cache = null;
-	
-    public OsgGridTypeModel(
+    public FieldOfScienceModel(
     		java.sql.Connection _con, 
     		edu.iu.grid.oim.lib.Authorization _auth) 
     {
     	super(_con, _auth);
     }
     
-	public void fillCache() throws AuthorizationException, SQLException
+	public void fillCache() throws SQLException
 	{
 		if(cache == null) {
 			cache = new HashMap();
 			ResultSet rs = null;
 			Statement stmt = con.createStatement();
-		    if (stmt.execute("SELECT * FROM osg_grid_type")) {
+		    if (stmt.execute("SELECT * FROM field_of_science")) {
 		    	 rs = stmt.getResultSet();
 		    }
 		    while(rs.next()) {
-		    	OsgGridTypeRecord rec = new OsgGridTypeRecord(rs);
+		    	FieldOfScienceRecord rec = new FieldOfScienceRecord(rs);
 		    	cache.put(rec.id, rec);
 		    }
 		}
-	}
-	public HashMap<Integer, OsgGridTypeRecord> getAll() throws AuthorizationException, SQLException
-	{
-		fillCache();
-		return cache;
 	}
 	
 	public void emptyCache()
@@ -50,24 +45,21 @@ public class OsgGridTypeModel extends DBModel {
 		cache = null;
 	}
 
-	public OsgGridTypeRecord get(int osg_grid_type_id) throws AuthorizationException, SQLException
+	public FieldOfScienceRecord get(int field_of_science_id) throws SQLException
 	{
 		fillCache();
-		return cache.get(osg_grid_type_id);
+		return cache.get(field_of_science_id);
 	}
 	
-	public Integer insert(OsgGridTypeRecord rec) throws AuthorizationException, SQLException
+	public Integer insert(FieldOfScienceRecord rec) throws AuthorizationException, SQLException
 	{
 		auth.check("write_osg_grid_type");
 		PreparedStatement stmt = null;
 
-		String sql = "INSERT INTO osg_grid_type "+
-			" VALUES (null, ?,?)";
+		String sql = "INSERT INTO field_of_science "+
+			" VALUES (null,?)";
 		stmt = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS); 
-		
 		stmt.setString(1, rec.name);
-		stmt.setString(2, rec.description);
-	
 		stmt.executeUpdate();
 		
 		//pull generated id
@@ -80,10 +72,9 @@ public class OsgGridTypeModel extends DBModel {
 		}
 		
 		LogModel log = new LogModel(con, auth);
-		log.insert("insert_osg_grid_type", id, stmt.toString());
+		log.insert("insert_field_of_science", id, stmt.toString());
 		
 		stmt.close();
-		emptyCache();
 		
 		return id;
 	}
@@ -93,22 +84,17 @@ public class OsgGridTypeModel extends DBModel {
 		auth.check("write_osg_grid_type");
 		PreparedStatement stmt = null;
 
-		String sql = "UPDATE osg_grid_type SET "+
-			"name=?, description=? "+
-			"WHERE id=?";
+		String sql = "UPDATE osg_grid_type SET name=? WHERE id=?";
 		stmt = con.prepareStatement(sql); 
 		
 		stmt.setString(1, rec.name);
-		stmt.setString(2, rec.description);
 		stmt.setInt(3, rec.id);
-		
 		
 		stmt.executeUpdate(); 
 		LogModel log = new LogModel(con, auth);
-		log.insert("update_osg_grid_type", rec.id, stmt.toString());
+		log.insert("update_field_of_science", rec.id, stmt.toString());
 		
 		stmt.close(); 	
-		emptyCache();
 	}
 	
 	/*

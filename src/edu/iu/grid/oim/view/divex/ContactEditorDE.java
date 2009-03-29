@@ -15,15 +15,19 @@ import com.webif.divex.ButtonDE;
 import com.webif.divex.DivEx;
 import com.webif.divex.Event;
 import com.webif.divex.EventListener;
+import com.webif.divex.form.IFormElementDE;
+import com.webif.divex.form.validator.RequiredValidator;
 
 import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.servlet.ServletBase;
 
 //this requires modified version of jquery autocomplete plugin, and client side code to make the input area to be autocomplete
-public class ContactEditorDE extends DivEx {
+public class ContactEditorDE extends DivEx implements IFormElementDE {
 	static Logger log = Logger.getLogger(ContactEditorDE.class);  
 
+	protected String error;
+	
 	public enum Rank {PRIMARY, SECONDARY, TERTIARY };
 	private HashMap<Rank/*rank_id*/, ArrayList<ContactDE>> selected = new HashMap();
 	private int max_primary = 1;
@@ -80,7 +84,7 @@ public class ContactEditorDE extends DivEx {
 			int contact_id = Integer.parseInt(e.getValue());
 			try {
 				ContactRecord person = pmodel.get(contact_id);
-				addSelected(person, rank);
+				addSelected(person, Enum2DBRank(rank));
 			} catch (SQLException e1) {
 				alert("Unknown contact_id");
 			}
@@ -186,13 +190,54 @@ public class ContactEditorDE extends DivEx {
 		redraw();
 	}
 	
-	public void addSelected(ContactRecord rec, Rank rank)
+	private Rank DBRank2Enum(int contact_rank_id)
 	{
+		switch(contact_rank_id) {
+		case 1:
+			return ContactEditorDE.Rank.PRIMARY;
+		case 2:
+			return ContactEditorDE.Rank.SECONDARY;
+		case 3:
+			return ContactEditorDE.Rank.TERTIARY;
+		}	
+		throw new IllegalArgumentException("Uknown contact_rank_id: " + contact_rank_id);
+	}
+	
+	private int Enum2DBRank(Rank rank)
+	{
+		switch(rank) {
+		case PRIMARY:
+			return 1;
+		case SECONDARY:
+			return 2;
+		case TERTIARY:
+			return 3;
+		}
+		throw new IllegalArgumentException("Uknown rank: " + rank);
+	}
+	
+	public void addSelected(ContactRecord rec, int contact_rank_id)
+	{
+		
+		Rank rank = DBRank2Enum(contact_rank_id);
+		
 		ArrayList<ContactDE> list = selected.get(rank);
 		list.add(new ContactDE(this, rec, rank));
 		redraw();
 	}
 	
+	public HashMap<ContactRecord, Integer/*rank*/> getContactRecords()
+	{
+		HashMap<ContactRecord, Integer> records = new HashMap();
+		for(Rank rank : selected.keySet()) {
+			ArrayList<ContactDE> cons = selected.get(rank);
+			for(ContactDE con : cons) {
+				records.put(con.person, Enum2DBRank(rank));
+			}
+		}
+		return records;
+	}
+
 	public String renderInside() 
 	{
 		String out = "";
@@ -206,6 +251,9 @@ public class ContactEditorDE extends DivEx {
 			out += renderContactList(tertiary_newcontact, selected.get(Rank.TERTIARY), "Tertiary", max_tertiary);
 		}
 		out += "</table>";
+		if(error != null) {
+			out += "<p class='elementerror round'>"+StringEscapeUtils.escapeHtml(error)+"</p>";
+		}
 	
 		return out;
 	}
@@ -232,4 +280,28 @@ public class ContactEditorDE extends DivEx {
 		return out;
 	}
 
+	//validation handlers
+	private Boolean valid;
+	public Boolean isValid() {
+		validate();
+		return valid;
+	}
+	public void validate()
+	{
+		redraw();
+		
+		//assume all is well
+		error = null;
+		valid = true;
+		/*
+		if(selected.get(Rank.PRIMARY).size() == 0) {
+			valid = false;
+			error += "Primary Contact is required";
+		}
+		if(selected.get(Rank.SECONDARY).size() == 0) {
+			valid = false;
+			error += "Secondary Contact is required";
+		}
+		*/
+	}
 }
