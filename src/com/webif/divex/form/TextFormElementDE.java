@@ -30,8 +30,9 @@ public class TextFormElementDE extends DivEx implements IFormElementDE {
 		super(parent);
 	}
 	
-	public String renderInside() {
+	public String render() {
 		String html = "";
+		html += "<div id=\""+getNodeID()+"\">";
 		if(label != null) {
 			html += "<label>"+StringEscapeUtils.escapeHtml(label)+"</label><br/>";
 		}
@@ -46,6 +47,7 @@ public class TextFormElementDE extends DivEx implements IFormElementDE {
 		if(error != null) {
 			html += "<p class='elementerror round'>"+StringEscapeUtils.escapeHtml(error)+"</p>";
 		}
+		html += "</div>";
 		return html;
 	}
 

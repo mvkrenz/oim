@@ -15,16 +15,18 @@ public class CheckBoxFormElementDE extends DivEx implements IFormElementDE {
 		super(parent);
 	}
 	
-	public String renderInside() {
+	public String render() {
 		String checked = "";
 		if(value == true) { //value should never be null by design
 			checked = "checked=checked";
 		}
 		String html = "";
+		html += "<div id=\""+getNodeID()+"\">";
 		html += "<input type='checkbox' onchange='divex(\""+getNodeID()+"\", \"change\", this.checked);' "+checked+"/>";
 		if(label != null) {
 			html += " <label>"+StringEscapeUtils.escapeHtml(label)+"</label><br/>";
 		}
+		html += "</div>";
 		return html;
 	}
 

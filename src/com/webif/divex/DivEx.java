@@ -11,7 +11,7 @@ public abstract class DivEx {
 	private String nodeid;
 	private Boolean needupdate = false;
 	private String js = "";
-	private HashMap<String, String> div_attr = new HashMap();
+	//private HashMap<String, String> div_attr = new HashMap();
 	
 	public DivEx(DivEx _parent) {
 		nodeid = DivExRoot.getNewNodeID();
@@ -19,16 +19,18 @@ public abstract class DivEx {
 			_parent.add(this);
 		}
 		
-		div_attr.put("class", "divex"); //what is this really for? so that user can put border:0px stuff for .divex?
+		//div_attr.put("class", "divex"); //what is this really for? so that user can put border:0px stuff for .divex?
 	}
 	
 	protected ArrayList<DivEx> childnodes = new ArrayList();
 	
+	/*
 	//set attr to apply to the div
 	public void setAttr(String attr, String value)
 	{
 		div_attr.put(attr, value);
 	}
+	*/
 	
 	public void alert(String msg)
 	{
@@ -99,33 +101,23 @@ public abstract class DivEx {
 	}
 	
 	//if you have a custom controller that uses more fundamental html element, override this
-	//but don't forget to put all of the dynamic part of the content to renderInside()
-	//divex.load action will only call renderInside to redraw the content
-	//whatever you put in render() will remains until any of its parent redraws
 	public String render() {
+		/*
 		String attrs = "";
 		for(String attr : div_attr.keySet()) {
 			String value = div_attr.get(attr);
 			attrs += attr + "=\""+value+"\" ";
 		}
+		*/
 		
 		String html = "";
-		html += "<div "+attrs+" id='"+nodeid+"'>";
-		html += renderInside();
-		html += "</div>";
-		return html;
-	}
-	
-	//override this to draw the inside of your div.
-	public String renderInside()
-	{
-		String html = "";
+		html += "<div id=\""+getNodeID()+"\">";
 		for(DivEx child : childnodes) {
 			html += child.render();
 		}
+		html += "</div>";
 		return html;
 	}
-	
 	public void addEventListener(EventListener listener)
 	{
 		event_listeners.add(listener);
@@ -137,7 +129,6 @@ public abstract class DivEx {
 		if(action.compareTo("load") == 0) {
 			PrintWriter writer = response.getWriter();
 			response.setContentType("text/html");
-			//writer.print(renderInside());
 			writer.print(render());
 		} else if(action.compareTo("request") == 0) {
 			this.onRequest(request, response);

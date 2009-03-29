@@ -91,11 +91,10 @@ abstract public class FormDE extends DivEx {
 	}
 	*/
 
-	public String renderInside() 
+	public String render() 
 	{
 		String out = "";
-		
-		out += "<div class='form'>";	
+		out += "<div id=\""+getNodeID()+"\" class='form'>";	
 		for(DivEx child : childnodes) {
 			//we display submit / cancel button at the end
 			if(child == submitbutton || child == cancelbutton) continue;

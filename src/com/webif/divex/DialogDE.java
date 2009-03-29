@@ -3,6 +3,7 @@ package com.webif.divex;
 public class DialogDE extends DivEx {
 
 	String message;
+	String title;
 	/*
 	static public enum Style { BUTTON, ALINK };
 	Style style = Style.BUTTON;
@@ -13,8 +14,7 @@ public class DialogDE extends DivEx {
 	public DialogDE(DivEx parent, String _title, String _message) {
 		super(parent);
 		message = _message;
-		setAttr("title", _title);
-		setAttr("class", "hidden");
+		title = _title;
 	}
 	
 	public void open()
@@ -28,8 +28,9 @@ public class DialogDE extends DivEx {
 		}
 	}
 
-	public String renderInside() {
+	public String render() {
 		String html = "";
+		html += "<div title=\""+title+"\" class=\"hidden\" id=\""+getNodeID()+"\">";
 		if(show) {
 			html += message;
 	
@@ -50,6 +51,7 @@ public class DialogDE extends DivEx {
 			html += js;
 			html += "</script>";
 		}
+		html += "</div>";
 		
 		return html;
 	}

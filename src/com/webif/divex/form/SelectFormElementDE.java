@@ -27,9 +27,10 @@ public class SelectFormElementDE extends DivEx implements IFormElementDE
 		keyvalues = _keyvalues;
 	}
 	
-	public String renderInside() 
+	public String render() 
 	{
 		String out = "";
+		out += "<div id=\""+getNodeID()+"\">";
 		if(label != null) {
 			out += "<label>"+StringEscapeUtils.escapeHtml(label)+"</label><br/>";
 		}
@@ -51,6 +52,7 @@ public class SelectFormElementDE extends DivEx implements IFormElementDE
 		if(error != null) {
 			out += "<p class='elementerror round'>"+StringEscapeUtils.escapeHtml(error)+"</p>";
 		}
+		out += "</div>";
 		return out;
 	}
 	

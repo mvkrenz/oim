@@ -2,7 +2,7 @@
 
 /*value is optional for click event*/
 function divex(id, action, value) {
-	/* .ajax doesn't support unicode
+	/* .ajax doesn't support unicode??
 	 *
 	 */
 	/*

@@ -82,8 +82,9 @@ public class TextAreaFormElementDE extends DivEx implements IFormElementDE  {
 		validate();
 	}
 	
-	public String renderInside() {
+	public String render() {
 		String html = "";
+		html += "<div id=\""+getNodeID()+"\">";
 		if(label != null) {
 			html += "<label>"+StringEscapeUtils.escapeHtml(label)+"</label><br/>";
 		}
@@ -100,7 +101,7 @@ public class TextAreaFormElementDE extends DivEx implements IFormElementDE  {
 		if(error != null) {
 			html += "<p class='elementerror round'>"+StringEscapeUtils.escapeHtml(error)+"</p>";
 		}
-
+		html += "</div>";
 		return html;
 	}
 }

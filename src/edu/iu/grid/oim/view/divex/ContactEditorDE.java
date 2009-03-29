@@ -69,13 +69,15 @@ public class ContactEditorDE extends DivEx implements IFormElementDE {
 			super(parent);
 			pmodel = _pmodel;
 			rank = _rank;
-			setAttr("class", "inline");
+			//setAttr("class", "inline");
 		}
 		
-		public String renderInside() {
+		public String render() {
 			String html = "";
+			html += "<div class=\"inline\" id=\""+getNodeID()+"\">";
 			html += "<input type='text' class='autocomplete'/>";
 			html += "<script type='text/javascript'>$(document).ready(function() {setAutocomplete($('#"+getNodeID()+" input.autocomplete'));});</script>";
+			html += "</div>";
 			return html;
 		}
 		
@@ -166,11 +168,12 @@ public class ContactEditorDE extends DivEx implements IFormElementDE {
 			removebutton.addEventListener(new EventListener() {
 				public void handleEvent(Event e) { removeContact(myself, rank); }
 			});
-			setAttr("class", "inline contact round");
+			//setAttr("class", "inline contact round");
 		}
-		public String renderInside()
+		public String render()
 		{
 			String out = "";
+			out += "<div class=\"inline contact round\" id=\""+getNodeID()+"\">";
 			//String out = "<span class=\"contact round\">"; 
 			if(person.name == null) {
 				out += "Null";
@@ -178,7 +181,7 @@ public class ContactEditorDE extends DivEx implements IFormElementDE {
 				out += person.name.replace(" ", "&nbsp;");	
 			}
 			out += removebutton.render();
-			//out += "</span>&nbsp;";
+			out += "</div>";
 			return out;
 		}
 	}
@@ -238,10 +241,10 @@ public class ContactEditorDE extends DivEx implements IFormElementDE {
 		return records;
 	}
 
-	public String renderInside() 
+	public String render() 
 	{
 		String out = "";
-		
+		out += "<div id=\""+getNodeID()+"\">";
 		out += "<table class='contact_table'>";
 		out += renderContactList(primary_newcontact, selected.get(Rank.PRIMARY), "Primary", max_primary);
 		if(has_secondary) {
@@ -254,7 +257,7 @@ public class ContactEditorDE extends DivEx implements IFormElementDE {
 		if(error != null) {
 			out += "<p class='elementerror round'>"+StringEscapeUtils.escapeHtml(error)+"</p>";
 		}
-	
+		out += "</div>";
 		return out;
 	}
 	

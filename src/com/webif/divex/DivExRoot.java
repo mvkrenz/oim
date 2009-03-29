@@ -16,10 +16,6 @@ public class DivExRoot extends DivEx
 		super(null);
 	}
 
-	public String renderInside() {
-		//root don't display anything
-		return null;
-	}
 	static public DivExRoot getInstance(HttpServletRequest request)
 	{
     	DivExRoot root  = (DivExRoot) request.getSession().getAttribute("divex");
