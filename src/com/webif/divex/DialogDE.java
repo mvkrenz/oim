@@ -55,4 +55,8 @@ public class DialogDE extends DivEx {
 		
 		return html;
 	}
+
+	protected void onEvent(Event e) {
+		//dialog divex doesn't process any event - letting jquery handle this for now
+	}
 }

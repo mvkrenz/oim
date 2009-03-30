@@ -10,6 +10,7 @@ import java.util.HashMap;
 import org.apache.log4j.Logger;
 
 import com.webif.divex.DivEx;
+import com.webif.divex.Event;
 import com.webif.divex.StaticDE;
 import com.webif.divex.form.CheckBoxFormElementDE;
 import com.webif.divex.form.SelectFormElementDE;
@@ -23,12 +24,15 @@ import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
 import edu.iu.grid.oim.model.db.ContactRankModel;
 import edu.iu.grid.oim.model.db.ContactTypeModel;
 import edu.iu.grid.oim.model.db.ContactModel;
+import edu.iu.grid.oim.model.db.FieldOfScienceModel;
 import edu.iu.grid.oim.model.db.SCModel;
 import edu.iu.grid.oim.model.db.VOContactModel;
+import edu.iu.grid.oim.model.db.VOFieldOfScienceModel;
 import edu.iu.grid.oim.model.db.VOModel;
 import edu.iu.grid.oim.model.db.record.ContactRankRecord;
 import edu.iu.grid.oim.model.db.record.ContactTypeRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
+import edu.iu.grid.oim.model.db.record.FieldOfScienceRecord;
 import edu.iu.grid.oim.model.db.record.SCRecord;
 import edu.iu.grid.oim.model.db.record.VOContactRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
@@ -58,6 +62,7 @@ public class VOFormDE extends FormDE
 	private SelectFormElementDE sc_id;
 	private CheckBoxFormElementDE active;
 	private CheckBoxFormElementDE disable;
+	private HashMap<Integer, CheckBoxFormElementDE> field_of_science;
 	private SelectFormElementDE parent_vo;
 	
 	//contact types to edit
@@ -171,6 +176,27 @@ public class VOFormDE extends FormDE
 			parent_vo.setValue(parent_vo_rec.id);
 		}
 		
+		new StaticDE(this, "<h3>Field Of Science</h3>");
+		ArrayList<FieldOfScienceRecord> fslist = null;
+		if(id != null) {
+			VOFieldOfScienceModel vofsmodel = new VOFieldOfScienceModel(con, auth);
+			fslist = vofsmodel.get(id);
+		}
+		FieldOfScienceModel fsmodel = new FieldOfScienceModel(con, auth);
+		HashMap<Integer, FieldOfScienceRecord> fs = fsmodel.getAll();
+		field_of_science = new HashMap();
+		for(Integer fsid : fs.keySet()) {
+			FieldOfScienceRecord fsrec = fs.get(fsid);
+			CheckBoxFormElementDE elem = new CheckBoxFormElementDE(this);
+			field_of_science.put(fsid, elem);
+			elem.setLabel(fsrec.name);
+			if(fslist != null) {
+				if(fslist.contains(fsrec)) {
+					elem.setValue(true);	
+				}
+			}
+		}
+		
 		new StaticDE(this, "<h2>Contact Information</h2>");
 		VOContactModel vocmodel = new VOContactModel(con, auth);
 		HashMap<Integer, ArrayList<VOContactRecord>> voclist = vocmodel.get(id);
@@ -179,7 +205,6 @@ public class VOFormDE extends FormDE
 			contact_editors.put(contact_type_id, createContactEditor(voclist, ctmodel.get(contact_type_id)));
 		}
 	}
-	
 	
 	private ContactEditorDE createContactEditor(HashMap<Integer, ArrayList<VOContactRecord>> voclist, ContactTypeRecord ctrec) throws SQLException
 	{
@@ -195,8 +220,6 @@ public class VOFormDE extends FormDE
 		}
 		return editor;
 	}
-	
-
 	
 	private HashMap<Integer, String> getSCs() throws AuthorizationException, SQLException
 	{
@@ -258,9 +281,21 @@ public class VOFormDE extends FormDE
 			
 			//process parent_vo
 			model.updateParentVOID(rec.id, parent_vo.getValue());
-	
+			
+			//process field of science
+			VOFieldOfScienceModel vofsmodel = new VOFieldOfScienceModel(con, auth);
+			ArrayList<Integer> list = new ArrayList<Integer>();
+			for(Integer fsid : field_of_science.keySet()) {
+				CheckBoxFormElementDE elem = field_of_science.get(fsid);
+				if(elem.getValue()) {
+					list.add(fsid);
+				}
+			}
+			vofsmodel.update(rec.id, list);
+			
 		} catch (AuthorizationException e) {
 			log.error(e);
+			alert(e.getMessage());
 			return false;
 		} catch (SQLException e) {
 			log.error(e);
@@ -291,5 +326,12 @@ public class VOFormDE extends FormDE
 		}
 		
 		return list;
+	}
+
+
+	@Override
+	protected void onEvent(Event e) {
+		// TODO Auto-generated method stub
+		
 	}
 }

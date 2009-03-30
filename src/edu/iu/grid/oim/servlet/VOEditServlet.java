@@ -68,6 +68,8 @@ public class VOEditServlet extends ServletBase implements Servlet {
 		contentview.add(form);
 		
 		Page page = new Page(createMenuView(current_page), contentview, createSideView());
+		
+		//for contact editor
 		page.addExternalCSS(BaseURL()+"/jquery/plugin/jquery.autocomplete.css");
 		page.addExternalJS(BaseURL()+"/jquery/plugin/jquery.autocomplete.js");
 		

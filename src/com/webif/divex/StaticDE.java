@@ -11,4 +11,11 @@ public class StaticDE extends DivEx {
 	public String render() {
 		return html;
 	}
+	public void setHtml(String _html) {
+		html = _html;
+	}
+
+	protected void onEvent(Event e) {
+		//static doesn't handle any event
+	}
 }

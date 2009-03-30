@@ -39,6 +39,10 @@ public class FieldOfScienceModel extends DBModel {
 		    }
 		}
 	}
+	public HashMap<Integer, FieldOfScienceRecord> getAll() throws SQLException {
+		fillCache();
+		return cache;
+	}
 	
 	public void emptyCache()
 	{

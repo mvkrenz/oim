@@ -6,7 +6,6 @@ import com.webif.divex.Event;
 import com.webif.divex.DivEx;
 import com.webif.divex.form.validator.IFormElementValidator;
 import com.webif.divex.form.validator.RequiredValidator;
-import edu.iu.grid.oim.view.divex.FormDE;
 
 public class TextAreaFormElementDE extends DivEx implements IFormElementDE  {
 	
@@ -23,13 +22,13 @@ public class TextAreaFormElementDE extends DivEx implements IFormElementDE  {
 	private Boolean valid;
 	protected Boolean required = false;
 	
-	protected IFormElementValidator validator = null;
+	protected IFormElementValidator<String> validator = null;
 	
 	public TextAreaFormElementDE(DivEx parent) { 
 		super(parent);
 	}
 	public void setLabel(String _label) { label = _label; }
-	public void setValidator(IFormElementValidator _validator) { validator = _validator; }
+	public void setValidator(IFormElementValidator<String> _validator) { validator = _validator; }
 	public void setValue(String _value)	
 	{ 
 		value = _value; 

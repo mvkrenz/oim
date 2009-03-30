@@ -41,7 +41,7 @@ abstract public class FormDE extends DivEx {
 	{
 		if(isValid()) {
 			if(doSubmit()) {
-				alert("Success!");
+				//alert("Success!");
 				redirect(origin_url);	
 			}
 		} else {

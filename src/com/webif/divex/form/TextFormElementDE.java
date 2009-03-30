@@ -7,8 +7,6 @@ import com.webif.divex.DivEx;
 import com.webif.divex.form.validator.IFormElementValidator;
 import com.webif.divex.form.validator.RequiredValidator;
 
-import edu.iu.grid.oim.view.divex.FormDE;
-
 public class TextFormElementDE extends DivEx implements IFormElementDE {
 	
 	protected String label;

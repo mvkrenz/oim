@@ -67,9 +67,9 @@ public class VOFieldOfScienceModel extends DBModel {
    		cache = null;
     }
 
-	public void update(Integer vo_id, ArrayList<FieldOfScienceRecord> records) throws AuthorizationException, SQLException 
+	public void update(Integer vo_id, ArrayList<Integer> fsids) throws AuthorizationException, SQLException 
 	{
-		auth.check("write_vo_field_of_science");
+		auth.check("write_vo");
 	
 		String logstr = "";
 		con.setAutoCommit(false);
@@ -92,9 +92,9 @@ public class VOFieldOfScienceModel extends DBModel {
 			String sql = "INSERT INTO vo_field_of_science (vo_id, field_of_science_id) VALUES (?, ?)";
 			PreparedStatement stmt = con.prepareStatement(sql); 
 			
-			for(FieldOfScienceRecord rec : records) {
+			for(Integer fsid : fsids) {
 				stmt.setInt(1, vo_id);
-				stmt.setInt(2, rec.id);
+				stmt.setInt(2, fsid);
 				stmt.addBatch();
 				logstr += stmt.toString()+"\n";
 			}

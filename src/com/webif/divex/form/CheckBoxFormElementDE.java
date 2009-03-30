@@ -3,7 +3,6 @@ package com.webif.divex.form;
 import com.webif.divex.DivEx;
 import com.webif.divex.Event;
 
-import edu.iu.grid.oim.view.divex.FormDE;
 import org.apache.commons.lang.StringEscapeUtils;
 
 public class CheckBoxFormElementDE extends DivEx implements IFormElementDE {

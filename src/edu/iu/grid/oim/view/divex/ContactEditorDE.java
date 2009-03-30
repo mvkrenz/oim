@@ -184,6 +184,11 @@ public class ContactEditorDE extends DivEx implements IFormElementDE {
 			out += "</div>";
 			return out;
 		}
+		@Override
+		protected void onEvent(Event e) {
+			// TODO Auto-generated method stub
+			
+		}
 	}
 	
 	public void removeContact(ContactDE contact, Rank rank)
@@ -306,5 +311,11 @@ public class ContactEditorDE extends DivEx implements IFormElementDE {
 			error += "Secondary Contact is required";
 		}
 		*/
+	}
+
+	@Override
+	protected void onEvent(Event e) {
+		// TODO Auto-generated method stub
+		
 	}
 }

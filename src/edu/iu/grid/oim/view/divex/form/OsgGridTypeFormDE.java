@@ -10,6 +10,7 @@ import java.util.HashMap;
 import org.apache.log4j.Logger;
 
 import com.webif.divex.DivEx;
+import com.webif.divex.Event;
 import com.webif.divex.StaticDE;
 import com.webif.divex.form.CheckBoxFormElementDE;
 import com.webif.divex.form.SelectFormElementDE;
@@ -109,5 +110,11 @@ public class OsgGridTypeFormDE extends FormDE
 		}
 
 		return true;
+	}
+
+	@Override
+	protected void onEvent(Event e) {
+		// TODO Auto-generated method stub
+		
 	}
 }

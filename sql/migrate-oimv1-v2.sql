@@ -151,7 +151,9 @@ INSERT INTO action (id, name) values (1, "write_resource"),
 (11, "write_sc"),
 (12, "admin_sc"),
 (13, "write_contact"),
-(14, "admin_contact");
+(14, "admin_contact"),
+(15, "admin_osg_grid_type"),
+(16, "write_osg_grid_type");
 
 INSERT INTO `authorization_type_action` (`authorization_type_id`,`action_id`) VALUES
  (4,1),
@@ -167,5 +169,7 @@ INSERT INTO `authorization_type_action` (`authorization_type_id`,`action_id`) VA
  (4,11),
  (4,12),
  (4,13),
- (4,14);
+ (4,14),
+ (4,15),
+ (4,16);
 

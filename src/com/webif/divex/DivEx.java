@@ -1,8 +1,8 @@
 package com.webif.divex;
+
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.HashMap;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -11,9 +11,11 @@ public abstract class DivEx {
 	private String nodeid;
 	private Boolean needupdate = false;
 	private String js = "";
+	private DivEx parent;
 	//private HashMap<String, String> div_attr = new HashMap();
 	
 	public DivEx(DivEx _parent) {
+		parent = _parent;
 		nodeid = DivExRoot.getNewNodeID();
 		if(_parent != null) {
 			_parent.add(this);
@@ -21,8 +23,15 @@ public abstract class DivEx {
 		
 		//div_attr.put("class", "divex"); //what is this really for? so that user can put border:0px stuff for .divex?
 	}
+	protected DivExRoot getRoot()
+	{
+		if(parent == null) {
+			return (DivExRoot)this;
+		}
+		return parent.getRoot();
+	}
 	
-	protected ArrayList<DivEx> childnodes = new ArrayList();
+	protected ArrayList<DivEx> childnodes = new ArrayList<DivEx>();
 	
 	/*
 	//set attr to apply to the div
@@ -41,14 +50,15 @@ public abstract class DivEx {
 		js += _js;
 	}
 	public void redirect(String url) {
-		js += "document.location = '"+url+"';";
+		//if we emit redirect, we don't want to emit anything else.. just jump!
+		getRoot().redirect(url);
 	}
 	public void scrollToShow() {
 		js += "var targetOffset = $(\"#"+nodeid+"\").offset().top;";
 		js += "$('html,body').animate({scrollTop: targetOffset}, 500);";
 	}
 
-	private ArrayList<EventListener> event_listeners = new ArrayList();
+	private ArrayList<EventListener> event_listeners = new ArrayList<EventListener>();
 	
 	public String getNodeID() { return nodeid; }
 
@@ -100,16 +110,7 @@ public abstract class DivEx {
 		return null;
 	}
 	
-	//if you have a custom controller that uses more fundamental html element, override this
-	public String render() {
-		/*
-		String attrs = "";
-		for(String attr : div_attr.keySet()) {
-			String value = div_attr.get(attr);
-			attrs += attr + "=\""+value+"\" ";
-		}
-		*/
-		
+	abstract public String render();/* {
 		String html = "";
 		html += "<div id=\""+getNodeID()+"\">";
 		for(DivEx child : childnodes) {
@@ -118,6 +119,7 @@ public abstract class DivEx {
 		html += "</div>";
 		return html;
 	}
+	*/
 	public void addEventListener(EventListener listener)
 	{
 		event_listeners.add(listener);
@@ -153,7 +155,7 @@ public abstract class DivEx {
 	//the internal state of the target div, and framework will call outputUpdatecode()
 	//to emit re-load request which will then re-render the divs that are changed.
 	//Override this to handle local events (for remote events, use listener)
-	protected void onEvent(Event e) {}
+	abstract protected void onEvent(Event e);
 	
 	//request are things like outputting XML or JSON back to browser without changing
 	//any internal state. it's like load but it doesn't return html necessary. it could

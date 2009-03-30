@@ -94,7 +94,8 @@ public class VOServlet extends ServletBase implements Servlet {
 			
 			RecordTableView table = new RecordTableView();
 			contentview.add(table);
-			table.addRow("Long Name", rec.long_name);
+
+		 	table.addRow("Long Name", rec.long_name);
 			table.addRow("Description", rec.description);
 			table.addRow("Primary URL", rec.primary_url);
 			table.addRow("AUP URL", rec.aup_url);
@@ -107,7 +108,6 @@ public class VOServlet extends ServletBase implements Servlet {
 			table.addRow("Support Center", getSCName(rec.sc_id));
 			table.addRow("Active", rec.active);
 			table.addRow("Disable", rec.disable);
-			table.addHtmlRow("Field of Scicnce", getFieldOfScience(rec.id));
 			
 			//pull parent VO
 			VOModel model = new VOModel(con, auth);
@@ -117,7 +117,10 @@ public class VOServlet extends ServletBase implements Servlet {
 				parent_vo_name = parent_vo_rec.name;
 			}
 			table.addHtmlRow("Parent VO", parent_vo_name);
-						
+			
+			table.addHtmlRow("Field of Scicnce", getFieldOfScience(rec.id));
+
+
 			ContactTypeModel ctmodel = new ContactTypeModel(con, auth);
 			ContactRankModel crmodel = new ContactRankModel(con, auth);
 			ContactModel pmodel = new ContactModel(con, auth);
@@ -141,7 +144,7 @@ public class VOServlet extends ServletBase implements Servlet {
 				
 				table.addHtmlRow(ctrec.name, cliststr);
 			}
-			
+	
 			class EditButtonDE extends ButtonDE
 			{
 				String url;

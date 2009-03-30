@@ -69,8 +69,8 @@ public class OsgGridTypeEditServlet extends ServletBase implements Servlet {
 		contentview.add(form);
 		
 		Page page = new Page(createMenuView(current_page), contentview, createSideView());
-		page.addExternalCSS(BaseURL()+"/jquery/plugin/jquery.autocomplete.css");
-		page.addExternalJS(BaseURL()+"/jquery/plugin/jquery.autocomplete.js");
+		//page.addExternalCSS(BaseURL()+"/jquery/plugin/jquery.autocomplete.css");
+		//page.addExternalJS(BaseURL()+"/jquery/plugin/jquery.autocomplete.js");
 		
 		page.addExternalJS(BaseURL()+"/osggridtypeedit.js");
 		response.getWriter().print(page.toHTML());

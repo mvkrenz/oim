@@ -1,5 +1,5 @@
 package com.webif.divex;
 
-public class EventListener {
-	public void handleEvent(Event e) {}
+abstract public class EventListener {
+	abstract public void handleEvent(Event e);
 }

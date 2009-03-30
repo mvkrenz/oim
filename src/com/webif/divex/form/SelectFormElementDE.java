@@ -8,8 +8,6 @@ import com.webif.divex.DivEx;
 import com.webif.divex.Event;
 import com.webif.divex.form.validator.IFormElementValidator;
 
-import edu.iu.grid.oim.view.divex.FormDE;
-
 public class SelectFormElementDE extends DivEx implements IFormElementDE 
 {	
 	protected String label;

@@ -12,8 +12,14 @@ public class DivExRoot extends DivEx
 		return nodeid;
 	}
 	
+	private String redirect_url;
+	
 	public DivExRoot() {
 		super(null);
+	}
+	public void redirect(String url) 
+	{
+		redirect_url = url;
 	}
 
 	static public DivExRoot getInstance(HttpServletRequest request)
@@ -30,6 +36,21 @@ public class DivExRoot extends DivEx
 	//all update code
 	public String outputUpdatecode()
 	{
+		//if redirect is set, we don't need any updatecode - just jump!
+		if(redirect_url != null) {
+			String js = "document.location = '"+redirect_url+"';";
+			redirect_url = null;
+			return js;
+		}
 		return super.outputUpdatecode();
+	}
+
+	protected void onEvent(Event e) {
+		//root doesn't handle any event
+	}
+
+	public String render() {
+		//root doesn't display anything
+		return null;
 	}
 }

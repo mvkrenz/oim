@@ -41,7 +41,7 @@ public class Authorization {
 	public void check(String action) throws AuthorizationException
 	{
 		if(!allows(action)) {
-			throw new AuthorizationException("Action ["+action+"] is not allowed for dn_id:" + dn_id);
+			throw new AuthorizationException("Action:"+action+" is not authorized for " + user_dn);
 		}
 	}
 	
@@ -65,7 +65,7 @@ public class Authorization {
 		//user_dn = certs[0].getSubjectDN().getName();
 		
 		//Use ENV passed from Apache
-		String user_dn = (String)request.getAttribute("SSL_CLIENT_S_DN");
+		user_dn = (String)request.getAttribute("SSL_CLIENT_S_DN");
 		
 		//in order to test this locally (with no Apache SSL handling..)
 		//let's override DN to my DN.
