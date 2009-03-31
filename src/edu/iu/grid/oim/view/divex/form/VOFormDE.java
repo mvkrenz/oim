@@ -170,10 +170,12 @@ public class VOFormDE extends FormDE
 		
 		parent_vo = new SelectFormElementDE(this, vos);
 		parent_vo.setLabel("Parent VO");
-		VOModel model = new VOModel(con, auth);
-		VORecord parent_vo_rec = model.getParentVO(rec.id);
-		if(parent_vo_rec != null) {
-			parent_vo.setValue(parent_vo_rec.id);
+		if(id != null) {
+			VOModel model = new VOModel(con, auth);
+			VORecord parent_vo_rec = model.getParentVO(rec.id);
+			if(parent_vo_rec != null) {
+				parent_vo.setValue(parent_vo_rec.id);
+			}
 		}
 		
 		new StaticDE(this, "<h3>Field Of Science</h3>");

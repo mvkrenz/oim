@@ -82,9 +82,7 @@ public class SCModel extends DBModel {
 		rs = stmt.executeQuery();
 		while(rs.next()) {
 			SCContactRecord rec = new SCContactRecord(rs);
-			if(auth.allows("admin_sc") || isAccessibleType(rec.type_id)) {
-				list.add(rec.sc_id);
-			}
+			list.add(rec.sc_id);
 		}
 		
 		return list;

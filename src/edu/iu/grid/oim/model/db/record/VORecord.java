@@ -3,9 +3,8 @@ package edu.iu.grid.oim.model.db.record;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-
-public class VORecord implements IRecord {
-
+public class VORecord extends RecordBase 
+{
 	public Integer id;
 	public String name;
 	public String long_name;
@@ -23,32 +22,7 @@ public class VORecord implements IRecord {
 	public String footprints_id;
 	
 	//load from existing record
-	public VORecord(ResultSet rs) throws SQLException {
-		id = rs.getInt("id");
-		name = rs.getString("name");
-		description = rs.getString("description");
-		long_name = rs.getString("long_name");
-		primary_url = rs.getString("primary_url");
-		aup_url = rs.getString("aup_url");
-		membership_services_url = rs.getString("membership_services_url");
-		purpose_url = rs.getString("purpose_url");
-		support_url = rs.getString("support_url");
-		app_description = rs.getString("app_description");
-		community = rs.getString("community");
-		
-		sc_id = rs.getInt("sc_id");
-		if(rs.wasNull()) sc_id = null;
-		
-		active = rs.getBoolean("active");
-		disable = rs.getBoolean("disable");
-		
-		footprints_id = rs.getString("footprints_id");		 
-		if(rs.wasNull()) footprints_id = null;
-		
-	}
-	
+	public VORecord(ResultSet rs) throws SQLException { super(rs); }
 	//for creating new record
-	public VORecord()
-	{
-	}
+	public VORecord() {}
 }

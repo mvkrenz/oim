@@ -3,7 +3,7 @@ package edu.iu.grid.oim.model.db.record;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class DowntimeSeverityRecord implements IRecord {
+public class DowntimeSeverityRecord extends RecordBase {
 
 	public Integer id;
 	public String name;
@@ -11,15 +11,7 @@ public class DowntimeSeverityRecord implements IRecord {
 	public String description;
 	
 	//load from existing record
-	public DowntimeSeverityRecord(ResultSet rs) throws SQLException {
-		id			= rs.getInt("id");
-		name 		= rs.getString("name");
-		wlcg_name 	= rs.getString("wlcg_name");
-		description = rs.getString("description");
-	}
-	
+	public DowntimeSeverityRecord(ResultSet rs) throws SQLException { super(rs); }
 	//for creating new record
-	public DowntimeSeverityRecord()
-	{
-	}
+	public DowntimeSeverityRecord() {}
 }

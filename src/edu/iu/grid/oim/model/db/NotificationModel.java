@@ -10,12 +10,13 @@ import org.apache.log4j.Logger;
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
 import edu.iu.grid.oim.model.db.record.ContactTypeRecord;
 import edu.iu.grid.oim.model.db.record.FacilityRecord;
+import edu.iu.grid.oim.model.db.record.NotificationRecord;
 
-public class FacilityModel extends DBModel {
-    static Logger log = Logger.getLogger(FacilityModel.class);  
-	public static HashMap<Integer, FacilityRecord> cache = null;
+public class NotificationModel extends DBModel {
+    static Logger log = Logger.getLogger(NotificationModel.class);  
+	public static HashMap<Integer, NotificationRecord> cache = null;
 	
-    public FacilityModel(
+    public NotificationModel(
     		java.sql.Connection _con, 
     		edu.iu.grid.oim.lib.Authorization _auth) 
     {
@@ -29,10 +30,10 @@ public class FacilityModel extends DBModel {
 			
 			ResultSet rs = null;
 			Statement stmt = con.createStatement();
-		    if (stmt.execute("SELECT * FROM facility")) {
+		    if (stmt.execute("SELECT * FROM notification")) {
 		    	 rs = stmt.getResultSet();
 		    	 while(rs.next()) {
-		    		 FacilityRecord rec = new FacilityRecord(rs);
+		    		 NotificationRecord rec = new NotificationRecord(rs);
 		    		 cache.put(rec.id, rec);
 		    	 }
 		    }
@@ -43,7 +44,8 @@ public class FacilityModel extends DBModel {
 		cache = null;
 	}
 	
-	HashMap<Integer, FacilityRecord> getAll() {
+	public HashMap<Integer, NotificationRecord> getAll() throws SQLException {
+		fillCache();
 		return cache;
 	}
 }

@@ -3,8 +3,8 @@ package edu.iu.grid.oim.model.db.record;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class SiteRecord implements IRecord {
-
+public class SiteRecord extends RecordBase 
+{
 	public Integer id;
 	public String name;
 	public String long_name;
@@ -19,31 +19,7 @@ public class SiteRecord implements IRecord {
 	public Boolean disable;
 	
 	//load from existing record
-	public SiteRecord(ResultSet rs) throws SQLException {
-		id          = rs.getInt("id");
-		name        = rs.getString("name");
-		long_name   = rs.getString("long_name");
-		description = rs.getString("description");
-
-		address_line_1 = rs.getString("address_line_1");
-		address_line_2 = rs.getString("address_line_2");
-		
-		city    = rs.getString("city");
-		state   = rs.getString("state");
-		zipcode = rs.getString("zipcode");
-		country = rs.getString("country");
-
-		// Need to change this to float but it is text in the DB right now
-		longitude = rs.getString("longitude");
-		latitude  = rs.getString("latitude");
-		
-		sc_id = rs.getInt("sc_id");
-		facility_id = rs.getInt("facility_id");
-		active = rs.getBoolean("active");
-		disable = rs.getBoolean("disable");
-	}
-	
+	public SiteRecord(ResultSet rs) throws SQLException { super(rs); }
 	//for creating new record
-	public SiteRecord()	throws SQLException { 
-	}
+	public SiteRecord()	throws SQLException {}
 }

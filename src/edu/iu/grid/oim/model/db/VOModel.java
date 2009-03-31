@@ -88,9 +88,7 @@ public class VOModel extends DBModel {
 		rs = stmt.executeQuery();
 		while(rs.next()) {
 			VOContactRecord rec = new VOContactRecord(rs);	    
-			if(isAccessibleType(rec.contact_type_id)) {
-				list.add(rec.vo_id);
-			}
+			list.add(rec.vo_id);
 		}
 		return list;
 	}
@@ -212,35 +210,10 @@ public class VOModel extends DBModel {
 	public void update(VORecord rec) throws AuthorizationException, SQLException
 	{
 		auth.check("write_vo");
-		PreparedStatement stmt = null;
-
-		String sql = "UPDATE vo SET "+
-			"name=?, long_name=?, description=?, primary_url=?, aup_url=?, membership_services_url=?, "+
-			"purpose_url=?, support_url=?, app_description=?, community=?, sc_id=?, active=?, disable=?, footprints_id=? "+
-			"WHERE id=?";
-		stmt = con.prepareStatement(sql); 
 		
-		stmt.setString(1, rec.name);
-		stmt.setString(2, rec.long_name);
-		stmt.setString(3, rec.description);
-		stmt.setString(4, rec.primary_url);
-		stmt.setString(5, rec.aup_url);
-		stmt.setString(6, rec.membership_services_url);
-		stmt.setString(7, rec.purpose_url);
-		stmt.setString(8, rec.support_url);		
-		stmt.setString(9, rec.app_description);
-		stmt.setString(10, rec.community);
-		stmt.setInt(11, rec.sc_id);		
-		stmt.setBoolean(12, rec.active);					
-		stmt.setBoolean(13, rec.disable);	
-		stmt.setString(14, rec.footprints_id);	
-		stmt.setInt(15, rec.id);
-		
-		stmt.executeUpdate(); 
-		LogModel log = new LogModel(con, auth);
-		log.insert("update_vo", rec.id, stmt.toString());
-		
-		stmt.close(); 	
+		VORecord oldrec = get(rec.id);
+		updateChangedFields("vo", oldrec, rec);
+	
 		emptyCache();
 	}
 

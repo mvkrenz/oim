@@ -19,7 +19,7 @@ public class LogModel extends DBModel {
     	super(_con, _auth);
     }
     
-    public void insert(String type, Integer key, String detail) throws AuthorizationException, SQLException
+    public void insert(String type, Integer key, String detail) throws SQLException
     {
     	//no auth check... accessing log table is non-auth action
 		PreparedStatement stmt = null;

@@ -58,6 +58,7 @@ public class ServletBase extends HttpServlet {
 		menu.add(new MenuItem("Home", "home"));
 		menu.add(new MenuItem("Virtual Organization", "vo"));		
 		menu.add(new MenuItem("OSG Grid Type", "osg_grid_type"));		
+		menu.add(new MenuItem("Notification", "notification"));	
 		MenuView menuview = new MenuView(menu, current);
 		return menuview;
 	}

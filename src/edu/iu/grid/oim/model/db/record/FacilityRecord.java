@@ -4,7 +4,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 
-public class FacilityRecord implements IRecord {
+public class FacilityRecord extends RecordBase {
 
 	public Integer id;
 	public String name;
@@ -13,15 +13,7 @@ public class FacilityRecord implements IRecord {
 	public Boolean disable;
 	
 	//load from existing record
-	public FacilityRecord(ResultSet rs) throws SQLException {
-		id = rs.getInt("id");
-		name = rs.getString("name");
-		description = rs.getString("description");
-		active = rs.getBoolean("active");
-		disable = rs.getBoolean("disable");
-	}
-	
+	public FacilityRecord(ResultSet rs) throws SQLException { super(rs); }
 	//for creating new record
-	public FacilityRecord()	throws SQLException {
-	}
+	public FacilityRecord()	throws SQLException {}
 }

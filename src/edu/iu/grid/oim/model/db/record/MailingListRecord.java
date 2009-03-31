@@ -3,21 +3,15 @@ package edu.iu.grid.oim.model.db.record;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class MailingListRecord implements IRecord {
+public class MailingListRecord extends RecordBase {
 
 	public Integer id;
 	public String name;
 	public String email;
 	
 	//load from existing record
-	public MailingListRecord(ResultSet rs) throws SQLException {
-		id 	  = rs.getInt("id");
-		name  = rs.getString("name");
-		email = rs.getString("email");
-	}
+	public MailingListRecord(ResultSet rs) throws SQLException { super(rs); }
 	
 	//for creating new record
-	public MailingListRecord()
-	{
-	}
+	public MailingListRecord() {}
 }
