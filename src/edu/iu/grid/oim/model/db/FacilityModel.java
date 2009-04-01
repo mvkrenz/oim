@@ -11,39 +11,17 @@ import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
 import edu.iu.grid.oim.model.db.record.ContactTypeRecord;
 import edu.iu.grid.oim.model.db.record.FacilityRecord;
 
-public class FacilityModel extends DBModel {
+public class FacilityModel extends SmallTableModelBase<FacilityRecord> {
     static Logger log = Logger.getLogger(FacilityModel.class);  
-	public static HashMap<Integer, FacilityRecord> cache = null;
 	
     public FacilityModel(
     		java.sql.Connection _con, 
     		edu.iu.grid.oim.lib.Authorization _auth) 
     {
-    	super(_con, _auth);
+    	super(_con, _auth, "facility");
     }
-    
-	public void fillCache() throws SQLException
+    FacilityRecord createRecord(ResultSet rs) throws SQLException
 	{
-		if(cache == null) {
-			cache = new HashMap();
-			
-			ResultSet rs = null;
-			Statement stmt = con.createStatement();
-		    if (stmt.execute("SELECT * FROM facility")) {
-		    	 rs = stmt.getResultSet();
-		    	 while(rs.next()) {
-		    		 FacilityRecord rec = new FacilityRecord(rs);
-		    		 cache.put(rec.id, rec);
-		    	 }
-		    }
-		}
-	}
-	public void emptyCache()
-	{
-		cache = null;
-	}
-	
-	HashMap<Integer, FacilityRecord> getAll() {
-		return cache;
+		return new FacilityRecord(rs);
 	}
 }

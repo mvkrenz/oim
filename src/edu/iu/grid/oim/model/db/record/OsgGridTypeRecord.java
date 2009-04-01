@@ -4,7 +4,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class OsgGridTypeRecord extends RecordBase {
-	public Integer id;
+	@Key public Integer id;
 	public String name;
 	public String description;
 	

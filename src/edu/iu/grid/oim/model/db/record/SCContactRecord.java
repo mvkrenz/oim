@@ -4,10 +4,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class SCContactRecord extends RecordBase {
-	public Integer contact_id;
-	public Integer sc_id;
-	public Integer type_id;
-	public Integer rank_id;
+	@Key public Integer contact_id;
+	@Key public Integer sc_id;
+	@Key public Integer type_id;
+	@Key public Integer rank_id;
 	
 	//load from existing record
 	public SCContactRecord(ResultSet rs) throws SQLException { super(rs); }

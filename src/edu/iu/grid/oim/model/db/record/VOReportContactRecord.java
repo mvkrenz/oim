@@ -5,7 +5,7 @@ import java.sql.SQLException;
 
 public class VOReportContactRecord extends RecordBase  
 {
-	public Integer contact_id;
+	@Key public Integer contact_id;
 	public Integer vo_report_name_id;
 	public Integer contact_type_id;
 	public Integer contact_rank_id;

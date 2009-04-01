@@ -5,7 +5,7 @@ import java.sql.SQLException;
 
 public class DNRecord extends RecordBase {
 
-	public Integer id;
+	@Key public Integer id;
 	public String dn_string;
 	public Integer contact_id;
 	

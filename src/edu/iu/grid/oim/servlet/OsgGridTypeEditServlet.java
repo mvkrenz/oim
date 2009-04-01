@@ -45,7 +45,9 @@ public class OsgGridTypeEditServlet extends ServletBase implements Servlet {
 			int osg_grid_type_id = Integer.parseInt(osg_grid_type_id_str);
 			OsgGridTypeModel model = new OsgGridTypeModel(con, auth);
 			try {
-				rec = model.get(osg_grid_type_id);
+				OsgGridTypeRecord keyrec = new OsgGridTypeRecord();
+				keyrec.id = osg_grid_type_id;
+				rec = model.get(keyrec);
 			} catch (SQLException e) {
 				throw new ServletException(e);
 			}	

@@ -33,8 +33,10 @@ import edu.iu.grid.oim.model.db.record.ContactRankRecord;
 import edu.iu.grid.oim.model.db.record.ContactTypeRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.FieldOfScienceRecord;
+import edu.iu.grid.oim.model.db.record.RecordBase;
 import edu.iu.grid.oim.model.db.record.SCRecord;
 import edu.iu.grid.oim.model.db.record.VOContactRecord;
+import edu.iu.grid.oim.model.db.record.VOFieldOfScienceRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
 import edu.iu.grid.oim.view.divex.ContactEditorDE;
 import edu.iu.grid.oim.view.divex.FormDE;
@@ -179,18 +181,18 @@ public class VOFormDE extends FormDE
 		}
 		
 		new StaticDE(this, "<h3>Field Of Science</h3>");
-		ArrayList<FieldOfScienceRecord> fslist = null;
+		ArrayList<VOFieldOfScienceRecord> fslist = null;
 		if(id != null) {
 			VOFieldOfScienceModel vofsmodel = new VOFieldOfScienceModel(con, auth);
-			fslist = vofsmodel.get(id);
+			fslist = vofsmodel.getByVOID(id);
 		}
 		FieldOfScienceModel fsmodel = new FieldOfScienceModel(con, auth);
-		HashMap<Integer, FieldOfScienceRecord> fs = fsmodel.getAll();
+		ArrayList<RecordBase> fs = fsmodel.getCache();
 		field_of_science = new HashMap();
-		for(Integer fsid : fs.keySet()) {
-			FieldOfScienceRecord fsrec = fs.get(fsid);
+		for(RecordBase it : fs) {
+			FieldOfScienceRecord fsrec = (FieldOfScienceRecord)it;
 			CheckBoxFormElementDE elem = new CheckBoxFormElementDE(this);
-			field_of_science.put(fsid, elem);
+			field_of_science.put(fsrec.id, elem);
 			elem.setLabel(fsrec.name);
 			if(fslist != null) {
 				if(fslist.contains(fsrec)) {
@@ -201,10 +203,13 @@ public class VOFormDE extends FormDE
 		
 		new StaticDE(this, "<h2>Contact Information</h2>");
 		VOContactModel vocmodel = new VOContactModel(con, auth);
-		HashMap<Integer, ArrayList<VOContactRecord>> voclist = vocmodel.get(id);
+		ArrayList<VOContactRecord> voclist = vocmodel.getByVOID(id);
+		HashMap<Integer, ArrayList<VOContactRecord>> voclist_grouped = vocmodel.groupByContactTypeID(voclist);
 		ContactTypeModel ctmodel = new ContactTypeModel(con, auth);
 		for(int contact_type_id : contact_types) {
-			contact_editors.put(contact_type_id, createContactEditor(voclist, ctmodel.get(contact_type_id)));
+			ContactTypeRecord keyrec = new ContactTypeRecord();
+			keyrec.id = contact_type_id;
+			contact_editors.put(contact_type_id, createContactEditor(voclist_grouped, ctmodel.get(keyrec)));
 		}
 	}
 	
@@ -216,7 +221,9 @@ public class VOFormDE extends FormDE
 		ArrayList<VOContactRecord> clist = voclist.get(ctrec.id);
 		if(clist != null) {
 			for(VOContactRecord rec : clist) {
-				ContactRecord person = pmodel.get(rec.contact_id);
+				ContactRecord keyrec = new ContactRecord();
+				keyrec.id = rec.contact_id;
+				ContactRecord person = pmodel.get(keyrec);
 				editor.addSelected(person, rec.contact_rank_id);
 			}
 		}
@@ -226,10 +233,11 @@ public class VOFormDE extends FormDE
 	private HashMap<Integer, String> getSCs() throws AuthorizationException, SQLException
 	{
 		SCModel model = new SCModel(con, auth);
-		Collection<SCRecord> scs = model.getAll();
+		Collection<RecordBase> scs = model.getCache();
 		HashMap<Integer, String> keyvalues = new HashMap<Integer, String>();
-		for(SCRecord rec : scs) {
-			keyvalues.put(rec.id, rec.name);
+		for(RecordBase rec : scs) {
+			SCRecord screc = (SCRecord)rec;
+			keyvalues.put(screc.id, screc.name);
 		}
 		return keyvalues;
 	}
@@ -238,9 +246,10 @@ public class VOFormDE extends FormDE
 	{
 		//pull all VOs
 		VOModel model = new VOModel(con, auth);
-		Collection<VORecord> vos = model.getAll();
+		Collection<RecordBase> vos = model.getCache();
 		HashMap<Integer, String> keyvalues = new HashMap<Integer, String>();
-		for(VORecord rec : vos) {
+		for(RecordBase it : vos) {
+			VORecord rec = (VORecord)it;
 			keyvalues.put(rec.id, rec.name);
 		}
 		return keyvalues;
@@ -272,28 +281,32 @@ public class VOFormDE extends FormDE
 			//process detail information
 			VOModel model = new VOModel(con, auth);
 			if(rec.id == null) {
-				rec.id = model.insert(rec);
+				ResultSet rs = model.insert(rec);
+				rec.id = rs.getInt("id");
 			} else {
 				model.update(rec);
 			}
 			
 			//process contact information
 			VOContactModel cmodel = new VOContactModel(con, auth);
-			cmodel.update(rec.id, getContactRecords());
+			cmodel.update(cmodel.getByVOID(rec.id), getContactRecords(rec.id));
 			
 			//process parent_vo
 			model.updateParentVOID(rec.id, parent_vo.getValue());
 			
 			//process field of science
 			VOFieldOfScienceModel vofsmodel = new VOFieldOfScienceModel(con, auth);
-			ArrayList<Integer> list = new ArrayList<Integer>();
+			ArrayList<VOFieldOfScienceRecord> list = new ArrayList<VOFieldOfScienceRecord>();
 			for(Integer fsid : field_of_science.keySet()) {
 				CheckBoxFormElementDE elem = field_of_science.get(fsid);
 				if(elem.getValue()) {
-					list.add(fsid);
+					VOFieldOfScienceRecord vfosrec = new VOFieldOfScienceRecord();
+					vfosrec.vo_id = rec.id;
+					vfosrec.field_of_science_id = fsid;
+					list.add(vfosrec);
 				}
 			}
-			vofsmodel.update(rec.id, list);
+			vofsmodel.update(vofsmodel.getByVOID(rec.id), list);
 			
 		} catch (AuthorizationException e) {
 			log.error(e);
@@ -309,7 +322,7 @@ public class VOFormDE extends FormDE
 	}
 	
 	//retrieve contact records from the contact editor
-	private ArrayList<VOContactRecord> getContactRecords()
+	private ArrayList<VOContactRecord> getContactRecords(int vo_id)
 	{
 		ArrayList<VOContactRecord> list = new ArrayList();
 		
@@ -323,6 +336,7 @@ public class VOFormDE extends FormDE
 				rec.contact_id = contact.id;
 				rec.contact_type_id = type_id;
 				rec.contact_rank_id = rank_id;
+				rec.vo_id = vo_id;
 				list.add(rec);
 			}
 		}

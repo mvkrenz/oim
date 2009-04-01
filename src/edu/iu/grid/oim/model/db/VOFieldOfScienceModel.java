@@ -14,59 +14,32 @@ import org.apache.log4j.Logger;
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
 import edu.iu.grid.oim.model.db.record.FieldOfScienceRecord;
+import edu.iu.grid.oim.model.db.record.RecordBase;
 import edu.iu.grid.oim.model.db.record.VOContactRecord;
+import edu.iu.grid.oim.model.db.record.VOFieldOfScienceRecord;
 
-public class VOFieldOfScienceModel extends DBModel {
+public class VOFieldOfScienceModel extends SmallTableModelBase<VOFieldOfScienceRecord> {
     static Logger log = Logger.getLogger(VOFieldOfScienceModel.class); 
-	public static HashMap<Integer/*vo_id*/, ArrayList<FieldOfScienceRecord>> cache = null;
 	
 	public VOFieldOfScienceModel(Connection _con, Authorization _auth) {
-		super(_con, _auth);
+		super(_con, _auth, "vo_field_of_science");
 	}
-	
-	public ArrayList<FieldOfScienceRecord> get(Integer vo_id) throws SQLException
-	{	
-		fillCache();
-		return cache.get(vo_id);
-	}
-	
-	private void fillCache() throws SQLException
+	VOFieldOfScienceRecord createRecord(ResultSet rs) throws SQLException
 	{
-		if(cache == null) {
-			cache = new HashMap();
-			
-			String sql = "SELECT * FROM vo_field_of_science order by field_of_science_id";
-			PreparedStatement stmt = con.prepareStatement(sql); 
-			ResultSet rs = stmt.executeQuery();
-			
-			FieldOfScienceModel model = new FieldOfScienceModel(con, auth);
-	
-			while(rs.next()) {
-				Integer vo_id = rs.getInt("vo_id");
-				
-				//group records by vo_id and put it in the cache
-				ArrayList<FieldOfScienceRecord> a = null;
-				if(!cache.containsKey(vo_id)) {
-					//never had this type
-					a = new ArrayList<FieldOfScienceRecord>();
-					cache.put(vo_id, a);
-				} else {
-					a = cache.get(vo_id);
-				}
-				
-				//convert field_of_science_id to real field_of_science record
-				Integer field_of_science_id = rs.getInt("field_of_science_id");
-				FieldOfScienceRecord rec = model.get(field_of_science_id);
-				a.add(rec);
-			}
-		}
+		return new VOFieldOfScienceRecord(rs);
 	}
-	
-    public void emptyCache() //used after we do insert/update
-    {
-   		cache = null;
-    }
 
+	
+	public ArrayList<VOFieldOfScienceRecord> getByVOID(int vo_id) throws SQLException
+	{
+		ArrayList<VOFieldOfScienceRecord> list = new ArrayList<VOFieldOfScienceRecord>();
+		for(RecordBase rec : getCache()) {
+			VOFieldOfScienceRecord vcrec = (VOFieldOfScienceRecord)rec;
+			if(vcrec.vo_id == vo_id) list.add(vcrec);
+		}		
+		return list;
+	}
+/*
 	public void update(Integer vo_id, ArrayList<Integer> fsids) throws AuthorizationException, SQLException 
 	{
 		auth.check("write_vo");
@@ -111,8 +84,9 @@ public class VOFieldOfScienceModel extends DBModel {
 		con.setAutoCommit(true);
 		
 		LogModel lmodel = new LogModel(con, auth);
-		lmodel.insert("update_vo_field_of_science", vo_id, logstr);
+		lmodel.insert("update", "vo_field_of_science", logstr);
 				
 		emptyCache();
 	}
+*/
 }

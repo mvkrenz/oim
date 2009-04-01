@@ -38,6 +38,7 @@ import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.FieldOfScienceRecord;
 import edu.iu.grid.oim.model.db.record.SCRecord;
 import edu.iu.grid.oim.model.db.record.VOContactRecord;
+import edu.iu.grid.oim.model.db.record.VOFieldOfScienceRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
 import edu.iu.grid.oim.model.db.record.VOReportContactRecord;
 import edu.iu.grid.oim.view.ContentView;
@@ -120,16 +121,16 @@ public class VOServlet extends ServletBase implements Servlet {
 			
 			table.addHtmlRow("Field of Scicnce", getFieldOfScience(rec.id));
 
-
 			ContactTypeModel ctmodel = new ContactTypeModel(con, auth);
 			ContactRankModel crmodel = new ContactRankModel(con, auth);
 			ContactModel pmodel = new ContactModel(con, auth);
 			
 			//contacts (only shows contacts that are filled out)
 			VOContactModel vocmodel = new VOContactModel(con, auth);
-			HashMap<Integer, ArrayList<VOContactRecord>> voclist = vocmodel.get(rec.id);
-			for(Integer type_id : voclist.keySet()) {
-				ArrayList<VOContactRecord> clist = voclist.get(type_id);
+			ArrayList<VOContactRecord> voclist = vocmodel.getByVOID(rec.id);
+			HashMap<Integer, ArrayList<VOContactRecord>> voclist_grouped = vocmodel.groupByContactTypeID(voclist);
+			for(Integer type_id : voclist_grouped.keySet()) {
+				ArrayList<VOContactRecord> clist = voclist_grouped.get(type_id);
 				ContactTypeRecord ctrec = ctmodel.get(type_id);
 				
 				String cliststr = "";
@@ -224,14 +225,18 @@ public class VOServlet extends ServletBase implements Servlet {
 	private String getFieldOfScience(Integer vo_id) throws SQLException
 	{
 		VOFieldOfScienceModel model = new VOFieldOfScienceModel(con, auth);
-		ArrayList<FieldOfScienceRecord> list = model.get(vo_id);
-
+		ArrayList<VOFieldOfScienceRecord> list = model.getByVOID(vo_id);
+		
 		if(list == null) {
 			return null;
 		}
 		String out = "";
-		for(FieldOfScienceRecord rec : list) {
-			out += rec.name + "<br/>";
+		FieldOfScienceModel fmodel = new FieldOfScienceModel(con, auth);
+		for(VOFieldOfScienceRecord rec : list) {
+			FieldOfScienceRecord keyrec = new FieldOfScienceRecord();
+			keyrec.id = rec.field_of_science_id;
+			FieldOfScienceRecord frec = fmodel.get(keyrec);
+			out += frec.name + "<br/>";
 		}
 		return out;
 	}

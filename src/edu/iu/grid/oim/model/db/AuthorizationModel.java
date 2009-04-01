@@ -8,15 +8,18 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import org.apache.log4j.Logger;
+
+import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
 import edu.iu.grid.oim.model.db.record.DNRecord;
 
-public class AuthorizationModel extends DBModel {
+public class AuthorizationModel {
     static Logger log = Logger.getLogger(AuthorizationModel.class);  
+    protected Connection con;
     
     public AuthorizationModel(Connection _con) 
     {
-    	super(_con, null);
+    	con = _con;
     }
     
 	public DNRecord findByDN(String dn_string) throws AuthorizationException, SQLException

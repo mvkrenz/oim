@@ -6,10 +6,7 @@ import java.sql.Timestamp;
 
 public class NotificationRecord extends RecordBase {
 
-	public NotificationRecord(ResultSet rs) throws SQLException {
-		super(rs);
-	}
-	public Integer id;
+	@Key public Integer id;
 	public String type;
 	public String table;
 	public String key;
@@ -17,4 +14,7 @@ public class NotificationRecord extends RecordBase {
 	public String frequency;
 	public Integer contact_id;
 	public Timestamp timestamp;	
+	
+	public NotificationRecord(ResultSet rs) throws SQLException { super(rs); }
+	public NotificationRecord() {}
 }

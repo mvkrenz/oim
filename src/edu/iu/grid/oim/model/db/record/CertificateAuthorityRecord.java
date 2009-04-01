@@ -5,7 +5,7 @@ import java.sql.SQLException;
 
 public class CertificateAuthorityRecord extends RecordBase {
 
-	public Integer id;
+	@Key public Integer id;
 	public String name;
 	public String file_id;
 	public String md5sum;

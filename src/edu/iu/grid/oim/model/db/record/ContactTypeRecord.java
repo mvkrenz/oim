@@ -5,7 +5,7 @@ import java.sql.SQLException;
 
 public class ContactTypeRecord extends RecordBase {
 
-	public Integer id;
+	@Key public Integer id;
 	public String name;
 	public Boolean allow_secondary;
 	public Boolean allow_tertiary;

@@ -10,9 +10,10 @@ import org.apache.log4j.Logger;
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
 import edu.iu.grid.oim.model.db.record.ContactTypeRecord;
 import edu.iu.grid.oim.model.db.record.FacilityRecord;
+import edu.iu.grid.oim.model.db.record.LogRecord;
 import edu.iu.grid.oim.model.db.record.NotificationRecord;
 
-public class NotificationModel extends DBModel {
+public class NotificationModel extends SmallTableModelBase<NotificationRecord> {
     static Logger log = Logger.getLogger(NotificationModel.class);  
 	public static HashMap<Integer, NotificationRecord> cache = null;
 	
@@ -20,32 +21,11 @@ public class NotificationModel extends DBModel {
     		java.sql.Connection _con, 
     		edu.iu.grid.oim.lib.Authorization _auth) 
     {
-    	super(_con, _auth);
+    	super(_con, _auth, "notification");
     }
-    
-	public void fillCache() throws SQLException
+    NotificationRecord createRecord(ResultSet rs) throws SQLException
 	{
-		if(cache == null) {
-			cache = new HashMap();
-			
-			ResultSet rs = null;
-			Statement stmt = con.createStatement();
-		    if (stmt.execute("SELECT * FROM notification")) {
-		    	 rs = stmt.getResultSet();
-		    	 while(rs.next()) {
-		    		 NotificationRecord rec = new NotificationRecord(rs);
-		    		 cache.put(rec.id, rec);
-		    	 }
-		    }
-		}
+		return new NotificationRecord(rs);
 	}
-	public void emptyCache()
-	{
-		cache = null;
-	}
-	
-	public HashMap<Integer, NotificationRecord> getAll() throws SQLException {
-		fillCache();
-		return cache;
-	}
+  
 }

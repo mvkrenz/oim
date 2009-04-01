@@ -5,7 +5,7 @@ import java.sql.SQLException;
 
 public class ContactRecord extends RecordBase {
 
-	public Integer id;
+	@Key public Integer id;
 	public String name;
 	public String primary_email, secondary_email;
 	public String primary_phone, secondary_phone;

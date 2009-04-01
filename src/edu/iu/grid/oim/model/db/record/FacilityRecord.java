@@ -6,7 +6,7 @@ import java.sql.SQLException;
 
 public class FacilityRecord extends RecordBase {
 
-	public Integer id;
+	@Key public Integer id;
 	public String name;
 	public String description;
 	public Boolean active;

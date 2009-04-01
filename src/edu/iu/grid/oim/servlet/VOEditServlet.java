@@ -44,7 +44,9 @@ public class VOEditServlet extends ServletBase implements Servlet {
 			int vo_id = Integer.parseInt(vo_id_str);
 			VOModel model = new VOModel(con, auth);
 			try {
-				rec = model.get(vo_id);
+				VORecord keyrec = new VORecord();
+				keyrec.id = vo_id;
+				rec = model.get(keyrec);
 			} catch (SQLException e) {
 				throw new ServletException(e);
 			}	

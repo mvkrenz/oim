@@ -20,6 +20,7 @@ import com.webif.divex.form.validator.RequiredValidator;
 
 import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
+import edu.iu.grid.oim.model.db.record.RecordBase;
 import edu.iu.grid.oim.servlet.ServletBase;
 
 //this requires modified version of jquery autocomplete plugin, and client side code to make the input area to be autocomplete
@@ -98,10 +99,11 @@ public class ContactEditorDE extends DivEx implements IFormElementDE {
 			try {
 				String query = request.getParameter("q").toLowerCase();
 				int limit = Integer.parseInt(request.getParameter("limit")); //only returns records upto requested limit
-				HashMap<Integer, ContactRecord> all = pmodel.getAll();
+				ArrayList<RecordBase> all = pmodel.getCache();
 				HashMap<Integer, ContactRecord> persons = new HashMap();		
 				//filter records that matches the query upto limit
-				for(ContactRecord rec : all.values()) {
+				for(RecordBase id : all) {
+					ContactRecord rec = (ContactRecord)id;
 					if(persons.size() > limit) break;
 					
 					if(rec.name != null) {

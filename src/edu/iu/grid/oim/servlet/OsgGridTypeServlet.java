@@ -20,6 +20,7 @@ import com.webif.divex.Event;
 
 import edu.iu.grid.oim.model.db.OsgGridTypeModel;
 import edu.iu.grid.oim.model.db.record.OsgGridTypeRecord;
+import edu.iu.grid.oim.model.db.record.RecordBase;
 import edu.iu.grid.oim.view.ContentView;
 import edu.iu.grid.oim.view.MenuView;
 import edu.iu.grid.oim.view.Page;
@@ -46,7 +47,7 @@ public class OsgGridTypeServlet extends ServletBase implements Servlet {
 			DivExRoot root = DivExRoot.getInstance(request);
 			
 			OsgGridTypeModel model = new OsgGridTypeModel(con, auth);
-			HashMap<Integer, OsgGridTypeRecord> ogts = model.getAll();
+			ArrayList<RecordBase> ogts = model.getCache();
 			ContentView contentview = createContentView(root, ogts);
 			Page page = new Page(menuview, contentview, createSideView(root));
 			
@@ -57,13 +58,14 @@ public class OsgGridTypeServlet extends ServletBase implements Servlet {
 		}
 	}
 	
-	protected ContentView createContentView(final DivExRoot root, HashMap<Integer, OsgGridTypeRecord> ogts) 
+	protected ContentView createContentView(final DivExRoot root, ArrayList<RecordBase> ogts) 
 		throws ServletException, SQLException
 	{
 		ContentView contentview = new ContentView();	
 		contentview.add("<h1>OSG Grid Types</h1>");
 		
-		for(OsgGridTypeRecord rec : ogts.values()) {
+		for(RecordBase it : ogts) {
+			OsgGridTypeRecord rec = (OsgGridTypeRecord)it;
 			contentview.add("<h2>"+Utils.strFilter(rec.name)+"</h2>");
 			
 			RecordTableView table = new RecordTableView();

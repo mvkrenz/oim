@@ -27,6 +27,7 @@ import edu.iu.grid.oim.model.db.SCModel;
 import edu.iu.grid.oim.model.db.OsgGridTypeModel;
 import edu.iu.grid.oim.model.db.record.ContactTypeRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
+import edu.iu.grid.oim.model.db.record.RecordBase;
 import edu.iu.grid.oim.model.db.record.SCRecord;
 import edu.iu.grid.oim.model.db.record.OsgGridTypeRecord;
 import edu.iu.grid.oim.view.divex.ContactEditorDE;
@@ -75,11 +76,11 @@ public class OsgGridTypeFormDE extends FormDE
 	private HashMap<Integer, String> getOsgGridTypes() throws AuthorizationException, SQLException
 	{
 		//pull all OsgGridTypes
-		OsgGridTypeModel model = new OsgGridTypeModel(con, auth);
-		HashMap<Integer, OsgGridTypeRecord> osg_grid_types = model.getAll();
 		HashMap<Integer, String> keyvalues = new HashMap<Integer, String>();
-		for(OsgGridTypeRecord rec : osg_grid_types.values()) {
-			keyvalues.put(rec.id, rec.name);
+		OsgGridTypeModel model = new OsgGridTypeModel(con, auth);
+		for(RecordBase rec : model.getCache()) {
+			OsgGridTypeRecord orec = (OsgGridTypeRecord)rec;
+			keyvalues.put(orec.id, orec.name);
 		}
 		return keyvalues;
 	}

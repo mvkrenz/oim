@@ -3,68 +3,47 @@ package edu.iu.grid.oim.model.db;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Set;
 
 import org.apache.log4j.Logger;
 
 import edu.iu.grid.oim.lib.Authorization;
-import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
+import edu.iu.grid.oim.model.db.record.RecordBase;
 import edu.iu.grid.oim.model.db.record.SCContactRecord;
 import edu.iu.grid.oim.model.db.record.SCRecord;
-import edu.iu.grid.oim.model.db.record.VORecord;
-
-public class SCModel extends DBModel {
+public class SCModel extends SmallTableModelBase<SCRecord> {
     static Logger log = Logger.getLogger(SCModel.class);  
     
     public SCModel(java.sql.Connection con, Authorization auth) 
     {
-    	super(con, auth);
+    	super(con, auth, "sc");
     }    
-
-	private static HashMap<Integer/*sc_id*/, SCRecord> cache = null;
-	public void fillCache() throws SQLException
+    SCRecord createRecord(ResultSet rs) throws SQLException
 	{
-		if(cache == null) {
-			cache = new HashMap();
-			ResultSet rs = null;
-			Statement stmt = con.createStatement();
-		    if (stmt.execute("SELECT * FROM sc")) {
-		    	 rs = stmt.getResultSet();
-		    }
-		    while(rs.next()) {
-		    	SCRecord rec = new SCRecord(rs);
-		    	cache.put(rec.id, rec);
-		    }	
-		}
+		return new SCRecord(rs);
 	}
-	public void emptyCache() //used after we do insert/update
-    {
-	 	cache = null;
-    }
-	
+
 	public Collection<SCRecord> getAllEditable() throws SQLException
-	{	
-		fillCache();
-   
+	{		
+		ArrayList<SCRecord> list = new ArrayList();
 	    if(auth.allows("admin_sc")) {
 	    	//admin can edit all scs
-	    	return cache.values();
+	    	for(RecordBase rec : getCache()) {
+	    		list.add((SCRecord)rec);
+	    	}
 	    } else {
 	    	//only select record that is editable
-			ArrayList<SCRecord> list = new ArrayList();
 	    	HashSet<Integer> accessible = getEditableIDs();
-		    for(SCRecord rec : cache.values()) {
-		    	if(accessible.contains(rec.id)) {
-		    		list.add(rec);
+		    for(RecordBase rec : getCache()) {
+		    	SCRecord screc = (SCRecord)rec;
+		    	if(accessible.contains(screc.id)) {
+		    		list.add(screc);
 		    	}
 		    }	    	
-		    return list;
 	    }
+	    return list;
 	}
 	
 	//returns all record id that the user has access to
@@ -87,15 +66,10 @@ public class SCModel extends DBModel {
 		
 		return list;
 	}
-	
-	public Collection<SCRecord> getAll() throws SQLException {
-		fillCache();
-		return cache.values();
-	}
-	public SCRecord get(int sc_id) throws SQLException
-	{
-		fillCache();
-		return cache.get(sc_id);
+	public SCRecord get(int id) throws SQLException {
+		SCRecord keyrec = new SCRecord();
+		keyrec.id = id;
+		return get(keyrec);
 	}
 }
 

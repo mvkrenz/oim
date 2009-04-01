@@ -5,7 +5,7 @@ import java.sql.SQLException;
 
 public class MailingListRecord extends RecordBase {
 
-	public Integer id;
+	@Key public Integer id;
 	public String name;
 	public String email;
 	

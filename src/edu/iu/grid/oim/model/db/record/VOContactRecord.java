@@ -5,10 +5,10 @@ import java.sql.SQLException;
 
 public class VOContactRecord extends RecordBase {
 
-	public Integer contact_id;
-	public Integer vo_id;
-	public Integer contact_type_id;
-	public Integer contact_rank_id;
+	@Key public Integer contact_id;
+	@Key public Integer vo_id;
+	@Key public Integer contact_type_id;
+	@Key public Integer contact_rank_id;
 	
 	//load from existing record
 	public VOContactRecord(ResultSet rs) throws SQLException { super(rs); }
@@ -16,4 +16,5 @@ public class VOContactRecord extends RecordBase {
 	public VOContactRecord()
 	{
 	}
+
 }

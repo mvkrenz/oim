@@ -5,7 +5,7 @@ import java.sql.SQLException;
 
 public class CpuInfoRecord extends RecordBase {
 
-	public Integer id;
+	@Key public Integer id;
 	public String name;
 	public Float normalization_constant;
 	public String notes;

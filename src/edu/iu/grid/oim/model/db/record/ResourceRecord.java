@@ -5,7 +5,7 @@ import java.sql.SQLException;
 
 public class ResourceRecord extends RecordBase {
 
-	public Integer id;
+	@Key public Integer id;
 	public String name;
 	public String description;
 	public String fqdn;

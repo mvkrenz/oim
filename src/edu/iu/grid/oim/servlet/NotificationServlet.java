@@ -40,6 +40,7 @@ import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.CpuInfoRecord;
 import edu.iu.grid.oim.model.db.record.FieldOfScienceRecord;
 import edu.iu.grid.oim.model.db.record.NotificationRecord;
+import edu.iu.grid.oim.model.db.record.RecordBase;
 import edu.iu.grid.oim.model.db.record.SCRecord;
 import edu.iu.grid.oim.model.db.record.VOContactRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
@@ -69,10 +70,10 @@ public class NotificationServlet extends ServletBase implements Servlet {
 		
 		//pull list of all vos
 		NotificationModel model = new NotificationModel(con, auth);
-		Collection<NotificationRecord> notifications = null;
+		Collection<RecordBase> notifications = null;
 		try {
 			
-			notifications = model.getAll().values();
+			notifications = model.getCache();
 			
 			//construct view
 			MenuView menuview = createMenuView("notification");
@@ -87,13 +88,14 @@ public class NotificationServlet extends ServletBase implements Servlet {
 		}
 	}
 	
-	protected ContentView createContentView(final DivExRoot root, Collection<NotificationRecord> notifications) 
+	protected ContentView createContentView(final DivExRoot root, Collection<RecordBase> notifications) 
 		throws ServletException, SQLException
 	{
 		ContentView contentview = new ContentView();	
 		contentview.add("<h1>Notification</h1>");
 	
-		for(NotificationRecord rec : notifications) {
+		for(RecordBase it : notifications) {
+			NotificationRecord rec = (NotificationRecord)it;
 			contentview.add("<h2>"+Utils.strFilter(rec.key)+"</h2>");
 				
 			RecordTableView table = new RecordTableView();

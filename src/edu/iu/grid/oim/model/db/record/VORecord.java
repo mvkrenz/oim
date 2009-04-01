@@ -2,10 +2,11 @@ package edu.iu.grid.oim.model.db.record;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 public class VORecord extends RecordBase 
 {
-	public Integer id;
+	@Key public Integer id;
 	public String name;
 	public String long_name;
 	public String description;

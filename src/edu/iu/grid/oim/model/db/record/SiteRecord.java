@@ -5,7 +5,7 @@ import java.sql.SQLException;
 
 public class SiteRecord extends RecordBase 
 {
-	public Integer id;
+	@Key public Integer id;
 	public String name;
 	public String long_name;
 	public String description;

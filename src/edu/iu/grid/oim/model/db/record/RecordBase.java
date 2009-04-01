@@ -1,5 +1,8 @@
 package edu.iu.grid.oim.model.db.record;
 
+import java.lang.annotation.Annotation;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.Field;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -10,8 +13,12 @@ import org.apache.log4j.Logger;
 
 import edu.iu.grid.oim.servlet.ServletBase;
 
-public class RecordBase {
-    static Logger log = Logger.getLogger(ServletBase.class);  
+public class RecordBase implements Comparable, IKeyComparable {
+
+	@Retention(RetentionPolicy.RUNTIME)
+	public @interface Key {}
+	
+	static Logger log = Logger.getLogger(ServletBase.class);  
     
     //use reflection to figure out how to read this record
 	public RecordBase(ResultSet rs) throws SQLException
@@ -41,38 +48,75 @@ public class RecordBase {
 		        }
 			}
 		} catch (IllegalArgumentException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw new SQLException(e);
 		} catch (IllegalAccessException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw new SQLException(e);
 		}
 	}
 	public RecordBase() {}
 	
+	public ArrayList<Field> getKeys()
+	{
+		ArrayList<Field> keys = new ArrayList<Field>();
+		Field[] fields = getClass().getFields();
+		for(Field field : fields) {
+			Annotation[] annotations = field.getDeclaredAnnotations();
+			for(Annotation annotation : annotations){
+			    if(annotation instanceof Key){
+			        keys.add(field);
+			        break;
+			    }
+			}
+		}
+		return keys;
+	}
+	
 	//list fields that are different
 	public ArrayList<Field> diff(RecordBase rec)
 	{
-		ArrayList<Field> diff = new ArrayList();
+		ArrayList<Field> diff = new ArrayList<Field>();
 		try {
 			Field[] fields = getClass().getFields();
 			for(Field fld : fields) {
-				String name = fld.getName();
-				String type = fld.getType().getName();
 				Comparable me = (Comparable)fld.get(this);
 				Comparable you = (Comparable)fld.get(rec);				
-	        	if(me != you || me.compareTo(you) != 0) {
+	        	if(me != you && me.compareTo(you) != 0) {
 	        		diff.add(fld);
 	        	}
 			}
 		} catch (IllegalArgumentException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			//what can I do??
 		} catch (IllegalAccessException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			//what can I do??
 		}
 		return diff;
 	}
+	
+	public int compareTo(Object o) {
+		ArrayList<Field> diff = diff((RecordBase)o);
+		if(diff.size() == 0) return 0;
+		return 1;
+	}
 
+	public int compareKeyTo(Object o) {
+		ArrayList<Field> keys = getKeys();
+		try {
+			Field[] fields = getClass().getFields();
+			for(Field fld : fields) {
+				if(keys.contains(fld)) {
+					//this is the key field - let's compare
+					Comparable me = (Comparable)fld.get(this);
+					Comparable you = (Comparable)fld.get(o);				
+		        	if(me != you && me.compareTo(you) != 0) {
+		        		return 1; //it's different
+		        	}
+				}
+			}
+		} catch (IllegalArgumentException e) {
+			//nothing I can do?
+		} catch (IllegalAccessException e) {
+			//nothing I can do?
+		}
+		return 0;
+	}
 }
