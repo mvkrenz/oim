@@ -192,7 +192,7 @@ public class VOFormDE extends FormDE
 			}
 		}
 		FieldOfScienceModel fsmodel = new FieldOfScienceModel(con, auth);
-		ArrayList<RecordBase> fs = fsmodel.getCache();
+		Collection<RecordBase> fs = fsmodel.getCache();
 		field_of_science = new HashMap();
 		for(RecordBase it : fs) {
 			FieldOfScienceRecord fsrec = (FieldOfScienceRecord)it;

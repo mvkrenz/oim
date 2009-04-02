@@ -3,6 +3,7 @@ package edu.iu.grid.oim.servlet;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 
 import javax.servlet.Servlet;
@@ -49,7 +50,7 @@ public class OsgGridTypeServlet extends ServletBase implements Servlet {
 			DivExRoot root = DivExRoot.getInstance(request);
 			
 			OsgGridTypeModel model = new OsgGridTypeModel(con, auth);
-			ArrayList<RecordBase> ogts = model.getCache();
+			Collection<RecordBase> ogts = model.getCache();
 			ContentView contentview = createContentView(root, ogts);
 			Page page = new Page(menuview, contentview, createSideView(root));
 			page.render(response.getWriter());			
@@ -59,7 +60,7 @@ public class OsgGridTypeServlet extends ServletBase implements Servlet {
 		}
 	}
 	
-	protected ContentView createContentView(final DivExRoot root, ArrayList<RecordBase> ogts) 
+	protected ContentView createContentView(final DivExRoot root, Collection<RecordBase> ogts) 
 		throws ServletException, SQLException
 	{
 		ContentView contentview = new ContentView();	

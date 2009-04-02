@@ -8,6 +8,7 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.TreeSet;
 import java.sql.PreparedStatement;
 
 import org.apache.commons.lang.StringEscapeUtils;
@@ -15,11 +16,12 @@ import org.apache.log4j.Logger;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
+import edu.iu.grid.oim.model.db.record.KeyComparator;
 import edu.iu.grid.oim.model.db.record.RecordBase;
 
 public abstract class SmallTableModelBase<T extends RecordBase> {
     static Logger log = Logger.getLogger(SmallTableModelBase.class);  
-	private static HashMap<String, ArrayList<RecordBase>> cache = new HashMap();
+	private static HashMap<String, TreeSet<RecordBase>> cache = new HashMap();
 	abstract T createRecord(ResultSet rs) throws SQLException;
 	
     protected Connection con;
@@ -36,7 +38,7 @@ public abstract class SmallTableModelBase<T extends RecordBase> {
     protected void fillCache() throws SQLException
 	{
 		if(!cache.containsKey(table_name)) {
-			ArrayList<RecordBase> list = new ArrayList<RecordBase>();
+			TreeSet<RecordBase> list = new TreeSet<RecordBase>(new KeyComparator());
 			ResultSet rs = null;
 			Statement stmt = con.createStatement();
 		    if (stmt.execute("SELECT * FROM "+table_name)) {
@@ -53,18 +55,19 @@ public abstract class SmallTableModelBase<T extends RecordBase> {
     {
    		cache.remove(table_name);
     }
-	public ArrayList<RecordBase> getCache() throws SQLException {
+	public TreeSet<RecordBase> getCache() throws SQLException {
 		fillCache();
 		return cache.get(table_name);
 	}
     public T get(RecordBase keyrec) throws SQLException
 	{
 		fillCache();
-		for(RecordBase rec : getCache()) {
-			if(rec.compareKeysTo(keyrec) == 0) return (T)rec;
-		}
+		TreeSet<RecordBase> mycache = getCache();
+		RecordBase candidate = mycache.ceiling(keyrec);
+		if(candidate == null) return null;
+		if(candidate.compareKeysTo(keyrec) == 0) return (T)candidate;
 		return null;
-	}
+	} 
   
     //why does client need to supply oldrecs? because ModelBase doesn't know how the
     //list is created.. is it list with same contact_id? or same contact_type? etc..

@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 
 import javax.servlet.http.HttpServletRequest;
@@ -97,7 +98,7 @@ public class ContactEditorDE extends DivEx implements IFormElementDE {
 			try {
 				String query = request.getParameter("q").toLowerCase();
 				int limit = Integer.parseInt(request.getParameter("limit")); //only returns records upto requested limit
-				ArrayList<RecordBase> all = pmodel.getCache();
+				Collection<RecordBase> all = pmodel.getCache();
 				HashMap<Integer, ContactRecord> persons = new HashMap();		
 				//filter records that matches the query upto limit
 				for(RecordBase id : all) {

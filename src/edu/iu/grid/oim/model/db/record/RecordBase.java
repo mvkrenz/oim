@@ -8,6 +8,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 
 import org.apache.log4j.Logger;
@@ -18,7 +19,7 @@ public abstract class RecordBase implements Comparable<RecordBase> {
 
 	@Retention(RetentionPolicy.RUNTIME)
 	public @interface Key {}
-	
+
 	static Logger log = Logger.getLogger(ServletBase.class);  
 	static HashMap<Class, ArrayList<Field>> keys = new HashMap<Class, ArrayList<Field>>();
     
@@ -114,15 +115,15 @@ public abstract class RecordBase implements Comparable<RecordBase> {
 				//this is the key field - let's compare
 				Comparable me = (Comparable)fld.get(this);
 				Comparable you = (Comparable)fld.get(o);				
-	        	if(me != you && me.compareTo(you) != 0) {
-	        		return 1; //it's different
-	        	}
+				if(me == you) return 0;
+	        	int cmp = me.compareTo(you);
+	        	if(cmp != 0) return cmp;
 			}
 		} catch (IllegalArgumentException e) {
 			//nothing I can do?
 		} catch (IllegalAccessException e) {
 			//nothing I can do?
-		}
-		return 0;		
+		}	
+		return 0;	
 	}
 }
