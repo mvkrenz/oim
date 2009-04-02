@@ -18,8 +18,8 @@ import edu.iu.grid.oim.model.db.record.VOContactRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
 
 public class ContactRankModel extends SmallTableModelBase<ContactRankRecord> {	
-	public ContactRankModel(Connection _con, Authorization _auth) {
-		super(_con, _auth, "contact_rank");
+	public ContactRankModel(Authorization _auth) {
+		super(_auth, "contact_rank");
 	}
 	ContactRankRecord createRecord(ResultSet rs) throws SQLException
 	{

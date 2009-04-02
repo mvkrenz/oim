@@ -3,7 +3,6 @@ package edu.iu.grid.oim.lib;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.security.cert.X509Certificate;
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Collection;
 import java.util.HashSet;
@@ -12,7 +11,11 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.log4j.Logger;
 
-import edu.iu.grid.oim.model.db.AuthorizationModel;
+import edu.iu.grid.oim.model.db.ActionModel;
+import edu.iu.grid.oim.model.db.AuthorizationTypeActionModel;
+import edu.iu.grid.oim.model.db.AuthorizationTypeModel;
+import edu.iu.grid.oim.model.db.DNAuthorizationTypeModel;
+import edu.iu.grid.oim.model.db.DNModel;
 import edu.iu.grid.oim.model.db.record.DNRecord;
 
 //provide client the authorization information
@@ -51,12 +54,13 @@ public class Authorization {
 
 	}
 	
-	//use this ctor ton construct default guest Authorization object
-	public Authorization()
+	//use this instance for guest authentication
+	public static Authorization Guest = new Authorization();
+	private Authorization()
 	{
 	}
 	
-	public Authorization(HttpServletRequest request, Connection con) 
+	public Authorization(HttpServletRequest request) 
 	{
 		//pull authenticated user dn
 		
@@ -92,30 +96,31 @@ public class Authorization {
 		
 		log.info("Authenticated User DN: "+user_dn);
 		
-		//find DNID
-		AuthorizationModel model = new AuthorizationModel(con);
 		DNRecord certdn;
 
 		try {
-			certdn = model.findByDN(user_dn);
+			DNModel dnmodel = new DNModel(Authorization.Guest);
+			certdn = dnmodel.getByDNString(user_dn);
 			if(certdn == null) {
 				log.info("The DN not found in Certificate table");
 			} else {
-				dn_id = certdn.id;		
-				Collection<Integer> auth_type_ids = model.getAuthTypes(dn_id);
+				dn_id = certdn.id;
+				contact_id = certdn.contact_id;
+				
+				DNAuthorizationTypeModel dnauthtypemodel = new DNAuthorizationTypeModel(Authorization.Guest);
+				Collection<Integer> auth_type_ids = dnauthtypemodel.getAuthorizationTypesByDNID(certdn.id);
+				AuthorizationTypeActionModel authactionmodel = new AuthorizationTypeActionModel(Authorization.Guest);
+				ActionModel actionmodel = new ActionModel(Authorization.Guest);
 				for(Integer auth_type_id : auth_type_ids) {
-					Collection<Integer> aids = model.getActionIDs(auth_type_id);
+					Collection<Integer> aids = authactionmodel.getActionByAuthTypeID(auth_type_id);
 					for(Integer aid : aids) {
-						actions.add(model.getAction(aid));
+						actions.add(actionmodel.get(aid).name);
 					}
 				}
 			}	
-		} catch (AuthorizationException e) {
-			log.error(e);
 		} catch (SQLException e) {
 			log.error(e);
 		}
-
 	}
 	
 	public class AuthorizationException extends ServletException 

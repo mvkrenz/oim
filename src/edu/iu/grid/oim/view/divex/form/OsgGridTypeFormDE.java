@@ -44,13 +44,10 @@ public class OsgGridTypeFormDE extends FormDE
 	private TextFormElementDE name;
 	private TextAreaFormElementDE description;
 	
-	public OsgGridTypeFormDE(DivEx parent, OsgGridTypeRecord rec, String origin_url, Connection _con, Authorization _auth) throws AuthorizationException, SQLException
+	public OsgGridTypeFormDE(DivEx parent, OsgGridTypeRecord rec, String origin_url, Authorization _auth) throws AuthorizationException, SQLException
 	{	
 		super(parent, origin_url);
-		con = _con;
 		auth = _auth;
-	
-		//new StaticDE(this, "<h2>Details</h2>");
 		
 		id = rec.id;
 
@@ -77,7 +74,7 @@ public class OsgGridTypeFormDE extends FormDE
 	{
 		//pull all OsgGridTypes
 		HashMap<Integer, String> keyvalues = new HashMap<Integer, String>();
-		OsgGridTypeModel model = new OsgGridTypeModel(con, auth);
+		OsgGridTypeModel model = new OsgGridTypeModel(auth);
 		for(RecordBase rec : model.getCache()) {
 			OsgGridTypeRecord orec = (OsgGridTypeRecord)rec;
 			keyvalues.put(orec.id, orec.name);
@@ -95,7 +92,7 @@ public class OsgGridTypeFormDE extends FormDE
 
 		//Do insert / update to our DB
 		try {
-			OsgGridTypeModel model = new OsgGridTypeModel(con, auth);
+			OsgGridTypeModel model = new OsgGridTypeModel(auth);
 			if(rec.id == null) {
 				model.insert(rec);
 			} else {

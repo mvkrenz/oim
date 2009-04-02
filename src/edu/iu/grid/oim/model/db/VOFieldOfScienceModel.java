@@ -1,6 +1,5 @@
 package edu.iu.grid.oim.model.db;
 
-import java.sql.BatchUpdateException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -21,8 +20,8 @@ import edu.iu.grid.oim.model.db.record.VOFieldOfScienceRecord;
 public class VOFieldOfScienceModel extends SmallTableModelBase<VOFieldOfScienceRecord> {
     static Logger log = Logger.getLogger(VOFieldOfScienceModel.class); 
 	
-	public VOFieldOfScienceModel(Connection _con, Authorization _auth) {
-		super(_con, _auth, "vo_field_of_science");
+	public VOFieldOfScienceModel(Authorization _auth) {
+		super(_auth, "vo_field_of_science");
 	}
 	VOFieldOfScienceRecord createRecord(ResultSet rs) throws SQLException
 	{

@@ -297,23 +297,19 @@ SET character_set_client = @saved_cs_client;
 -- Table structure for table `log`
 --
 
+
 DROP TABLE IF EXISTS `log`;
-SET @saved_cs_client     = @@character_set_client;
-SET character_set_client = utf8;
-CREATE TABLE `log` (
+CREATE TABLE  `oimnew`.`log` (
   `id` int(11) NOT NULL auto_increment,
-  `type` varchar(64) collate utf8_unicode_ci default NULL,
-  `key` int(10) unsigned default NULL,
-  `detail` text collate utf8_unicode_ci,
+  `type` varchar(16) collate utf8_unicode_ci default NULL,
+  `model` varchar(64) collate utf8_unicode_ci default NULL,
+  `xml` text collate utf8_unicode_ci,
   `timestamp` timestamp NOT NULL default CURRENT_TIMESTAMP,
-  `comment` varchar(512) collate utf8_unicode_ci default NULL,
   `dn_id` int(11) default NULL,
   PRIMARY KEY  (`id`),
   KEY `dn_log` (`dn_id`),
   CONSTRAINT `log_ibfk_1` FOREIGN KEY (`dn_id`) REFERENCES `dn` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=58 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Log table to store all OIM-DB changes for auditing purposes.';
-SET character_set_client = @saved_cs_client;
-
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Log table to store all OIM-DB changes for auditing purposes.';
 
 --
 -- Table structure for table `metric`
@@ -396,7 +392,7 @@ DROP TABLE IF EXISTS `osg_grid_type`;
 SET @saved_cs_client     = @@character_set_client;
 SET character_set_client = utf8;
 CREATE TABLE `osg_grid_type` (
-  `id` int(11) NOT NULL,
+  `id` int(11) NOT NULL auto_increment,
   `name` varchar(512) collate utf8_unicode_ci default NULL,
   `description` varchar(512) collate utf8_unicode_ci NOT NULL,
   PRIMARY KEY  (`id`)

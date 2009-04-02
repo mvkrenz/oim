@@ -70,7 +70,7 @@ public class NotificationServlet extends ServletBase implements Servlet {
 		setAuth(request);
 		
 		//pull list of all vos
-		NotificationModel model = new NotificationModel(con, auth);
+		NotificationModel model = new NotificationModel(auth);
 		Collection<RecordBase> notifications = null;
 		try {
 			

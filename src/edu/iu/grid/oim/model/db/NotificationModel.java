@@ -7,6 +7,7 @@ import java.util.HashMap;
 
 import org.apache.log4j.Logger;
 
+import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
 import edu.iu.grid.oim.model.db.record.ContactTypeRecord;
 import edu.iu.grid.oim.model.db.record.FacilityRecord;
@@ -17,11 +18,9 @@ public class NotificationModel extends SmallTableModelBase<NotificationRecord> {
     static Logger log = Logger.getLogger(NotificationModel.class);  
 	public static HashMap<Integer, NotificationRecord> cache = null;
 	
-    public NotificationModel(
-    		java.sql.Connection _con, 
-    		edu.iu.grid.oim.lib.Authorization _auth) 
+    public NotificationModel(Authorization _auth) 
     {
-    	super(_con, _auth, "notification");
+    	super(_auth, "notification");
     }
     NotificationRecord createRecord(ResultSet rs) throws SQLException
 	{

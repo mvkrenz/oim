@@ -42,7 +42,7 @@ public class VOEditServlet extends ServletBase implements Servlet {
 		if(vo_id_str != null) {
 			//pull record to update
 			int vo_id = Integer.parseInt(vo_id_str);
-			VOModel model = new VOModel(con, auth);
+			VOModel model = new VOModel(auth);
 			try {
 				VORecord keyrec = new VORecord();
 				keyrec.id = vo_id;
@@ -59,7 +59,7 @@ public class VOEditServlet extends ServletBase implements Servlet {
 		VOFormDE form;
 		String origin_url = BaseURL()+"/"+current_page;
 		try {
-			form = new VOFormDE(DivExRoot.getInstance(request), rec, origin_url, con, auth);
+			form = new VOFormDE(DivExRoot.getInstance(request), rec, origin_url, auth);
 		} catch (SQLException e) {
 			throw new ServletException(e);
 		}

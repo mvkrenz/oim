@@ -16,9 +16,9 @@ import edu.iu.grid.oim.model.db.record.SCRecord;
 public class SCModel extends SmallTableModelBase<SCRecord> {
     static Logger log = Logger.getLogger(SCModel.class);  
     
-    public SCModel(java.sql.Connection con, Authorization auth) 
+    public SCModel(Authorization auth) 
     {
-    	super(con, auth, "sc");
+    	super(auth, "sc");
     }    
     SCRecord createRecord(ResultSet rs) throws SQLException
 	{
@@ -55,7 +55,7 @@ public class SCModel extends SmallTableModelBase<SCRecord> {
 		PreparedStatement stmt = null;
 
 		String sql = "SELECT * FROM sc_contact WHERE contact_id = ?";
-		stmt = con.prepareStatement(sql); 
+		stmt = getConnection().prepareStatement(sql); 
 		stmt.setInt(1, auth.getContactID());
 
 		rs = stmt.executeQuery();

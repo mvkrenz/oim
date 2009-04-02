@@ -17,9 +17,9 @@ public class LogModel extends SmallTableModelBase<LogRecord> {
     
     //enum Type {authenticate, insert, update, delete}
     
-    public LogModel(Connection _con, Authorization _auth) 
+    public LogModel(Authorization _auth) 
     {
-    	super(_con, _auth, "log");
+    	super(_auth, "log");
     }
     LogRecord createRecord(ResultSet rs) throws SQLException
 	{
@@ -32,12 +32,16 @@ public class LogModel extends SmallTableModelBase<LogRecord> {
 		PreparedStatement stmt = null;
 
 		String logsql = "INSERT INTO log (`type`, `model`, `xml`, `dn_id`) VALUES (?, ?, ?, ?)";
-		stmt = con.prepareStatement(logsql); 
+		stmt = getConnection().prepareStatement(logsql); 
 		stmt.setString(1, type);
 		stmt.setString(2, model);
 		stmt.setString(3, xml);
-		stmt.setInt(4, auth.getDNID());
-
+		Integer dn_id = auth.getDNID();
+		if(dn_id == null) {
+			stmt.setNull(4, java.sql.Types.INTEGER);
+		} else {
+			stmt.setInt(4, dn_id);
+		}
 		stmt.executeUpdate(); 
 		stmt.close(); 
     }

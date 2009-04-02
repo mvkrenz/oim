@@ -48,8 +48,7 @@ import edu.iu.grid.oim.view.divex.ContactEditorDE.Rank;
 public class VOFormDE extends FormDE 
 {
     static Logger log = Logger.getLogger(VOFormDE.class); 
-    
-    protected Connection con = null;
+   
 	protected Authorization auth;
 	private Integer id;
 	
@@ -83,10 +82,9 @@ public class VOFormDE extends FormDE
 	};
 	private HashMap<Integer, ContactEditorDE> contact_editors = new HashMap();
 	
-	public VOFormDE(DivEx parent, VORecord rec, String origin_url, Connection _con, Authorization _auth) throws AuthorizationException, SQLException
+	public VOFormDE(DivEx parent, VORecord rec, String origin_url, Authorization _auth) throws AuthorizationException, SQLException
 	{	
 		super(parent, origin_url);
-		con = _con;
 		auth = _auth;
 		
 		id = rec.id;
@@ -176,7 +174,7 @@ public class VOFormDE extends FormDE
 		parent_vo = new SelectFormElementDE(this, vos);
 		parent_vo.setLabel("Parent VO");
 		if(id != null) {
-			VOModel model = new VOModel(con, auth);
+			VOModel model = new VOModel(auth);
 			VORecord parent_vo_rec = model.getParentVO(rec.id);
 			if(parent_vo_rec != null) {
 				parent_vo.setValue(parent_vo_rec.id);
@@ -186,12 +184,12 @@ public class VOFormDE extends FormDE
 		new StaticDE(this, "<h3>Field Of Science</h3>");
 		ArrayList<Integer/*field_of_science_id*/> fslist = new ArrayList();
 		if(id != null) {
-			VOFieldOfScienceModel vofsmodel = new VOFieldOfScienceModel(con, auth);
+			VOFieldOfScienceModel vofsmodel = new VOFieldOfScienceModel(auth);
 			for(VOFieldOfScienceRecord fsrec : vofsmodel.getByVOID(id)) {
 				fslist.add(fsrec.field_of_science_id);
 			}
 		}
-		FieldOfScienceModel fsmodel = new FieldOfScienceModel(con, auth);
+		FieldOfScienceModel fsmodel = new FieldOfScienceModel(auth);
 		Collection<RecordBase> fs = fsmodel.getCache();
 		field_of_science = new HashMap();
 		for(RecordBase it : fs) {
@@ -210,11 +208,11 @@ public class VOFormDE extends FormDE
 
 		HashMap<Integer/*contact_type_id*/, ArrayList<VOContactRecord>> voclist_grouped = null;
 		if(id != null) {
-			VOContactModel vocmodel = new VOContactModel(con, auth);
+			VOContactModel vocmodel = new VOContactModel(auth);
 			ArrayList<VOContactRecord> voclist = vocmodel.getByVOID(id);
 			voclist_grouped = vocmodel.groupByContactTypeID(voclist);
 		}
-		ContactTypeModel ctmodel = new ContactTypeModel(con, auth);
+		ContactTypeModel ctmodel = new ContactTypeModel(auth);
 		for(int contact_type_id : contact_types) {
 			contact_editors.put(contact_type_id, createContactEditor(voclist_grouped, ctmodel.get(contact_type_id)));
 		}
@@ -223,7 +221,7 @@ public class VOFormDE extends FormDE
 	private ContactEditorDE createContactEditor(HashMap<Integer, ArrayList<VOContactRecord>> voclist, ContactTypeRecord ctrec) throws SQLException
 	{
 		new StaticDE(this, "<h3>" + ctrec.name + "</h3>");
-		ContactModel pmodel = new ContactModel(con, auth);		
+		ContactModel pmodel = new ContactModel(auth);		
 		ContactEditorDE editor = new ContactEditorDE(this, pmodel, ctrec.allow_secondary, ctrec.allow_tertiary);
 		
 		//populate corrently selected contacts - if provided
@@ -243,7 +241,7 @@ public class VOFormDE extends FormDE
 	
 	private HashMap<Integer, String> getSCs() throws AuthorizationException, SQLException
 	{
-		SCModel model = new SCModel(con, auth);
+		SCModel model = new SCModel(auth);
 		Collection<RecordBase> scs = model.getCache();
 		HashMap<Integer, String> keyvalues = new HashMap<Integer, String>();
 		for(RecordBase rec : scs) {
@@ -256,7 +254,7 @@ public class VOFormDE extends FormDE
 	private HashMap<Integer, String> getVOs() throws AuthorizationException, SQLException
 	{
 		//pull all VOs
-		VOModel model = new VOModel(con, auth);
+		VOModel model = new VOModel(auth);
 		Collection<RecordBase> vos = model.getCache();
 		HashMap<Integer, String> keyvalues = new HashMap<Integer, String>();
 		for(RecordBase it : vos) {
@@ -287,93 +285,26 @@ public class VOFormDE extends FormDE
 		rec.active = active.getValue();
 		rec.disable = disable.getValue();
 		
-		//Do insert / update to our DB
+		ArrayList<VOContactRecord> contacts = getContactRecordsFromEditor();
+		
+		VOModel model = new VOModel(auth);
 		try {
-			//process detail information
-			con.setAutoCommit(false);
-			
-			VOModel model = new VOModel(con, auth);
 			if(rec.id == null) {
-				ResultSet rs = model.insert(rec);
-				rec.id = rs.getInt(1);
+				model.insertDetail(rec, contacts, parent_vo.getValue(), field_of_science);
 			} else {
-				model.update(model.get(rec), rec);
+				model.updateDetail(rec, contacts, parent_vo.getValue(), field_of_science);
 			}
-			
-			//process contact information
-			VOContactModel cmodel = new VOContactModel(con, auth);
-			cmodel.update(cmodel.getByVOID(rec.id), getContactRecords(rec.id));
-			
-			//process parent_vo
-			VOVOModel vvmodel = new VOVOModel(con, auth);
-			VOVORecord vvrec = new VOVORecord();
-			vvrec.child_vo_id = rec.id;
-			vvrec.parent_vo_id = parent_vo.getValue();
-			VOVORecord vvrec_old = vvmodel.get(vvrec);
-			if(vvrec_old != null) {
-				//we have old record - need to update
-				if(vvrec.parent_vo_id != null) {
-					vvmodel.update(vvrec_old, vvrec);
-				} else {
-					//parent is changed to null - remove it
-					vvmodel.remove(vvrec_old);
-				}
-			} else {
-				//we don't have old record - need to insert
-				if(vvrec.parent_vo_id != null) {
-					//only if parent_vo is non-null
-					vvmodel.insert(vvrec);
-				}
-			}
-			
-			//process field of science
-			VOFieldOfScienceModel vofsmodel = new VOFieldOfScienceModel(con, auth);
-			ArrayList<VOFieldOfScienceRecord> list = new ArrayList<VOFieldOfScienceRecord>();
-			for(Integer fsid : field_of_science.keySet()) {
-				CheckBoxFormElementDE elem = field_of_science.get(fsid);
-				if(elem.getValue()) {
-					VOFieldOfScienceRecord vfosrec = new VOFieldOfScienceRecord();
-					vfosrec.vo_id = rec.id;
-					vfosrec.field_of_science_id = fsid;
-					list.add(vfosrec);
-				}
-			}
-			vofsmodel.update(vofsmodel.getByVOID(rec.id), list);
-		
-			con.commit();
-			con.setAutoCommit(true);
-		} catch (AuthorizationException e) {
-			log.error(e);
+		} catch (Exception e) {
 			alert(e.getMessage());
-			try {
-				log.info("Rolling back VO insert transaction.");
-				con.rollback();
-				con.setAutoCommit(true);
-			} catch (SQLException e1) {
-				//if rollback fails, there isn't match we can do..
-				log.error("Roll back failed");
-			}
-
-			return false;
-		} catch (SQLException e) {
-			log.error(e);
-			alert(e.getMessage());
-			try {
-				log.info("Rolling back VO insert transaction.");
-				con.rollback();
-				con.setAutoCommit(true);
-			} catch (SQLException e1) {
-				//if rollback fails, there isn't match we can do..
-				log.error("Roll back failed");
-			}
-		
 			return false;
 		}
 		return true;
 	}
 	
-	//retrieve contact records from the contact editor
-	private ArrayList<VOContactRecord> getContactRecords(int vo_id)
+	//retrieve contact records from the contact editor.
+	//be aware that VOContactRecord's vo_id is not populated.. you need to fill it out with
+	//appropriate vo_id later
+	private ArrayList<VOContactRecord> getContactRecordsFromEditor()
 	{
 		ArrayList<VOContactRecord> list = new ArrayList();
 		
@@ -387,7 +318,6 @@ public class VOFormDE extends FormDE
 				rec.contact_id = contact.id;
 				rec.contact_type_id = type_id;
 				rec.contact_rank_id = rank_id;
-				rec.vo_id = vo_id;
 				list.add(rec);
 			}
 		}

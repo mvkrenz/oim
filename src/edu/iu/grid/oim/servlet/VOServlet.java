@@ -67,7 +67,7 @@ public class VOServlet extends ServletBase implements Servlet {
 		
 		//pull list of all vos
 		Collection<VORecord> vos = null;
-		VOModel model = new VOModel(con, auth);
+		VOModel model = new VOModel(auth);
 		try {
 			vos = model.getAllEditable();
 		
@@ -113,7 +113,7 @@ public class VOServlet extends ServletBase implements Servlet {
 			table.addRow("Disable", rec.disable);
 
 			//pull parent VO
-			VOModel model = new VOModel(con, auth);
+			VOModel model = new VOModel(auth);
 			VORecord parent_vo_rec = model.getParentVO(rec.id);
 			String parent_vo_name = null;
 			if(parent_vo_rec != null) {
@@ -123,12 +123,12 @@ public class VOServlet extends ServletBase implements Servlet {
 	
 			table.addRow("Field of Scicnce", getFieldOfScience(rec.id));
 
-			ContactTypeModel ctmodel = new ContactTypeModel(con, auth);
-			ContactRankModel crmodel = new ContactRankModel(con, auth);
-			ContactModel pmodel = new ContactModel(con, auth);
+			ContactTypeModel ctmodel = new ContactTypeModel(auth);
+			ContactRankModel crmodel = new ContactRankModel(auth);
+			ContactModel pmodel = new ContactModel(auth);
 			
 			//contacts (only shows contacts that are filled out)
-			VOContactModel vocmodel = new VOContactModel(con, auth);
+			VOContactModel vocmodel = new VOContactModel(auth);
 			ArrayList<VOContactRecord> voclist = vocmodel.getByVOID(rec.id);
 			HashMap<Integer, ArrayList<VOContactRecord>> voclist_grouped = vocmodel.groupByContactTypeID(voclist);
 			for(Integer type_id : voclist_grouped.keySet()) {
@@ -219,7 +219,7 @@ public class VOServlet extends ServletBase implements Servlet {
 	private String getSCName(Integer sc_id) throws SQLException
 	{
 		if(sc_id == null) return null;
-		SCModel model = new SCModel(con, auth);
+		SCModel model = new SCModel(auth);
 		SCRecord sc = model.get(sc_id);	
 		if(sc == null) {
 			return null;
@@ -229,14 +229,14 @@ public class VOServlet extends ServletBase implements Servlet {
 	
 	private View getFieldOfScience(Integer vo_id) throws SQLException
 	{
-		VOFieldOfScienceModel model = new VOFieldOfScienceModel(con, auth);
+		VOFieldOfScienceModel model = new VOFieldOfScienceModel(auth);
 		ArrayList<VOFieldOfScienceRecord> list = model.getByVOID(vo_id);
 		
 		if(list == null) {
 			return null;
 		}
 		String out = "";
-		FieldOfScienceModel fmodel = new FieldOfScienceModel(con, auth);
+		FieldOfScienceModel fmodel = new FieldOfScienceModel(auth);
 		for(VOFieldOfScienceRecord rec : list) {
 			FieldOfScienceRecord keyrec = new FieldOfScienceRecord();
 			keyrec.id = rec.field_of_science_id;

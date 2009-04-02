@@ -13,8 +13,8 @@ import edu.iu.grid.oim.model.db.record.VOReportContactRecord;
 public class VOReportContactModel extends SmallTableModelBase<VOReportContactRecord> {
     static Logger log = Logger.getLogger(VOReportContactModel.class); 
 	
-	public VOReportContactModel(Connection _con, Authorization _auth) {
-		super(_con, _auth, "vo_report_contact");
+	public VOReportContactModel(Authorization _auth) {
+		super(_auth, "vo_report_contact");
 		// TODO Auto-generated constructor stub
 	}
 	VOReportContactRecord createRecord(ResultSet rs) throws SQLException

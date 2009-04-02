@@ -15,11 +15,9 @@ import edu.iu.grid.oim.model.db.record.VOVORecord;
 public class VOVOModel extends SmallTableModelBase<VOVORecord> {
     static Logger log = Logger.getLogger(VOVOModel.class);  
 	
-    public VOVOModel(
-    		java.sql.Connection _con, 
-    		edu.iu.grid.oim.lib.Authorization _auth) 
+    public VOVOModel(edu.iu.grid.oim.lib.Authorization _auth) 
     {
-    	super(_con, _auth, "vo_vo");
+    	super(_auth, "vo_vo");
     }
     VOVORecord createRecord(ResultSet rs) throws SQLException
 	{

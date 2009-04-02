@@ -1,6 +1,5 @@
 package edu.iu.grid.oim.model.db;
 
-import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -10,14 +9,13 @@ import org.apache.log4j.Logger;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.model.db.record.RecordBase;
-import edu.iu.grid.oim.model.db.record.SCRecord;
 import edu.iu.grid.oim.model.db.record.VOContactRecord;
 
 public class VOContactModel extends SmallTableModelBase<VOContactRecord> {
     static Logger log = Logger.getLogger(VOContactModel.class); 
 	
-	public VOContactModel(Connection _con, Authorization _auth) {
-		super(_con, _auth, "vo_contact");
+	public VOContactModel(Authorization _auth) {
+		super(_auth, "vo_contact");
 	}
 	VOContactRecord createRecord(ResultSet rs) throws SQLException
 	{

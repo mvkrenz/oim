@@ -115,7 +115,7 @@ public abstract class RecordBase implements Comparable<RecordBase> {
 				//this is the key field - let's compare
 				Comparable me = (Comparable)fld.get(this);
 				Comparable you = (Comparable)fld.get(o);				
-				if(me == you) return 0;
+				if(me == you) continue;
 	        	int cmp = me.compareTo(you);
 	        	if(cmp != 0) return cmp;
 			}

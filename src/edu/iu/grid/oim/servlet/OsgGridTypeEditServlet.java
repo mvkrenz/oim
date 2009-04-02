@@ -43,7 +43,7 @@ public class OsgGridTypeEditServlet extends ServletBase implements Servlet {
 		if(osg_grid_type_id_str != null) {
 			//pull record to update
 			int osg_grid_type_id = Integer.parseInt(osg_grid_type_id_str);
-			OsgGridTypeModel model = new OsgGridTypeModel(con, auth);
+			OsgGridTypeModel model = new OsgGridTypeModel(auth);
 			try {
 				OsgGridTypeRecord keyrec = new OsgGridTypeRecord();
 				keyrec.id = osg_grid_type_id;
@@ -60,7 +60,7 @@ public class OsgGridTypeEditServlet extends ServletBase implements Servlet {
 		OsgGridTypeFormDE form;
 		String origin_url = BaseURL()+"/"+current_page;
 		try {
-			form = new OsgGridTypeFormDE(DivExRoot.getInstance(request), rec, origin_url, con, auth);
+			form = new OsgGridTypeFormDE(DivExRoot.getInstance(request), rec, origin_url, auth);
 		} catch (SQLException e) {
 			throw new ServletException(e);
 		}

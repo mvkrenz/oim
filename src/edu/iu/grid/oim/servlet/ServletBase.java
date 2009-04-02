@@ -25,31 +25,15 @@ import edu.iu.grid.oim.view.Page;
 
 public class ServletBase extends HttpServlet {
     static Logger log = Logger.getLogger(ServletBase.class);  
-    protected Connection con = null;
 	protected Authorization auth;
 
 	public void init(ServletConfig conf) throws ServletException {
 		super.init(conf);
-		
-		//cache oim db connection
-		try
-		{
-			Context initContext = new InitialContext();
-			Context envContext  = (Context)initContext.lookup("java:/comp/env");
-			DataSource ds = (DataSource)envContext.lookup("jdbc/oim");
-			con = ds.getConnection();
-			log.info("OIM DB connection:" + con.toString());
-			initContext.close();
-		}
-		catch(Exception es)
-		{
-			es.printStackTrace();
-		}
 	}
 	
 	protected void setAuth(HttpServletRequest request) throws AuthorizationException
 	{
-		auth = new Authorization(request, con);
+		auth = new Authorization(request);
 	}
 	
 	protected MenuView createMenuView(String current)

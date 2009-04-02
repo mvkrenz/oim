@@ -67,7 +67,7 @@ public class CPUInfoServlet extends ServletBase implements Servlet {
 		
 		//pull list of all vos
 		Collection<CpuInfoRecord> cpus = null;
-		VOModel model = new VOModel(con, auth);
+		VOModel model = new VOModel(auth);
 		try {
 			//construct view
 			MenuView menuview = createMenuView("vo");

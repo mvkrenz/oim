@@ -7,6 +7,7 @@ import java.util.HashMap;
 
 import org.apache.log4j.Logger;
 
+import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
 import edu.iu.grid.oim.model.db.record.ContactTypeRecord;
 import edu.iu.grid.oim.model.db.record.FacilityRecord;
@@ -14,11 +15,9 @@ import edu.iu.grid.oim.model.db.record.FacilityRecord;
 public class FacilityModel extends SmallTableModelBase<FacilityRecord> {
     static Logger log = Logger.getLogger(FacilityModel.class);  
 	
-    public FacilityModel(
-    		java.sql.Connection _con, 
-    		edu.iu.grid.oim.lib.Authorization _auth) 
+    public FacilityModel(Authorization _auth) 
     {
-    	super(_con, _auth, "facility");
+    	super(_auth, "facility");
     }
     FacilityRecord createRecord(ResultSet rs) throws SQLException
 	{

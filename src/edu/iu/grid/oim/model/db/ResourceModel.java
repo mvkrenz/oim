@@ -18,9 +18,9 @@ import edu.iu.grid.oim.model.db.record.VOContactRecord;
 public class ResourceModel extends SmallTableModelBase<ResourceRecord> {
     static Logger log = Logger.getLogger(ResourceModel.class);  
     
-    public ResourceModel(java.sql.Connection con, Authorization auth) 
+    public ResourceModel(Authorization auth) 
     {
-    	super(con, auth, "resource");
+    	super(auth, "resource");
     }
     ResourceRecord createRecord(ResultSet rs) throws SQLException
 	{

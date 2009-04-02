@@ -16,8 +16,8 @@ import edu.iu.grid.oim.model.db.record.SCContactRecord;
 public class SCContactModel extends SmallTableModelBase<SCContactRecord> {
     static Logger log = Logger.getLogger(SCContactModel.class); 
 
-	public SCContactModel(Connection _con, Authorization _auth) {
-		super(_con, _auth, "sc_contact");
+	public SCContactModel(Authorization _auth) {
+		super(_auth, "sc_contact");
 	}
 	SCContactRecord createRecord(ResultSet rs) throws SQLException
 	{

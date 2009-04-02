@@ -16,11 +16,9 @@ import edu.iu.grid.oim.model.db.record.SCRecord;
 public class ContactModel extends SmallTableModelBase<ContactRecord> {
     static Logger log = Logger.getLogger(ContactModel.class);  
 
-    public ContactModel(
-    		java.sql.Connection _con, 
-    		edu.iu.grid.oim.lib.Authorization _auth) 
+    public ContactModel(edu.iu.grid.oim.lib.Authorization _auth) 
     {
-    	super(_con, _auth, "contact");
+    	super(_auth, "contact");
     }
 	ContactRecord createRecord(ResultSet rs) throws SQLException
 	{

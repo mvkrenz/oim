@@ -49,7 +49,7 @@ public class OsgGridTypeServlet extends ServletBase implements Servlet {
 			MenuView menuview = createMenuView("osg_grid_type");
 			DivExRoot root = DivExRoot.getInstance(request);
 			
-			OsgGridTypeModel model = new OsgGridTypeModel(con, auth);
+			OsgGridTypeModel model = new OsgGridTypeModel(auth);
 			Collection<RecordBase> ogts = model.getCache();
 			ContentView contentview = createContentView(root, ogts);
 			Page page = new Page(menuview, contentview, createSideView(root));
@@ -151,11 +151,13 @@ public class OsgGridTypeServlet extends ServletBase implements Servlet {
 				super(parent, "Add New OSG Grid Type");
 				url = _url;
 			}
-			protected void onClick(Event e) {
+			protected void onEvent(Event e) {
 				redirect(url);
 			}
 		};
 		view.add("Operation", new NewButtonDE(root, "osg_grid_type_edit"));
+		
+		
 		
 		return view;
 	}

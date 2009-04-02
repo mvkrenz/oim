@@ -19,18 +19,16 @@ import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
 import edu.iu.grid.oim.model.db.record.KeyComparator;
 import edu.iu.grid.oim.model.db.record.RecordBase;
 
-public abstract class SmallTableModelBase<T extends RecordBase> {
+public abstract class SmallTableModelBase<T extends RecordBase> extends ModelBase {
     static Logger log = Logger.getLogger(SmallTableModelBase.class);  
 	private static HashMap<String, TreeSet<RecordBase>> cache = new HashMap();
 	abstract T createRecord(ResultSet rs) throws SQLException;
 	
-    protected Connection con;
     protected Authorization auth;
     protected String table_name;
    
-    public SmallTableModelBase(Connection _con, Authorization _auth, String _table_name) 
+    public SmallTableModelBase(Authorization _auth, String _table_name) 
     {
-    	con = _con;
     	auth = _auth;
     	table_name = _table_name;
     }    
@@ -40,13 +38,13 @@ public abstract class SmallTableModelBase<T extends RecordBase> {
 		if(!cache.containsKey(table_name)) {
 			TreeSet<RecordBase> list = new TreeSet<RecordBase>(new KeyComparator());
 			ResultSet rs = null;
-			Statement stmt = con.createStatement();
+			Statement stmt = getConnection().createStatement();
 		    if (stmt.execute("SELECT * FROM "+table_name)) {
-		    	 rs = stmt.getResultSet();
-		    }
-		    while(rs.next()) {
-		    	RecordBase rec = createRecord(rs);
-		    	list.add(rec);
+		    	rs = stmt.getResultSet();
+		    	while(rs.next()) {
+		    		RecordBase rec = createRecord(rs);
+		    		list.add(rec);
+				}
 		    }	
 		    cache.put(table_name, list);
 		}
@@ -77,10 +75,10 @@ public abstract class SmallTableModelBase<T extends RecordBase> {
 	  	
 		//if auto commit is true, then do rollback, if caller is handling commit, 
 		//then don't do rollback here and let caller do the rollback.
-		Boolean rollback = con.getAutoCommit(); 
+		Boolean rollback = getConnection().getAutoCommit(); 
 		
 		if(rollback) {
-			con.setAutoCommit(false);
+			getConnection().setAutoCommit(false);
 		}
 		
 		try {
@@ -95,7 +93,6 @@ public abstract class SmallTableModelBase<T extends RecordBase> {
 				}
 				if(!found) {
 					remove(oldrec);
-					logRemove(oldrec);
 				}
 			}
 			
@@ -104,25 +101,23 @@ public abstract class SmallTableModelBase<T extends RecordBase> {
 	    		T oldrec = get(newrec);
 	    		if(oldrec == null) {
 	    			insert(newrec);
-	    			logInsert(newrec);
 	    		} else {
 	    	    	if(oldrec.diff(newrec).size() > 0) {
 	    	    		update(oldrec, newrec);
-	    	    		logUpdate(oldrec, newrec);
 	    	    	}
 	    		}
 	    	}
 		} catch (SQLException e) {
 			if(rollback) {
-				con.rollback();
-				con.setAutoCommit(true);
+				getConnection().rollback();
+				getConnection().setAutoCommit(true);
 			}
 			throw new SQLException(e);
 		}
 		
 		if(rollback) {
-			con.commit();
-			con.setAutoCommit(true);
+			getConnection().commit();
+			getConnection().setAutoCommit(true);
 		}
 		emptyCache();
 	}
@@ -139,7 +134,7 @@ public abstract class SmallTableModelBase<T extends RecordBase> {
 	    		keysql += key.getName() + "=?";
 	    	}
 			String sql = "DELETE FROM "+table_name+" where " + keysql;
-			PreparedStatement stmt = con.prepareStatement(sql);
+			PreparedStatement stmt = getConnection().prepareStatement(sql);
 			int count = 1;
 			for(Field key : rec.getKeys()) {
 	       		Object value;
@@ -178,7 +173,7 @@ public abstract class SmallTableModelBase<T extends RecordBase> {
     		values += "?";
     	}
 		String sql = "INSERT INTO "+table_name+" ("+fields+") VALUES ("+values+")";
-		PreparedStatement stmt = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS); 
+		PreparedStatement stmt = getConnection().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS); 
     	try {
 	    	//set field values
 	    	int count = 1;
@@ -236,7 +231,7 @@ public abstract class SmallTableModelBase<T extends RecordBase> {
     		if(values.length() != 0) values += ", ";
     		values += f.getName() + "=?";
     	}  	
-    	stmt = con.prepareStatement(sql);
+    	stmt = getConnection().prepareStatement(sql);
     	try {
 	    	//set field values
 	    	int count = 1;
@@ -305,7 +300,7 @@ public abstract class SmallTableModelBase<T extends RecordBase> {
 	    	}
 	    	xml += "</Fields>\n";
 	    	xml += "</Insert>";
-			LogModel lmodel = new LogModel(con, auth);
+			LogModel lmodel = new LogModel(auth);
 			lmodel.insert("insert", getClass().getName(), xml);	    	
 		} catch (IllegalArgumentException e) {
 			throw new SQLException(e);
@@ -346,7 +341,7 @@ public abstract class SmallTableModelBase<T extends RecordBase> {
 	    	}
 	    	xml += "</Fields>\n";
 	    	xml += "</Remove>";
-			LogModel lmodel = new LogModel(con, auth);
+			LogModel lmodel = new LogModel(auth);
 			lmodel.insert("remove", getClass().getName(), xml);	    	
 		} catch (IllegalArgumentException e) {
 			throw new SQLException(e);
@@ -388,7 +383,7 @@ public abstract class SmallTableModelBase<T extends RecordBase> {
 	    	xml += "</Fields>\n";
 	    	
 	    	xml += "</Update>";
-			LogModel lmodel = new LogModel(con, auth);
+			LogModel lmodel = new LogModel(auth);
 			lmodel.insert("update", getClass().getName(), xml);	    	
 		} catch (IllegalArgumentException e) {
 			throw new SQLException(e);

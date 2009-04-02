@@ -13,9 +13,9 @@ import edu.iu.grid.oim.lib.Authorization;
 public class OsgGridTypeModel extends SmallTableModelBase<OsgGridTypeRecord> {
     static Logger log = Logger.getLogger(OsgGridTypeModel.class);  
 	
-    public OsgGridTypeModel(Connection _con, Authorization _auth) 
+    public OsgGridTypeModel(Authorization _auth) 
     {
-    	super(_con, _auth, "osg_grid_type");
+    	super(_auth, "osg_grid_type");
     }
     OsgGridTypeRecord createRecord(ResultSet rs) throws SQLException
 	{
