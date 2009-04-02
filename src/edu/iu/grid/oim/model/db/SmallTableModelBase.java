@@ -306,7 +306,7 @@ public abstract class SmallTableModelBase<T extends RecordBase> {
 	    	xml += "</Fields>\n";
 	    	xml += "</Insert>";
 			LogModel lmodel = new LogModel(con, auth);
-			lmodel.insert("insert", rec.getClass().getName(), xml);	    	
+			lmodel.insert("insert", getClass().getName(), xml);	    	
 		} catch (IllegalArgumentException e) {
 			throw new SQLException(e);
 		} catch (IllegalAccessException e) {
@@ -347,7 +347,7 @@ public abstract class SmallTableModelBase<T extends RecordBase> {
 	    	xml += "</Fields>\n";
 	    	xml += "</Remove>";
 			LogModel lmodel = new LogModel(con, auth);
-			lmodel.insert("remove", rec.getClass().getName(), xml);	    	
+			lmodel.insert("remove", getClass().getName(), xml);	    	
 		} catch (IllegalArgumentException e) {
 			throw new SQLException(e);
 		} catch (IllegalAccessException e) {
@@ -389,7 +389,7 @@ public abstract class SmallTableModelBase<T extends RecordBase> {
 	    	
 	    	xml += "</Update>";
 			LogModel lmodel = new LogModel(con, auth);
-			lmodel.insert("update", newrec.getClass().getName(), xml);	    	
+			lmodel.insert("update", getClass().getName(), xml);	    	
 		} catch (IllegalArgumentException e) {
 			throw new SQLException(e);
 		} catch (IllegalAccessException e) {

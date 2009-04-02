@@ -10,7 +10,7 @@ public class LogRecord extends RecordBase {
 	public String xml;
 	public Timestamp timestamp;
 	public Integer dn_id;
-	public String record;
+	public String model;
 	
 	//load from existing record
 	public LogRecord(ResultSet rs) throws SQLException { super(rs); }

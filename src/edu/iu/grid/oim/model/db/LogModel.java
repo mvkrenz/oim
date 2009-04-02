@@ -26,15 +26,15 @@ public class LogModel extends SmallTableModelBase<LogRecord> {
 		return new LogRecord(rs);
 	}
     
-    public void insert(String type, String record, String xml) throws SQLException
+    public void insert(String type, String model, String xml) throws SQLException
     {
     	//no auth check... accessing log table is non-auth action
 		PreparedStatement stmt = null;
 
-		String logsql = "INSERT INTO log (`type`, `record`, `xml`, `dn_id`) VALUES (?, ?, ?, ?)";
+		String logsql = "INSERT INTO log (`type`, `model`, `xml`, `dn_id`) VALUES (?, ?, ?, ?)";
 		stmt = con.prepareStatement(logsql); 
 		stmt.setString(1, type);
-		stmt.setString(2, record);
+		stmt.setString(2, model);
 		stmt.setString(3, xml);
 		stmt.setInt(4, auth.getDNID());
 
