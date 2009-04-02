@@ -1,5 +1,6 @@
 package edu.iu.grid.oim.view;
 
+import java.io.PrintWriter;
 import java.util.ArrayList;
 
 import com.webif.divex.DivEx;
@@ -11,7 +12,8 @@ public class SideContentView extends View {
 	
 	public void add(String title, View v) {
 		children.add(new HtmlView("<h3>"+title+"</h3>"));
-		children.add(v);
+		WrapView content = new WrapView("<p class=\"indent\">", v, "</p>");
+		children.add(content);
 	}
 	
 	public void add(String title, DivEx de) {
@@ -23,13 +25,13 @@ public class SideContentView extends View {
 		add(title, new HtmlView(html));
 	}
 	
-	public String toHTML() {
-		String out = "<div id=\"sideContent\">\n";
+	public void render(PrintWriter out)
+	{
+		out.println("<div id=\"sideContent\">");
 		for(View v : children) {
-			out += v.toHTML();
+			v.render(out);
 		}
-		out += "</div>";
-		return out;
+		out.println("</div>");
 	}
 
 }

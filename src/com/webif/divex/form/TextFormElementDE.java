@@ -1,5 +1,7 @@
 package com.webif.divex.form;
 
+import java.io.PrintWriter;
+
 import org.apache.commons.lang.StringEscapeUtils;
 
 import com.webif.divex.Event;
@@ -28,25 +30,23 @@ public class TextFormElementDE extends DivEx implements IFormElementDE {
 		super(parent);
 	}
 	
-	public String render() {
-		String html = "";
-		html += "<div id=\""+getNodeID()+"\">";
+	public void render(PrintWriter out) {
+		out.print("<div id=\""+getNodeID()+"\">");
 		if(label != null) {
-			html += "<label>"+StringEscapeUtils.escapeHtml(label)+"</label><br/>";
+			out.print("<label>"+StringEscapeUtils.escapeHtml(label)+"</label><br/>");
 		}
 		String current_value = value;
 		if(value == null) {
 			current_value = "";
 		}
-		html += "<input type='text' style='width: "+width+"px;' onchange='divex(\""+getNodeID()+"\", \"change\", this.value);' value=\""+StringEscapeUtils.escapeHtml(current_value)+"\"/>";
+		out.print("<input type='text' style='width: "+width+"px;' onchange='divex(\""+getNodeID()+"\", \"change\", this.value);' value=\""+StringEscapeUtils.escapeHtml(current_value)+"\"/>");
 		if(required) {
-			html += " * Required";
+			out.print(" * Required");
 		}
 		if(error != null) {
-			html += "<p class='elementerror round'>"+StringEscapeUtils.escapeHtml(error)+"</p>";
+			out.print("<p class='elementerror round'>"+StringEscapeUtils.escapeHtml(error)+"</p>");
 		}
-		html += "</div>";
-		return html;
+		out.print("</div>");
 	}
 
 	public void setLabel(String _label) { label = _label; }
@@ -98,7 +98,7 @@ public class TextFormElementDE extends DivEx implements IFormElementDE {
 	}
 	
 	public void onEvent(Event e) {
-		value = e.getValue();
+		value = e.getValue().trim();
 		validate();
 	}
 }

@@ -14,6 +14,7 @@ import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
 import edu.iu.grid.oim.model.db.record.RecordBase;
 import edu.iu.grid.oim.model.db.record.VOContactRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
+import edu.iu.grid.oim.model.db.record.VOVORecord;
 
 public class VOModel extends SmallTableModelBase<VORecord>
 {	
@@ -26,6 +27,11 @@ public class VOModel extends SmallTableModelBase<VORecord>
     VORecord createRecord(ResultSet rs) throws SQLException
 	{
 		return new VORecord(rs);
+	}
+	public VORecord get(int id) throws SQLException {
+		VORecord keyrec = new VORecord();
+		keyrec.id = id;
+		return get(keyrec);
 	}
 	
 	public Collection<VORecord> getAllEditable() throws SQLException
@@ -63,67 +69,10 @@ public class VOModel extends SmallTableModelBase<VORecord>
 	
 	public VORecord getParentVO(int child_vo_id) throws SQLException
 	{
-		//lookup parent_vo from vo_vo table
-		PreparedStatement stmt = null;
-
-		String sql = "SELECT * FROM vo_vo WHERE child_vo_id = ?";
-		stmt = con.prepareStatement(sql); 
-		stmt.setInt(1, child_vo_id);
-		ResultSet rs = stmt.executeQuery();
-		if(rs.next()) {
-			VORecord keyrec = new VORecord();
-			keyrec.id = rs.getInt("parent_vo_id");
-			return (VORecord)get(keyrec);
-		} 
-		return null;
-		
+		VOVOModel model = new VOVOModel(con, auth);
+		VOVORecord vovo = model.get(child_vo_id);
+		if(vovo == null) return null;
+		return get(vovo.parent_vo_id);	
 	}
-		
-	public void updateParentVOID(Integer child_vo_id, Integer parent_vo_id) throws SQLException, AuthorizationException
-	{
-		auth.check("write_vo");	 //TODO - should I create write_vo_vo? I feel this should be part of write_vo..
-		String logstr = "";
-		con.setAutoCommit(false);
-
-		//remove current mapping
-		try {
-			String sql = "DELETE FROM vo_vo where child_vo_id = ?";
-			PreparedStatement stmt = con.prepareStatement(sql);
-			stmt.setInt(1, child_vo_id);
-			stmt.executeUpdate();
-			logstr += stmt.toString()+"\n";
-		} catch (SQLException e) {
-			con.rollback();
-			log.error("Failed to remove previous records for child_vo_id: " + child_vo_id);
-			throw new SQLException(e);
-		}
-		
-		//insert new vo_vo records 
-		if(parent_vo_id != null) {
-			//if parent_vo_id is null, don't insert anythin
-			try {
-				String sql = "INSERT INTO vo_vo (child_vo_id, parent_vo_id) VALUES (?, ?)";
-				PreparedStatement stmt = con.prepareStatement(sql); 
-				stmt.setInt(1, child_vo_id);
-				stmt.setInt(2, parent_vo_id);
-				stmt.executeUpdate();
-				logstr += stmt.toString()+"\n";
-				
-			} catch (SQLException e) {
-				con.rollback();
-				log.error("Failed to insert new records for child_vo_id: " + child_vo_id);
-				throw new SQLException(e);
-			} 
-		}
-		
-		con.commit();
-		con.setAutoCommit(true);
-		
-		LogModel lmodel = new LogModel(con, auth);
-		lmodel.insert("update", "vo_vo", logstr);
-				
-		emptyCache();
-	}
-
 }
 

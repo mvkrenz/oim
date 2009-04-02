@@ -14,4 +14,12 @@ public class ContactTypeRecord extends RecordBase {
 	public ContactTypeRecord(ResultSet rs) throws SQLException { super(rs); }
 	//for creating new record
 	public ContactTypeRecord() {}
+	/*
+	public int compareKeysTo(RecordBase o) {
+		if(this == o) return 0;
+		ContactTypeRecord you = (ContactTypeRecord)o;
+		if(id.compareTo(you.id) == 0) return 0;
+		return 1;
+	}
+	*/
 }

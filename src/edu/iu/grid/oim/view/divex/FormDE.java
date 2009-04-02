@@ -1,5 +1,7 @@
 package edu.iu.grid.oim.view.divex;
 
+import java.io.PrintWriter;
+
 import com.webif.divex.ButtonDE;
 import com.webif.divex.DivEx;
 import com.webif.divex.Event;
@@ -77,38 +79,28 @@ abstract public class FormDE extends DivEx {
 		return valid;
 	}
 	
-	/*
-	public IFormElementDE getElement(String name) {
-		for(DivEx child : childnodes) {
-			if(child instanceof IFormElementDE) { 
-				IFormElementDE element = (IFormElementDE)child;
-				if(element.getName().compareTo(name) == 0) {
-					return element;
-				}
-			}
-		}
-		return null;
+	protected void onEvent(Event e) {
+		// TODO Auto-generated method stub
+		
 	}
-	*/
 
-	public String render() 
+	public void render(PrintWriter out) 
 	{
-		String out = "";
-		out += "<div id=\""+getNodeID()+"\" class='form'>";	
+		out.print("<div id=\""+getNodeID()+"\" class='form'>");	
 		for(DivEx child : childnodes) {
 			//we display submit / cancel button at the end
 			if(child == submitbutton || child == cancelbutton) continue;
-			
-			out += "<div class=\"form_element\">" + child.render() + "</div>";
+			out.print("<div class=\"form_element\">");
+			child.render(out);
+			out.print("</div>");
 		}
 
-		out += submitbutton.render();
+		submitbutton.render(out);
 		if(cancelbutton != null) {
-			out += " or ";
-			out += cancelbutton.render();
+			out.print(" or ");
+			cancelbutton.render(out);
 		}
 		
-		out += "</div>";
-		return out;
+		out.print("</div>");
 	}
 }

@@ -14,4 +14,12 @@ public class CpuInfoRecord extends RecordBase {
 	public CpuInfoRecord(ResultSet rs) throws SQLException { super(rs); }	
 	//for creating new record
 	public CpuInfoRecord() {}
+	/*
+	public int compareKeysTo(RecordBase o) {
+		if(this == o) return 0;
+		CpuInfoRecord you = (CpuInfoRecord)o;
+		if(id.compareTo(you.id) == 0) return 0;
+		return 1;
+	}
+	*/
 }

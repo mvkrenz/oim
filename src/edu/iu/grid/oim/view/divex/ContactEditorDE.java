@@ -1,6 +1,7 @@
 package edu.iu.grid.oim.view.divex;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -16,7 +17,6 @@ import com.webif.divex.DivEx;
 import com.webif.divex.Event;
 import com.webif.divex.EventListener;
 import com.webif.divex.form.IFormElementDE;
-import com.webif.divex.form.validator.RequiredValidator;
 
 import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
@@ -73,13 +73,11 @@ public class ContactEditorDE extends DivEx implements IFormElementDE {
 			//setAttr("class", "inline");
 		}
 		
-		public String render() {
-			String html = "";
-			html += "<div class=\"inline\" id=\""+getNodeID()+"\">";
-			html += "<input type='text' class='autocomplete'/>";
-			html += "<script type='text/javascript'>$(document).ready(function() {setAutocomplete($('#"+getNodeID()+" input.autocomplete'));});</script>";
-			html += "</div>";
-			return html;
+		public void render(PrintWriter out) {
+			out.print("<div class=\"inline\" id=\""+getNodeID()+"\">");
+			out.print("<input type='text' class='autocomplete'/>");
+			out.print("<script type='text/javascript'>$(document).ready(function() {setAutocomplete($('#"+getNodeID()+" input.autocomplete'));});</script>");
+			out.print("</div>");
 		}
 		
 		protected void onEvent(Event e) {
@@ -172,19 +170,17 @@ public class ContactEditorDE extends DivEx implements IFormElementDE {
 			});
 			//setAttr("class", "inline contact round");
 		}
-		public String render()
+		public void render(PrintWriter out)
 		{
-			String out = "";
-			out += "<div class=\"inline contact round\" id=\""+getNodeID()+"\">";
+			out.print("<div class=\"inline contact round\" id=\""+getNodeID()+"\">");
 			//String out = "<span class=\"contact round\">"; 
 			if(person.name == null) {
-				out += "Null";
+				out.print("(No Name)");
 			} else {
-				out += person.name.replace(" ", "&nbsp;");	
+				out.print(person.name.replace(" ", "&nbsp;"));	
 			}
-			out += removebutton.render();
-			out += "</div>";
-			return out;
+			removebutton.render(out);
+			out.print("</div>");
 		}
 		@Override
 		protected void onEvent(Event e) {
@@ -248,46 +244,42 @@ public class ContactEditorDE extends DivEx implements IFormElementDE {
 		return records;
 	}
 
-	public String render() 
+	public void render(PrintWriter out) 
 	{
-		String out = "";
-		out += "<div id=\""+getNodeID()+"\">";
-		out += "<table class='contact_table'>";
-		out += renderContactList(primary_newcontact, selected.get(Rank.PRIMARY), "Primary", max_primary);
+		out.print("<div id=\""+getNodeID()+"\">");
+		out.print("<table class='contact_table'>");
+		renderContactList(out, primary_newcontact, selected.get(Rank.PRIMARY), "Primary", max_primary);
 		if(has_secondary) {
-			out += renderContactList(secondary_newcontact, selected.get(Rank.SECONDARY), "Secondary", max_secondary);
+			renderContactList(out, secondary_newcontact, selected.get(Rank.SECONDARY), "Secondary", max_secondary);
 		}
 		if(has_tertiary) {
-			out += renderContactList(tertiary_newcontact, selected.get(Rank.TERTIARY), "Tertiary", max_tertiary);
+			renderContactList(out, tertiary_newcontact, selected.get(Rank.TERTIARY), "Tertiary", max_tertiary);
 		}
-		out += "</table>";
+		out.print("</table>");
 		if(error != null) {
-			out += "<p class='elementerror round'>"+StringEscapeUtils.escapeHtml(error)+"</p>";
+			out.print("<p class='elementerror round'>"+StringEscapeUtils.escapeHtml(error)+"</p>");
 		}
-		out += "</div>";
-		return out;
+		out.print("</div>");
 	}
 	
-	public String renderContactList(NewContactDE newcontact, ArrayList<ContactDE> selected, String rank, int max)
+	public void renderContactList(PrintWriter out, NewContactDE newcontact, ArrayList<ContactDE> selected, String rank, int max)
 	{
-		String out = "";
-		out += "<tr><th><div style='margin-top: 5px;' class='contact_rank contact_"+rank+"'>"+rank+"</div></th>";
+		out.print("<tr><th><div class='contact_rank contact_"+rank+"'>"+rank+"</div></th>");
 		if(selected.size() == max) {
-			out += "<td><div class=\"contact_editor_full\">";
+			out.print("<td><div class=\"contact_editor_full\">");
 			for(ContactDE contact : selected) {
-				out += contact.render();
+				contact.render(out);
 			}
-			out += "</div></td>";
+			out.print("</div></td>");
 		} else {
-			out += "<td><div class=\"contact_editor\" onclick=\"$(this).find('.ac_input').focus(); return false;\">";
+			out.print("<td><div class=\"contact_editor\" onclick=\"$(this).find('.ac_input').focus(); return false;\">");
 			for(ContactDE contact : selected) {
-				out += contact.render();
+				contact.render(out);
 			}
-			out += newcontact.render();
-			out += "</div></td>";
+			newcontact.render(out);
+			out.print("</div></td>");
 		}
-		out += "</tr>";
-		return out;
+		out.print("</tr>");
 	}
 
 	//validation handlers

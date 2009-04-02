@@ -14,4 +14,12 @@ public class MailingListRecord extends RecordBase {
 	
 	//for creating new record
 	public MailingListRecord() {}
+	/*
+	public int compareKeysTo(RecordBase o) {
+		if(this == o) return 0;
+		MailingListRecord you = (MailingListRecord)o;
+		if(id.compareTo(you.id) == 0) return 0;
+		return 1;
+	}
+	*/
 }

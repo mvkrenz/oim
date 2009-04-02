@@ -1,5 +1,7 @@
 package com.webif.divex;
 
+import java.io.PrintWriter;
+
 import javax.servlet.http.HttpServletRequest;
 
 public class DivExRoot extends DivEx
@@ -49,8 +51,7 @@ public class DivExRoot extends DivEx
 		//root doesn't handle any event
 	}
 
-	public String render() {
+	public void render(PrintWriter out) {
 		//root doesn't display anything
-		return null;
 	}
 }

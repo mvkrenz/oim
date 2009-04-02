@@ -12,4 +12,12 @@ public class OsgGridTypeRecord extends RecordBase {
 	public OsgGridTypeRecord(ResultSet rs) throws SQLException { super(rs); }
 	//for creating new record
 	public OsgGridTypeRecord() {}
+	/*
+	public int compareKeysTo(RecordBase o) {
+		if(this == o) return 0;
+		OsgGridTypeRecord you = (OsgGridTypeRecord)o;
+		if(id.compareTo(you.id) == 0) return 0;
+		return 1;
+	}
+	*/
 }

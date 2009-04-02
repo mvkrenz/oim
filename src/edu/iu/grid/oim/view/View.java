@@ -1,11 +1,13 @@
 package edu.iu.grid.oim.view;
 
+import java.io.PrintWriter;
 import java.util.ArrayList;
 
 import com.webif.divex.DivEx;
 
-public class View {
-	private ArrayList<View> children = new ArrayList<View>();
+public abstract class View {
+
+	protected ArrayList<View> children = new ArrayList<View>();
 	
 	public void add(View v) {
 		children.add(v);
@@ -20,13 +22,13 @@ public class View {
 		add(new HtmlView(html));
 	}
 	
-	public String toHTML()
+	abstract public void render(PrintWriter out);
+	/*
 	{
-		String out = "";
 		//output child content
 		for(View v : children) {
-			out += v.toHTML();
+			v.render(out);
 		}
-		return out;
 	}
+	*/
 }

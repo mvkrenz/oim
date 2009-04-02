@@ -76,7 +76,7 @@ public class VOEditServlet extends ServletBase implements Servlet {
 		page.addExternalJS(BaseURL()+"/jquery/plugin/jquery.autocomplete.js");
 		
 		page.addExternalJS(BaseURL()+"/voedit.js");
-		response.getWriter().print(page.toHTML());
+		page.render(response.getWriter());	
 	}
 	
 	private SideContentView createSideView()

@@ -8,21 +8,23 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import org.apache.log4j.Logger;
 
 import edu.iu.grid.oim.servlet.ServletBase;
 
-public class RecordBase implements Comparable, IKeyComparable {
+public abstract class RecordBase implements Comparable<RecordBase> {
 
 	@Retention(RetentionPolicy.RUNTIME)
 	public @interface Key {}
 	
 	static Logger log = Logger.getLogger(ServletBase.class);  
+	static HashMap<Class, ArrayList<Field>> keys = new HashMap<Class, ArrayList<Field>>();
     
     //use reflection to figure out how to read this record
 	public RecordBase(ResultSet rs) throws SQLException
-	{
+	{		
     	try {
 			Field[] fields = getClass().getFields();
 			for(Field fld : fields) {
@@ -53,22 +55,28 @@ public class RecordBase implements Comparable, IKeyComparable {
 			throw new SQLException(e);
 		}
 	}
-	public RecordBase() {}
+	
+	public RecordBase() 
+	{
+	}
 	
 	public ArrayList<Field> getKeys()
 	{
-		ArrayList<Field> keys = new ArrayList<Field>();
-		Field[] fields = getClass().getFields();
-		for(Field field : fields) {
-			Annotation[] annotations = field.getDeclaredAnnotations();
-			for(Annotation annotation : annotations){
-			    if(annotation instanceof Key){
-			        keys.add(field);
-			        break;
-			    }
+		if(!keys.containsKey(getClass())) {
+			ArrayList<Field> ks = new ArrayList<Field>();
+			Field[] fields = getClass().getFields();
+			for(Field field : fields) {
+				Annotation[] annotations = field.getDeclaredAnnotations();
+				for(Annotation annotation : annotations){
+				    if(annotation instanceof Key){
+				        ks.add(field);
+				        break;
+				    }
+				}
 			}
+			keys.put(getClass(), ks);
 		}
-		return keys;
+		return keys.get(getClass());
 	}
 	
 	//list fields that are different
@@ -92,31 +100,29 @@ public class RecordBase implements Comparable, IKeyComparable {
 		return diff;
 	}
 	
-	public int compareTo(Object o) {
-		ArrayList<Field> diff = diff((RecordBase)o);
+	//this is super slow.. override this if it becomes a problem
+	public int compareTo(RecordBase o) {
+		ArrayList<Field> diff = diff(o);
 		if(diff.size() == 0) return 0;
 		return 1;
 	}
 
-	public int compareKeyTo(Object o) {
-		ArrayList<Field> keys = getKeys();
+	public int compareKeysTo(RecordBase o)
+	{
 		try {
-			Field[] fields = getClass().getFields();
-			for(Field fld : fields) {
-				if(keys.contains(fld)) {
-					//this is the key field - let's compare
-					Comparable me = (Comparable)fld.get(this);
-					Comparable you = (Comparable)fld.get(o);				
-		        	if(me != you && me.compareTo(you) != 0) {
-		        		return 1; //it's different
-		        	}
-				}
+			for(Field fld : getKeys()) {
+				//this is the key field - let's compare
+				Comparable me = (Comparable)fld.get(this);
+				Comparable you = (Comparable)fld.get(o);				
+	        	if(me != you && me.compareTo(you) != 0) {
+	        		return 1; //it's different
+	        	}
 			}
 		} catch (IllegalArgumentException e) {
 			//nothing I can do?
 		} catch (IllegalAccessException e) {
 			//nothing I can do?
 		}
-		return 0;
+		return 0;		
 	}
 }

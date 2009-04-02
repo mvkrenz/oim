@@ -1,56 +1,60 @@
 package edu.iu.grid.oim.view;
 
+import java.io.PrintWriter;
 import java.util.ArrayList;
 
 public class TableView extends View {
 	static public enum CellStyle { NORMAL, HEADER };
 	String cls = "";
 
-	public class Row
+	public class Row extends View
 	{
-		public class Cell
+		public class Cell extends View
 		{
 			CellStyle style = CellStyle.NORMAL;
-			String html;
-			Cell(String _html, CellStyle _style) {
-				html = _html;
+			View content;
+			
+			Cell(View _content) {
+				content = _content;
+			}
+			void setStyle(CellStyle _style) {
 				style = _style;
 			}
-			public String toHTML()
+			public void render(PrintWriter out)
 			{
 				switch(style) {
 				case NORMAL:
-					return "<td class=\"record_data\">"+html+"</td>";
+					out.print("<td class=\"record_data\">");
+					content.render(out);
+					out.print("</td>");
+					break;
 				case HEADER:
-					return "<th>"+html+"</th>";
+					out.print("<th>");
+					content.render(out);
+					out.print("</th>");
+					break;
 				}
-				return null;
 			}
 		}
 		
 		private ArrayList<Cell> cells = new ArrayList();
 		
-		public void addCell(String value) {
-			cells.add(new Cell(Utils.strFilter(value), TableView.CellStyle.NORMAL));
+		public void addCell(View content) {
+			cells.add(new Cell(content));
 		}
-		public void addCell(Boolean value) {
-			cells.add(new Cell(Utils.boolFilter(value), TableView.CellStyle.NORMAL));
+		public void addHeaderCell(View content) {
+			Cell cell = new Cell(content);
+			cell.setStyle(TableView.CellStyle.HEADER);
+			cells.add(cell);
 		}
-		public void addHeaderCell(String value) {
-			cells.add(new Cell(Utils.strFilter(value), TableView.CellStyle.HEADER));
-		}
-		public void addHtmlCell(String html) {
-			cells.add(new Cell(Utils.nullStrFilter(html), TableView.CellStyle.NORMAL));
-		}
-		public String toHTML()
+		
+		public void render(PrintWriter out)
 		{
-			String out = "";
-			out += "<tr>";
+			out.print("<tr>");
 			for(Cell cell : cells) {
-				out += cell.toHTML();
+				cell.render(out);
 			}
-			out += "</tr>";
-			return out;
+			out.print("</tr>");
 		}
 	}
 	
@@ -64,28 +68,29 @@ public class TableView extends View {
 		rows.add(row);
 	}
 	
-	public void addRow(String header, View view)
+	public void addRow(View header, View view)
 	{
 		Row row = new Row();
 		addRow(row);
 		row.addHeaderCell(header);
-		row.addHtmlCell(view.toHTML());
+		row.addCell(view);
 	}
 	
-	public String toHTML() {
-		String out = "";
-		
-		out += "<table class='"+cls+"'>";
+	public void render(PrintWriter out)
+	{
+		out.print("<table class='"+cls+"'>");
 		for(Row row : rows) {
-			out += row.toHTML();
+			row.render(out);
 		}
 		
 		//display toolbar
-		out += "<tr><td></td><td>"+super.toHTML()+"</td></tr>";
+		out.print("<tr><td></td><td>");
+		for(View v : children) {
+			v.render(out);
+		}
+		out.print("</td></tr>");
 		
-		out += "</table>";
-		return out;
-		
+		out.print("</table>");		
 	}
 
 }

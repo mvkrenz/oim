@@ -18,4 +18,12 @@ public class SCRecord extends RecordBase {
 	public SCRecord(ResultSet rs) throws SQLException { super(rs); }
 	//for creating new record
 	public SCRecord() {}
+	/*
+	public int compareKeysTo(RecordBase o) {
+		if(this == o) return 0;
+		SCRecord you = (SCRecord)o;
+		if(id.compareTo(you.id) == 0) return 0;
+		return 1;
+	}
+	*/
 }

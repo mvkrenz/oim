@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
 
 public class HtmlFileView extends View {
 
@@ -17,8 +18,8 @@ public class HtmlFileView extends View {
 	{
 		content = loadContent(is);
 	}
-	public String toHTML() {
-		return content;
+	public void render(PrintWriter out) {
+		out.print(content);
 	}
 	
 	public String loadContent(InputStream is)

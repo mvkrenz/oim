@@ -61,7 +61,7 @@ public abstract class SmallTableModelBase<T extends RecordBase> {
 	{
 		fillCache();
 		for(RecordBase rec : getCache()) {
-			if(rec.compareKeyTo(keyrec) == 0) return (T)rec;
+			if(rec.compareKeysTo(keyrec) == 0) return (T)rec;
 		}
 		return null;
 	}
@@ -72,7 +72,14 @@ public abstract class SmallTableModelBase<T extends RecordBase> {
     {
 		auth.check("write_"+table_name);
 	  	
-		con.setAutoCommit(false);
+		//if auto commit is true, then do rollback, if caller is handling commit, 
+		//then don't do rollback here and let caller do the rollback.
+		Boolean rollback = con.getAutoCommit(); 
+		
+		if(rollback) {
+			con.setAutoCommit(false);
+		}
+		
 		try {
 			//find removed records
 			for(T oldrec : oldrecs) {
@@ -97,19 +104,23 @@ public abstract class SmallTableModelBase<T extends RecordBase> {
 	    			logInsert(newrec);
 	    		} else {
 	    	    	if(oldrec.diff(newrec).size() > 0) {
-	    	    		update(newrec);
+	    	    		update(oldrec, newrec);
 	    	    		logUpdate(oldrec, newrec);
 	    	    	}
 	    		}
 	    	}
 		} catch (SQLException e) {
-			con.rollback();
-	    	con.setAutoCommit(true);
+			if(rollback) {
+				con.rollback();
+				con.setAutoCommit(true);
+			}
 			throw new SQLException(e);
 		}
-    	con.commit();
-    	con.setAutoCommit(true);
-    	
+		
+		if(rollback) {
+			con.commit();
+			con.setAutoCommit(true);
+		}
 		emptyCache();
 	}
     
@@ -141,6 +152,8 @@ public abstract class SmallTableModelBase<T extends RecordBase> {
 		} catch (SecurityException e) {
 			throw new SQLException(e);
 		}
+		
+		logRemove(rec);
 		
 		emptyCache();
     }
@@ -181,15 +194,22 @@ public abstract class SmallTableModelBase<T extends RecordBase> {
 			throw new SQLException(e);
 		}
 		
+		logInsert(rec);
+		
 		emptyCache();
-		return stmt.getGeneratedKeys();
+		
+		//return the generated key
+		ResultSet ids = stmt.getGeneratedKeys();
+		if(ids.next()) {
+			return ids;
+		} else {
+			return null;
+		}
     }
     //find out which fields are changed and do SQL update on those fields
-    public void update(RecordBase newrec) throws SQLException, AuthorizationException
+    public void update(RecordBase oldrec, RecordBase newrec) throws SQLException, AuthorizationException
     {
 		auth.check("write_"+table_name);
-		
-    	RecordBase oldrec = get(newrec); //use newrec's key information to get current record
     	
     	ArrayList<Field> changed_fields = oldrec.diff(newrec);
 
@@ -247,6 +267,12 @@ public abstract class SmallTableModelBase<T extends RecordBase> {
 		emptyCache();
     }
 
+    private String formatValue(Object obj)
+    {
+    	if(obj == null) return "##null##";
+    	return StringEscapeUtils.escapeXml(obj.toString());
+    }
+    
     protected void logInsert(RecordBase rec) throws SQLException 
     {
     	try {
@@ -260,7 +286,7 @@ public abstract class SmallTableModelBase<T extends RecordBase> {
 	    		Object value = (Object) key.get(rec);
 	    		xml += "<Key>\n";
 	    		xml += "\t<Name>" + StringEscapeUtils.escapeXml(name) + "</Name>\n";
-	    		xml += "\t<Value>" + StringEscapeUtils.escapeXml(value.toString()) + "</Value>\n";
+	    		xml += "\t<Value>" + formatValue(value) + "</Value>\n";
 	    		xml += "</Key>\n";
 	    	}
 	    	xml += "</Keys>\n";
@@ -271,7 +297,7 @@ public abstract class SmallTableModelBase<T extends RecordBase> {
 	    		String value = f.get(rec).toString();
 	    		xml += "<Field>\n";
 	    		xml += "\t<Name>" + StringEscapeUtils.escapeXml(name) + "</Name>\n";
-	    		xml += "\t<Value>" + StringEscapeUtils.escapeXml(value) + "</Value>\n";
+	    		xml += "\t<Value>" + formatValue(value) + "</Value>\n";
 	    		xml += "</Field>\n";
 	    	}
 	    	xml += "</Fields>\n";
@@ -301,7 +327,7 @@ public abstract class SmallTableModelBase<T extends RecordBase> {
 	    		Object value = (Object) key.get(rec);
 	    		xml += "<Key>\n";
 	    		xml += "\t<Name>" + StringEscapeUtils.escapeXml(name) + "</Name>\n";
-	    		xml += "\t<Value>" + StringEscapeUtils.escapeXml(value.toString()) + "</Value>\n";
+	    		xml += "\t<Value>" + formatValue(value) + "</Value>\n";
 	    		xml += "</Key>\n";
 	    	}
 	    	xml += "</Keys>\n";
@@ -312,7 +338,7 @@ public abstract class SmallTableModelBase<T extends RecordBase> {
 	    		String value = f.get(rec).toString();
 	    		xml += "<Field>\n";
 	    		xml += "\t<Name>" + StringEscapeUtils.escapeXml(name) + "</Name>\n";
-	    		xml += "\t<Value>" + StringEscapeUtils.escapeXml(value) + "</Value>\n";
+	    		xml += "\t<Value>" + formatValue(value) + "</Value>\n";
 	    		xml += "</Field>\n";
 	    	}
 	    	xml += "</Fields>\n";
@@ -341,7 +367,7 @@ public abstract class SmallTableModelBase<T extends RecordBase> {
 	    		Object value = (Object) key.get(oldrec);
 	    		xml += "<Key>\n";
 	    		xml += "\t<Name>" + StringEscapeUtils.escapeXml(name) + "</Name>\n";
-	    		xml += "\t<Value>" + StringEscapeUtils.escapeXml(value.toString()) + "</Value>\n";
+	    		xml += "\t<Value>" + formatValue(value) + "</Value>\n";
 	    		xml += "</Key>\n";
 	    	}
 	    	xml += "</Keys>\n";
@@ -352,8 +378,8 @@ public abstract class SmallTableModelBase<T extends RecordBase> {
 	    		String newvalue = f.get(newrec).toString();
 	    		xml += "<Field>\n";
 	    		xml += "\t<Name>" + StringEscapeUtils.escapeXml(name) + "</Name>\n";
-	    		xml += "\t<OldValue>" + StringEscapeUtils.escapeXml(oldvalue) + "</OldValue>\n";
-	    		xml += "\t<NewValue>" + StringEscapeUtils.escapeXml(newvalue) + "</NewValue>\n";
+	    		xml += "\t<OldValue>" + formatValue(oldvalue) + "</OldValue>\n";
+	    		xml += "\t<NewValue>" + formatValue(newvalue) + "</NewValue>\n";
 	    		xml += "</Field>\n";
 	    	}
 	    	xml += "</Fields>\n";

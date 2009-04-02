@@ -12,4 +12,12 @@ public class ContactRankRecord extends RecordBase {
 	public ContactRankRecord(ResultSet rs) throws SQLException { super(rs); }
 	//for creating new record
 	public ContactRankRecord() {}
+	/*
+	public int compareKeysTo(RecordBase o) {
+		if(this == o) return 0;
+		ContactRankRecord you = (ContactRankRecord)o;
+		if(id.compareTo(you.id) == 0) return 0;
+		return 1;
+	}
+	*/
 }

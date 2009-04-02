@@ -13,6 +13,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 
 import com.webif.divex.ButtonDE;
@@ -75,8 +76,7 @@ public class VOServlet extends ServletBase implements Servlet {
 			DivExRoot root = DivExRoot.getInstance(request);
 			ContentView contentview = createContentView(root, vos);
 			Page page = new Page(menuview, contentview, createSideView(root));
-			
-			response.getWriter().print(page.toHTML());			
+			page.render(response.getWriter());			
 		} catch (SQLException e) {
 			log.error(e);
 			throw new ServletException(e);
@@ -90,9 +90,10 @@ public class VOServlet extends ServletBase implements Servlet {
 		contentview.add("<h1>Virtual Organization</h1>");
 	
 		for(VORecord rec : vos) {
-			contentview.add("<h2>"+Utils.strFilter(rec.name)+"</h2>");
-	
+			contentview.add("<h2 class='round'>"+StringEscapeUtils.escapeHtml(rec.name)+"</h2>");
 			
+			log.debug("Rendering VO " + rec.name);
+	
 			RecordTableView table = new RecordTableView();
 			contentview.add(table);
 
@@ -106,10 +107,11 @@ public class VOServlet extends ServletBase implements Servlet {
 			table.addRow("App Description", rec.app_description);
 			table.addRow("Community", rec.community);
 			table.addRow("Footprints ID", rec.footprints_id);
+
 			table.addRow("Support Center", getSCName(rec.sc_id));
 			table.addRow("Active", rec.active);
 			table.addRow("Disable", rec.disable);
-			
+
 			//pull parent VO
 			VOModel model = new VOModel(con, auth);
 			VORecord parent_vo_rec = model.getParentVO(rec.id);
@@ -117,9 +119,9 @@ public class VOServlet extends ServletBase implements Servlet {
 			if(parent_vo_rec != null) {
 				parent_vo_name = parent_vo_rec.name;
 			}
-			table.addHtmlRow("Parent VO", parent_vo_name);
-			
-			table.addHtmlRow("Field of Scicnce", getFieldOfScience(rec.id));
+			table.addRow("Parent VO", parent_vo_name);
+	
+			table.addRow("Field of Scicnce", getFieldOfScience(rec.id));
 
 			ContactTypeModel ctmodel = new ContactTypeModel(con, auth);
 			ContactRankModel crmodel = new ContactRankModel(con, auth);
@@ -134,6 +136,7 @@ public class VOServlet extends ServletBase implements Servlet {
 				ContactTypeRecord ctrec = ctmodel.get(type_id);
 				
 				String cliststr = "";
+				
 				for(VOContactRecord vcrec : clist) {
 					ContactRecord person = pmodel.get(vcrec.contact_id);
 					ContactRankRecord rank = crmodel.get(vcrec.contact_rank_id);
@@ -141,11 +144,12 @@ public class VOServlet extends ServletBase implements Servlet {
 					cliststr += "<div class='contact_rank contact_"+rank.name+"'>";
 					cliststr += person.name;
 					cliststr += "</div>";
+				
 				}
 				
-				table.addHtmlRow(ctrec.name, cliststr);
-			}
-	
+				table.addRow(ctrec.name, new HtmlView(cliststr));
+			}			
+		
 			class EditButtonDE extends ButtonDE
 			{
 				String url;
@@ -159,6 +163,7 @@ public class VOServlet extends ServletBase implements Servlet {
 				}
 			};
 			table.add(new EditButtonDE(root, BaseURL()+"/voedit?vo_id=" + rec.id));
+			
 			/*
 			class DeleteDialogDE extends DialogDE
 			{
@@ -222,7 +227,7 @@ public class VOServlet extends ServletBase implements Servlet {
 		return sc.name;
 	}
 	
-	private String getFieldOfScience(Integer vo_id) throws SQLException
+	private View getFieldOfScience(Integer vo_id) throws SQLException
 	{
 		VOFieldOfScienceModel model = new VOFieldOfScienceModel(con, auth);
 		ArrayList<VOFieldOfScienceRecord> list = model.getByVOID(vo_id);
@@ -238,7 +243,7 @@ public class VOServlet extends ServletBase implements Servlet {
 			FieldOfScienceRecord frec = fmodel.get(keyrec);
 			out += frec.name + "<br/>";
 		}
-		return out;
+		return new HtmlView(out);
 	}
 
 	private SideContentView createSideView(DivExRoot root)
@@ -258,7 +263,7 @@ public class VOServlet extends ServletBase implements Servlet {
 			}
 		};
 		view.add("Operation", new NewButtonDE(root, "voedit"));
-		
+		view.add("About", new HtmlView("This page shows a list of Virtual Organization that you have access to edit."));		
 		return view;
 	}
 }

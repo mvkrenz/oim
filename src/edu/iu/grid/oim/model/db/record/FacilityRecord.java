@@ -16,4 +16,12 @@ public class FacilityRecord extends RecordBase {
 	public FacilityRecord(ResultSet rs) throws SQLException { super(rs); }
 	//for creating new record
 	public FacilityRecord()	throws SQLException {}
+	/*
+	public int compareKeysTo(RecordBase o) {
+		if(this == o) return 0;
+		FacilityRecord you = (FacilityRecord)o;
+		if(id.compareTo(you.id) == 0) return 0;
+		return 1;
+	}
+	*/
 }

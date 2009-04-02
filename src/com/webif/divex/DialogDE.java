@@ -1,5 +1,7 @@
 package com.webif.divex;
 
+import java.io.PrintWriter;
+
 public class DialogDE extends DivEx {
 
 	String message;
@@ -28,11 +30,10 @@ public class DialogDE extends DivEx {
 		}
 	}
 
-	public String render() {
-		String html = "";
-		html += "<div title=\""+title+"\" class=\"hidden\" id=\""+getNodeID()+"\">";
+	public void render(PrintWriter out) {
+		out.print("<div title=\""+title+"\" class=\"hidden\" id=\""+getNodeID()+"\">");
 		if(show) {
-			html += message;
+			out.print(message);
 	
 			String js = "$('#"+getNodeID()+"').dialog({"+
 				//"autoOpen: false,"+
@@ -47,13 +48,11 @@ public class DialogDE extends DivEx {
 				"}"+
 			"});";
 			
-			html += "<script type='text/javascript'>";
-			html += js;
-			html += "</script>";
+			out.print("<script type='text/javascript'>");
+			out.print(js);
+			out.print("</script>");
 		}
-		html += "</div>";
-		
-		return html;
+		out.print("</div>");
 	}
 
 	protected void onEvent(Event e) {

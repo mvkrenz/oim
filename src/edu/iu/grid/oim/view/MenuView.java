@@ -1,5 +1,6 @@
 package edu.iu.grid.oim.view;
 
+import java.io.PrintWriter;
 import java.util.ArrayList;
 
 import edu.iu.grid.oim.model.MenuItem;
@@ -14,19 +15,16 @@ public class MenuView extends View {
 		current = _current;
 	}
 	
-	public String toHTML() {
-		String out = "";
-		
-		out += "<div class=\"menu\">\n";
+	public void render(PrintWriter out) {		
+		out.println("<div class=\"menu\">");
 	    for(MenuItem item : menu) {
 	    	String cls = "";
 	    	if(item.url == current) {
 	    		cls = "selected";
 	    	}
-	    	out += "<span class=\""+ cls +"\"><a href=\""+ ServletBase.BaseURL() + "/" + item.url+"\">"+item.name+"</a></span>\n";
+	    	out.println("<span class=\""+ cls +"\"><a href=\""+ ServletBase.BaseURL() + "/" + item.url+"\">"+item.name+"</a></span>");
 	    }
-		out += "</div>\n";
-		return out;
+		out.println("</div>");
 		
 	}
 

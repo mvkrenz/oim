@@ -1,5 +1,6 @@
 package com.webif.divex.form;
 
+import java.io.PrintWriter;
 import java.util.HashMap;
 
 import org.apache.commons.lang.StringEscapeUtils;
@@ -25,15 +26,14 @@ public class SelectFormElementDE extends DivEx implements IFormElementDE
 		keyvalues = _keyvalues;
 	}
 	
-	public String render() 
+	public void render(PrintWriter out) 
 	{
-		String out = "";
-		out += "<div id=\""+getNodeID()+"\">";
+		out.print("<div id=\""+getNodeID()+"\">");
 		if(label != null) {
-			out += "<label>"+StringEscapeUtils.escapeHtml(label)+"</label><br/>";
+			out.print("<label>"+StringEscapeUtils.escapeHtml(label)+"</label><br/>");
 		}
-		out += "<select onchange='divex(\""+getNodeID()+"\", \"change\", this.value);'>";
-		out += "<option value=\"\">(Please Select)</option>";
+		out.print("<select onchange='divex(\""+getNodeID()+"\", \"change\", this.value);'>");
+		out.print("<option value=\"\">(Please Select)</option>");
 
 		for(Integer v : keyvalues.keySet()) {
 			String name = keyvalues.get(v);
@@ -41,17 +41,16 @@ public class SelectFormElementDE extends DivEx implements IFormElementDE
 			if(v == value) {
 				selected = "selected=selected";
 			}
-			out += "<option value=\""+v+"\" "+selected+">"+StringEscapeUtils.escapeHtml(name)+"</option>";
+			out.print("<option value=\""+v+"\" "+selected+">"+StringEscapeUtils.escapeHtml(name)+"</option>");
 		}
-		out += "</select>";
+		out.print("</select>");
 		if(required) {
-			out += " * Required";
+			out.print(" * Required");
 		}
 		if(error != null) {
-			out += "<p class='elementerror round'>"+StringEscapeUtils.escapeHtml(error)+"</p>";
+			out.print("<p class='elementerror round'>"+StringEscapeUtils.escapeHtml(error)+"</p>");
 		}
-		out += "</div>";
-		return out;
+		out.print("</div>");
 	}
 	
 	public void setLabel(String _label) { label = _label; }

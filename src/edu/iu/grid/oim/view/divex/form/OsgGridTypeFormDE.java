@@ -99,7 +99,7 @@ public class OsgGridTypeFormDE extends FormDE
 			if(rec.id == null) {
 				model.insert(rec);
 			} else {
-				model.update(rec);
+				model.update(model.get(rec), rec);
 			}
 		 } catch (AuthorizationException e) {
 			log.error(e);

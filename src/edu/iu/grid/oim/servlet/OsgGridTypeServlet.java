@@ -10,6 +10,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 
 import com.webif.divex.ButtonDE;
@@ -22,6 +23,7 @@ import edu.iu.grid.oim.model.db.OsgGridTypeModel;
 import edu.iu.grid.oim.model.db.record.OsgGridTypeRecord;
 import edu.iu.grid.oim.model.db.record.RecordBase;
 import edu.iu.grid.oim.view.ContentView;
+import edu.iu.grid.oim.view.HtmlView;
 import edu.iu.grid.oim.view.MenuView;
 import edu.iu.grid.oim.view.Page;
 import edu.iu.grid.oim.view.RecordTableView;
@@ -50,8 +52,7 @@ public class OsgGridTypeServlet extends ServletBase implements Servlet {
 			ArrayList<RecordBase> ogts = model.getCache();
 			ContentView contentview = createContentView(root, ogts);
 			Page page = new Page(menuview, contentview, createSideView(root));
-			
-			response.getWriter().print(page.toHTML());			
+			page.render(response.getWriter());			
 		} catch (SQLException e) {
 			log.error(e);
 			throw new ServletException(e);
@@ -66,7 +67,7 @@ public class OsgGridTypeServlet extends ServletBase implements Servlet {
 		
 		for(RecordBase it : ogts) {
 			OsgGridTypeRecord rec = (OsgGridTypeRecord)it;
-			contentview.add("<h2>"+Utils.strFilter(rec.name)+"</h2>");
+			contentview.add("<h2>"+StringEscapeUtils.escapeHtml(rec.name)+"</h2>");
 			
 			RecordTableView table = new RecordTableView();
 			contentview.add(table);

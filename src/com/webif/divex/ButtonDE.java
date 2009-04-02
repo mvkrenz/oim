@@ -1,5 +1,9 @@
 package com.webif.divex;
 
+import java.io.PrintWriter;
+
+import org.apache.commons.lang.StringEscapeUtils;
+
 import edu.iu.grid.oim.view.Utils;
 
 public class ButtonDE extends DivEx {
@@ -21,29 +25,25 @@ public class ButtonDE extends DivEx {
 		title = _title;
 	}
 	
-	public String render() {
-		String html = "";
-		String clickonce_code = "";
+	public void render(PrintWriter out) {
+		//TODO implement click once feature - disabling button just doesn't work well
+
 		switch(style) {
 		case BUTTON:
-			if(clickonce) {
-				clickonce_code = "$(this).attr(\"disabled\", \"disabled\").attr(\"value\", \"Loading...\");";
-			}
-			html += "<input type='button' id='"+getNodeID()+"' onclick='divex(this.id, \"click\");"+
-				clickonce_code+"' value='"+Utils.strFilter(title)+"' />";
+			out.print("<input type='button' id='"+getNodeID()+"' onclick='divex(this.id, \"click\");' value='"+
+				StringEscapeUtils.escapeHtml(title)+"' />");
 			break;
 		case ALINK:
 			//TODO - implement clickonce
-			html += "<a href='#' id='"+getNodeID()+"' onclick='divex(this.id, \"click\");return false;'>"+Utils.strFilter(title)+"</a>";
+			out.print("<a href='#' id='"+getNodeID()+"' onclick='divex(this.id, \"click\");return false;'>"+
+				StringEscapeUtils.escapeHtml(title)+"</a>");
 			break;
 		case IMAGE:
 			//TODO - implement clickonce
-			html += "<a href='#' id='"+getNodeID()+"' onclick='divex(this.id, \"click\");return false;'><img align='top' src='"+image_url+"' alt='"+
-				Utils.strFilter(title)+"'/></a>";
+			out.print("<a href='#' id='"+getNodeID()+"' onclick='divex(this.id, \"click\");return false;'><img align='top' src='"+image_url+"' alt='"+
+				StringEscapeUtils.escapeHtml(title)+"'/></a>");
 			break;
 		}
-
-		return html;
 	}
 
 	//user should override this to intercept click event.

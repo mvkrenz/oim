@@ -15,4 +15,12 @@ public class CertificateAuthorityRecord extends RecordBase {
 	public CertificateAuthorityRecord(ResultSet rs) throws SQLException { super(rs); }	
 	//for creating new record
 	public CertificateAuthorityRecord() {}
+	/*
+	public int compareKeysTo(RecordBase o) {
+		if(this == o) return 0;
+		CertificateAuthorityRecord you = (CertificateAuthorityRecord)o;
+		if(id.compareTo(you.id) == 0) return 0;
+		return 1;
+	}
+	*/
 }

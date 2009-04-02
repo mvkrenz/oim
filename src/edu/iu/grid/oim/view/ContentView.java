@@ -1,18 +1,22 @@
 package edu.iu.grid.oim.view;
 
+import java.io.PrintWriter;
+
 public class ContentView extends View {
 
-	public String toHTML() {
-		String out = "<div id=\"content\">\n";
+	public void render(PrintWriter out)
+	{
+		out.println("<div id=\"content\">");
 		
 		//output bread
-		out += "<div id=\"breadcrumb\">You are here &gt; Somewhere &gt; Somewhere</div>";
+		out.println("<div id=\"breadcrumb\">You are here &gt; Somewhere &gt; Somewhere</div>");
 		
-		//show child content
-		out += super.toHTML();
+		//show child content using View's render
+		for(View child : children) {
+			child.render(out);
+		}
 		
-		out += "</div>\n";
-		return out;
+		out.println("</div>");
 	}
 
 }

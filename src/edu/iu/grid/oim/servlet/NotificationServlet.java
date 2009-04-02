@@ -14,6 +14,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 
 import com.webif.divex.ButtonDE;
@@ -80,8 +81,7 @@ public class NotificationServlet extends ServletBase implements Servlet {
 			DivExRoot root = DivExRoot.getInstance(request);
 			ContentView contentview = createContentView(root, notifications);
 			Page page = new Page(menuview, contentview, createSideView(root));
-			
-			response.getWriter().print(page.toHTML());			
+			page.render(response.getWriter());				
 		} catch (SQLException e) {
 			log.error(e);
 			throw new ServletException(e);
@@ -96,7 +96,7 @@ public class NotificationServlet extends ServletBase implements Servlet {
 	
 		for(RecordBase it : notifications) {
 			NotificationRecord rec = (NotificationRecord)it;
-			contentview.add("<h2>"+Utils.strFilter(rec.key)+"</h2>");
+			contentview.add("<h2>"+StringEscapeUtils.escapeHtml(rec.key)+"</h2>");
 				
 			RecordTableView table = new RecordTableView();
 			contentview.add(table);

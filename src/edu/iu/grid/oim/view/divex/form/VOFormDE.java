@@ -1,5 +1,6 @@
 package edu.iu.grid.oim.view.divex.form;
 
+import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -29,6 +30,7 @@ import edu.iu.grid.oim.model.db.SCModel;
 import edu.iu.grid.oim.model.db.VOContactModel;
 import edu.iu.grid.oim.model.db.VOFieldOfScienceModel;
 import edu.iu.grid.oim.model.db.VOModel;
+import edu.iu.grid.oim.model.db.VOVOModel;
 import edu.iu.grid.oim.model.db.record.ContactRankRecord;
 import edu.iu.grid.oim.model.db.record.ContactTypeRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
@@ -38,6 +40,7 @@ import edu.iu.grid.oim.model.db.record.SCRecord;
 import edu.iu.grid.oim.model.db.record.VOContactRecord;
 import edu.iu.grid.oim.model.db.record.VOFieldOfScienceRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
+import edu.iu.grid.oim.model.db.record.VOVORecord;
 import edu.iu.grid.oim.view.divex.ContactEditorDE;
 import edu.iu.grid.oim.view.divex.FormDE;
 import edu.iu.grid.oim.view.divex.ContactEditorDE.Rank;
@@ -181,10 +184,12 @@ public class VOFormDE extends FormDE
 		}
 		
 		new StaticDE(this, "<h3>Field Of Science</h3>");
-		ArrayList<VOFieldOfScienceRecord> fslist = null;
+		ArrayList<Integer/*field_of_science_id*/> fslist = new ArrayList();
 		if(id != null) {
 			VOFieldOfScienceModel vofsmodel = new VOFieldOfScienceModel(con, auth);
-			fslist = vofsmodel.getByVOID(id);
+			for(VOFieldOfScienceRecord fsrec : vofsmodel.getByVOID(id)) {
+				fslist.add(fsrec.field_of_science_id);
+			}
 		}
 		FieldOfScienceModel fsmodel = new FieldOfScienceModel(con, auth);
 		ArrayList<RecordBase> fs = fsmodel.getCache();
@@ -195,21 +200,23 @@ public class VOFormDE extends FormDE
 			field_of_science.put(fsrec.id, elem);
 			elem.setLabel(fsrec.name);
 			if(fslist != null) {
-				if(fslist.contains(fsrec)) {
+				if(fslist.contains(fsrec.id)) {
 					elem.setValue(true);	
 				}
 			}
 		}
 		
 		new StaticDE(this, "<h2>Contact Information</h2>");
-		VOContactModel vocmodel = new VOContactModel(con, auth);
-		ArrayList<VOContactRecord> voclist = vocmodel.getByVOID(id);
-		HashMap<Integer, ArrayList<VOContactRecord>> voclist_grouped = vocmodel.groupByContactTypeID(voclist);
+
+		HashMap<Integer/*contact_type_id*/, ArrayList<VOContactRecord>> voclist_grouped = null;
+		if(id != null) {
+			VOContactModel vocmodel = new VOContactModel(con, auth);
+			ArrayList<VOContactRecord> voclist = vocmodel.getByVOID(id);
+			voclist_grouped = vocmodel.groupByContactTypeID(voclist);
+		}
 		ContactTypeModel ctmodel = new ContactTypeModel(con, auth);
 		for(int contact_type_id : contact_types) {
-			ContactTypeRecord keyrec = new ContactTypeRecord();
-			keyrec.id = contact_type_id;
-			contact_editors.put(contact_type_id, createContactEditor(voclist_grouped, ctmodel.get(keyrec)));
+			contact_editors.put(contact_type_id, createContactEditor(voclist_grouped, ctmodel.get(contact_type_id)));
 		}
 	}
 	
@@ -218,13 +225,17 @@ public class VOFormDE extends FormDE
 		new StaticDE(this, "<h3>" + ctrec.name + "</h3>");
 		ContactModel pmodel = new ContactModel(con, auth);		
 		ContactEditorDE editor = new ContactEditorDE(this, pmodel, ctrec.allow_secondary, ctrec.allow_tertiary);
-		ArrayList<VOContactRecord> clist = voclist.get(ctrec.id);
-		if(clist != null) {
-			for(VOContactRecord rec : clist) {
-				ContactRecord keyrec = new ContactRecord();
-				keyrec.id = rec.contact_id;
-				ContactRecord person = pmodel.get(keyrec);
-				editor.addSelected(person, rec.contact_rank_id);
+		
+		//populate corrently selected contacts - if provided
+		if(voclist != null) {
+			ArrayList<VOContactRecord> clist = voclist.get(ctrec.id);
+			if(clist != null) {
+				for(VOContactRecord rec : clist) {
+					ContactRecord keyrec = new ContactRecord();
+					keyrec.id = rec.contact_id;
+					ContactRecord person = pmodel.get(keyrec);
+					editor.addSelected(person, rec.contact_rank_id);
+				}
 			}
 		}
 		return editor;
@@ -279,12 +290,14 @@ public class VOFormDE extends FormDE
 		//Do insert / update to our DB
 		try {
 			//process detail information
+			con.setAutoCommit(false);
+			
 			VOModel model = new VOModel(con, auth);
 			if(rec.id == null) {
 				ResultSet rs = model.insert(rec);
-				rec.id = rs.getInt("id");
+				rec.id = rs.getInt(1);
 			} else {
-				model.update(rec);
+				model.update(model.get(rec), rec);
 			}
 			
 			//process contact information
@@ -292,7 +305,26 @@ public class VOFormDE extends FormDE
 			cmodel.update(cmodel.getByVOID(rec.id), getContactRecords(rec.id));
 			
 			//process parent_vo
-			model.updateParentVOID(rec.id, parent_vo.getValue());
+			VOVOModel vvmodel = new VOVOModel(con, auth);
+			VOVORecord vvrec = new VOVORecord();
+			vvrec.child_vo_id = rec.id;
+			vvrec.parent_vo_id = parent_vo.getValue();
+			VOVORecord vvrec_old = vvmodel.get(vvrec);
+			if(vvrec_old != null) {
+				//we have old record - need to update
+				if(vvrec.parent_vo_id != null) {
+					vvmodel.update(vvrec_old, vvrec);
+				} else {
+					//parent is changed to null - remove it
+					vvmodel.remove(vvrec_old);
+				}
+			} else {
+				//we don't have old record - need to insert
+				if(vvrec.parent_vo_id != null) {
+					//only if parent_vo is non-null
+					vvmodel.insert(vvrec);
+				}
+			}
 			
 			//process field of science
 			VOFieldOfScienceModel vofsmodel = new VOFieldOfScienceModel(con, auth);
@@ -307,17 +339,36 @@ public class VOFormDE extends FormDE
 				}
 			}
 			vofsmodel.update(vofsmodel.getByVOID(rec.id), list);
-			
+		
+			con.commit();
+			con.setAutoCommit(true);
 		} catch (AuthorizationException e) {
 			log.error(e);
 			alert(e.getMessage());
+			try {
+				log.info("Rolling back VO insert transaction.");
+				con.rollback();
+				con.setAutoCommit(true);
+			} catch (SQLException e1) {
+				//if rollback fails, there isn't match we can do..
+				log.error("Roll back failed");
+			}
+
 			return false;
 		} catch (SQLException e) {
 			log.error(e);
 			alert(e.getMessage());
+			try {
+				log.info("Rolling back VO insert transaction.");
+				con.rollback();
+				con.setAutoCommit(true);
+			} catch (SQLException e1) {
+				//if rollback fails, there isn't match we can do..
+				log.error("Roll back failed");
+			}
+		
 			return false;
 		}
-
 		return true;
 	}
 	
@@ -342,12 +393,5 @@ public class VOFormDE extends FormDE
 		}
 		
 		return list;
-	}
-
-
-	@Override
-	protected void onEvent(Event e) {
-		// TODO Auto-generated method stub
-		
 	}
 }

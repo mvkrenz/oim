@@ -1,5 +1,7 @@
 package com.webif.divex.form;
 
+import java.io.PrintWriter;
+
 import com.webif.divex.DivEx;
 import com.webif.divex.Event;
 
@@ -14,19 +16,17 @@ public class CheckBoxFormElementDE extends DivEx implements IFormElementDE {
 		super(parent);
 	}
 	
-	public String render() {
+	public void render(PrintWriter out) {
 		String checked = "";
 		if(value == true) { //value should never be null by design
 			checked = "checked=checked";
 		}
-		String html = "";
-		html += "<div id=\""+getNodeID()+"\">";
-		html += "<input type='checkbox' onchange='divex(\""+getNodeID()+"\", \"change\", this.checked);' "+checked+"/>";
+		out.print("<div id=\""+getNodeID()+"\">");
+		out.print("<input type='checkbox' onchange='divex(\""+getNodeID()+"\", \"change\", this.checked);' "+checked+"/>");
 		if(label != null) {
-			html += " <label>"+StringEscapeUtils.escapeHtml(label)+"</label><br/>";
+			out.print(" <label>"+StringEscapeUtils.escapeHtml(label)+"</label><br/>");
 		}
-		html += "</div>";
-		return html;
+		out.print("</div>");
 	}
 
 	public void setLabel(String _label) { label = _label; }

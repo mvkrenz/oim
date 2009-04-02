@@ -34,8 +34,7 @@ public class ErrorServlet extends ServletBase {
 		MenuView menuview = createMenuView(null);
 		ContentView contentview = createContentView(request);		
 		Page page = new Page(menuview, contentview, new SideContentView());
-		
-		response.getWriter().print(page.toHTML());
+		page.render(response.getWriter());	
 	}
 	
 	protected ContentView createContentView(HttpServletRequest request)

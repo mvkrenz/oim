@@ -1,5 +1,7 @@
 package edu.iu.grid.oim.view;
 
+import org.apache.commons.lang.StringEscapeUtils;
+
 import edu.iu.grid.oim.view.TableView;
 
 public class RecordTableView extends TableView {
@@ -9,26 +11,22 @@ public class RecordTableView extends TableView {
 		setClass("record_table");
 	}
 	
-	public void addRow(String header, String value)
-	{
+	public void addRow(String header, View content) {
 		Row row = new Row();
 		addRow(row);
-		row.addHeaderCell(header);
-		row.addCell(value);
+		row.addHeaderCell(new HtmlView(StringEscapeUtils.escapeHtml(header)));
+		row.addCell(content);		
 	}
-	
-	public void addRow(String header, Boolean value)
+	public void addRow(String header, String content)
 	{
-		Row row = new Row();
-		addRow(row);
-		row.addHeaderCell(header);
-		row.addCell(value);
+		addRow(header, new HtmlView(StringEscapeUtils.escapeHtml(content)));
 	}
-	public void addHtmlRow(String header, String html)
+	public void addRow(String header, Boolean b)
 	{
-		Row row = new Row();
-		addRow(row);
-		row.addHeaderCell(header);
-		row.addHtmlCell(html);
+		if(b) {
+			addRow(header, "True");		
+		} else {
+			addRow(header, "False");
+		}
 	}
 }

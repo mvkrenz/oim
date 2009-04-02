@@ -56,7 +56,7 @@ font-weight: bold;
 .contact_editor
 {
 padding: 2px;
-line-height: 25px;
+line-height: 22px;
 border: 1px solid #ccc;
 }
 .contact_editor input.autocomplete
@@ -68,6 +68,7 @@ margin: 0px;
 .contact_editor_full
 {
 padding: 2px;
+line-height: 22px;
 border: 1px solid #fff;
 }
 .contact_editor .ac_input
@@ -95,7 +96,6 @@ padding: 5px;
 padding-left:25px;
 }
 
-/*round*/
 .round
 {
 -moz-border-radius-topleft: 4px;
@@ -116,7 +116,10 @@ div.inline
 {
 display: inline;
 }
-
+.indent
+{
+margin: 15px;
+}
 div.contact_rank
 {
 background-position: 0px 2px;

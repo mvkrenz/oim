@@ -1,5 +1,7 @@
 package edu.iu.grid.oim.view;
 
+import java.io.PrintWriter;
+
 public class Page extends View {
 	private View header;
 	private String header_addon;
@@ -18,16 +20,14 @@ public class Page extends View {
 		side = _side;
 	}
 	
-	public String toHTML()
+	public void render(PrintWriter out)
 	{
-		String out = "";
-		out += header.toHTML();
-		out += header_addon;
-		out += menu.toHTML();
-		out += side.toHTML();
-		out += content.toHTML();		
-		out += footer.toHTML();
-		return out;
+		header.render(out);
+		out.println(header_addon);
+		menu.render(out);
+		side.render(out);
+		content.render(out);		
+		footer.render(out);
 	}
 	
 	public void addExternalJS(String url)

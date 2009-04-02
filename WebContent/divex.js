@@ -2,24 +2,24 @@
 
 /*value is optional for click event*/
 function divex(id, action, value) {
-	/* .ajax doesn't support unicode??
-	 *
-	 */
-	/*
-	$.ajax({
-		  url: "divex",
-		  cache: false,
-		  data: { nodeid: id,
-				action: action,
-				value : value },
-		  success: function(js){
-					eval(js);
-		  },
-		  error: function() {
-			  alert("Oops! We seems to have lost a connection to the server. Please try again.");
-		  }
+	jQuery.ajax({
+		url: "divex",
+		async: false,
+		data: { nodeid: id,
+			action: action,
+			value : value },
+		type: "POST",
+		dataType: "script",
+	   success: function(msg){
+	   },
+	   error: function (XMLHttpRequest, textStatus, errorThrown) {
+		   // typically only one of textStatus or errorThrown 
+		   // will have info
+		   alert(textStatus.errorThrown);
+		   this; // the options for this ajax request
+	   }
 	});
-	*/
+	/*
 		$.post("divex", 
 				{ 	nodeid: id,
 					action: action,
@@ -28,7 +28,7 @@ function divex(id, action, value) {
 						eval(js);
 				}
 		);
-
+	*/
 }
 
 //this is basically the same thing as jquery.load, but instead of replace the content 

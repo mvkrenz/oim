@@ -23,4 +23,12 @@ public class ContactRecord extends RecordBase {
 	}
 	//for creating new record
 	public ContactRecord() {}
+	/*
+	public int compareKeysTo(RecordBase o) {
+		if(this == o) return 0;
+		ContactRecord you = (ContactRecord)o;
+		if(id.compareTo(you.id) == 0) return 0;
+		return 1;
+	}
+	*/
 }

@@ -14,4 +14,12 @@ public class VOReportContactRecord extends RecordBase
 	public VOReportContactRecord(ResultSet rs) throws SQLException { super(rs); }
 	//for creating new record
 	public VOReportContactRecord() {}
+	/*
+	public int compareKeysTo(RecordBase o) {
+		if(this == o) return 0;
+		VOReportContactRecord you = (VOReportContactRecord)o;
+		if(contact_id.compareTo(you.contact_id) == 0) return 0;
+		return 1;
+	}
+	*/
 }

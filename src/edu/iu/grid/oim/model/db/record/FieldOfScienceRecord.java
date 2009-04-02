@@ -11,4 +11,12 @@ public class FieldOfScienceRecord extends RecordBase {
 	public FieldOfScienceRecord(ResultSet rs) throws SQLException { super(rs); }
 	//for creating new record
 	public FieldOfScienceRecord() {}
+	/*
+	public int compareKeysTo(RecordBase o) {
+		if(this == o) return 0;
+		FieldOfScienceRecord you = (FieldOfScienceRecord)o;
+		if(id.compareTo(you.id) == 0) return 0;
+		return 1;
+	}
+	*/
 }

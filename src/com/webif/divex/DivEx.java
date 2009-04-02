@@ -43,7 +43,7 @@ public abstract class DivEx {
 	
 	public void alert(String msg)
 	{
-		js += "alert('"+msg+"');";
+		js += "alert(\""+msg+"\");";
 	}
 	public void js(String _js)
 	{
@@ -110,7 +110,7 @@ public abstract class DivEx {
 		return null;
 	}
 	
-	abstract public String render();/* {
+	abstract public void render(PrintWriter out);/* {
 		String html = "";
 		html += "<div id=\""+getNodeID()+"\">";
 		for(DivEx child : childnodes) {
@@ -131,7 +131,7 @@ public abstract class DivEx {
 		if(action.compareTo("load") == 0) {
 			PrintWriter writer = response.getWriter();
 			response.setContentType("text/html");
-			writer.print(render());
+			render(writer);
 		} else if(action.compareTo("request") == 0) {
 			this.onRequest(request, response);
 		} else {
