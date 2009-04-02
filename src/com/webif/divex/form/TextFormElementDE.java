@@ -22,6 +22,7 @@ public class TextFormElementDE extends DivEx implements IFormElementDE {
 	}
 	
 	private Boolean valid;
+	private Boolean hidden = false;
 	protected Boolean required = false;
 	
 	protected IFormElementValidator<String> validator = null;
@@ -100,5 +101,13 @@ public class TextFormElementDE extends DivEx implements IFormElementDE {
 	public void onEvent(Event e) {
 		value = e.getValue().trim();
 		validate();
+	}
+	
+	public void setHidden(Boolean _hidden)
+	{
+		hidden = _hidden;
+	}
+	public Boolean isHidden() {
+		return hidden;
 	}
 }

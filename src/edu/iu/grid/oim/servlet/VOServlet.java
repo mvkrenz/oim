@@ -106,8 +106,9 @@ public class VOServlet extends ServletBase implements Servlet {
 			table.addRow("Support URL", rec.support_url);
 			table.addRow("App Description", rec.app_description);
 			table.addRow("Community", rec.community);
-			table.addRow("Footprints ID", rec.footprints_id);
-
+			if(auth.allows("admin_vo")) {
+				table.addRow("Footprints ID", rec.footprints_id);
+			}
 			table.addRow("Support Center", getSCName(rec.sc_id));
 			table.addRow("Active", rec.active);
 			table.addRow("Disable", rec.disable);

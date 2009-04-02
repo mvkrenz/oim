@@ -12,6 +12,7 @@ import org.apache.log4j.Logger;
 
 import com.webif.divex.DivEx;
 import com.webif.divex.Event;
+import com.webif.divex.form.FormDE;
 import com.webif.divex.StaticDE;
 import com.webif.divex.form.CheckBoxFormElementDE;
 import com.webif.divex.form.SelectFormElementDE;
@@ -42,7 +43,6 @@ import edu.iu.grid.oim.model.db.record.VOFieldOfScienceRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
 import edu.iu.grid.oim.model.db.record.VOVORecord;
 import edu.iu.grid.oim.view.divex.ContactEditorDE;
-import edu.iu.grid.oim.view.divex.FormDE;
 import edu.iu.grid.oim.view.divex.ContactEditorDE.Rank;
 
 public class VOFormDE extends FormDE 
@@ -157,6 +157,9 @@ public class VOFormDE extends FormDE
 		footprints_id.setLabel("Footprints ID");
 		footprints_id.setValue(rec.footprints_id);
 		footprints_id.setRequired(true);
+		if(!auth.allows("admin_vo")) {
+			footprints_id.setHidden(true);
+		}
 
 		sc_id = new SelectFormElementDE(this, getSCs());
 		sc_id.setLabel("Support Center");
@@ -166,10 +169,16 @@ public class VOFormDE extends FormDE
 		active = new CheckBoxFormElementDE(this);
 		active.setLabel("Active");
 		active.setValue(rec.active);
-
+		if(!auth.allows("admin_vo")) {
+			active.setHidden(true);
+		}
+		
 		disable = new CheckBoxFormElementDE(this);
 		disable.setLabel("Disabled");
 		disable.setValue(rec.disable);
+		if(!auth.allows("admin_vo")) {
+			disable.setHidden(true);
+		}
 		
 		parent_vo = new SelectFormElementDE(this, vos);
 		parent_vo.setLabel("Parent VO");
@@ -214,7 +223,14 @@ public class VOFormDE extends FormDE
 		}
 		ContactTypeModel ctmodel = new ContactTypeModel(auth);
 		for(int contact_type_id : contact_types) {
-			contact_editors.put(contact_type_id, createContactEditor(voclist_grouped, ctmodel.get(contact_type_id)));
+			ContactEditorDE editor = createContactEditor(voclist_grouped, ctmodel.get(contact_type_id));
+			//disable submitter editor if needed
+			if(!auth.allows("admin_vo")) {
+				if(contact_type_id == 1) { //1 = Submitter Contact
+					//TODO - disable editor
+				}
+			}
+			contact_editors.put(contact_type_id, editor);
 		}
 	}
 	
@@ -224,7 +240,7 @@ public class VOFormDE extends FormDE
 		ContactModel pmodel = new ContactModel(auth);		
 		ContactEditorDE editor = new ContactEditorDE(this, pmodel, ctrec.allow_secondary, ctrec.allow_tertiary);
 		
-		//populate corrently selected contacts - if provided
+		//if provided, populate currently selected contacts
 		if(voclist != null) {
 			ArrayList<VOContactRecord> clist = voclist.get(ctrec.id);
 			if(clist != null) {
@@ -236,6 +252,7 @@ public class VOFormDE extends FormDE
 				}
 			}
 		}
+	
 		return editor;
 	}
 	

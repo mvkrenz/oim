@@ -310,7 +310,15 @@ public class ContactEditorDE extends DivEx implements IFormElementDE {
 
 	@Override
 	protected void onEvent(Event e) {
-		// TODO Auto-generated method stub
-		
+		// TODO Auto-generated method stub	
+	}
+	
+	private Boolean hidden = false;
+	public void setHidden(Boolean _hidden)
+	{
+		hidden = _hidden;
+	}
+	public Boolean isHidden() {
+		return hidden;
 	}
 }

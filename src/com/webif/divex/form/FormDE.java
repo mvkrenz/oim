@@ -1,4 +1,4 @@
-package edu.iu.grid.oim.view.divex;
+package com.webif.divex.form;
 
 import java.io.PrintWriter;
 
@@ -65,7 +65,7 @@ abstract public class FormDE extends DivEx {
 		for(DivEx child : childnodes) {
 			if(child instanceof IFormElementDE) { 
 				IFormElementDE element = (IFormElementDE)child;
-				if(element != null) {
+				if(element != null && !element.isHidden()) {
 					if(!element.isValid()) {
 						valid = false;
 					}
@@ -90,9 +90,18 @@ abstract public class FormDE extends DivEx {
 		for(DivEx child : childnodes) {
 			//we display submit / cancel button at the end
 			if(child == submitbutton || child == cancelbutton) continue;
-			out.print("<div class=\"form_element\">");
-			child.render(out);
-			out.print("</div>");
+			
+			if(child instanceof IFormElementDE) {
+				IFormElementDE elem = (IFormElementDE)child;
+				if(!elem.isHidden()) {
+					out.print("<div class=\"form_element\">");
+					child.render(out);
+					out.print("</div>");
+				}
+			} else {
+				//non form element..
+				child.render(out);
+			}
 		}
 
 		submitbutton.render(out);

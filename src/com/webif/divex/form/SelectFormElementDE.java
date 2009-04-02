@@ -16,6 +16,8 @@ public class SelectFormElementDE extends DivEx implements IFormElementDE
 	protected String error;
 	
 	private Boolean valid;
+	private Boolean hidden = false;
+	
 	protected Boolean required = false;
 	protected IFormElementValidator<Integer> validator = null;
 	
@@ -39,7 +41,7 @@ public class SelectFormElementDE extends DivEx implements IFormElementDE
 			String name = keyvalues.get(v);
 			String selected = "";
 			if(v == value) {
-				selected = "selected=selected";
+				selected = "selected=\"selected\"";
 			}
 			out.print("<option value=\""+v+"\" "+selected+">"+StringEscapeUtils.escapeHtml(name)+"</option>");
 		}
@@ -109,5 +111,13 @@ public class SelectFormElementDE extends DivEx implements IFormElementDE
 			value = null;
 		}
 		validate();
+	}
+	
+	public void setHidden(Boolean _hidden)
+	{
+		hidden = _hidden;
+	}
+	public Boolean isHidden() {
+		return hidden;
 	}
 }

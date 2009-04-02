@@ -292,7 +292,7 @@ public abstract class SmallTableModelBase<T extends RecordBase> extends ModelBas
 	    	for(Field f : rec.getClass().getFields()) {
 	    		if(keys.contains(f)) continue;	//don't show key field    		
 	    		String name = f.getName();
-	    		String value = f.get(rec).toString();
+	    		Object value = f.get(rec);
 	    		xml += "<Field>\n";
 	    		xml += "\t<Name>" + StringEscapeUtils.escapeXml(name) + "</Name>\n";
 	    		xml += "\t<Value>" + formatValue(value) + "</Value>\n";
@@ -333,7 +333,7 @@ public abstract class SmallTableModelBase<T extends RecordBase> extends ModelBas
 	    	for(Field f : rec.getClass().getFields()) {
 	    		if(keys.contains(f)) continue;	//don't show key field    		
 	    		String name = f.getName();
-	    		String value = f.get(rec).toString();
+	    		Object value = f.get(rec);
 	    		xml += "<Field>\n";
 	    		xml += "\t<Name>" + StringEscapeUtils.escapeXml(name) + "</Name>\n";
 	    		xml += "\t<Value>" + formatValue(value) + "</Value>\n";
@@ -372,8 +372,8 @@ public abstract class SmallTableModelBase<T extends RecordBase> extends ModelBas
 	    	xml += "<Fields>\n";
 	    	for(Field f : oldrec.diff(newrec)) {
 	    		String name = f.getName();
-	    		String oldvalue = f.get(oldrec).toString();
-	    		String newvalue = f.get(newrec).toString();
+	    		Object oldvalue = f.get(oldrec);
+	    		Object newvalue = f.get(newrec);
 	    		xml += "<Field>\n";
 	    		xml += "\t<Name>" + StringEscapeUtils.escapeXml(name) + "</Name>\n";
 	    		xml += "\t<OldValue>" + formatValue(oldvalue) + "</OldValue>\n";

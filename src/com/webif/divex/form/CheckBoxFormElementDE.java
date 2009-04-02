@@ -9,8 +9,9 @@ import org.apache.commons.lang.StringEscapeUtils;
 
 public class CheckBoxFormElementDE extends DivEx implements IFormElementDE {
 
-	protected String label;
-	protected Boolean value = false;
+	private String label;
+	private Boolean value = false;
+	private Boolean hidden = false;
 	
 	public CheckBoxFormElementDE(DivEx parent) {
 		super(parent);
@@ -55,5 +56,13 @@ public class CheckBoxFormElementDE extends DivEx implements IFormElementDE {
 		} else {
 			value = false;
 		}
+	}
+
+	public void setHidden(Boolean _hidden)
+	{
+		hidden = _hidden;
+	}
+	public Boolean isHidden() {
+		return hidden;
 	}
 }

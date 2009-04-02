@@ -22,6 +22,8 @@ public class TextAreaFormElementDE extends DivEx implements IFormElementDE  {
 	}
 	
 	private Boolean valid;
+	private Boolean hidden = false;
+	
 	protected Boolean required = false;
 	
 	protected IFormElementValidator<String> validator = null;
@@ -102,5 +104,13 @@ public class TextAreaFormElementDE extends DivEx implements IFormElementDE  {
 			out.print("<p class='elementerror round'>"+StringEscapeUtils.escapeHtml(error)+"</p>");
 		}
 		out.print("</div>");
+	}
+	
+	public void setHidden(Boolean _hidden)
+	{
+		hidden = _hidden;
+	}
+	public Boolean isHidden() {
+		return hidden;
 	}
 }

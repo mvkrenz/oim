@@ -11,6 +11,7 @@ import org.apache.log4j.Logger;
 
 import com.webif.divex.DivEx;
 import com.webif.divex.Event;
+import com.webif.divex.form.FormDE;
 import com.webif.divex.StaticDE;
 import com.webif.divex.form.CheckBoxFormElementDE;
 import com.webif.divex.form.SelectFormElementDE;
@@ -31,7 +32,6 @@ import edu.iu.grid.oim.model.db.record.RecordBase;
 import edu.iu.grid.oim.model.db.record.SCRecord;
 import edu.iu.grid.oim.model.db.record.OsgGridTypeRecord;
 import edu.iu.grid.oim.view.divex.ContactEditorDE;
-import edu.iu.grid.oim.view.divex.FormDE;
 
 public class OsgGridTypeFormDE extends FormDE 
 {
