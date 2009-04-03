@@ -71,8 +71,7 @@ public abstract class DivEx {
 		
 		//find child nodes who needs update
 		if(needupdate) {
-			String success = "";
-			code += "divex_replace($(\"#"+nodeid+"\"), \"divex?action=load&nodeid="+nodeid+"\", function(){"+success+"});";
+			code += "divex_replace($(\"#"+nodeid+"\"), \"divex?action=load&nodeid="+nodeid+"\");";
 			//I don't need to update any of my child - parent will redraw all of it.
 			setNeedupdate(false);
 		} else {

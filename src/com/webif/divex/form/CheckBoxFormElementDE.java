@@ -7,11 +7,10 @@ import com.webif.divex.Event;
 
 import org.apache.commons.lang.StringEscapeUtils;
 
-public class CheckBoxFormElementDE extends DivEx implements IFormElementDE {
+public class CheckBoxFormElementDE extends FormElementDEBase {
 
 	private String label;
 	private Boolean value = false;
-	private Boolean hidden = false;
 	
 	public CheckBoxFormElementDE(DivEx parent) {
 		super(parent);
@@ -45,11 +44,6 @@ public class CheckBoxFormElementDE extends DivEx implements IFormElementDE {
 		return value;
 	}
 	
-	public Boolean isValid()
-	{
-		return true;
-	}
-	
 	public void onEvent(Event e) {
 		if(e.getValue().compareTo("true") == 0) {
 			value = true;
@@ -57,12 +51,8 @@ public class CheckBoxFormElementDE extends DivEx implements IFormElementDE {
 			value = false;
 		}
 	}
-
-	public void setHidden(Boolean _hidden)
-	{
-		hidden = _hidden;
-	}
-	public Boolean isHidden() {
-		return hidden;
+	
+	public void validate() {
+		//nothing to validate on checkbox
 	}
 }

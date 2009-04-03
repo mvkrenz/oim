@@ -214,12 +214,21 @@ public class VOFormDE extends FormDE
 		}
 		
 		new StaticDE(this, "<h2>Contact Information</h2>");
-
 		HashMap<Integer/*contact_type_id*/, ArrayList<VOContactRecord>> voclist_grouped = null;
 		if(id != null) {
 			VOContactModel vocmodel = new VOContactModel(auth);
 			ArrayList<VOContactRecord> voclist = vocmodel.getByVOID(id);
 			voclist_grouped = vocmodel.groupByContactTypeID(voclist);
+		} else {
+			//set user's contact as submitter
+			voclist_grouped = new HashMap<Integer, ArrayList<VOContactRecord>>();
+			ArrayList<VOContactRecord> list = new ArrayList<VOContactRecord>();
+			VOContactRecord submitter = new VOContactRecord();
+			submitter.contact_id = auth.getContactID();
+			submitter.contact_rank_id = 1;//primary
+			submitter.contact_type_id = 1;//submitter
+			list.add(submitter);
+			voclist_grouped.put(1/*submitter*/, list);
 		}
 		ContactTypeModel ctmodel = new ContactTypeModel(auth);
 		for(int contact_type_id : contact_types) {
@@ -227,7 +236,7 @@ public class VOFormDE extends FormDE
 			//disable submitter editor if needed
 			if(!auth.allows("admin_vo")) {
 				if(contact_type_id == 1) { //1 = Submitter Contact
-					//TODO - disable editor
+					editor.setDisabled(true);
 				}
 			}
 			contact_editors.put(contact_type_id, editor);

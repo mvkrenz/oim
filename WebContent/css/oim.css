@@ -14,6 +14,8 @@ table.contact_table th
 {
 text-align: left;
 width: 90px;
+padding-top: 5px;
+padding-bottom: 5px;
 }
 
 table.record_table
@@ -49,14 +51,14 @@ div.contact
 {
 background-color: #ddd;
 border: 1px solid #aaa;
-padding: 2px;
+padding: 3px;
 margin-right: 4px;
 font-weight: bold;
 }
 .contact_editor
 {
 padding: 2px;
-line-height: 22px;
+line-height: 24px;
 border: 1px solid #ccc;
 }
 .contact_editor input.autocomplete
@@ -68,8 +70,8 @@ margin: 0px;
 .contact_editor_full
 {
 padding: 2px;
-line-height: 22px;
-border: 1px solid #fff;
+line-height: 24px;
+margin: 1px;
 }
 .contact_editor .ac_input
 {
@@ -96,7 +98,7 @@ padding: 5px;
 padding-left:25px;
 }
 
-.round
+.round, h2
 {
 -moz-border-radius-topleft: 4px;
 -moz-border-radius-topright: 4px;
@@ -119,6 +121,10 @@ display: inline;
 .indent
 {
 margin: 15px;
+}
+.gray
+{
+background-color: #ccc;
 }
 div.contact_rank
 {

@@ -9,16 +9,12 @@ import com.webif.divex.DivEx;
 import com.webif.divex.Event;
 import com.webif.divex.form.validator.IFormElementValidator;
 
-public class SelectFormElementDE extends DivEx implements IFormElementDE 
+public class SelectFormElementDE extends FormElementDEBase 
 {	
 	protected String label;
 	protected Integer value;
 	protected String error;
-	
-	private Boolean valid;
-	private Boolean hidden = false;
-	
-	protected Boolean required = false;
+
 	protected IFormElementValidator<Integer> validator = null;
 	
 	HashMap<Integer, String> keyvalues;
@@ -46,7 +42,7 @@ public class SelectFormElementDE extends DivEx implements IFormElementDE
 			out.print("<option value=\""+v+"\" "+selected+">"+StringEscapeUtils.escapeHtml(name)+"</option>");
 		}
 		out.print("</select>");
-		if(required) {
+		if(isRequired()) {
 			out.print(" * Required");
 		}
 		if(error != null) {
@@ -66,25 +62,16 @@ public class SelectFormElementDE extends DivEx implements IFormElementDE
 	{
 		return value;
 	}
-	public void setRequired(Boolean b) {
-		required = b;
-	}
-	
-	public Boolean isValid()
-	{
-		validate();
-		return valid;
-	}
-	
+
 	public void validate()
 	{
 		redraw();
 		
 		//if required, run RequiredValidator
-		if(required == true) {
+		if(isRequired()) {
 			if(value == null) {
 				error = "Please select an item.";
-				valid = false;
+				setValid(false);
 				return;
 			}
 		}
@@ -94,14 +81,14 @@ public class SelectFormElementDE extends DivEx implements IFormElementDE
 			if(!validator.isValid(value)) {
 				//bad..
 				error = validator.getMessage();
-				valid = false;
+				setValid(false);
 				return;
 			}
 		}
 		
 		//all good..
 		error = null;
-		valid = true;
+		setValid(true);
 	}
 	
 	public void onEvent(Event event) {
@@ -111,13 +98,5 @@ public class SelectFormElementDE extends DivEx implements IFormElementDE
 			value = null;
 		}
 		validate();
-	}
-	
-	public void setHidden(Boolean _hidden)
-	{
-		hidden = _hidden;
-	}
-	public Boolean isHidden() {
-		return hidden;
 	}
 }

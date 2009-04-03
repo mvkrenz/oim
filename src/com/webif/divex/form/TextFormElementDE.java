@@ -9,7 +9,7 @@ import com.webif.divex.DivEx;
 import com.webif.divex.form.validator.IFormElementValidator;
 import com.webif.divex.form.validator.RequiredValidator;
 
-public class TextFormElementDE extends DivEx implements IFormElementDE {
+public class TextFormElementDE extends FormElementDEBase {
 	
 	protected String label;
 	protected String value;
@@ -20,10 +20,6 @@ public class TextFormElementDE extends DivEx implements IFormElementDE {
 	{
 		width = _width;
 	}
-	
-	private Boolean valid;
-	private Boolean hidden = false;
-	protected Boolean required = false;
 	
 	protected IFormElementValidator<String> validator = null;
 	
@@ -41,7 +37,7 @@ public class TextFormElementDE extends DivEx implements IFormElementDE {
 			current_value = "";
 		}
 		out.print("<input type='text' style='width: "+width+"px;' onchange='divex(\""+getNodeID()+"\", \"change\", this.value);' value=\""+StringEscapeUtils.escapeHtml(current_value)+"\"/>");
-		if(required) {
+		if(isRequired()) {
 			out.print(" * Required");
 		}
 		if(error != null) {
@@ -60,26 +56,17 @@ public class TextFormElementDE extends DivEx implements IFormElementDE {
 	{
 		return value;
 	}
-	public void setRequired(Boolean b) {
-		required = b;
-	}
-	
-	public Boolean isValid()
-	{
-		validate();
-		return valid;
-	}
 	
 	public void validate()
 	{
 		redraw();
 		
 		//if required, run RequiredValidator
-		if(required == true) {
+		if(isRequired()) {
 			RequiredValidator req = RequiredValidator.getInstance();
 			if(value == null || !req.isValid(value)) {
 				error = req.getMessage();
-				valid = false;
+				setValid(false);
 				return;
 			}
 		}
@@ -88,26 +75,18 @@ public class TextFormElementDE extends DivEx implements IFormElementDE {
 			if(!validator.isValid(value)) {
 				//bad..
 				error = validator.getMessage();
-				valid = false;
+				setValid(false);
 				return;
 			}
 		}
 		
 		//all good..
 		error = null;
-		valid = true;
+		setValid(true);
 	}
 	
 	public void onEvent(Event e) {
 		value = e.getValue().trim();
 		validate();
-	}
-	
-	public void setHidden(Boolean _hidden)
-	{
-		hidden = _hidden;
-	}
-	public Boolean isHidden() {
-		return hidden;
 	}
 }

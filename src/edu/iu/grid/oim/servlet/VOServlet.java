@@ -90,7 +90,7 @@ public class VOServlet extends ServletBase implements Servlet {
 		contentview.add("<h1>Virtual Organization</h1>");
 	
 		for(VORecord rec : vos) {
-			contentview.add("<h2 class='round'>"+StringEscapeUtils.escapeHtml(rec.name)+"</h2>");
+			contentview.add("<h2>"+StringEscapeUtils.escapeHtml(rec.name)+"</h2>");
 			
 			log.debug("Rendering VO " + rec.name);
 	

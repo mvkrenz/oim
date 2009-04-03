@@ -6,9 +6,8 @@ import com.webif.divex.ButtonDE;
 import com.webif.divex.DivEx;
 import com.webif.divex.Event;
 import com.webif.divex.EventListener;
-import com.webif.divex.form.IFormElementDE;
 
-abstract public class FormDE extends DivEx {
+abstract public class FormDE extends FormElementDEBase {
 	
 	//URL to go after cancel or submit button is selected
 	private String origin_url;
@@ -63,8 +62,8 @@ abstract public class FormDE extends DivEx {
 		
 		//validate *all* elements
 		for(DivEx child : childnodes) {
-			if(child instanceof IFormElementDE) { 
-				IFormElementDE element = (IFormElementDE)child;
+			if(child instanceof FormElementDEBase) { 
+				FormElementDEBase element = (FormElementDEBase)child;
 				if(element != null && !element.isHidden()) {
 					if(!element.isValid()) {
 						valid = false;
@@ -91,8 +90,8 @@ abstract public class FormDE extends DivEx {
 			//we display submit / cancel button at the end
 			if(child == submitbutton || child == cancelbutton) continue;
 			
-			if(child instanceof IFormElementDE) {
-				IFormElementDE elem = (IFormElementDE)child;
+			if(child instanceof FormElementDEBase) {
+				FormElementDEBase elem = (FormElementDEBase)child;
 				if(!elem.isHidden()) {
 					out.print("<div class=\"form_element\">");
 					child.render(out);

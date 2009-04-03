@@ -17,7 +17,7 @@ import com.webif.divex.ButtonDE;
 import com.webif.divex.DivEx;
 import com.webif.divex.Event;
 import com.webif.divex.EventListener;
-import com.webif.divex.form.IFormElementDE;
+import com.webif.divex.form.FormElementDEBase;
 
 import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
@@ -25,7 +25,7 @@ import edu.iu.grid.oim.model.db.record.RecordBase;
 import edu.iu.grid.oim.servlet.ServletBase;
 
 //this requires modified version of jquery autocomplete plugin, and client side code to make the input area to be autocomplete
-public class ContactEditorDE extends DivEx implements IFormElementDE {
+public class ContactEditorDE extends FormElementDEBase {
 	static Logger log = Logger.getLogger(ContactEditorDE.class);  
 
 	protected String error;
@@ -42,6 +42,17 @@ public class ContactEditorDE extends DivEx implements IFormElementDE {
 	
 	private Boolean has_secondary = false;
 	private Boolean has_tertiary = false;
+	
+	public void setDisabled(Boolean b) { 
+		super.setDisabled(b);
+		primary_newcontact.setDisabled(b);
+		if(secondary_newcontact != null) {
+			secondary_newcontact.setDisabled(b);
+		}
+		if(tertiary_newcontact != null) {
+			tertiary_newcontact.setDisabled(b);
+		}
+	}
 	
 	public ContactEditorDE(DivEx parent, ContactModel pmodel, Boolean _has_secondary, Boolean _has_tertiary) {
 		super(parent);
@@ -62,7 +73,8 @@ public class ContactEditorDE extends DivEx implements IFormElementDE {
 		}
 	}
 	
-	class NewContactDE extends DivEx
+	//autocomplete area to add new contact
+	class NewContactDE extends FormElementDEBase
 	{
 		private ContactModel pmodel;
 		private Rank rank;
@@ -71,7 +83,6 @@ public class ContactEditorDE extends DivEx implements IFormElementDE {
 			super(parent);
 			pmodel = _pmodel;
 			rank = _rank;
-			//setAttr("class", "inline");
 		}
 		
 		public void render(PrintWriter out) {
@@ -149,9 +160,15 @@ public class ContactEditorDE extends DivEx implements IFormElementDE {
 				log.error(e);
 			}		
 		}
+
+		@Override
+		public void validate() {
+			// TODO Auto-generated method stub
+			
+		}
 	}
 	
-	class ContactDE extends DivEx
+	class ContactDE extends FormElementDEBase
 	{
 		public ContactRecord person;
 		private ButtonDE removebutton;
@@ -180,11 +197,18 @@ public class ContactEditorDE extends DivEx implements IFormElementDE {
 			} else {
 				out.print(person.name.replace(" ", "&nbsp;"));	
 			}
-			removebutton.render(out);
+			if(!isDisabled()) {
+				removebutton.render(out);
+			}
 			out.print("</div>");
 		}
 		@Override
 		protected void onEvent(Event e) {
+			// TODO Auto-generated method stub
+			
+		}
+		@Override
+		public void validate() {
 			// TODO Auto-generated method stub
 			
 		}
@@ -248,7 +272,11 @@ public class ContactEditorDE extends DivEx implements IFormElementDE {
 	public void render(PrintWriter out) 
 	{
 		out.print("<div id=\""+getNodeID()+"\">");
-		out.print("<table class='contact_table'>");
+		if(isDisabled()) {
+			out.print("<table class='contact_table gray'>");		
+		} else {
+			out.print("<table class='contact_table'>");
+		}
 		renderContactList(out, primary_newcontact, selected.get(Rank.PRIMARY), "Primary", max_primary);
 		if(has_secondary) {
 			renderContactList(out, secondary_newcontact, selected.get(Rank.SECONDARY), "Secondary", max_secondary);
@@ -266,13 +294,16 @@ public class ContactEditorDE extends DivEx implements IFormElementDE {
 	public void renderContactList(PrintWriter out, NewContactDE newcontact, ArrayList<ContactDE> selected, String rank, int max)
 	{
 		out.print("<tr><th><div class='contact_rank contact_"+rank+"'>"+rank+"</div></th>");
-		if(selected.size() == max) {
+		if(selected.size() == max || isDisabled()) {
+			//list is full or disabled
 			out.print("<td><div class=\"contact_editor_full\">");
 			for(ContactDE contact : selected) {
+				contact.setDisabled(isDisabled());
 				contact.render(out);
 			}
 			out.print("</div></td>");
 		} else {
+			//user can add more contact
 			out.print("<td><div class=\"contact_editor\" onclick=\"$(this).find('.ac_input').focus(); return false;\">");
 			for(ContactDE contact : selected) {
 				contact.render(out);
@@ -283,19 +314,13 @@ public class ContactEditorDE extends DivEx implements IFormElementDE {
 		out.print("</tr>");
 	}
 
-	//validation handlers
-	private Boolean valid;
-	public Boolean isValid() {
-		validate();
-		return valid;
-	}
 	public void validate()
 	{
 		redraw();
 		
 		//assume all is well
 		error = null;
-		valid = true;
+		setValid(true);
 		/*
 		if(selected.get(Rank.PRIMARY).size() == 0) {
 			valid = false;
@@ -311,14 +336,5 @@ public class ContactEditorDE extends DivEx implements IFormElementDE {
 	@Override
 	protected void onEvent(Event e) {
 		// TODO Auto-generated method stub	
-	}
-	
-	private Boolean hidden = false;
-	public void setHidden(Boolean _hidden)
-	{
-		hidden = _hidden;
-	}
-	public Boolean isHidden() {
-		return hidden;
 	}
 }
