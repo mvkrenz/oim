@@ -7,6 +7,7 @@ public class ActionRecord extends RecordBase {
 
 	@Key public Integer id;
 	public String name;
+	public String description;
 	
 	//load from existing record
 	public ActionRecord(ResultSet rs) throws SQLException { super(rs); }

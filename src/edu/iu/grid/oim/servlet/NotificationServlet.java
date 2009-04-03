@@ -71,10 +71,10 @@ public class NotificationServlet extends ServletBase implements Servlet {
 		
 		//pull list of all vos
 		NotificationModel model = new NotificationModel(auth);
-		Collection<RecordBase> notifications = null;
+		Collection<NotificationRecord> notifications = null;
 		try {
 			
-			notifications = model.getCache();
+			notifications = model.getAll();
 			
 			//construct view
 			MenuView menuview = createMenuView("notification");
@@ -88,7 +88,7 @@ public class NotificationServlet extends ServletBase implements Servlet {
 		}
 	}
 	
-	protected ContentView createContentView(final DivExRoot root, Collection<RecordBase> notifications) 
+	protected ContentView createContentView(final DivExRoot root, Collection<NotificationRecord> notifications) 
 		throws ServletException, SQLException
 	{
 		ContentView contentview = new ContentView();	

@@ -11,6 +11,7 @@ import org.apache.log4j.Logger;
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.model.db.record.AuthorizationTypeActionRecord;
 import edu.iu.grid.oim.model.db.record.RecordBase;
+import edu.iu.grid.oim.model.db.record.SCRecord;
 
 public class AuthorizationTypeActionModel extends SmallTableModelBase<AuthorizationTypeActionRecord> {
     static Logger log = Logger.getLogger(AuthorizationTypeActionModel.class);  
@@ -33,6 +34,26 @@ public class AuthorizationTypeActionModel extends SmallTableModelBase<Authorizat
 			if(rec.authorization_type_id.compareTo(authorization_type_id) == 0) {
 				list.add(rec.action_id);
 			}
+		}
+		return list;
+	}
+	public Collection<Integer> getTypeByActionID(Integer action_id) throws SQLException
+	{
+		HashSet<Integer> list = new HashSet();
+		for(RecordBase it : getCache()) 
+		{
+			AuthorizationTypeActionRecord rec = (AuthorizationTypeActionRecord)it;
+			if(rec.action_id.compareTo(action_id) == 0) {
+				list.add(rec.authorization_type_id);
+			}
+		}
+		return list;		
+	}
+	public ArrayList<AuthorizationTypeActionRecord> getAll() throws SQLException
+	{
+		ArrayList<AuthorizationTypeActionRecord> list = new ArrayList<AuthorizationTypeActionRecord>();
+		for(RecordBase it : getCache()) {
+			list.add((AuthorizationTypeActionRecord)it);
 		}
 		return list;
 	}

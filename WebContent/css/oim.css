@@ -9,6 +9,11 @@ table.contact_table
 width: 100%;
 padding-left: 30px;
 }
+table.auth_matrix
+{
+width: 100%;
+border-collapse: collapse;
+}
 
 table.contact_table th
 {
@@ -16,6 +21,19 @@ text-align: left;
 width: 90px;
 padding-top: 5px;
 padding-bottom: 5px;
+}
+table.auth_matrix th
+{
+text-align: left;
+padding-bottom: 3px;
+}
+table.auth_matrix tr.checklist
+{
+border-bottom: 1px solid #ccc;
+}
+table.auth_matrix tr.checklist input[type=checkbox]
+{
+margin-top: 4px;
 }
 
 table.record_table
@@ -59,7 +77,6 @@ font-weight: bold;
 {
 padding: 2px;
 line-height: 24px;
-border: 1px solid #ccc;
 }
 .contact_editor input.autocomplete
 {
@@ -67,12 +84,6 @@ padding: 0px;
 margin: 0px;
 }
 
-.contact_editor_full
-{
-padding: 2px;
-line-height: 24px;
-margin: 1px;
-}
 .contact_editor .ac_input
 {
 width: 100px;

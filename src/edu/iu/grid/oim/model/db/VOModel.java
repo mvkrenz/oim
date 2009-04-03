@@ -16,6 +16,7 @@ import com.webif.divex.form.CheckBoxFormElementDE;
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
 import edu.iu.grid.oim.model.db.record.RecordBase;
+import edu.iu.grid.oim.model.db.record.SCRecord;
 import edu.iu.grid.oim.model.db.record.VOContactRecord;
 import edu.iu.grid.oim.model.db.record.VOFieldOfScienceRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
@@ -86,6 +87,8 @@ public class VOModel extends SmallTableModelBase<VORecord>
 			HashMap<Integer, CheckBoxFormElementDE> field_of_science) throws Exception
 	{
 		try {
+			auth.check("write_vo");
+			
 			//process detail information
 			getConnection().setAutoCommit(false);
 			
@@ -165,6 +168,8 @@ public class VOModel extends SmallTableModelBase<VORecord>
 	{
 		//Do insert / update to our DB
 		try {
+			auth.check("write_vo");
+			
 			//process detail information
 			getConnection().setAutoCommit(false);
 			
@@ -234,6 +239,14 @@ public class VOModel extends SmallTableModelBase<VORecord>
 			//re-throw original exception
 			throw new Exception(e);
 		}			
+	}
+	public ArrayList<VORecord> getAll() throws SQLException
+	{
+		ArrayList<VORecord> list = new ArrayList<VORecord>();
+		for(RecordBase it : getCache()) {
+			list.add((VORecord)it);
+		}
+		return list;
 	}
 }
 

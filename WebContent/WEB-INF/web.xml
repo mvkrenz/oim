@@ -97,6 +97,24 @@
 		<servlet-class>
 		edu.iu.grid.oim.servlet.NotificationServlet</servlet-class>
 	</servlet>
+		<servlet>
+			<description>
+			</description>
+			<display-name>
+			AdminServlet</display-name>
+			<servlet-name>AdminServlet</servlet-name>
+			<servlet-class>
+			edu.iu.grid.oim.servlet.AdminServlet</servlet-class>
+		</servlet>
+	<servlet>
+			<description>
+			</description>
+			<display-name>
+			AuthorizationMatrixServlet</display-name>
+			<servlet-name>AuthorizationMatrixServlet</servlet-name>
+			<servlet-class>
+			edu.iu.grid.oim.servlet.AuthorizationMatrixServlet</servlet-class>
+	</servlet>
 	<servlet-mapping>
 		<servlet-name>MainServlet</servlet-name>
 		<url-pattern>/MainServlet</url-pattern>
@@ -136,6 +154,14 @@
 	<servlet-mapping>
 		<servlet-name>NotificationServlet</servlet-name>
 		<url-pattern>/notification</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>AdminServlet</servlet-name>
+		<url-pattern>/admin</url-pattern>
+	</servlet-mapping>
+		<servlet-mapping>
+		<servlet-name>AuthorizationMatrixServlet</servlet-name>
+		<url-pattern>/authmatrix</url-pattern>
 	</servlet-mapping>
 	<welcome-file-list>
 		<welcome-file>index.jsp</welcome-file>

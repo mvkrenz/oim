@@ -75,9 +75,8 @@ public class OsgGridTypeFormDE extends FormDE
 		//pull all OsgGridTypes
 		HashMap<Integer, String> keyvalues = new HashMap<Integer, String>();
 		OsgGridTypeModel model = new OsgGridTypeModel(auth);
-		for(RecordBase rec : model.getCache()) {
-			OsgGridTypeRecord orec = (OsgGridTypeRecord)rec;
-			keyvalues.put(orec.id, orec.name);
+		for(OsgGridTypeRecord rec : model.getAll()) {
+			keyvalues.put(rec.id, rec.name);
 		}
 		return keyvalues;
 	}
@@ -92,6 +91,8 @@ public class OsgGridTypeFormDE extends FormDE
 
 		//Do insert / update to our DB
 		try {
+			auth.check("admin_osg_grid_type");
+			
 			OsgGridTypeModel model = new OsgGridTypeModel(auth);
 			if(rec.id == null) {
 				model.insert(rec);

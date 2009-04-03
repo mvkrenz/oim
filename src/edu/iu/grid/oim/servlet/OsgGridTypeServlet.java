@@ -46,11 +46,11 @@ public class OsgGridTypeServlet extends ServletBase implements Servlet {
 
 		try {
 			//construct view
-			MenuView menuview = createMenuView("osg_grid_type");
+			MenuView menuview = createMenuView("admin");
 			DivExRoot root = DivExRoot.getInstance(request);
 			
 			OsgGridTypeModel model = new OsgGridTypeModel(auth);
-			Collection<RecordBase> ogts = model.getCache();
+			Collection<OsgGridTypeRecord> ogts = model.getAll();
 			ContentView contentview = createContentView(root, ogts);
 			Page page = new Page(menuview, contentview, createSideView(root));
 			page.render(response.getWriter());			
@@ -60,14 +60,13 @@ public class OsgGridTypeServlet extends ServletBase implements Servlet {
 		}
 	}
 	
-	protected ContentView createContentView(final DivExRoot root, Collection<RecordBase> ogts) 
+	protected ContentView createContentView(final DivExRoot root, Collection<OsgGridTypeRecord> ogts) 
 		throws ServletException, SQLException
 	{
 		ContentView contentview = new ContentView();	
 		contentview.add("<h1>OSG Grid Types</h1>");
 		
-		for(RecordBase it : ogts) {
-			OsgGridTypeRecord rec = (OsgGridTypeRecord)it;
+		for(OsgGridTypeRecord rec : ogts) {
 			contentview.add("<h2>"+StringEscapeUtils.escapeHtml(rec.name)+"</h2>");
 			
 			RecordTableView table = new RecordTableView();

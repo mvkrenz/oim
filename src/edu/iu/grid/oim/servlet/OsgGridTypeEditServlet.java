@@ -70,7 +70,7 @@ public class OsgGridTypeEditServlet extends ServletBase implements Servlet {
 		contentview.add("<h1>"+title+"</h1>");	
 		contentview.add(form);
 		
-		Page page = new Page(createMenuView(current_page), contentview, createSideView());	
+		Page page = new Page(createMenuView("admin"), contentview, createSideView());	
 		page.addExternalJS(BaseURL()+"/osggridtypeedit.js");
 		page.render(response.getWriter());	
 	}

@@ -109,11 +109,10 @@ public class ContactEditorDE extends FormElementDEBase {
 			try {
 				String query = request.getParameter("q").toLowerCase();
 				int limit = Integer.parseInt(request.getParameter("limit")); //only returns records upto requested limit
-				Collection<RecordBase> all = pmodel.getCache();
+				Collection<ContactRecord> all = pmodel.getAll();
 				HashMap<Integer, ContactRecord> persons = new HashMap();		
 				//filter records that matches the query upto limit
-				for(RecordBase id : all) {
-					ContactRecord rec = (ContactRecord)id;
+				for(ContactRecord rec : all) {
 					if(persons.size() > limit) break;
 					
 					if(rec.name != null) {
@@ -296,7 +295,7 @@ public class ContactEditorDE extends FormElementDEBase {
 		out.print("<tr><th><div class='contact_rank contact_"+rank+"'>"+rank+"</div></th>");
 		if(selected.size() == max || isDisabled()) {
 			//list is full or disabled
-			out.print("<td><div class=\"contact_editor_full\">");
+			out.print("<td><div class=\"contact_editor\">");
 			for(ContactDE contact : selected) {
 				contact.setDisabled(isDisabled());
 				contact.render(out);
@@ -304,7 +303,7 @@ public class ContactEditorDE extends FormElementDEBase {
 			out.print("</div></td>");
 		} else {
 			//user can add more contact
-			out.print("<td><div class=\"contact_editor\" onclick=\"$(this).find('.ac_input').focus(); return false;\">");
+			out.print("<td style=\"border: 1px solid #ccc;\"><div class=\"contact_editor\" onclick=\"$(this).find('.ac_input').focus(); return false;\">");
 			for(ContactDE contact : selected) {
 				contact.render(out);
 			}

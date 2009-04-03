@@ -43,18 +43,14 @@ SET character_set_client = @saved_cs_client;
 -- Table structure for table `action`
 --
 
-DROP TABLE IF EXISTS `action`;
-SET @saved_cs_client     = @@character_set_client;
-SET character_set_client = utf8;
-CREATE TABLE `action` (
+DROP TABLE IF EXISTS `oimnew`.`action`;
+CREATE TABLE  `oimnew`.`action` (
   `id` int(11) NOT NULL auto_increment,
   `name` varchar(64) collate utf8_unicode_ci NOT NULL,
+  `description` text collate utf8_unicode_ci,
   PRIMARY KEY  (`id`),
   UNIQUE KEY `name` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
-SET character_set_client = @saved_cs_client;
-
---
 -- Table structure for table `authorization_type`
 --
 
@@ -65,7 +61,7 @@ CREATE TABLE `authorization_type` (
   `id` int(11) NOT NULL auto_increment,
   `name` varchar(512) collate utf8_unicode_ci NOT NULL,
   PRIMARY KEY  (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 SET character_set_client = @saved_cs_client;
 
 --

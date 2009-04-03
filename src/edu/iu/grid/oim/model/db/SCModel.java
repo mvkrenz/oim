@@ -10,6 +10,7 @@ import java.util.HashSet;
 import org.apache.log4j.Logger;
 
 import edu.iu.grid.oim.lib.Authorization;
+import edu.iu.grid.oim.model.db.record.NotificationRecord;
 import edu.iu.grid.oim.model.db.record.RecordBase;
 import edu.iu.grid.oim.model.db.record.SCContactRecord;
 import edu.iu.grid.oim.model.db.record.SCRecord;
@@ -70,6 +71,14 @@ public class SCModel extends SmallTableModelBase<SCRecord> {
 		SCRecord keyrec = new SCRecord();
 		keyrec.id = id;
 		return get(keyrec);
+	}
+	public ArrayList<SCRecord> getAll() throws SQLException
+	{
+		ArrayList<SCRecord> list = new ArrayList<SCRecord>();
+		for(RecordBase it : getCache()) {
+			list.add((SCRecord)it);
+		}
+		return list;
 	}
 }
 

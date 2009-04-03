@@ -53,7 +53,7 @@ public abstract class SmallTableModelBase<T extends RecordBase> extends ModelBas
     {
    		cache.remove(table_name);
     }
-	public TreeSet<RecordBase> getCache() throws SQLException {
+	protected TreeSet<RecordBase> getCache() throws SQLException {
 		fillCache();
 		return cache.get(table_name);
 	}
@@ -69,9 +69,9 @@ public abstract class SmallTableModelBase<T extends RecordBase> extends ModelBas
   
     //why does client need to supply oldrecs? because ModelBase doesn't know how the
     //list is created.. is it list with same contact_id? or same contact_type? etc..
-    public void update(Collection<T> oldrecs, Collection<T> newrecs) throws SQLException, AuthorizationException 
+    public void update(Collection<T> oldrecs, Collection<T> newrecs) throws SQLException 
     {
-		auth.check("write_"+table_name);
+		//auth.check("write_"+table_name);
 	  	
 		//if auto commit is true, then do rollback, if caller is handling commit, 
 		//then don't do rollback here and let caller do the rollback.
@@ -122,9 +122,9 @@ public abstract class SmallTableModelBase<T extends RecordBase> extends ModelBas
 		emptyCache();
 	}
     
-    public void remove(RecordBase rec) throws SQLException, AuthorizationException
+    public void remove(RecordBase rec) throws SQLException
     {
-		auth.check("write_"+table_name);
+		//auth.check("write_"+table_name);
 		
     	try {
 			//remove all current contacts
@@ -157,9 +157,9 @@ public abstract class SmallTableModelBase<T extends RecordBase> extends ModelBas
     }
     
     //returns generated keys
-    public ResultSet insert(RecordBase rec) throws SQLException, AuthorizationException
+    public ResultSet insert(RecordBase rec) throws SQLException
     {
-		auth.check("write_"+table_name);
+		//auth.check("write_"+table_name);
     	
 		//insert new contact records in batch
     	String fields = "";
@@ -205,9 +205,9 @@ public abstract class SmallTableModelBase<T extends RecordBase> extends ModelBas
 		}
     }
     //find out which fields are changed and do SQL update on those fields
-    public void update(RecordBase oldrec, RecordBase newrec) throws SQLException, AuthorizationException
+    public void update(RecordBase oldrec, RecordBase newrec) throws SQLException
     {
-		auth.check("write_"+table_name);
+		//auth.check("write_"+table_name);
     	
     	ArrayList<Field> changed_fields = oldrec.diff(newrec);
 

@@ -199,10 +199,8 @@ public class VOFormDE extends FormDE
 			}
 		}
 		FieldOfScienceModel fsmodel = new FieldOfScienceModel(auth);
-		Collection<RecordBase> fs = fsmodel.getCache();
 		field_of_science = new HashMap();
-		for(RecordBase it : fs) {
-			FieldOfScienceRecord fsrec = (FieldOfScienceRecord)it;
+		for(FieldOfScienceRecord fsrec : fsmodel.getAll()) {
 			CheckBoxFormElementDE elem = new CheckBoxFormElementDE(this);
 			field_of_science.put(fsrec.id, elem);
 			elem.setLabel(fsrec.name);
@@ -268,11 +266,9 @@ public class VOFormDE extends FormDE
 	private HashMap<Integer, String> getSCs() throws AuthorizationException, SQLException
 	{
 		SCModel model = new SCModel(auth);
-		Collection<RecordBase> scs = model.getCache();
 		HashMap<Integer, String> keyvalues = new HashMap<Integer, String>();
-		for(RecordBase rec : scs) {
-			SCRecord screc = (SCRecord)rec;
-			keyvalues.put(screc.id, screc.name);
+		for(SCRecord rec : model.getAll()) {
+			keyvalues.put(rec.id, rec.name);
 		}
 		return keyvalues;
 	}
@@ -281,10 +277,8 @@ public class VOFormDE extends FormDE
 	{
 		//pull all VOs
 		VOModel model = new VOModel(auth);
-		Collection<RecordBase> vos = model.getCache();
 		HashMap<Integer, String> keyvalues = new HashMap<Integer, String>();
-		for(RecordBase it : vos) {
-			VORecord rec = (VORecord)it;
+		for(VORecord rec : model.getAll()) {
 			keyvalues.put(rec.id, rec.name);
 		}
 		return keyvalues;

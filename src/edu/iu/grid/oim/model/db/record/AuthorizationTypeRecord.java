@@ -6,7 +6,7 @@ import java.sql.SQLException;
 public class AuthorizationTypeRecord extends RecordBase {
 
 	@Key public Integer id;
-	@Key public Integer name;
+	@Key public String name;
 	
 	//load from existing record
 	public AuthorizationTypeRecord(ResultSet rs) throws SQLException { super(rs); }
