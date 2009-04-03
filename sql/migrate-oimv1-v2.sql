@@ -138,38 +138,41 @@ INSERT INTO resource_downtime_service (SELECT downtime_id,service_id FROM oim.re
 
 INSERT INTO downtime_publish_wlcg (SELECT downtime_id,downtime_action_id,publish_status,timestamp,disable FROM oim.downtime_publish_wlcg);
 
-INSERT INTO action (id, name) values (1, "write_resource"),
-(2, "admin_resource"),
-(3, "write_facility"),
-(4, "admin_facility"),
-(5, "write_vo"),
-(6, "admin_vo"),
-(7, "write_sccontact"),
-(8, "admin_sccontact"),
-(9, "write_vocontact"),
-(10, "admin_vocontact"),
-(11, "write_sc"),
-(12, "admin_sc"),
-(13, "write_contact"),
-(14, "admin_contact"),
-(15, "admin_osg_grid_type"),
-(16, "write_osg_grid_type");
+INSERT INTO `action` (`id`,`name`,`description`) VALUES 
+ (1,'write_resource',''),
+ (2,'admin_resource',''),
+ (3,'write_facility',''),
+ (4,'admin_facility',''),
+ (5,'write_vo',''),
+ (6,'admin_vo',''),
+ (7,'write_sc_contact',''),
+ (8,'admin_sc_contact',''),
+ (11,'write_sc',''),
+ (12,'admin_sc',''),
+ (13,'write_contact',''),
+ (14,'admin_contact',''),
+ (15,'admin_osg_grid_type',''),
+ (17,'admin_authorization',NULL);
 
-INSERT INTO `authorization_type_action` (`authorization_type_id`,`action_id`) VALUES
+INSERT INTO `authorization_type_action` (`authorization_type_id`,`action_id`) VALUES 
+ (1,1),
  (4,1),
  (4,2),
+ (1,3),
  (4,3),
  (4,4),
+ (1,5),
  (4,5),
  (4,6),
+ (1,7),
  (4,7),
  (4,8),
- (4,9),
- (4,10),
+ (1,11),
  (4,11),
  (4,12),
+ (1,13),
  (4,13),
  (4,14),
  (4,15),
- (4,16);
+ (4,17);
 

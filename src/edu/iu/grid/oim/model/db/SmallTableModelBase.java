@@ -137,8 +137,7 @@ public abstract class SmallTableModelBase<T extends RecordBase> extends ModelBas
 			PreparedStatement stmt = getConnection().prepareStatement(sql);
 			int count = 1;
 			for(Field key : rec.getKeys()) {
-	       		Object value;
-				value = key.get(rec);
+	       		Object value = key.get(rec);
 	       		stmt.setObject(count, value);
 	    		++count;
 			}
@@ -156,8 +155,8 @@ public abstract class SmallTableModelBase<T extends RecordBase> extends ModelBas
 		emptyCache();
     }
     
-    //returns generated keys
-    public ResultSet insert(RecordBase rec) throws SQLException
+    //generated keys are inserted back to rec
+    public void insert(RecordBase rec) throws SQLException
     {
 		//auth.check("write_"+table_name);
     	
@@ -178,8 +177,7 @@ public abstract class SmallTableModelBase<T extends RecordBase> extends ModelBas
 	    	//set field values
 	    	int count = 1;
 	       	for(Field f : rec.getClass().getFields()) {
-	       		Object value;
-				value = f.get(rec);
+	       		Object value = f.get(rec);
 	       		stmt.setObject(count, value);
 	    		++count;
 	    	}         
@@ -192,18 +190,30 @@ public abstract class SmallTableModelBase<T extends RecordBase> extends ModelBas
 			throw new SQLException(e);
 		}
 		
-		logInsert(rec);
-		
-		emptyCache();
-		
-		//return the generated key
-		ResultSet ids = stmt.getGeneratedKeys();
+		//attempt to update rec's key fields with newly inserted table keys (if exists) in the order of the key fields.
+		//this should work *most of the time*, but if the key fields are not "auto_increment" or if the key is out-of-order
+		//(if it's even possible), then this wouldn't work. we could add a new annotation to the record table and
+		//do this in more reliable way..
+		ResultSet ids = stmt.getGeneratedKeys();  
 		if(ids.next()) {
-			return ids;
-		} else {
-			return null;
+			int count = 1;
+	    	for(Field key : rec.getKeys()) {
+	    		try {
+	    			Integer value = ids.getInt(count);
+					key.set(rec, value);
+				} catch (IllegalArgumentException e) {
+					log.error(e);
+				} catch (IllegalAccessException e) {
+					log.error(e);
+				}
+				++count;
+	    	}
 		}
+		
+		logInsert(rec);
+		emptyCache();
     }
+    
     //find out which fields are changed and do SQL update on those fields
     public void update(RecordBase oldrec, RecordBase newrec) throws SQLException
     {

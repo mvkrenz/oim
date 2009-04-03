@@ -13,20 +13,20 @@ import org.apache.log4j.Logger;
 import com.webif.divex.DivExRoot;
 
 import edu.iu.grid.oim.lib.Authorization;
-import edu.iu.grid.oim.model.db.VOModel;
-import edu.iu.grid.oim.model.db.record.VORecord;
+import edu.iu.grid.oim.model.db.ResourceModel;
+import edu.iu.grid.oim.model.db.record.ResourceRecord;
 import edu.iu.grid.oim.view.ContentView;
 import edu.iu.grid.oim.view.HtmlView;
 import edu.iu.grid.oim.view.Page;
 import edu.iu.grid.oim.view.SideContentView;
-import edu.iu.grid.oim.view.divex.form.VOFormDE;
+import edu.iu.grid.oim.view.divex.form.ResourceFormDE;
 
-public class VOEditServlet extends ServletBase implements Servlet {
+public class ResourceEditServlet extends ServletBase implements Servlet {
 	private static final long serialVersionUID = 1L;
-	static Logger log = Logger.getLogger(VOEditServlet.class);  
-	private String current_page = "vo";	
+	static Logger log = Logger.getLogger(ResourceEditServlet.class);  
+	private String current_page = "resource";	
 
-    public VOEditServlet() {
+    public ResourceEditServlet() {
         super();
     }
 
@@ -34,32 +34,31 @@ public class VOEditServlet extends ServletBase implements Servlet {
 	{
 		setAuth(request);
 		
-		VORecord rec;
+		ResourceRecord rec;
 		String title;
 
-		//if vo_id is provided then we are doing update, otherwise do new.
-		String vo_id_str = request.getParameter("vo_id");
-		if(vo_id_str != null) {
+		String resource_id_str = request.getParameter("resource_id");
+		if(resource_id_str != null) {
 			//pull record to update
-			int vo_id = Integer.parseInt(vo_id_str);
-			VOModel model = new VOModel(auth);
+			int resource_id = Integer.parseInt(resource_id_str);
+			ResourceModel model = new ResourceModel(auth);
 			try {
-				VORecord keyrec = new VORecord();
-				keyrec.id = vo_id;
+				ResourceRecord keyrec = new ResourceRecord();
+				keyrec.id = resource_id;
 				rec = model.get(keyrec);
 			} catch (SQLException e) {
 				throw new ServletException(e);
 			}	
 			title = "Update Virtual Organization";
 		} else {
-			rec = new VORecord();
+			rec = new ResourceRecord();
 			title = "New Virtual Organization";	
 		}
 	
-		VOFormDE form;
+		ResourceFormDE form;
 		String origin_url = BaseURL()+"/"+current_page;
 		try {
-			form = new VOFormDE(DivExRoot.getInstance(request), rec, origin_url, auth);
+			form = new ResourceFormDE(DivExRoot.getInstance(request), rec, origin_url, auth);
 		} catch (SQLException e) {
 			throw new ServletException(e);
 		}

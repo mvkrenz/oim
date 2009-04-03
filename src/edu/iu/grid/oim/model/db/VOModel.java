@@ -93,8 +93,7 @@ public class VOModel extends SmallTableModelBase<VORecord>
 			getConnection().setAutoCommit(false);
 			
 			//insert VO itself and get the new ID
-			ResultSet rs = insert(rec);
-			rec.id = rs.getInt(1);
+			insert(rec);
 			
 			//process contact information
 			VOContactModel cmodel = new VOContactModel(auth);
@@ -173,8 +172,7 @@ public class VOModel extends SmallTableModelBase<VORecord>
 			//process detail information
 			getConnection().setAutoCommit(false);
 			
-			VOModel model = new VOModel(auth);
-			model.update(model.get(rec), rec);
+			update(get(rec), rec);
 			
 			//process contact information
 			VOContactModel cmodel = new VOContactModel(auth);

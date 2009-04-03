@@ -56,10 +56,28 @@
 		<description>
 		</description>
 		<display-name>
+		ResourceServlet</display-name>
+		<servlet-name>ResourceServlet</servlet-name>
+		<servlet-class>
+		edu.iu.grid.oim.servlet.ResourceServlet</servlet-class>
+	</servlet>
+	<servlet>
+		<description>
+		</description>
+		<display-name>
 		VOEditServlet</display-name>
 		<servlet-name>VOEditServlet</servlet-name>
 		<servlet-class>
 		edu.iu.grid.oim.servlet.VOEditServlet</servlet-class>
+	</servlet>
+	<servlet>
+		<description>
+		</description>
+		<display-name>
+		ResourceEditServlet</display-name>
+		<servlet-name>ResourceEditServlet</servlet-name>
+		<servlet-class>
+		edu.iu.grid.oim.servlet.ResourceEditServlet</servlet-class>
 	</servlet>
 	<servlet>
 		<description>
@@ -136,8 +154,16 @@
 		<url-pattern>/vo</url-pattern>
 	</servlet-mapping>
 	<servlet-mapping>
+		<servlet-name>ResourceServlet</servlet-name>
+		<url-pattern>/resource</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
 		<servlet-name>VOEditServlet</servlet-name>
 		<url-pattern>/voedit</url-pattern>
+	</servlet-mapping>
+		<servlet-mapping>
+		<servlet-name>ResourceEditServlet</servlet-name>
+		<url-pattern>/resourceedit</url-pattern>
 	</servlet-mapping>
 	<servlet-mapping>
 		<servlet-name>OsgGridTypeServlet</servlet-name>

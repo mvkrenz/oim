@@ -24,12 +24,4 @@ public class ResourceRecord extends RecordBase {
 	public ResourceRecord(ResultSet rs) throws SQLException { super(rs); }
 	//for creating new record
 	public ResourceRecord() {}
-	/*
-	public int compareKeysTo(RecordBase o) {
-		if(this == o) return 0;
-		ResourceRecord you = (ResourceRecord)o;
-		if(id.compareTo(you.id) == 0) return 0;
-		return 1;
-	}
-	*/
 }

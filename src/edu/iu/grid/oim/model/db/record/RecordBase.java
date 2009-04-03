@@ -88,8 +88,11 @@ public abstract class RecordBase implements Comparable<RecordBase> {
 			Field[] fields = getClass().getFields();
 			for(Field fld : fields) {
 				Comparable me = (Comparable)fld.get(this);
-				Comparable you = (Comparable)fld.get(rec);				
-	        	if(me != you && me.compareTo(you) != 0) {
+				Comparable you = (Comparable)fld.get(rec);
+				if(me == you) continue;
+				if(me == null || you == null) {
+					diff.add(fld);
+				} else if(me.compareTo(you) != 0) {
 	        		diff.add(fld);
 	        	}
 			}
