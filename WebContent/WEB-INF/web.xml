@@ -56,15 +56,6 @@
 		<description>
 		</description>
 		<display-name>
-		ResourceServlet</display-name>
-		<servlet-name>ResourceServlet</servlet-name>
-		<servlet-class>
-		edu.iu.grid.oim.servlet.ResourceServlet</servlet-class>
-	</servlet>
-	<servlet>
-		<description>
-		</description>
-		<display-name>
 		VOEditServlet</display-name>
 		<servlet-name>VOEditServlet</servlet-name>
 		<servlet-class>
@@ -74,10 +65,37 @@
 		<description>
 		</description>
 		<display-name>
+		ResourceServlet</display-name>
+		<servlet-name>ResourceServlet</servlet-name>
+		<servlet-class>
+		edu.iu.grid.oim.servlet.ResourceServlet</servlet-class>
+	</servlet>
+	<servlet>
+		<description>
+		</description>
+		<display-name>
 		ResourceEditServlet</display-name>
 		<servlet-name>ResourceEditServlet</servlet-name>
 		<servlet-class>
 		edu.iu.grid.oim.servlet.ResourceEditServlet</servlet-class>
+	</servlet>
+	<servlet>
+		<description>
+		</description>
+		<display-name>
+		SCServlet</display-name>
+		<servlet-name>SCServlet</servlet-name>
+		<servlet-class>
+		edu.iu.grid.oim.servlet.SCServlet</servlet-class>
+	</servlet>
+	<servlet>
+		<description>
+		</description>
+		<display-name>
+		SCEditServlet</display-name>
+		<servlet-name>SCEditServlet</servlet-name>
+		<servlet-class>
+		edu.iu.grid.oim.servlet.SCEditServlet</servlet-class>
 	</servlet>
 	<servlet>
 		<description>
@@ -164,6 +182,14 @@
 		<servlet-mapping>
 		<servlet-name>ResourceEditServlet</servlet-name>
 		<url-pattern>/resourceedit</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>SCServlet</servlet-name>
+		<url-pattern>/sc</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>SCEditServlet</servlet-name>
+		<url-pattern>/scedit</url-pattern>
 	</servlet-mapping>
 	<servlet-mapping>
 		<servlet-name>OsgGridTypeServlet</servlet-name>

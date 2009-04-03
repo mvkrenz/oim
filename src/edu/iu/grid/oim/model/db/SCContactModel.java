@@ -10,7 +10,7 @@ import org.apache.log4j.Logger;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
-import edu.iu.grid.oim.model.db.record.ResourceRecord;
+import edu.iu.grid.oim.model.db.record.RecordBase;
 import edu.iu.grid.oim.model.db.record.SCContactRecord;
 
 public class SCContactModel extends SmallTableModelBase<SCContactRecord> {
@@ -22,5 +22,44 @@ public class SCContactModel extends SmallTableModelBase<SCContactRecord> {
 	SCContactRecord createRecord(ResultSet rs) throws SQLException
 	{
 		return new SCContactRecord(rs);
+	}
+	public ArrayList<SCContactRecord> getBySCID(int sc_id) throws SQLException
+	{ 
+		ArrayList<SCContactRecord> list = new ArrayList<SCContactRecord>();
+		for(RecordBase rec : getCache()) {
+			SCContactRecord sccrec = (SCContactRecord)rec;
+			if(sccrec.sc_id == sc_id) list.add(sccrec);
+		}
+		return list;
+	}	
+	
+	public HashMap<Integer/*contact_type_id*/, ArrayList<SCContactRecord>> groupByContactTypeID(ArrayList<SCContactRecord> recs) throws SQLException
+	{
+		fillCache();
+		
+		HashMap<Integer, ArrayList<SCContactRecord>> list = new HashMap<Integer, ArrayList<SCContactRecord>>();
+		for(SCContactRecord rec : recs) {
+			//group records by type_id and create lists of contact_id
+			ArrayList<SCContactRecord> array = null;
+			if(!list.containsKey(rec.contact_type_id)) {
+				//never had this type
+				array = new ArrayList<SCContactRecord>();
+				list.put(rec.contact_type_id, array);
+			} else {
+				array = list.get(rec.contact_type_id);
+			}	
+			array.add(rec);
+		}
+		return list;		
+	}
+	
+	public ArrayList<SCContactRecord> getByContactID(int contact_id) throws SQLException
+	{
+		ArrayList<SCContactRecord> list = new ArrayList<SCContactRecord>();
+		for(RecordBase rec : getCache()) {
+			SCContactRecord sccrec = (SCContactRecord)rec;
+			if(sccrec.contact_id == contact_id) list.add(sccrec);
+		}		
+		return list;
 	}
 }
