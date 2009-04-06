@@ -360,25 +360,14 @@ CREATE TABLE `metric_status` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='<strong><u>Metric Status</u></strong>: Information about val';
 SET character_set_client = @saved_cs_client;
 
---
--- Table structure for table `notification`
---
-
 DROP TABLE IF EXISTS `notification`;
-SET @saved_cs_client     = @@character_set_client;
-SET character_set_client = utf8;
-CREATE TABLE `notification` (
-  `id` int(11) NOT NULL auto_increment,
-  `type` varchar(512) collate utf8_unicode_ci NOT NULL,
-  `table` varchar(128) collate utf8_unicode_ci NOT NULL,
-  `key` varchar(512) collate utf8_unicode_ci NOT NULL,
-  `format` varchar(512) collate utf8_unicode_ci NOT NULL,
-  `frequency` varchar(512) collate utf8_unicode_ci NOT NULL,
-  `contact_id` int(11) NOT NULL,
-  `timestamp` timestamp NOT NULL default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP,
+CREATE TABLE  `oimnew`.`notification` (
+  `id` int(10) unsigned NOT NULL auto_increment,
+  `notification` text collate utf8_unicode_ci NOT NULL COMMENT 'xml containing class to use and its parameters',
+  `contact_id` int(10) unsigned NOT NULL COMMENT 'contact to buffer notification',
+  `dn_id` int(10) unsigned NOT NULL COMMENT 'person who is requesting this notification',
   PRIMARY KEY  (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Notification table - who wants to be notified on what change';
-SET character_set_client = @saved_cs_client;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
 -- Table structure for table `osg_grid_type`
@@ -887,5 +876,14 @@ SET character_set_client = @saved_cs_client;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+
+DROP TABLE IF EXISTS `notification_buffer`;
+CREATE TABLE  `oimnew`.`notification_buffer` (
+  `id` int(10) unsigned NOT NULL auto_increment,
+  `contact_id` int(10) collate utf8_unicode_ci NOT NULL,
+  `buffer` text collate utf8_unicode_ci NOT NULL,
+  PRIMARY KEY  (`id`),
+    CONSTRAINT `notification_buffer_contact_id` FOREIGN KEY (`contact_id`) REFERENCES `contact` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 -- Dump completed on 2009-03-26 16:43:35
