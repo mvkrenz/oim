@@ -47,7 +47,12 @@ public class AdminServlet extends ServletBase  {
 		contentview.add("<h1>Administration</h1>");
 		contentview.add("<ul class=\"content\">");
 		contentview.add("<li><a href=\"osg_grid_type\">OSG Grid Types</a></li>");
+		contentview.add("<li><a href=\"site\">Administrative Sites</a></li>");
 		contentview.add("<li><a href=\"authmatrix\">Authorization Matrix</a></li>");
+		contentview.add("</ul>");
+		// Need to move to separate section accessible to Metrics group (Brian et al.) -agopu
+		contentview.add("<ul class=\"content\">");
+		contentview.add("<li><a href=\"cpuinfo\">CPU Information</a></li>");
 		contentview.add("</ul>");
 		
 		return contentview;

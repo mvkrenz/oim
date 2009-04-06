@@ -65,6 +65,24 @@
 		<description>
 		</description>
 		<display-name>
+		SiteServlet</display-name>
+		<servlet-name>SiteServlet</servlet-name>
+		<servlet-class>
+		edu.iu.grid.oim.servlet.SiteServlet</servlet-class>
+	</servlet>
+	<servlet>
+		<description>
+		</description>
+		<display-name>
+		SiteEditServlet</display-name>
+		<servlet-name>SiteEditServlet</servlet-name>
+		<servlet-class>
+		edu.iu.grid.oim.servlet.SiteEditServlet</servlet-class>
+	</servlet>
+	<servlet>
+		<description>
+		</description>
+		<display-name>
 		ResourceServlet</display-name>
 		<servlet-name>ResourceServlet</servlet-name>
 		<servlet-class>
@@ -172,6 +190,10 @@
 		<url-pattern>/vo</url-pattern>
 	</servlet-mapping>
 	<servlet-mapping>
+		<servlet-name>SiteServlet</servlet-name>
+		<url-pattern>/site</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
 		<servlet-name>ResourceServlet</servlet-name>
 		<url-pattern>/resource</url-pattern>
 	</servlet-mapping>
@@ -179,7 +201,11 @@
 		<servlet-name>VOEditServlet</servlet-name>
 		<url-pattern>/voedit</url-pattern>
 	</servlet-mapping>
-		<servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>SiteEditServlet</servlet-name>
+		<url-pattern>/siteedit</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
 		<servlet-name>ResourceEditServlet</servlet-name>
 		<url-pattern>/resourceedit</url-pattern>
 	</servlet-mapping>
