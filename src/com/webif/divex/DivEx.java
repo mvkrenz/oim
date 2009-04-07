@@ -132,6 +132,7 @@ public abstract class DivEx {
 			response.setContentType("text/html");
 			render(writer);
 		} else if(action.compareTo("request") == 0) {
+			//it could be any content type - let handler decide
 			this.onRequest(request, response);
 		} else {
 			Event e = new Event(request, response);

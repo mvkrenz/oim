@@ -14,7 +14,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 import com.webif.divex.ButtonDE;
-import com.webif.divex.DialogDE;
 import com.webif.divex.DivEx;
 import com.webif.divex.DivExRoot;
 import com.webif.divex.Event;
@@ -89,8 +88,6 @@ public class VOServlet extends ServletBase implements Servlet {
 		for(VORecord rec : vos) {
 			contentview.add(new HtmlView("<h2>"+StringEscapeUtils.escapeHtml(rec.name)+"</h2>"));
 			
-			log.debug("Rendering VO " + rec.name);
-	
 			RecordTableView table = new RecordTableView();
 			contentview.add(table);
 
@@ -173,14 +170,11 @@ public class VOServlet extends ServletBase implements Servlet {
 				}
 				protected void onEvent(Event e) {
 					if(e.getValue().compareTo("ok") == 0) {
-						VOModel model = new VOModel(con, auth);
+						VOModel model = new VOModel(auth);
 						try {
-							model.delete(rec.id);
+							model.remove(rec);
 							alert("Record Successfully removed.");
 							redirect("vo");
-						} catch (AuthorizationException e1) {
-							log.error(e1);
-							alert(e1.getMessage());
 						} catch (SQLException e1) {
 							log.error(e1);
 							alert(e1.getMessage());
@@ -191,7 +185,7 @@ public class VOServlet extends ServletBase implements Servlet {
 		
 			if(auth.allows("admin_vo")) {
 				final DeleteDialogDE delete_dialog = new DeleteDialogDE(root, rec);
-				table.add(" or ");
+				table.add(new HtmlView(" or "));
 				table.add(delete_dialog);
 				
 				class DeleteButtonDE extends ButtonDE

@@ -18,13 +18,11 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 
 import com.webif.divex.ButtonDE;
-import com.webif.divex.DialogDE;
 import com.webif.divex.DivEx;
 import com.webif.divex.DivExRoot;
 import com.webif.divex.Event;
 
 import edu.iu.grid.oim.notification.NotificationBase;
-import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
 import edu.iu.grid.oim.model.db.NotificationModel;
 import edu.iu.grid.oim.model.db.record.NotificationRecord;
 import edu.iu.grid.oim.model.db.record.RecordBase;
@@ -95,44 +93,30 @@ public class NotificationServlet extends ServletBase implements Servlet {
 
 			table.add(new DivExWrapper(new EditButtonDE(root, BaseURL()+"/notificationedit?cpu_id=" + rec.id)));
 			
-			class DeleteDialogDE extends DialogDE
-			{
-				NotificationRecord rec;
-				public DeleteDialogDE(DivEx parent, NotificationRecord _rec)
-				{
-					super(parent, "Delete " + _rec.getTitle(), "Are you sure you want to delete this notification?");
-					rec = _rec;
-				}
-				protected void onEvent(Event e) {
-					if(e.getValue().compareTo("ok") == 0) {
-						NotificationModel model = new NotificationModel(auth);
-						try {
-							model.remove(rec);
-							alert("Record Successfully removed.");
-							redirect("vo");
-						} catch (SQLException e1) {
-							log.error(e1);
-							alert(e1.getMessage());
-						}
-					}
-				}
-			}
-			final DeleteDialogDE delete_dialog = new DeleteDialogDE(root, rec);
-			table.add(new HtmlView(" or "));
-			table.add(delete_dialog);
-			
 			class DeleteButtonDE extends ButtonDE
 			{
-				public DeleteButtonDE(DivEx parent, String _name)
+				private NotificationRecord rec;
+				public DeleteButtonDE(DivEx parent, NotificationRecord _rec)
 				{
 					super(parent, "Delete");
+					rec = _rec;
 					setStyle(ButtonDE.Style.ALINK);
+					setConfirm(true, rec.getTitle());
 				}
 				protected void onEvent(Event e) {
-					delete_dialog.open();
+					NotificationModel model = new NotificationModel(auth);
+					try {
+						model.remove(rec);
+						alert("Record Successfully removed.");
+						redirect("notification");
+					} catch (SQLException e1) {
+						log.error(e1);
+						alert(e1.getMessage());
+					}
 				}
 			};
-			table.add(new DeleteButtonDE(root, rec.getTitle()));	
+			table.add(new HtmlView(" or "));
+			table.add(new DeleteButtonDE(root, rec));	
 		}
 		
 		return contentview;

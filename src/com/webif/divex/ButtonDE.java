@@ -18,6 +18,13 @@ public class ButtonDE extends DivEx {
 	Boolean clickonce = true;
 	public void setClickOnce(Boolean b) { clickonce = b; }
 	
+	Boolean confirm = false;
+	String confirm_message = null;
+	public void setConfirm(Boolean b, String message) {
+		confirm = b;
+		confirm_message = message;
+	}
+	
 	public ButtonDE(DivEx parent, String _title) {
 		super(parent);
 		title = _title;
@@ -26,19 +33,24 @@ public class ButtonDE extends DivEx {
 	public void render(PrintWriter out) {
 		//TODO implement click once feature - disabling button just doesn't work well
 
+		String js = "divex(this.id, \"click\");return false;";
+		if(confirm) {
+			js = "var answer = confirm(\""+confirm_message+"\");if(answer) {"+js+"}";
+		}
+		
 		switch(style) {
 		case BUTTON:
-			out.print("<input type='button' id='"+getNodeID()+"' onclick='divex(this.id, \"click\");' value='"+
+			out.print("<input type='button' id='"+getNodeID()+"' onclick='"+js+"' value='"+
 				StringEscapeUtils.escapeHtml(title)+"' />");
 			break;
 		case ALINK:
 			//TODO - implement clickonce
-			out.print("<a href='#' id='"+getNodeID()+"' onclick='divex(this.id, \"click\");return false;'>"+
+			out.print("<a href='#' id='"+getNodeID()+"' onclick='"+js+"'>"+
 				StringEscapeUtils.escapeHtml(title)+"</a>");
 			break;
 		case IMAGE:
 			//TODO - implement clickonce
-			out.print("<a href='#' id='"+getNodeID()+"' onclick='divex(this.id, \"click\");return false;'><img align='top' src='"+image_url+"' alt='"+
+			out.print("<a href='#' id='"+getNodeID()+"' onclick='"+js+"'><img align='top' src='"+image_url+"' alt='"+
 				StringEscapeUtils.escapeHtml(title)+"'/></a>");
 			break;
 		}

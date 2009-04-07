@@ -9,7 +9,7 @@ function divex(id, action, value) {
 			action: action,
 			value : value },
 		type: "POST",
-		dataType: "script",
+		dataType: "script",//Evaluates the response as JavaScript and returns it as plain text. Disables caching unless option "cache" is used. Note: This will turn POSTs into GETs for remote-domain requests. 
 	   success: function(msg){
 	   },
 	   error: function (XMLHttpRequest, textStatus, errorThrown) {
@@ -30,7 +30,8 @@ function divex_replace( node, url )
 	jQuery.ajax({
 		url: url,
 		type: "GET",
-		dataType: "html",
+		cache: false,
+		dataType: "html", //Returns HTML as plain text; included script tags are evaluated when inserted in the DOM. 
 		complete: function(res, status){
 			// If successful, inject the HTML into all the matched elements
 			if ( status == "success" || status == "notmodified" )
