@@ -18,7 +18,6 @@ import org.apache.log4j.Logger;
 
 import com.sun.crypto.provider.RC2Cipher;
 import com.webif.divex.ButtonDE;
-import com.webif.divex.DialogDE;
 import com.webif.divex.DivEx;
 import com.webif.divex.DivExRoot;
 import com.webif.divex.Event;
