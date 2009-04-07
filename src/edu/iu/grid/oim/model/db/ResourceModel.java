@@ -46,7 +46,7 @@ public class ResourceModel extends SmallTableModelBase<ResourceRecord> {
 	public Collection<ResourceRecord> getAllEditable() throws SQLException
 	{	   
 		ArrayList<ResourceRecord> list = new ArrayList();
-	    if(auth.allows("admin_resource")) {
+	    if(auth.allows("admin")) {
 	    	//admin can edit all scs
 	    	for(RecordBase rec : getCache()) {
 	    		list.add((ResourceRecord)rec);
@@ -88,7 +88,7 @@ public class ResourceModel extends SmallTableModelBase<ResourceRecord> {
 			ArrayList<ResourceContactRecord> contacts) throws Exception
 	{
 		try {
-			auth.check("write_resource");
+			auth.check("edit_my_resource");
 			
 			//process detail information
 			getConnection().setAutoCommit(false);
@@ -130,7 +130,7 @@ public class ResourceModel extends SmallTableModelBase<ResourceRecord> {
 	{
 		//Do insert / update to our DB
 		try {
-			auth.check("write_vo");
+			auth.check("edit_my_vo");
 			
 			//process detail information
 			getConnection().setAutoCommit(false);

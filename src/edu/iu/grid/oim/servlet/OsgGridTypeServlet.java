@@ -42,7 +42,7 @@ public class OsgGridTypeServlet extends ServletBase implements Servlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{	
 		setAuth(request);
-		auth.check("admin_osg_grid_type");
+		auth.check("admin");
 
 		try {
 			//construct view

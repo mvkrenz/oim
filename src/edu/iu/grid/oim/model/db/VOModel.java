@@ -58,7 +58,7 @@ public class VOModel extends SmallTableModelBase<VORecord>
 	public Collection<VORecord> getAllEditable() throws SQLException
 	{	   
 		ArrayList<VORecord> list = new ArrayList();
-	    if(auth.allows("admin_vo")) {
+	    if(auth.allows("admin")) {
 	    	//admin can edit all scs
 	    	for(RecordBase rec : getCache()) {
 	    		list.add((VORecord)rec);
@@ -102,7 +102,7 @@ public class VOModel extends SmallTableModelBase<VORecord>
 			HashMap<Integer, CheckBoxFormElementDE> field_of_science) throws Exception
 	{
 		try {
-			auth.check("write_vo");
+			auth.check("edit_my_vo");
 			
 			//process detail information
 			getConnection().setAutoCommit(false);
@@ -182,7 +182,7 @@ public class VOModel extends SmallTableModelBase<VORecord>
 	{
 		//Do insert / update to our DB
 		try {
-			auth.check("write_vo");
+			auth.check("edit_my_vo");
 			
 			//process detail information
 			getConnection().setAutoCommit(false);

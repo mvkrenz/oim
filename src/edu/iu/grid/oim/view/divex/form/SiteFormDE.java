@@ -144,14 +144,14 @@ public class SiteFormDE extends FormDE
 		active = new CheckBoxFormElementDE(this);
 		active.setLabel("Active");
 		active.setValue(rec.active);
-		if(!auth.allows("admin_site")) {
+		if(!auth.allows("admin")) {
 			active.setHidden(true);
 		}
 		
 		disable = new CheckBoxFormElementDE(this);
 		disable.setLabel("Disabled");
 		disable.setValue(rec.disable);
-		if(!auth.allows("admin_site")) {
+		if(!auth.allows("admin")) {
 			disable.setHidden(true);
 		}
 	}

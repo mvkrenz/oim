@@ -132,14 +132,14 @@ public class ResourceFormDE extends FormDE
 		active = new CheckBoxFormElementDE(this);
 		active.setLabel("Active");
 		active.setValue(rec.active);
-		if(!auth.allows("admin_resource")) {
+		if(!auth.allows("admin")) {
 			active.setHidden(true);
 		}
 		
 		disable = new CheckBoxFormElementDE(this);
 		disable.setLabel("Disabled");
 		disable.setValue(rec.disable);
-		if(!auth.allows("admin_resource")) {
+		if(!auth.allows("admin")) {
 			disable.setHidden(true);
 		}
 		
@@ -178,7 +178,7 @@ public class ResourceFormDE extends FormDE
 		for(int contact_type_id : contact_types) {
 			ContactEditorDE editor = createContactEditor(voclist_grouped, ctmodel.get(contact_type_id));
 			//disable submitter editor if needed
-			if(!auth.allows("admin_vo")) {
+			if(!auth.allows("admin")) {
 				if(contact_type_id == 1) { //1 = Submitter Contact
 					editor.setDisabled(true);
 				}

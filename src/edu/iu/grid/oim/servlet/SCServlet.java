@@ -91,7 +91,7 @@ public class SCServlet extends ServletBase implements Servlet {
 		 	table.addRow("Long Name", rec.long_name);
 			table.addRow("Description", rec.description);
 			table.addRow("Community", rec.community);
-			if(auth.allows("admin_sc")) {
+			if(auth.allows("admin")) {
 				table.addRow("Footprints ID", rec.footprints_id);
 				table.addRow("Active", rec.active);
 				table.addRow("Disable", rec.disable);

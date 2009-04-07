@@ -48,13 +48,9 @@ public class AdminServlet extends ServletBase  {
 		
 		contentview.add(new HtmlView("<h1>Administration</h1>"));
 		ListView list = new ListView();
-		if(auth.allows("admin_osg_grid_type")) {
+		if(auth.allows("admin")) {
 			list.add(new LinkView("osg_grid_type", "OSG Grid Types"));
-		}
-		if(auth.allows("admin_site")) {
 			list.add(new LinkView("site", "Administrative Sites"));
-		}
-		if(auth.allows("admin_authorization")) {
 			list.add(new LinkView("authmatrix", "Authorization" ));
 		}
 		contentview.add(list);

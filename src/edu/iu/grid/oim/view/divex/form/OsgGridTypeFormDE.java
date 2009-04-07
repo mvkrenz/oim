@@ -91,7 +91,7 @@ public class OsgGridTypeFormDE extends FormDE
 
 		//Do insert / update to our DB
 		try {
-			auth.check("admin_osg_grid_type");
+			auth.check("admin");
 			
 			OsgGridTypeModel model = new OsgGridTypeModel(auth);
 			if(rec.id == null) {

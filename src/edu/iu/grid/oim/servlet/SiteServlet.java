@@ -61,7 +61,7 @@ public class SiteServlet extends ServletBase implements Servlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{	
 		setAuth(request);
-		auth.check("admin_site");
+		auth.check("admin");
 		
 		//pull list of all sites
 		SiteModel model = new SiteModel(auth);

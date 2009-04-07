@@ -29,7 +29,7 @@ public class SCModel extends SmallTableModelBase<SCRecord> {
 	public Collection<SCRecord> getAllEditable() throws SQLException
 	{		
 		ArrayList<SCRecord> list = new ArrayList();
-	    if(auth.allows("admin_sc")) {
+	    if(auth.allows("admin")) {
 	    	//admin can edit all scs
 	    	for(RecordBase rec : getCache()) {
 	    		list.add((SCRecord)rec);

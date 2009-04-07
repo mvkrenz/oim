@@ -39,7 +39,7 @@ public class SiteModel extends SmallTableModelBase<SiteRecord> {
 	public void insertDetail(SiteRecord rec) throws Exception
 	{
 		try {
-			auth.check("admin_site");
+			auth.check("admin");
 
 			//insert Site itself and get the new ID
 			insert(rec);
@@ -57,7 +57,7 @@ public class SiteModel extends SmallTableModelBase<SiteRecord> {
 	{
 		//Do insert / update to our DB
 		try {
-			auth.check("write_site");
+			auth.check("admin");
 			update(get(rec), rec);
 		} catch (AuthorizationException e) {
 			log.error(e);
