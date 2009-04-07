@@ -153,8 +153,6 @@ INSERT INTO `action` (`id`,`name`,`description`) VALUES
 INSERT INTO `authorization_type_action` (`authorization_type_id`,`action_id`) VALUES 
  (4,1),
  (4,2),
- (1,3),
- (4,3),
  (1,5),
  (4,5),
  (3,7),
