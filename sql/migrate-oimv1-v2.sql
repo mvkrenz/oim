@@ -139,42 +139,37 @@ INSERT INTO resource_downtime_service (SELECT downtime_id,service_id FROM oim.re
 INSERT INTO downtime_publish_wlcg (SELECT downtime_id,downtime_action_id,publish_status,timestamp,disable FROM oim.downtime_publish_wlcg);
 
 INSERT INTO `action` (`id`,`name`,`description`) VALUES 
- (1,'write_resource',''),
- (2,'admin_resource',''),
- (3,'write_facility',''),
- (4,'admin_facility',''),
- (5,'write_vo',''),
- (6,'admin_vo',''),
- (7,'write_sc_contact',''),
- (8,'admin_sc_contact',''),
- (11,'write_sc',''),
- (12,'admin_sc',''),
- (13,'write_contact',''),
- (14,'admin_contact',''),
- (15,'admin_osg_grid_type',''),
- (17,'admin_authorization',NULL);
-
+ (1,'admin_authorization','Allow admin level read/write access to authorization/action matrix'),
+ (2,'admin','Allow admin level read/write access to everything but authorization'),
+ (5,'edit_my_vo','Allow user-level read/write access to VO for authorized users (contacts)'),
+ (7, 'read_all_resource_contact','Allow read-access to all VOs contacts (for example, security group)'),
+ (8, 'read_all_vo_contact', 'Allow read-access to all VO contacts (for example, security group)'),
+ (9, 'read_all_contact','Allow read-access to all VO contacts (for example, security group)'),         
+ (11,'edit_my_sc','Allow user-level read/write access to SCs for authorized users (contacts)'),
+ (13,'edit_my_contact','Allow user-level read/write access to registered contact profiles'),
+ (17,'edit_my_resource','Allow user-level read/write access to resources for authorized users (contacts)')
+ ;
+ 
 INSERT INTO `authorization_type_action` (`authorization_type_id`,`action_id`) VALUES 
- (1,1),
  (4,1),
  (4,2),
  (1,3),
  (4,3),
- (4,4),
  (1,5),
  (4,5),
- (4,6),
- (1,7),
+ (3,7),
  (4,7),
+ (3,8),
  (4,8),
+ (3,9),
+ (4,9),
  (1,11),
  (4,11),
- (4,12),
  (1,13),
  (4,13),
- (4,14),
- (4,15),
- (4,17);
-
+ (1,17),
+ (4,17)
+;
+ 
 INSERT INTO `notification` (`notification`, `dn_id`) VALUES
 ("<Notification><Class>edu.iu.grid.oim.notification.VONotification</Class><VOID>1</VOID><ContactID>238</ContactID></Notification>", 123);
