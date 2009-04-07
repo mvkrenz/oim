@@ -24,6 +24,7 @@ import edu.iu.grid.oim.model.db.OsgGridTypeModel;
 import edu.iu.grid.oim.model.db.record.OsgGridTypeRecord;
 import edu.iu.grid.oim.model.db.record.RecordBase;
 import edu.iu.grid.oim.view.ContentView;
+import edu.iu.grid.oim.view.DivExWrapper;
 import edu.iu.grid.oim.view.HtmlView;
 import edu.iu.grid.oim.view.MenuView;
 import edu.iu.grid.oim.view.Page;
@@ -64,10 +65,10 @@ public class OsgGridTypeServlet extends ServletBase implements Servlet {
 		throws ServletException, SQLException
 	{
 		ContentView contentview = new ContentView();	
-		contentview.add("<h1>OSG Grid Types</h1>");
+		contentview.add(new HtmlView("<h1>OSG Grid Types</h1>"));
 		
 		for(OsgGridTypeRecord rec : ogts) {
-			contentview.add("<h2>"+StringEscapeUtils.escapeHtml(rec.name)+"</h2>");
+			contentview.add(new HtmlView("<h2>"+StringEscapeUtils.escapeHtml(rec.name)+"</h2>"));
 			
 			RecordTableView table = new RecordTableView();
 			contentview.add(table);
@@ -85,7 +86,7 @@ public class OsgGridTypeServlet extends ServletBase implements Servlet {
 					redirect(url);
 				}
 			};
-			table.add(new EditButtonDE(root, BaseURL()+"/osg_grid_type_edit?osg_grid_type_id=" + rec.id));
+			table.add(new DivExWrapper(new EditButtonDE(root, BaseURL()+"/osg_grid_type_edit?osg_grid_type_id=" + rec.id)));
 			/*
 			class DeleteDialogDE extends DialogDE
 			{

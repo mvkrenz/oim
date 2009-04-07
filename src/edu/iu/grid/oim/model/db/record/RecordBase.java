@@ -30,21 +30,21 @@ public abstract class RecordBase implements Comparable<RecordBase> {
 			Field[] fields = getClass().getFields();
 			for(Field fld : fields) {
 				String name = fld.getName();
-				String type = fld.getType().toString();
-		        if(type.compareTo("class java.lang.String") == 0) {
+				Class type = fld.getType();
+		        if(type == String.class) {
 					fld.set(this, rs.getString(name));
-		        } else if(type.compareTo("class java.lang.Integer") == 0) {
+		        } else if(type == Integer.class) {
 		        	fld.set(this, rs.getInt(name));
 		        	if(rs.wasNull()) {
 		        		fld.set(this, null);
 		        	}
-		        } else if(type.compareTo("class java.lang.Float") == 0) {
+		        } else if(type == Float.class) {
 		        	fld.set(this, rs.getFloat(name));
-		        } else if(type.compareTo("class java.lang.Double") == 0) {
+		        } else if(type == Double.class) {
 		        	fld.set(this, rs.getDouble(name));
-		        } else if(type.compareTo("class java.sql.Timestamp") == 0) {
+		        } else if(type == Timestamp.class) {
 		        	fld.set(this, rs.getTimestamp(name));
-		        } else if(type.compareTo("class java.lang.Boolean") == 0) {
+		        } else if(type == Boolean.class) {
 		        	fld.set(this, rs.getBoolean(name));
 		        } else {
 		        	log.error("Uknown record variable type (ctor):" + type + " called " + name);

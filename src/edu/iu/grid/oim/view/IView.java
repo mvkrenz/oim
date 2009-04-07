@@ -5,11 +5,11 @@ import java.util.ArrayList;
 
 import com.webif.divex.DivEx;
 
-public abstract class View {
-
-	protected ArrayList<View> children = new ArrayList<View>();
+public abstract interface IView {
+/*
+	protected ArrayList<GenericView> children = new ArrayList<GenericView>();
 	
-	public void add(View v) {
+	public void add(GenericView v) {
 		children.add(v);
 	}
 	
@@ -21,14 +21,6 @@ public abstract class View {
 	public void add(String html) {
 		add(new HtmlView(html));
 	}
-	
+*/	
 	abstract public void render(PrintWriter out);
-	/*
-	{
-		//output child content
-		for(View v : children) {
-			v.render(out);
-		}
-	}
-	*/
 }

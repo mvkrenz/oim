@@ -33,10 +33,11 @@ import edu.iu.grid.oim.model.db.record.AuthorizationTypeActionRecord;
 import edu.iu.grid.oim.model.db.record.AuthorizationTypeRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
 import edu.iu.grid.oim.view.ContentView;
+import edu.iu.grid.oim.view.DivExWrapper;
 import edu.iu.grid.oim.view.HtmlView;
 import edu.iu.grid.oim.view.MenuView;
 import edu.iu.grid.oim.view.Page;
-import edu.iu.grid.oim.view.View;
+import edu.iu.grid.oim.view.IView;
 import edu.iu.grid.oim.view.SideContentView;
 
 public class AuthorizationMatrixServlet extends ServletBase  {
@@ -192,9 +193,9 @@ public class AuthorizationMatrixServlet extends ServletBase  {
 	protected ContentView createContentView(DivEx root) throws SQLException
 	{			
 		ContentView contentview = new ContentView();
-		contentview.add("<h1>Authorization Matrix</h1>");
+		contentview.add(new HtmlView("<h1>Authorization Matrix</h1>"));
 		FormDE form = new AuthMatrixFormDE(root, "admin");
-		contentview.add(form);
+		contentview.add(new DivExWrapper(form));
 		return contentview;
 	}
 	

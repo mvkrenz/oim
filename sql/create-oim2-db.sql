@@ -43,8 +43,8 @@ SET character_set_client = @saved_cs_client;
 -- Table structure for table `action`
 --
 
-DROP TABLE IF EXISTS `oimnew`.`action`;
-CREATE TABLE  `oimnew`.`action` (
+DROP TABLE IF EXISTS `action`;
+CREATE TABLE  `action` (
   `id` int(11) NOT NULL auto_increment,
   `name` varchar(64) collate utf8_unicode_ci NOT NULL,
   `description` text collate utf8_unicode_ci,
@@ -295,7 +295,7 @@ SET character_set_client = @saved_cs_client;
 
 
 DROP TABLE IF EXISTS `log`;
-CREATE TABLE  `oimnew`.`log` (
+CREATE TABLE  `log` (
   `id` int(11) NOT NULL auto_increment,
   `type` varchar(16) collate utf8_unicode_ci default NULL,
   `model` varchar(64) collate utf8_unicode_ci default NULL,
@@ -361,12 +361,12 @@ CREATE TABLE `metric_status` (
 SET character_set_client = @saved_cs_client;
 
 DROP TABLE IF EXISTS `notification`;
-CREATE TABLE  `oimnew`.`notification` (
-  `id` int(10) unsigned NOT NULL auto_increment,
+CREATE TABLE  `notification` (
+  `id` int(11) NOT NULL auto_increment,
   `notification` text collate utf8_unicode_ci NOT NULL COMMENT 'xml containing class to use and its parameters',
-  `contact_id` int(10) unsigned NOT NULL COMMENT 'contact to buffer notification',
-  `dn_id` int(10) unsigned NOT NULL COMMENT 'person who is requesting this notification',
-  PRIMARY KEY  (`id`)
+  `dn_id` int(11) NOT NULL COMMENT 'person who is requesting this notification',
+  PRIMARY KEY  (`id`),
+    CONSTRAINT `foreign_dn_id` FOREIGN KEY (`dn_id`) REFERENCES `dn` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
@@ -878,7 +878,7 @@ SET character_set_client = @saved_cs_client;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
 DROP TABLE IF EXISTS `notification_buffer`;
-CREATE TABLE  `oimnew`.`notification_buffer` (
+CREATE TABLE  `notification_buffer` (
   `id` int(10) unsigned NOT NULL auto_increment,
   `contact_id` int(10) collate utf8_unicode_ci NOT NULL,
   `buffer` text collate utf8_unicode_ci NOT NULL,

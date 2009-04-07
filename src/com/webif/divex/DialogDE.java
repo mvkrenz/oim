@@ -6,11 +6,6 @@ public class DialogDE extends DivEx {
 
 	String message;
 	String title;
-	/*
-	static public enum Style { BUTTON, ALINK };
-	Style style = Style.BUTTON;
-	public void setStyle(Style _style) { style = _style; }
-	*/
 	Boolean show = false;
 	
 	public DialogDE(DivEx parent, String _title, String _message) {
@@ -25,18 +20,19 @@ public class DialogDE extends DivEx {
 			show = true;
 			redraw();
 		} else {
-			//already shown - I just have to re-open it
+			//already shown - I just have to re-open it (nothing needs to be re-drawn)
 			js("$('#"+getNodeID()+"').dialog('open');");
 		}
 	}
 
 	public void render(PrintWriter out) {
-		out.print("<div title=\""+title+"\" class=\"hidden\" id=\""+getNodeID()+"\">");
+		String js = "";
+		out.print("<div title=\""+title+"\" id=\""+getNodeID()+"\">");
 		if(show) {
+
 			out.print(message);
 	
-			String js = "$('#"+getNodeID()+"').dialog({"+
-				//"autoOpen: false,"+
+			js += "$('#"+getNodeID()+"').dialog({"+
 				"buttons: {" +
 					"Cancel: function() { "+ 
 						"$(this).dialog(\"close\");"+
@@ -49,8 +45,9 @@ public class DialogDE extends DivEx {
 			"});";
 			
 			out.print("<script type='text/javascript'>");
-			out.print(js);
-			out.print("</script>");
+			out.write(js);
+			out.print("</script>");			
+
 		}
 		out.print("</div>");
 	}

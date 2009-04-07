@@ -3,18 +3,18 @@ package edu.iu.grid.oim.view;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 
-public class TableView extends View {
+public class TableView extends GenericView {
 	static public enum CellStyle { NORMAL, HEADER };
 	String cls = "";
-
-	public class Row extends View
+	
+	public class Row implements IView
 	{
-		public class Cell extends View
+		public class Cell implements IView
 		{
 			CellStyle style = CellStyle.NORMAL;
-			View content;
+			IView content;
 			
-			Cell(View _content) {
+			Cell(IView _content) {
 				content = _content;
 			}
 			void setStyle(CellStyle _style) {
@@ -39,10 +39,10 @@ public class TableView extends View {
 		
 		private ArrayList<Cell> cells = new ArrayList();
 		
-		public void addCell(View content) {
+		public void addCell(IView content) {
 			cells.add(new Cell(content));
 		}
-		public void addHeaderCell(View content) {
+		public void addHeaderCell(IView content) {
 			Cell cell = new Cell(content);
 			cell.setStyle(TableView.CellStyle.HEADER);
 			cells.add(cell);
@@ -68,7 +68,7 @@ public class TableView extends View {
 		rows.add(row);
 	}
 	
-	public void addRow(View header, View view)
+	public void addRow(IView header, IView view)
 	{
 		Row row = new Row();
 		addRow(row);
@@ -85,7 +85,7 @@ public class TableView extends View {
 		
 		//display toolbar
 		out.print("<tr><td></td><td>");
-		for(View v : children) {
+		for(IView v : children) {
 			v.render(out);
 		}
 		out.print("</td></tr>");

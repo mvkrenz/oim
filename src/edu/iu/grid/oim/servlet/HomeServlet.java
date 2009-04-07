@@ -14,9 +14,10 @@ import com.webif.divex.DivExRoot;
 
 import edu.iu.grid.oim.model.MenuItem;
 import edu.iu.grid.oim.view.ContentView;
+import edu.iu.grid.oim.view.HtmlView;
 import edu.iu.grid.oim.view.MenuView;
 import edu.iu.grid.oim.view.Page;
-import edu.iu.grid.oim.view.View;
+import edu.iu.grid.oim.view.IView;
 import edu.iu.grid.oim.view.SideContentView;
 
 public class HomeServlet extends ServletBase  {
@@ -41,7 +42,7 @@ public class HomeServlet extends ServletBase  {
 	{
 		ContentView contentview = new ContentView();
 		
-		contentview.add("<h1>OIM Home</h1>");
+		contentview.add(new HtmlView("<h1>OIM Home</h1>"));
 		
 		return contentview;
 	}

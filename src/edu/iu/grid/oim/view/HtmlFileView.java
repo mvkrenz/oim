@@ -6,7 +6,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 
-public class HtmlFileView extends View {
+public class HtmlFileView implements IView {
 
 	private String content;
 	
@@ -42,16 +42,4 @@ public class HtmlFileView extends View {
         }
         return sb.toString();
 	}
-	
-	/* something like this might be a better solution
-	 private final byte[] getFileAsBytes(final File file) throws IOException {
-	final BufferedInputStream bis = new BufferedInputStream( 
-		new FileInputStream(file));
-	final byte [] bytes = new byte[(int) file.length()];
-	bis.read(bytes);
-	bis.close();
-	return bytes;
-}
-
-	 * */
 }

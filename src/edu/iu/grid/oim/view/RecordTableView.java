@@ -11,7 +11,7 @@ public class RecordTableView extends TableView {
 		setClass("record_table");
 	}
 	
-	public void addRow(String header, View content) {
+	public void addRow(String header, IView content) {
 		Row row = new Row();
 		addRow(row);
 		row.addHeaderCell(new HtmlView(StringEscapeUtils.escapeHtml(header)));

@@ -6,21 +6,32 @@ import java.util.ArrayList;
 import com.webif.divex.DivEx;
 
 //put each content under a side content header
-public class SideContentView extends View {
+public class SideContentView implements IView {
 
-	private ArrayList<View> children = new ArrayList<View>();
+	private ArrayList<IView> children = new ArrayList<IView>();
 	
-	public void add(String title, View v) {
+	public void add(IView v) {
+		children.add(v);
+	}
+	
+	public void add(DivEx de) {
+		add(new DivExWrapper(de));
+	}
+	
+	public void add(String html) {
+		add(new HtmlView(html));
+	}
+	public void add(String title, IView v) {
 		children.add(new HtmlView("<h3>"+title+"</h3>"));
-		WrapView content = new WrapView("<p class=\"indent\">", v, "</p>");
-		children.add(content);
+		children.add(new HtmlView("<p class=\"indent\">"));
+		children.add(v);
+		children.add(new HtmlView("</p>"));
 	}
 	
 	public void add(String title, DivEx de) {
 		add(title, new DivExWrapper(de));
 	}
 	
-	//depricate this - danger of XSS
 	public void add(String title, String html) {
 		add(title, new HtmlView(html));
 	}
@@ -28,7 +39,7 @@ public class SideContentView extends View {
 	public void render(PrintWriter out)
 	{
 		out.println("<div id=\"sideContent\">");
-		for(View v : children) {
+		for(IView v : children) {
 			v.render(out);
 		}
 		out.println("</div>");

@@ -4,8 +4,6 @@ import java.io.PrintWriter;
 
 import org.apache.commons.lang.StringEscapeUtils;
 
-import edu.iu.grid.oim.view.Utils;
-
 public class ButtonDE extends DivEx {
 	String title;
 	

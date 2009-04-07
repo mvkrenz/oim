@@ -7,6 +7,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import edu.iu.grid.oim.view.ContentView;
+import edu.iu.grid.oim.view.HtmlView;
 import edu.iu.grid.oim.view.MenuView;
 import edu.iu.grid.oim.view.Page;
 import edu.iu.grid.oim.view.SideContentView;
@@ -41,17 +42,18 @@ public class ErrorServlet extends ServletBase {
 	{
 		ContentView contentview = new ContentView();
         
-		contentview.add("<h2>Oops!</h2>");
-		contentview.add("<p>Sorry, we have encountered a problem.</p>");
+		contentview.add(new HtmlView("<h2>Oops!</h2>"));
+		contentview.add(new HtmlView("<p>Sorry, we have encountered a problem.</p>"));
 		
 		if(debug()) {
-			contentview.add("<table>");
+			//TODO - use the TableView
+			contentview.add(new HtmlView("<table>"));
 	        for (int i = 0; i < vars.length; i++) {
-	    		contentview.add("<TR><TD>" + vars[i] + "</TD><TD>" +
+	    		contentview.add(new HtmlView("<TR><TD>" + vars[i] + "</TD><TD>" +
 	                request.getAttribute(vars[i]) + 
-	                "</TD></TR>");
+	                "</TD></TR>"));
 	        }
-	        contentview.add("</table>");
+	        contentview.add(new HtmlView("</table>"));
 		}
 		
 		return contentview;

@@ -190,24 +190,24 @@ public class SiteFormDE extends FormDE
 
 		// Moved try block beginning from line 208 to handled SQL exception.. -agopu
 		try {
-		//Construct SiteRecord
-		SiteRecord rec = new SiteRecord();
-		rec.id = id;
-	
-		rec.name = name.getValue();
-		rec.long_name = long_name.getValue();
-		rec.description = description.getValue();
-
-		rec.sc_id = sc_id.getValue();
-		rec.facility_id = facility_id.getValue();
-//		rec.submitter_dn_id = submitted_dn_id.getValue();
-
-		rec.active = active.getValue();
-		rec.disable = disable.getValue();
+			//Construct SiteRecord
+			SiteRecord rec = new SiteRecord();
+			rec.id = id;
 		
-		SiteModel model = new SiteModel(auth);
+			rec.name = name.getValue();
+			rec.long_name = long_name.getValue();
+			rec.description = description.getValue();
+	
+			rec.sc_id = sc_id.getValue();
+			rec.facility_id = facility_id.getValue();
+	//		rec.submitter_dn_id = submitted_dn_id.getValue();
+	
+			rec.active = active.getValue();
+			rec.disable = disable.getValue();
+			
+			SiteModel model = new SiteModel(auth);
 
-		if(rec.id == null) {
+			if(rec.id == null) {
 				model.insertDetail(rec);
 			} else {
 				model.updateDetail(rec);

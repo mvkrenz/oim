@@ -9,6 +9,7 @@ import java.util.HashMap;
 
 import org.apache.log4j.Logger;
 
+import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
 import edu.iu.grid.oim.model.db.record.ContactTypeRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
@@ -19,7 +20,7 @@ import edu.iu.grid.oim.model.db.record.SCRecord;
 public class ContactModel extends SmallTableModelBase<ContactRecord> {
     static Logger log = Logger.getLogger(ContactModel.class);  
 
-    public ContactModel(edu.iu.grid.oim.lib.Authorization _auth) 
+    public ContactModel(Authorization _auth) 
     {
     	super(_auth, "contact");
     }

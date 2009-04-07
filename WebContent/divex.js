@@ -19,16 +19,6 @@ function divex(id, action, value) {
 		   this; // the options for this ajax request
 	   }
 	});
-	/*
-		$.post("divex", 
-				{ 	nodeid: id,
-					action: action,
-					value : value },
-				function(js) {
-						eval(js);
-				}
-		);
-	*/
 }
 
 //this is basically the same thing as jquery.load, but instead of replace the content 

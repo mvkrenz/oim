@@ -4,7 +4,8 @@ import java.io.PrintWriter;
 
 import com.webif.divex.DivEx;
 
-public class DivExWrapper extends View {
+//use this to make DivEx object behaves like a GenericView
+public class DivExWrapper implements IView {
 
 	private DivEx de;
 	

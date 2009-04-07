@@ -7,21 +7,17 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Set;
-
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
-
 import com.webif.divex.ButtonDE;
 import com.webif.divex.DialogDE;
 import com.webif.divex.DivEx;
 import com.webif.divex.DivExRoot;
 import com.webif.divex.Event;
-
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
 import edu.iu.grid.oim.model.db.ContactRankModel;
 import edu.iu.grid.oim.model.db.ContactTypeModel;
@@ -43,8 +39,9 @@ import edu.iu.grid.oim.model.db.record.VOFieldOfScienceRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
 import edu.iu.grid.oim.model.db.record.VOReportContactRecord;
 import edu.iu.grid.oim.view.ContentView;
+import edu.iu.grid.oim.view.DivExWrapper;
 import edu.iu.grid.oim.view.HtmlView;
-import edu.iu.grid.oim.view.View;
+import edu.iu.grid.oim.view.IView;
 import edu.iu.grid.oim.view.MenuView;
 import edu.iu.grid.oim.view.Page;
 import edu.iu.grid.oim.view.RecordTableView;
@@ -87,10 +84,10 @@ public class VOServlet extends ServletBase implements Servlet {
 		throws ServletException, SQLException
 	{
 		ContentView contentview = new ContentView();	
-		contentview.add("<h1>Virtual Organization</h1>");
+		contentview.add(new HtmlView("<h1>Virtual Organization</h1>"));
 	
 		for(VORecord rec : vos) {
-			contentview.add("<h2>"+StringEscapeUtils.escapeHtml(rec.name)+"</h2>");
+			contentview.add(new HtmlView("<h2>"+StringEscapeUtils.escapeHtml(rec.name)+"</h2>"));
 			
 			log.debug("Rendering VO " + rec.name);
 	
@@ -163,7 +160,7 @@ public class VOServlet extends ServletBase implements Servlet {
 					redirect(url);
 				}
 			};
-			table.add(new EditButtonDE(root, BaseURL()+"/voedit?vo_id=" + rec.id));
+			table.add(new DivExWrapper(new EditButtonDE(root, BaseURL()+"/voedit?vo_id=" + rec.id)));
 			
 			/*
 			class DeleteDialogDE extends DialogDE
@@ -228,7 +225,7 @@ public class VOServlet extends ServletBase implements Servlet {
 		return sc.name;
 	}
 	
-	private View getFieldOfScience(Integer vo_id) throws SQLException
+	private IView getFieldOfScience(Integer vo_id) throws SQLException
 	{
 		VOFieldOfScienceModel model = new VOFieldOfScienceModel(auth);
 		ArrayList<VOFieldOfScienceRecord> list = model.getByVOID(vo_id);

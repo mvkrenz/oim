@@ -23,39 +23,18 @@ import com.webif.divex.DivEx;
 import com.webif.divex.DivExRoot;
 import com.webif.divex.Event;
 
+import edu.iu.grid.oim.notification.NotificationBase;
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
-import edu.iu.grid.oim.model.db.ContactRankModel;
-import edu.iu.grid.oim.model.db.ContactTypeModel;
-import edu.iu.grid.oim.model.db.ContactModel;
-import edu.iu.grid.oim.model.db.FieldOfScienceModel;
 import edu.iu.grid.oim.model.db.NotificationModel;
-import edu.iu.grid.oim.model.db.SCContactModel;
-import edu.iu.grid.oim.model.db.SCModel;
-import edu.iu.grid.oim.model.db.VOContactModel;
-import edu.iu.grid.oim.model.db.VOFieldOfScienceModel;
-import edu.iu.grid.oim.model.db.VOModel;
-import edu.iu.grid.oim.model.db.VOReportContactModel;
-import edu.iu.grid.oim.model.db.record.ContactRankRecord;
-import edu.iu.grid.oim.model.db.record.ContactTypeRecord;
-import edu.iu.grid.oim.model.db.record.ContactRecord;
-import edu.iu.grid.oim.model.db.record.CpuInfoRecord;
-import edu.iu.grid.oim.model.db.record.FieldOfScienceRecord;
 import edu.iu.grid.oim.model.db.record.NotificationRecord;
 import edu.iu.grid.oim.model.db.record.RecordBase;
-import edu.iu.grid.oim.model.db.record.SCRecord;
-import edu.iu.grid.oim.model.db.record.VOContactRecord;
-import edu.iu.grid.oim.model.db.record.VORecord;
-import edu.iu.grid.oim.model.db.record.VOReportContactRecord;
 import edu.iu.grid.oim.view.ContentView;
+import edu.iu.grid.oim.view.DivExWrapper;
 import edu.iu.grid.oim.view.HtmlView;
-import edu.iu.grid.oim.view.View;
 import edu.iu.grid.oim.view.MenuView;
 import edu.iu.grid.oim.view.Page;
 import edu.iu.grid.oim.view.RecordTableView;
 import edu.iu.grid.oim.view.SideContentView;
-import edu.iu.grid.oim.view.TableView;
-import edu.iu.grid.oim.view.Utils;
-import edu.iu.grid.oim.view.TableView.Row;
 
 public class NotificationServlet extends ServletBase implements Servlet {
 	private static final long serialVersionUID = 1L;
@@ -92,22 +71,15 @@ public class NotificationServlet extends ServletBase implements Servlet {
 		throws ServletException, SQLException
 	{
 		ContentView contentview = new ContentView();	
-		contentview.add("<h1>Notification</h1>");
+		contentview.add(new HtmlView("<h1>Notification</h1>"));
 	
 		for(RecordBase it : notifications) {
 			NotificationRecord rec = (NotificationRecord)it;
-			contentview.add("<h2>"+StringEscapeUtils.escapeHtml(rec.key)+"</h2>");
-				
-			RecordTableView table = new RecordTableView();
+			NotificationBase notification = rec.getNotification();
+			contentview.add(new HtmlView("<h2>"+StringEscapeUtils.escapeHtml(notification.getTitle())+"</h2>"));
+			RecordTableView table = notification.createReadView(root, auth);
 			contentview.add(table);
-
-		 	table.addRow("Type", rec.type);
-			table.addRow("Table", rec.table);
-			table.addRow("Format", rec.format);
-			table.addRow("Frequency", rec.frequency);
-			table.addRow("Contact ID", rec.contact_id.toString());
-			table.addRow("TimeStamp", rec.timestamp.toString());
-
+		
 			class EditButtonDE extends ButtonDE
 			{
 				String url;
@@ -120,7 +92,47 @@ public class NotificationServlet extends ServletBase implements Servlet {
 					redirect(url);
 				}
 			};
-			table.add(new EditButtonDE(root, BaseURL()+"/notificationedit?cpu_id=" + rec.id));
+
+			table.add(new DivExWrapper(new EditButtonDE(root, BaseURL()+"/notificationedit?cpu_id=" + rec.id)));
+			
+			class DeleteDialogDE extends DialogDE
+			{
+				NotificationRecord rec;
+				public DeleteDialogDE(DivEx parent, NotificationRecord _rec)
+				{
+					super(parent, "Delete " + _rec.getTitle(), "Are you sure you want to delete this notification?");
+					rec = _rec;
+				}
+				protected void onEvent(Event e) {
+					if(e.getValue().compareTo("ok") == 0) {
+						NotificationModel model = new NotificationModel(auth);
+						try {
+							model.remove(rec);
+							alert("Record Successfully removed.");
+							redirect("vo");
+						} catch (SQLException e1) {
+							log.error(e1);
+							alert(e1.getMessage());
+						}
+					}
+				}
+			}
+			final DeleteDialogDE delete_dialog = new DeleteDialogDE(root, rec);
+			table.add(new HtmlView(" or "));
+			table.add(delete_dialog);
+			
+			class DeleteButtonDE extends ButtonDE
+			{
+				public DeleteButtonDE(DivEx parent, String _name)
+				{
+					super(parent, "Delete");
+					setStyle(ButtonDE.Style.ALINK);
+				}
+				protected void onEvent(Event e) {
+					delete_dialog.open();
+				}
+			};
+			table.add(new DeleteButtonDE(root, rec.getTitle()));	
 		}
 		
 		return contentview;

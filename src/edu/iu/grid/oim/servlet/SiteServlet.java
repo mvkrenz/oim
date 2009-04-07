@@ -40,8 +40,9 @@ import edu.iu.grid.oim.model.db.record.FacilityRecord;
 import edu.iu.grid.oim.model.db.record.DNRecord;
 
 import edu.iu.grid.oim.view.ContentView;
+import edu.iu.grid.oim.view.DivExWrapper;
 import edu.iu.grid.oim.view.HtmlView;
-import edu.iu.grid.oim.view.View;
+import edu.iu.grid.oim.view.IView;
 import edu.iu.grid.oim.view.MenuView;
 import edu.iu.grid.oim.view.Page;
 import edu.iu.grid.oim.view.RecordTableView;
@@ -84,10 +85,10 @@ public class SiteServlet extends ServletBase implements Servlet {
 		throws ServletException, SQLException
 	{
 		ContentView contentview = new ContentView();	
-		contentview.add("<h1>Administrativs Sites</h1>");
+		contentview.add(new HtmlView("<h1>Administrativs Sites</h1>"));
 	
 		for(SiteRecord rec : sites) {
-			contentview.add("<h2>"+StringEscapeUtils.escapeHtml(rec.name)+"</h2>");
+			contentview.add(new HtmlView("<h2>"+StringEscapeUtils.escapeHtml(rec.name)+"</h2>"));
 			
 			log.debug("Rendering Site " + rec.name);
 	
@@ -123,7 +124,7 @@ public class SiteServlet extends ServletBase implements Servlet {
 					redirect(url);
 				}
 			};
-			table.add(new EditButtonDE(root, BaseURL()+"/siteedit?site_id=" + rec.id));
+			table.add(new DivExWrapper(new EditButtonDE(root, BaseURL()+"/siteedit?site_id=" + rec.id)));
 			
 			/*
 			class DeleteDialogDE extends DialogDE

@@ -16,6 +16,7 @@ import edu.iu.grid.oim.model.db.record.FacilityRecord;
 import edu.iu.grid.oim.model.db.record.LogRecord;
 import edu.iu.grid.oim.model.db.record.NotificationRecord;
 import edu.iu.grid.oim.model.db.record.RecordBase;
+import edu.iu.grid.oim.model.db.record.VORecord;
 
 public class NotificationModel extends SmallTableModelBase<NotificationRecord> {
     static Logger log = Logger.getLogger(NotificationModel.class);  
@@ -36,5 +37,10 @@ public class NotificationModel extends SmallTableModelBase<NotificationRecord> {
 			list.add((NotificationRecord)it);
 		}
 		return list;
+	}
+	public NotificationRecord get(int id) throws SQLException {
+		NotificationRecord keyrec = new NotificationRecord();
+		keyrec.id = id;
+		return get(keyrec);
 	}
 }

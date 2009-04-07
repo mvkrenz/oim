@@ -40,8 +40,9 @@ import edu.iu.grid.oim.model.db.record.ResourceContactRecord;
 import edu.iu.grid.oim.model.db.record.ResourceGroupRecord;
 import edu.iu.grid.oim.model.db.record.ResourceRecord;
 import edu.iu.grid.oim.view.ContentView;
+import edu.iu.grid.oim.view.DivExWrapper;
 import edu.iu.grid.oim.view.HtmlView;
-import edu.iu.grid.oim.view.View;
+import edu.iu.grid.oim.view.IView;
 import edu.iu.grid.oim.view.MenuView;
 import edu.iu.grid.oim.view.Page;
 import edu.iu.grid.oim.view.RecordTableView;
@@ -84,10 +85,10 @@ public class ResourceServlet extends ServletBase implements Servlet {
 		throws ServletException, SQLException
 	{
 		ContentView contentview = new ContentView();	
-		contentview.add("<h1>Resource</h1>");
+		contentview.add(new HtmlView("<h1>Resource</h1>"));
 	
 		for(ResourceRecord rec : resources) {
-			contentview.add("<h2>"+StringEscapeUtils.escapeHtml(rec.name)+"</h2>");
+			contentview.add(new HtmlView("<h2>"+StringEscapeUtils.escapeHtml(rec.name)+"</h2>"));
 			
 			log.debug("Rendering VO " + rec.name);
 	
@@ -152,7 +153,7 @@ public class ResourceServlet extends ServletBase implements Servlet {
 					redirect(url);
 				}
 			};
-			table.add(new EditButtonDE(root, BaseURL()+"/resourceedit?resource_id=" + rec.id));
+			table.add(new DivExWrapper(new EditButtonDE(root, BaseURL()+"/resourceedit?resource_id=" + rec.id)));
 		}
 		
 		return contentview;

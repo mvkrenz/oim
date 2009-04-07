@@ -18,9 +18,11 @@ import com.webif.divex.Event;
 import edu.iu.grid.oim.model.MenuItem;
 import edu.iu.grid.oim.view.ContentView;
 import edu.iu.grid.oim.view.HtmlView;
+import edu.iu.grid.oim.view.LinkView;
+import edu.iu.grid.oim.view.ListView;
 import edu.iu.grid.oim.view.MenuView;
 import edu.iu.grid.oim.view.Page;
-import edu.iu.grid.oim.view.View;
+import edu.iu.grid.oim.view.IView;
 import edu.iu.grid.oim.view.SideContentView;
 
 public class AdminServlet extends ServletBase  {
@@ -44,16 +46,24 @@ public class AdminServlet extends ServletBase  {
 	{
 		ContentView contentview = new ContentView();
 		
-		contentview.add("<h1>Administration</h1>");
-		contentview.add("<ul class=\"content\">");
-		contentview.add("<li><a href=\"osg_grid_type\">OSG Grid Types</a></li>");
-		contentview.add("<li><a href=\"site\">Administrative Sites</a></li>");
-		contentview.add("<li><a href=\"authmatrix\">Authorization Matrix</a></li>");
-		contentview.add("</ul>");
+		contentview.add(new HtmlView("<h1>Administration</h1>"));
+		ListView list = new ListView();
+		if(auth.allows("admin_osg_grid_type")) {
+			list.add(new LinkView("osg_grid_type", "OSG Grid Types"));
+		}
+		if(auth.allows("admin_site")) {
+			list.add(new LinkView("site", "Administrative Sites"));
+		}
+		if(auth.allows("admin_authorization")) {
+			list.add(new LinkView("authmatrix", "Authorization" ));
+		}
+		contentview.add(list);
+
 		// Need to move to separate section accessible to Metrics group (Brian et al.) -agopu
-		contentview.add("<ul class=\"content\">");
-		contentview.add("<li><a href=\"cpuinfo\">CPU Information</a></li>");
-		contentview.add("</ul>");
+		//hayashis - Do we really need to separate, or simply add to the above list with different auth check?
+		ListView metrics_list = new ListView();
+		metrics_list.add(new LinkView("cpuinfo", "CPU Information"));
+		contentview.add(metrics_list);
 		
 		return contentview;
 	}

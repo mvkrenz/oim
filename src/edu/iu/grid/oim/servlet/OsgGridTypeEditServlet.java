@@ -16,6 +16,7 @@ import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.model.db.OsgGridTypeModel;
 import edu.iu.grid.oim.model.db.record.OsgGridTypeRecord;
 import edu.iu.grid.oim.view.ContentView;
+import edu.iu.grid.oim.view.DivExWrapper;
 import edu.iu.grid.oim.view.HtmlView;
 import edu.iu.grid.oim.view.Page;
 import edu.iu.grid.oim.view.SideContentView;
@@ -67,8 +68,8 @@ public class OsgGridTypeEditServlet extends ServletBase implements Servlet {
 		
 		//put the form in a view and display
 		ContentView contentview = new ContentView();
-		contentview.add("<h1>"+title+"</h1>");	
-		contentview.add(form);
+		contentview.add(new HtmlView("<h1>"+title+"</h1>"));	
+		contentview.add(new DivExWrapper(form));
 		
 		Page page = new Page(createMenuView("admin"), contentview, createSideView());	
 		page.addExternalJS(BaseURL()+"/osggridtypeedit.js");

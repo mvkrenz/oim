@@ -2,15 +2,15 @@ package edu.iu.grid.oim.view;
 
 import java.io.PrintWriter;
 
-public class Page extends View {
-	private View header;
+public class Page implements IView {
+	private IView header;
 	private String header_addon;
-	private View menu;
-	private View content;
-	private View footer;
-	private View side;
+	private IView menu;
+	private IView content;
+	private IView footer;
+	private IView side;
 	
-	public Page(View _menu, View _content, View _side)
+	public Page(IView _menu, IView _content, IView _side)
 	{
 		header = new HtmlFileView("header.html");
 		header_addon = "";

@@ -16,6 +16,7 @@ import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.model.db.VOModel;
 import edu.iu.grid.oim.model.db.record.VORecord;
 import edu.iu.grid.oim.view.ContentView;
+import edu.iu.grid.oim.view.DivExWrapper;
 import edu.iu.grid.oim.view.HtmlView;
 import edu.iu.grid.oim.view.Page;
 import edu.iu.grid.oim.view.SideContentView;
@@ -66,8 +67,8 @@ public class VOEditServlet extends ServletBase implements Servlet {
 		
 		//put the form in a view and display
 		ContentView contentview = new ContentView();
-		contentview.add("<h1>"+title+"</h1>");	
-		contentview.add(form);
+		contentview.add(new HtmlView("<h1>"+title+"</h1>"));	
+		contentview.add(new DivExWrapper(form));
 		
 		Page page = new Page(createMenuView(current_page), contentview, createSideView());
 		
