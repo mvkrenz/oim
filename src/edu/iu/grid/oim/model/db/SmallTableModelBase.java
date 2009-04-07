@@ -30,11 +30,6 @@ public abstract class SmallTableModelBase<T extends RecordBase> extends ModelBas
 	
     protected Authorization auth;
     protected String table_name;
-   
-    private void processNotification(String title, String content, ArrayList<String> labels)
-    {
-    	
-    }
     
     public SmallTableModelBase(Authorization _auth, String _table_name) 
     {
@@ -293,16 +288,23 @@ public abstract class SmallTableModelBase<T extends RecordBase> extends ModelBas
     protected void logInsert(RecordBase rec) throws SQLException 
     {
     	try {
-    		String publiclog = "";
+    		String plog = "Following record was inserted by " + auth.getContact().name;;
         	String xml = "<Log>\n";
         	xml += "<Type>Insert</Type>\n";
 	    	
     		//show key fields
+        	plog += "<table>";
 	    	xml += "<Keys>\n";
 	    	ArrayList<Field> keys = rec.getKeys();
 	    	for(Field key : keys) {
 	    		String name = key.getName();
 	    		Object value = (Object) key.get(rec);
+
+	    		plog += "<tr>";
+	    		plog += "<th>"+StringEscapeUtils.escapeHtml(name)+"</th>"+
+	    					"<td>"+StringEscapeUtils.escapeHtml(value.toString())+"</td>";
+	    		plog += "</tr>";
+	    		
 	    		xml += "<Key>\n";
 	    		xml += "\t<Name>" + StringEscapeUtils.escapeXml(name) + "</Name>\n";
 	    		xml += "\t<Value>" + formatValue(value) + "</Value>\n";
@@ -314,17 +316,33 @@ public abstract class SmallTableModelBase<T extends RecordBase> extends ModelBas
 	    		if(keys.contains(f)) continue;	//don't show key field    		
 	    		String name = f.getName();
 	    		Object value = f.get(rec);
+	    		
+	    		plog += "<tr>";
+	    		plog += "<th>"+StringEscapeUtils.escapeHtml(name)+"</th>"+
+	    			"<td>"+StringEscapeUtils.escapeHtml(value.toString())+"</td>";
+	    		plog += "</tr>";
+	    		
 	    		xml += "<Field>\n";
 	    		xml += "\t<Name>" + StringEscapeUtils.escapeXml(name) + "</Name>\n";
 	    		xml += "\t<Value>" + formatValue(value) + "</Value>\n";
 	    		xml += "</Field>\n";
 	    	}
+	    	plog += "</table>";
 	    	xml += "</Fields>\n";
 	    	xml += "</Insert>";
+	    	
 			LogModel lmodel = new LogModel(auth);
 			lmodel.insert("insert", getClass().getName(), xml);	    
 
-			processNotification("Updated " + rec.getTitle(), publiclog, rec.getLables());
+			try {
+				PublicNotification.publish("Inserted " + rec.getTitle(), plog, rec.getLables());
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (ServiceException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 			
 		} catch (IllegalArgumentException e) {
 			throw new SQLException(e);
@@ -338,16 +356,23 @@ public abstract class SmallTableModelBase<T extends RecordBase> extends ModelBas
     protected void logRemove(RecordBase rec) throws SQLException 
     {
     	try {
-	    	String publiclog = "";
+	    	String plog = "Following record was removed by " + auth.getContact().name;
         	String xml = "<Log>\n";
         	xml += "<Type>Remove</Type>\n";
 	    	
     		//show key fields
+	    	plog += "<table>";
 	    	xml += "<Keys>\n";
 	    	ArrayList<Field> keys = rec.getKeys();
 	    	for(Field key : keys) {
 	    		String name = key.getName();
 	    		Object value = (Object) key.get(rec);
+	    		
+	    		plog += "<tr>";
+	    		plog += "<th>"+StringEscapeUtils.escapeHtml(name)+"</th>"+
+	    			"<td>"+StringEscapeUtils.escapeHtml(value.toString())+"</td>";
+	    		plog += "</tr>";
+	    		
 	    		xml += "<Key>\n";
 	    		xml += "\t<Name>" + StringEscapeUtils.escapeXml(name) + "</Name>\n";
 	    		xml += "\t<Value>" + formatValue(value) + "</Value>\n";
@@ -359,16 +384,31 @@ public abstract class SmallTableModelBase<T extends RecordBase> extends ModelBas
 	    		if(keys.contains(f)) continue;	//don't show key field    		
 	    		String name = f.getName();
 	    		Object value = f.get(rec);
+	    		
+	    		plog += "<tr>";
+	    		plog += "<th>"+StringEscapeUtils.escapeHtml(name)+"</th>"+
+    			"<td>"+StringEscapeUtils.escapeHtml(value.toString())+"</td>";
+	    		plog += "</tr>";
+	    		
 	    		xml += "<Field>\n";
 	    		xml += "\t<Name>" + StringEscapeUtils.escapeXml(name) + "</Name>\n";
 	    		xml += "\t<Value>" + formatValue(value) + "</Value>\n";
 	    		xml += "</Field>\n";
 	    	}
+	    	plog += "</table>";
 	    	xml += "</Fields>\n";
 	    	xml += "</Log>";
 			LogModel lmodel = new LogModel(auth);
 			lmodel.insert("remove", getClass().getName(), xml);	   
-			processNotification("Updated " + rec.getTitle(), publiclog, rec.getLables());
+			try {
+				PublicNotification.publish("Removed " + rec.getTitle(), plog, rec.getLables());
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (ServiceException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		} catch (IllegalArgumentException e) {
 			throw new SQLException(e);
 		} catch (IllegalAccessException e) {
@@ -381,15 +421,22 @@ public abstract class SmallTableModelBase<T extends RecordBase> extends ModelBas
     protected void logUpdate(RecordBase oldrec, RecordBase newrec) throws SQLException 
     {   	
     	try {
-	    	String publiclog = "";
+	    	String plog = "Record updated by " + auth.getContact().name;
         	String xml = "<Log>\n";
         	xml += "<Type>Update</Type>\n";
 	    	
     		//show key fields
+        	plog += "<table><tr><th>Field</th><th>Old Value</th><th>New Value</th></tr>";
 	    	xml += "<Keys>\n";
 	    	for(Field key : oldrec.getKeys()) {
 	    		String name = key.getName();
 	    		Object value = (Object) key.get(oldrec);
+	    		
+	    		plog += "<tr>";
+	    		plog += "<th>"+StringEscapeUtils.escapeHtml(name)+"</th>"+
+    			"<td>"+StringEscapeUtils.escapeHtml(value.toString())+"</td>";
+	    		plog += "<td></td></tr>";
+	    		
 	    		xml += "<Key>\n";
 	    		xml += "\t<Name>" + StringEscapeUtils.escapeXml(name) + "</Name>\n";
 	    		xml += "\t<Value>" + formatValue(value) + "</Value>\n";
@@ -401,18 +448,33 @@ public abstract class SmallTableModelBase<T extends RecordBase> extends ModelBas
 	    		String name = f.getName();
 	    		Object oldvalue = f.get(oldrec);
 	    		Object newvalue = f.get(newrec);
+	    		
+	    		plog += "<tr>";
+	    		plog += "<th>"+StringEscapeUtils.escapeHtml(name)+"</th>"+
+    			"<td>"+StringEscapeUtils.escapeHtml(oldvalue.toString())+"</td>" +
+    			"<td>"+StringEscapeUtils.escapeHtml(newvalue.toString())+"</td>";
+	    		plog += "</tr>";
+	    		
 	    		xml += "<Field>\n";
 	    		xml += "\t<Name>" + StringEscapeUtils.escapeXml(name) + "</Name>\n";
 	    		xml += "\t<OldValue>" + formatValue(oldvalue) + "</OldValue>\n";
 	    		xml += "\t<NewValue>" + formatValue(newvalue) + "</NewValue>\n";
 	    		xml += "</Field>\n";
 	    	}
+	    	plog += "</table>";
 	    	xml += "</Fields>\n";
-	    	
 	    	xml += "</Log>";
 			LogModel lmodel = new LogModel(auth);
 			lmodel.insert("update", getClass().getName(), xml);
-			processNotification("Updated " + oldrec.getTitle(), publiclog, oldrec.getLables());
+			try {
+				PublicNotification.publish("Updated " + oldrec.getTitle(), plog, oldrec.getLables());
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (ServiceException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		} catch (IllegalArgumentException e) {
 			throw new SQLException(e);
 		} catch (IllegalAccessException e) {

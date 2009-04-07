@@ -16,6 +16,7 @@ public class LogModel extends SmallTableModelBase<LogRecord> {
     {
     	super(_auth, "log");
     }
+    
     LogRecord createRecord(ResultSet rs) throws SQLException
 	{
 		return new LogRecord(rs);

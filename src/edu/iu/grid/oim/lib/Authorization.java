@@ -14,8 +14,10 @@ import org.apache.log4j.Logger;
 import edu.iu.grid.oim.model.db.ActionModel;
 import edu.iu.grid.oim.model.db.AuthorizationTypeActionModel;
 import edu.iu.grid.oim.model.db.AuthorizationTypeModel;
+import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.DNAuthorizationTypeModel;
 import edu.iu.grid.oim.model.db.DNModel;
+import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.DNRecord;
 
 //provide client the authorization information
@@ -39,6 +41,11 @@ public class Authorization {
     public Integer getContactID()
     {
     	return contact_id;
+    }
+    public ContactRecord getContact() throws SQLException
+    {
+    	ContactModel model = new ContactModel(this);
+    	return model.get(contact_id);
     }
     
 	public void check(String action) throws AuthorizationException

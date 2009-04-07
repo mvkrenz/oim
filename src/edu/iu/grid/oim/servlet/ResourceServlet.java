@@ -88,8 +88,6 @@ public class ResourceServlet extends ServletBase implements Servlet {
 	
 		for(ResourceRecord rec : resources) {
 			contentview.add(new HtmlView("<h2>"+StringEscapeUtils.escapeHtml(rec.name)+"</h2>"));
-			
-			log.debug("Rendering VO " + rec.name);
 	
 			RecordTableView table = new RecordTableView();
 			contentview.add(table);

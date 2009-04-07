@@ -133,6 +133,7 @@ public abstract class RecordBase implements Comparable<RecordBase> {
 	//override to return the record title to use for various human readable places 
 	public String getTitle()
 	{
+		//by default's return the ugly class name
 		return getClass().getName();
 	}
 	//return to set labels for public log
