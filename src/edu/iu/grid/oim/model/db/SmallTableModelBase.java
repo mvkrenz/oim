@@ -1,5 +1,6 @@
 package edu.iu.grid.oim.model.db;
 
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -14,10 +15,13 @@ import java.sql.PreparedStatement;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 
+import com.google.gdata.util.ServiceException;
+
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
 import edu.iu.grid.oim.model.db.record.KeyComparator;
 import edu.iu.grid.oim.model.db.record.RecordBase;
+import edu.iu.grid.oim.notification.PublicNotification;
 
 public abstract class SmallTableModelBase<T extends RecordBase> extends ModelBase {
     static Logger log = Logger.getLogger(SmallTableModelBase.class);  
@@ -27,12 +31,17 @@ public abstract class SmallTableModelBase<T extends RecordBase> extends ModelBas
     protected Authorization auth;
     protected String table_name;
    
+    private void processNotification(String title, String content, ArrayList<String> labels)
+    {
+    	
+    }
+    
     public SmallTableModelBase(Authorization _auth, String _table_name) 
     {
     	auth = _auth;
     	table_name = _table_name;
     }    
-
+    
     protected void fillCache() throws SQLException
 	{
 		if(!cache.containsKey(table_name)) {
@@ -284,7 +293,9 @@ public abstract class SmallTableModelBase<T extends RecordBase> extends ModelBas
     protected void logInsert(RecordBase rec) throws SQLException 
     {
     	try {
-        	String xml = "<Insert>\n";
+    		String publiclog = "";
+        	String xml = "<Log>\n";
+        	xml += "<Type>Insert</Type>\n";
 	    	
     		//show key fields
 	    	xml += "<Keys>\n";
@@ -311,7 +322,10 @@ public abstract class SmallTableModelBase<T extends RecordBase> extends ModelBas
 	    	xml += "</Fields>\n";
 	    	xml += "</Insert>";
 			LogModel lmodel = new LogModel(auth);
-			lmodel.insert("insert", getClass().getName(), xml);	    	
+			lmodel.insert("insert", getClass().getName(), xml);	    
+
+			processNotification("Updated " + rec.getTitle(), publiclog, rec.getLables());
+			
 		} catch (IllegalArgumentException e) {
 			throw new SQLException(e);
 		} catch (IllegalAccessException e) {
@@ -324,8 +338,9 @@ public abstract class SmallTableModelBase<T extends RecordBase> extends ModelBas
     protected void logRemove(RecordBase rec) throws SQLException 
     {
     	try {
-	    	
-        	String xml = "<Remove>\n";
+	    	String publiclog = "";
+        	String xml = "<Log>\n";
+        	xml += "<Type>Remove</Type>\n";
 	    	
     		//show key fields
 	    	xml += "<Keys>\n";
@@ -350,9 +365,10 @@ public abstract class SmallTableModelBase<T extends RecordBase> extends ModelBas
 	    		xml += "</Field>\n";
 	    	}
 	    	xml += "</Fields>\n";
-	    	xml += "</Remove>";
+	    	xml += "</Log>";
 			LogModel lmodel = new LogModel(auth);
-			lmodel.insert("remove", getClass().getName(), xml);	    	
+			lmodel.insert("remove", getClass().getName(), xml);	   
+			processNotification("Updated " + rec.getTitle(), publiclog, rec.getLables());
 		} catch (IllegalArgumentException e) {
 			throw new SQLException(e);
 		} catch (IllegalAccessException e) {
@@ -365,8 +381,9 @@ public abstract class SmallTableModelBase<T extends RecordBase> extends ModelBas
     protected void logUpdate(RecordBase oldrec, RecordBase newrec) throws SQLException 
     {   	
     	try {
-	    	
-        	String xml = "<Update>\n";
+	    	String publiclog = "";
+        	String xml = "<Log>\n";
+        	xml += "<Type>Update</Type>\n";
 	    	
     		//show key fields
 	    	xml += "<Keys>\n";
@@ -392,16 +409,17 @@ public abstract class SmallTableModelBase<T extends RecordBase> extends ModelBas
 	    	}
 	    	xml += "</Fields>\n";
 	    	
-	    	xml += "</Update>";
+	    	xml += "</Log>";
 			LogModel lmodel = new LogModel(auth);
-			lmodel.insert("update", getClass().getName(), xml);	    	
+			lmodel.insert("update", getClass().getName(), xml);
+			processNotification("Updated " + oldrec.getTitle(), publiclog, oldrec.getLables());
 		} catch (IllegalArgumentException e) {
 			throw new SQLException(e);
 		} catch (IllegalAccessException e) {
 			throw new SQLException(e);
 		} catch (SecurityException e) {
 			throw new SQLException(e);
-		}
+		} 
     }
    
 }

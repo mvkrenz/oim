@@ -52,6 +52,7 @@ public class VONotification extends NotificationBase {
 		}
 		return view;
 	}
+	
 	public IView createEditView(DivEx root, Authorization auth)
 	{
 		GenericView view = new GenericView();

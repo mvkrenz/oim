@@ -51,11 +51,9 @@ public class AdminServlet extends ServletBase  {
 		if(auth.allows("admin_osg_grid_type")) {
 			list.add(new LinkView("osg_grid_type", "OSG Grid Types"));
 		}
-		/*
 		if(auth.allows("admin_site")) {
 			list.add(new LinkView("site", "Administrative Sites"));
 		}
-		*/
 		if(auth.allows("admin_authorization")) {
 			list.add(new LinkView("authmatrix", "Authorization" ));
 		}

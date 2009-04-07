@@ -1,5 +1,7 @@
 package edu.iu.grid.oim.model.db;
 
+import java.io.IOException;
+import java.io.StringReader;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -9,8 +11,20 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.apache.log4j.Logger;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpressionException;
+import javax.xml.xpath.XPathFactory;
 
+import org.apache.log4j.Logger;
+import org.w3c.dom.Document;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+
+import com.google.gdata.util.ServiceException;
 import com.webif.divex.form.CheckBoxFormElementDE;
 
 import edu.iu.grid.oim.lib.Authorization;
@@ -21,6 +35,7 @@ import edu.iu.grid.oim.model.db.record.VOContactRecord;
 import edu.iu.grid.oim.model.db.record.VOFieldOfScienceRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
 import edu.iu.grid.oim.model.db.record.VOVORecord;
+import edu.iu.grid.oim.notification.PublicNotification;
 
 public class VOModel extends SmallTableModelBase<VORecord>
 {	
@@ -246,5 +261,7 @@ public class VOModel extends SmallTableModelBase<VORecord>
 		}
 		return list;
 	}
+	
+
 }
 

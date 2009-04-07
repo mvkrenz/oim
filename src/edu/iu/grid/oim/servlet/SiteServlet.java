@@ -61,17 +61,15 @@ public class SiteServlet extends ServletBase implements Servlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{	
 		setAuth(request);
+		auth.check("admin_site");
 		
 		//pull list of all sites
-		Collection<SiteRecord> sites = null;
 		SiteModel model = new SiteModel(auth);
-		try {
-			sites = model.getAllEditable();
-		
+		try {	
 			//construct view
 			MenuView menuview = createMenuView("site");
 			DivExRoot root = DivExRoot.getInstance(request);
-			ContentView contentview = createContentView(root, sites);
+			ContentView contentview = createContentView(root, model.getAll());
 			Page page = new Page(menuview, contentview, createSideView(root));
 			page.render(response.getWriter());			
 		} catch (SQLException e) {

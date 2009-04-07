@@ -91,7 +91,7 @@ public class NotificationServlet extends ServletBase implements Servlet {
 				}
 			};
 
-			table.add(new DivExWrapper(new EditButtonDE(root, BaseURL()+"/notificationedit?cpu_id=" + rec.id)));
+			table.add(new DivExWrapper(new EditButtonDE(root, BaseURL()+"/notificationedit?id=" + rec.id)));
 			
 			class DeleteButtonDE extends ButtonDE
 			{
