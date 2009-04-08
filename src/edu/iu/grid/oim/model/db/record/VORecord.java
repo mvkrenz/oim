@@ -4,6 +4,11 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
+import edu.iu.grid.oim.lib.Authorization;
+import edu.iu.grid.oim.model.db.ActionModel;
+import edu.iu.grid.oim.model.db.AuthorizationTypeModel;
+import edu.iu.grid.oim.model.db.SCModel;
+
 public class VORecord extends RecordBase 
 {
 	@Key public Integer id;
@@ -28,13 +33,28 @@ public class VORecord extends RecordBase
 	public VORecord() {}
 	
 	public String getTitle() {
-		return name + " VO";
+		return "VO " + name;
 	}
 	
 	public ArrayList<String> getLables() {
 		ArrayList<String> labels = new ArrayList();
-		labels.add("VO-"+name);
+		labels.add("vo");
+		labels.add("vo_"+id);
+		labels.add("sc_"+id);
 		return labels;
 	}
-	
+	public String toString(Object field, Authorization auth)
+	{
+		if(field == null) return null;
+		try {
+			if(field == sc_id) {
+				SCModel model = new SCModel(auth);
+				SCRecord rec = model.get(sc_id);
+				return rec.name;
+			}
+		} catch(SQLException e) {
+			//forget it then..
+		}
+		return field.toString();
+	}
 }

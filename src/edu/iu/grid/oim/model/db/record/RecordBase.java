@@ -13,6 +13,7 @@ import java.util.HashMap;
 
 import org.apache.log4j.Logger;
 
+import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.servlet.ServletBase;
 
 public abstract class RecordBase implements Comparable<RecordBase> {
@@ -119,6 +120,9 @@ public abstract class RecordBase implements Comparable<RecordBase> {
 				Comparable me = (Comparable)fld.get(this);
 				Comparable you = (Comparable)fld.get(o);				
 				if(me == you) continue;
+				if(me == null || you == null) {
+					throw new NullPointerException("All keys should be populated.");
+				}
 	        	int cmp = me.compareTo(you);
 	        	if(cmp != 0) return cmp;
 			}
@@ -141,5 +145,11 @@ public abstract class RecordBase implements Comparable<RecordBase> {
 	{
 		ArrayList<String> lables = new ArrayList();
 		return lables;
+	}
+	//override this to do custom conversion
+	public String toString(Object field, Authorization auth)
+	{
+		if(field == null) return null;
+		return field.toString();
 	}
 }

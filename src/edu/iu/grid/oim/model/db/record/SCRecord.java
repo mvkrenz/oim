@@ -3,6 +3,10 @@ package edu.iu.grid.oim.model.db.record;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import edu.iu.grid.oim.lib.Authorization;
+import edu.iu.grid.oim.model.db.ActionModel;
+import edu.iu.grid.oim.model.db.AuthorizationTypeModel;
+
 public class SCRecord extends RecordBase {
 
 	@Key public Integer id;
@@ -18,12 +22,4 @@ public class SCRecord extends RecordBase {
 	public SCRecord(ResultSet rs) throws SQLException { super(rs); }
 	//for creating new record
 	public SCRecord() {}
-	/*
-	public int compareKeysTo(RecordBase o) {
-		if(this == o) return 0;
-		SCRecord you = (SCRecord)o;
-		if(id.compareTo(you.id) == 0) return 0;
-		return 1;
-	}
-	*/
 }

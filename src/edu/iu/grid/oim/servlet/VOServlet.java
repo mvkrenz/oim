@@ -87,6 +87,10 @@ public class VOServlet extends ServletBase implements Servlet {
 	
 		for(VORecord rec : vos) {
 			contentview.add(new HtmlView("<h2>"+StringEscapeUtils.escapeHtml(rec.name)+"</h2>"));
+		
+			//RSS feed button
+			contentview.add(new HtmlView("<div class=\"right\"><a href=\"http://oimupdate.blogspot.com/feeds/posts/default/-/vo_"+rec.id+"\" target=\"_blank\"/>"+
+					"Subscribe to Updates</a></div>"));
 			
 			RecordTableView table = new RecordTableView();
 			contentview.add(table);
@@ -103,7 +107,7 @@ public class VOServlet extends ServletBase implements Servlet {
 			if(auth.allows("admin_vo")) {
 				table.addRow("Footprints ID", rec.footprints_id);
 			}
-			table.addRow("Support Center", getSCName(rec.sc_id));
+			table.addRow("Support Center", rec.toString(rec.sc_id, auth));
 			table.addRow("Active", rec.active);
 			table.addRow("Disable", rec.disable);
 
@@ -158,65 +162,10 @@ public class VOServlet extends ServletBase implements Servlet {
 				}
 			};
 			table.add(new DivExWrapper(new EditButtonDE(root, BaseURL()+"/voedit?vo_id=" + rec.id)));
-			
-			/*
-			class DeleteDialogDE extends DialogDE
-			{
-				VORecord rec;
-				public DeleteDialogDE(DivEx parent, VORecord _rec)
-				{
-					super(parent, "Delete " + _rec.name, "Are you sure you want to delete this Virtual Organization and associated contacts?");
-					rec = _rec;
-				}
-				protected void onEvent(Event e) {
-					if(e.getValue().compareTo("ok") == 0) {
-						VOModel model = new VOModel(auth);
-						try {
-							model.remove(rec);
-							alert("Record Successfully removed.");
-							redirect("vo");
-						} catch (SQLException e1) {
-							log.error(e1);
-							alert(e1.getMessage());
-						}
-					}
-				}
-			}
-		
-			if(auth.allows("admin_vo")) {
-				final DeleteDialogDE delete_dialog = new DeleteDialogDE(root, rec);
-				table.add(new HtmlView(" or "));
-				table.add(delete_dialog);
-				
-				class DeleteButtonDE extends ButtonDE
-				{
-					public DeleteButtonDE(DivEx parent, String _name)
-					{
-						super(parent, "Delete");
-						setStyle(ButtonDE.Style.ALINK);
-					}
-					protected void onEvent(Event e) {
-						delete_dialog.open();
-					}
-				};
-				table.add(new DeleteButtonDE(root, rec.name));
-			}	
-			*/
 
 		}
 		
 		return contentview;
-	}
-	
-	private String getSCName(Integer sc_id) throws SQLException
-	{
-		if(sc_id == null) return null;
-		SCModel model = new SCModel(auth);
-		SCRecord sc = model.get(sc_id);	
-		if(sc == null) {
-			return null;
-		}
-		return sc.name;
 	}
 	
 	private IView getFieldOfScience(Integer vo_id) throws SQLException

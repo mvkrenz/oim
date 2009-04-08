@@ -42,7 +42,7 @@ public class ServletBase extends HttpServlet {
 		menu.add(new MenuItem("Home", "home"));
 		menu.add(new MenuItem("Resource", "resource"));	
 		menu.add(new MenuItem("Virtual Organization", "vo"));		
-		menu.add(new MenuItem("Notification", "notification"));	
+		//menu.add(new MenuItem("Notification", "notification"));	
 		menu.add(new MenuItem("Administration", "admin"));		
 		MenuView menuview = new MenuView(menu, current);
 		return menuview;

@@ -12,6 +12,7 @@ import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.model.db.record.AuthorizationTypeRecord;
 import edu.iu.grid.oim.model.db.record.DNRecord;
 import edu.iu.grid.oim.model.db.record.RecordBase;
+import edu.iu.grid.oim.model.db.record.SiteRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
 
 public class AuthorizationTypeModel extends SmallTableModelBase<AuthorizationTypeRecord> {
@@ -32,5 +33,10 @@ public class AuthorizationTypeModel extends SmallTableModelBase<AuthorizationTyp
 			list.add((AuthorizationTypeRecord)it);
 		}
 		return list;
+	}
+	public AuthorizationTypeRecord get(int id) throws SQLException {
+		AuthorizationTypeRecord keyrec = new AuthorizationTypeRecord();
+		keyrec.id = id;
+		return get(keyrec);
 	}
 }

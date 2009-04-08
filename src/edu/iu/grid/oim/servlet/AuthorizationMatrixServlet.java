@@ -202,8 +202,6 @@ public class AuthorizationMatrixServlet extends ServletBase  {
 	private SideContentView createSideView()
 	{
 		SideContentView view = new SideContentView();
-		//HtmlView menu = new HtmlView("<a href=\"osg_grid_type\">OSG Grid Types</a>");
-		//view.add("Menu", menu);	
 		return view;
 	}
 

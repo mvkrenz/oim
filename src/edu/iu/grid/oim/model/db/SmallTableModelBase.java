@@ -288,7 +288,7 @@ public abstract class SmallTableModelBase<T extends RecordBase> extends ModelBas
     protected void logInsert(RecordBase rec) throws SQLException 
     {
     	try {
-    		String plog = "Following record was inserted by " + auth.getContact().name;;
+    		String plog = "By " + auth.getContact().name;;
         	String xml = "<Log>\n";
         	xml += "<Type>Insert</Type>\n";
 	    	
@@ -302,7 +302,7 @@ public abstract class SmallTableModelBase<T extends RecordBase> extends ModelBas
 
 	    		plog += "<tr>";
 	    		plog += "<th>"+StringEscapeUtils.escapeHtml(name)+"</th>"+
-	    					"<td>"+StringEscapeUtils.escapeHtml(value.toString())+"</td>";
+	    			"<td>"+StringEscapeUtils.escapeHtml(rec.toString(value, auth))+"</td>";
 	    		plog += "</tr>";
 	    		
 	    		xml += "<Key>\n";
@@ -319,7 +319,7 @@ public abstract class SmallTableModelBase<T extends RecordBase> extends ModelBas
 	    		
 	    		plog += "<tr>";
 	    		plog += "<th>"+StringEscapeUtils.escapeHtml(name)+"</th>"+
-	    			"<td>"+StringEscapeUtils.escapeHtml(value.toString())+"</td>";
+	    			"<td>"+StringEscapeUtils.escapeHtml(rec.toString(value, auth))+"</td>";
 	    		plog += "</tr>";
 	    		
 	    		xml += "<Field>\n";
@@ -356,7 +356,7 @@ public abstract class SmallTableModelBase<T extends RecordBase> extends ModelBas
     protected void logRemove(RecordBase rec) throws SQLException 
     {
     	try {
-	    	String plog = "Following record was removed by " + auth.getContact().name;
+	    	String plog = "By " + auth.getContact().name;
         	String xml = "<Log>\n";
         	xml += "<Type>Remove</Type>\n";
 	    	
@@ -370,7 +370,7 @@ public abstract class SmallTableModelBase<T extends RecordBase> extends ModelBas
 	    		
 	    		plog += "<tr>";
 	    		plog += "<th>"+StringEscapeUtils.escapeHtml(name)+"</th>"+
-	    			"<td>"+StringEscapeUtils.escapeHtml(value.toString())+"</td>";
+	    			"<td>"+StringEscapeUtils.escapeHtml(rec.toString(value, auth))+"</td>";
 	    		plog += "</tr>";
 	    		
 	    		xml += "<Key>\n";
@@ -387,7 +387,7 @@ public abstract class SmallTableModelBase<T extends RecordBase> extends ModelBas
 	    		
 	    		plog += "<tr>";
 	    		plog += "<th>"+StringEscapeUtils.escapeHtml(name)+"</th>"+
-    			"<td>"+StringEscapeUtils.escapeHtml(value.toString())+"</td>";
+    			"<td>"+StringEscapeUtils.escapeHtml(rec.toString(value, auth))+"</td>";
 	    		plog += "</tr>";
 	    		
 	    		xml += "<Field>\n";
@@ -421,21 +421,23 @@ public abstract class SmallTableModelBase<T extends RecordBase> extends ModelBas
     protected void logUpdate(RecordBase oldrec, RecordBase newrec) throws SQLException 
     {   	
     	try {
-	    	String plog = "Record updated by " + auth.getContact().name;
+	    	String plog = "By " + auth.getContact().name;
         	String xml = "<Log>\n";
         	xml += "<Type>Update</Type>\n";
 	    	
     		//show key fields
-        	plog += "<table><tr><th>Field</th><th>Old Value</th><th>New Value</th></tr>";
+        	plog += "<table><tr><th>Updated Field</th><th>Old Value</th><th>New Value</th></tr>";
 	    	xml += "<Keys>\n";
 	    	for(Field key : oldrec.getKeys()) {
 	    		String name = key.getName();
 	    		Object value = (Object) key.get(oldrec);
 	    		
+	    		/*	
 	    		plog += "<tr>";
 	    		plog += "<th>"+StringEscapeUtils.escapeHtml(name)+"</th>"+
-    			"<td>"+StringEscapeUtils.escapeHtml(value.toString())+"</td>";
+    			"<td>"+StringEscapeUtils.escapeHtml(oldrec.toString(value, auth))+"</td>";
 	    		plog += "<td></td></tr>";
+	    		*/
 	    		
 	    		xml += "<Key>\n";
 	    		xml += "\t<Name>" + StringEscapeUtils.escapeXml(name) + "</Name>\n";
@@ -451,8 +453,8 @@ public abstract class SmallTableModelBase<T extends RecordBase> extends ModelBas
 	    		
 	    		plog += "<tr>";
 	    		plog += "<th>"+StringEscapeUtils.escapeHtml(name)+"</th>"+
-    			"<td>"+StringEscapeUtils.escapeHtml(oldvalue.toString())+"</td>" +
-    			"<td>"+StringEscapeUtils.escapeHtml(newvalue.toString())+"</td>";
+    			"<td>"+StringEscapeUtils.escapeHtml(oldrec.toString(oldvalue, auth))+"</td>" +
+    			"<td>"+StringEscapeUtils.escapeHtml(oldrec.toString(oldvalue, auth))+"</td>";
 	    		plog += "</tr>";
 	    		
 	    		xml += "<Field>\n";

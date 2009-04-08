@@ -129,6 +129,12 @@ div.inline
 {
 display: inline;
 }
+div.right
+{
+float:right;
+text-align:right;
+}
+
 .indent
 {
 margin: 15px;
