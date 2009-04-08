@@ -55,12 +55,11 @@ public class ContactServlet extends ServletBase implements Servlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{	
 		setAuth(request);
-		auth.allows("admin");
 		
 		//pull list of all SCs
 		ContactModel model = new ContactModel(auth);
 		try {
-			Collection<ContactRecord> contacts = model.getAll();
+			Collection<ContactRecord> contacts = model.getAllEditable();
 		
 			//construct view
 			MenuView menuview = createMenuView("admin");

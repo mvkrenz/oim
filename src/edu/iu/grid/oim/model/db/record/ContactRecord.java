@@ -19,6 +19,7 @@ public class ContactRecord extends RecordBase {
 	public Boolean active;
 	public Boolean disable;
 	public Boolean person;
+	public Integer submitter_dn_id;
 	@Restricted public String contact_preference;
 	
 	//load from existing record
@@ -36,6 +37,7 @@ public class ContactRecord extends RecordBase {
 		ArrayList<String> labels = new ArrayList();
 		labels.add("contact");
 		labels.add("contact_"+id);
+		labels.add("dn_"+submitter_dn_id);
 		return labels;
 	}
 }

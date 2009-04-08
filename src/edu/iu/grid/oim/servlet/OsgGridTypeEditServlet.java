@@ -34,6 +34,7 @@ public class OsgGridTypeEditServlet extends ServletBase implements Servlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{
 		setAuth(request);
+		auth.check("admin");
 		
 		OsgGridTypeRecord rec;
 		String title;

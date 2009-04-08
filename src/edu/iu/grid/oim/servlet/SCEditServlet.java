@@ -44,6 +44,10 @@ public class SCEditServlet extends ServletBase implements Servlet {
 			//pull record to update
 			int sc_id = Integer.parseInt(sc_id_str);
 			SCModel model = new SCModel(auth);
+			if(!model.canEdit(sc_id)) {
+				throw new ServletException("Sorry, you don't have permission to edit this SC " + sc_id);
+			}
+			
 			try {
 				SCRecord keyrec = new SCRecord();
 				keyrec.id = sc_id;

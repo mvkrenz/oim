@@ -20,6 +20,7 @@ import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
 import edu.iu.grid.oim.model.MenuItem;
 import edu.iu.grid.oim.view.ContentView;
+import edu.iu.grid.oim.view.LinkView;
 import edu.iu.grid.oim.view.MenuView;
 import edu.iu.grid.oim.view.Page;
 
@@ -41,9 +42,9 @@ public class ServletBase extends HttpServlet {
 		ArrayList<MenuItem> menu = new ArrayList<MenuItem>();
 		menu.add(new MenuItem("Home", "home"));
 		menu.add(new MenuItem("Resource", "resource"));	
-		menu.add(new MenuItem("Virtual Organization", "vo"));		
-		//menu.add(new MenuItem("Notification", "notification"));	
-		menu.add(new MenuItem("Administration", "admin"));		
+		menu.add(new MenuItem("Virtual Organization", "vo"));			
+		menu.add(new MenuItem("Contact", "Contact" ));
+		menu.add(new MenuItem("Administration", "admin"));	
 		MenuView menuview = new MenuView(menu, current);
 		return menuview;
 	}

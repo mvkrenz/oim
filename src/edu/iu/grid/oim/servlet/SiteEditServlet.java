@@ -36,6 +36,7 @@ public class SiteEditServlet extends ServletBase implements Servlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{
 		setAuth(request);
+		auth.check("admin");
 		
 		SiteRecord rec;
 		String title;

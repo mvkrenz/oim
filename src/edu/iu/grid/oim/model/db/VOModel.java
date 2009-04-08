@@ -65,10 +65,9 @@ public class VOModel extends SmallTableModelBase<VORecord>
 	    	}
 	    } else {
 	    	//only select record that is editable
-	    	HashSet<Integer> accessible = getEditableIDs();
 		    for(RecordBase rec : getCache()) {
 		    	VORecord vorec = (VORecord)rec;
-		    	if(accessible.contains(vorec.id)) {
+		    	if(canEdit(vorec.id)) {
 		    		list.add(vorec);
 		    	}
 		    }	    	
@@ -86,6 +85,17 @@ public class VOModel extends SmallTableModelBase<VORecord>
 			list.add(rec.vo_id);
 		}
 		return list;
+	}
+	
+	public boolean canEdit(int vo_id)
+	{
+		try {
+			HashSet<Integer> ints = getEditableIDs();
+			if(ints.contains(vo_id)) return true;
+		} catch (SQLException e) {
+			//TODO - something?
+		}
+		return false;
 	}
 	
 	public VORecord getParentVO(int child_vo_id) throws SQLException

@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
 
+import com.google.gdata.data.introspection.Collection;
 import com.webif.divex.DivExRoot;
 
 import edu.iu.grid.oim.lib.Authorization;
@@ -41,9 +42,13 @@ public class VOEditServlet extends ServletBase implements Servlet {
 		//if vo_id is provided then we are doing update, otherwise do new.
 		String vo_id_str = request.getParameter("vo_id");
 		if(vo_id_str != null) {
-			//pull record to update
+			//check authorization
 			int vo_id = Integer.parseInt(vo_id_str);
 			VOModel model = new VOModel(auth);
+			if(!model.canEdit(vo_id)) {
+				throw new ServletException("Sorry, you don't have permission to edit VO " + vo_id);
+			}
+			
 			try {
 				VORecord keyrec = new VORecord();
 				keyrec.id = vo_id;

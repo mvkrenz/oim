@@ -36,15 +36,24 @@ public class SCModel extends SmallTableModelBase<SCRecord> {
 	    	}
 	    } else {
 	    	//only select record that is editable
-	    	HashSet<Integer> accessible = getEditableIDs();
 		    for(RecordBase rec : getCache()) {
 		    	SCRecord screc = (SCRecord)rec;
-		    	if(accessible.contains(screc.id)) {
+		    	if(canEdit(screc.id)) {
 		    		list.add(screc);
 		    	}
 		    }	    	
 	    }
 	    return list;
+	}
+	public boolean canEdit(int id)
+	{
+		try {
+			HashSet<Integer> ints = getEditableIDs();
+			if(ints.contains(id)) return true;
+		} catch (SQLException e) {
+			//TODO - something?
+		}
+		return false;
 	}
 	
 	//returns all record id that the user has access to
@@ -67,11 +76,13 @@ public class SCModel extends SmallTableModelBase<SCRecord> {
 		
 		return list;
 	}
+	
 	public SCRecord get(int id) throws SQLException {
 		SCRecord keyrec = new SCRecord();
 		keyrec.id = id;
 		return get(keyrec);
 	}
+	
 	public ArrayList<SCRecord> getAll() throws SQLException
 	{
 		ArrayList<SCRecord> list = new ArrayList<SCRecord>();
