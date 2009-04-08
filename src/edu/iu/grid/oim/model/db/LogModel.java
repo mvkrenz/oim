@@ -3,6 +3,8 @@ package edu.iu.grid.oim.model.db;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
+
 import org.apache.log4j.Logger;
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.model.db.record.LogRecord;
@@ -22,13 +24,12 @@ public class LogModel extends SmallTableModelBase<LogRecord> {
 		return new LogRecord(rs);
 	}
     
-    public void insert(String type, String model, String xml) throws SQLException
+    public int insert(String type, String model, String xml) throws SQLException
     {
     	//no auth check... accessing log table is non-auth action
-		PreparedStatement stmt = null;
-
-		String logsql = "INSERT INTO log (`type`, `model`, `xml`, `dn_id`) VALUES (?, ?, ?, ?)";
-		stmt = getConnection().prepareStatement(logsql); 
+    	
+		String sql = "INSERT INTO log (`type`, `model`, `xml`, `dn_id`) VALUES (?, ?, ?, ?)";
+		PreparedStatement stmt = getConnection().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS); 
 		stmt.setString(1, type);
 		stmt.setString(2, model);
 		stmt.setString(3, xml);
@@ -39,6 +40,13 @@ public class LogModel extends SmallTableModelBase<LogRecord> {
 			stmt.setInt(4, dn_id);
 		}
 		stmt.executeUpdate(); 
-		stmt.close(); 
+		
+		ResultSet ids = stmt.getGeneratedKeys();  
+		if(!ids.next()) {
+			throw new SQLException("didn't get a new log id");
+		}
+		int logid = ids.getInt(1);
+		stmt.close();
+		return logid;
     }
 }

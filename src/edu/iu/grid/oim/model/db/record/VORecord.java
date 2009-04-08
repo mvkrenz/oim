@@ -33,14 +33,14 @@ public class VORecord extends RecordBase
 	public VORecord() {}
 	
 	public String getTitle() {
-		return "VO " + name;
+		return "Virtual Oranization : " + name;
 	}
 	
 	public ArrayList<String> getLables() {
 		ArrayList<String> labels = new ArrayList();
 		labels.add("vo");
 		labels.add("vo_"+id);
-		labels.add("sc_"+id);
+		labels.add("sc_"+sc_id);
 		return labels;
 	}
 	public String toString(Object field, Authorization auth)

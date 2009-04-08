@@ -75,6 +75,11 @@ public class ResourceModel extends SmallTableModelBase<ResourceRecord> {
 		}
 		return list;
 	}
+	public ResourceRecord get(int id) throws SQLException {
+		ResourceRecord keyrec = new ResourceRecord();
+		keyrec.id = id;
+		return get(keyrec);
+	}
 	public ArrayList<ResourceRecord> getAll() throws SQLException
 	{
 		ArrayList<ResourceRecord> list = new ArrayList<ResourceRecord>();

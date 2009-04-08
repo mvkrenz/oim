@@ -200,17 +200,18 @@ public class SiteFormDE extends FormDE
 	
 			rec.sc_id = sc_id.getValue();
 			rec.facility_id = facility_id.getValue();
-	//		rec.submitter_dn_id = submitted_dn_id.getValue();
 	
 			rec.active = active.getValue();
 			rec.disable = disable.getValue();
 			
+			//where are the other fields?
+			
 			SiteModel model = new SiteModel(auth);
 
 			if(rec.id == null) {
-				model.insertDetail(rec);
+				model.insert(rec);
 			} else {
-				model.updateDetail(rec);
+				model.update(model.get(rec), rec);
 			}
 		} catch (Exception e) {
 			alert(e.getMessage());

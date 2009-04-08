@@ -200,6 +200,7 @@ public class SCFormDE extends FormDE
 		rec.disable = disable.getValue();
 		
 		ArrayList<SCContactRecord> contacts = getContactRecordsFromEditor();
+		//TODO - 
 		
 		return true;
 	}

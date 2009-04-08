@@ -20,9 +20,12 @@ public abstract class RecordBase implements Comparable<RecordBase> {
 
 	@Retention(RetentionPolicy.RUNTIME)
 	public @interface Key {}
-
+	@Retention(RetentionPolicy.RUNTIME)
+	public @interface Restricted {}	
+	@Retention(RetentionPolicy.RUNTIME)
+	public @interface Name { String value(); }	
+	
 	static Logger log = Logger.getLogger(ServletBase.class);  
-	static HashMap<Class, ArrayList<Field>> keys = new HashMap<Class, ArrayList<Field>>();
     
     //use reflection to figure out how to read this record
 	public RecordBase(ResultSet rs) throws SQLException
@@ -62,23 +65,53 @@ public abstract class RecordBase implements Comparable<RecordBase> {
 	{
 	}
 	
-	public ArrayList<Field> getKeys()
+	//cache key field since looking up annotation is slow
+	static HashMap<Class, ArrayList<Field>> record_keys = new HashMap<Class, ArrayList<Field>>();
+	static HashMap<Class, ArrayList<Field>> record_fields = new HashMap<Class, ArrayList<Field>>();
+	public ArrayList<Field> getRecordKeys()
 	{
-		if(!keys.containsKey(getClass())) {
-			ArrayList<Field> ks = new ArrayList<Field>();
-			Field[] fields = getClass().getFields();
-			for(Field field : fields) {
-				Annotation[] annotations = field.getDeclaredAnnotations();
-				for(Annotation annotation : annotations){
-				    if(annotation instanceof Key){
-				        ks.add(field);
-				        break;
-				    }
-				}
-			}
-			keys.put(getClass(), ks);
+		if(!record_keys.containsKey(getClass())) {
+			cacheRecordInfo();
 		}
-		return keys.get(getClass());
+		return record_keys.get(getClass());
+	}
+	public ArrayList<Field> getRecordFields()
+	{
+		if(!record_fields.containsKey(getClass())) {
+			cacheRecordInfo();
+		}
+		return record_fields.get(getClass());
+	}
+	private void cacheRecordInfo()
+	{
+		ArrayList<Field> keys = new ArrayList<Field>();
+		ArrayList<Field> fields = new ArrayList<Field>();
+		Field[] all_fields = getClass().getFields();
+		for(Field field : all_fields) {
+			//all variables are considered to be a field
+			fields.add(field);
+			
+			Annotation[] annotations = field.getDeclaredAnnotations();
+			for(Annotation annotation : annotations){	
+				//add @key variables to key list
+				if(annotation instanceof Key){
+			    	keys.add(field);	
+			    }
+			}
+		}
+		record_keys.put(getClass(), keys);
+		record_fields.put(getClass(), fields);
+	}
+	
+	public Boolean isRestricted(Field f)
+	{
+		Annotation[] as = f.getDeclaredAnnotations();
+		for(Annotation a : as) {
+			if(a instanceof Restricted) {
+				return true;
+			}
+		}
+		return false;
 	}
 	
 	//list fields that are different
@@ -86,7 +119,7 @@ public abstract class RecordBase implements Comparable<RecordBase> {
 	{
 		ArrayList<Field> diff = new ArrayList<Field>();
 		try {
-			Field[] fields = getClass().getFields();
+			ArrayList<Field> fields = getRecordFields();
 			for(Field fld : fields) {
 				Comparable me = (Comparable)fld.get(this);
 				Comparable you = (Comparable)fld.get(rec);
@@ -115,7 +148,7 @@ public abstract class RecordBase implements Comparable<RecordBase> {
 	public int compareKeysTo(RecordBase o)
 	{
 		try {
-			for(Field fld : getKeys()) {
+			for(Field fld : getRecordKeys()) {
 				//this is the key field - let's compare
 				Comparable me = (Comparable)fld.get(this);
 				Comparable you = (Comparable)fld.get(o);				

@@ -196,18 +196,6 @@ public class SiteServlet extends ServletBase implements Servlet {
 		}
 		return facility.name;
 	}
-	/*
-	private String getSubmitterName(Integer submitter_dn_id) throws SQLException
-	{
-		if(submitter_dn_id == null) return null;
-		DNModel model = new DNModel(auth);
-		DNRecord dn = model.get(submitter_dn_id);	
-		if(dn == null) {
-			return null;
-		}
-		return dn.name;
-	}
-	*/
 
 	private SideContentView createSideView(DivExRoot root)
 	{

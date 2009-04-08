@@ -17,7 +17,7 @@ public class SiteModel extends SmallTableModelBase<SiteRecord> {
     static Logger log = Logger.getLogger(SiteModel.class); 
 
 	public SiteModel(Authorization _auth) {
-		super(_auth, "sc_contact");
+		super(_auth, "site");
 	}
 	SiteRecord createRecord(ResultSet rs) throws SQLException
 	{
@@ -35,38 +35,5 @@ public class SiteModel extends SmallTableModelBase<SiteRecord> {
 		SiteRecord keyrec = new SiteRecord();
 		keyrec.id = id;
 		return get(keyrec);
-	}
-	public void insertDetail(SiteRecord rec) throws Exception
-	{
-		try {
-			auth.check("admin");
-
-			//insert Site itself and get the new ID
-			insert(rec);
-		} catch (AuthorizationException e) {
-			log.error(e);
-			throw new Exception(e);
-		} catch (SQLException e) {
-			log.error(e);
-			//re-throw original exception
-			throw new Exception(e);
-		}	
-	}
-	
-	public void updateDetail(SiteRecord rec) throws Exception
-	{
-		//Do insert / update to our DB
-		try {
-			auth.check("admin");
-			update(get(rec), rec);
-		} catch (AuthorizationException e) {
-			log.error(e);
-			//re-throw original exception
-			throw new Exception(e);
-		} catch (SQLException e) {
-			log.error(e);
-			//re-throw original exception
-			throw new Exception(e);
-		}			
 	}
 }

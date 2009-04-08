@@ -54,6 +54,7 @@ public class AdminServlet extends ServletBase  {
 			list.add(new LinkView("osg_grid_type", "OSG Grid Types"));
 			list.add(new LinkView("site", "Administrative Sites"));
 			list.add(new LinkView("authmatrix", "Authorization" ));
+			list.add(new LinkView("contact", "Contact" ));
 		}
 		contentview.add(list);
 

@@ -75,8 +75,8 @@ public class VOEditServlet extends ServletBase implements Servlet {
 		//for contact editor
 		page.addExternalCSS(BaseURL()+"/jquery/plugin/jquery.autocomplete.css");
 		page.addExternalJS(BaseURL()+"/jquery/plugin/jquery.autocomplete.js");
-		
 		page.addExternalJS(BaseURL()+"/autocomplete.js");
+		
 		page.render(response.getWriter());	
 	}
 	

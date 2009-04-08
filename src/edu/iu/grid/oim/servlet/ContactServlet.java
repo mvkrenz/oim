@@ -44,27 +44,28 @@ import edu.iu.grid.oim.view.TableView;
 import edu.iu.grid.oim.view.Utils;
 import edu.iu.grid.oim.view.TableView.Row;
 
-public class SCServlet extends ServletBase implements Servlet {
+public class ContactServlet extends ServletBase implements Servlet {
 	private static final long serialVersionUID = 1L;
-	static Logger log = Logger.getLogger(SCServlet.class);  
+	static Logger log = Logger.getLogger(ContactServlet.class);  
 	
-    public SCServlet() {
+    public ContactServlet() {
         // TODO Auto-generated constructor stub
     }
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{	
 		setAuth(request);
+		auth.allows("admin");
 		
-		//pull list of all SCss
-		SCModel model = new SCModel(auth);
+		//pull list of all SCs
+		ContactModel model = new ContactModel(auth);
 		try {
-			Collection<SCRecord> scs = model.getAllEditable();
+			Collection<ContactRecord> contacts = model.getAll();
 		
 			//construct view
-			MenuView menuview = createMenuView("sc");
+			MenuView menuview = createMenuView("admin");
 			DivExRoot root = DivExRoot.getInstance(request);
-			ContentView contentview = createContentView(root, scs);
+			ContentView contentview = createContentView(root, contacts);
 			Page page = new Page(menuview, contentview, createSideView(root));
 			page.render(response.getWriter());			
 		} catch (SQLException e) {
@@ -73,55 +74,39 @@ public class SCServlet extends ServletBase implements Servlet {
 		}
 	}
 	
-	protected ContentView createContentView(final DivExRoot root, Collection<SCRecord> scs) 
+	protected ContentView createContentView(final DivExRoot root, Collection<ContactRecord> contacts) 
 		throws ServletException, SQLException
 	{
 		ContentView contentview = new ContentView();	
-		contentview.add(new HtmlView("<h1>Support Centers</h1>"));
+		contentview.add(new HtmlView("<h1>Contacts</h1>"));
 	
-		for(SCRecord rec : scs) {
+		for(ContactRecord rec : contacts) {
 			contentview.add(new HtmlView("<h2>"+StringEscapeUtils.escapeHtml(rec.name)+"</h2>"));
-			
-			log.debug("Rendering SC " + rec.name);
 	
 			RecordTableView table = new RecordTableView();
 			contentview.add(table);
 
-		 	table.addRow("Long Name", rec.long_name);
-			table.addRow("Description", rec.description);
-			table.addRow("Community", rec.community);
-			if(auth.allows("admin")) {
-				table.addRow("Footprints ID", rec.footprints_id);
-				table.addRow("Active", rec.active);
-				table.addRow("Disable", rec.disable);
-			}
+		 	table.addRow("Primary Email", rec.primary_email);
+		 	table.addRow("Secondary Email", rec.secondary_email);
+		 	
+		 	table.addRow("Primary Phone Ext", rec.primary_phone_ext);
+		 	table.addRow("Primary Phone", rec.primary_phone);
 
-			ContactTypeModel ctmodel = new ContactTypeModel(auth);
-			ContactRankModel crmodel = new ContactRankModel(auth);
-			ContactModel pmodel = new ContactModel(auth);
+		 	table.addRow("Secondary Phone Ext", rec.secondary_phone_ext);
+		 	table.addRow("Secondary Phone", rec.secondary_phone);
+		 	
+		 	table.addRow("Address Line 1", rec.address_line_1);
+		 	table.addRow("Address Line 2", rec.address_line_2);
+			table.addRow("City", rec.city);
+			table.addRow("State", rec.state);
+			table.addRow("ZIP Code", rec.zipcode);
+			table.addRow("Country", rec.country);
+
+			table.addRow("Active", rec.active);
+			table.addRow("Disable", rec.disable);
 			
-			//contacts (only shows contacts that are filled out)
-			SCContactModel sccmodel = new SCContactModel(auth);
-			ArrayList<SCContactRecord> scclist = sccmodel.getBySCID(rec.id);
-			HashMap<Integer, ArrayList<SCContactRecord>> scclist_grouped = sccmodel.groupByContactTypeID(scclist);
-			for(Integer type_id : scclist_grouped.keySet()) {
-				ArrayList<SCContactRecord> clist = scclist_grouped.get(type_id);
-				ContactTypeRecord ctrec = ctmodel.get(type_id);
-				
-				String cliststr = "";
-				
-				for(SCContactRecord sccrec : clist) {
-					ContactRecord person = pmodel.get(sccrec.contact_id);
-					ContactRankRecord rank = crmodel.get(sccrec.contact_rank_id);
-
-					cliststr += "<div class='contact_rank contact_"+rank.name+"'>";
-					cliststr += person.name;
-					cliststr += "</div>";
-				
-				}
-				
-				table.addRow(ctrec.name, new HtmlView(cliststr));
-			}			
+			table.addRow("Person", rec.person);
+			table.addRow("Contact Preference", rec.contact_preference);	
 		
 			class EditButtonDE extends ButtonDE
 			{
@@ -135,7 +120,7 @@ public class SCServlet extends ServletBase implements Servlet {
 					redirect(url);
 				}
 			};
-			table.add(new DivExWrapper(new EditButtonDE(root, BaseURL()+"/scedit?sc_id=" + rec.id)));
+			table.add(new DivExWrapper(new EditButtonDE(root, BaseURL()+"/contactedit?id=" + rec.id)));
 		}
 		
 		return contentview;
@@ -150,15 +135,14 @@ public class SCServlet extends ServletBase implements Servlet {
 			String url;
 			public NewButtonDE(DivEx parent, String _url)
 			{
-				super(parent, "Add New Support Center");
+				super(parent, "Add New Contact");
 				url = _url;
 			}
 			protected void onEvent(Event e) {
 				redirect(url);
 			}
 		};
-		view.add("Operation", new NewButtonDE(root, "scedit"));
-		view.add("About", new HtmlView("This page shows a list of Support Centers that you have access to edit."));		
+		view.add("Operation", new NewButtonDE(root, "contactedit"));		
 		return view;
 	}
 }
