@@ -41,9 +41,10 @@ public class ServletBase extends HttpServlet {
 	{
 		ArrayList<MenuItem> menu = new ArrayList<MenuItem>();
 		menu.add(new MenuItem("Home", "home"));
+		menu.add(new MenuItem("Contact", "contact" ));
 		menu.add(new MenuItem("Resource", "resource"));	
 		menu.add(new MenuItem("Virtual Organization", "vo"));			
-		menu.add(new MenuItem("Contact", "contact" ));
+		menu.add(new MenuItem("Support Center", "sc"));			
 		menu.add(new MenuItem("Administration", "admin"));	
 		MenuView menuview = new MenuView(menu, current);
 		return menuview;

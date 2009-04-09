@@ -72,13 +72,12 @@ public class VOFormDE extends FormDE
 	//contact types to edit
 	private int contact_types[] = {
 		1, //submitter
-		2, //security contact
-		3, //admin contact
-		4, //operational contact
-		5, //misc contact
+//		4, //operational contact -- AG: NEED TO REMOVE? -agopu
 		6, //vo manager
-		7, //notification contat
+		3, //admin contact       -- Formerly operations contact for VOs
+		2, //security contact
 		10, //VO report contact
+		5, //misc contact
 	};
 	private HashMap<Integer, ContactEditorDE> contact_editors = new HashMap();
 	

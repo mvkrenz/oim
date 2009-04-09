@@ -66,12 +66,10 @@ public class ResourceFormDE extends FormDE
 	//contact types to edit
 	private int contact_types[] = {
 		1, //submitter
-		2, //security contact
 		3, //admin contact
-		4, //operational contact
-		5, //misc contact
-		7, //notification contat
-		9 //resource report contact
+		2, //security contact
+		9, //resource report contact
+		5 //misc contact
 	};
 	private HashMap<Integer, ContactEditorDE> contact_editors = new HashMap();
 	

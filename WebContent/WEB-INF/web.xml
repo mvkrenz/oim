@@ -137,12 +137,21 @@
 		<description>
 		</description>
 		<display-name>
-		CPUInfoServlet</display-name>
-		<servlet-name>CPUInfoServlet</servlet-name>
+		CpuInfoServlet</display-name>
+		<servlet-name>CpuInfoServlet</servlet-name>
 		<servlet-class>
 		edu.iu.grid.oim.servlet.CPUInfoServlet</servlet-class>
 	</servlet>
-		<servlet>
+	<servlet>
+		<description>
+		</description>
+		<display-name>
+		CpuInfoEditServlet</display-name>
+		<servlet-name>CpuInfoEditServlet</servlet-name>
+		<servlet-class>
+		edu.iu.grid.oim.servlet.CpuInfoEditServlet</servlet-class>
+	</servlet>
+	<servlet>
 		<description>
 		</description>
 		<display-name>
@@ -253,8 +262,12 @@
 		<url-pattern>/osg_grid_type_edit</url-pattern>
 	</servlet-mapping>
 	<servlet-mapping>
-		<servlet-name>CPUInfoServlet</servlet-name>
+		<servlet-name>CpuInfoServlet</servlet-name>
 		<url-pattern>/cpuinfo</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>CpuInfoEditServlet</servlet-name>
+		<url-pattern>/cpuinfoedit</url-pattern>
 	</servlet-mapping>
 	<servlet-mapping>
 		<servlet-name>NotificationServlet</servlet-name>

@@ -22,25 +22,9 @@ import com.webif.divex.DivExRoot;
 import com.webif.divex.Event;
 
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
-import edu.iu.grid.oim.model.db.ContactRankModel;
-import edu.iu.grid.oim.model.db.ContactTypeModel;
-import edu.iu.grid.oim.model.db.ContactModel;
-import edu.iu.grid.oim.model.db.FieldOfScienceModel;
-import edu.iu.grid.oim.model.db.SCContactModel;
-import edu.iu.grid.oim.model.db.SCModel;
-import edu.iu.grid.oim.model.db.VOContactModel;
-import edu.iu.grid.oim.model.db.VOFieldOfScienceModel;
-import edu.iu.grid.oim.model.db.VOModel;
-import edu.iu.grid.oim.model.db.VOReportContactModel;
-import edu.iu.grid.oim.model.db.record.ContactRankRecord;
-import edu.iu.grid.oim.model.db.record.ContactTypeRecord;
-import edu.iu.grid.oim.model.db.record.ContactRecord;
+import edu.iu.grid.oim.model.db.CpuInfoModel;
 import edu.iu.grid.oim.model.db.record.CpuInfoRecord;
-import edu.iu.grid.oim.model.db.record.FieldOfScienceRecord;
-import edu.iu.grid.oim.model.db.record.SCRecord;
-import edu.iu.grid.oim.model.db.record.VOContactRecord;
-import edu.iu.grid.oim.model.db.record.VORecord;
-import edu.iu.grid.oim.model.db.record.VOReportContactRecord;
+
 import edu.iu.grid.oim.view.ContentView;
 import edu.iu.grid.oim.view.DivExWrapper;
 import edu.iu.grid.oim.view.HtmlView;
@@ -65,12 +49,14 @@ public class CPUInfoServlet extends ServletBase implements Servlet {
 	{	
 		setAuth(request);
 		
-		//pull list of all vos
+		//pull list of all CPU_info records
 		Collection<CpuInfoRecord> cpus = null;
-		VOModel model = new VOModel(auth);
+		CpuInfoModel model = new CpuInfoModel(auth);
 		try {
+			cpus = model.getAll();
+
 			//construct view
-			MenuView menuview = createMenuView("vo");
+			MenuView menuview = createMenuView("admin");
 			DivExRoot root = DivExRoot.getInstance(request);
 			ContentView contentview = createContentView(root, cpus);
 			Page page = new Page(menuview, contentview, createSideView(root));
@@ -109,7 +95,7 @@ public class CPUInfoServlet extends ServletBase implements Servlet {
 					redirect(url);
 				}
 			};
-			table.add(new DivExWrapper(new EditButtonDE(root, BaseURL()+"/cpuinfoedit?cpu_id=" + rec.id)));
+			table.add(new DivExWrapper(new EditButtonDE(root, BaseURL()+"/cpuinfoedit?cpu_info_id=" + rec.id)));
 		}
 		
 		return contentview;
@@ -124,7 +110,7 @@ public class CPUInfoServlet extends ServletBase implements Servlet {
 			String url;
 			public NewButtonDE(DivEx parent, String _url)
 			{
-				super(parent, "Add New Virtual Organization");
+				super(parent, "Add New CPU Info record");
 				url = _url;
 			}
 			protected void onEvent(Event e) {

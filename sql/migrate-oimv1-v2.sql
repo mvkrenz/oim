@@ -138,6 +138,10 @@ INSERT INTO resource_downtime_service (SELECT downtime_id,service_id FROM oim.re
 
 INSERT INTO downtime_publish_wlcg (SELECT downtime_id,downtime_action_id,publish_status,timestamp,disable FROM oim.downtime_publish_wlcg);
 
+INSERT INTO authorization_type VALUES 
+	(5,'Measurement and Metrics Group')
+;
+
 INSERT INTO `action` (`id`,`name`,`description`) VALUES 
  (1,'admin_authorization','Allow admin level read/write access to authorization/action matrix'),
  (2,'admin','Allow admin level read/write access to everything but authorization'),
@@ -147,8 +151,14 @@ INSERT INTO `action` (`id`,`name`,`description`) VALUES
  (9, 'read_all_contact','Allow read-access to all VO contacts (for example, security group)'),         
  (11,'edit_my_sc','Allow user-level read/write access to SCs for authorized users (contacts)'),
  (13,'edit_my_contact','Allow user-level read/write access to registered contact profiles'),
- (17,'edit_my_resource','Allow user-level read/write access to resources for authorized users (contacts)')
+ (17,'edit_my_resource','Allow user-level read/write access to resources for authorized users (contacts)'),
+ (18,'edit_measurement','Allow specific user-level read/write access to CPU Info list for authorized users (contacts)')
  ;
+ 
+ -- CPU info
+ -- resource_group
+ -- vo_reporting contact?
+ -- edit_my_vo_resource_ownership? probably not
  
 INSERT INTO `authorization_type_action` (`authorization_type_id`,`action_id`) VALUES 
  (4,1),
@@ -166,7 +176,9 @@ INSERT INTO `authorization_type_action` (`authorization_type_id`,`action_id`) VA
  (1,13),
  (4,13),
  (1,17),
- (4,17)
+ (4,17),
+ (4,18),
+ (5,18)
 ;
  
 INSERT INTO `notification` (`notification`, `dn_id`) VALUES

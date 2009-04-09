@@ -5,15 +5,23 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 
 import org.apache.log4j.Logger;
 
+import com.webif.divex.form.CheckBoxFormElementDE;
+
 import edu.iu.grid.oim.lib.Authorization;
+import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
 import edu.iu.grid.oim.model.db.record.NotificationRecord;
 import edu.iu.grid.oim.model.db.record.RecordBase;
 import edu.iu.grid.oim.model.db.record.SCContactRecord;
 import edu.iu.grid.oim.model.db.record.SCRecord;
+import edu.iu.grid.oim.model.db.record.SCContactRecord;
+import edu.iu.grid.oim.model.db.record.VOFieldOfScienceRecord;
+import edu.iu.grid.oim.model.db.record.SCRecord;
+import edu.iu.grid.oim.model.db.record.VOVORecord;
 public class SCModel extends SmallTableModelBase<SCRecord> {
     static Logger log = Logger.getLogger(SCModel.class);  
     
@@ -91,5 +99,87 @@ public class SCModel extends SmallTableModelBase<SCRecord> {
 		}
 		return list;
 	}
+	
+	public void insertDetail(SCRecord rec, 
+			ArrayList<SCContactRecord> contacts) throws Exception
+	{
+		try {
+			auth.check("edit_my_sc");
+			
+			//process detail information
+			getConnection().setAutoCommit(false);
+			
+			//insert SC itself and get the new ID
+			insert(rec);
+			
+			//process contact information
+			SCContactModel cmodel = new SCContactModel(auth);
+			//reset sc_id on all contact records
+			for(SCContactRecord sccrec : contacts) {
+				sccrec.sc_id = rec.id;
+			}
+			cmodel.update(cmodel.getBySCID(rec.id), contacts);
+			getConnection().commit();
+			getConnection().setAutoCommit(true);
+		} catch (AuthorizationException e) {
+			log.error(e);
+			log.info("Rolling back SC insert transaction.");
+			getConnection().rollback();
+			getConnection().setAutoCommit(true);
+			
+			//re-throw original exception
+			throw new Exception(e);
+		} catch (SQLException e) {
+			log.error(e);
+			log.info("Rolling back SC insert transaction.");
+			getConnection().rollback();
+			getConnection().setAutoCommit(true);
+			
+			//re-throw original exception
+			throw new Exception(e);
+		}	
+	}
+	
+	public void updateDetail(SCRecord rec,
+			ArrayList<SCContactRecord> contacts) throws Exception
+	{
+		// update to DB
+		try {
+			auth.check("edit_my_sc");
+			
+			//process detail information
+			getConnection().setAutoCommit(false);
+			
+			update(get(rec), rec);
+			
+			//process contact information
+			SCContactModel cmodel = new SCContactModel(auth);
+			//reset vo_id on all contact records
+			for(SCContactRecord sccrec : contacts) {
+				sccrec.sc_id = rec.id;
+			}
+			cmodel.update(cmodel.getBySCID(rec.id), contacts);
+			
+			getConnection().commit();
+			getConnection().setAutoCommit(true);
+		} catch (AuthorizationException e) {
+			log.error(e);
+			log.info("Rolling back SC update-insert transaction.");
+			getConnection().rollback();
+			getConnection().setAutoCommit(true);
+			
+			//re-throw original exception
+			throw new Exception(e);
+		} catch (SQLException e) {
+			log.error(e);
+			log.info("Rolling back SC update-insert transaction.");
+			getConnection().rollback();
+			getConnection().setAutoCommit(true);
+			
+			//re-throw original exception
+			throw new Exception(e);
+		}			
+	}
+		
 }
 

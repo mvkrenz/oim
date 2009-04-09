@@ -28,12 +28,14 @@ import edu.iu.grid.oim.model.db.ContactTypeModel;
 import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.SCModel;
 import edu.iu.grid.oim.model.db.SCContactModel;
+import edu.iu.grid.oim.model.db.VOModel;
 import edu.iu.grid.oim.model.db.record.ContactRankRecord;
 import edu.iu.grid.oim.model.db.record.ContactTypeRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.RecordBase;
 import edu.iu.grid.oim.model.db.record.SCRecord;
 import edu.iu.grid.oim.model.db.record.SCContactRecord;
+import edu.iu.grid.oim.model.db.record.VOContactRecord;
 import edu.iu.grid.oim.view.divex.ContactEditorDE;
 import edu.iu.grid.oim.view.divex.ContactEditorDE.Rank;
 
@@ -55,13 +57,10 @@ public class SCFormDE extends FormDE
 	//contact types to edit
 	private int contact_types[] = {
 		1, //submitter
-		2, //security contact
-		3, //admin contact
 		4, //operational contact
+		7, //notification contact
+		2, //security contact
 		5, //misc contact
-		6, //vo manager
-		7, //notification contat
-		10, //VO report contact
 	};
 	private HashMap<Integer, ContactEditorDE> contact_editors = new HashMap();
 	
@@ -200,8 +199,18 @@ public class SCFormDE extends FormDE
 		rec.disable = disable.getValue();
 		
 		ArrayList<SCContactRecord> contacts = getContactRecordsFromEditor();
-		//TODO - 
 		
+		SCModel model = new SCModel(auth);
+		try {
+			if(rec.id == null) {
+				model.insertDetail(rec, contacts);
+			} else {
+				model.updateDetail(rec, contacts);
+			}
+		} catch (Exception e) {
+			alert(e.getMessage());
+			return false;
+		}
 		return true;
 	}
 	
