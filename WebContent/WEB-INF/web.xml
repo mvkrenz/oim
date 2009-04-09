@@ -205,6 +205,15 @@
 		<servlet-class>
 		edu.iu.grid.oim.servlet.ContactEditServlet</servlet-class>
 	</servlet>
+		<servlet>
+			<description>
+			</description>
+			<display-name>
+			ProfileEditServlet</display-name>
+			<servlet-name>ProfileEditServlet</servlet-name>
+			<servlet-class>
+			edu.iu.grid.oim.servlet.ProfileEditServlet</servlet-class>
+		</servlet>
 	<servlet-mapping>
 		<servlet-name>MainServlet</servlet-name>
 		<url-pattern>/MainServlet</url-pattern>
@@ -293,6 +302,10 @@
 			<servlet-name>ContactEditServlet</servlet-name>
 			<url-pattern>/contactedit</url-pattern>
 		</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>ProfileEditServlet</servlet-name>
+		<url-pattern>/profileedit</url-pattern>
+	</servlet-mapping>
 	<welcome-file-list>
 		<welcome-file>index.jsp</welcome-file>
 	</welcome-file-list>

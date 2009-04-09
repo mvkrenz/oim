@@ -14,10 +14,6 @@ public class ButtonDE extends DivEx {
 	String image_url = null;
 	public void setImageUrl(String _url) { image_url = _url; }
 	
-	//set this to false if you want user to be able to click multiple times
-	Boolean clickonce = true;
-	public void setClickOnce(Boolean b) { clickonce = b; }
-	
 	Boolean confirm = false;
 	String confirm_message = null;
 	public void setConfirm(Boolean b, String message) {
@@ -33,7 +29,7 @@ public class ButtonDE extends DivEx {
 	public void render(PrintWriter out) {
 		//TODO implement click once feature - disabling button just doesn't work well
 
-		String js = "divex(this.id, \"click\");return false;";
+		String js = "if(!$(this).hasClass(\"disabled\")) { $(this).addClass(\"disabled\"); divex(this.id, \"click\"); } return false;";
 		if(confirm) {
 			js = "var answer = confirm(\""+confirm_message+"\");if(answer) {"+js+"}";
 		}
@@ -44,12 +40,10 @@ public class ButtonDE extends DivEx {
 				StringEscapeUtils.escapeHtml(title)+"' />");
 			break;
 		case ALINK:
-			//TODO - implement clickonce
 			out.print("<a href='#' id='"+getNodeID()+"' onclick='"+js+"'>"+
 				StringEscapeUtils.escapeHtml(title)+"</a>");
 			break;
 		case IMAGE:
-			//TODO - implement clickonce
 			out.print("<a href='#' id='"+getNodeID()+"' onclick='"+js+"'><img align='top' src='"+image_url+"' alt='"+
 				StringEscapeUtils.escapeHtml(title)+"'/></a>");
 			break;

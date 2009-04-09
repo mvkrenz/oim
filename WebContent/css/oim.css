@@ -134,7 +134,12 @@ div.right
 float:right;
 text-align:right;
 }
-
+.disabled
+{
+	color: gray;
+	text-decoration: none;
+	cursor:progress;
+}
 .indent
 {
 margin: 15px;

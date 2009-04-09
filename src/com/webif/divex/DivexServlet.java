@@ -8,8 +8,11 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.log4j.Logger;
+
 //let run this in single thread
 public class DivexServlet extends HttpServlet {
+    static Logger log = Logger.getLogger(DivexServlet.class);  
 	private static final long serialVersionUID = 1L;
        
     /**
@@ -28,6 +31,7 @@ public class DivexServlet extends HttpServlet {
 		
 		//find the target node and process action
 		String nodeid = request.getParameter("nodeid");	
+		log.debug("DivEx Node ID:" + nodeid);
 		
 		//get this session's divex root and find the target node
 		DivExRoot root = DivExRoot.getInstance(request);
