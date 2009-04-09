@@ -14,6 +14,7 @@ import com.webif.divex.DivExRoot;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.model.db.ContactModel;
+import edu.iu.grid.oim.model.db.DNModel;
 import edu.iu.grid.oim.model.db.SCModel;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.SCRecord;
@@ -41,7 +42,18 @@ public class ProfileEditServlet extends ServletBase implements Servlet {
 		ContactRecord rec;
 		try {
 			rec = auth.getContact();
-
+			if(rec == null) {
+				//create new record
+				ContactModel model = new ContactModel(auth);
+				rec = new ContactRecord();
+				rec.submitter_dn_id = auth.getDNID();
+				model.insert(rec);//generated key are inserted back to the rec now.
+				
+				//associate with this dn
+				DNModel dnmode = new DNModel(auth);
+				//dnmode.update(dnmodel.get(olddn), newdn)
+			}
+				
 			String origin_url = BaseURL()+"/"+current_page;
 			ContactFormDE form = new ContactFormDE(DivExRoot.getInstance(request), rec, origin_url, auth);
 			

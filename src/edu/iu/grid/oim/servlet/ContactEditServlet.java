@@ -57,6 +57,7 @@ public class ContactEditServlet extends ServletBase implements Servlet {
 			title = "Update Contact";
 		} else {
 			rec = new ContactRecord();
+			rec.submitter_dn_id = auth.getDNID();
 			title = "New Contact";	
 		}
 
