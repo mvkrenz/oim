@@ -25,8 +25,10 @@ import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
 import edu.iu.grid.oim.model.db.ContactRankModel;
 import edu.iu.grid.oim.model.db.ContactTypeModel;
 import edu.iu.grid.oim.model.db.ContactModel;
+import edu.iu.grid.oim.model.db.DNModel;
 import edu.iu.grid.oim.model.db.SCContactModel;
 import edu.iu.grid.oim.model.db.SCModel;
+import edu.iu.grid.oim.model.db.record.DNRecord;
 import edu.iu.grid.oim.model.db.record.SCRecord;
 import edu.iu.grid.oim.model.db.record.SCContactRecord;
 import edu.iu.grid.oim.model.db.record.ContactRankRecord;
@@ -62,7 +64,7 @@ public class ContactServlet extends ServletBase implements Servlet {
 			Collection<ContactRecord> contacts = model.getAllEditable();
 		
 			//construct view
-			MenuView menuview = createMenuView("admin");
+			MenuView menuview = createMenuView("contact");
 			DivExRoot root = DivExRoot.getInstance(request);
 			ContentView contentview = createContentView(root, contacts);
 			Page page = new Page(menuview, contentview, createSideView(root));
@@ -78,6 +80,8 @@ public class ContactServlet extends ServletBase implements Servlet {
 	{
 		ContentView contentview = new ContentView();	
 		contentview.add(new HtmlView("<h1>Contacts</h1>"));
+		
+		DNModel dnmodel = new DNModel(auth);
 	
 		for(ContactRecord rec : contacts) {
 			contentview.add(new HtmlView("<h2>"+StringEscapeUtils.escapeHtml(rec.name)+"</h2>"));
@@ -88,11 +92,11 @@ public class ContactServlet extends ServletBase implements Servlet {
 		 	table.addRow("Primary Email", rec.primary_email);
 		 	table.addRow("Secondary Email", rec.secondary_email);
 		 	
-		 	table.addRow("Primary Phone Ext", rec.primary_phone_ext);
 		 	table.addRow("Primary Phone", rec.primary_phone);
+		 	table.addRow("Primary Phone Ext", rec.primary_phone_ext);
 
-		 	table.addRow("Secondary Phone Ext", rec.secondary_phone_ext);
 		 	table.addRow("Secondary Phone", rec.secondary_phone);
+		 	table.addRow("Secondary Phone Ext", rec.secondary_phone_ext);
 		 	
 		 	table.addRow("Address Line 1", rec.address_line_1);
 		 	table.addRow("Address Line 2", rec.address_line_2);
@@ -106,6 +110,15 @@ public class ContactServlet extends ServletBase implements Servlet {
 			
 			table.addRow("Person", rec.person);
 			table.addRow("Contact Preference", rec.contact_preference);	
+			
+			table.addRow("Submitter DN", rec.toString(rec.submitter_dn_id, auth));
+			
+			String dn_string = "";
+			DNRecord dnrec = dnmodel.getByContactID(rec.id);
+			if(dnrec != null) {
+				dn_string = dnrec.dn_string;
+			}
+			table.addRow("Associated DN", dn_string);			
 		
 			class EditButtonDE extends ButtonDE
 			{
