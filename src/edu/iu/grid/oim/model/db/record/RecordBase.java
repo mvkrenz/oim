@@ -154,8 +154,8 @@ public abstract class RecordBase implements Comparable<RecordBase> {
 				Comparable you = (Comparable)fld.get(o);				
 				if(me == you) continue;
 				if(me == null || you == null) {
-					throw new NullPointerException("All keys should be populated.");
-				}
+					throw new NullPointerException("Key Field [" + fld.getName() + "] in [" + o.getClass().getName()+ "] is null while comparing keys");
+				}				
 	        	int cmp = me.compareTo(you);
 	        	if(cmp != 0) return cmp;
 			}

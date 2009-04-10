@@ -11,12 +11,15 @@ import com.webif.divex.EventListener;
 import com.webif.divex.form.FormElementDEBase;
 import com.webif.divex.form.TextFormElementDE;
 
+import edu.iu.grid.oim.model.db.record.ContactRecord;
+import edu.iu.grid.oim.model.db.record.ResourceAliasRecord;
 import edu.iu.grid.oim.view.divex.ContactEditorDE.ContactDE;
 import edu.iu.grid.oim.view.divex.ContactEditorDE.Rank;
 
 public class ResourceAliasDE extends FormElementDEBase {
 
 	ArrayList<AliasEditor> aliases = new ArrayList<AliasEditor>();
+	private ButtonDE add_button;
 
 	class AliasEditor extends FormElementDEBase
 	{
@@ -29,6 +32,7 @@ public class ResourceAliasDE extends FormElementDEBase {
 			myself = this;
 			
 			text = new TextFormElementDE(this);
+			text.addClass("inline");
 			
 			remove_button = new ButtonDE(this, "images/delete.png");
 			remove_button.setStyle(ButtonDE.Style.IMAGE);
@@ -41,6 +45,9 @@ public class ResourceAliasDE extends FormElementDEBase {
 
 		public void setValue(String value) {
 			text.setValue(value);
+		}
+		public String getValue() {
+			return text.getValue();
 		}
 		
 		@Override
@@ -72,14 +79,35 @@ public class ResourceAliasDE extends FormElementDEBase {
 	public void addAlias(String alias) { 
 		AliasEditor elem = new AliasEditor(this);
 		elem.setValue(alias);
-		aliases.add(elem); 
+		aliases.add(elem);
+		redraw();
 	}
 	
 	public ResourceAliasDE(DivEx parent) {
 		super(parent);
-		// TODO Auto-generated constructor stub
+		add_button = new ButtonDE(this, "Add New Alias");
+		add_button.setStyle(ButtonDE.Style.ALINK);
+		add_button.addEventListener(new EventListener() {
+			public void handleEvent(Event e) {
+				addAlias("");
+			}
+			
+		});
 	}
 
+	//Note: caller need to set the resource_id for each records
+	public ArrayList<String> getAliases()
+	{
+		ArrayList<String> records = new ArrayList<String>();
+		for(AliasEditor alias : aliases) {
+			String str = alias.getValue();
+			if(str.length() > 0) {
+				records.add(str);
+			}
+		}
+		return records;
+	}
+	
 	@Override
 	public void validate() {
 		// TODO Auto-generated method stub
@@ -98,8 +126,9 @@ public class ResourceAliasDE extends FormElementDEBase {
 		for(AliasEditor alias : aliases) {
 			alias.render(out);
 		}
+		out.write("<br/>");
+		add_button.render(out);
 		out.print("</div>");
-
 	}
 
 }

@@ -23,11 +23,6 @@ public class ResourceAliasModel extends SmallTableModelBase<ResourceAliasRecord>
 	{
 		return new ResourceAliasRecord(rs);
 	}
-	public ResourceAliasRecord get(int id) throws SQLException {
-		ResourceAliasRecord keyrec = new ResourceAliasRecord();
-		keyrec.id = id;
-		return get(keyrec);
-	}
 	public ArrayList<ResourceAliasRecord> getAll() throws SQLException
 	{
 		ArrayList<ResourceAliasRecord> list = new ArrayList<ResourceAliasRecord>();
@@ -35,5 +30,15 @@ public class ResourceAliasModel extends SmallTableModelBase<ResourceAliasRecord>
 			list.add((ResourceAliasRecord)it);
 		}
 		return list;
+	}
+	public ArrayList<ResourceAliasRecord> getAllByResourceID(int resource_id) throws SQLException
+	{
+		ArrayList<ResourceAliasRecord> list = new ArrayList<ResourceAliasRecord>();
+		for(ResourceAliasRecord it : getAll()) {
+			if(it.resource_id.compareTo(resource_id) == 0) {
+				list.add(it);
+			}
+		}
+		return list;		
 	}
 }

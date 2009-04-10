@@ -448,17 +448,12 @@ SET character_set_client = @saved_cs_client;
 --
 
 DROP TABLE IF EXISTS `resource_alias`;
-SET @saved_cs_client     = @@character_set_client;
-SET character_set_client = utf8;
-CREATE TABLE `resource_alias` (
-  `id` int(11) NOT NULL auto_increment,
+CREATE TABLE  `resource_alias` (
   `resource_id` int(11) NOT NULL,
-  `resource_alias` varchar(256) collate utf8_unicode_ci NOT NULL,
-  PRIMARY KEY  (`id`),
-  KEY `resource_resource_alias` (`resource_id`),
+  `resource_alias` varchar(128) collate utf8_unicode_ci NOT NULL default '(not specified)',
+  PRIMARY KEY  USING BTREE (`resource_id`,`resource_alias`),
   CONSTRAINT `resource_resource_alias` FOREIGN KEY (`resource_id`) REFERENCES `resource` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
-SET character_set_client = @saved_cs_client;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
 -- Table structure for table `resource_contact`

@@ -15,6 +15,10 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
+import org.geonames.Toponym;
+import org.geonames.ToponymSearchCriteria;
+import org.geonames.ToponymSearchResult;
+import org.geonames.WebService;
 
 import com.sun.crypto.provider.RC2Cipher;
 import com.webif.divex.ButtonDE;
@@ -27,6 +31,7 @@ import edu.iu.grid.oim.model.db.ContactRankModel;
 import edu.iu.grid.oim.model.db.ContactTypeModel;
 import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.FieldOfScienceModel;
+import edu.iu.grid.oim.model.db.ResourceAliasModel;
 import edu.iu.grid.oim.model.db.ResourceContactModel;
 import edu.iu.grid.oim.model.db.ResourceGroupModel;
 import edu.iu.grid.oim.model.db.ResourceModel;
@@ -35,6 +40,7 @@ import edu.iu.grid.oim.model.db.SCModel;
 import edu.iu.grid.oim.model.db.record.ContactRankRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.ContactTypeRecord;
+import edu.iu.grid.oim.model.db.record.ResourceAliasRecord;
 import edu.iu.grid.oim.model.db.record.ResourceContactRecord;
 import edu.iu.grid.oim.model.db.record.ResourceGroupRecord;
 import edu.iu.grid.oim.model.db.record.ResourceRecord;
@@ -78,6 +84,22 @@ public class ResourceServlet extends ServletBase implements Servlet {
 			log.error(e);
 			throw new ServletException(e);
 		}
+		/*
+		//http://www.geonames.org/source-code/
+		  ToponymSearchCriteria searchCriteria = new ToponymSearchCriteria();
+		  searchCriteria.setQ("zurich");
+		  ToponymSearchResult searchResult;
+		try {
+			searchResult = WebService.search(searchCriteria);
+			  for (Toponym toponym : searchResult.getToponyms()) {
+				     System.out.println(toponym.getName()+" "+ toponym.getCountryName());
+				  }
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		*/
+
 	}
 	
 	protected ContentView createContentView(final DivExRoot root, Collection<ResourceRecord> resources) 
@@ -97,7 +119,6 @@ public class ResourceServlet extends ServletBase implements Servlet {
 			contentview.add(table);
 
 			table.addRow("Description", rec.description);
-			table.addRow("FQDN", rec.fqdn);
 			table.addRow("URL", rec.url);
 			table.addRow("Interop BDII", rec.interop_bdii);
 			table.addRow("Interop Monitoring", rec.interop_monitoring);
@@ -105,7 +126,9 @@ public class ResourceServlet extends ServletBase implements Servlet {
 			table.addRow("WLCG Accounting Name", rec.wlcg_accounting_name);
 			table.addRow("Active", rec.active);
 			table.addRow("Disable", rec.disable);
-
+			table.addRow("FQDN", rec.fqdn);
+			table.addRow("Alias", new HtmlView(getAlias(rec.id)));
+			
 			//pull parent VO
 			ResourceGroupModel model = new ResourceGroupModel(auth);
 			ResourceGroupRecord resource_group_rec = model.get(rec.resource_group_id);
@@ -159,6 +182,18 @@ public class ResourceServlet extends ServletBase implements Servlet {
 		
 		return contentview;
 	}
+	
+	private String getAlias(int resource_id) throws SQLException
+	{
+		String html = "";
+		ResourceAliasModel ramodel = new ResourceAliasModel(auth);
+		ArrayList<ResourceAliasRecord> recs = ramodel.getAllByResourceID(resource_id);
+		for(ResourceAliasRecord rec : recs) {
+			html += StringEscapeUtils.escapeHtml(rec.resource_alias) + "<br/>";
+		}
+		return html;
+	}
+	
 	
 	private SideContentView createSideView(DivExRoot root)
 	{

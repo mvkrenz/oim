@@ -84,7 +84,7 @@ public class VOModel extends SmallTableModelBase<VORecord>
 	public void insertDetail(VORecord rec, 
 			ArrayList<VOContactRecord> contacts, 
 			Integer parent_vo_id, 
-			HashMap<Integer, CheckBoxFormElementDE> field_of_science) throws Exception
+			ArrayList<Integer> field_of_science) throws Exception
 	{
 		try {
 			auth.check("edit_my_vo");
@@ -128,16 +128,13 @@ public class VOModel extends SmallTableModelBase<VORecord>
 			//process field of science
 			VOFieldOfScienceModel vofsmodel = new VOFieldOfScienceModel(auth);
 			ArrayList<VOFieldOfScienceRecord> list = new ArrayList<VOFieldOfScienceRecord>();
-			for(Integer fsid : field_of_science.keySet()) {
-				CheckBoxFormElementDE elem = field_of_science.get(fsid);
-				if(elem.getValue()) {
-					VOFieldOfScienceRecord vfosrec = new VOFieldOfScienceRecord();
-					vfosrec.vo_id = rec.id;
-					vfosrec.field_of_science_id = fsid;
-					list.add(vfosrec);
-				}
+			for(Integer fsid : field_of_science) {
+				VOFieldOfScienceRecord vfosrec = new VOFieldOfScienceRecord();
+				vfosrec.vo_id = rec.id;
+				vfosrec.field_of_science_id = fsid;
+				list.add(vfosrec);
 			}
-			vofsmodel.update(vofsmodel.getByVOID(rec.id), list);
+			vofsmodel.insert(list);
 		
 			getConnection().commit();
 			getConnection().setAutoCommit(true);
@@ -163,7 +160,7 @@ public class VOModel extends SmallTableModelBase<VORecord>
 	public void updateDetail(VORecord rec,
 			ArrayList<VOContactRecord> contacts, 
 			Integer parent_vo_id, 
-			HashMap<Integer, CheckBoxFormElementDE> field_of_science) throws Exception
+			ArrayList<Integer> field_of_science) throws Exception
 	{
 		//Do insert / update to our DB
 		try {
@@ -207,14 +204,12 @@ public class VOModel extends SmallTableModelBase<VORecord>
 			//process field of science
 			VOFieldOfScienceModel vofsmodel = new VOFieldOfScienceModel(auth);
 			ArrayList<VOFieldOfScienceRecord> list = new ArrayList<VOFieldOfScienceRecord>();
-			for(Integer fsid : field_of_science.keySet()) {
-				CheckBoxFormElementDE elem = field_of_science.get(fsid);
-				if(elem.getValue()) {
-					VOFieldOfScienceRecord vfosrec = new VOFieldOfScienceRecord();
-					vfosrec.vo_id = rec.id;
-					vfosrec.field_of_science_id = fsid;
-					list.add(vfosrec);
-				}
+			for(Integer fsid : field_of_science) {
+				VOFieldOfScienceRecord vfosrec = new VOFieldOfScienceRecord();
+				vfosrec.vo_id = rec.id;
+				vfosrec.field_of_science_id = fsid;
+				list.add(vfosrec);
+			
 			}
 			vofsmodel.update(vofsmodel.getByVOID(rec.id), list);
 		

@@ -72,7 +72,34 @@ public abstract class SmallTableModelBase<T extends RecordBase> extends ModelBas
 		if(candidate.compareKeysTo(keyrec) == 0) return (T)candidate;
 		return null;
 	} 
-  
+
+    public void insert(Collection<T> recs) throws SQLException 
+    {
+		Boolean rollback = getConnection().getAutoCommit(); 
+		
+		if(rollback) {
+			getConnection().setAutoCommit(false);
+		}
+		try {			
+			//find new / updated records
+	    	for(T rec : recs) {
+	    		insert(rec);
+	    	}
+		} catch (SQLException e) {
+			if(rollback) {
+				getConnection().rollback();
+				getConnection().setAutoCommit(true);
+			}
+			throw new SQLException(e);
+		}
+		
+		if(rollback) {
+			getConnection().commit();
+			getConnection().setAutoCommit(true);
+		}
+		emptyCache();
+    }
+    
     //why does client need to supply oldrecs? because ModelBase doesn't know how the
     //list is created.. is it list with same contact_id? or same contact_type? etc..
     public void update(Collection<T> oldrecs, Collection<T> newrecs) throws SQLException 

@@ -14,6 +14,7 @@ import com.webif.divex.form.CheckBoxFormElementDE;
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
 import edu.iu.grid.oim.model.db.record.RecordBase;
+import edu.iu.grid.oim.model.db.record.ResourceAliasRecord;
 import edu.iu.grid.oim.model.db.record.ResourceContactRecord;
 import edu.iu.grid.oim.model.db.record.ResourceGroupRecord;
 import edu.iu.grid.oim.model.db.record.ResourceRecord;
@@ -94,6 +95,7 @@ public class ResourceModel extends SmallTableModelBase<ResourceRecord> {
 	}
 	
 	public void insertDetail(ResourceRecord rec, 
+			ArrayList<String> resource_aliases,
 			ArrayList<ResourceContactRecord> contacts) throws Exception
 	{
 		try {
@@ -113,6 +115,17 @@ public class ResourceModel extends SmallTableModelBase<ResourceRecord> {
 			}
 			cmodel.update(cmodel.getByResourceID(rec.id), contacts);
 		
+			//process resource alias
+			ResourceAliasModel ramodel = new ResourceAliasModel(auth);
+			ArrayList<ResourceAliasRecord> list = new ArrayList<ResourceAliasRecord>();
+			for(String alias : resource_aliases) {
+				ResourceAliasRecord rarec = new ResourceAliasRecord();
+				rarec.resource_id = rec.id;
+				rarec.resource_alias = alias;
+				list.add(rarec);
+			}
+			ramodel.insert(list);		
+			
 			getConnection().commit();
 			getConnection().setAutoCommit(true);
 		} catch (AuthorizationException e) {
@@ -135,11 +148,12 @@ public class ResourceModel extends SmallTableModelBase<ResourceRecord> {
 	}
 	
 	public void updateDetail(ResourceRecord rec,
+			ArrayList<String> resource_aliases,
 			ArrayList<ResourceContactRecord> contacts) throws Exception
 	{
 		//Do insert / update to our DB
 		try {
-			auth.check("edit_my_vo");
+			auth.check("edit_my_resource");
 			
 			//process detail information
 			getConnection().setAutoCommit(false);
@@ -153,6 +167,17 @@ public class ResourceModel extends SmallTableModelBase<ResourceRecord> {
 				vcrec.resource_id = rec.id;
 			}
 			cmodel.update(cmodel.getByResourceID(rec.id), contacts);
+			
+			//process resource alias
+			ResourceAliasModel ramodel = new ResourceAliasModel(auth);
+			ArrayList<ResourceAliasRecord> list = new ArrayList<ResourceAliasRecord>();
+			for(String alias : resource_aliases) {
+				ResourceAliasRecord rarec = new ResourceAliasRecord();
+				rarec.resource_id = rec.id;
+				rarec.resource_alias = alias;
+				list.add(rarec);
+			}
+			ramodel.update(ramodel.getAllByResourceID(rec.id), list);	
 		
 			getConnection().commit();
 			getConnection().setAutoCommit(true);

@@ -28,7 +28,9 @@ public class TextFormElementDE extends FormElementDEBase {
 	}
 	
 	public void render(PrintWriter out) {
-		out.print("<div id=\""+getNodeID()+"\">");
+		out.print("<div ");
+		renderClass(out);
+		out.write("id=\""+getNodeID()+"\">");
 		if(label != null) {
 			out.print("<label>"+StringEscapeUtils.escapeHtml(label)+"</label><br/>");
 		}

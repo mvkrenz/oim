@@ -103,18 +103,6 @@ public class ResourceFormDE extends FormDE
 		description.setValue(rec.description);
 		description.setRequired(true);
 		
-		fqdn = new TextFormElementDE(this);
-		fqdn.setLabel("FQDN");
-		fqdn.setValue(rec.fqdn);
-		fqdn.setValidator(new UniqueValidator<String>(resources.values()));
-		fqdn.setRequired(true);
-		
-		alias = new ResourceAliasDE(this);
-		ResourceAliasModel ramodel = new ResourceAliasModel(auth);
-		for(ResourceAliasRecord rarec : ramodel.getAll()) {
-			alias.addAlias(rarec.resource_alias);
-		}
-
 		url = new TextFormElementDE(this);
 		url.setLabel("URL");
 		url.setValue(rec.url);
@@ -163,6 +151,21 @@ public class ResourceFormDE extends FormDE
 			ResourceGroupRecord resource_group_rec = model.get(rec.resource_group_id);
 			if(resource_group_rec != null) {
 				resource_group_id.setValue(rec.resource_group_id);
+			}
+		}
+		
+		fqdn = new TextFormElementDE(this);
+		fqdn.setLabel("FQDN");
+		fqdn.setValue(rec.fqdn);
+		fqdn.setValidator(new UniqueValidator<String>(resources.values()));
+		fqdn.setRequired(true);
+
+		new StaticDE(this, "<h3>Resource Aliases</h3>");
+		alias = new ResourceAliasDE(this);
+		ResourceAliasModel ramodel = new ResourceAliasModel(auth);
+		if(id != null) {
+			for(ResourceAliasRecord rarec : ramodel.getAllByResourceID(id)) {
+				alias.addAlias(rarec.resource_alias);
 			}
 		}
 		
@@ -240,9 +243,9 @@ public class ResourceFormDE extends FormDE
 		ResourceModel model = new ResourceModel(auth);
 		try {
 			if(rec.id == null) {
-				model.insertDetail(rec, contacts);
+				model.insertDetail(rec, alias.getAliases(), contacts);
 			} else {
-				model.updateDetail(rec, contacts);
+				model.updateDetail(rec, alias.getAliases(), contacts);
 			}
 		} catch (Exception e) {
 			alert(e.getMessage());

@@ -12,9 +12,8 @@ import edu.iu.grid.oim.model.db.SCModel;
 
 public class ResourceAliasRecord extends RecordBase {
 
-	@Key public Integer id;
-	public Integer resource_id;
-	public String resource_alias;
+	@Key public Integer resource_id;
+	@Key public String resource_alias;
 	
 	//load from existing record
 	public ResourceAliasRecord(ResultSet rs) throws SQLException { super(rs); }

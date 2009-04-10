@@ -306,12 +306,20 @@ public class VOFormDE extends FormDE
 		
 		ArrayList<VOContactRecord> contacts = getContactRecordsFromEditor();
 		
+		ArrayList<Integer> field_of_science_ids = new ArrayList();
+		for(Integer id : field_of_science.keySet()) {
+			CheckBoxFormElementDE elem = field_of_science.get(id);
+			if(elem.getValue()) {
+				field_of_science_ids.add(id);
+			}
+		}
+		
 		VOModel model = new VOModel(auth);
 		try {
 			if(rec.id == null) {
-				model.insertDetail(rec, contacts, parent_vo.getValue(), field_of_science);
+				model.insertDetail(rec, contacts, parent_vo.getValue(), field_of_science_ids);
 			} else {
-				model.updateDetail(rec, contacts, parent_vo.getValue(), field_of_science);
+				model.updateDetail(rec, contacts, parent_vo.getValue(), field_of_science_ids);
 			}
 		} catch (Exception e) {
 			alert(e.getMessage());

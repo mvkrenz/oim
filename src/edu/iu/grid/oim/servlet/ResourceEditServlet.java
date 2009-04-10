@@ -53,10 +53,10 @@ public class ResourceEditServlet extends ServletBase implements Servlet {
 			} catch (SQLException e) {
 				throw new ServletException(e);
 			}	
-			title = "Update Virtual Organization";
+			title = "Update Resource";
 		} else {
 			rec = new ResourceRecord();
-			title = "New Virtual Organization";	
+			title = "New Resource";	
 		}
 	
 		ResourceFormDE form;

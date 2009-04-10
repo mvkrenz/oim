@@ -1,8 +1,27 @@
 package com.webif.divex.form;
 
+import java.io.PrintWriter;
+import java.util.ArrayList;
+
 import com.webif.divex.DivEx;
 
 abstract public class FormElementDEBase extends DivEx {
+	
+	//class used to render the parent div element (you can use it to render it in non-div-ish way like inline)
+	//the derived element has to use this in order for it to actually take effect (of course)
+	private ArrayList<String> classes = new ArrayList<String>();
+	public void addClass(String _class) {
+		classes.add(_class);
+	}
+	protected void renderClass(PrintWriter out) {
+		out.write("class=\"");
+		for(String _class : classes) {
+			out.write(_class);
+			out.write(" ");
+		}
+		out.write("\"");
+	}
+	
 	protected FormElementDEBase(DivEx parent) {
 		super(parent);
 	}

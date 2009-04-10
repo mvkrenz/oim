@@ -27,5 +27,7 @@
 	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/gdata-blogger-meta-2.0.jar"/>
 	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/gdata-client-1.0.jar"/>
 	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/gdata-core-1.0.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/geonames-1.0.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/jdom-1.0.jar"/>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>
