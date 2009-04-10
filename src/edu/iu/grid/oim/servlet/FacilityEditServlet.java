@@ -14,22 +14,23 @@ import com.webif.divex.DivExRoot;
 
 import edu.iu.grid.oim.lib.Authorization;
 
-import edu.iu.grid.oim.model.db.SiteModel;
-import edu.iu.grid.oim.model.db.record.SiteRecord;
+import edu.iu.grid.oim.model.db.FacilityModel;
+import edu.iu.grid.oim.model.db.record.FacilityRecord;
+
 import edu.iu.grid.oim.view.ContentView;
 import edu.iu.grid.oim.view.DivExWrapper;
 import edu.iu.grid.oim.view.HtmlView;
 import edu.iu.grid.oim.view.Page;
 import edu.iu.grid.oim.view.SideContentView;
 
-import edu.iu.grid.oim.view.divex.form.SiteFormDE;
+import edu.iu.grid.oim.view.divex.form.FacilityFormDE;
 
-public class SiteEditServlet extends ServletBase implements Servlet {
+public class FacilityEditServlet extends ServletBase implements Servlet {
 	private static final long serialVersionUID = 1L;
-	static Logger log = Logger.getLogger(SiteEditServlet.class);  
-	private String current_page = "site";	
+	static Logger log = Logger.getLogger(FacilityEditServlet.class);  
+	private String current_page = "facility";	
 
-    public SiteEditServlet() {
+    public FacilityEditServlet() {
         super();
     }
 
@@ -38,28 +39,28 @@ public class SiteEditServlet extends ServletBase implements Servlet {
 		setAuth(request);
 		auth.check("admin");
 		
-		SiteRecord rec;
+		FacilityRecord rec;
 		String title;
 
 		try {
 			//if site_id is provided then we are doing update, otherwise do new.
-			String site_id_str = request.getParameter("site_id");
-			if(site_id_str != null) {
+			String facility_id_str = request.getParameter("facility_id");
+			if(facility_id_str != null) {
 				//pull record to update
-				int site_id = Integer.parseInt(site_id_str);
-				SiteModel model = new SiteModel(auth);
-				SiteRecord keyrec = new SiteRecord();
-				keyrec.id = site_id;
+				int facility_id = Integer.parseInt(facility_id_str);
+				FacilityModel model = new FacilityModel(auth);
+				FacilityRecord keyrec = new FacilityRecord();
+				keyrec.id = facility_id;
 				rec = model.get(keyrec);
-				title = "Update Site";
+				title = "Update Facility";
 			} else {
-				rec = new SiteRecord();
-				title = "New Site";	
+				rec = new FacilityRecord();
+				title = "New Facility";	
 			}
 	
-		SiteFormDE form;
+		FacilityFormDE form;
 		String origin_url = BaseURL()+"/"+current_page;
-			form = new SiteFormDE(DivExRoot.getInstance(request), rec, origin_url, auth);
+			form = new FacilityFormDE(DivExRoot.getInstance(request), rec, origin_url, auth);
 		
 		//put the form in a view and display
 		ContentView contentview = new ContentView();

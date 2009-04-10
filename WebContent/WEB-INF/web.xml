@@ -83,6 +83,24 @@
 		<description>
 		</description>
 		<display-name>
+		FacilityServlet</display-name>
+		<servlet-name>FacilityServlet</servlet-name>
+		<servlet-class>
+		edu.iu.grid.oim.servlet.FacilityServlet</servlet-class>
+	</servlet>
+	<servlet>
+		<description>
+		</description>
+		<display-name>
+		FacilityEditServlet</display-name>
+		<servlet-name>FacilityEditServlet</servlet-name>
+		<servlet-class>
+		edu.iu.grid.oim.servlet.FacilityEditServlet</servlet-class>
+	</servlet>
+	<servlet>
+		<description>
+		</description>
+		<display-name>
 		ResourceServlet</display-name>
 		<servlet-name>ResourceServlet</servlet-name>
 		<servlet-class>
@@ -235,6 +253,10 @@
 		<url-pattern>/vo</url-pattern>
 	</servlet-mapping>
 	<servlet-mapping>
+		<servlet-name>FacilityServlet</servlet-name>
+		<url-pattern>/facility</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
 		<servlet-name>SiteServlet</servlet-name>
 		<url-pattern>/site</url-pattern>
 	</servlet-mapping>
@@ -245,6 +267,10 @@
 	<servlet-mapping>
 		<servlet-name>VOEditServlet</servlet-name>
 		<url-pattern>/voedit</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>FacilityEditServlet</servlet-name>
+		<url-pattern>/facilityedit</url-pattern>
 	</servlet-mapping>
 	<servlet-mapping>
 		<servlet-name>SiteEditServlet</servlet-name>
@@ -264,11 +290,11 @@
 	</servlet-mapping>
 	<servlet-mapping>
 		<servlet-name>OsgGridTypeServlet</servlet-name>
-		<url-pattern>/osg_grid_type</url-pattern>
+		<url-pattern>/osggridtype</url-pattern>
 	</servlet-mapping>
 	<servlet-mapping>
 		<servlet-name>OsgGridTypeEditServlet</servlet-name>
-		<url-pattern>/osg_grid_type_edit</url-pattern>
+		<url-pattern>/osggridtypeedit</url-pattern>
 	</servlet-mapping>
 	<servlet-mapping>
 		<servlet-name>CpuInfoServlet</servlet-name>

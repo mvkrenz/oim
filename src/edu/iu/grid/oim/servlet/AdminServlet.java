@@ -49,20 +49,25 @@ public class AdminServlet extends ServletBase  {
 	{
 		ContentView contentview = new ContentView();
 		
-		contentview.add(new HtmlView("<h1>Administration</h1>"));
-		ListView list = new ListView();
+		contentview.add(new HtmlView("<h1>OIM Administration</h1>"));
 		if(auth.allows("admin")) {
-			list.add(new LinkView("osg_grid_type", "OSG Grid Types"));
-			list.add(new LinkView("site", "Administrative Sites"));
+			ListView list = new ListView();
+			list.add(new LinkView("osggridtype", "OSG Grid Types"));
 			list.add(new LinkView("authmatrix", "Authorization" ));
+			contentview.add(list);
+			
+			ListView hierarchy_list = new ListView();
+			hierarchy_list.add(new LinkView("facility", "Facilities"));
+			hierarchy_list.add(new LinkView("site", "Administrative Sites"));
+			hierarchy_list.add(new LinkView("resourcegroup", "Resource Groups"));
+			contentview.add(hierarchy_list);
 		}
-		contentview.add(list);
 
-		// Need to move to separate section accessible to Metrics group (Brian et al.) -agopu
-		//hayashis - Do we really need to separate, or simply add to the above list with different auth check?
-		ListView metrics_list = new ListView();
-		metrics_list.add(new LinkView("cpuinfo", "CPU Information"));
-		contentview.add(metrics_list);
+		if ((auth.allows("admin")) || (auth.allows("edit_measurement"))) {
+			ListView metrics_list = new ListView();
+			metrics_list.add(new LinkView("cpuinfo", "CPU Information"));
+			contentview.add(metrics_list);
+		}
 		
 		return contentview;
 	}

@@ -96,6 +96,7 @@ public class Authorization {
 		        	(hostname.compareTo("SATRIANI") == 0)){
 					log.debug("Server on localhost. Overriding the DN to Arvind's");
 					user_dn = "/DC=org/DC=doegrids/OU=People/CN=Arvind Gopu 369621";
+					//user_dn = "/DC=org/DC=doegrids/OU=People/CN=Alain Roy 424511"; //OSG user
 		        }				
 			} catch (UnknownHostException e) {
 				//ignore then..

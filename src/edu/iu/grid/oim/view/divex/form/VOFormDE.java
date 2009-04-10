@@ -219,13 +219,39 @@ public class VOFormDE extends FormDE
 		} else {
 			//set user's contact as submitter
 			voclist_grouped = new HashMap<Integer, ArrayList<VOContactRecord>>();
-			ArrayList<VOContactRecord> list = new ArrayList<VOContactRecord>();
+
+			ArrayList<VOContactRecord> submitter_list = new ArrayList<VOContactRecord>();
 			VOContactRecord submitter = new VOContactRecord();
 			submitter.contact_id = auth.getContactID();
 			submitter.contact_rank_id = 1;//primary
 			submitter.contact_type_id = 1;//submitter
-			list.add(submitter);
-			voclist_grouped.put(1/*submitter*/, list);
+			submitter_list.add(submitter);
+			voclist_grouped.put(1/*submitter*/, submitter_list);
+			
+			// Should we make a function for these steps and call it 4 times? -agopu
+			ArrayList<VOContactRecord> manager_list = new ArrayList<VOContactRecord>();
+			VOContactRecord manager = new VOContactRecord();
+			manager.contact_id = auth.getContactID();
+			manager.contact_rank_id = 1;//primary
+			manager.contact_type_id = 6;//manager
+			manager_list.add(manager);
+			voclist_grouped.put(6/*manager*/, manager_list);
+
+			ArrayList<VOContactRecord> admin_contact_list = new ArrayList<VOContactRecord>();
+			VOContactRecord primary_admin = new VOContactRecord();
+			primary_admin.contact_id = auth.getContactID();
+			primary_admin.contact_rank_id = 1;//primary
+			primary_admin.contact_type_id = 3;//admin
+			admin_contact_list.add(primary_admin);
+			voclist_grouped.put(3/*admin*/, admin_contact_list);
+		
+			ArrayList<VOContactRecord> security_contact_list = new ArrayList<VOContactRecord>();
+			VOContactRecord primary_security_contact= new VOContactRecord();
+			primary_security_contact.contact_id = auth.getContactID();
+			primary_security_contact.contact_rank_id = 1;//primary
+			primary_security_contact.contact_type_id = 2;//security_contact
+			security_contact_list.add(primary_security_contact);
+			voclist_grouped.put(2/*security_contact*/, security_contact_list);
 		}
 		ContactTypeModel ctmodel = new ContactTypeModel(auth);
 		for(int contact_type_id : contact_types) {

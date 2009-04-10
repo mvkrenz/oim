@@ -22,21 +22,8 @@ import com.webif.divex.DivExRoot;
 import com.webif.divex.Event;
 
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
-import edu.iu.grid.oim.model.db.ContactRankModel;
-import edu.iu.grid.oim.model.db.ContactTypeModel;
-import edu.iu.grid.oim.model.db.ContactModel;
-import edu.iu.grid.oim.model.db.SCModel;
-import edu.iu.grid.oim.model.db.SiteModel;
 import edu.iu.grid.oim.model.db.FacilityModel;
-import edu.iu.grid.oim.model.db.DNModel;
-
-import edu.iu.grid.oim.model.db.record.ContactRankRecord;
-import edu.iu.grid.oim.model.db.record.ContactTypeRecord;
-import edu.iu.grid.oim.model.db.record.ContactRecord;
-import edu.iu.grid.oim.model.db.record.SCRecord;
-import edu.iu.grid.oim.model.db.record.SiteRecord;
 import edu.iu.grid.oim.model.db.record.FacilityRecord;
-import edu.iu.grid.oim.model.db.record.DNRecord;
 
 import edu.iu.grid.oim.view.ContentView;
 import edu.iu.grid.oim.view.DivExWrapper;
@@ -50,11 +37,11 @@ import edu.iu.grid.oim.view.TableView;
 import edu.iu.grid.oim.view.Utils;
 import edu.iu.grid.oim.view.TableView.Row;
 
-public class SiteServlet extends ServletBase implements Servlet {
+public class FacilityServlet extends ServletBase implements Servlet {
 	private static final long serialVersionUID = 1L;
-	static Logger log = Logger.getLogger(SiteServlet.class);  
+	static Logger log = Logger.getLogger(FacilityServlet.class);  
 	
-    public SiteServlet() {
+    public FacilityServlet() {
         // TODO Auto-generated constructor stub
     }
 
@@ -64,7 +51,7 @@ public class SiteServlet extends ServletBase implements Servlet {
 		auth.check("admin");
 		
 		//pull list of all sites
-		SiteModel model = new SiteModel(auth);
+		FacilityModel model = new FacilityModel(auth);
 		try {	
 			//construct view
 			MenuView menuview = createMenuView("admin");
@@ -78,32 +65,18 @@ public class SiteServlet extends ServletBase implements Servlet {
 		}
 	}
 	
-	protected ContentView createContentView(final DivExRoot root, Collection<SiteRecord> sites) 
+	protected ContentView createContentView(final DivExRoot root, Collection<FacilityRecord> facilities) 
 		throws ServletException, SQLException
 	{
 		ContentView contentview = new ContentView();	
-		contentview.add(new HtmlView("<h1>Administrativs Sites</h1>"));
+		contentview.add(new HtmlView("<h1>Facilities</h1>"));
 	
-		for(SiteRecord rec : sites) {
+		for(FacilityRecord rec : facilities) {
 			contentview.add(new HtmlView("<h2>"+StringEscapeUtils.escapeHtml(rec.name)+"</h2>"));
 	
 			RecordTableView table = new RecordTableView();
 			contentview.add(table);
-
-		 	table.addRow("Long Name", rec.long_name);
 			table.addRow("Description", rec.description);
-			table.addRow("Street", rec.address_line_1);
-			table.addRow("Address line 2", rec.address_line_2);
-			table.addRow("City", rec.city);
-			table.addRow("State", rec.state);
-			table.addRow("Zipcode", rec.zipcode);
-			table.addRow("Country", rec.country);
-			table.addRow("Longitude", rec.longitude);
-			table.addRow("Latitude", rec.latitude);
-
-			table.addRow("Facility", getFacilityName(rec.facility_id));
-			table.addRow("Support Center", getSCName(rec.sc_id));
-//			table.addRow("Submitter Contact", getSubmitterName(rec.submitter_dn_id));
 			table.addRow("Active", rec.active);
 			table.addRow("Disable", rec.disable);
 
@@ -119,7 +92,7 @@ public class SiteServlet extends ServletBase implements Servlet {
 					redirect(url);
 				}
 			};
-			table.add(new DivExWrapper(new EditButtonDE(root, BaseURL()+"/siteedit?site_id=" + rec.id)));
+			table.add(new DivExWrapper(new EditButtonDE(root, BaseURL()+"/facilityedit?facility_id=" + rec.id)));
 			
 			/*
 			class DeleteDialogDE extends DialogDE
@@ -173,28 +146,6 @@ public class SiteServlet extends ServletBase implements Servlet {
 		return contentview;
 	}
 	
-	private String getSCName(Integer sc_id) throws SQLException
-	{
-		if(sc_id == null) return null;
-		SCModel model = new SCModel(auth);
-		SCRecord sc = model.get(sc_id);	
-		if(sc == null) {
-			return null;
-		}
-		return sc.name;
-	}
-	
-	private String getFacilityName(Integer facility_id) throws SQLException
-	{
-		if(facility_id == null) return null;
-		FacilityModel model = new FacilityModel(auth);
-		FacilityRecord facility = model.get(facility_id);	
-		if(facility == null) {
-			return null;
-		}
-		return facility.name;
-	}
-
 	private SideContentView createSideView(DivExRoot root)
 	{
 		SideContentView view = new SideContentView();
@@ -204,15 +155,15 @@ public class SiteServlet extends ServletBase implements Servlet {
 			String url;
 			public NewButtonDE(DivEx parent, String _url)
 			{
-				super(parent, "Add New Administrative Site");
+				super(parent, "Add New Facility");
 				url = _url;
 			}
 			protected void onEvent(Event e) {
 				redirect(url);
 			}
 		};
-		view.add("Operation", new NewButtonDE(root, "siteedit"));
-		view.add("About", new HtmlView("This page shows a list of administratives sites in various facilities that GOC staff maintain."));		
+		view.add("Operation", new NewButtonDE(root, "facilityedit"));
+		view.add("About", new HtmlView("This page shows a list of facilities that GOC staff maintain."));		
 		return view;
 	}
 }

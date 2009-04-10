@@ -76,8 +76,14 @@ public class SiteFormDE extends FormDE
 			//if doing update, remove my own name (I can use my own name)
 			sites.remove(id);
 		}
+
+		facility_id = new SelectFormElementDE(this, getFacilities());
+		facility_id.setLabel("Facility");
+		facility_id.setValue(rec.facility_id);
+		facility_id.setRequired(true);
+
 		name = new TextFormElementDE(this);
-		name.setLabel("Name");
+		name.setLabel("Site Name");
 		name.setValue(rec.name);
 		name.setValidator(new UniqueValidator<String>(sites.values()));
 		name.setRequired(true);
@@ -105,7 +111,7 @@ public class SiteFormDE extends FormDE
 		city = new TextFormElementDE(this);
 		city.setLabel("City");
 		city.setValue(rec.city);
-		city.setRequired(true);
+		city.setRequired(false);
 
 		// Need to make this dropdown? probably not.
 		state = new TextFormElementDE(this);
@@ -129,18 +135,6 @@ public class SiteFormDE extends FormDE
 		sc_id.setValue(rec.sc_id);
 		sc_id.setRequired(true);
 
-		facility_id = new SelectFormElementDE(this, getFacilitys());
-		facility_id.setLabel("Facility");
-		facility_id.setValue(rec.facility_id);
-		facility_id.setRequired(true);
-
-		/*
-		submitted_dn_id = new SelectFormElementDE(this, getSubmitterName());
-		submitted_dn_id.setLabel("Submitter Name");
-		submitted_dn_id.setValue(rec.submitted_dn_id);
-		submitted_dn_id.setRequired(true);
-		*/
-		
 		active = new CheckBoxFormElementDE(this);
 		active.setLabel("Active");
 		active.setValue(rec.active);
@@ -176,7 +170,7 @@ public class SiteFormDE extends FormDE
 		return keyvalues;
 	}
 
-	private HashMap<Integer, String> getFacilitys() throws AuthorizationException, SQLException
+	private HashMap<Integer, String> getFacilities() throws AuthorizationException, SQLException
 	{
 		FacilityModel model = new FacilityModel(auth);
 		HashMap<Integer, String> keyvalues = new HashMap<Integer, String>();
@@ -197,14 +191,19 @@ public class SiteFormDE extends FormDE
 			rec.name = name.getValue();
 			rec.long_name = long_name.getValue();
 			rec.description = description.getValue();
-	
+
+			rec.address_line_1 = address_line_1.getValue();
+			rec.address_line_2 = address_line_2.getValue();
+			rec.city           = city.getValue();
+			rec.state          = state.getValue();
+			rec.zipcode        = zipcode.getValue();
+			rec.country        = country.getValue();
+			
 			rec.sc_id = sc_id.getValue();
 			rec.facility_id = facility_id.getValue();
 	
 			rec.active = active.getValue();
 			rec.disable = disable.getValue();
-			
-			//where are the other fields?
 			
 			SiteModel model = new SiteModel(auth);
 
