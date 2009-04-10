@@ -36,8 +36,10 @@ public class SelectFormElementDE extends FormElementDEBase
 		for(Integer v : keyvalues.keySet()) {
 			String name = keyvalues.get(v);
 			String selected = "";
-			if(v == value) {
-				selected = "selected=\"selected\"";
+			if (value != null) {
+				if(v.compareTo(value) == 0) {
+					selected = "selected=\"selected\"";
+				}
 			}
 			out.print("<option value=\""+v+"\" "+selected+">"+StringEscapeUtils.escapeHtml(name)+"</option>");
 		}
