@@ -39,4 +39,14 @@ public class ResourceServiceModel extends SmallTableModelBase<ResourceServiceRec
 		}
 		return list;
 	}
+	public ArrayList<ResourceServiceRecord> getAllByResourceID(int resource_id) throws SQLException
+	{
+		ArrayList<ResourceServiceRecord> list = new ArrayList<ResourceServiceRecord>();
+		for(ResourceServiceRecord it : getAll()) {
+			if(it.resource_id.compareTo(resource_id) == 0) {
+				list.add(it);
+			}
+		}
+		return list;		
+	}
 }

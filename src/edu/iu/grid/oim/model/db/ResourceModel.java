@@ -18,6 +18,7 @@ import edu.iu.grid.oim.model.db.record.ResourceAliasRecord;
 import edu.iu.grid.oim.model.db.record.ResourceContactRecord;
 import edu.iu.grid.oim.model.db.record.ResourceGroupRecord;
 import edu.iu.grid.oim.model.db.record.ResourceRecord;
+import edu.iu.grid.oim.model.db.record.ResourceServiceRecord;
 import edu.iu.grid.oim.model.db.record.VOContactRecord;
 import edu.iu.grid.oim.model.db.record.VOFieldOfScienceRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
@@ -96,7 +97,8 @@ public class ResourceModel extends SmallTableModelBase<ResourceRecord> {
 	
 	public void insertDetail(ResourceRecord rec, 
 			ArrayList<String> resource_aliases,
-			ArrayList<ResourceContactRecord> contacts) throws Exception
+			ArrayList<ResourceContactRecord> contacts,
+			ArrayList<ResourceServiceRecord> resource_services) throws Exception
 	{
 		try {
 			auth.check("edit_my_resource");
@@ -104,7 +106,7 @@ public class ResourceModel extends SmallTableModelBase<ResourceRecord> {
 			//process detail information
 			getConnection().setAutoCommit(false);
 			
-			//insert resource itself and insert() will set rec.id with key id
+			//insert resource itself and insert() will set rec.id with newly created id
 			insert(rec);
 			
 			//process contact information
@@ -125,6 +127,13 @@ public class ResourceModel extends SmallTableModelBase<ResourceRecord> {
 				list.add(rarec);
 			}
 			ramodel.insert(list);		
+			
+			//process resource services
+			ResourceServiceModel rsmodel = new ResourceServiceModel(auth);
+			for(ResourceServiceRecord rsrec : resource_services) {
+				rsrec.resource_id = rec.id;
+			}
+			rsmodel.insert(resource_services);
 			
 			getConnection().commit();
 			getConnection().setAutoCommit(true);
@@ -149,7 +158,8 @@ public class ResourceModel extends SmallTableModelBase<ResourceRecord> {
 	
 	public void updateDetail(ResourceRecord rec,
 			ArrayList<String> resource_aliases,
-			ArrayList<ResourceContactRecord> contacts) throws Exception
+			ArrayList<ResourceContactRecord> contacts,
+			ArrayList<ResourceServiceRecord> resource_services) throws Exception
 	{
 		//Do insert / update to our DB
 		try {
@@ -179,6 +189,13 @@ public class ResourceModel extends SmallTableModelBase<ResourceRecord> {
 			}
 			ramodel.update(ramodel.getAllByResourceID(rec.id), list);	
 		
+			//process resource services
+			ResourceServiceModel rsmodel = new ResourceServiceModel(auth);
+			for(ResourceServiceRecord rsrec : resource_services) {
+				rsrec.resource_id = rec.id;
+			}
+			rsmodel.update(rsmodel.getAllByResourceID(rec.id), resource_services);
+			
 			getConnection().commit();
 			getConnection().setAutoCommit(true);
 		} catch (AuthorizationException e) {

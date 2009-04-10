@@ -7,6 +7,7 @@ function setAutocomplete(node)
 	        mustMatch: true,
 	        matchContains: true,
 	        width: 300,
+	        delay: 100,
 			formatItem: function(data, i, n, value) {
 				return data[1] + "<br/>Email: " + data[2];
 			},

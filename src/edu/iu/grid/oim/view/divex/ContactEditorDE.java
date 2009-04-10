@@ -26,9 +26,7 @@ import edu.iu.grid.oim.servlet.ServletBase;
 
 //this requires modified version of jquery autocomplete plugin, and client side code to make the input area to be autocomplete
 public class ContactEditorDE extends FormElementDEBase {
-	static Logger log = Logger.getLogger(ContactEditorDE.class);  
-
-	protected String error;
+	static Logger log = Logger.getLogger(ContactEditorDE.class);
 	
 	public enum Rank {PRIMARY, SECONDARY, TERTIARY };
 	private HashMap<Rank/*rank_id*/, ArrayList<ContactDE>> selected = new HashMap();
@@ -159,12 +157,6 @@ public class ContactEditorDE extends FormElementDEBase {
 				log.error(e);
 			}		
 		}
-
-		@Override
-		public void validate() {
-			// TODO Auto-generated method stub
-			
-		}
 	}
 	
 	class ContactDE extends FormElementDEBase
@@ -196,17 +188,13 @@ public class ContactEditorDE extends FormElementDEBase {
 				out.print(person.name.replace(" ", "&nbsp;"));	
 			}
 			if(!isDisabled()) {
+				out.write("&nbsp;");
 				removebutton.render(out);
 			}
 			out.print("</div>");
 		}
 		@Override
 		protected void onEvent(Event e) {
-			// TODO Auto-generated method stub
-			
-		}
-		@Override
-		public void validate() {
 			// TODO Auto-generated method stub
 			
 		}
@@ -310,25 +298,6 @@ public class ContactEditorDE extends FormElementDEBase {
 			out.print("</div></td>");
 		}
 		out.print("</tr>");
-	}
-
-	public void validate()
-	{
-		redraw();
-		
-		//assume all is well
-		error = null;
-		setValid(true);
-		/*
-		if(selected.get(Rank.PRIMARY).size() == 0) {
-			valid = false;
-			error += "Primary Contact is required";
-		}
-		if(selected.get(Rank.SECONDARY).size() == 0) {
-			valid = false;
-			error += "Secondary Contact is required";
-		}
-		*/
 	}
 
 	@Override

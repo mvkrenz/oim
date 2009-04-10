@@ -4,8 +4,9 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 
 import com.webif.divex.DivEx;
+import com.webif.divex.form.validator.IFormElementValidator;
 
-abstract public class FormElementDEBase extends DivEx {
+abstract public class FormElementDEBase<ValueType> extends DivEx {
 	
 	//class used to render the parent div element (you can use it to render it in non-div-ish way like inline)
 	//the derived element has to use this in order for it to actually take effect (of course)
@@ -26,13 +27,51 @@ abstract public class FormElementDEBase extends DivEx {
 		super(parent);
 	}
 	
+	//validation suite
+	protected ArrayList<IFormElementValidator<ValueType>> validators = new ArrayList();
+	public void addValidator(IFormElementValidator<ValueType> _validator) { validators.add(_validator); }
+	protected String error;
 	private Boolean valid = true;
 	public Boolean isValid() { 
 		validate();
 		return valid; 
 	}
 	public void setValid(Boolean b) { valid = b; }
-	abstract public void validate();
+	public void validate()
+	{
+		redraw();
+		
+		//if required, run RequiredValidator
+		if(isRequired()) {
+			if(value == null) {
+				error = "Please select an item.";
+				setValid(false);
+				return;
+			}
+		}
+		
+		//then run the optional validation
+		for(IFormElementValidator<ValueType> validator : validators) {
+			if(!validator.isValid(value)) {
+				//bad..
+				error = validator.getMessage();
+				setValid(false);
+				return;
+			}
+		}
+		
+		//all good..
+		error = null;
+		setValid(true);
+	}
+	
+	protected ValueType value;
+	public void setValue(ValueType _value) { value = _value; }
+	public ValueType getValue() { return value; }
+	
+	protected String label;
+	public void setLabel(String _label) { label = _label; }
+	public String getLabel() { return label; }
 	
 	private Boolean hidden = false;
 	public Boolean isHidden() { return hidden; }

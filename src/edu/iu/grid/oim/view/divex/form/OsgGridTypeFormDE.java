@@ -60,7 +60,7 @@ public class OsgGridTypeFormDE extends FormDE
 		name = new TextFormElementDE(this);
 		name.setLabel("Name");
 		name.setValue(rec.name);
-		name.setValidator(new UniqueValidator<String>(osg_grid_types.values()));
+		name.addValidator(new UniqueValidator<String>(osg_grid_types.values()));
 		name.setRequired(true);
 		
 		description = new TextAreaFormElementDE(this);

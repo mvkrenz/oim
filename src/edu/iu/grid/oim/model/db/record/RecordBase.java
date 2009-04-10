@@ -39,9 +39,6 @@ public abstract class RecordBase implements Comparable<RecordBase> {
 					fld.set(this, rs.getString(name));
 		        } else if(type == Integer.class) {
 		        	fld.set(this, rs.getInt(name));
-		        	if(rs.wasNull()) {
-		        		fld.set(this, null);
-		        	}
 		        } else if(type == Float.class) {
 		        	fld.set(this, rs.getFloat(name));
 		        } else if(type == Double.class) {
@@ -53,6 +50,9 @@ public abstract class RecordBase implements Comparable<RecordBase> {
 		        } else {
 		        	log.error("Uknown record variable type (ctor):" + type + " called " + name);
 		        }
+	        	if(rs.wasNull()) {
+	        		fld.set(this, null);
+	        	}
 			}
 		} catch (IllegalArgumentException e) {
 			throw new SQLException(getClass().getName() + " " + e.toString());

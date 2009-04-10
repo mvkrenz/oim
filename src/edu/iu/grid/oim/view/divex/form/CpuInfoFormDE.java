@@ -56,7 +56,7 @@ public class CpuInfoFormDE extends FormDE
 		name = new TextFormElementDE(this);
 		name.setLabel("Name");
 		name.setValue(rec.name);
-		name.setValidator(new UniqueValidator<String>(cpu_infos.values()));
+		name.addValidator(new UniqueValidator<String>(cpu_infos.values()));
 		name.setRequired(true);
 		
 		normalization_constant = new TextFormElementDE(this);

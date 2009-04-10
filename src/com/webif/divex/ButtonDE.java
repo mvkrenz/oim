@@ -42,7 +42,7 @@ public class ButtonDE extends DivEx {
 				StringEscapeUtils.escapeHtml(title)+"</a>");
 			break;
 		case IMAGE:
-			out.print("<a href='#' id='"+getNodeID()+"' onclick='"+js+"'><img align='top' src='"+title+"' alt='button'/></a>");
+			out.print("<a href='#' id='"+getNodeID()+"' onclick='"+js+"'><img src='"+title+"' alt='button'/></a>");
 			break;
 		}
 	}

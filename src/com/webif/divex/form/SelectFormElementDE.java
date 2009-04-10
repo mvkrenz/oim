@@ -1,6 +1,7 @@
 package com.webif.divex.form;
 
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.apache.commons.lang.StringEscapeUtils;
@@ -9,14 +10,8 @@ import com.webif.divex.DivEx;
 import com.webif.divex.Event;
 import com.webif.divex.form.validator.IFormElementValidator;
 
-public class SelectFormElementDE extends FormElementDEBase 
-{	
-	protected String label;
-	protected Integer value;
-	protected String error;
-
-	protected IFormElementValidator<Integer> validator = null;
-	
+public class SelectFormElementDE extends FormElementDEBase<Integer>
+{		
 	HashMap<Integer, String> keyvalues;
 	
 	public SelectFormElementDE(DivEx parent, HashMap<Integer, String> _keyvalues) {
@@ -51,46 +46,6 @@ public class SelectFormElementDE extends FormElementDEBase
 			out.print("<p class='elementerror round'>"+StringEscapeUtils.escapeHtml(error)+"</p>");
 		}
 		out.print("</div>");
-	}
-	
-	public void setLabel(String _label) { label = _label; }
-	public void setValidator(IFormElementValidator<Integer> _validator) { validator = _validator; }
-	
-	public void setValue(Integer _value)	
-	{ 
-		value = _value; 
-	}
-	public Integer getValue()
-	{
-		return value;
-	}
-
-	public void validate()
-	{
-		redraw();
-		
-		//if required, run RequiredValidator
-		if(isRequired()) {
-			if(value == null) {
-				error = "Please select an item.";
-				setValid(false);
-				return;
-			}
-		}
-		
-		//then run the optional validation
-		if(validator != null) {
-			if(!validator.isValid(value)) {
-				//bad..
-				error = validator.getMessage();
-				setValid(false);
-				return;
-			}
-		}
-		
-		//all good..
-		error = null;
-		setValid(true);
 	}
 	
 	public void onEvent(Event event) {

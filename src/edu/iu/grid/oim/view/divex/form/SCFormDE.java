@@ -82,7 +82,7 @@ public class SCFormDE extends FormDE
 		name = new TextFormElementDE(this);
 		name.setLabel("Name");
 		name.setValue(rec.name);
-		name.setValidator(new UniqueValidator<String>(scs.values()));
+		name.addValidator(new UniqueValidator<String>(scs.values()));
 		name.setRequired(true);
 		
 		long_name = new TextFormElementDE(this);

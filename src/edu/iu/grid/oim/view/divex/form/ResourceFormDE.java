@@ -30,7 +30,9 @@ import edu.iu.grid.oim.model.db.FieldOfScienceModel;
 import edu.iu.grid.oim.model.db.ResourceAliasModel;
 import edu.iu.grid.oim.model.db.ResourceContactModel;
 import edu.iu.grid.oim.model.db.ResourceGroupModel;
+import edu.iu.grid.oim.model.db.ResourceServiceModel;
 import edu.iu.grid.oim.model.db.SCModel;
+import edu.iu.grid.oim.model.db.ServiceModel;
 import edu.iu.grid.oim.model.db.VOContactModel;
 import edu.iu.grid.oim.model.db.VOFieldOfScienceModel;
 import edu.iu.grid.oim.model.db.ResourceModel;
@@ -43,8 +45,10 @@ import edu.iu.grid.oim.model.db.record.ResourceAliasRecord;
 import edu.iu.grid.oim.model.db.record.ResourceContactRecord;
 import edu.iu.grid.oim.model.db.record.ResourceGroupRecord;
 import edu.iu.grid.oim.model.db.record.ResourceRecord;
+import edu.iu.grid.oim.model.db.record.ResourceServiceRecord;
 import edu.iu.grid.oim.view.divex.ContactEditorDE;
 import edu.iu.grid.oim.view.divex.ResourceAliasDE;
+import edu.iu.grid.oim.view.divex.ResourceServicesDE;
 import edu.iu.grid.oim.view.divex.ContactEditorDE.Rank;
 
 public class ResourceFormDE extends FormDE 
@@ -66,6 +70,7 @@ public class ResourceFormDE extends FormDE
 	private CheckBoxFormElementDE disable;
 	private SelectFormElementDE resource_group_id;
 	private ResourceAliasDE alias;
+	private ResourceServicesDE resource_services;
 	
 	//contact types to edit
 	private int contact_types[] = {
@@ -92,21 +97,22 @@ public class ResourceFormDE extends FormDE
 			//if doing update, remove my own name (I can use my own name)
 			resources.remove(id);
 		}
+		
 		name = new TextFormElementDE(this);
 		name.setLabel("Name");
 		name.setValue(rec.name);
-		name.setValidator(new UniqueValidator<String>(resources.values()));
+		name.addValidator(new UniqueValidator<String>(resources.values()));
 		name.setRequired(true);
-				
+		
 		description = new TextAreaFormElementDE(this);
 		description.setLabel("Description");
 		description.setValue(rec.description);
 		description.setRequired(true);
-		
+				
 		url = new TextFormElementDE(this);
 		url.setLabel("URL");
 		url.setValue(rec.url);
-		url.setValidator(UrlValidator.getInstance());
+		url.addValidator(UrlValidator.getInstance());
 		url.setRequired(true);
 		
 		interop_bdii = new CheckBoxFormElementDE(this);
@@ -157,7 +163,7 @@ public class ResourceFormDE extends FormDE
 		fqdn = new TextFormElementDE(this);
 		fqdn.setLabel("FQDN");
 		fqdn.setValue(rec.fqdn);
-		fqdn.setValidator(new UniqueValidator<String>(resources.values()));
+		fqdn.addValidator(new UniqueValidator<String>(resources.values()));
 		fqdn.setRequired(true);
 
 		new StaticDE(this, "<h3>Resource Aliases</h3>");
@@ -166,6 +172,16 @@ public class ResourceFormDE extends FormDE
 		if(id != null) {
 			for(ResourceAliasRecord rarec : ramodel.getAllByResourceID(id)) {
 				alias.addAlias(rarec.resource_alias);
+			}
+		}
+		
+		new StaticDE(this, "<h2>Resource Services</h2>");
+		ServiceModel smodel = new ServiceModel(auth);
+		resource_services = new ResourceServicesDE(this, smodel.getAll());
+		ResourceServiceModel rsmodel = new ResourceServiceModel(auth);
+		if(id != null) {
+			for(ResourceServiceRecord rarec : rsmodel.getAllByResourceID(id)) {
+				resource_services.addService(rarec);
 			}
 		}
 		
@@ -239,13 +255,18 @@ public class ResourceFormDE extends FormDE
 		rec.disable = disable.getValue();
 		rec.resource_group_id = resource_group_id.getValue();
 		
-		ArrayList<ResourceContactRecord> contacts = getContactRecordsFromEditor();
 		ResourceModel model = new ResourceModel(auth);
 		try {
 			if(rec.id == null) {
-				model.insertDetail(rec, alias.getAliases(), contacts);
+				model.insertDetail(rec, 
+						alias.getAliases(), 
+						getContactRecordsFromEditor(), 
+						resource_services.getResourceServiceRecords());
 			} else {
-				model.updateDetail(rec, alias.getAliases(), contacts);
+				model.updateDetail(rec, 
+						alias.getAliases(), 
+						getContactRecordsFromEditor(), 
+						resource_services.getResourceServiceRecords());
 			}
 		} catch (Exception e) {
 			alert(e.getMessage());

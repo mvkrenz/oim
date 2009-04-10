@@ -7,13 +7,13 @@ import com.webif.divex.Event;
 
 import org.apache.commons.lang.StringEscapeUtils;
 
-public class CheckBoxFormElementDE extends FormElementDEBase {
+public class CheckBoxFormElementDE extends FormElementDEBase<Boolean> {
 
 	private String label;
-	private Boolean value = false;
 	
 	public CheckBoxFormElementDE(DivEx parent) {
 		super(parent);
+		value = false;
 	}
 	
 	public void render(PrintWriter out) {
@@ -30,6 +30,8 @@ public class CheckBoxFormElementDE extends FormElementDEBase {
 	}
 
 	public void setLabel(String _label) { label = _label; }
+	
+	//override setValue to handle null case..
 	public void setValue(Boolean _value)	
 	{ 
 		if(_value == null) {
@@ -39,10 +41,6 @@ public class CheckBoxFormElementDE extends FormElementDEBase {
 		}
 		value = _value; 
 	}
-	public Boolean getValue()
-	{
-		return value;
-	}
 	
 	public void onEvent(Event e) {
 		if(e.getValue().compareTo("true") == 0) {
@@ -50,9 +48,6 @@ public class CheckBoxFormElementDE extends FormElementDEBase {
 		} else {
 			value = false;
 		}
-	}
-	
-	public void validate() {
-		//nothing to validate on checkbox
+		validate(); //I know checkbox almost never needs any validation, but just for consistency sake..
 	}
 }

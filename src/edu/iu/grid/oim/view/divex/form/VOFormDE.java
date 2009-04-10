@@ -99,7 +99,7 @@ public class VOFormDE extends FormDE
 		name = new TextFormElementDE(this);
 		name.setLabel("Name");
 		name.setValue(rec.name);
-		name.setValidator(new UniqueValidator<String>(vos.values()));
+		name.addValidator(new UniqueValidator<String>(vos.values()));
 		name.setRequired(true);
 		
 		long_name = new TextFormElementDE(this);
@@ -115,31 +115,31 @@ public class VOFormDE extends FormDE
 		primary_url = new TextFormElementDE(this);
 		primary_url.setLabel("Primary URL");
 		primary_url.setValue(rec.primary_url);
-		primary_url.setValidator(UrlValidator.getInstance());
+		primary_url.addValidator(UrlValidator.getInstance());
 		primary_url.setRequired(true);
 
 		aup_url = new TextFormElementDE(this);
 		aup_url.setLabel("AUP URL");
 		aup_url.setValue(rec.aup_url);
-		aup_url.setValidator(UrlValidator.getInstance());
+		aup_url.addValidator(UrlValidator.getInstance());
 		aup_url.setRequired(true);
 
 		membership_services_url = new TextFormElementDE(this);
 		membership_services_url.setLabel("Membership Services URL");
 		membership_services_url.setValue(rec.membership_services_url);
-		membership_services_url.setValidator(UrlValidator.getInstance());
+		membership_services_url.addValidator(UrlValidator.getInstance());
 		membership_services_url.setRequired(true);
 
 		purpose_url = new TextFormElementDE(this);
 		purpose_url.setLabel("Purpose URL"); 
 		purpose_url.setValue(rec.purpose_url);
-		purpose_url.setValidator(UrlValidator.getInstance());
+		purpose_url.addValidator(UrlValidator.getInstance());
 		purpose_url.setRequired(true);
 
 		support_url = new TextFormElementDE(this);
 		support_url.setLabel("Support URL"); 
 		support_url.setValue(rec.support_url);
-		support_url.setValidator(UrlValidator.getInstance());
+		support_url.addValidator(UrlValidator.getInstance());
 		support_url.setRequired(true);
 
 		app_description = new TextAreaFormElementDE(this);

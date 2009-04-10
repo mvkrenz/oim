@@ -49,12 +49,7 @@ public class ResourceAliasDE extends FormElementDEBase {
 		public String getValue() {
 			return text.getValue();
 		}
-		
-		@Override
-		public void validate() {
-			// TODO Auto-generated method stub
-			
-		}
+
 
 		@Override
 		protected void onEvent(Event e) {
@@ -106,12 +101,6 @@ public class ResourceAliasDE extends FormElementDEBase {
 			}
 		}
 		return records;
-	}
-	
-	@Override
-	public void validate() {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
