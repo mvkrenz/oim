@@ -37,6 +37,7 @@ public class AdminServlet extends ServletBase  {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{
 		setAuth(request);
+		auth.check("admin");
 		
 		MenuView menuview = createMenuView("admin");
 		ContentView contentview = createContentView();

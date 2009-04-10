@@ -27,6 +27,7 @@ import edu.iu.grid.oim.model.db.ContactRankModel;
 import edu.iu.grid.oim.model.db.ContactTypeModel;
 import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.FieldOfScienceModel;
+import edu.iu.grid.oim.model.db.ResourceAliasModel;
 import edu.iu.grid.oim.model.db.ResourceContactModel;
 import edu.iu.grid.oim.model.db.ResourceGroupModel;
 import edu.iu.grid.oim.model.db.SCModel;
@@ -38,10 +39,12 @@ import edu.iu.grid.oim.model.db.record.ContactTypeRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.FieldOfScienceRecord;
 import edu.iu.grid.oim.model.db.record.RecordBase;
+import edu.iu.grid.oim.model.db.record.ResourceAliasRecord;
 import edu.iu.grid.oim.model.db.record.ResourceContactRecord;
 import edu.iu.grid.oim.model.db.record.ResourceGroupRecord;
 import edu.iu.grid.oim.model.db.record.ResourceRecord;
 import edu.iu.grid.oim.view.divex.ContactEditorDE;
+import edu.iu.grid.oim.view.divex.ResourceAliasDE;
 import edu.iu.grid.oim.view.divex.ContactEditorDE.Rank;
 
 public class ResourceFormDE extends FormDE 
@@ -62,6 +65,7 @@ public class ResourceFormDE extends FormDE
 	private CheckBoxFormElementDE active;
 	private CheckBoxFormElementDE disable;
 	private SelectFormElementDE resource_group_id;
+	private ResourceAliasDE alias;
 	
 	//contact types to edit
 	private int contact_types[] = {
@@ -104,6 +108,12 @@ public class ResourceFormDE extends FormDE
 		fqdn.setValue(rec.fqdn);
 		fqdn.setValidator(new UniqueValidator<String>(resources.values()));
 		fqdn.setRequired(true);
+		
+		alias = new ResourceAliasDE(this);
+		ResourceAliasModel ramodel = new ResourceAliasModel(auth);
+		for(ResourceAliasRecord rarec : ramodel.getAll()) {
+			alias.addAlias(rarec.resource_alias);
+		}
 
 		url = new TextFormElementDE(this);
 		url.setLabel("URL");
@@ -148,6 +158,7 @@ public class ResourceFormDE extends FormDE
 		}
 		resource_group_id = new SelectFormElementDE(this, resource_groups_kv);
 		resource_group_id.setLabel("Resource Group");
+		resource_group_id.setRequired(true);
 		if(id != null) {
 			ResourceGroupRecord resource_group_rec = model.get(rec.resource_group_id);
 			if(resource_group_rec != null) {

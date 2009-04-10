@@ -18,7 +18,6 @@ public abstract class DivEx {
 	private Boolean needupdate = false;
 	private String js = "";
 	private DivEx parent;
-	//private HashMap<String, String> div_attr = new HashMap();
 	
 	public DivEx(DivEx _parent) {
 		parent = _parent;
@@ -26,8 +25,6 @@ public abstract class DivEx {
 		if(_parent != null) {
 			_parent.add(this);
 		}
-		
-		//div_attr.put("class", "divex"); //what is this really for? so that user can put border:0px stuff for .divex?
 	}
 	protected DivExRoot getRoot()
 	{
@@ -38,14 +35,6 @@ public abstract class DivEx {
 	}
 	
 	protected ArrayList<DivEx> childnodes = new ArrayList<DivEx>();
-	
-	/*
-	//set attr to apply to the div
-	public void setAttr(String attr, String value)
-	{
-		div_attr.put(attr, value);
-	}
-	*/
 	
 	public void alert(String msg)
 	{
@@ -115,16 +104,7 @@ public abstract class DivEx {
 		return null;
 	}
 	
-	abstract public void render(PrintWriter out);/* {
-		String html = "";
-		html += "<div id=\""+getNodeID()+"\">";
-		for(DivEx child : childnodes) {
-			html += child.render();
-		}
-		html += "</div>";
-		return html;
-	}
-	*/
+	abstract public void render(PrintWriter out);
 	public void addEventListener(EventListener listener)
 	{
 		event_listeners.add(listener);

@@ -1,41 +1,22 @@
 package edu.iu.grid.oim.model.db;
 
-import java.io.IOException;
-import java.io.StringReader;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Set;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
 
 import org.apache.log4j.Logger;
-import org.w3c.dom.Document;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
-
-import com.google.gdata.util.ServiceException;
 import com.webif.divex.form.CheckBoxFormElementDE;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
 import edu.iu.grid.oim.model.db.record.RecordBase;
-import edu.iu.grid.oim.model.db.record.SCRecord;
 import edu.iu.grid.oim.model.db.record.VOContactRecord;
 import edu.iu.grid.oim.model.db.record.VOFieldOfScienceRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
 import edu.iu.grid.oim.model.db.record.VOVORecord;
-import edu.iu.grid.oim.notification.PublicNotification;
 
 public class VOModel extends SmallTableModelBase<VORecord>
 {	
@@ -58,20 +39,13 @@ public class VOModel extends SmallTableModelBase<VORecord>
 	public Collection<VORecord> getAllEditable() throws SQLException
 	{	   
 		ArrayList<VORecord> list = new ArrayList();
-	    if(auth.allows("admin")) {
-	    	//admin can edit all scs
-	    	for(RecordBase rec : getCache()) {
-	    		list.add((VORecord)rec);
+		//only select record that is editable
+	    for(RecordBase rec : getCache()) {
+	    	VORecord vorec = (VORecord)rec;
+	    	if(canEdit(vorec.id)) {
+	    		list.add(vorec);
 	    	}
-	    } else {
-	    	//only select record that is editable
-		    for(RecordBase rec : getCache()) {
-		    	VORecord vorec = (VORecord)rec;
-		    	if(canEdit(vorec.id)) {
-		    		list.add(vorec);
-		    	}
-		    }	    	
-	    }
+	    }	    	
 	    return list;
 	}
 	
@@ -89,6 +63,7 @@ public class VOModel extends SmallTableModelBase<VORecord>
 	
 	public boolean canEdit(int vo_id)
 	{
+		if(auth.allows("admin")) return true;
 		try {
 			HashSet<Integer> ints = getEditableIDs();
 			if(ints.contains(vo_id)) return true;

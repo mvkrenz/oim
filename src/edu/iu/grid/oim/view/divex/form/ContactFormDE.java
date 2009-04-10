@@ -24,12 +24,15 @@ import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
 
 import edu.iu.grid.oim.model.db.ContactModel;
+import edu.iu.grid.oim.model.db.DNModel;
 import edu.iu.grid.oim.model.db.SCModel;
 import edu.iu.grid.oim.model.db.SiteModel;
 import edu.iu.grid.oim.model.db.FacilityModel;
 import edu.iu.grid.oim.model.db.VOModel;
+import edu.iu.grid.oim.model.db.record.DNRecord;
 import edu.iu.grid.oim.model.db.record.RecordBase;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
+import edu.iu.grid.oim.model.db.record.ResourceContactRecord;
 import edu.iu.grid.oim.model.db.record.SCRecord;
 import edu.iu.grid.oim.model.db.record.SiteRecord;
 import edu.iu.grid.oim.model.db.record.FacilityRecord;
@@ -41,19 +44,20 @@ public class ContactFormDE extends FormDE
 {
     static Logger log = Logger.getLogger(ContactFormDE.class); 
    
-	protected Authorization auth;
+    private Authorization auth;
 	private Integer id;
 	
-	public TextFormElementDE name;
-	public TextFormElementDE primary_email, secondary_email;
-	public TextFormElementDE primary_phone, secondary_phone;
-	public TextFormElementDE primary_phone_ext, secondary_phone_ext;
-	public TextFormElementDE address_line_1, address_line_2;
-	public TextFormElementDE city, state, zipcode, country;
-	public CheckBoxFormElementDE active;
-	public CheckBoxFormElementDE disable;
-	public CheckBoxFormElementDE person;
-	public TextAreaFormElementDE contact_preference;
+	private TextFormElementDE name;
+	private TextFormElementDE primary_email, secondary_email;
+	private TextFormElementDE primary_phone, secondary_phone;
+	private TextFormElementDE primary_phone_ext, secondary_phone_ext;
+	private TextFormElementDE address_line_1, address_line_2;
+	private TextFormElementDE city, state, zipcode, country;
+	private CheckBoxFormElementDE active;
+	private CheckBoxFormElementDE disable;
+	private CheckBoxFormElementDE person;
+	private TextAreaFormElementDE contact_preference;
+	private SelectFormElementDE submitter_dn;
 	
 	public ContactFormDE(DivEx parent, ContactRecord rec, String origin_url, Authorization _auth)
 	{	
@@ -84,7 +88,7 @@ public class ContactFormDE extends FormDE
 		primary_phone = new TextFormElementDE(this);
 		primary_phone.setLabel("Primary Phone");
 		primary_phone.setValue(rec.primary_phone);
-		//primary_phone.setRequired(true);
+		primary_phone.setRequired(true);
 		
 		secondary_phone_ext = new TextFormElementDE(this);
 		secondary_phone_ext.setLabel("Secondary Phone Extension");
@@ -150,6 +154,23 @@ public class ContactFormDE extends FormDE
 		contact_preference = new TextAreaFormElementDE(this);
 		contact_preference.setLabel("Contact Preference");
 		contact_preference.setValue(rec.contact_preference);
+		
+		//create DN selector
+		HashMap<Integer, String> dns = new HashMap();
+		try {
+			DNModel dnmodel = new DNModel(auth);;
+			for(DNRecord dnrec : dnmodel.getAll()) {
+				dns.put(dnrec.id, dnrec.dn_string);
+			}
+		} catch (SQLException e) {
+			log.error(e);
+		}
+		submitter_dn = new SelectFormElementDE(this, dns);
+		submitter_dn.setLabel("Submitter DN");
+		submitter_dn.setValue(rec.submitter_dn_id);
+		if(!auth.allows("admin")) {
+			submitter_dn.setHidden(true);
+		}
 	}
 
 	protected Boolean doSubmit() {
@@ -174,6 +195,7 @@ public class ContactFormDE extends FormDE
 		rec.disable = disable.getValue();
 		rec.person = person.getValue();
 		rec.contact_preference = contact_preference.getValue();
+		rec.submitter_dn_id = submitter_dn.getValue();
 		
 		ContactModel model = new ContactModel(auth);
 		try {

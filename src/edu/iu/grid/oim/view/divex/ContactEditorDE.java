@@ -179,9 +179,8 @@ public class ContactEditorDE extends FormElementDEBase {
 			person = _person;
 			rank = _rank;
 			myself = this;
-			removebutton = new ButtonDE(this, "Remove");
+			removebutton = new ButtonDE(this, "images/delete.png");
 			removebutton.setStyle(ButtonDE.Style.IMAGE);
-			removebutton.setImageUrl(ServletBase.BaseURL() + "/images/delete.png");
 			removebutton.addEventListener(new EventListener() {
 				public void handleEvent(Event e) { removeContact(myself, rank); }
 			});

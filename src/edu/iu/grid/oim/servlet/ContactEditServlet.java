@@ -44,9 +44,12 @@ public class ContactEditServlet extends ServletBase implements Servlet {
 		//if sc_id is provided then we are doing update, otherwise do new.
 		String id_str = request.getParameter("id");
 		if(id_str != null) {
-			//pull record to update
-			int id = Integer.parseInt(id_str);
+			//check authorization
 			ContactModel model = new ContactModel(auth);
+			int id = Integer.parseInt(id_str);
+			if(!model.canEdit(id)) {
+				throw new ServletException("you can't edit that");
+			}
 			try {
 				ContactRecord keyrec = new ContactRecord();
 				keyrec.id = id;

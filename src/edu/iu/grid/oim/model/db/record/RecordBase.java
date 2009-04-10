@@ -55,9 +55,9 @@ public abstract class RecordBase implements Comparable<RecordBase> {
 		        }
 			}
 		} catch (IllegalArgumentException e) {
-			throw new SQLException(e);
+			throw new SQLException(getClass().getName() + " " + e.toString());
 		} catch (IllegalAccessException e) {
-			throw new SQLException(e);
+			throw new SQLException(getClass().getName() + " " + e.toString());
 		}
 	}
 	

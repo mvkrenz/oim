@@ -86,6 +86,12 @@ public class ContactServlet extends ServletBase implements Servlet {
 		for(ContactRecord rec : contacts) {
 			contentview.add(new HtmlView("<h2>"+StringEscapeUtils.escapeHtml(rec.name)+"</h2>"));
 	
+			/* -- let's not publish this via RSS since most of the data is non-public anyway
+			//RSS feed button
+			contentview.add(new HtmlView("<div class=\"right\"><a href=\"http://oimupdate.blogspot.com/feeds/posts/default/-/contact_"+rec.id+"\" target=\"_blank\"/>"+
+					"Subscribe to Updates</a></div>"));
+			*/
+			
 			RecordTableView table = new RecordTableView();
 			contentview.add(table);
 
@@ -111,15 +117,19 @@ public class ContactServlet extends ServletBase implements Servlet {
 			table.addRow("Person", rec.person);
 			table.addRow("Contact Preference", rec.contact_preference);	
 			
-			table.addRow("Submitter DN", rec.toString(rec.submitter_dn_id, auth));
-			
-			String dn_string = "";
-			DNRecord dnrec = dnmodel.getByContactID(rec.id);
-			if(dnrec != null) {
-				dn_string = dnrec.dn_string;
+			if(auth.allows("admin")) {
+				table.addRow("Submitter DN", rec.toString(rec.submitter_dn_id, auth));
 			}
-			table.addRow("Associated DN", dn_string);			
-		
+			
+			if(auth.allows("admin")) {
+				String dn_string = "";
+				DNRecord dnrec = dnmodel.getByContactID(rec.id);
+				if(dnrec != null) {
+					dn_string = dnrec.dn_string;
+				}
+				table.addRow("Associated DN", dn_string);		
+			}
+			
 			class EditButtonDE extends ButtonDE
 			{
 				String url;

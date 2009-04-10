@@ -46,7 +46,9 @@ public class ServletBase extends HttpServlet {
 		menu.add(new MenuItem("Support Center", "sc"));
 		menu.add(new MenuItem("Contact", "contact" ));
 		menu.add(new MenuItem("Profile", "profileedit" ));
-		menu.add(new MenuItem("Administration", "admin"));	
+		if(auth.allows("admin")) {
+			menu.add(new MenuItem("Administration", "admin"));	
+		}
 		MenuView menuview = new MenuView(menu, current);
 		return menuview;
 	}

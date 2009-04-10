@@ -46,22 +46,26 @@ public class ResourceModel extends SmallTableModelBase<ResourceRecord> {
 	public Collection<ResourceRecord> getAllEditable() throws SQLException
 	{	   
 		ArrayList<ResourceRecord> list = new ArrayList();
-	    if(auth.allows("admin")) {
-	    	//admin can edit all scs
-	    	for(RecordBase rec : getCache()) {
-	    		list.add((ResourceRecord)rec);
+    	//only select record that is editable
+	    for(RecordBase id : getCache()) {
+	    	ResourceRecord rec = (ResourceRecord)id;
+	    	if(canEdit(rec.id)) {
+	    		list.add(rec);
 	    	}
-	    } else {
-	    	//only select record that is editable
-	    	HashSet<Integer> accessible = getEditableIDs();
-		    for(RecordBase id : getCache()) {
-		    	ResourceRecord rec = (ResourceRecord)id;
-		    	if(accessible.contains(rec.id)) {
-		    		list.add(rec);
-		    	}
-		    }	    	
-	    }
+	    }	    	
 	    return list;
+	}
+	
+	public boolean canEdit(int id)
+	{
+		if(auth.allows("admin")) return true;
+		try {
+			HashSet<Integer> ints = getEditableIDs();
+			if(ints.contains(id)) return true;
+		} catch (SQLException e) {
+			//TODO - something?
+		}
+		return false;
 	}
 	
 	//returns all record id that the user has access to

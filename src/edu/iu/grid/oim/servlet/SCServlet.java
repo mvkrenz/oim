@@ -82,7 +82,9 @@ public class SCServlet extends ServletBase implements Servlet {
 		for(SCRecord rec : scs) {
 			contentview.add(new HtmlView("<h2>"+StringEscapeUtils.escapeHtml(rec.name)+"</h2>"));
 			
-			log.debug("Rendering SC " + rec.name);
+			//RSS feed button
+			contentview.add(new HtmlView("<div class=\"right\"><a href=\"http://oimupdate.blogspot.com/feeds/posts/default/-/sc_"+rec.id+"\" target=\"_blank\"/>"+
+					"Subscribe to Updates</a></div>"));
 	
 			RecordTableView table = new RecordTableView();
 			contentview.add(table);

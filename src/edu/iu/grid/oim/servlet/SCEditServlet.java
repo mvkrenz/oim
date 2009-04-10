@@ -41,9 +41,9 @@ public class SCEditServlet extends ServletBase implements Servlet {
 		//if sc_id is provided then we are doing update, otherwise do new.
 		String sc_id_str = request.getParameter("sc_id");
 		if(sc_id_str != null) {
-			//pull record to update
+			//check authorization
 			int sc_id = Integer.parseInt(sc_id_str);
-			SCModel model = new SCModel(auth);
+			SCModel model = new SCModel(auth);			
 			if(!model.canEdit(sc_id)) {
 				throw new ServletException("Sorry, you don't have permission to edit this SC " + sc_id);
 			}

@@ -21,7 +21,7 @@ import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
 import edu.iu.grid.oim.model.db.record.KeyComparator;
 import edu.iu.grid.oim.model.db.record.RecordBase;
-import edu.iu.grid.oim.notification.PublicNotification;
+import edu.iu.grid.oim.lib.PublicNotification;
 
 public abstract class SmallTableModelBase<T extends RecordBase> extends ModelBase {
     static Logger log = Logger.getLogger(SmallTableModelBase.class);  

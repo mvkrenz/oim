@@ -48,6 +48,7 @@ public class CPUInfoServlet extends ServletBase implements Servlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{	
 		setAuth(request);
+		//TODO - missing auth check?
 		
 		//pull list of all CPU_info records
 		Collection<CpuInfoRecord> cpus = null;

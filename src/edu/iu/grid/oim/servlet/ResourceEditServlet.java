@@ -43,6 +43,9 @@ public class ResourceEditServlet extends ServletBase implements Servlet {
 			//pull record to update
 			int resource_id = Integer.parseInt(resource_id_str);
 			ResourceModel model = new ResourceModel(auth);
+			if(!model.canEdit(resource_id)) {
+				throw new ServletException("You can't edit that");
+			}
 			try {
 				ResourceRecord keyrec = new ResourceRecord();
 				keyrec.id = resource_id;

@@ -10,9 +10,6 @@ public class ButtonDE extends DivEx {
 	static public enum Style { BUTTON, ALINK, IMAGE };
 	Style style = Style.BUTTON;
 	public void setStyle(Style _style) { style = _style; }
-
-	String image_url = null;
-	public void setImageUrl(String _url) { image_url = _url; }
 	
 	Boolean confirm = false;
 	String confirm_message = null;
@@ -21,6 +18,7 @@ public class ButtonDE extends DivEx {
 		confirm_message = message;
 	}
 	
+	//if the button style is IMAGE, _title will be used as URL
 	public ButtonDE(DivEx parent, String _title) {
 		super(parent);
 		title = _title;
@@ -44,8 +42,7 @@ public class ButtonDE extends DivEx {
 				StringEscapeUtils.escapeHtml(title)+"</a>");
 			break;
 		case IMAGE:
-			out.print("<a href='#' id='"+getNodeID()+"' onclick='"+js+"'><img align='top' src='"+image_url+"' alt='"+
-				StringEscapeUtils.escapeHtml(title)+"'/></a>");
+			out.print("<a href='#' id='"+getNodeID()+"' onclick='"+js+"'><img align='top' src='"+title+"' alt='button'/></a>");
 			break;
 		}
 	}

@@ -42,6 +42,7 @@ public class ProfileEditServlet extends ServletBase implements Servlet {
 		ContactRecord rec;
 		try {
 			rec = auth.getContact();
+			/* -- this involves adding new DN
 			if(rec == null) {
 				//create new record
 				ContactModel model = new ContactModel(auth);
@@ -51,8 +52,9 @@ public class ProfileEditServlet extends ServletBase implements Servlet {
 				
 				//associate with this dn
 				DNModel dnmode = new DNModel(auth);
-				//dnmode.update(dnmodel.get(olddn), newdn)
+				//dnmode.update()
 			}
+			*/
 				
 			String origin_url = BaseURL()+"/"+current_page;
 			ContactFormDE form = new ContactFormDE(DivExRoot.getInstance(request), rec, origin_url, auth);

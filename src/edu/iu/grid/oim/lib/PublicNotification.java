@@ -1,4 +1,4 @@
-package edu.iu.grid.oim.notification;
+package edu.iu.grid.oim.lib;
 
 import com.google.gdata.client.*;
 import com.google.gdata.client.blogger.*;

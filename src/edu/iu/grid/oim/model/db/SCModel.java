@@ -5,23 +5,14 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
-
 import org.apache.log4j.Logger;
-
-import com.webif.divex.form.CheckBoxFormElementDE;
-
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
-import edu.iu.grid.oim.model.db.record.NotificationRecord;
 import edu.iu.grid.oim.model.db.record.RecordBase;
 import edu.iu.grid.oim.model.db.record.SCContactRecord;
 import edu.iu.grid.oim.model.db.record.SCRecord;
-import edu.iu.grid.oim.model.db.record.SCContactRecord;
-import edu.iu.grid.oim.model.db.record.VOFieldOfScienceRecord;
-import edu.iu.grid.oim.model.db.record.SCRecord;
-import edu.iu.grid.oim.model.db.record.VOVORecord;
+
 public class SCModel extends SmallTableModelBase<SCRecord> {
     static Logger log = Logger.getLogger(SCModel.class);  
     
@@ -37,24 +28,19 @@ public class SCModel extends SmallTableModelBase<SCRecord> {
 	public Collection<SCRecord> getAllEditable() throws SQLException
 	{		
 		ArrayList<SCRecord> list = new ArrayList();
-	    if(auth.allows("admin")) {
-	    	//admin can edit all scs
-	    	for(RecordBase rec : getCache()) {
-	    		list.add((SCRecord)rec);
-	    	}
-	    } else {
-	    	//only select record that is editable
-		    for(RecordBase rec : getCache()) {
-		    	SCRecord screc = (SCRecord)rec;
-		    	if(canEdit(screc.id)) {
-		    		list.add(screc);
-		    	}
-		    }	    	
+
+    	//only select record that is editable
+	    for(RecordBase rec : getCache()) {
+	    	SCRecord screc = (SCRecord)rec;
+	    	if(canEdit(screc.id)) {
+	    		list.add(screc);
+	    	} 	
 	    }
 	    return list;
 	}
 	public boolean canEdit(int id)
 	{
+		if(auth.allows("admin")) return true;
 		try {
 			HashSet<Integer> ints = getEditableIDs();
 			if(ints.contains(id)) return true;
