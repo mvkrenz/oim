@@ -62,7 +62,7 @@ public class FacilityFormDE extends FormDE
 		name = new TextFormElementDE(this);
 		name.setLabel("Site Name");
 		name.setValue(rec.name);
-		name.setValidator(new UniqueValidator<String>(sites.values()));
+		name.addValidator(new UniqueValidator<String>(sites.values()));
 		name.setRequired(true);
 		
 		description = new TextAreaFormElementDE(this);
