@@ -250,6 +250,26 @@
 			<servlet-class>
 			edu.iu.grid.oim.servlet.UserServlet</servlet-class>
 		</servlet>
+		
+	<servlet>
+		<description>
+		</description>
+		<display-name>
+		ResourceGroupServlet</display-name>
+		<servlet-name>ResourceGroupServlet</servlet-name>
+		<servlet-class>
+		edu.iu.grid.oim.servlet.ResourceGroupServlet</servlet-class>
+	</servlet>
+	<servlet>
+		<description>
+		</description>
+		<display-name>
+		ResourceGroupEditServlet</display-name>
+		<servlet-name>ResourceGroupEditServlet</servlet-name>
+		<servlet-class>
+		edu.iu.grid.oim.servlet.ResourceGroupEditServlet</servlet-class>
+	</servlet>
+	
 	<servlet-mapping>
 		<servlet-name>DivexServlet</servlet-name>
 		<url-pattern>/divex</url-pattern>
@@ -347,16 +367,25 @@
 		<url-pattern>/profileedit</url-pattern>
 	</servlet-mapping>
 	
-		<servlet-mapping>
+	<servlet-mapping>
 		<servlet-name>UserEditServlet</servlet-name>
 		<url-pattern>/useredit</url-pattern>
 	</servlet-mapping>
 	
-		<servlet-mapping>
+	<servlet-mapping>
 		<servlet-name>UserServlet</servlet-name>
 		<url-pattern>/user</url-pattern>
 	</servlet-mapping>
 	
+	<servlet-mapping>
+		<servlet-name>ResourceGroupEditServlet</servlet-name>
+		<url-pattern>/resourcegroupedit</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+		<servlet-name>ResourceGroupServlet</servlet-name>
+		<url-pattern>/resourcegroup</url-pattern>
+	</servlet-mapping>
 	
 	<welcome-file-list>
 		<welcome-file>index.jsp</welcome-file>

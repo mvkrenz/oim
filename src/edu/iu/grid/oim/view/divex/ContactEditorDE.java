@@ -173,8 +173,8 @@ public class ContactEditorDE extends FormElementDEBase<HashMap<ContactEditorDE.R
 						}
 					}
 					if(rec.primary_email != null) {
-						String email = rec.primary_email.toLowerCase();
-						if(email.contains(query)) {
+						String name = rec.primary_email.toLowerCase();
+						if(name.contains(query)) {
 							persons.put(rec.id, rec);
 							continue;
 						}

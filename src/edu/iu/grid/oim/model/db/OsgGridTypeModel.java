@@ -8,6 +8,7 @@ import org.apache.log4j.Logger;
 
 import edu.iu.grid.oim.model.db.record.OsgGridTypeRecord;
 import edu.iu.grid.oim.model.db.record.RecordBase;
+import edu.iu.grid.oim.model.db.record.SCRecord;
 import edu.iu.grid.oim.lib.Authorization;
 
 public class OsgGridTypeModel extends SmallTableModelBase<OsgGridTypeRecord> {
@@ -28,5 +29,10 @@ public class OsgGridTypeModel extends SmallTableModelBase<OsgGridTypeRecord> {
 			list.add((OsgGridTypeRecord)it);
 		}
 		return list;
+	}
+	public OsgGridTypeRecord get(Integer id) throws SQLException {
+		OsgGridTypeRecord keyrec = new OsgGridTypeRecord();
+		keyrec.id = id;
+		return get(keyrec);
 	}
 }

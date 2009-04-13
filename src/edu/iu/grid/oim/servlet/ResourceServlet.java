@@ -200,7 +200,7 @@ public class ResourceServlet extends ServletBase implements Servlet {
 			table.addRow("KSI2K Max", rec.ksi2k_maximum);
 			table.addRow("Storage Capacity Min", rec.storage_capacity_minimum);
 			table.addRow("Storage Capacity Max", rec.storage_capacity_maximum);	
-			table.addRow("Server List RegEx", rec.server_list_regex);
+			//table.addRow("Server List RegEx", rec.server_list_regex);
 			view.add(table);
 			
 			view.add(new HtmlView("</div>"));

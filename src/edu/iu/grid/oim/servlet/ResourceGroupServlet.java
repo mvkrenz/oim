@@ -26,8 +26,10 @@ import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
 import edu.iu.grid.oim.model.db.ContactRankModel;
 import edu.iu.grid.oim.model.db.ContactTypeModel;
 import edu.iu.grid.oim.model.db.ContactModel;
+import edu.iu.grid.oim.model.db.ResourceGroupModel;
 import edu.iu.grid.oim.model.db.SCContactModel;
 import edu.iu.grid.oim.model.db.SCModel;
+import edu.iu.grid.oim.model.db.record.ResourceGroupRecord;
 import edu.iu.grid.oim.model.db.record.SCRecord;
 import edu.iu.grid.oim.model.db.record.SCContactRecord;
 import edu.iu.grid.oim.model.db.record.ContactRankRecord;
@@ -45,27 +47,26 @@ import edu.iu.grid.oim.view.TableView;
 import edu.iu.grid.oim.view.Utils;
 import edu.iu.grid.oim.view.TableView.Row;
 
-public class SCServlet extends ServletBase implements Servlet {
+public class ResourceGroupServlet extends ServletBase implements Servlet {
 	private static final long serialVersionUID = 1L;
-	static Logger log = Logger.getLogger(SCServlet.class);  
+	static Logger log = Logger.getLogger(ResourceGroupServlet.class);  
 	
-    public SCServlet() {
+    public ResourceGroupServlet() {
         // TODO Auto-generated constructor stub
     }
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{	
 		setAuth(request);
+		auth.check("admin");
 		
-		//pull list of all SCss
-		SCModel model = new SCModel(auth);
+		//pull list of all Resource Groupus
+
 		try {
-			Collection<SCRecord> scs = model.getAllEditable();
-		
 			//construct view
-			MenuView menuview = createMenuView("sc");
+			MenuView menuview = createMenuView("admin");
 			DivExRoot root = DivExRoot.getInstance(request);
-			ContentView contentview = createContentView(root, scs);
+			ContentView contentview = createContentView(root);
 			Page page = new Page(menuview, contentview, createSideView(root));
 			page.render(response.getWriter());			
 		} catch (SQLException e) {
@@ -74,58 +75,32 @@ public class SCServlet extends ServletBase implements Servlet {
 		}
 	}
 	
-	protected ContentView createContentView(final DivExRoot root, Collection<SCRecord> scs) 
+	protected ContentView createContentView(final DivExRoot root) 
 		throws ServletException, SQLException
 	{
 		ContentView contentview = new ContentView();	
-		contentview.add(new HtmlView("<h1>Support Centers</h1>"));
+		contentview.add(new HtmlView("<h1>Resource Groups</h1>"));
 	
-		for(SCRecord rec : scs) {
+		ResourceGroupModel model = new ResourceGroupModel(auth);
+		Collection<ResourceGroupRecord> rgs = model.getAll();
+		for(ResourceGroupRecord rec : rgs) {
 			contentview.add(new HtmlView("<h2>"+StringEscapeUtils.escapeHtml(rec.name)+"</h2>"));
 			
+			/*
 			//RSS feed button
 			contentview.add(new HtmlView("<div class=\"right\"><a href=\"http://oimupdate.blogspot.com/feeds/posts/default/-/sc_"+rec.id+"\" target=\"_blank\"/>"+
 					"Subscribe to Updates</a></div>"));
-	
+			*/
+			
 			RecordTableView table = new RecordTableView();
 			contentview.add(table);
 
-		 	table.addRow("Long Name", rec.long_name);
 			table.addRow("Description", rec.description);
-			table.addRow("Community", rec.community);
-			if(auth.allows("admin")) {
-				table.addRow("Footprints ID", rec.footprints_id);
-			}
+			table.addRow("Site ID", rec.toString(rec.site_id, auth));
+			table.addRow("OSG Grid Type ID", rec.toString(rec.osg_grid_type_id, auth));
 			table.addRow("Active", rec.active);
 			table.addRow("Disable", rec.disable);
 
-			ContactTypeModel ctmodel = new ContactTypeModel(auth);
-			ContactRankModel crmodel = new ContactRankModel(auth);
-			ContactModel pmodel = new ContactModel(auth);
-			
-			//contacts (only shows contacts that are filled out)
-			SCContactModel sccmodel = new SCContactModel(auth);
-			ArrayList<SCContactRecord> scclist = sccmodel.getBySCID(rec.id);
-			HashMap<Integer, ArrayList<SCContactRecord>> scclist_grouped = sccmodel.groupByContactTypeID(scclist);
-			for(Integer type_id : scclist_grouped.keySet()) {
-				ArrayList<SCContactRecord> clist = scclist_grouped.get(type_id);
-				ContactTypeRecord ctrec = ctmodel.get(type_id);
-				
-				String cliststr = "";
-				
-				for(SCContactRecord sccrec : clist) {
-					ContactRecord person = pmodel.get(sccrec.contact_id);
-					ContactRankRecord rank = crmodel.get(sccrec.contact_rank_id);
-
-					cliststr += "<div class='contact_rank contact_"+rank.name+"'>";
-					cliststr += person.name;
-					cliststr += "</div>";
-				
-				}
-				
-				table.addRow(ctrec.name, new HtmlView(cliststr));
-			}			
-		
 			class EditButtonDE extends ButtonDE
 			{
 				String url;
@@ -138,7 +113,7 @@ public class SCServlet extends ServletBase implements Servlet {
 					redirect(url);
 				}
 			};
-			table.add(new DivExWrapper(new EditButtonDE(root, Config.getApplicationBase()+"/scedit?sc_id=" + rec.id)));
+			table.add(new DivExWrapper(new EditButtonDE(root, Config.getApplicationBase()+"/resourcegroupedit?id=" + rec.id)));
 		}
 		
 		return contentview;
@@ -160,8 +135,8 @@ public class SCServlet extends ServletBase implements Servlet {
 				redirect(url);
 			}
 		};
-		view.add("Operation", new NewButtonDE(root, "scedit"));
-		view.add("About", new HtmlView("This page shows a list of Support Centers that you have access to edit."));		
+		view.add("Operation", new NewButtonDE(root, "resourcegroupedit"));
+		view.add("About", new HtmlView("This page shows a list of Resource Groups that you have access to edit."));		
 		return view;
 	}
 }

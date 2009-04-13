@@ -12,9 +12,9 @@ public class Page implements IView {
 	
 	public Page(IView _menu, IView _content, IView _side)
 	{
-		header = new HtmlFileView("header.html");
+		header = new HtmlFileView("header.txt");
 		header_addon = "";
-		footer = new HtmlFileView("footer.html");
+		footer = new HtmlFileView("footer.txt");
 		menu = _menu;
 		content = _content;
 		side = _side;

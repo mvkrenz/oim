@@ -45,5 +45,10 @@ public class TextAreaFormElementDE extends FormElementDEBase<String>  {
 			out.print("<p class='elementerror round'>"+StringEscapeUtils.escapeHtml(error)+"</p>");
 		}
 		out.print("</div>");
+		/*
+		out.print("<script type=\"text/javascript\">");
+		out.print("$('#"+getNodeID()+" textarea').TextAreaResizer();");
+		out.print("</script>");
+		*/
 	}
 }
