@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.webif.divex.ButtonDE;
@@ -137,23 +138,38 @@ public class ContactEditorDE extends FormElementDEBase<HashMap<ContactEditorDE.R
 			}
 		}
 		
+	    /* replace multiple whitespaces between words with single blank */
+	    private String itrim(String source) {
+	        return source.replaceAll("\\b\\s{2,}\\b", " ");
+	    }
+
+		
 		//this handles the list request from the autocomplete box.
 		protected void onRequest(HttpServletRequest request, HttpServletResponse response)
 		{
 			try {
-				String query = request.getParameter("q").toLowerCase();
+				String query = itrim(request.getParameter("q").toLowerCase());
 				int limit = Integer.parseInt(request.getParameter("limit")); //only returns records upto requested limit
 				Collection<ContactRecord> all = pmodel.getAll();
-				HashMap<Integer, ContactRecord> persons = new HashMap();		
+				HashMap<Integer, ContactRecord> persons = new HashMap();
+				ContactRecord best_guess = null;
+				int best_guess_distance = 10000;
 				//filter records that matches the query upto limit
 				for(ContactRecord rec : all) {
 					if(persons.size() > limit) break;
 					
 					if(rec.name != null) {
-						String name = rec.name.toLowerCase();
+						String name = itrim(rec.name.toLowerCase());
 						if(name.contains(query)) {
 							persons.put(rec.id, rec);
 							continue;
+						}
+						
+						//calculate levenshtein distance
+						int distance = StringUtils.getLevenshteinDistance(name, query);
+						if(best_guess_distance > distance) {
+							best_guess = rec;
+							best_guess_distance = distance;
 						}
 					}
 					if(rec.primary_email != null) {
@@ -163,6 +179,11 @@ public class ContactEditorDE extends FormElementDEBase<HashMap<ContactEditorDE.R
 							continue;
 						}
 					}
+				}
+				
+				//if no match was found, pick the closest match
+				if(persons.size() == 0) {
+					persons.put(best_guess.id, best_guess);	
 				}
 		
 				//remove people that are already selected 
@@ -182,7 +203,7 @@ public class ContactEditorDE extends FormElementDEBase<HashMap<ContactEditorDE.R
 	
 				String out = "";
 				for(ContactRecord rec : persons.values()) {
-					out += rec.id+"|"+rec.name+"|"+rec.primary_email+"\n";
+					out += rec.id+"|"+itrim(rec.name)+"|"+rec.primary_email+"\n";
 				}
 				response.setContentType("text/javascript");
 				response.getOutputStream().print(out);

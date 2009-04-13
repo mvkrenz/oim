@@ -22,7 +22,7 @@ public class Config {
 		return config.staticbase;
 	}	
     
-	//why privae? - don't allow client instantiation (use getInstance) 
+	//why private? - don't allow client instantiation (use getInstance) 
 	private Config() 
 	{
 		try {
