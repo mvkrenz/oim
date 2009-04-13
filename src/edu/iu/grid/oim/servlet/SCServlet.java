@@ -21,6 +21,7 @@ import com.webif.divex.DivEx;
 import com.webif.divex.DivExRoot;
 import com.webif.divex.Event;
 
+import edu.iu.grid.oim.lib.Config;
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
 import edu.iu.grid.oim.model.db.ContactRankModel;
 import edu.iu.grid.oim.model.db.ContactTypeModel;
@@ -137,7 +138,7 @@ public class SCServlet extends ServletBase implements Servlet {
 					redirect(url);
 				}
 			};
-			table.add(new DivExWrapper(new EditButtonDE(root, BaseURL()+"/scedit?sc_id=" + rec.id)));
+			table.add(new DivExWrapper(new EditButtonDE(root, Config.getApplicationBase()+"/scedit?sc_id=" + rec.id)));
 		}
 		
 		return contentview;

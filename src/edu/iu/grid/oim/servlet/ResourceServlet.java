@@ -26,6 +26,7 @@ import com.webif.divex.DivEx;
 import com.webif.divex.DivExRoot;
 import com.webif.divex.Event;
 
+import edu.iu.grid.oim.lib.Config;
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
 import edu.iu.grid.oim.model.db.ContactRankModel;
 import edu.iu.grid.oim.model.db.ContactTypeModel;
@@ -35,8 +36,10 @@ import edu.iu.grid.oim.model.db.ResourceAliasModel;
 import edu.iu.grid.oim.model.db.ResourceContactModel;
 import edu.iu.grid.oim.model.db.ResourceGroupModel;
 import edu.iu.grid.oim.model.db.ResourceModel;
+import edu.iu.grid.oim.model.db.ResourceServiceModel;
 import edu.iu.grid.oim.model.db.SCContactModel;
 import edu.iu.grid.oim.model.db.SCModel;
+import edu.iu.grid.oim.model.db.ServiceModel;
 import edu.iu.grid.oim.model.db.record.ContactRankRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.ContactTypeRecord;
@@ -44,8 +47,11 @@ import edu.iu.grid.oim.model.db.record.ResourceAliasRecord;
 import edu.iu.grid.oim.model.db.record.ResourceContactRecord;
 import edu.iu.grid.oim.model.db.record.ResourceGroupRecord;
 import edu.iu.grid.oim.model.db.record.ResourceRecord;
+import edu.iu.grid.oim.model.db.record.ResourceServiceRecord;
+import edu.iu.grid.oim.model.db.record.ServiceRecord;
 import edu.iu.grid.oim.view.ContentView;
 import edu.iu.grid.oim.view.DivExWrapper;
+import edu.iu.grid.oim.view.GenericView;
 import edu.iu.grid.oim.view.HtmlView;
 import edu.iu.grid.oim.view.IView;
 import edu.iu.grid.oim.view.MenuView;
@@ -84,22 +90,6 @@ public class ResourceServlet extends ServletBase implements Servlet {
 			log.error(e);
 			throw new ServletException(e);
 		}
-		/*
-		//http://www.geonames.org/source-code/
-		  ToponymSearchCriteria searchCriteria = new ToponymSearchCriteria();
-		  searchCriteria.setQ("zurich");
-		  ToponymSearchResult searchResult;
-		try {
-			searchResult = WebService.search(searchCriteria);
-			  for (Toponym toponym : searchResult.getToponyms()) {
-				     System.out.println(toponym.getName()+" "+ toponym.getCountryName());
-				  }
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		*/
-
 	}
 	
 	protected ContentView createContentView(final DivExRoot root, Collection<ResourceRecord> resources) 
@@ -119,7 +109,7 @@ public class ResourceServlet extends ServletBase implements Servlet {
 			contentview.add(table);
 
 			table.addRow("Description", rec.description);
-			table.addRow("URL", rec.url);
+			table.addRow("URL", new HtmlView("<a target=\"_blank\" href=\""+rec.url+"\">"+rec.url+"</a>"));
 			table.addRow("Interop BDII", rec.interop_bdii);
 			table.addRow("Interop Monitoring", rec.interop_monitoring);
 			table.addRow("Interop Accounting", rec.interop_accounting);
@@ -137,6 +127,15 @@ public class ResourceServlet extends ServletBase implements Servlet {
 				resource_group_name = resource_group_rec.name;
 			}
 			table.addRow("Resource Group Name", resource_group_name);
+			
+			//Resource Services
+			ResourceServiceModel rsmodel = new ResourceServiceModel(auth);
+			ArrayList<ResourceServiceRecord> services = rsmodel.getAllByResourceID(rec.id);
+			GenericView services_view = new GenericView();
+			for(ResourceServiceRecord rsrec : services) {
+				services_view.add(createServiceView(rsrec));
+			}
+			table.addRow("Services", services_view);
 	
 			ContactTypeModel ctmodel = new ContactTypeModel(auth);
 			ContactRankModel crmodel = new ContactRankModel(auth);
@@ -177,10 +176,41 @@ public class ResourceServlet extends ServletBase implements Servlet {
 					redirect(url);
 				}
 			};
-			table.add(new DivExWrapper(new EditButtonDE(root, BaseURL()+"/resourceedit?resource_id=" + rec.id)));
+			table.add(new DivExWrapper(new EditButtonDE(root, Config.getApplicationBase()+"/resourceedit?resource_id=" + rec.id)));
 		}
 		
 		return contentview;
+	}
+	
+	private IView createServiceView(ResourceServiceRecord rec)
+	{
+		GenericView view = new GenericView();
+		RecordTableView table = new RecordTableView();
+		
+		try {
+			ServiceModel smodel = new ServiceModel(auth);
+			ServiceRecord srec;
+			srec = smodel.get(rec.service_id);
+			view.add(new HtmlView("<div class=\"service_table\"><div class=\"header\">" + StringEscapeUtils.escapeHtml(srec.description) + "</div>"));
+			
+			table.addRow("End Point Override", rec.endpoint_override);
+			table.addRow("Hidden", rec.hidden);
+			table.addRow("Central", rec.central);
+			table.addRow("KSI2K Min", rec.ksi2k_minimum);
+			table.addRow("KSI2K Max", rec.ksi2k_maximum);
+			table.addRow("Storage Capacity Min", rec.storage_capacity_minimum);
+			table.addRow("Storage Capacity Max", rec.storage_capacity_maximum);	
+			table.addRow("Server List RegEx", rec.server_list_regex);
+			view.add(table);
+			
+			view.add(new HtmlView("</div>"));
+			
+		} catch (SQLException e) {
+			log.error(e);
+		}
+		
+
+		return view;
 	}
 	
 	private String getAlias(int resource_id) throws SQLException

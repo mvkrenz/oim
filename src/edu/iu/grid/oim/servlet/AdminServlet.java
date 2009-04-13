@@ -54,6 +54,7 @@ public class AdminServlet extends ServletBase  {
 			ListView list = new ListView();
 			list.add(new LinkView("osggridtype", "OSG Grid Types"));
 			list.add(new LinkView("authmatrix", "Authorization" ));
+			list.add(new LinkView("user", "User" ));
 			contentview.add(list);
 			
 			ListView hierarchy_list = new ListView();

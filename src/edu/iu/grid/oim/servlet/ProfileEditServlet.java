@@ -13,6 +13,7 @@ import org.apache.log4j.Logger;
 import com.webif.divex.DivExRoot;
 
 import edu.iu.grid.oim.lib.Authorization;
+import edu.iu.grid.oim.lib.Config;
 import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.DNModel;
 import edu.iu.grid.oim.model.db.SCModel;
@@ -56,7 +57,7 @@ public class ProfileEditServlet extends ServletBase implements Servlet {
 			}
 			*/
 				
-			String origin_url = BaseURL()+"/"+current_page;
+			String origin_url = Config.getApplicationBase()+"/"+current_page;
 			ContactFormDE form = new ContactFormDE(DivExRoot.getInstance(request), rec, origin_url, auth);
 			
 			//put the form in a view and display

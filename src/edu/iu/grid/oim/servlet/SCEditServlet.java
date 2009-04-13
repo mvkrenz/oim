@@ -13,6 +13,7 @@ import org.apache.log4j.Logger;
 import com.webif.divex.DivExRoot;
 
 import edu.iu.grid.oim.lib.Authorization;
+import edu.iu.grid.oim.lib.Config;
 import edu.iu.grid.oim.model.db.SCModel;
 import edu.iu.grid.oim.model.db.record.SCRecord;
 import edu.iu.grid.oim.view.divex.form.SCFormDE;
@@ -34,6 +35,7 @@ public class SCEditServlet extends ServletBase implements Servlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{
 		setAuth(request);
+		auth.check("edit_my_sc");
 		
 		SCRecord rec;
 		String title;
@@ -62,7 +64,7 @@ public class SCEditServlet extends ServletBase implements Servlet {
 		}
 	
 		SCFormDE form;
-		String origin_url = BaseURL()+"/"+current_page;
+		String origin_url = Config.getApplicationBase()+"/"+current_page;
 		try {
 			form = new SCFormDE(DivExRoot.getInstance(request), rec, origin_url, auth);
 		} catch (SQLException e) {
@@ -74,12 +76,7 @@ public class SCEditServlet extends ServletBase implements Servlet {
 		contentview.add(new HtmlView("<h1>"+title+"</h1>"));	
 		contentview.add(new DivExWrapper(form));
 		
-		Page page = new Page(createMenuView(current_page), contentview, createSideView());
-		
-		page.addExternalCSS(BaseURL()+"/jquery/plugin/jquery.autocomplete.css");
-		page.addExternalJS(BaseURL()+"/jquery/plugin/jquery.autocomplete.js");
-		page.addExternalJS(BaseURL()+"/autocomplete.js");
-		
+		Page page = new Page(createMenuView(current_page), contentview, createSideView());		
 		page.render(response.getWriter());	
 	}
 	

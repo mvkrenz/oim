@@ -13,6 +13,7 @@ import org.apache.log4j.Logger;
 import com.webif.divex.DivExRoot;
 
 import edu.iu.grid.oim.lib.Authorization;
+import edu.iu.grid.oim.lib.Config;
 import edu.iu.grid.oim.model.db.CpuInfoModel;
 import edu.iu.grid.oim.model.db.record.CpuInfoRecord;
 import edu.iu.grid.oim.view.divex.form.CpuInfoFormDE;
@@ -62,7 +63,7 @@ public class CpuInfoEditServlet extends ServletBase implements Servlet {
 		}
 	
 		CpuInfoFormDE form;
-		String origin_url = BaseURL()+"/"+current_page;
+		String origin_url = Config.getApplicationBase()+"/"+current_page;
 		try {
 			form = new CpuInfoFormDE(DivExRoot.getInstance(request), rec, origin_url, auth);
 		} catch (SQLException e) {
@@ -75,8 +76,6 @@ public class CpuInfoEditServlet extends ServletBase implements Servlet {
 		contentview.add(new DivExWrapper(form));
 		
 		Page page = new Page(createMenuView("admin"), contentview, createSideView());	
-		// AG: Ensure creating new JS. 
-		page.addExternalJS(BaseURL()+"/osggridtypeedit.js");
 		page.render(response.getWriter());	
 	}
 	

@@ -53,12 +53,6 @@ public class ServletBase extends HttpServlet {
 		return menuview;
 	}
 	
-	static public String BaseURL()
-	{
-		//TODO - figure this out dynamicly.
-		return "/oim";
-	}
-	
 	boolean debug()
 	{
 		return (getServletContext().getInitParameter("debug").compareTo("true") == 0);	

@@ -29,7 +29,7 @@ public class Page implements IView {
 		content.render(out);		
 		footer.render(out);
 	}
-	
+	/*
 	public void addExternalJS(String url)
 	{
 		header_addon += "<script type=\"text/javascript\" src=\""+url+"\"></script>";
@@ -38,4 +38,5 @@ public class Page implements IView {
 	{
 		header_addon += "<link rel=\"stylesheet\" href=\""+url+"\" type=\"text/css\" media=\"screen\" />";
 	}
+	*/
 }

@@ -9,6 +9,10 @@ import java.util.Collection;
 import java.util.HashMap;
 
 import org.apache.log4j.Logger;
+import org.geonames.Toponym;
+import org.geonames.ToponymSearchCriteria;
+import org.geonames.ToponymSearchResult;
+import org.geonames.WebService;
 
 import com.webif.divex.DivEx;
 import com.webif.divex.Event;
@@ -53,7 +57,6 @@ public class SiteFormDE extends FormDE
 	private TextFormElementDE state;
 	private TextFormElementDE zipcode;
 	private TextFormElementDE country;
-	// Needs to configured automatically based on address - later. -agopu
 	private TextFormElementDE latitude;
 	private TextFormElementDE longitude;
 	private SelectFormElementDE sc_id;
@@ -205,8 +208,23 @@ public class SiteFormDE extends FormDE
 			rec.active = active.getValue();
 			rec.disable = disable.getValue();
 			
+			/*
+			//fetch long/lat information from http://www.geonames.org/source-code/
+			ToponymSearchCriteria searchCriteria = new ToponymSearchCriteria();
+			//searchCriteria.setQ(city.getValue() + ", " + state.getLabel() + ", " + country.getLabel());
+			searchCriteria.setQ("zurich");
+			ToponymSearchResult searchResult;
+			try {
+				searchResult = WebService.search(searchCriteria);
+				for (Toponym toponym : searchResult.getToponyms()) {
+					System.out.println(toponym.getName()+" "+ toponym.getCountryName());
+				}
+			} catch (Exception e) {
+				log.error(e);
+			}
+			*/
+			
 			SiteModel model = new SiteModel(auth);
-
 			if(rec.id == null) {
 				model.insert(rec);
 			} else {

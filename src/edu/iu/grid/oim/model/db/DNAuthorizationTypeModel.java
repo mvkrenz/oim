@@ -2,6 +2,7 @@ package edu.iu.grid.oim.model.db;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 
@@ -34,5 +35,17 @@ public class DNAuthorizationTypeModel extends SmallTableModelBase<DNAuthorizatio
 			}
 		}
 		return list;
+	}
+	public Collection<DNAuthorizationTypeRecord> getAllByDNID(Integer dn_id) throws SQLException
+	{
+		ArrayList<DNAuthorizationTypeRecord> list = new ArrayList();
+		for(RecordBase it : getCache()) 
+		{
+			DNAuthorizationTypeRecord rec = (DNAuthorizationTypeRecord)it;
+			if(rec.dn_id.compareTo(dn_id) == 0) {
+				list.add(rec);
+			}
+		}
+		return list;		
 	}
 }

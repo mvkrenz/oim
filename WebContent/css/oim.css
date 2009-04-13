@@ -7,7 +7,6 @@ vertical-align: middle;
 table.contact_table
 {
 width: 100%;
-padding-left: 30px;
 }
 table.auth_matrix
 {
@@ -56,6 +55,27 @@ text-align: left;
 width: 220px;
 border-bottom: 1px solid #ccc;
 }
+
+.service_table table
+{
+background-color: #eee;
+}
+.service_table .header
+{
+margin-top: 5px;
+background-color: gray;
+color: white;
+padding-left: 10px;
+}
+.service_table th
+{
+padding-left: 10px;
+}
+.resource_alias
+{
+padding-bottom: 3px;
+}
+
 .form span
 {
 font-weight: bold;

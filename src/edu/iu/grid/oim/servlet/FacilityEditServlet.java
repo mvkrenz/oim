@@ -13,6 +13,7 @@ import org.apache.log4j.Logger;
 import com.webif.divex.DivExRoot;
 
 import edu.iu.grid.oim.lib.Authorization;
+import edu.iu.grid.oim.lib.Config;
 
 import edu.iu.grid.oim.model.db.FacilityModel;
 import edu.iu.grid.oim.model.db.record.FacilityRecord;
@@ -59,7 +60,7 @@ public class FacilityEditServlet extends ServletBase implements Servlet {
 			}
 	
 		FacilityFormDE form;
-		String origin_url = BaseURL()+"/"+current_page;
+		String origin_url = Config.getApplicationBase()+"/"+current_page;
 			form = new FacilityFormDE(DivExRoot.getInstance(request), rec, origin_url, auth);
 		
 		//put the form in a view and display

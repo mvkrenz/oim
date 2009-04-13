@@ -59,8 +59,10 @@ public class ResourceAliasDE extends FormElementDEBase {
 
 		@Override
 		public void render(PrintWriter out) {
+			out.write("<div class=\"resource_alias\">");
 			text.render(out);
 			remove_button.render(out);
+			out.write("</div>");
 		}
 		
 	}
@@ -115,7 +117,6 @@ public class ResourceAliasDE extends FormElementDEBase {
 		for(AliasEditor alias : aliases) {
 			alias.render(out);
 		}
-		out.write("<br/>");
 		add_button.render(out);
 		out.print("</div>");
 	}

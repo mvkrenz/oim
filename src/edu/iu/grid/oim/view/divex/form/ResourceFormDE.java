@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 
 import com.webif.divex.DivEx;
@@ -217,7 +218,7 @@ public class ResourceFormDE extends FormDE
 	
 	private ContactEditorDE createContactEditor(HashMap<Integer, ArrayList<ResourceContactRecord>> voclist, ContactTypeRecord ctrec) throws SQLException
 	{
-		new StaticDE(this, "<h3>" + ctrec.name + "</h3>");
+		new StaticDE(this, "<h3>" + StringEscapeUtils.escapeHtml(ctrec.name) + "</h3>");
 		ContactModel pmodel = new ContactModel(auth);		
 		ContactEditorDE editor = new ContactEditorDE(this, pmodel, ctrec.allow_secondary, ctrec.allow_tertiary);
 		

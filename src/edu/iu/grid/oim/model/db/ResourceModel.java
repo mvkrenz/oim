@@ -101,7 +101,6 @@ public class ResourceModel extends SmallTableModelBase<ResourceRecord> {
 			ArrayList<ResourceServiceRecord> resource_services) throws Exception
 	{
 		try {
-			auth.check("edit_my_resource");
 			
 			//process detail information
 			getConnection().setAutoCommit(false);
@@ -137,14 +136,6 @@ public class ResourceModel extends SmallTableModelBase<ResourceRecord> {
 			
 			getConnection().commit();
 			getConnection().setAutoCommit(true);
-		} catch (AuthorizationException e) {
-			log.error(e);
-			log.info("Rolling back VO insert transaction.");
-			getConnection().rollback();
-			getConnection().setAutoCommit(true);
-			
-			//re-throw original exception
-			throw new Exception(e);
 		} catch (SQLException e) {
 			log.error(e);
 			log.info("Rolling back VO insert transaction.");
@@ -162,9 +153,7 @@ public class ResourceModel extends SmallTableModelBase<ResourceRecord> {
 			ArrayList<ResourceServiceRecord> resource_services) throws Exception
 	{
 		//Do insert / update to our DB
-		try {
-			auth.check("edit_my_resource");
-			
+		try {		
 			//process detail information
 			getConnection().setAutoCommit(false);
 			
@@ -198,14 +187,6 @@ public class ResourceModel extends SmallTableModelBase<ResourceRecord> {
 			
 			getConnection().commit();
 			getConnection().setAutoCommit(true);
-		} catch (AuthorizationException e) {
-			log.error(e);
-			log.info("Rolling back VO insert transaction.");
-			getConnection().rollback();
-			getConnection().setAutoCommit(true);
-			
-			//re-throw original exception
-			throw new Exception(e);
 		} catch (SQLException e) {
 			log.error(e);
 			log.info("Rolling back VO insert transaction.");

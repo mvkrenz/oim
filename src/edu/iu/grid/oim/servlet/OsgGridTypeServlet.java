@@ -19,6 +19,7 @@ import com.webif.divex.DivEx;
 import com.webif.divex.DivExRoot;
 import com.webif.divex.Event;
 
+import edu.iu.grid.oim.lib.Config;
 import edu.iu.grid.oim.model.db.OsgGridTypeModel;
 import edu.iu.grid.oim.model.db.record.OsgGridTypeRecord;
 import edu.iu.grid.oim.model.db.record.RecordBase;
@@ -85,54 +86,7 @@ public class OsgGridTypeServlet extends ServletBase implements Servlet {
 					redirect(url);
 				}
 			};
-			table.add(new DivExWrapper(new EditButtonDE(root, BaseURL()+"/osg_grid_type_edit?osg_grid_type_id=" + rec.id)));
-			/*
-			class DeleteDialogDE extends DialogDE
-			{
-				VORecord rec;
-				public DeleteDialogDE(DivEx parent, VORecord _rec)
-				{
-					super(parent, "Delete " + _rec.name, "Are you sure you want to delete this Virtual Organization and associated contacts?");
-					rec = _rec;
-				}
-				protected void onEvent(Event e) {
-					if(e.getValue().compareTo("ok") == 0) {
-						VOModel model = new VOModel(con, auth);
-						try {
-							model.delete(rec.id);
-							alert("Record Successfully removed.");
-							redirect("vo");
-						} catch (AuthorizationException e1) {
-							log.error(e1);
-							alert(e1.getMessage());
-						} catch (SQLException e1) {
-							log.error(e1);
-							alert(e1.getMessage());
-						}
-					}
-				}
-			}
-		
-			if(auth.allows("admin_vo")) {
-				final DeleteDialogDE delete_dialog = new DeleteDialogDE(root, rec);
-				table.add(" or ");
-				table.add(delete_dialog);
-				
-				class DeleteButtonDE extends ButtonDE
-				{
-					public DeleteButtonDE(DivEx parent, String _name)
-					{
-						super(parent, "Delete");
-						setStyle(ButtonDE.Style.ALINK);
-					}
-					protected void onEvent(Event e) {
-						delete_dialog.open();
-					}
-				};
-				table.add(new DeleteButtonDE(root, rec.name));
-			}	
-			*/
-
+			table.add(new DivExWrapper(new EditButtonDE(root, Config.getApplicationBase()+"/osg_grid_type_edit?osg_grid_type_id=" + rec.id)));
 		}
 		return contentview;
 	}

@@ -18,6 +18,7 @@ import com.webif.divex.DivEx;
 import com.webif.divex.Event;
 import com.webif.divex.EventListener;
 import com.webif.divex.form.FormElementDEBase;
+import com.webif.divex.form.validator.IFormElementValidator;
 
 import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
@@ -25,11 +26,12 @@ import edu.iu.grid.oim.model.db.record.RecordBase;
 import edu.iu.grid.oim.servlet.ServletBase;
 
 //this requires modified version of jquery autocomplete plugin, and client side code to make the input area to be autocomplete
-public class ContactEditorDE extends FormElementDEBase {
+public class ContactEditorDE extends FormElementDEBase<HashMap<ContactEditorDE.Rank, ArrayList<ContactEditorDE.ContactDE>>> {
 	static Logger log = Logger.getLogger(ContactEditorDE.class);
 	
 	public enum Rank {PRIMARY, SECONDARY, TERTIARY };
 	private HashMap<Rank/*rank_id*/, ArrayList<ContactDE>> selected = new HashMap();
+	
 	private int max_primary = 1;
 	private int max_secondary = 1;
 	private int max_tertiary = 16;
@@ -40,6 +42,12 @@ public class ContactEditorDE extends FormElementDEBase {
 	
 	private Boolean has_secondary = false;
 	private Boolean has_tertiary = false;
+	private Boolean show_rank = true;
+	public void setShowRank(Boolean b) { show_rank = b; }
+	
+	public void setMinContacts(Rank rank, int min) {
+		addValidator(new MinValidator(rank, min));
+	}
 	
 	public void setDisabled(Boolean b) { 
 		super.setDisabled(b);
@@ -55,6 +63,8 @@ public class ContactEditorDE extends FormElementDEBase {
 	public ContactEditorDE(DivEx parent, ContactModel pmodel, Boolean _has_secondary, Boolean _has_tertiary) {
 		super(parent);
 		
+		value = selected;
+		
 		has_secondary = _has_secondary;
 		has_tertiary = _has_tertiary;
 		
@@ -68,6 +78,32 @@ public class ContactEditorDE extends FormElementDEBase {
 		if(has_tertiary) {
 			tertiary_newcontact = new NewContactDE(this, pmodel, Rank.TERTIARY);
 			selected.put(Rank.TERTIARY, new ArrayList());
+		}
+	}
+	
+	@Deprecated
+	public void setValue(HashMap<ContactEditorDE.Rank, ArrayList<ContactEditorDE.ContactDE>> value)
+	{
+		//depricated
+	}
+	
+	class MinValidator implements IFormElementValidator<HashMap<ContactEditorDE.Rank, ArrayList<ContactDE>>>
+	{
+		private int min;
+		private Rank rank;
+		
+		public MinValidator(Rank _rank, int _min) {
+			min = _min;
+			rank = _rank;
+		}
+		
+		public String getMessage() {
+			return "Please specify at least " + min + " contact(s).";
+		}
+
+		public Boolean isValid(HashMap<ContactEditorDE.Rank, ArrayList<ContactDE>> recs_hash) {
+			ArrayList<ContactDE> recs = recs_hash.get(rank);
+			return (recs.size() >= min);
 		}
 	}
 	
@@ -181,7 +217,6 @@ public class ContactEditorDE extends FormElementDEBase {
 		public void render(PrintWriter out)
 		{
 			out.print("<div class=\"inline contact round\" id=\""+getNodeID()+"\">");
-			//String out = "<span class=\"contact round\">"; 
 			if(person.name == null) {
 				out.print("(No Name)");
 			} else {
@@ -204,7 +239,7 @@ public class ContactEditorDE extends FormElementDEBase {
 	{
 		ArrayList<ContactDE> list = selected.get(rank);		
 		list.remove(contact);
-		redraw();
+		validate();
 	}
 	
 	private Rank DBRank2Enum(int contact_rank_id)
@@ -235,12 +270,11 @@ public class ContactEditorDE extends FormElementDEBase {
 	
 	public void addSelected(ContactRecord rec, int contact_rank_id)
 	{
-		
 		Rank rank = DBRank2Enum(contact_rank_id);
 		
 		ArrayList<ContactDE> list = selected.get(rank);
 		list.add(new ContactDE(this, rec, rank));
-		redraw();
+		validate();
 	}
 	
 	public HashMap<ContactRecord, Integer/*rank*/> getContactRecords()
@@ -279,7 +313,10 @@ public class ContactEditorDE extends FormElementDEBase {
 	
 	public void renderContactList(PrintWriter out, NewContactDE newcontact, ArrayList<ContactDE> selected, String rank, int max)
 	{
-		out.print("<tr><th><div class='contact_rank contact_"+rank+"'>"+rank+"</div></th>");
+		out.print("<tr>");
+		if(show_rank) {
+			out.print("<th><div class='contact_rank contact_"+rank+"'>"+rank+"</div></th>");
+		}
 		if(selected.size() == max || isDisabled()) {
 			//list is full or disabled
 			out.print("<td><div class=\"contact_editor\">");
@@ -295,7 +332,9 @@ public class ContactEditorDE extends FormElementDEBase {
 				contact.render(out);
 			}
 			newcontact.render(out);
-			out.print("</div></td>");
+			out.write("</div>");
+			
+			out.write("</td>");
 		}
 		out.print("</tr>");
 	}

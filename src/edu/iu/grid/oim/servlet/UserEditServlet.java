@@ -15,7 +15,9 @@ import com.webif.divex.DivExRoot;
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Config;
 
+import edu.iu.grid.oim.model.db.DNModel;
 import edu.iu.grid.oim.model.db.SiteModel;
+import edu.iu.grid.oim.model.db.record.DNRecord;
 import edu.iu.grid.oim.model.db.record.SiteRecord;
 import edu.iu.grid.oim.view.ContentView;
 import edu.iu.grid.oim.view.DivExWrapper;
@@ -24,13 +26,14 @@ import edu.iu.grid.oim.view.Page;
 import edu.iu.grid.oim.view.SideContentView;
 
 import edu.iu.grid.oim.view.divex.form.SiteFormDE;
+import edu.iu.grid.oim.view.divex.form.UserFormDE;
 
-public class SiteEditServlet extends ServletBase implements Servlet {
+public class UserEditServlet extends ServletBase implements Servlet {
 	private static final long serialVersionUID = 1L;
-	static Logger log = Logger.getLogger(SiteEditServlet.class);  
-	private String current_page = "site";	
+	static Logger log = Logger.getLogger(UserEditServlet.class);  
+	private String current_page = "user";	
 
-    public SiteEditServlet() {
+    public UserEditServlet() {
         super();
     }
 
@@ -38,38 +41,33 @@ public class SiteEditServlet extends ServletBase implements Servlet {
 	{
 		setAuth(request);
 		auth.check("admin");
-		
-		SiteRecord rec;
+	
 		String title;
 
+		DNRecord rec;
 		try {
 			//if site_id is provided then we are doing update, otherwise do new.
-			String site_id_str = request.getParameter("site_id");
-			if(site_id_str != null) {
+			String dn_id_str = request.getParameter("id");
+			if(dn_id_str != null) {
 				//pull record to update
-				int site_id = Integer.parseInt(site_id_str);
-				SiteModel model = new SiteModel(auth);
-				SiteRecord keyrec = new SiteRecord();
-				keyrec.id = site_id;
-				rec = model.get(keyrec);
-				title = "Update Site";
+				int id = Integer.parseInt(dn_id_str);
+				DNModel dnmodel = new DNModel(auth);
+				rec = dnmodel.get(id);
+				title = "Update User";
 			} else {
-				rec = new SiteRecord();
-				title = "New Site";	
+				rec = new DNRecord();
+				title = "New User";	
 			}
-	
-		SiteFormDE form;
-		String origin_url = Config.getApplicationBase()+"/"+current_page;
-			form = new SiteFormDE(DivExRoot.getInstance(request), rec, origin_url, auth);
 		
-		//put the form in a view and display
-		ContentView contentview = new ContentView();
-		contentview.add(new HtmlView("<h1>"+title+"</h1>"));	
-		contentview.add(new DivExWrapper(form));
-		
-		Page page = new Page(createMenuView(current_page), contentview, createSideView());
-		
-		page.render(response.getWriter());	
+			UserFormDE form = new UserFormDE(DivExRoot.getInstance(request), rec, Config.getApplicationBase()+"/"+current_page, auth);
+			
+			//put the form in a view and display
+			ContentView contentview = new ContentView();
+			contentview.add(new HtmlView("<h1>"+title+"</h1>"));	
+			contentview.add(new DivExWrapper(form));
+			
+			Page page = new Page(createMenuView("admin"), contentview, createSideView());			
+			page.render(response.getWriter());	
 		} catch (SQLException e) {
 			throw new ServletException(e);
 		}

@@ -24,6 +24,9 @@ import edu.iu.grid.oim.model.db.record.DNRecord;
 public class Authorization {
 	static Logger log = Logger.getLogger(Authorization.class);  
 	
+	//flag to set if this application is running on developer's local machine
+	public static Boolean local_development = false;
+	
 	private String user_dn = null;
     private Integer dn_id = null;
     private Integer contact_id = null;
@@ -92,11 +95,13 @@ public class Authorization {
 					log.debug("Server on localhost. Overriding the DN to Soichi's");
 					user_dn = "/DC=org/DC=doegrids/OU=People/CN=Soichi Hayashi 461343";
 					//user_dn = "/DC=org/DC=doegrids/OU=People/CN=Alain Roy 424511"; //OSG user
+					local_development = true;
 		        } else if ((hostname.compareTo("lav-ag-desktop") == 0) || 
 		        	(hostname.compareTo("SATRIANI") == 0)){
 					log.debug("Server on localhost. Overriding the DN to Arvind's");
 					user_dn = "/DC=org/DC=doegrids/OU=People/CN=Arvind Gopu 369621";
 					//user_dn = "/DC=org/DC=doegrids/OU=People/CN=Alain Roy 424511"; //OSG user
+					local_development = true;
 		        }				
 			} catch (UnknownHostException e) {
 				//ignore then..

@@ -17,6 +17,8 @@ import com.webif.divex.ButtonDE;
 import com.webif.divex.DivEx;
 import com.webif.divex.DivExRoot;
 import com.webif.divex.Event;
+
+import edu.iu.grid.oim.lib.Config;
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
 import edu.iu.grid.oim.model.db.ContactRankModel;
 import edu.iu.grid.oim.model.db.ContactTypeModel;
@@ -97,11 +99,11 @@ public class VOServlet extends ServletBase implements Servlet {
 
 		 	table.addRow("Long Name", rec.long_name);
 			table.addRow("Description", rec.description);
-			table.addRow("Primary URL", rec.primary_url);
-			table.addRow("AUP URL", rec.aup_url);
-			table.addRow("Membership Services URL", rec.membership_services_url);
-			table.addRow("Purpose URL", rec.purpose_url);
-			table.addRow("Support URL", rec.support_url);
+			table.addRow("Primary URL", new HtmlView("<a target=\"_blank\" href=\""+rec.primary_url+"\">"+rec.primary_url+"</a>"));
+			table.addRow("AUP URL", new HtmlView("<a target=\"_blank\" href=\""+rec.aup_url+"\">"+rec.aup_url+"</a>"));
+			table.addRow("Membership Services URL", new HtmlView("<a target=\"_blank\" href=\""+rec.membership_services_url+"\">"+rec.membership_services_url+"</a>"));
+			table.addRow("Purpose URL", new HtmlView("<a target=\"_blank\" href=\""+rec.purpose_url+"\">"+rec.purpose_url+"</a>"));
+			table.addRow("Support URL", new HtmlView("<a target=\"_blank\" href=\""+rec.support_url+"\">"+rec.support_url+"</a>"));
 			table.addRow("App Description", rec.app_description);
 			table.addRow("Community", rec.community);
 			if(auth.allows("admin_vo")) {
@@ -161,7 +163,7 @@ public class VOServlet extends ServletBase implements Servlet {
 					redirect(url);
 				}
 			};
-			table.add(new DivExWrapper(new EditButtonDE(root, BaseURL()+"/voedit?vo_id=" + rec.id)));
+			table.add(new DivExWrapper(new EditButtonDE(root, Config.getApplicationBase()+"/voedit?vo_id=" + rec.id)));
 
 		}
 		

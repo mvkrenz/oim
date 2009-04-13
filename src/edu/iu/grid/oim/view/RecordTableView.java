@@ -19,7 +19,18 @@ public class RecordTableView extends TableView {
 	}
 	public void addRow(String header, String content)
 	{
-		addRow(header, new HtmlView(StringEscapeUtils.escapeHtml(content)));
+		content = StringEscapeUtils.escapeHtml(content);
+		content = Utils.nullStrFilter(content);
+		addRow(header, new HtmlView(content));
+	}
+	public void addRow(String header, Double value)
+	{
+		String str = null;
+		if(value != null) {
+			str = value.toString();
+		}
+		str = Utils.nullStrFilter(str);
+		addRow(header, new HtmlView(str));
 	}
 	public void addRow(String header, Boolean b)
 	{

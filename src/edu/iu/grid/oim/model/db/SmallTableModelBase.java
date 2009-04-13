@@ -119,7 +119,7 @@ public abstract class SmallTableModelBase<T extends RecordBase> extends ModelBas
 			for(T oldrec : oldrecs) {
 				Boolean found = false;
 				for(RecordBase newrec : newrecs) {
-					if(oldrec.compareTo(newrec) == 0) {
+					if(oldrec.compareKeysTo(newrec) == 0) {
 						found = true;
 						break;
 					}

@@ -86,9 +86,7 @@ public class VOModel extends SmallTableModelBase<VORecord>
 			Integer parent_vo_id, 
 			ArrayList<Integer> field_of_science) throws Exception
 	{
-		try {
-			auth.check("edit_my_vo");
-			
+		try {			
 			//process detail information
 			getConnection().setAutoCommit(false);
 			
@@ -138,14 +136,6 @@ public class VOModel extends SmallTableModelBase<VORecord>
 		
 			getConnection().commit();
 			getConnection().setAutoCommit(true);
-		} catch (AuthorizationException e) {
-			log.error(e);
-			log.info("Rolling back VO insert transaction.");
-			getConnection().rollback();
-			getConnection().setAutoCommit(true);
-			
-			//re-throw original exception
-			throw new Exception(e);
 		} catch (SQLException e) {
 			log.error(e);
 			log.info("Rolling back VO insert transaction.");
@@ -164,8 +154,7 @@ public class VOModel extends SmallTableModelBase<VORecord>
 	{
 		//Do insert / update to our DB
 		try {
-			auth.check("edit_my_vo");
-			
+		
 			//process detail information
 			getConnection().setAutoCommit(false);
 			
@@ -215,14 +204,6 @@ public class VOModel extends SmallTableModelBase<VORecord>
 		
 			getConnection().commit();
 			getConnection().setAutoCommit(true);
-		} catch (AuthorizationException e) {
-			log.error(e);
-			log.info("Rolling back VO insert transaction.");
-			getConnection().rollback();
-			getConnection().setAutoCommit(true);
-			
-			//re-throw original exception
-			throw new Exception(e);
 		} catch (SQLException e) {
 			log.error(e);
 			log.info("Rolling back VO insert transaction.");

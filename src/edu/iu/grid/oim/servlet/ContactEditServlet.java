@@ -13,6 +13,7 @@ import org.apache.log4j.Logger;
 import com.webif.divex.DivExRoot;
 
 import edu.iu.grid.oim.lib.Authorization;
+import edu.iu.grid.oim.lib.Config;
 import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.SCModel;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
@@ -37,6 +38,7 @@ public class ContactEditServlet extends ServletBase implements Servlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{
 		setAuth(request);
+		auth.check("edit_my_contact");
 		
 		ContactRecord rec;
 		String title;
@@ -64,7 +66,7 @@ public class ContactEditServlet extends ServletBase implements Servlet {
 			title = "New Contact";	
 		}
 
-		String origin_url = BaseURL()+"/"+current_page;
+		String origin_url = Config.getApplicationBase()+"/"+current_page;
 		ContactFormDE form = new ContactFormDE(DivExRoot.getInstance(request), rec, origin_url, auth);
 		
 		//put the form in a view and display

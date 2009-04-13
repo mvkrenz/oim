@@ -90,7 +90,6 @@ public class SCModel extends SmallTableModelBase<SCRecord> {
 			ArrayList<SCContactRecord> contacts) throws Exception
 	{
 		try {
-			auth.check("edit_my_sc");
 			
 			//process detail information
 			getConnection().setAutoCommit(false);
@@ -107,14 +106,6 @@ public class SCModel extends SmallTableModelBase<SCRecord> {
 			cmodel.update(cmodel.getBySCID(rec.id), contacts);
 			getConnection().commit();
 			getConnection().setAutoCommit(true);
-		} catch (AuthorizationException e) {
-			log.error(e);
-			log.info("Rolling back SC insert transaction.");
-			getConnection().rollback();
-			getConnection().setAutoCommit(true);
-			
-			//re-throw original exception
-			throw new Exception(e);
 		} catch (SQLException e) {
 			log.error(e);
 			log.info("Rolling back SC insert transaction.");
@@ -131,8 +122,6 @@ public class SCModel extends SmallTableModelBase<SCRecord> {
 	{
 		// update to DB
 		try {
-			auth.check("edit_my_sc");
-			
 			//process detail information
 			getConnection().setAutoCommit(false);
 			
@@ -148,14 +137,6 @@ public class SCModel extends SmallTableModelBase<SCRecord> {
 			
 			getConnection().commit();
 			getConnection().setAutoCommit(true);
-		} catch (AuthorizationException e) {
-			log.error(e);
-			log.info("Rolling back SC update-insert transaction.");
-			getConnection().rollback();
-			getConnection().setAutoCommit(true);
-			
-			//re-throw original exception
-			throw new Exception(e);
 		} catch (SQLException e) {
 			log.error(e);
 			log.info("Rolling back SC update-insert transaction.");

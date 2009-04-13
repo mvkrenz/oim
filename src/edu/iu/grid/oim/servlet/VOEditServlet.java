@@ -14,6 +14,7 @@ import com.google.gdata.data.introspection.Collection;
 import com.webif.divex.DivExRoot;
 
 import edu.iu.grid.oim.lib.Authorization;
+import edu.iu.grid.oim.lib.Config;
 import edu.iu.grid.oim.model.db.VOModel;
 import edu.iu.grid.oim.model.db.record.VORecord;
 import edu.iu.grid.oim.view.ContentView;
@@ -35,6 +36,7 @@ public class VOEditServlet extends ServletBase implements Servlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{
 		setAuth(request);
+		auth.check("edit_my_vo");		
 		
 		VORecord rec;
 		String title;
@@ -64,7 +66,7 @@ public class VOEditServlet extends ServletBase implements Servlet {
 		}
 	
 		VOFormDE form;
-		String origin_url = BaseURL()+"/"+current_page;
+		String origin_url = Config.getApplicationBase()+"/"+current_page;
 		try {
 			form = new VOFormDE(DivExRoot.getInstance(request), rec, origin_url, auth);
 		} catch (SQLException e) {
@@ -77,12 +79,6 @@ public class VOEditServlet extends ServletBase implements Servlet {
 		contentview.add(new DivExWrapper(form));
 		
 		Page page = new Page(createMenuView(current_page), contentview, createSideView());
-		
-		//for contact editor
-		page.addExternalCSS(BaseURL()+"/jquery/plugin/jquery.autocomplete.css");
-		page.addExternalJS(BaseURL()+"/jquery/plugin/jquery.autocomplete.js");
-		page.addExternalJS(BaseURL()+"/autocomplete.js");
-		
 		page.render(response.getWriter());	
 	}
 	

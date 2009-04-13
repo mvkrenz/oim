@@ -5,6 +5,7 @@ import java.util.ArrayList;
 
 import org.apache.commons.lang.StringEscapeUtils;
 
+import edu.iu.grid.oim.lib.Config;
 import edu.iu.grid.oim.model.MenuItem;
 import edu.iu.grid.oim.servlet.ServletBase;
 
@@ -24,7 +25,7 @@ public class MenuView implements IView {
 	    	if(item.url == current) {
 	    		cls = "selected";
 	    	}
-	    	out.println("<span class=\""+ cls +"\"><a href=\""+ ServletBase.BaseURL() + "/" + item.url+"\">"+StringEscapeUtils.escapeHtml(item.name)+"</a></span>");
+	    	out.println("<span class=\""+ cls +"\"><a href=\""+ Config.getApplicationBase() + "/" + item.url+"\">"+StringEscapeUtils.escapeHtml(item.name)+"</a></span>");
 	    }
 		out.println("</div>");
 		

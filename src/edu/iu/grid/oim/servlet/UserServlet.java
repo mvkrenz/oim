@@ -23,18 +23,25 @@ import com.webif.divex.Event;
 
 import edu.iu.grid.oim.lib.Config;
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
+import edu.iu.grid.oim.model.db.AuthorizationTypeModel;
 import edu.iu.grid.oim.model.db.ContactRankModel;
 import edu.iu.grid.oim.model.db.ContactTypeModel;
 import edu.iu.grid.oim.model.db.ContactModel;
-import edu.iu.grid.oim.model.db.DNModel;
-import edu.iu.grid.oim.model.db.SCContactModel;
+import edu.iu.grid.oim.model.db.DNAuthorizationTypeModel;
 import edu.iu.grid.oim.model.db.SCModel;
-import edu.iu.grid.oim.model.db.record.DNRecord;
-import edu.iu.grid.oim.model.db.record.SCRecord;
-import edu.iu.grid.oim.model.db.record.SCContactRecord;
+import edu.iu.grid.oim.model.db.SiteModel;
+import edu.iu.grid.oim.model.db.FacilityModel;
+import edu.iu.grid.oim.model.db.DNModel;
+
+import edu.iu.grid.oim.model.db.record.AuthorizationTypeRecord;
 import edu.iu.grid.oim.model.db.record.ContactRankRecord;
 import edu.iu.grid.oim.model.db.record.ContactTypeRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
+import edu.iu.grid.oim.model.db.record.SCRecord;
+import edu.iu.grid.oim.model.db.record.SiteRecord;
+import edu.iu.grid.oim.model.db.record.FacilityRecord;
+import edu.iu.grid.oim.model.db.record.DNRecord;
+
 import edu.iu.grid.oim.view.ContentView;
 import edu.iu.grid.oim.view.DivExWrapper;
 import edu.iu.grid.oim.view.HtmlView;
@@ -47,27 +54,24 @@ import edu.iu.grid.oim.view.TableView;
 import edu.iu.grid.oim.view.Utils;
 import edu.iu.grid.oim.view.TableView.Row;
 
-public class ContactServlet extends ServletBase implements Servlet {
+public class UserServlet extends ServletBase implements Servlet {
 	private static final long serialVersionUID = 1L;
-	static Logger log = Logger.getLogger(ContactServlet.class);  
+	static Logger log = Logger.getLogger(UserServlet.class);  
 	
-    public ContactServlet() {
+    public UserServlet() {
         // TODO Auto-generated constructor stub
     }
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{	
 		setAuth(request);
+		auth.check("admin");
 		
-		//pull list of all SCs
-		ContactModel model = new ContactModel(auth);
-		try {
-			Collection<ContactRecord> contacts = model.getAllEditable();
-		
+		try {	
 			//construct view
-			MenuView menuview = createMenuView("contact");
+			MenuView menuview = createMenuView("admin");
 			DivExRoot root = DivExRoot.getInstance(request);
-			ContentView contentview = createContentView(root, contacts);
+			ContentView contentview = createContentView(root);
 			Page page = new Page(menuview, contentview, createSideView(root));
 			page.render(response.getWriter());			
 		} catch (SQLException e) {
@@ -76,61 +80,36 @@ public class ContactServlet extends ServletBase implements Servlet {
 		}
 	}
 	
-	protected ContentView createContentView(final DivExRoot root, Collection<ContactRecord> contacts) 
+	protected ContentView createContentView(final DivExRoot root) 
 		throws ServletException, SQLException
 	{
 		ContentView contentview = new ContentView();	
-		contentview.add(new HtmlView("<h1>Contacts</h1>"));
+		contentview.add(new HtmlView("<h1>Users</h1>"));
+
+		//pull list of all sites
+		DNModel model = new DNModel(auth);
+		DNAuthorizationTypeModel dnauthmodel = new DNAuthorizationTypeModel(auth);
+		AuthorizationTypeModel authmodel = new AuthorizationTypeModel(auth);
 		
-		DNModel dnmodel = new DNModel(auth);
+		for(DNRecord rec : model.getAll()) {
+			contentview.add(new HtmlView("<h2>"+StringEscapeUtils.escapeHtml(rec.dn_string)+"</h2>"));
 	
-		for(ContactRecord rec : contacts) {
-			contentview.add(new HtmlView("<h2>"+StringEscapeUtils.escapeHtml(rec.name)+"</h2>"));
-	
-			/* -- let's not publish this via RSS since most of the data is non-public anyway
-			//RSS feed button
-			contentview.add(new HtmlView("<div class=\"right\"><a href=\"http://oimupdate.blogspot.com/feeds/posts/default/-/contact_"+rec.id+"\" target=\"_blank\"/>"+
-					"Subscribe to Updates</a></div>"));
-			*/
-			
 			RecordTableView table = new RecordTableView();
 			contentview.add(table);
 
-		 	table.addRow("Primary Email", rec.primary_email);
-		 	table.addRow("Secondary Email", rec.secondary_email);
-		 	
-		 	table.addRow("Primary Phone", rec.primary_phone);
-		 	table.addRow("Primary Phone Ext", rec.primary_phone_ext);
-
-		 	table.addRow("Secondary Phone", rec.secondary_phone);
-		 	table.addRow("Secondary Phone Ext", rec.secondary_phone_ext);
-		 	
-		 	table.addRow("Address Line 1", rec.address_line_1);
-		 	table.addRow("Address Line 2", rec.address_line_2);
-			table.addRow("City", rec.city);
-			table.addRow("State", rec.state);
-			table.addRow("ZIP Code", rec.zipcode);
-			table.addRow("Country", rec.country);
-
-			table.addRow("Active", rec.active);
-			table.addRow("Disable", rec.disable);
-			
-			table.addRow("Person", rec.person);
-			table.addRow("Contact Preference", rec.contact_preference);	
-			
-			if(auth.allows("admin")) {
-				table.addRow("Submitter DN", rec.toString(rec.submitter_dn_id, auth));
+			ContactModel cmodel = new ContactModel(auth);
+			ContactRecord crec = cmodel.get(rec.contact_id);
+			String contact = crec.name + " <" + crec.primary_email + ">";
+ 		 	table.addRow("Contact", contact);
+	
+			Collection<Integer/*auth_type*/> types = dnauthmodel.getAuthorizationTypesByDNID(rec.id);
+			String auth_html = "";
+			for(Integer auth_type : types) {
+				AuthorizationTypeRecord auth_rec = authmodel.get(auth_type);
+			 	auth_html += StringEscapeUtils.escapeHtml(auth_rec.name) + "<br/>";
 			}
-			
-			if(auth.allows("admin")) {
-				String dn_string = "";
-				DNRecord dnrec = dnmodel.getByContactID(rec.id);
-				if(dnrec != null) {
-					dn_string = dnrec.dn_string;
-				}
-				table.addRow("Associated DN", dn_string);		
-			}
-			
+			table.addRow("Authorization Types", new HtmlView(auth_html));
+		 	
 			class EditButtonDE extends ButtonDE
 			{
 				String url;
@@ -143,29 +122,53 @@ public class ContactServlet extends ServletBase implements Servlet {
 					redirect(url);
 				}
 			};
-			table.add(new DivExWrapper(new EditButtonDE(root, Config.getApplicationBase()+"/contactedit?id=" + rec.id)));
+			table.add(new DivExWrapper(new EditButtonDE(root, Config.getApplicationBase()+"/useredit?id=" + rec.id)));
 		}
 		
 		return contentview;
 	}
 	
+	private String getSCName(Integer sc_id) throws SQLException
+	{
+		if(sc_id == null) return null;
+		SCModel model = new SCModel(auth);
+		SCRecord sc = model.get(sc_id);	
+		if(sc == null) {
+			return null;
+		}
+		return sc.name;
+	}
+	
+	private String getFacilityName(Integer facility_id) throws SQLException
+	{
+		if(facility_id == null) return null;
+		FacilityModel model = new FacilityModel(auth);
+		FacilityRecord facility = model.get(facility_id);	
+		if(facility == null) {
+			return null;
+		}
+		return facility.name;
+	}
+
 	private SideContentView createSideView(DivExRoot root)
 	{
 		SideContentView view = new SideContentView();
-		
+		/*
 		class NewButtonDE extends ButtonDE
 		{
 			String url;
 			public NewButtonDE(DivEx parent, String _url)
 			{
-				super(parent, "Add New Contact");
+				super(parent, "Add New Administrative Site");
 				url = _url;
 			}
 			protected void onEvent(Event e) {
 				redirect(url);
 			}
 		};
-		view.add("Operation", new NewButtonDE(root, "contactedit"));		
+		view.add("Operation", new NewButtonDE(root, "siteedit"));
+		*/
+		view.add("About", new HtmlView("This page shows a list of DN entries with all associated information."));		
 		return view;
 	}
 }
