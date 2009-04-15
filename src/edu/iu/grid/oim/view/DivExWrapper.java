@@ -16,9 +16,10 @@ public class DivExWrapper implements IView {
 	public void render(PrintWriter out) {
 		de.render(out);
 		
-		//out.write("<script type=\"text/javascript\">");
-		//out.write(de.flushJS());
-		//out.write("</script>");
+		//ouput JS too
+		out.write("<script type=\"text/javascript\">");
+		de.getRoot().flushJS(out);
+		out.write("</script>");
 		
 		//divex frameworks sets this at the end of update request, but since we are doing the initial-draw,
 		//we should set this to false. incase some divex component setting its redraw flag to true during

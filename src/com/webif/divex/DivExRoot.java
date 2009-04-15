@@ -50,6 +50,12 @@ public class DivExRoot extends DivEx
 		}
 		return super.outputUpdatecode();
 	}
+	
+	//flush all JS code - this is for a view container to emit DivEx related JS script
+	public void flushJS(PrintWriter out)
+	{
+		super.flushJS(out);
+	}
 
 	protected void onEvent(Event e) {
 		//root doesn't handle any event

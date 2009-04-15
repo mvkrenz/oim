@@ -43,7 +43,7 @@ abstract public class FormElementDEBase<ValueType> extends DivEx {
 		
 		//if required, run RequiredValidator
 		if(isRequired()) {
-			if(value == null) {
+			if(value == null || value.toString().trim().length() == 0) {
 				error = "Please select an item.";
 				setValid(false);
 				return;

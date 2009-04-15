@@ -26,7 +26,7 @@ public abstract class DivEx {
 			_parent.add(this);
 		}
 	}
-	protected DivExRoot getRoot()
+	public DivExRoot getRoot()
 	{
 		if(parent == null) {
 			return (DivExRoot)this;
@@ -48,9 +48,17 @@ public abstract class DivEx {
 		//if we emit redirect, we don't want to emit anything else.. just jump!
 		getRoot().redirect(url);
 	}
-	public void scrollToShow() {
+	
+	//set container(jquery selector) to null if you want to scroll the whole page.
+	public void scrollToShow(String container) {
 		js += "var targetOffset = $(\"#"+nodeid+"\").offset().top;";
-		js += "$('html,body').animate({scrollTop: targetOffset}, 500);";
+		if(container == null) {
+			js += "$('html,body').animate({scrollTop: targetOffset}, 500);";
+		} else {
+			js += "targetOffset -= $('"+container+"').offset().top;";
+			js += "$('"+container+"').scrollTop(targetOffset);";
+		}
+		
 	}
 
 	private ArrayList<EventListener> event_listeners = new ArrayList<EventListener>();
@@ -77,6 +85,15 @@ public abstract class DivEx {
 		}
 		
 		return code;
+	}
+	
+	protected void flushJS(PrintWriter out)
+	{
+		out.write(js);
+		js = "";
+		for(DivEx d : childnodes) {
+			d.flushJS(out);
+		}
 	}
 	
 	//recursively set mine and my children's needupdate flag

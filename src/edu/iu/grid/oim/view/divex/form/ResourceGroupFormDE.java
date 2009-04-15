@@ -39,6 +39,7 @@ import edu.iu.grid.oim.model.db.record.ResourceRecord;
 import edu.iu.grid.oim.model.db.record.ResourceServiceRecord;
 import edu.iu.grid.oim.model.db.record.SiteRecord;
 import edu.iu.grid.oim.view.divex.ContactEditorDE;
+import edu.iu.grid.oim.view.divex.OIMHierarchySelector;
 import edu.iu.grid.oim.view.divex.ResourceAliasDE;
 import edu.iu.grid.oim.view.divex.ResourceServicesDE;
 
@@ -51,7 +52,7 @@ public class ResourceGroupFormDE extends FormDE
 	
 	private TextFormElementDE name;
 	private TextAreaFormElementDE description;
-	private SelectFormElementDE site_id;
+	private OIMHierarchySelector site_id;
 	private SelectFormElementDE osg_grid_type_id;
 	private CheckBoxFormElementDE active;
 	private CheckBoxFormElementDE disable;
@@ -82,7 +83,8 @@ public class ResourceGroupFormDE extends FormDE
 		description.setLabel("Description");
 		description.setValue(rec.description);
 		description.setRequired(true);
-				
+		
+		/*
 		SiteModel smodel = new SiteModel(auth);
 		HashMap<Integer, String> site_kv = new HashMap();
 		for(SiteRecord site_rec : smodel.getAll()) {
@@ -94,6 +96,10 @@ public class ResourceGroupFormDE extends FormDE
 		if(id != null) {
 			site_id.setValue(rec.site_id);
 		}
+		*/
+		site_id = new OIMHierarchySelector(this, OIMHierarchySelector.Type.SITE, auth);
+		site_id.setLabel("Site");
+		site_id.setValue(rec.site_id);
 		
 		OsgGridTypeModel omodel = new OsgGridTypeModel(auth);
 		HashMap<Integer, String> gridtype_kv = new HashMap();

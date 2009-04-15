@@ -27,7 +27,7 @@ public class ButtonDE extends DivEx {
 	public void render(PrintWriter out) {
 		//TODO implement click once feature - disabling button just doesn't work well
 
-		String js = "if(!$(this).hasClass(\"disabled\")) { $(this).addClass(\"disabled\"); divex(this.id, event); } return false;";
+		String js = "if(!$(this).hasClass(\"disabled\")) { $(this).addClass(\"disabled\"); $(this).attr(\"value\", \"Processing..\"); divex(this.id, event); } return false;";
 		if(confirm) {
 			js = "var answer = confirm(\""+confirm_message+"\");if(answer) {"+js+"}";
 		}
