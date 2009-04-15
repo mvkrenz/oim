@@ -102,8 +102,11 @@ UPDATE resource res SET res.resource_group_id=(SELECT resource_group_id FROM oim
 
 INSERT INTO resource_wlcg
         (SELECT res.resource_id, resExt.interop_bdii, resExt.interop_monitoring, resExt.interop_accounting, resExt.wlcg_accounting_name, 0,0,0,0
-        FROM oim.resource res
-        LEFT JOIN oim.resource_ext_attributes resExt ON (res.resource_id=resExt.resource_id));
+          FROM oim.resource res
+          JOIN oim.resource_ext_attributes resExt
+          ON (res.resource_id=resExt.resource_id)
+WHERE resExt.interop_bdii = 1 or resExt.interop_monitoring = 1 or resExt.interop_accounting = 1
+         );
 
 INSERT INTO vo_resource_ownership (SELECT resource_id,vo_id,percent FROM oim.vo_resource_ownership);
 

@@ -44,7 +44,7 @@ abstract public class FormElementDEBase<ValueType> extends DivEx {
 		//if required, run RequiredValidator
 		if(isRequired()) {
 			if(value == null || value.toString().trim().length() == 0) {
-				error = "Please select an item.";
+				error = "This is a required field. Please specify a value.";
 				setValid(false);
 				return;
 			}
@@ -73,15 +73,15 @@ abstract public class FormElementDEBase<ValueType> extends DivEx {
 	public void setLabel(String _label) { label = _label; }
 	public String getLabel() { return label; }
 	
-	private Boolean hidden = false;
+	protected Boolean hidden = false;
 	public Boolean isHidden() { return hidden; }
 	public void setHidden(Boolean b) { hidden = b; }
 	
-	private Boolean disabled = false;
+	protected Boolean disabled = false;
 	public Boolean isDisabled() { return disabled; }
 	public void setDisabled(Boolean b) { disabled = b; }
 	
-	private Boolean required = false;
+	protected Boolean required = false;
 	public Boolean isRequired() { return required; }
 	public void setRequired(Boolean b) { required = b; }
 }

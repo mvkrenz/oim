@@ -25,19 +25,21 @@ public class TextFormElementDE extends FormElementDEBase<String> {
 		out.print("<div ");
 		renderClass(out);
 		out.write("id=\""+getNodeID()+"\">");
-		if(label != null) {
-			out.print("<label>"+StringEscapeUtils.escapeHtml(label)+"</label><br/>");
-		}
-		String current_value = value;
-		if(value == null) {
-			current_value = "";
-		}
-		out.print("<input type='text' style='width: "+width+"px;' onchange='divex(\""+getNodeID()+"\", event, this.value);' value=\""+StringEscapeUtils.escapeHtml(current_value)+"\"/>");
-		if(isRequired()) {
-			out.print(" * Required");
-		}
-		if(error != null) {
-			out.print("<p class='elementerror round'>"+StringEscapeUtils.escapeHtml(error)+"</p>");
+		if(!hidden) {
+			if(label != null) {
+				out.print("<label>"+StringEscapeUtils.escapeHtml(label)+"</label><br/>");
+			}
+			String current_value = value;
+			if(value == null) {
+				current_value = "";
+			}
+			out.print("<input type='text' style='width: "+width+"px;' onchange='divex(\""+getNodeID()+"\", event, this.value);' value=\""+StringEscapeUtils.escapeHtml(current_value)+"\"/>");
+			if(isRequired()) {
+				out.print(" * Required");
+			}
+			if(error != null) {
+				out.print("<p class='elementerror round'>"+StringEscapeUtils.escapeHtml(error)+"</p>");
+			}
 		}
 		out.print("</div>");
 	}

@@ -19,6 +19,7 @@ import edu.iu.grid.oim.model.db.record.ResourceContactRecord;
 import edu.iu.grid.oim.model.db.record.ResourceGroupRecord;
 import edu.iu.grid.oim.model.db.record.ResourceRecord;
 import edu.iu.grid.oim.model.db.record.ResourceServiceRecord;
+import edu.iu.grid.oim.model.db.record.ResourceWLCGRecord;
 import edu.iu.grid.oim.model.db.record.VOContactRecord;
 import edu.iu.grid.oim.model.db.record.VOFieldOfScienceRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
@@ -98,6 +99,7 @@ public class ResourceModel extends SmallTableModelBase<ResourceRecord> {
 	public void insertDetail(ResourceRecord rec, 
 			ArrayList<String> resource_aliases,
 			ArrayList<ResourceContactRecord> contacts,
+			ResourceWLCGRecord wrec,
 			ArrayList<ResourceServiceRecord> resource_services) throws Exception
 	{
 		try {
@@ -134,6 +136,13 @@ public class ResourceModel extends SmallTableModelBase<ResourceRecord> {
 			}
 			rsmodel.insert(resource_services);
 			
+			//process WLCG Resource record
+			if(wrec != null) {
+				wrec.resource_id = rec.id;
+				ResourceWLCGModel wmodel = new ResourceWLCGModel(auth);
+				wmodel.insert(wrec);
+			}
+			
 			getConnection().commit();
 			getConnection().setAutoCommit(true);
 		} catch (SQLException e) {
@@ -150,6 +159,7 @@ public class ResourceModel extends SmallTableModelBase<ResourceRecord> {
 	public void updateDetail(ResourceRecord rec,
 			ArrayList<String> resource_aliases,
 			ArrayList<ResourceContactRecord> contacts,
+			ResourceWLCGRecord wrec,
 			ArrayList<ResourceServiceRecord> resource_services) throws Exception
 	{
 		//Do insert / update to our DB
@@ -184,6 +194,24 @@ public class ResourceModel extends SmallTableModelBase<ResourceRecord> {
 				rsrec.resource_id = rec.id;
 			}
 			rsmodel.update(rsmodel.getAllByResourceID(rec.id), resource_services);
+			
+			//process WLCG Record
+			ResourceWLCGModel wmodel = new ResourceWLCGModel(auth);
+			ResourceWLCGRecord oldrec = wmodel.get(rec.id);
+			wrec.resource_id = rec.id;
+			if(oldrec == null) {
+				//we don't have the record yet.. just do insert
+				wmodel.insert(wrec);
+			} else {
+				//we have old record
+				if(wrec != null) {
+					//update the record
+					wmodel.update(oldrec, wrec);
+				} else {
+					//new one is null, so let's remove it
+					wmodel.remove(oldrec);
+				}
+			}
 			
 			getConnection().commit();
 			getConnection().setAutoCommit(true);

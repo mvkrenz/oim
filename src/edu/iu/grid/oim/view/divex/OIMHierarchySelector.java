@@ -390,10 +390,18 @@ public class OIMHierarchySelector extends FormElementDEBase<Integer> {
 		if(label != null) {
 			out.write("<label>"+StringEscapeUtils.escapeHtml(label)+"</label><br/>");
 		}
+		out.write("<table><tr><td>");
 		out.write("<div class=\"oim_hierarchy\">");
 		facility_selector.render(out);
-		out.write("</div");
-		
+		out.write("</div>");
+		out.write("</td><td>");
+		if(isRequired()) {
+			out.print(" * Required");
+		}
+		out.write("</td></tr></table>");
+		if(error != null) {
+			out.print("<p class='elementerror round'>"+StringEscapeUtils.escapeHtml(error)+"</p>");
+		}
 		out.write("</div>");
 	}
 	

@@ -92,11 +92,10 @@ abstract public class FormDE extends FormElementDEBase {
 			
 			if(child instanceof FormElementDEBase) {
 				FormElementDEBase elem = (FormElementDEBase)child;
-				if(!elem.isHidden()) {
-					out.print("<div class=\"form_element\">");
-					child.render(out);
-					out.print("</div>");
-				}
+				out.print("<div class=\"form_element\">");
+				child.render(out);
+				out.print("</div>");
+			
 			} else {
 				//non form element..
 				child.render(out);

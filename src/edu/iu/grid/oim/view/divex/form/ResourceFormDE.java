@@ -8,6 +8,8 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 
 import com.webif.divex.DivEx;
+import com.webif.divex.Event;
+import com.webif.divex.EventListener;
 import com.webif.divex.form.FormDE;
 import com.webif.divex.StaticDE;
 import com.webif.divex.form.CheckBoxFormElementDE;
@@ -25,6 +27,7 @@ import edu.iu.grid.oim.model.db.ResourceAliasModel;
 import edu.iu.grid.oim.model.db.ResourceContactModel;
 import edu.iu.grid.oim.model.db.ResourceGroupModel;
 import edu.iu.grid.oim.model.db.ResourceServiceModel;
+import edu.iu.grid.oim.model.db.ResourceWLCGModel;
 import edu.iu.grid.oim.model.db.ServiceModel;
 import edu.iu.grid.oim.model.db.ResourceModel;
 import edu.iu.grid.oim.model.db.record.ContactTypeRecord;
@@ -34,6 +37,7 @@ import edu.iu.grid.oim.model.db.record.ResourceContactRecord;
 import edu.iu.grid.oim.model.db.record.ResourceGroupRecord;
 import edu.iu.grid.oim.model.db.record.ResourceRecord;
 import edu.iu.grid.oim.model.db.record.ResourceServiceRecord;
+import edu.iu.grid.oim.model.db.record.ResourceWLCGRecord;
 import edu.iu.grid.oim.view.divex.ContactEditorDE;
 import edu.iu.grid.oim.view.divex.OIMHierarchySelector;
 import edu.iu.grid.oim.view.divex.ResourceAliasDE;
@@ -50,17 +54,22 @@ public class ResourceFormDE extends FormDE
 	private TextAreaFormElementDE description;
 	private TextFormElementDE fqdn;
 	private TextFormElementDE url;
-	/*
-	private CheckBoxFormElementDE interop_bdii;
-	private CheckBoxFormElementDE interop_monitoring;
-	private CheckBoxFormElementDE interop_accounting;
-	private TextFormElementDE wlcg_accounting_name;
-	*/
+	
 	private CheckBoxFormElementDE active;
 	private CheckBoxFormElementDE disable;
 	private OIMHierarchySelector resource_group_id;
 	private ResourceAliasDE alias;
 	private ResourceServicesDE resource_services;
+	
+	private CheckBoxFormElementDE wlcg;
+	private CheckBoxFormElementDE interop_bdii;
+	private CheckBoxFormElementDE interop_monitoring;
+	private CheckBoxFormElementDE interop_accounting;
+	private TextFormElementDE wlcg_accounting_name;
+	private TextFormElementDE ksi2k_minimum;
+	private TextFormElementDE ksi2k_maximum;
+	private TextFormElementDE storage_capacity_minimum;
+	private TextFormElementDE storage_capacity_maximum;
 	
 	//contact types to edit
 	private int contact_types[] = {
@@ -104,23 +113,7 @@ public class ResourceFormDE extends FormDE
 		url.setValue(rec.url);
 		url.addValidator(UrlValidator.getInstance());
 		url.setRequired(true);
-		/*
-		interop_bdii = new CheckBoxFormElementDE(this);
-		interop_bdii.setLabel("Interop BDII");
-		interop_bdii.setValue(rec.interop_bdii);
 		
-		interop_monitoring = new CheckBoxFormElementDE(this);
-		interop_monitoring.setLabel("Interop Monitoring");
-		interop_monitoring.setValue(rec.interop_monitoring);
-
-		interop_accounting = new CheckBoxFormElementDE(this);
-		interop_accounting.setLabel("Interop Accounting");
-		interop_accounting.setValue(rec.interop_accounting);
-		
-		wlcg_accounting_name = new TextFormElementDE(this);
-		wlcg_accounting_name.setLabel("WLCG Accounting Name");
-		wlcg_accounting_name.setValue(rec.wlcg_accounting_name);
-		*/
 		active = new CheckBoxFormElementDE(this);
 		active.setLabel("Active");
 		active.setValue(rec.active);
@@ -134,16 +127,19 @@ public class ResourceFormDE extends FormDE
 		if(!auth.allows("admin")) {
 			disable.setHidden(true);
 		}
-		
+		/*
 		ResourceGroupModel model = new ResourceGroupModel(auth);
 		HashMap<Integer, String> resource_groups_kv = new HashMap();
 		for(ResourceGroupRecord grec : model.getAll()) {
 			resource_groups_kv.put(grec.id, grec.name);
-		}
+		}*/
 		
 		resource_group_id = new OIMHierarchySelector(this, OIMHierarchySelector.Type.RESOURCE_GROUP, auth);
 		resource_group_id.setLabel("Resource Group");
-		resource_group_id.setValue(rec.resource_group_id);
+		resource_group_id.setRequired(true);
+		if(id != null) {
+			resource_group_id.setValue(rec.resource_group_id);
+		}
 		
 		fqdn = new TextFormElementDE(this);
 		fqdn.setLabel("FQDN");
@@ -160,6 +156,73 @@ public class ResourceFormDE extends FormDE
 			}
 		}
 		
+		new StaticDE(this, "<h2>WLCG Information</h2>");
+		wlcg = new CheckBoxFormElementDE(this);
+		wlcg.setLabel("This is a WLCG resource");
+		wlcg.addEventListener(new EventListener() {
+			public void handleEvent(Event e) {	
+				if(e.getValue().compareTo("true") == 0) {
+					hideWLCGElements(false);
+				} else {
+					hideWLCGElements(true);
+				}
+			}
+		});
+		
+		//indent the who thing
+		new StaticDE(this, "<div class=\"indent\">");
+		{
+			interop_bdii = new CheckBoxFormElementDE(this);
+			interop_bdii.setLabel("Interop BDII");
+	
+			interop_monitoring = new CheckBoxFormElementDE(this);
+			interop_monitoring.setLabel("Interop Monitoring");
+	
+			interop_accounting = new CheckBoxFormElementDE(this);
+			interop_accounting.setLabel("Interop Accounting");
+		
+			wlcg_accounting_name = new TextFormElementDE(this);
+			wlcg_accounting_name.setLabel("WLCG Accounting Name");
+			
+			ksi2k_minimum = new TextFormElementDE(this);
+			ksi2k_minimum.setLabel("ksi2k_minimum");
+			
+			ksi2k_maximum = new TextFormElementDE(this);
+			ksi2k_maximum.setLabel("ksi2k_maximum");
+			
+			storage_capacity_minimum = new TextFormElementDE(this);
+			storage_capacity_minimum.setLabel("Storage Capacity Minimum");
+			
+			storage_capacity_maximum = new TextFormElementDE(this);
+			storage_capacity_maximum.setLabel("Storage Capacity Maximum");
+		}
+		new StaticDE(this, "</div>");
+		hideWLCGElements(true);
+		ResourceWLCGModel wmodel = new ResourceWLCGModel(auth);
+		if(id != null) {
+			ResourceWLCGRecord wrec = wmodel.get(rec.id);
+			if(wrec != null) {
+				//if WLCG record exist, populate the values
+				wlcg.setValue(true);
+				interop_bdii.setValue(wrec.interop_bdii);
+				interop_monitoring.setValue(wrec.interop_monitoring);
+				interop_accounting.setValue(wrec.interop_accounting);
+				wlcg_accounting_name.setValue(wrec.accounting_name);
+				if(wrec.ksi2k_minimum != null) {
+					ksi2k_minimum.setValue(wrec.ksi2k_minimum.toString());
+				}
+				if(wrec.ksi2k_maximum != null) {
+					ksi2k_maximum.setValue(wrec.ksi2k_maximum.toString());
+				}
+				if(wrec.storage_capacity_minimum != null) {
+					storage_capacity_minimum.setValue(wrec.storage_capacity_minimum.toString());
+				}
+				if(wrec.storage_capacity_maximum != null) {
+					storage_capacity_maximum.setValue(wrec.storage_capacity_maximum.toString());
+				}
+				hideWLCGElements(false);
+			}
+		}
 		new StaticDE(this, "<h2>Resource Services</h2>");
 		ServiceModel smodel = new ServiceModel(auth);
 		resource_services = new ResourceServicesDE(this, smodel.getAll());
@@ -200,6 +263,40 @@ public class ResourceFormDE extends FormDE
 		}
 	}
 	
+	private void hideWLCGElements(Boolean b)
+	{
+		interop_bdii.setHidden(b);
+		interop_bdii.redraw();
+		interop_bdii.setRequired(!b);
+		
+		interop_monitoring.setHidden(b);
+		interop_monitoring.redraw();
+		interop_monitoring.setRequired(!b);
+		
+		interop_accounting.setHidden(b);
+		interop_accounting.redraw();
+		interop_accounting.setRequired(!b);
+		
+		wlcg_accounting_name.setHidden(b);
+		wlcg_accounting_name.redraw();
+		wlcg_accounting_name.setRequired(!b);
+		
+		ksi2k_minimum.setHidden(b);
+		ksi2k_minimum.redraw();
+		ksi2k_minimum.setRequired(!b);
+		
+		ksi2k_maximum.setHidden(b);
+		ksi2k_maximum.redraw();
+		ksi2k_maximum.setRequired(!b);
+		
+		storage_capacity_minimum.setHidden(b);
+		storage_capacity_minimum.redraw();
+		storage_capacity_minimum.setRequired(!b);
+		
+		storage_capacity_maximum.setHidden(b);
+		storage_capacity_maximum.redraw();
+		storage_capacity_maximum.setRequired(!b);
+	}
 	private ContactEditorDE createContactEditor(HashMap<Integer, ArrayList<ResourceContactRecord>> voclist, ContactTypeRecord ctrec) throws SQLException
 	{
 		new StaticDE(this, "<h3>" + StringEscapeUtils.escapeHtml(ctrec.name) + "</h3>");
@@ -232,15 +329,23 @@ public class ResourceFormDE extends FormDE
 		rec.description = description.getValue();
 		rec.fqdn = fqdn.getValue();
 		rec.url = url.getValue();
-		/*
-		rec.interop_bdii = interop_bdii.getValue();
-		rec.interop_monitoring = interop_monitoring.getValue();
-		rec.interop_accounting = interop_accounting.getValue();
-		rec.wlcg_accounting_name = wlcg_accounting_name.getValue();
-		*/
 		rec.active = active.getValue();
 		rec.disable = disable.getValue();
 		rec.resource_group_id = resource_group_id.getValue();
+		
+		//If WLCG is on, then create wlcg record
+		ResourceWLCGRecord wrec = null;
+		if(wlcg.getValue()) {
+			wrec = new ResourceWLCGRecord();
+			wrec.interop_bdii = interop_bdii.getValue();
+			wrec.interop_monitoring = interop_monitoring.getValue();
+			wrec.interop_accounting = interop_accounting.getValue();
+			wrec.accounting_name = wlcg_accounting_name.getValue();
+			wrec.ksi2k_minimum = ksi2k_minimum.getValueAsDouble();
+			wrec.ksi2k_maximum = ksi2k_maximum.getValueAsDouble();
+			wrec.storage_capacity_maximum = storage_capacity_maximum.getValueAsDouble();
+			wrec.storage_capacity_minimum = storage_capacity_minimum.getValueAsDouble();
+		}
 		
 		ResourceModel model = new ResourceModel(auth);
 		try {
@@ -248,11 +353,13 @@ public class ResourceFormDE extends FormDE
 				model.insertDetail(rec, 
 						alias.getAliases(), 
 						getContactRecordsFromEditor(), 
+						wrec,
 						resource_services.getResourceServiceRecords());
 			} else {
 				model.updateDetail(rec, 
 						alias.getAliases(), 
-						getContactRecordsFromEditor(), 
+						getContactRecordsFromEditor(),
+						wrec,
 						resource_services.getResourceServiceRecords());
 			}
 		} catch (Exception e) {

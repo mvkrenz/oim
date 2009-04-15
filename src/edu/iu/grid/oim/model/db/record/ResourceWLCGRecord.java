@@ -4,7 +4,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
-public class WLCGRecord extends RecordBase {
+public class ResourceWLCGRecord extends RecordBase {
 
 	@Key public Integer resource_id;
 	public Boolean interop_bdii;
@@ -17,7 +17,7 @@ public class WLCGRecord extends RecordBase {
 	public Double storage_capacity_maximum;
 
 	//load from existing record
-	public WLCGRecord(ResultSet rs) throws SQLException { super(rs); }
+	public ResourceWLCGRecord(ResultSet rs) throws SQLException { super(rs); }
 	//for creating new record
-	public WLCGRecord() {}
+	public ResourceWLCGRecord() {}
 }
