@@ -54,7 +54,7 @@ INSERT INTO vo_field_of_science (SELECT vo_id,science_id FROM oim.vo_field_of_sc
 
 INSERT INTO vo_report_name (SELECT id,reporting_name,vo_id FROM oim.vo_report_name);
 
-INSERT INTO vo_fqan (SELECT id,fqan,vo_report_name_id FROM oim.vo_fqan);
+INSERT INTO vo_report_name_fqan (SELECT vo_report_name_id, fqan FROM oim.vo_fqan);
 
 -- Insert contact records without submiter_dn for now - will update later
 INSERT INTO contact

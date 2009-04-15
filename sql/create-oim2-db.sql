@@ -758,14 +758,12 @@ SET character_set_client = @saved_cs_client;
 -- Table structure for table `vo_fqan`
 --
 
-DROP TABLE IF EXISTS `vo_fqan`;
+DROP TABLE IF EXISTS `vo_report_name_fqan`;
 SET @saved_cs_client     = @@character_set_client;
 SET character_set_client = utf8;
-CREATE TABLE `vo_fqan` (
-  `id` int(11) NOT NULL auto_increment,
-  `fqan` varchar(1024) collate utf8_unicode_ci NOT NULL,
+CREATE TABLE `vo_report_name_fqan` (
   `vo_report_name_id` int(11) NOT NULL,
-  PRIMARY KEY  (`id`),
+  `fqan` varchar(1024) collate utf8_unicode_ci NOT NULL,
   KEY `vo_report_name_vo_fqan` (`vo_report_name_id`),
   CONSTRAINT `vo_report_name_vo_fqan` FOREIGN KEY (`vo_report_name_id`) REFERENCES `vo_report_name` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=71 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
