@@ -119,10 +119,12 @@ public class ResourceServlet extends ServletBase implements Servlet {
 
 			table.addRow("Description", rec.description);
 			table.addRow("URL", new HtmlView("<a target=\"_blank\" href=\""+rec.url+"\">"+rec.url+"</a>"));
+/*
 			table.addRow("Interop BDII", rec.interop_bdii);
 			table.addRow("Interop Monitoring", rec.interop_monitoring);
 			table.addRow("Interop Accounting", rec.interop_accounting);
 			table.addRow("WLCG Accounting Name", rec.wlcg_accounting_name);
+*/
 			table.addRow("Active", rec.active);
 			table.addRow("Disable", rec.disable);
 			table.addRow("FQDN", rec.fqdn);
@@ -205,10 +207,12 @@ public class ResourceServlet extends ServletBase implements Servlet {
 			table.addRow("End Point Override", rec.endpoint_override);
 			table.addRow("Hidden", rec.hidden);
 			table.addRow("Central", rec.central);
+			/*
 			table.addRow("KSI2K Min", rec.ksi2k_minimum);
 			table.addRow("KSI2K Max", rec.ksi2k_maximum);
 			table.addRow("Storage Capacity Min", rec.storage_capacity_minimum);
 			table.addRow("Storage Capacity Max", rec.storage_capacity_maximum);	
+			*/
 			//table.addRow("Server List RegEx", rec.server_list_regex);
 			view.add(table);
 			

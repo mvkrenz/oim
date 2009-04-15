@@ -11,10 +11,6 @@ public class ResourceServiceRecord extends RecordBase {
 	public String endpoint_override;
 	public Boolean hidden;
 	public Boolean central;
-	public Double ksi2k_minimum;
-	public Double ksi2k_maximum;
-	public Double storage_capacity_minimum;
-	public Double storage_capacity_maximum;
 	public String server_list_regex;
 	
 	//load from existing record

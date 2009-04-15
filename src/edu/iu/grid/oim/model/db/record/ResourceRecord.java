@@ -16,11 +16,6 @@ public class ResourceRecord extends RecordBase {
 	public String fqdn;
 	public String url;
 	public Integer resource_group_id;
-	
-	public Boolean interop_bdii;
-	public Boolean interop_monitoring;
-	public Boolean interop_accounting;
-	public String wlcg_accounting_name;
 
 	public Boolean active;
 	public Boolean disable;

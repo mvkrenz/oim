@@ -30,10 +30,12 @@ public class ResourceServicesDE extends FormElementDEBase {
 		private TextFormElementDE endpoint_override;
 		private CheckBoxFormElementDE hidden;
 		private CheckBoxFormElementDE central;
+		/*
 		private TextFormElementDE ksi2k_minimum;
 		private TextFormElementDE ksi2k_maximum;
 		private TextFormElementDE storage_capacity_minimum;
 		private TextFormElementDE storage_capacity_maximum;
+		*/
 		private TextFormElementDE server_list_regex;
 		
 		private ButtonDE remove_button;
@@ -71,7 +73,7 @@ public class ResourceServicesDE extends FormElementDEBase {
 			if(rec != null) {
 				central.setValue(rec.central);
 			}
-			
+			/*
 			ksi2k_minimum = new TextFormElementDE(this);
 			ksi2k_minimum.setLabel("ksi2k_minimum");
 			if(rec != null && rec.ksi2k_minimum != null) {
@@ -96,7 +98,7 @@ public class ResourceServicesDE extends FormElementDEBase {
 			if(rec != null && rec.storage_capacity_maximum != null) {
 				storage_capacity_maximum.setValue(rec.storage_capacity_maximum.toString());
 			}
-			
+			*/
 			server_list_regex = new TextFormElementDE(this);
 			server_list_regex.setLabel("Server List RegEx");
 			if(rec != null && rec.server_list_regex != null) {
@@ -159,10 +161,12 @@ public class ResourceServicesDE extends FormElementDEBase {
 			rec.endpoint_override = endpoint_override.getValue();
 			rec.hidden = hidden.getValue();
 			rec.central = central.getValue();
+			/*
 			rec.ksi2k_minimum = ksi2k_minimum.getValueAsDouble();
 			rec.ksi2k_maximum = ksi2k_maximum.getValueAsDouble();
 			rec.storage_capacity_maximum = storage_capacity_maximum.getValueAsDouble();
 			rec.storage_capacity_minimum = storage_capacity_minimum.getValueAsDouble();
+			*/
 			rec.server_list_regex = server_list_regex.getValue();
 					
 			return rec;

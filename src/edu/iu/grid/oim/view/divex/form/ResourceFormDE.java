@@ -50,10 +50,12 @@ public class ResourceFormDE extends FormDE
 	private TextAreaFormElementDE description;
 	private TextFormElementDE fqdn;
 	private TextFormElementDE url;
+	/*
 	private CheckBoxFormElementDE interop_bdii;
 	private CheckBoxFormElementDE interop_monitoring;
 	private CheckBoxFormElementDE interop_accounting;
 	private TextFormElementDE wlcg_accounting_name;
+	*/
 	private CheckBoxFormElementDE active;
 	private CheckBoxFormElementDE disable;
 	private OIMHierarchySelector resource_group_id;
@@ -102,7 +104,7 @@ public class ResourceFormDE extends FormDE
 		url.setValue(rec.url);
 		url.addValidator(UrlValidator.getInstance());
 		url.setRequired(true);
-		
+		/*
 		interop_bdii = new CheckBoxFormElementDE(this);
 		interop_bdii.setLabel("Interop BDII");
 		interop_bdii.setValue(rec.interop_bdii);
@@ -118,7 +120,7 @@ public class ResourceFormDE extends FormDE
 		wlcg_accounting_name = new TextFormElementDE(this);
 		wlcg_accounting_name.setLabel("WLCG Accounting Name");
 		wlcg_accounting_name.setValue(rec.wlcg_accounting_name);
-		
+		*/
 		active = new CheckBoxFormElementDE(this);
 		active.setLabel("Active");
 		active.setValue(rec.active);
@@ -230,10 +232,12 @@ public class ResourceFormDE extends FormDE
 		rec.description = description.getValue();
 		rec.fqdn = fqdn.getValue();
 		rec.url = url.getValue();
+		/*
 		rec.interop_bdii = interop_bdii.getValue();
 		rec.interop_monitoring = interop_monitoring.getValue();
 		rec.interop_accounting = interop_accounting.getValue();
 		rec.wlcg_accounting_name = wlcg_accounting_name.getValue();
+		*/
 		rec.active = active.getValue();
 		rec.disable = disable.getValue();
 		rec.resource_group_id = resource_group_id.getValue();
