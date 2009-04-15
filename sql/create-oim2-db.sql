@@ -851,3 +851,4 @@ CREATE TABLE `resource_wlcg` (
   PRIMARY KEY  USING BTREE (`resource_id`),
   CONSTRAINT `resource_id` FOREIGN KEY (`resource_id`) REFERENCES `resource` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
