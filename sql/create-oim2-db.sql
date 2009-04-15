@@ -837,7 +837,7 @@ CREATE TABLE `vo_vo` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 SET character_set_client = @saved_cs_client;
 
-DROP TABLE IF EXISTS `wlcg`;
+DROP TABLE IF EXISTS `resource_wlcg`;
 CREATE TABLE `wlcg` (
   `resource_id` int(11) NOT NULL auto_increment COMMENT 'resource_id that this WLCG information is related to',
   `interop_bdii` tinyint(1) NOT NULL,
