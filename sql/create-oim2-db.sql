@@ -838,7 +838,7 @@ CREATE TABLE `vo_vo` (
 SET character_set_client = @saved_cs_client;
 
 DROP TABLE IF EXISTS `resource_wlcg`;
-CREATE TABLE `wlcg` (
+CREATE TABLE `resource_wlcg` (
   `resource_id` int(11) NOT NULL auto_increment COMMENT 'resource_id that this WLCG information is related to',
   `interop_bdii` tinyint(1) NOT NULL,
   `interop_monitoring` tinyint(1) NOT NULL,
