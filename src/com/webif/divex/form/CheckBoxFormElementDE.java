@@ -22,7 +22,7 @@ public class CheckBoxFormElementDE extends FormElementDEBase<Boolean> {
 			checked = "checked=checked";
 		}
 		out.print("<div id=\""+getNodeID()+"\">");
-		out.print("<input type='checkbox' onchange='divex(\""+getNodeID()+"\", \"change\", this.checked);' "+checked+"/>");
+		out.print("<input type='checkbox' onchange='divex(\""+getNodeID()+"\", event, this.checked);' "+checked+"/>");
 		if(label != null) {
 			out.print(" <label>"+StringEscapeUtils.escapeHtml(label)+"</label><br/>");
 		}

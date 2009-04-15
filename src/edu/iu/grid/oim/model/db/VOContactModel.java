@@ -57,7 +57,7 @@ public class VOContactModel extends SmallTableModelBase<VOContactRecord> {
 		ArrayList<VOContactRecord> list = new ArrayList<VOContactRecord>();
 		for(RecordBase rec : getCache()) {
 			VOContactRecord vcrec = (VOContactRecord)rec;
-			if(vcrec.contact_id == contact_id) list.add(vcrec);
+			if(vcrec.contact_id.compareTo(contact_id) == 0) list.add(vcrec);
 		}		
 		return list;
 	}

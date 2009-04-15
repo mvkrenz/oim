@@ -59,8 +59,8 @@ public class TableView extends GenericView {
 	}
 	
 	private ArrayList<Row> rows = new ArrayList();
-	public void setClass(String _cls) {
-		cls = _cls;
+	public void addClass(String _cls) {
+		cls += " "+ _cls;
 	}
 
 	public void addRow(Row row)

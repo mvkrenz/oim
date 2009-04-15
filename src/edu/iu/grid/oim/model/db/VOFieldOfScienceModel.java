@@ -34,7 +34,7 @@ public class VOFieldOfScienceModel extends SmallTableModelBase<VOFieldOfScienceR
 		ArrayList<VOFieldOfScienceRecord> list = new ArrayList<VOFieldOfScienceRecord>();
 		for(RecordBase rec : getCache()) {
 			VOFieldOfScienceRecord vcrec = (VOFieldOfScienceRecord)rec;
-			if(vcrec.vo_id == vo_id) list.add(vcrec);
+			if(vcrec.vo_id.compareTo(vo_id) == 0) list.add(vcrec);
 		}		
 		return list;
 	}

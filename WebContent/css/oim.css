@@ -55,6 +55,7 @@ table.record_table th
 text-align: left;
 width: 220px;
 border-bottom: 1px solid #ccc;
+padding-left: 3px;
 }
 
 .service_table table
@@ -163,6 +164,10 @@ div.inline
 {
 display: inline;
 }
+div.selected
+{
+background-color: #ccc;
+}
 .right
 {
 float:right;
@@ -174,9 +179,10 @@ text-align:right;
 	text-decoration: none;
 	cursor:progress;
 }
+
 .indent
 {
-margin: 15px;
+margin-left: 16px;
 }
 .gray
 {
@@ -200,4 +206,15 @@ background-image:url(../images/star_blue.png);
 div.contact_Tertiary
 {
 background-image:url(../images/star_green.png);
+}
+.oim_hierarchy
+{
+height: 300px;
+width: 400px;
+overflow: auto;
+border: 1px solid #ccc;
+}
+div[onclick]
+{
+cursor:pointer;
 }

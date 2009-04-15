@@ -1,12 +1,23 @@
 
 
-/*value is optional for click event*/
-function divex(id, action, value) {
+function divex(id, event, value) {
+	//stop bubble
+	if (!event) var event = window.event;//IE
+	event.cancelBubble = true;//IE
+	if (event.stopPropagation) event.stopPropagation();//Standard
+/*
+	//get target
+	var targ;
+	if (event.target) targ = event.target; //standard
+	else if (event.srcElement) targ = event.srcElement;
+	if (targ.nodeType == 3) // defeat Safari bug
+		targ = targ.parentNode;
+*/
 	jQuery.ajax({
 		url: "divex",
 		async: false,
 		data: { nodeid: id,
-			action: action,
+			action: event.type,
 			value : value },
 		type: "POST",
 		dataType: "script",//Evaluates the response as JavaScript and returns it as plain text. Disables caching unless option "cache" is used. Note: This will turn POSTs into GETs for remote-domain requests. 

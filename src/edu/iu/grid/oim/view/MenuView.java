@@ -22,7 +22,7 @@ public class MenuView implements IView {
 		out.println("<div class=\"menu\">");
 	    for(MenuItem item : menu) {
 	    	String cls = "";
-	    	if(item.url == current) {
+	    	if(item.url.compareTo(current) == 0) {
 	    		cls = "selected";
 	    	}
 	    	out.println("<span class=\""+ cls +"\"><a href=\""+ Config.getApplicationBase() + "/" + item.url+"\">"+StringEscapeUtils.escapeHtml(item.name)+"</a></span>");

@@ -24,9 +24,6 @@ import edu.iu.grid.oim.model.db.record.DNRecord;
 public class Authorization {
 	static Logger log = Logger.getLogger(Authorization.class);  
 	
-	//flag to set if this application is running on developer's local machine
-	public static Boolean local_development = false;
-	
 	private String user_dn = null;
     private Integer dn_id = null;
     private Integer contact_id = null;
@@ -70,10 +67,21 @@ public class Authorization {
 	{
 	}
 	
-	public Authorization(HttpServletRequest request) 
+	//blindly accept the authentication of user based on dn_id
+	public Authorization(int _dn_id)
 	{
-		//pull authenticated user dn
-		
+		try {
+			DNModel model = new DNModel(Guest);
+			DNRecord rec = model.get(_dn_id);
+			init(rec);
+		} catch (SQLException e) {
+			log.error(e);
+		}
+	}
+	
+	//pull user_dn from Apache's SSL_CLIENT_S_DN
+	public Authorization(HttpServletRequest request) 
+	{		
 		//tomcat native way..
 		//X509Certificate[] certs = (X509Certificate[]) request.getAttribute("javax.servlet.request.X509Certificate");
 		//user_dn = certs[0].getSubjectDN().getName();
@@ -95,13 +103,11 @@ public class Authorization {
 					log.debug("Server on localhost. Overriding the DN to Soichi's");
 					user_dn = "/DC=org/DC=doegrids/OU=People/CN=Soichi Hayashi 461343";
 					//user_dn = "/DC=org/DC=doegrids/OU=People/CN=Alain Roy 424511"; //OSG user
-					local_development = true;
 		        } else if ((hostname.compareTo("lav-ag-desktop") == 0) || 
 		        	(hostname.compareTo("SATRIANI") == 0)){
 					log.debug("Server on localhost. Overriding the DN to Arvind's");
 					user_dn = "/DC=org/DC=doegrids/OU=People/CN=Arvind Gopu 369621";
 					//user_dn = "/DC=org/DC=doegrids/OU=People/CN=Alain Roy 424511"; //OSG user
-					local_development = true;
 		        }				
 			} catch (UnknownHostException e) {
 				//ignore then..
@@ -110,33 +116,36 @@ public class Authorization {
 		
 		log.info("Authenticated User DN: "+user_dn);
 		
-		DNRecord certdn;
-
 		try {
-			DNModel dnmodel = new DNModel(Authorization.Guest);
-			certdn = dnmodel.getByDNString(user_dn);
-			if(certdn == null) {
-				log.info("The DN not found in Certificate table");
-			} else {
-				dn_id = certdn.id;
-				contact_id = certdn.contact_id;
-				
-				DNAuthorizationTypeModel dnauthtypemodel = new DNAuthorizationTypeModel(Authorization.Guest);
-				Collection<Integer> auth_type_ids = dnauthtypemodel.getAuthorizationTypesByDNID(certdn.id);
-				AuthorizationTypeActionModel authactionmodel = new AuthorizationTypeActionModel(Authorization.Guest);
-				ActionModel actionmodel = new ActionModel(Authorization.Guest);
-				for(Integer auth_type_id : auth_type_ids) {
-					Collection<Integer> aids = authactionmodel.getActionByAuthTypeID(auth_type_id);
-					for(Integer aid : aids) {
-						actions.add(actionmodel.get(aid).name);
-					}
-				}
-			}	
+			DNModel dnmodel = new DNModel(Guest);
+			init(dnmodel.getByDNString(user_dn));
 		} catch (SQLException e) {
 			log.error(e);
 		}
 	}
 	
+	private void init(DNRecord certdn) throws SQLException
+	{
+		if(certdn == null) {
+			log.info("The DN not found in Certificate table");
+		} else {
+			dn_id = certdn.id;
+			contact_id = certdn.contact_id;
+			user_dn = certdn.dn_string;
+			
+			DNAuthorizationTypeModel dnauthtypemodel = new DNAuthorizationTypeModel(Guest);
+			Collection<Integer> auth_type_ids = dnauthtypemodel.getAuthorizationTypesByDNID(certdn.id);
+			AuthorizationTypeActionModel authactionmodel = new AuthorizationTypeActionModel(Guest);
+			ActionModel actionmodel = new ActionModel(Authorization.Guest);
+			for(Integer auth_type_id : auth_type_ids) {
+				Collection<Integer> aids = authactionmodel.getActionByAuthTypeID(auth_type_id);
+				for(Integer aid : aids) {
+					actions.add(actionmodel.get(aid).name);
+				}
+			}
+		}	
+	}
+
 	public class AuthorizationException extends ServletException 
 	{
 		AuthorizationException(String msg) {

@@ -32,7 +32,7 @@ public class TextFormElementDE extends FormElementDEBase<String> {
 		if(value == null) {
 			current_value = "";
 		}
-		out.print("<input type='text' style='width: "+width+"px;' onchange='divex(\""+getNodeID()+"\", \"change\", this.value);' value=\""+StringEscapeUtils.escapeHtml(current_value)+"\"/>");
+		out.print("<input type='text' style='width: "+width+"px;' onchange='divex(\""+getNodeID()+"\", event, this.value);' value=\""+StringEscapeUtils.escapeHtml(current_value)+"\"/>");
 		if(isRequired()) {
 			out.print(" * Required");
 		}

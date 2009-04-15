@@ -120,7 +120,6 @@ public class SCServlet extends ServletBase implements Servlet {
 					cliststr += "<div class='contact_rank contact_"+rank.name+"'>";
 					cliststr += person.name;
 					cliststr += "</div>";
-				
 				}
 				
 				table.addRow(ctrec.name, new HtmlView(cliststr));

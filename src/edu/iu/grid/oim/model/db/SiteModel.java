@@ -9,7 +9,9 @@ import org.apache.log4j.Logger;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
+import edu.iu.grid.oim.model.db.record.FacilityRecord;
 import edu.iu.grid.oim.model.db.record.RecordBase;
+import edu.iu.grid.oim.model.db.record.ResourceRecord;
 import edu.iu.grid.oim.model.db.record.SiteRecord;
 
 public class SiteModel extends SmallTableModelBase<SiteRecord> {
@@ -34,5 +36,14 @@ public class SiteModel extends SmallTableModelBase<SiteRecord> {
 		SiteRecord keyrec = new SiteRecord();
 		keyrec.id = id;
 		return get(keyrec);
+	}
+	public ArrayList<SiteRecord> getByFacilityID(int facility_id) throws SQLException
+	{
+		ArrayList<SiteRecord> list = new ArrayList<SiteRecord>();
+		for(RecordBase rec : getCache()) {
+			SiteRecord srec = (SiteRecord)rec;
+			if(srec.facility_id.compareTo(facility_id) == 0) list.add(srec);
+		}
+		return list;
 	}
 }

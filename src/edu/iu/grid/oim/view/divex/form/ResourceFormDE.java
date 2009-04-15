@@ -35,6 +35,7 @@ import edu.iu.grid.oim.model.db.record.ResourceGroupRecord;
 import edu.iu.grid.oim.model.db.record.ResourceRecord;
 import edu.iu.grid.oim.model.db.record.ResourceServiceRecord;
 import edu.iu.grid.oim.view.divex.ContactEditorDE;
+import edu.iu.grid.oim.view.divex.OIMHierarchySelector;
 import edu.iu.grid.oim.view.divex.ResourceAliasDE;
 import edu.iu.grid.oim.view.divex.ResourceServicesDE;
 
@@ -55,7 +56,7 @@ public class ResourceFormDE extends FormDE
 	private TextFormElementDE wlcg_accounting_name;
 	private CheckBoxFormElementDE active;
 	private CheckBoxFormElementDE disable;
-	private SelectFormElementDE resource_group_id;
+	private OIMHierarchySelector resource_group_id;
 	private ResourceAliasDE alias;
 	private ResourceServicesDE resource_services;
 	
@@ -137,15 +138,10 @@ public class ResourceFormDE extends FormDE
 		for(ResourceGroupRecord grec : model.getAll()) {
 			resource_groups_kv.put(grec.id, grec.name);
 		}
-		resource_group_id = new SelectFormElementDE(this, resource_groups_kv);
+		
+		resource_group_id = new OIMHierarchySelector(this, OIMHierarchySelector.Type.RESOURCE_GROUP, auth);
 		resource_group_id.setLabel("Resource Group");
-		resource_group_id.setRequired(true);
-		if(id != null) {
-			ResourceGroupRecord resource_group_rec = model.get(rec.resource_group_id);
-			if(resource_group_rec != null) {
-				resource_group_id.setValue(rec.resource_group_id);
-			}
-		}
+		resource_group_id.setValue(rec.resource_group_id);
 		
 		fqdn = new TextFormElementDE(this);
 		fqdn.setLabel("FQDN");

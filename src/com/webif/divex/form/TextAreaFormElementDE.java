@@ -35,7 +35,7 @@ public class TextAreaFormElementDE extends FormElementDEBase<String>  {
 		if(value == null) {
 			current_value = "";
 		} 
-		out.print("<textarea style='width: "+width+"px;' onchange='divex(\""+getNodeID()+"\", \"change\", this.value);'>");
+		out.print("<textarea style='width: "+width+"px;' onchange='divex(\""+getNodeID()+"\", event, this.value);'>");
 		out.print(StringEscapeUtils.escapeHtml(current_value));
 		out.print("</textarea>");
 		if(isRequired()) {

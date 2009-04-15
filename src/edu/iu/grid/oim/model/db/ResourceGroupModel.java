@@ -11,6 +11,7 @@ import edu.iu.grid.oim.model.db.record.OsgGridTypeRecord;
 import edu.iu.grid.oim.model.db.record.RecordBase;
 import edu.iu.grid.oim.model.db.record.ResourceGroupRecord;
 import edu.iu.grid.oim.model.db.record.SCRecord;
+import edu.iu.grid.oim.model.db.record.SiteRecord;
 
 public class ResourceGroupModel extends SmallTableModelBase<ResourceGroupRecord> {
     static Logger log = Logger.getLogger(ResourceGroupModel.class); 
@@ -32,6 +33,15 @@ public class ResourceGroupModel extends SmallTableModelBase<ResourceGroupRecord>
 		ArrayList<ResourceGroupRecord> list = new ArrayList<ResourceGroupRecord>();
 		for(RecordBase it : getCache()) {
 			list.add((ResourceGroupRecord)it);
+		}
+		return list;
+	}
+	public ArrayList<ResourceGroupRecord> getBySiteID(int site_id) throws SQLException
+	{
+		ArrayList<ResourceGroupRecord> list = new ArrayList<ResourceGroupRecord>();
+		for(RecordBase rec : getCache()) {
+			ResourceGroupRecord srec = (ResourceGroupRecord)rec;
+			if(srec.site_id.compareTo(site_id) == 0) list.add(srec);
 		}
 		return list;
 	}

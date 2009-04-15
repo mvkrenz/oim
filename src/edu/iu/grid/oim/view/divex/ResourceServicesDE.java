@@ -218,7 +218,6 @@ public class ResourceServicesDE extends FormElementDEBase {
 		for(ServiceEditor service : services) {
 			service.render(out);
 		}
-		out.write("<br/>");
 		add_button.render(out);
 		
 		out.print("</div>");

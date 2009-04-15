@@ -32,7 +32,6 @@ public class ErrorServlet extends ServletBase {
     }
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		
 		setAuth(request);
 		
 		MenuView menuview = createMenuView(null);

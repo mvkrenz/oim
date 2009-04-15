@@ -99,12 +99,21 @@ public class ResourceServlet extends ServletBase implements Servlet {
 		contentview.add(new HtmlView("<h1>Resource</h1>"));
 	
 		for(ResourceRecord rec : resources) {
-			contentview.add(new HtmlView("<h2>"+StringEscapeUtils.escapeHtml(rec.name)+"</h2>"));
+			
+			//TODO - need to make "disabled" more conspicuous
+			String name = rec.name;
+			/*
+			if(rec.disable) {
+				name += " (Disabled)";
+			}
+			*/
+			contentview.add(new HtmlView("<h2>"+StringEscapeUtils.escapeHtml(name)+"</h2>"));
 	
+			/*
 			//RSS feed button
 			contentview.add(new HtmlView("<div class=\"right\"><a href=\"http://oimupdate.blogspot.com/feeds/posts/default/-/resource_"+rec.id+"\" target=\"_blank\"/>"+
 					"Subscribe to Updates</a></div>"));
-			
+			*/
 			RecordTableView table = new RecordTableView();
 			contentview.add(table);
 

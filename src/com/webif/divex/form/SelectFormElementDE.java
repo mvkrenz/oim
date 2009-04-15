@@ -25,7 +25,7 @@ public class SelectFormElementDE extends FormElementDEBase<Integer>
 		if(label != null) {
 			out.print("<label>"+StringEscapeUtils.escapeHtml(label)+"</label><br/>");
 		}
-		out.print("<select onchange='divex(\""+getNodeID()+"\", \"change\", this.value);'>");
+		out.print("<select onchange='divex(\""+getNodeID()+"\", event, this.value);'>");
 		out.print("<option value=\"\">(Please Select)</option>");
 
 		for(Integer v : keyvalues.keySet()) {

@@ -8,7 +8,7 @@ public class RecordTableView extends TableView {
 	
 	public RecordTableView()
 	{
-		setClass("record_table");
+		addClass("record_table");
 	}
 	
 	public void addRow(String header, IView content) {

@@ -89,11 +89,11 @@ public class VOServlet extends ServletBase implements Servlet {
 	
 		for(VORecord rec : vos) {
 			contentview.add(new HtmlView("<h2>"+StringEscapeUtils.escapeHtml(rec.name)+"</h2>"));
-		
+			/*
 			//RSS feed button
 			contentview.add(new HtmlView("<div class=\"right\"><a href=\"http://oimupdate.blogspot.com/feeds/posts/default/-/vo_"+rec.id+"\" target=\"_blank\"/>"+
 					"Subscribe to Updates</a></div>"));
-			
+			*/
 			RecordTableView table = new RecordTableView();
 			contentview.add(table);
 
