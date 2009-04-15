@@ -97,12 +97,13 @@ INSERT INTO site
 INSERT INTO resource_group (SELECT resource_group_id,name,description,site_id,osg_grid_type_id,active,disable FROM oim.resource_group);
 
 INSERT INTO resource
-        (SELECT res.resource_id, name, description, fqdn, url, resExt.interop_bdii,
-                resExt.interop_monitoring, resExt.interop_accounting,
-                resExt.wlcg_accounting_name, active, disable ,1
+        (SELECT res.resource_id, name, description, fqdn, url, active, disable ,1 FROM oim.resource res);
+UPDATE resource res SET res.resource_group_id=(SELECT resource_group_id FROM oim.resource_resource_group resResGrp WHERE resResGrp.resource_id=res.id);
+
+INSERT INTO resource_wlcg
+        (SELECT res.resource_id, resExt.interop_bdii, resExt.interop_monitoring, resExt.interop_accounting, resExt.wlcg_accounting_name, 0,0,0,0
         FROM oim.resource res
         LEFT JOIN oim.resource_ext_attributes resExt ON (res.resource_id=resExt.resource_id));
-UPDATE resource res SET res.resource_group_id=(SELECT resource_group_id FROM oim.resource_resource_group resResGrp WHERE resResGrp.resource_id=res.id);
 
 INSERT INTO vo_resource_ownership (SELECT resource_id,vo_id,percent FROM oim.vo_resource_ownership);
 

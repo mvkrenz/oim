@@ -360,15 +360,6 @@ CREATE TABLE `metric_status` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='<strong><u>Metric Status</u></strong>: Information about val';
 SET character_set_client = @saved_cs_client;
 
-DROP TABLE IF EXISTS `notification`;
-CREATE TABLE  `notification` (
-  `id` int(11) NOT NULL auto_increment,
-  `notification` text collate utf8_unicode_ci NOT NULL COMMENT 'xml containing class to use and its parameters',
-  `dn_id` int(11) NOT NULL COMMENT 'person who is requesting this notification',
-  PRIMARY KEY  (`id`),
-    CONSTRAINT `foreign_dn_id` FOREIGN KEY (`dn_id`) REFERENCES `dn` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
-
 --
 -- Table structure for table `osg_grid_type`
 --
@@ -422,26 +413,19 @@ SET character_set_client = @saved_cs_client;
 --
 
 DROP TABLE IF EXISTS `resource`;
-SET @saved_cs_client     = @@character_set_client;
-SET character_set_client = utf8;
 CREATE TABLE `resource` (
   `id` int(11) NOT NULL auto_increment,
   `name` text collate utf8_unicode_ci,
   `description` text collate utf8_unicode_ci,
   `fqdn` text collate utf8_unicode_ci NOT NULL,
   `url` text collate utf8_unicode_ci COMMENT 'Use this to store local resource URL, etc',
-  `interop_bdii` tinyint(1) NOT NULL default '0',
-  `interop_monitoring` tinyint(1) NOT NULL default '0',
-  `interop_accounting` tinyint(1) NOT NULL default '0' COMMENT 'Should Gratia accounting information be forwarding to the WLCG accounting system? If TRUE, then wlcg_accounting_name will be required.',
-  `wlcg_accounting_name` text collate utf8_unicode_ci COMMENT 'This field will hold the WLCG resource (site) name. For example IU_OSG would be part of virtual facility US-MWT2 which is part of USA which is part of Tier2 in the WLCG accounting system.   Note: REQUIRED field if interop_accounting field is set to TRUE i',
   `active` int(11) NOT NULL COMMENT 'Use this to also flag inactive resources?',
   `disable` int(11) NOT NULL default '0' COMMENT 'Use this to also flag inactive resources?',
   `resource_group_id` int(11) NOT NULL,
   PRIMARY KEY  (`id`),
   KEY `resource_resource_group` (`resource_group_id`),
   CONSTRAINT `resource_resource_group` FOREIGN KEY (`resource_group_id`) REFERENCES `resource_group` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=233 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='This table does not have an active flag field because we hav';
-SET character_set_client = @saved_cs_client;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='This table does not have an active flag field because we hav';
 
 --
 -- Table structure for table `resource_alias`
@@ -551,28 +535,19 @@ SET character_set_client = @saved_cs_client;
 --
 -- Table structure for table `resource_service`
 --
-
 DROP TABLE IF EXISTS `resource_service`;
-SET @saved_cs_client     = @@character_set_client;
-SET character_set_client = utf8;
 CREATE TABLE `resource_service` (
   `service_id` int(11) NOT NULL,
   `resource_id` int(11) NOT NULL,
   `endpoint_override` text collate utf8_unicode_ci COMMENT 'This field will store URIs like a web URL or an LDAP URI.',
   `hidden` tinyint(1) NOT NULL default '0',
   `central` tinyint(1) NOT NULL default '0',
-  `ksi2k_minimum` float default NULL COMMENT 'Field requested by Brian B  for WLCG CEs',
-  `ksi2k_maximum` float default NULL COMMENT 'Field requested by Brian B  for WLCG CEs',
-  `storage_capacity_minimum` float default NULL COMMENT 'Field requested by Brian B  for WLCG SEs',
-  `storage_capacity_maximum` float default NULL COMMENT 'Field requested by Brian B  for WLCG SEs',
   `server_list_regex` varchar(512) collate utf8_unicode_ci default NULL COMMENT 'Field requested by Brian B and Gratia for SEs',
   PRIMARY KEY  (`service_id`,`resource_id`),
   KEY `resource_resource_service` (`resource_id`),
   CONSTRAINT `resource_resource_service` FOREIGN KEY (`resource_id`) REFERENCES `resource` (`id`),
   CONSTRAINT `service_resource_service` FOREIGN KEY (`service_id`) REFERENCES `service` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Each resource could run one or more service. For example, a ';
-SET character_set_client = @saved_cs_client;
-
 --
 -- Table structure for table `sc_contact`
 --
@@ -861,23 +836,18 @@ CREATE TABLE `vo_vo` (
   CONSTRAINT `vo_vo_ibfk_2` FOREIGN KEY (`parent_vo_id`) REFERENCES `vo` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 SET character_set_client = @saved_cs_client;
-/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
-/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
-/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
-/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
-/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
-/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
-
-DROP TABLE IF EXISTS `notification_buffer`;
-CREATE TABLE  `notification_buffer` (
-  `id` int(10) unsigned NOT NULL auto_increment,
-  `contact_id` int(10) collate utf8_unicode_ci NOT NULL,
-  `buffer` text collate utf8_unicode_ci NOT NULL,
-  PRIMARY KEY  (`id`),
-    CONSTRAINT `notification_buffer_contact_id` FOREIGN KEY (`contact_id`) REFERENCES `contact` (`id`)
+DROP TABLE IF EXISTS `wlcg`;
+CREATE TABLE `wlcg` (
+  `resource_id` int(11) NOT NULL auto_increment COMMENT 'resource_id that this WLCG information is related to',
+  `interop_bdii` tinyint(1) NOT NULL,
+  `interop_monitoring` tinyint(1) NOT NULL,
+  `interop_accounting` tinyint(1) NOT NULL,
+  `accounting_name` varchar(256) collate utf8_unicode_ci NOT NULL,
+  `ksi2k_minimum` double NOT NULL,
+  `ksi2k_maximum` double NOT NULL,
+  `storage_capacity_minimum` double NOT NULL,
+  `storage_capacity_maximum` double NOT NULL,
+  PRIMARY KEY  USING BTREE (`resource_id`),
+  CONSTRAINT `resource_id` FOREIGN KEY (`resource_id`) REFERENCES `resource` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
-
--- Dump completed on 2009-03-26 16:43:35
