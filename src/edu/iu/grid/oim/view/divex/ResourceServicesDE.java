@@ -50,12 +50,6 @@ public class ResourceServicesDE extends FormElementDEBase {
 				service.setValue(rec.service_id);
 			}
 			
-			endpoint_override = new TextFormElementDE(this);
-			endpoint_override.setLabel("End Point Override");
-			if(rec != null) {
-				endpoint_override.setValue(rec.endpoint_override);
-			}
-			
 			hidden = new CheckBoxFormElementDE(this);
 			hidden.setLabel("Hidden Service");
 			if(rec != null) {
@@ -66,6 +60,12 @@ public class ResourceServicesDE extends FormElementDEBase {
 			central.setLabel("Central");
 			if(rec != null) {
 				central.setValue(rec.central);
+			}
+			
+			endpoint_override = new TextFormElementDE(this);
+			endpoint_override.setLabel("End Point Override");
+			if(rec != null) {
+				endpoint_override.setValue(rec.endpoint_override);
 			}
 
 			server_list_regex = new TextFormElementDE(this);

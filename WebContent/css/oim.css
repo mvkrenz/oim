@@ -36,6 +36,11 @@ table.auth_matrix tr.checklist input[type=checkbox]
 margin-top: 4px;
 }
 
+input[type=button]
+{
+min-width: 100px;
+}
+
 table.record_table
 {
 padding-bottom: 5px;

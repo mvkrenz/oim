@@ -16,6 +16,7 @@ import com.webif.divex.form.CheckBoxFormElementDE;
 import com.webif.divex.form.SelectFormElementDE;
 import com.webif.divex.form.TextAreaFormElementDE;
 import com.webif.divex.form.TextFormElementDE;
+import com.webif.divex.form.validator.DoubleValidator;
 import com.webif.divex.form.validator.UniqueValidator;
 import com.webif.divex.form.validator.UrlValidator;
 
@@ -127,12 +128,6 @@ public class ResourceFormDE extends FormDE
 		if(!auth.allows("admin")) {
 			disable.setHidden(true);
 		}
-		/*
-		ResourceGroupModel model = new ResourceGroupModel(auth);
-		HashMap<Integer, String> resource_groups_kv = new HashMap();
-		for(ResourceGroupRecord grec : model.getAll()) {
-			resource_groups_kv.put(grec.id, grec.name);
-		}*/
 		
 		resource_group_id = new OIMHierarchySelector(this, OIMHierarchySelector.Type.RESOURCE_GROUP, auth);
 		resource_group_id.setLabel("Resource Group");
@@ -169,7 +164,7 @@ public class ResourceFormDE extends FormDE
 			}
 		});
 		
-		//indent the who thing
+		//indent the whole WCLG things
 		new StaticDE(this, "<div class=\"indent\">");
 		{
 			interop_bdii = new CheckBoxFormElementDE(this);
@@ -186,15 +181,19 @@ public class ResourceFormDE extends FormDE
 			
 			ksi2k_minimum = new TextFormElementDE(this);
 			ksi2k_minimum.setLabel("ksi2k_minimum");
+			ksi2k_minimum.addValidator(DoubleValidator.getInstance());
 			
 			ksi2k_maximum = new TextFormElementDE(this);
 			ksi2k_maximum.setLabel("ksi2k_maximum");
+			ksi2k_maximum.addValidator(DoubleValidator.getInstance());
 			
 			storage_capacity_minimum = new TextFormElementDE(this);
 			storage_capacity_minimum.setLabel("Storage Capacity Minimum");
+			storage_capacity_minimum.addValidator(DoubleValidator.getInstance());
 			
 			storage_capacity_maximum = new TextFormElementDE(this);
 			storage_capacity_maximum.setLabel("Storage Capacity Maximum");
+			storage_capacity_maximum.addValidator(DoubleValidator.getInstance());
 		}
 		new StaticDE(this, "</div>");
 		hideWLCGElements(true);
@@ -297,6 +296,7 @@ public class ResourceFormDE extends FormDE
 		storage_capacity_maximum.redraw();
 		storage_capacity_maximum.setRequired(!b);
 	}
+	
 	private ContactEditorDE createContactEditor(HashMap<Integer, ArrayList<ResourceContactRecord>> voclist, ContactTypeRecord ctrec) throws SQLException
 	{
 		new StaticDE(this, "<h3>" + StringEscapeUtils.escapeHtml(ctrec.name) + "</h3>");
