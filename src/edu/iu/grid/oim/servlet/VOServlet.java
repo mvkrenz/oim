@@ -24,7 +24,8 @@ import edu.iu.grid.oim.model.db.ContactRankModel;
 import edu.iu.grid.oim.model.db.ContactTypeModel;
 import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.FieldOfScienceModel;
-import edu.iu.grid.oim.model.db.SCContactModel;
+import edu.iu.grid.oim.model.db.VOReportNameModel;
+import edu.iu.grid.oim.model.db.VOReportNameFqanModel;
 import edu.iu.grid.oim.model.db.SCModel;
 import edu.iu.grid.oim.model.db.VOContactModel;
 import edu.iu.grid.oim.model.db.VOFieldOfScienceModel;
@@ -34,6 +35,8 @@ import edu.iu.grid.oim.model.db.record.ContactRankRecord;
 import edu.iu.grid.oim.model.db.record.ContactTypeRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.FieldOfScienceRecord;
+import edu.iu.grid.oim.model.db.record.VOReportNameRecord;
+import edu.iu.grid.oim.model.db.record.VOReportNameFqanRecord;
 import edu.iu.grid.oim.model.db.record.SCRecord;
 import edu.iu.grid.oim.model.db.record.VOContactRecord;
 import edu.iu.grid.oim.model.db.record.VOFieldOfScienceRecord;
@@ -41,6 +44,7 @@ import edu.iu.grid.oim.model.db.record.VORecord;
 import edu.iu.grid.oim.model.db.record.VOReportContactRecord;
 import edu.iu.grid.oim.view.ContentView;
 import edu.iu.grid.oim.view.DivExWrapper;
+import edu.iu.grid.oim.view.GenericView;
 import edu.iu.grid.oim.view.HtmlView;
 import edu.iu.grid.oim.view.IView;
 import edu.iu.grid.oim.view.MenuView;
@@ -97,22 +101,6 @@ public class VOServlet extends ServletBase implements Servlet {
 			RecordTableView table = new RecordTableView();
 			contentview.add(table);
 
-		 	table.addRow("Long Name", rec.long_name);
-			table.addRow("Description", rec.description);
-			table.addRow("Primary URL", new HtmlView("<a target=\"_blank\" href=\""+rec.primary_url+"\">"+rec.primary_url+"</a>"));
-			table.addRow("AUP URL", new HtmlView("<a target=\"_blank\" href=\""+rec.aup_url+"\">"+rec.aup_url+"</a>"));
-			table.addRow("Membership Services URL", new HtmlView("<a target=\"_blank\" href=\""+rec.membership_services_url+"\">"+rec.membership_services_url+"</a>"));
-			table.addRow("Purpose URL", new HtmlView("<a target=\"_blank\" href=\""+rec.purpose_url+"\">"+rec.purpose_url+"</a>"));
-			table.addRow("Support URL", new HtmlView("<a target=\"_blank\" href=\""+rec.support_url+"\">"+rec.support_url+"</a>"));
-			table.addRow("App Description", rec.app_description);
-			table.addRow("Community", rec.community);
-			if(auth.allows("admin_vo")) {
-				table.addRow("Footprints ID", rec.footprints_id);
-			}
-			table.addRow("Support Center", rec.toString(rec.sc_id, auth));
-			table.addRow("Active", rec.active);
-			table.addRow("Disable", rec.disable);
-
 			//pull parent VO
 			VOModel model = new VOModel(auth);
 			VORecord parent_vo_rec = model.getParentVO(rec.id);
@@ -122,8 +110,20 @@ public class VOServlet extends ServletBase implements Servlet {
 			}
 			table.addRow("Parent VO", parent_vo_name);
 	
+			table.addRow("Support Center", rec.toString(rec.sc_id, auth));
+
+			table.addRow("Long Name", rec.long_name);
+			table.addRow("Description", rec.description);
+			table.addRow("App Description", rec.app_description);
+			table.addRow("Community", rec.community);
 			table.addRow("Field of Scicnce", getFieldOfScience(rec.id));
 
+			table.addRow("Primary URL", new HtmlView("<a target=\"_blank\" href=\""+rec.primary_url+"\">"+rec.primary_url+"</a>"));
+			table.addRow("AUP URL", new HtmlView("<a target=\"_blank\" href=\""+rec.aup_url+"\">"+rec.aup_url+"</a>"));
+			table.addRow("Membership Services URL", new HtmlView("<a target=\"_blank\" href=\""+rec.membership_services_url+"\">"+rec.membership_services_url+"</a>"));
+			table.addRow("Purpose URL", new HtmlView("<a target=\"_blank\" href=\""+rec.purpose_url+"\">"+rec.purpose_url+"</a>"));
+			table.addRow("Support URL", new HtmlView("<a target=\"_blank\" href=\""+rec.support_url+"\">"+rec.support_url+"</a>"));
+		
 			ContactTypeModel ctmodel = new ContactTypeModel(auth);
 			ContactRankModel crmodel = new ContactRankModel(auth);
 			ContactModel pmodel = new ContactModel(auth);
@@ -150,7 +150,23 @@ public class VOServlet extends ServletBase implements Servlet {
 				
 				table.addRow(ctrec.name, new HtmlView(cliststr));
 			}			
-		
+
+			//VO Report Names
+			VOReportNameModel vorepname_model = new VOReportNameModel(auth);
+			ArrayList<VOReportNameRecord> vorepname_records = vorepname_model.getAllByVOID(rec.id);
+			GenericView vorepname_view = new GenericView();
+			for(VOReportNameRecord vorepname_record : vorepname_records) {
+				vorepname_view.add(createVOReportNameView(vorepname_record));
+			}
+			table.addRow("Reporting Names", vorepname_view);
+
+			if(auth.allows("admin_vo")) {
+				table.addRow("Footprints ID", rec.footprints_id);
+			}
+			table.addRow("Active", rec.active);
+			table.addRow("Deactivated", rec.disable);
+			
+			
 			class EditButtonDE extends ButtonDE
 			{
 				String url;
@@ -187,6 +203,52 @@ public class VOServlet extends ServletBase implements Servlet {
 			out += frec.name + "<br/>";
 		}
 		return new HtmlView(out);
+	}
+
+	private IView createVOReportNameView(VOReportNameRecord record)
+	{
+		GenericView view = new GenericView();
+		RecordTableView table = new RecordTableView();
+		
+		try {
+			view.add(new HtmlView("<div class=\"voreportname_table\"><div class=\"header\">Report Name: " + StringEscapeUtils.escapeHtml(record.name) + "</div>"));
+			table.addRow("Associated FQANs", new HtmlView (getVOReportNameFqans(record.id)));
+
+			ContactTypeModel ctmodel = new ContactTypeModel(auth);
+			ContactRankModel crmodel = new ContactRankModel(auth);
+			ContactModel pmodel = new ContactModel(auth);
+			
+			//reporting contacts 
+			VOReportContactModel vorc_model = new VOReportContactModel(auth);
+			ArrayList<VOReportContactRecord> vorc_list = vorc_model.getByVOReportNameID(record.id);
+			String cliststr = "";
+			for(VOReportContactRecord vrc_record : vorc_list) {
+				ContactRecord person = pmodel.get(vrc_record.contact_id);
+				// AG: Remove rank from VORC
+				ContactRankRecord rank = crmodel.get(vrc_record.contact_rank_id);
+				cliststr += "<div class='contact_rank contact_"+rank.name+"'>";
+				cliststr += person.name;
+				cliststr += "</div>";
+			}
+			table.addRow("Report Subscribers", new HtmlView(cliststr));
+			view.add(table);
+			view.add(new HtmlView("</div>"));
+			
+		} catch (Exception e) {
+			log.error(e);
+		}
+		return view;
+	}
+	
+	private String getVOReportNameFqans(int vo_report_name_id) throws SQLException
+	{
+		String html = "";
+		VOReportNameFqanModel vorepnamefqn_model = new VOReportNameFqanModel(auth);
+		ArrayList<VOReportNameFqanRecord> records = vorepnamefqn_model.getAllByVOReportNameID(vo_report_name_id);
+		for(VOReportNameFqanRecord record : records) {
+			html += StringEscapeUtils.escapeHtml(record.fqan) + "<br/>";
+		}
+		return html;
 	}
 
 	private SideContentView createSideView(DivExRoot root)

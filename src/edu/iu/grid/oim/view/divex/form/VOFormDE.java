@@ -12,6 +12,7 @@ import org.apache.log4j.Logger;
 
 import com.webif.divex.DivEx;
 import com.webif.divex.Event;
+import com.webif.divex.EventListener;
 import com.webif.divex.form.FormDE;
 import com.webif.divex.StaticDE;
 import com.webif.divex.form.CheckBoxFormElementDE;
@@ -27,6 +28,11 @@ import edu.iu.grid.oim.model.db.ContactRankModel;
 import edu.iu.grid.oim.model.db.ContactTypeModel;
 import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.FieldOfScienceModel;
+import edu.iu.grid.oim.model.db.ResourceServiceModel;
+import edu.iu.grid.oim.model.db.ServiceModel;
+import edu.iu.grid.oim.model.db.VOReportContactModel;
+import edu.iu.grid.oim.model.db.VOReportNameModel;
+import edu.iu.grid.oim.model.db.VOReportNameFqanModel;
 import edu.iu.grid.oim.model.db.SCModel;
 import edu.iu.grid.oim.model.db.VOContactModel;
 import edu.iu.grid.oim.model.db.VOFieldOfScienceModel;
@@ -37,12 +43,18 @@ import edu.iu.grid.oim.model.db.record.ContactTypeRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.FieldOfScienceRecord;
 import edu.iu.grid.oim.model.db.record.RecordBase;
+import edu.iu.grid.oim.model.db.record.VOReportContactRecord;
+import edu.iu.grid.oim.model.db.record.VOReportNameRecord;
+import edu.iu.grid.oim.model.db.record.VOReportNameFqanRecord;
 import edu.iu.grid.oim.model.db.record.SCRecord;
 import edu.iu.grid.oim.model.db.record.VOContactRecord;
 import edu.iu.grid.oim.model.db.record.VOFieldOfScienceRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
 import edu.iu.grid.oim.model.db.record.VOVORecord;
 import edu.iu.grid.oim.view.divex.ContactEditorDE;
+import edu.iu.grid.oim.view.divex.ResourceServicesDE;
+import edu.iu.grid.oim.view.divex.VOReportNamesDE;
+import edu.iu.grid.oim.view.divex.VOReportNameFqanDE;
 import edu.iu.grid.oim.view.divex.ContactEditorDE.Rank;
 
 public class VOFormDE extends FormDE 
@@ -68,15 +80,15 @@ public class VOFormDE extends FormDE
 	private CheckBoxFormElementDE disable;
 	private HashMap<Integer, CheckBoxFormElementDE> field_of_science;
 	private SelectFormElementDE parent_vo;
+	private VOReportNamesDE vo_report_name_div;
+	// private VOReportNameFqanDE vo_report_name_fqans;
 	
 	//contact types to edit
 	private int contact_types[] = {
 		1, //submitter
-//		4, //operational contact -- AG: NEED TO REMOVE? -agopu
 		6, //vo manager
 		3, //admin contact       -- Formerly operations contact for VOs
 		2, //security contact
-		10, //VO report contact
 		5, //misc contact
 	};
 	private HashMap<Integer, ContactEditorDE> contact_editors = new HashMap();
@@ -88,20 +100,45 @@ public class VOFormDE extends FormDE
 		
 		id = rec.id;
 		
-		new StaticDE(this, "<h2>Details</h2>");
-		
 		//pull vos for unique validator
-		HashMap<Integer, String> vos = getVOs();
-		if(id != null) {
-			//if doing update, remove my own name (I can use my own name)
+		HashMap<Integer, String> vos = getVONames();
+		if(id != null) { //if doing update, remove my own name (I can use my own name)
 			vos.remove(id);
 		}
+
+		// Name is not an editable field except for GOC staff
 		name = new TextFormElementDE(this);
 		name.setLabel("Name");
 		name.setValue(rec.name);
 		name.addValidator(new UniqueValidator<String>(vos.values()));
 		name.setRequired(true);
+		if (auth.allows("admin")) {
+			name.setDisabled(true);
+		}
 		
+		parent_vo = new SelectFormElementDE(this, vos);
+		parent_vo.setLabel("Parent VO");
+		if(id != null) {
+			VOModel model = new VOModel(auth);
+			VORecord parent_vo_rec = model.getParentVO(id);
+			if(parent_vo_rec != null) {
+				parent_vo.setValue(parent_vo_rec.id);
+			}
+			// AG: Need to clean this up; especially for VOs that are not child VOs of a parent
+			// .. perhaps a yes/no first?
+		}
+		parent_vo.addEventListener(new EventListener () {
+			public void handleEvent(Event e) {
+				handleParentVOSelection(Integer.parseInt(e.getValue()));
+			}
+		});
+		
+
+		sc_id = new SelectFormElementDE(this, getSCNames());
+		sc_id.setLabel("Support Center");
+		sc_id.setValue(rec.sc_id);
+		sc_id.setRequired(true);
+
 		long_name = new TextFormElementDE(this);
 		long_name.setLabel("Long Name");
 		long_name.setValue(rec.long_name);
@@ -112,6 +149,38 @@ public class VOFormDE extends FormDE
 		description.setValue(rec.description);
 		description.setRequired(true);
 
+		app_description = new TextAreaFormElementDE(this);
+		app_description.setLabel("App Description");
+		app_description.setValue(rec.app_description);
+		app_description.setRequired(true);
+
+		community = new TextAreaFormElementDE(this);
+		community.setLabel("Community");
+		community.setValue(rec.community);
+		community.setRequired(true);
+
+		new StaticDE(this, "<h3>Field Of Science</h3>");
+		ArrayList<Integer/*field_of_science_id*/> fslist = new ArrayList();
+		if(id != null) {
+			VOFieldOfScienceModel vofsmodel = new VOFieldOfScienceModel(auth);
+			for(VOFieldOfScienceRecord fsrec : vofsmodel.getByVOID(id)) {
+				fslist.add(fsrec.field_of_science_id);
+			}
+		}
+		FieldOfScienceModel fsmodel = new FieldOfScienceModel(auth);
+		field_of_science = new HashMap();
+		for(FieldOfScienceRecord fsrec : fsmodel.getAll()) {
+			CheckBoxFormElementDE elem = new CheckBoxFormElementDE(this);
+			field_of_science.put(fsrec.id, elem);
+			elem.setLabel(fsrec.name);
+			if(fslist != null) {
+				if(fslist.contains(fsrec.id)) {
+					elem.setValue(true);	
+				}
+			}
+		}
+
+		new StaticDE(this, "<h3>Relevant URLs</h3>");
 		primary_url = new TextFormElementDE(this);
 		primary_url.setLabel("Primary URL");
 		primary_url.setValue(rec.primary_url);
@@ -142,74 +211,7 @@ public class VOFormDE extends FormDE
 		support_url.addValidator(UrlValidator.getInstance());
 		support_url.setRequired(true);
 
-		app_description = new TextAreaFormElementDE(this);
-		app_description.setLabel("App Description");
-		app_description.setValue(rec.app_description);
-		app_description.setRequired(true);
-
-		community = new TextAreaFormElementDE(this);
-		community.setLabel("Community");
-		community.setValue(rec.community);
-		community.setRequired(true);
-
-		footprints_id = new TextFormElementDE(this);
-		footprints_id.setLabel("Footprints ID");
-		footprints_id.setValue(rec.footprints_id);
-		footprints_id.setRequired(true);
-		if(!auth.allows("admin")) {
-			footprints_id.setHidden(true);
-		}
-
-		sc_id = new SelectFormElementDE(this, getSCs());
-		sc_id.setLabel("Support Center");
-		sc_id.setValue(rec.sc_id);
-		sc_id.setRequired(true);
-
-		active = new CheckBoxFormElementDE(this);
-		active.setLabel("Active");
-		active.setValue(rec.active);
-		if(!auth.allows("admin")) {
-			active.setHidden(true);
-		}
-		
-		disable = new CheckBoxFormElementDE(this);
-		disable.setLabel("Disabled");
-		disable.setValue(rec.disable);
-		if(!auth.allows("admin")) {
-			disable.setHidden(true);
-		}
-		
-		parent_vo = new SelectFormElementDE(this, vos);
-		parent_vo.setLabel("Parent VO");
-		if(id != null) {
-			VOModel model = new VOModel(auth);
-			VORecord parent_vo_rec = model.getParentVO(rec.id);
-			if(parent_vo_rec != null) {
-				parent_vo.setValue(parent_vo_rec.id);
-			}
-		}
-		
-		new StaticDE(this, "<h3>Field Of Science</h3>");
-		ArrayList<Integer/*field_of_science_id*/> fslist = new ArrayList();
-		if(id != null) {
-			VOFieldOfScienceModel vofsmodel = new VOFieldOfScienceModel(auth);
-			for(VOFieldOfScienceRecord fsrec : vofsmodel.getByVOID(id)) {
-				fslist.add(fsrec.field_of_science_id);
-			}
-		}
-		FieldOfScienceModel fsmodel = new FieldOfScienceModel(auth);
-		field_of_science = new HashMap();
-		for(FieldOfScienceRecord fsrec : fsmodel.getAll()) {
-			CheckBoxFormElementDE elem = new CheckBoxFormElementDE(this);
-			field_of_science.put(fsrec.id, elem);
-			elem.setLabel(fsrec.name);
-			if(fslist != null) {
-				if(fslist.contains(fsrec.id)) {
-					elem.setValue(true);	
-				}
-			}
-		}
-		
+	
 		new StaticDE(this, "<h2>Contact Information</h2>");
 		HashMap<Integer/*contact_type_id*/, ArrayList<VOContactRecord>> voclist_grouped = null;
 		if(id != null) {
@@ -264,6 +266,49 @@ public class VOFormDE extends FormDE
 			}
 			contact_editors.put(contact_type_id, editor);
 		}
+
+		// Handle reporting names
+		new StaticDE(this, "<h2>Reporting Names</h2>");
+		VOReportNameModel vorepname_model = new VOReportNameModel(auth);
+		VOReportNameFqanModel vorepnamefqan_model = new VOReportNameFqanModel(auth);
+		ContactModel cmodel = new ContactModel (auth);
+		vo_report_name_div = new VOReportNamesDE(this, vorepname_model.getAll(), cmodel);
+
+		if(id != null) {
+			for(VOReportNameRecord vorepname_rec : vorepname_model.getAllByVOID(id)) {
+				
+				VOReportContactModel vorcmodel = new VOReportContactModel(auth);
+				ArrayList<VOReportContactRecord> vorc_list = vorcmodel.getByVOReportNameID(vorepname_rec.id);
+				vo_report_name_div.addVOReportName(vorepname_rec,
+							vorepnamefqan_model.getAllByVOReportNameID(vorepname_rec.id),
+							vorc_list);
+			}
+		}
+		
+		if(auth.allows("admin")) {
+			new StaticDE(this, "<h2>Administrative Tasks</h2>");
+		}
+		footprints_id = new TextFormElementDE(this);
+		footprints_id.setLabel("Footprints ID");
+		footprints_id.setValue(rec.footprints_id);
+		footprints_id.setRequired(true);
+		if(!auth.allows("admin")) {
+			footprints_id.setHidden(true);
+		}
+
+		active = new CheckBoxFormElementDE(this);
+		active.setLabel("Active");
+		active.setValue(rec.active);
+		if(!auth.allows("admin")) {
+			active.setHidden(true);
+		}
+		
+		disable = new CheckBoxFormElementDE(this);
+		disable.setLabel("Disabled");
+		disable.setValue(rec.disable);
+		if(!auth.allows("admin")) {
+			disable.setHidden(true);
+		}
 	}
 	
 	private ContactEditorDE createContactEditor(HashMap<Integer, ArrayList<VOContactRecord>> voclist, ContactTypeRecord ctrec) throws SQLException
@@ -288,7 +333,7 @@ public class VOFormDE extends FormDE
 		return editor;
 	}
 	
-	private HashMap<Integer, String> getSCs() throws AuthorizationException, SQLException
+	private HashMap<Integer, String> getSCNames() throws AuthorizationException, SQLException
 	{
 		SCModel model = new SCModel(auth);
 		HashMap<Integer, String> keyvalues = new HashMap<Integer, String>();
@@ -298,7 +343,7 @@ public class VOFormDE extends FormDE
 		return keyvalues;
 	}
 	
-	private HashMap<Integer, String> getVOs() throws AuthorizationException, SQLException
+	private HashMap<Integer, String> getVONames() throws AuthorizationException, SQLException
 	{
 		//pull all VOs
 		VOModel model = new VOModel(auth);
@@ -307,6 +352,58 @@ public class VOFormDE extends FormDE
 			keyvalues.put(rec.id, rec.name);
 		}
 		return keyvalues;
+	}
+
+	private void handleParentVOSelection(Integer parent_vo_id) {
+		VOModel model = new VOModel (auth);
+		try {
+			VORecord parent_vo_rec = model.get(parent_vo_id);
+			if ((primary_url.getValue() == null) || (primary_url.getValue().length() == 0)) {
+				primary_url.setValue(parent_vo_rec.primary_url);
+				primary_url.redraw();
+			}
+			if ((aup_url.getValue() == null) || (aup_url.getValue().length() == 0)) {
+				aup_url.setValue(parent_vo_rec.aup_url);
+				aup_url.redraw();
+			}
+			if ((membership_services_url.getValue() == null) || (membership_services_url.getValue().length() == 0)) {
+				membership_services_url.setValue(parent_vo_rec.membership_services_url);
+				membership_services_url.redraw();
+			}
+			if ((purpose_url.getValue() == null) || (purpose_url.getValue().length() == 0)) {
+				purpose_url.setValue(parent_vo_rec.purpose_url);
+				purpose_url.redraw();
+			}
+			if ((support_url.getValue() == null) || (support_url.getValue().length() == 0)) {
+				support_url.setValue(parent_vo_rec.support_url);
+				support_url.redraw();
+			}
+			if (sc_id.getValue() == null) {
+				sc_id.setValue(parent_vo_rec.sc_id);
+				sc_id.redraw();
+			}
+//
+//			HashMap<Integer/*contact_type_id*/, ArrayList<VOContactRecord>> voclist_grouped = null;
+//			VOContactModel vocmodel = new VOContactModel(auth);
+//			ArrayList<VOContactRecord> voclist = vocmodel.getByVOID(parent_vo_rec.id);
+//			voclist_grouped = vocmodel.groupByContactTypeID(voclist);
+//			ContactTypeModel ctmodel = new ContactTypeModel(auth);
+//			contact_editors.clear();
+//			for(int contact_type_id : contact_types) {
+//				ContactEditorDE editor = createContactEditor(voclist_grouped, ctmodel.get(contact_type_id));
+//				//disable submitter editor if needed
+//				if(!auth.allows("admin")) {
+//					if(contact_type_id == 1) { //1 = Submitter Contact
+//						editor.setDisabled(true);
+//					}
+//				}
+//				contact_editors.put(contact_type_id, editor);
+//				contact_editors.get(contact_type_id).redraw();
+//			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
 	protected Boolean doSubmit() {
@@ -343,9 +440,17 @@ public class VOFormDE extends FormDE
 		VOModel model = new VOModel(auth);
 		try {
 			if(rec.id == null) {
-				model.insertDetail(rec, contacts, parent_vo.getValue(), field_of_science_ids);
+				model.insertDetail(rec, 
+						contacts, 
+						parent_vo.getValue(), 
+						field_of_science_ids,
+						vo_report_name_div.getVOReportNameRecords());
 			} else {
-				model.updateDetail(rec, contacts, parent_vo.getValue(), field_of_science_ids);
+				model.updateDetail(rec, 
+						contacts, 
+						parent_vo.getValue(), 
+						field_of_science_ids,
+						vo_report_name_div.getVOReportNameRecords());
 			}
 		} catch (Exception e) {
 			alert(e.getMessage());

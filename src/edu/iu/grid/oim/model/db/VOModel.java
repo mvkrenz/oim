@@ -13,10 +13,14 @@ import com.webif.divex.form.CheckBoxFormElementDE;
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
 import edu.iu.grid.oim.model.db.record.RecordBase;
+import edu.iu.grid.oim.model.db.record.ResourceAliasRecord;
+import edu.iu.grid.oim.model.db.record.ResourceServiceRecord;
 import edu.iu.grid.oim.model.db.record.VOContactRecord;
 import edu.iu.grid.oim.model.db.record.VOFieldOfScienceRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
 import edu.iu.grid.oim.model.db.record.VOVORecord;
+import edu.iu.grid.oim.model.db.record.VOReportNameRecord;
+import edu.iu.grid.oim.model.db.record.VOReportNameRecord;
 
 public class VOModel extends SmallTableModelBase<VORecord>
 {	
@@ -84,7 +88,8 @@ public class VOModel extends SmallTableModelBase<VORecord>
 	public void insertDetail(VORecord rec, 
 			ArrayList<VOContactRecord> contacts, 
 			Integer parent_vo_id, 
-			ArrayList<Integer> field_of_science) throws Exception
+			ArrayList<Integer> field_of_science,
+			ArrayList<VOReportNameRecord> vo_report_names) throws Exception
 	{
 		try {			
 			//process detail information
@@ -134,6 +139,13 @@ public class VOModel extends SmallTableModelBase<VORecord>
 			}
 			vofsmodel.insert(list);
 		
+			//process VO report names
+			VOReportNameModel vorepname_model = new VOReportNameModel(auth);
+			for(VOReportNameRecord vo_report_name : vo_report_names) {
+				vo_report_name.vo_id = rec.id; 
+			}
+			vorepname_model.insert(vo_report_names);		
+			
 			getConnection().commit();
 			getConnection().setAutoCommit(true);
 		} catch (SQLException e) {
@@ -150,7 +162,9 @@ public class VOModel extends SmallTableModelBase<VORecord>
 	public void updateDetail(VORecord rec,
 			ArrayList<VOContactRecord> contacts, 
 			Integer parent_vo_id, 
-			ArrayList<Integer> field_of_science) throws Exception
+			ArrayList<Integer> field_of_science, 
+			ArrayList<VOReportNameRecord> vo_report_names) throws Exception
+
 	{
 		//Do insert / update to our DB
 		try {
@@ -201,7 +215,14 @@ public class VOModel extends SmallTableModelBase<VORecord>
 			
 			}
 			vofsmodel.update(vofsmodel.getByVOID(rec.id), list);
-		
+
+			//process VO report names
+			VOReportNameModel vorepname_model = new VOReportNameModel(auth);
+			for(VOReportNameRecord vo_report_name : vo_report_names) {
+				vo_report_name.vo_id = rec.id; 
+			}
+			vorepname_model.update(vorepname_model.getAllByVOID(rec.id),vo_report_names);	
+			
 			getConnection().commit();
 			getConnection().setAutoCommit(true);
 		} catch (SQLException e) {

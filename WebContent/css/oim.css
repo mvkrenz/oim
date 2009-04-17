@@ -78,6 +78,22 @@ padding-left: 10px;
 {
 padding-left: 10px;
 }
+
+.voreportname_table table
+{
+background-color: #eee;
+}
+.voreportname_table .header
+{
+margin-top: 5px;
+background-color: gray;
+color: white;
+padding-left: 10px;
+}
+.voreportname_table th
+{
+padding-left: 10px;
+}
 .resource_alias
 {
 padding-bottom: 3px;
