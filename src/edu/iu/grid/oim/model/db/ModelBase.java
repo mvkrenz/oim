@@ -2,6 +2,7 @@ package edu.iu.grid.oim.model.db;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Comparator;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -10,6 +11,7 @@ import javax.sql.DataSource;
 
 import org.apache.log4j.Logger;
 
+import edu.iu.grid.oim.model.db.record.RecordBase;
 import edu.iu.grid.oim.servlet.ServletBase;
 
 public class ModelBase {

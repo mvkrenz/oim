@@ -17,6 +17,7 @@ import com.webif.divex.form.CheckBoxFormElementDE;
 import com.webif.divex.form.SelectFormElementDE;
 import com.webif.divex.form.TextAreaFormElementDE;
 import com.webif.divex.form.TextFormElementDE;
+import com.webif.divex.form.validator.EmailValidator;
 import com.webif.divex.form.validator.UniqueValidator;
 import com.webif.divex.form.validator.UrlValidator;
 
@@ -74,11 +75,12 @@ public class ContactFormDE extends FormDE
 		primary_email.setLabel("Primary Email");
 		primary_email.setValue(rec.primary_email);
 		primary_email.setRequired(true);
+		primary_email.addValidator(new EmailValidator());
 		
 		secondary_email = new TextFormElementDE(this);
 		secondary_email.setLabel("Secondary Email");
 		secondary_email.setValue(rec.secondary_email);
-		//secondary_email.setRequired(true);
+		secondary_email.addValidator(new EmailValidator());
 
 		primary_phone_ext = new TextFormElementDE(this);
 		primary_phone_ext.setLabel("Primary Phone Extension");

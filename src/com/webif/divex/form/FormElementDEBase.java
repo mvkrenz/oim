@@ -31,7 +31,7 @@ abstract public class FormElementDEBase<ValueType> extends DivEx {
 	protected ArrayList<IFormElementValidator<ValueType>> validators = new ArrayList();
 	public void addValidator(IFormElementValidator<ValueType> _validator) { validators.add(_validator); }
 	protected String error;
-	private Boolean valid = true;
+	protected Boolean valid = true;
 	public Boolean isValid() { 
 		validate();
 		return valid; 

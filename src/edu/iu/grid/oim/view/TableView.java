@@ -7,15 +7,30 @@ public class TableView extends GenericView {
 	static public enum CellStyle { NORMAL, HEADER };
 	String cls = "";
 	
+	public TableView(String cls)
+	{
+		addClass(cls);
+	}
+	
 	public class Row implements IView
 	{
+		private String clazz;
+		public void setClass(String _clazz) {
+			clazz = _clazz;
+		}
 		public class Cell implements IView
 		{
 			CellStyle style = CellStyle.NORMAL;
 			IView content;
+			int span;
 			
 			Cell(IView _content) {
 				content = _content;
+				span = 1;
+			}
+			Cell(IView _content, int _span) {
+				content = _content;
+				span = _span;
 			}
 			void setStyle(CellStyle _style) {
 				style = _style;
@@ -24,12 +39,12 @@ public class TableView extends GenericView {
 			{
 				switch(style) {
 				case NORMAL:
-					out.print("<td class=\"record_data\">");
+					out.print("<td colspan=\""+span+"\" class=\"record_data\">");
 					content.render(out);
 					out.print("</td>");
 					break;
 				case HEADER:
-					out.print("<th>");
+					out.print("<th colspan=\""+span+"\">");
 					content.render(out);
 					out.print("</th>");
 					break;
@@ -42,6 +57,10 @@ public class TableView extends GenericView {
 		public void addCell(IView content) {
 			cells.add(new Cell(content));
 		}
+		public void addCell(IView content, int span)
+		{
+			cells.add(new Cell(content, span));
+		}
 		public void addHeaderCell(IView content) {
 			Cell cell = new Cell(content);
 			cell.setStyle(TableView.CellStyle.HEADER);
@@ -50,7 +69,7 @@ public class TableView extends GenericView {
 		
 		public void render(PrintWriter out)
 		{
-			out.print("<tr>");
+			out.print("<tr class=\""+clazz+"\">");
 			for(Cell cell : cells) {
 				cell.render(out);
 			}

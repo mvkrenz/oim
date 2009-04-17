@@ -53,7 +53,8 @@ public class VOReportNamesDE extends FormElementDEBase {
 		protected VOReportNameEditor(DivEx parent, 
 				VOReportNameRecord vorepname_record,
 				ArrayList<VOReportNameFqanRecord> fqan_records,
-				ArrayList<VOReportContactRecord> vorc_list) {
+				ArrayList<VOReportContactRecord> vorc_list) 
+		{
 			super(parent);
 			myself = this;
 
@@ -63,46 +64,42 @@ public class VOReportNamesDE extends FormElementDEBase {
 			vo_report_name = new TextFormElementDE(this);
 			vo_report_name.setLabel("Report Name");
 			vo_report_name.setRequired(true);
-			// vo_report_name.addValidator(new UniqueValidator<String>(vos.values()));
 			vo_report_name.setValue(vorepname_record.name);
 
-			//indent the whole WCLG things
-			new StaticDE(this, "<div class=\"indent\">");
-			{
-				vo_report_name_fqan = new VOReportNameFqanDE (this);
+			vo_report_name_fqan = new VOReportNameFqanDE (this);
 
-				if (fqan_records != null) { 
-					for(VOReportNameFqanRecord fqan_record : fqan_records) {
-						vo_report_name_fqan.addVOReportNameFqan(fqan_record.fqan);
-					}
+			if (fqan_records != null) { 
+				for(VOReportNameFqanRecord fqan_record : fqan_records) {
+					vo_report_name_fqan.addVOReportNameFqan(fqan_record.fqan);
 				}
-				new StaticDE(this, "<h3>Subscriber Information</h3>");
-				ContactEditorDE vorc_editor = new ContactEditorDE (this, cmodel, false, false);
-				if(vorc_list != null) {
-					for(VOReportContactRecord vorc_record : vorc_list) {
-						ContactRecord keyrec = new ContactRecord();
-						keyrec.id = vorc_record.contact_id;
-						ContactRecord person = null;
-						try {
-							person = cmodel.get(keyrec);
-							vorc_editor.addSelected(person, vorc_record.contact_rank_id);
-						} catch (SQLException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-						}
-					}
-				}
-
-				remove_button = new ButtonDE(this, "images/delete.png");
-				remove_button.setStyle(ButtonDE.Style.IMAGE);
-				remove_button.setConfirm(true, "Do you really want to remove this VO Report Name?");
-				remove_button.addEventListener(new EventListener() {
-					public void handleEvent(Event e) {
-						removeVOReportName(myself);	
-					}
-				});
 			}
-			new StaticDE(this, "</div>");
+			new StaticDE(this, "<h3>Subscriber Information</h3>");
+			ContactEditorDE vorc_editor = new ContactEditorDE (this, cmodel, false, false);
+			vorc_editor.setShowRank(false);
+			vorc_editor.setMinContacts(ContactEditorDE.Rank.PRIMARY, 1);
+			if(vorc_list != null) {
+				for(VOReportContactRecord vorc_record : vorc_list) {
+					ContactRecord keyrec = new ContactRecord();
+					keyrec.id = vorc_record.contact_id;
+					ContactRecord person = null;
+					try {
+						person = cmodel.get(keyrec);
+						vorc_editor.addSelected(person, vorc_record.contact_rank_id);
+					} catch (SQLException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+			}
+
+			remove_button = new ButtonDE(this, "images/delete.png");
+			remove_button.setStyle(ButtonDE.Style.IMAGE);
+			remove_button.setConfirm(true, "Do you really want to remove this VO Report Name?");
+			remove_button.addEventListener(new EventListener() {
+				public void handleEvent(Event e) {
+					removeVOReportName(myself);	
+				}
+			});
 		}	
 	
 		public void setVOReportName(Integer value) {

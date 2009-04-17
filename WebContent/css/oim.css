@@ -49,7 +49,6 @@ width: 100%;
 border-collapse: collapse;
 line-height: 23px;
 }
-
 table.record_table td.record_data
 {
 border-bottom: 1px solid #ccc;
@@ -62,38 +61,28 @@ width: 220px;
 border-bottom: 1px solid #ccc;
 padding-left: 3px;
 }
-
-.service_table table
+tr.header
 {
-background-color: #eee;
-}
-.service_table .header
-{
-margin-top: 5px;
 background-color: gray;
 color: white;
 padding-left: 10px;
 }
-.service_table th
-{
-padding-left: 10px;
-}
 
-.voreportname_table table
-{
-background-color: #eee;
-}
-.voreportname_table .header
+table.inner_table
 {
 margin-top: 5px;
-background-color: gray;
-color: white;
-padding-left: 10px;
+margin-bottom: 5px;
+background-color: #eee;
+border-collapse: collapse;
+width: 100%;
 }
-.voreportname_table th
+
+table.inner_table th, table.inner_table tr.header td
 {
 padding-left: 10px;
+width: 150px;
 }
+
 .resource_alias
 {
 padding-bottom: 3px;
@@ -107,13 +96,13 @@ font-weight: bold;
 {
 margin-bottom: 10px;
 }
-.service_editor
+.service_editor, .downtime_editor, .vo_report_name_editor
 {
 	background-color: #eee;
 	margin-bottom: 5px;
-	padding: 5px;
+	padding: 10px;
+	padding-left: 20px;
 }
-
 div.contact
 {
 background-color: #ddd;

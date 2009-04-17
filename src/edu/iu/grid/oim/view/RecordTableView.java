@@ -5,10 +5,22 @@ import org.apache.commons.lang.StringEscapeUtils;
 import edu.iu.grid.oim.view.TableView;
 
 public class RecordTableView extends TableView {
-	
+
+	public RecordTableView(String cls)
+	{
+		super(cls);
+	}
 	public RecordTableView()
 	{
-		addClass("record_table");
+		super("record_table");
+	}
+	public void addHeaderRow(String content)
+	{
+		Row row = new Row();
+		row.setClass("header");
+		addRow(row);
+		row.addCell(new HtmlView(StringEscapeUtils.escapeHtml(content)), 2);
+		
 	}
 	
 	public void addRow(String header, IView content) {

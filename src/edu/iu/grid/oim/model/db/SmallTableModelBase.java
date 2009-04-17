@@ -8,6 +8,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.TreeSet;
 import java.sql.PreparedStatement;
@@ -19,7 +20,6 @@ import com.google.gdata.util.ServiceException;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
-import edu.iu.grid.oim.model.db.record.KeyComparator;
 import edu.iu.grid.oim.model.db.record.RecordBase;
 import edu.iu.grid.oim.lib.PublicNotification;
 
@@ -39,6 +39,13 @@ public abstract class SmallTableModelBase<T extends RecordBase> extends ModelBas
     	table_name = _table_name;
     }    
     
+	protected class KeyComparator implements Comparator<RecordBase>
+	{
+		public int compare(RecordBase o1, RecordBase o2) {
+			return o1.compareKeysTo(o2);
+		}	
+	}
+	
     protected void fillCache() throws SQLException
 	{
 		if(!cache.containsKey(table_name)) {
@@ -131,13 +138,18 @@ public abstract class SmallTableModelBase<T extends RecordBase> extends ModelBas
 			
 			//find new / updated records
 	    	for(T newrec : newrecs) {
-	    		T oldrec = get(newrec);
-	    		if(oldrec == null) {
+	    		try {
+	    			T oldrec = get(newrec);
+		    		if(oldrec == null) {
+		    			insert(newrec);
+		    		} else {
+		    	    	if(oldrec.diff(newrec).size() > 0) {
+		    	    		update(oldrec, newrec);
+		    	    	}
+		    		}
+	    		} catch (NullPointerException e) {
+	    			//if newrec contains null id fields (new record), get(newrec) throws exception, if that happens just to insert
 	    			insert(newrec);
-	    		} else {
-	    	    	if(oldrec.diff(newrec).size() > 0) {
-	    	    		update(oldrec, newrec);
-	    	    	}
 	    		}
 	    	}
 		} catch (SQLException e) {

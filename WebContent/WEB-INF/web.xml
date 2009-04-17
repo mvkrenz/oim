@@ -232,7 +232,8 @@
 			<servlet-class>
 			edu.iu.grid.oim.servlet.ProfileEditServlet</servlet-class>
 		</servlet>
-				<servlet>
+		
+		<servlet>
 			<description>
 			</description>
 			<display-name>
@@ -241,7 +242,8 @@
 			<servlet-class>
 			edu.iu.grid.oim.servlet.UserEditServlet</servlet-class>
 		</servlet>
-						<servlet>
+		
+		<servlet>
 			<description>
 			</description>
 			<display-name>
@@ -260,6 +262,7 @@
 		<servlet-class>
 		edu.iu.grid.oim.servlet.ResourceGroupServlet</servlet-class>
 	</servlet>
+	
 	<servlet>
 		<description>
 		</description>
@@ -269,6 +272,7 @@
 		<servlet-class>
 		edu.iu.grid.oim.servlet.ResourceGroupEditServlet</servlet-class>
 	</servlet>
+	
 	<servlet>
 		<description>
 		</description>
@@ -277,7 +281,7 @@
 		<servlet-name>RSSServlet</servlet-name>
 		<servlet-class>
 		edu.iu.grid.oim.servlet.RSSServlet</servlet-class>
-	</servlet>
+	</servlet>	
 	
 	<servlet-mapping>
 		<servlet-name>DivexServlet</servlet-name>

@@ -26,6 +26,7 @@ import edu.iu.grid.oim.model.db.ContactTypeModel;
 import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.ResourceAliasModel;
 import edu.iu.grid.oim.model.db.ResourceContactModel;
+import edu.iu.grid.oim.model.db.ResourceDowntimeModel;
 import edu.iu.grid.oim.model.db.ResourceGroupModel;
 import edu.iu.grid.oim.model.db.ResourceServiceModel;
 import edu.iu.grid.oim.model.db.ResourceWLCGModel;
@@ -35,13 +36,16 @@ import edu.iu.grid.oim.model.db.record.ContactTypeRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.ResourceAliasRecord;
 import edu.iu.grid.oim.model.db.record.ResourceContactRecord;
+import edu.iu.grid.oim.model.db.record.ResourceDowntimeRecord;
 import edu.iu.grid.oim.model.db.record.ResourceGroupRecord;
 import edu.iu.grid.oim.model.db.record.ResourceRecord;
 import edu.iu.grid.oim.model.db.record.ResourceServiceRecord;
 import edu.iu.grid.oim.model.db.record.ResourceWLCGRecord;
+import edu.iu.grid.oim.view.GenericView;
 import edu.iu.grid.oim.view.divex.ContactEditorDE;
 import edu.iu.grid.oim.view.divex.OIMHierarchySelector;
 import edu.iu.grid.oim.view.divex.ResourceAliasDE;
+import edu.iu.grid.oim.view.divex.ResourceDowntimesDE;
 import edu.iu.grid.oim.view.divex.ResourceServicesDE;
 
 public class ResourceFormDE extends FormDE 
@@ -59,7 +63,8 @@ public class ResourceFormDE extends FormDE
 	private CheckBoxFormElementDE active;
 	private CheckBoxFormElementDE disable;
 	private OIMHierarchySelector resource_group_id;
-	private ResourceAliasDE alias;
+	private ResourceAliasDE aliases;
+	private ResourceDowntimesDE downtimes;
 	private ResourceServicesDE resource_services;
 	
 	private CheckBoxFormElementDE wlcg;
@@ -143,11 +148,20 @@ public class ResourceFormDE extends FormDE
 		fqdn.setRequired(true);
 
 		new StaticDE(this, "<h3>Resource Aliases</h3>");
-		alias = new ResourceAliasDE(this);
+		aliases = new ResourceAliasDE(this);
 		ResourceAliasModel ramodel = new ResourceAliasModel(auth);
 		if(id != null) {
 			for(ResourceAliasRecord rarec : ramodel.getAllByResourceID(id)) {
-				alias.addAlias(rarec.resource_alias);
+				aliases.addAlias(rarec.resource_alias);
+			}
+		}
+		
+		new StaticDE(this, "<h2>Downime Schedule</h2>");
+		downtimes = new ResourceDowntimesDE(this, auth);
+		ResourceDowntimeModel dmodel = new ResourceDowntimeModel(auth);
+		if(id != null) {
+			for(ResourceDowntimeRecord drec : dmodel.getFutureDowntimesByResourceID(rec.id)) {
+				downtimes.addDowntime(drec);
 			}
 		}
 		
@@ -351,13 +365,13 @@ public class ResourceFormDE extends FormDE
 		try {
 			if(rec.id == null) {
 				model.insertDetail(rec, 
-						alias.getAliases(), 
+						aliases.getAliases(), 
 						getContactRecordsFromEditor(), 
 						wrec,
 						resource_services.getResourceServiceRecords());
 			} else {
 				model.updateDetail(rec, 
-						alias.getAliases(), 
+						aliases.getAliases(), 
 						getContactRecordsFromEditor(),
 						wrec,
 						resource_services.getResourceServiceRecords());

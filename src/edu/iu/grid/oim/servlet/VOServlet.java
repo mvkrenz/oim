@@ -208,10 +208,10 @@ public class VOServlet extends ServletBase implements Servlet {
 	private IView createVOReportNameView(VOReportNameRecord record)
 	{
 		GenericView view = new GenericView();
-		RecordTableView table = new RecordTableView();
+		RecordTableView table = new RecordTableView("inner_table");
 		
 		try {
-			view.add(new HtmlView("<div class=\"voreportname_table\"><div class=\"header\">Report Name: " + StringEscapeUtils.escapeHtml(record.name) + "</div>"));
+			table.addHeaderRow(record.name);
 			table.addRow("Associated FQANs", new HtmlView (getVOReportNameFqans(record.id)));
 
 			ContactTypeModel ctmodel = new ContactTypeModel(auth);

@@ -34,6 +34,7 @@ import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.FieldOfScienceModel;
 import edu.iu.grid.oim.model.db.ResourceAliasModel;
 import edu.iu.grid.oim.model.db.ResourceContactModel;
+import edu.iu.grid.oim.model.db.ResourceDowntimeModel;
 import edu.iu.grid.oim.model.db.ResourceGroupModel;
 import edu.iu.grid.oim.model.db.ResourceModel;
 import edu.iu.grid.oim.model.db.ResourceServiceModel;
@@ -45,6 +46,7 @@ import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.ContactTypeRecord;
 import edu.iu.grid.oim.model.db.record.ResourceAliasRecord;
 import edu.iu.grid.oim.model.db.record.ResourceContactRecord;
+import edu.iu.grid.oim.model.db.record.ResourceDowntimeRecord;
 import edu.iu.grid.oim.model.db.record.ResourceGroupRecord;
 import edu.iu.grid.oim.model.db.record.ResourceRecord;
 import edu.iu.grid.oim.model.db.record.ResourceServiceRecord;
@@ -133,6 +135,30 @@ public class ResourceServlet extends ServletBase implements Servlet {
 			}
 			table.addRow("Resource Group Name", resource_group_name);
 			
+			//downtime
+			GenericView downtime_view = new GenericView();
+			ResourceDowntimeModel dmodel = new ResourceDowntimeModel(auth);
+			for(ResourceDowntimeRecord drec : dmodel.getFutureDowntimesByResourceID(rec.id)) {
+				downtime_view.add(createDowntimeView(root, drec));
+			}
+			/*
+			class NewDowntimeButtonDE extends ButtonDE
+			{
+				String url;
+				public NewDowntimeButtonDE(DivEx parent, String _url)
+				{
+					super(parent, "Add New Downtime");
+					setStyle(Style.ALINK);
+					url = _url;
+				}
+				protected void onEvent(Event e) {
+					redirect(url);
+				}
+			};
+			downtime_view.add(new DivExWrapper(new NewDowntimeButtonDE(root, Config.getApplicationBase()+"/resourcedowntimeedit?resource_id=" + rec.id)));
+			*/
+			table.addRow("Downtime Schedule", downtime_view);
+			
 			//Resource Services
 			ResourceServiceModel rsmodel = new ResourceServiceModel(auth);
 			ArrayList<ResourceServiceRecord> services = rsmodel.getAllByResourceID(rec.id);
@@ -190,25 +216,56 @@ public class ResourceServlet extends ServletBase implements Servlet {
 	private IView createServiceView(ResourceServiceRecord rec)
 	{
 		GenericView view = new GenericView();
-		RecordTableView table = new RecordTableView();
 		
 		try {
 			ServiceModel smodel = new ServiceModel(auth);
 			ServiceRecord srec;
 			srec = smodel.get(rec.service_id);
-			view.add(new HtmlView("<div class=\"service_table\"><div class=\"header\">" + StringEscapeUtils.escapeHtml(srec.description) + "</div>"));
-			
+
+			RecordTableView table = new RecordTableView("inner_table");
+			table.addHeaderRow(srec.description);
 			table.addRow("Hidden", rec.hidden);
 			table.addRow("Central", rec.central);
 			table.addRow("End Point Override", rec.endpoint_override);
 			table.addRow("Server List RegEx", rec.server_list_regex);
 			view.add(table);
-			
-			view.add(new HtmlView("</div>"));
-			
+
 		} catch (SQLException e) {
 			log.error(e);
 		}
+		
+		return view;
+	}
+	
+	private IView createDowntimeView(final DivExRoot root, ResourceDowntimeRecord rec)
+	{
+		GenericView view = new GenericView();
+		RecordTableView table = new RecordTableView("inner_table");
+		table.addHeaderRow("Downtime");
+		table.addRow("Summary", rec.downtime_summary);
+		table.addRow("Start Time", rec.start_time.toString());
+		table.addRow("End Time", rec.end_time.toString());
+		table.addRow("Downtime Class", rec.downtime_class_id.toString());
+		table.addRow("Downtime Severity", rec.downtime_severity_id.toString());
+		table.addRow("DN", rec.dn_id.toString());
+		table.addRow("Disable", rec.disable);		
+/*
+		class EditButtonDE extends ButtonDE
+		{
+			String url;
+			public EditButtonDE(DivEx parent, String _url)
+			{
+				super(parent, "Edit This Downtime");
+				setStyle(Style.ALINK);
+				url = _url;
+			}
+			protected void onEvent(Event e) {
+				redirect(url);
+			}
+		};
+		table.add(new DivExWrapper(new EditButtonDE(root, Config.getApplicationBase()+"/resourcedowntimeedit?downtime_id=" + rec.id)));
+*/
+		view.add(table);
 		
 		return view;
 	}
@@ -223,8 +280,7 @@ public class ResourceServlet extends ServletBase implements Servlet {
 		}
 		return html;
 	}
-	
-	
+		
 	private SideContentView createSideView(DivExRoot root)
 	{
 		SideContentView view = new SideContentView();

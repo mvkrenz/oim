@@ -2,17 +2,15 @@
 
 function divex(id, event, value) {
 	//stop bubble
-	if (!event) var event = window.event;//IE
-	event.cancelBubble = true;//IE
-	if (event.stopPropagation) event.stopPropagation();//Standard
-/*
-	//get target
-	var targ;
-	if (event.target) targ = event.target; //standard
-	else if (event.srcElement) targ = event.srcElement;
-	if (targ.nodeType == 3) // defeat Safari bug
-		targ = targ.parentNode;
-*/
+	if(!event) var event = window.event;//IE
+	if(event) {
+		event.cancelBubble = true;//IE
+		if (event.stopPropagation) event.stopPropagation();//Standard
+	} else {
+		event = new Object();
+		event.type = "unknown";
+	}
+	
 	jQuery.ajax({
 		url: "divex",
 		async: false,
