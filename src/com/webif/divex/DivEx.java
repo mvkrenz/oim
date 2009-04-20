@@ -35,7 +35,15 @@ public abstract class DivEx {
 	}
 	
 	protected ArrayList<DivEx> childnodes = new ArrayList<DivEx>();
-	
+	public void add(DivEx child)
+	{
+		childnodes.add(child);
+	}
+	public void remove(DivEx child)
+	{
+		childnodes.remove(child);
+	}
+	 
 	public void alert(String msg)
 	{
 		js += "alert(\""+msg+"\");";
@@ -105,11 +113,6 @@ public abstract class DivEx {
 		}
 	}
 	
-	public void add(DivEx child)
-	{
-		childnodes.add(child);
-	}
-	
 	//recursively do search
 	public DivEx findNode(String _nodeid)
 	{
@@ -140,19 +143,24 @@ public abstract class DivEx {
 			//it could be any content type - let handler decide
 			this.onRequest(request, response);
 		} else {
-			Event e = new Event(request, response);
+			String value = request.getParameter("value");
+			Event e = new Event(action, value);
 
 			//handle my event handler
-			this.onEvent(e);
-			//notify event listener
-			for(EventListener listener : event_listeners) {
-				listener.handleEvent(e);
-			}
+			onEvent(e);
+			notifyListener(e);
 
 			//emit all requested update code
 			PrintWriter writer = response.getWriter();
 			response.setContentType("text/javascript");
 			writer.print(root.outputUpdatecode());
+		}
+	}
+	protected void notifyListener(Event e)
+	{
+		//notify event listener
+		for(EventListener listener : event_listeners) {
+			listener.handleEvent(e);
 		}
 	}
 	

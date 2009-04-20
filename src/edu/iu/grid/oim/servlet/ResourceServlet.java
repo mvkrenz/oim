@@ -6,7 +6,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Set;
 
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
@@ -15,31 +14,23 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
-import org.geonames.Toponym;
-import org.geonames.ToponymSearchCriteria;
-import org.geonames.ToponymSearchResult;
-import org.geonames.WebService;
 
-import com.sun.crypto.provider.RC2Cipher;
 import com.webif.divex.ButtonDE;
 import com.webif.divex.DivEx;
 import com.webif.divex.DivExRoot;
 import com.webif.divex.Event;
 
 import edu.iu.grid.oim.lib.Config;
-import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
 import edu.iu.grid.oim.model.db.ContactRankModel;
 import edu.iu.grid.oim.model.db.ContactTypeModel;
 import edu.iu.grid.oim.model.db.ContactModel;
-import edu.iu.grid.oim.model.db.FieldOfScienceModel;
 import edu.iu.grid.oim.model.db.ResourceAliasModel;
 import edu.iu.grid.oim.model.db.ResourceContactModel;
 import edu.iu.grid.oim.model.db.ResourceDowntimeModel;
+import edu.iu.grid.oim.model.db.ResourceDowntimeServiceModel;
 import edu.iu.grid.oim.model.db.ResourceGroupModel;
 import edu.iu.grid.oim.model.db.ResourceModel;
 import edu.iu.grid.oim.model.db.ResourceServiceModel;
-import edu.iu.grid.oim.model.db.SCContactModel;
-import edu.iu.grid.oim.model.db.SCModel;
 import edu.iu.grid.oim.model.db.ServiceModel;
 import edu.iu.grid.oim.model.db.record.ContactRankRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
@@ -47,6 +38,7 @@ import edu.iu.grid.oim.model.db.record.ContactTypeRecord;
 import edu.iu.grid.oim.model.db.record.ResourceAliasRecord;
 import edu.iu.grid.oim.model.db.record.ResourceContactRecord;
 import edu.iu.grid.oim.model.db.record.ResourceDowntimeRecord;
+import edu.iu.grid.oim.model.db.record.ResourceDowntimeServiceRecord;
 import edu.iu.grid.oim.model.db.record.ResourceGroupRecord;
 import edu.iu.grid.oim.model.db.record.ResourceRecord;
 import edu.iu.grid.oim.model.db.record.ResourceServiceRecord;
@@ -60,9 +52,6 @@ import edu.iu.grid.oim.view.MenuView;
 import edu.iu.grid.oim.view.Page;
 import edu.iu.grid.oim.view.RecordTableView;
 import edu.iu.grid.oim.view.SideContentView;
-import edu.iu.grid.oim.view.TableView;
-import edu.iu.grid.oim.view.Utils;
-import edu.iu.grid.oim.view.TableView.Row;
 
 public class ResourceServlet extends ServletBase implements Servlet {
 	private static final long serialVersionUID = 1L;
@@ -135,30 +124,6 @@ public class ResourceServlet extends ServletBase implements Servlet {
 			}
 			table.addRow("Resource Group Name", resource_group_name);
 			
-			//downtime
-			GenericView downtime_view = new GenericView();
-			ResourceDowntimeModel dmodel = new ResourceDowntimeModel(auth);
-			for(ResourceDowntimeRecord drec : dmodel.getFutureDowntimesByResourceID(rec.id)) {
-				downtime_view.add(createDowntimeView(root, drec));
-			}
-			/*
-			class NewDowntimeButtonDE extends ButtonDE
-			{
-				String url;
-				public NewDowntimeButtonDE(DivEx parent, String _url)
-				{
-					super(parent, "Add New Downtime");
-					setStyle(Style.ALINK);
-					url = _url;
-				}
-				protected void onEvent(Event e) {
-					redirect(url);
-				}
-			};
-			downtime_view.add(new DivExWrapper(new NewDowntimeButtonDE(root, Config.getApplicationBase()+"/resourcedowntimeedit?resource_id=" + rec.id)));
-			*/
-			table.addRow("Downtime Schedule", downtime_view);
-			
 			//Resource Services
 			ResourceServiceModel rsmodel = new ResourceServiceModel(auth);
 			ArrayList<ResourceServiceRecord> services = rsmodel.getAllByResourceID(rec.id);
@@ -167,6 +132,14 @@ public class ResourceServlet extends ServletBase implements Servlet {
 				services_view.add(createServiceView(rsrec));
 			}
 			table.addRow("Services", services_view);
+			
+			//downtime
+			GenericView downtime_view = new GenericView();
+			ResourceDowntimeModel dmodel = new ResourceDowntimeModel(auth);
+			for(ResourceDowntimeRecord drec : dmodel.getFutureDowntimesByResourceID(rec.id)) {
+				downtime_view.add(createDowntimeView(root, drec));
+			}
+			table.addRow("Future Downtime Schedule", downtime_view);
 	
 			ContactTypeModel ctmodel = new ContactTypeModel(auth);
 			ContactRankModel crmodel = new ContactRankModel(auth);
@@ -237,37 +210,37 @@ public class ResourceServlet extends ServletBase implements Servlet {
 		return view;
 	}
 	
-	private IView createDowntimeView(final DivExRoot root, ResourceDowntimeRecord rec)
+	private IView createDowntimeView(final DivExRoot root, ResourceDowntimeRecord rec) throws SQLException
 	{
 		GenericView view = new GenericView();
 		RecordTableView table = new RecordTableView("inner_table");
 		table.addHeaderRow("Downtime");
 		table.addRow("Summary", rec.downtime_summary);
-		table.addRow("Start Time", rec.start_time.toString());
-		table.addRow("End Time", rec.end_time.toString());
-		table.addRow("Downtime Class", rec.downtime_class_id.toString());
-		table.addRow("Downtime Severity", rec.downtime_severity_id.toString());
-		table.addRow("DN", rec.dn_id.toString());
+		table.addRow("Start Time", rec.start_time.toString() + " UTC");
+		table.addRow("End Time", rec.end_time.toString() + " UTC");
+		table.addRow("Downtime Class", rec.toString(rec.downtime_class_id, auth));
+		table.addRow("Downtime Severity", rec.toString(rec.downtime_severity_id, auth));
+		table.addRow("Affected Services", createAffectedServices(rec.id));
+		table.addRow("DN", rec.toString(rec.dn_id, auth));
 		table.addRow("Disable", rec.disable);		
-/*
-		class EditButtonDE extends ButtonDE
-		{
-			String url;
-			public EditButtonDE(DivEx parent, String _url)
-			{
-				super(parent, "Edit This Downtime");
-				setStyle(Style.ALINK);
-				url = _url;
-			}
-			protected void onEvent(Event e) {
-				redirect(url);
-			}
-		};
-		table.add(new DivExWrapper(new EditButtonDE(root, Config.getApplicationBase()+"/resourcedowntimeedit?downtime_id=" + rec.id)));
-*/
+
 		view.add(table);
 		
 		return view;
+	}
+	
+	private IView createAffectedServices(int downtime_id) throws SQLException
+	{
+		String html = "";
+		ResourceDowntimeServiceModel model = new ResourceDowntimeServiceModel(auth);
+		Collection<ResourceDowntimeServiceRecord> services;
+
+		services = model.getByDowntimeID(downtime_id);
+		for(ResourceDowntimeServiceRecord service : services) {
+			html += service.toString(service.service_id, auth) + "<br/>";
+		}
+		return new HtmlView(html);
+
 	}
 	
 	private String getAlias(int resource_id) throws SQLException

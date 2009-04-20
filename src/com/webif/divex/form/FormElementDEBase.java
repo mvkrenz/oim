@@ -36,16 +36,40 @@ abstract public class FormElementDEBase<ValueType> extends DivEx {
 		validate();
 		return valid; 
 	}
-	public void setValid(Boolean b) { valid = b; }
+	
+	//you need to override this to do its own child element loop if one of the element is expected to be
+	//dynamically removed. most likely, if you have dynamic elements, you are keeping up with your own list
+	//of active elements. childnodes, on the other hand, doesn't handle removing of the element. Once it's there,
+	//it's there forever. So unnecessary validation may occur unless you override this to only loop your own
+	//elements
 	public void validate()
 	{
 		redraw();
+		
+		//validate *all* child elements first
+		boolean children_valid = true;
+		for(DivEx child : childnodes) {
+			if(child instanceof FormElementDEBase) { 
+				FormElementDEBase element = (FormElementDEBase)child;
+				if(element != null && !element.isHidden()) {
+					if(!element.isValid()) {
+						children_valid = false;
+						//continue validating other children
+					}
+				}
+			}
+		}
+		if(!children_valid) {
+			error = "Child element is invalid.";
+			valid = false;
+			return;
+		}
 		
 		//if required, run RequiredValidator
 		if(isRequired()) {
 			if(value == null || value.toString().trim().length() == 0) {
 				error = "This is a required field. Please specify a value.";
-				setValid(false);
+				valid = false;
 				return;
 			}
 		}
@@ -55,14 +79,14 @@ abstract public class FormElementDEBase<ValueType> extends DivEx {
 			if(!validator.isValid(value)) {
 				//bad..
 				error = validator.getMessage();
-				setValid(false);
+				valid = false;
 				return;
 			}
 		}
 		
 		//all good..
 		error = null;
-		setValid(true);
+		valid = true;
 	}
 	
 	protected ValueType value;

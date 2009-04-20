@@ -15,6 +15,7 @@ import com.webif.divex.form.TextFormElementDE;
 
 import edu.iu.grid.oim.model.db.record.ResourceServiceRecord;
 import edu.iu.grid.oim.model.db.record.ServiceRecord;
+import edu.iu.grid.oim.view.divex.ResourceDowntimesDE.DowntimeEditor;
 
 public class ResourceServicesDE extends FormElementDEBase {
 
@@ -23,7 +24,7 @@ public class ResourceServicesDE extends FormElementDEBase {
 	private ButtonDE add_button;
 	private ArrayList<ServiceRecord> service_recs;
 
-	class ServiceEditor extends DivEx
+	class ServiceEditor extends FormElementDEBase
 	{
 		//service details
 		private SelectFormElementDE service;
@@ -84,6 +85,10 @@ public class ResourceServicesDE extends FormElementDEBase {
 			});
 		}
 
+		public void addServiceEventListener(EventListener listener) {
+			service.addEventListener(listener);
+		}
+		
 		public void setService(Integer value) {
 			service.setValue(value);
 		}
@@ -93,11 +98,10 @@ public class ResourceServicesDE extends FormElementDEBase {
 		
 		protected void onEvent(Event e) {
 			// TODO Auto-generated method stub
-			
 		}
 
 		public void render(PrintWriter out) {
-			out.write("<div class=\"service_editor\">");
+			out.write("<div id=\""+getNodeID()+"\" class=\"service_editor\">");
 			
 			out.write("<span class=\"right\">");
 			remove_button.render(out);
@@ -136,17 +140,33 @@ public class ResourceServicesDE extends FormElementDEBase {
 		}
 	}
 	
+	public ArrayList<ServiceEditor> getServiceEditors()
+	{
+		return services;
+	}
+	
 	public void removeService(ServiceEditor service)
 	{
 		services.remove(service);
 		redraw();
+		
+		//notify any listener of our action
+		Event e = new Event(null, null);
+		e.action = "remove";
+		e.value = service;
+		notifyListener(e);
 	}
 	
 	public void addService(ResourceServiceRecord rec) { 
-		
-		ServiceEditor elem = new ServiceEditor(this, rec, service_recs);
-		services.add(elem);
+		ServiceEditor service = new ServiceEditor(this, rec, service_recs);
+		services.add(service);
 		redraw();
+		
+		//notify any listener of our action
+		Event e = new Event(null, null);
+		e.action = "add";
+		e.value = service;
+		notifyListener(e);
 	}
 	
 	public ResourceServicesDE(DivEx parent, ArrayList<ServiceRecord> _service_recs) {
@@ -159,7 +179,6 @@ public class ResourceServicesDE extends FormElementDEBase {
 			public void handleEvent(Event e) {
 				addService(new ResourceServiceRecord());
 			}
-			
 		});
 	}
 
@@ -176,6 +195,18 @@ public class ResourceServicesDE extends FormElementDEBase {
 	protected void onEvent(Event e) {
 		// TODO Auto-generated method stub
 
+	}
+	
+	public void validate()
+	{
+		//validate all downtimes
+		redraw();
+		valid = true;
+		for(ServiceEditor service : services) {
+			if(!service.isValid()) {
+				valid = false;
+			}
+		}
 	}
 
 	@Override

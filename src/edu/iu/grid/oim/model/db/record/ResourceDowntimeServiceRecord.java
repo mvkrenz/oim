@@ -10,6 +10,7 @@ import edu.iu.grid.oim.model.db.DNModel;
 import edu.iu.grid.oim.model.db.FacilityModel;
 import edu.iu.grid.oim.model.db.ResourceModel;
 import edu.iu.grid.oim.model.db.SCModel;
+import edu.iu.grid.oim.model.db.ServiceModel;
 
 public class ResourceDowntimeServiceRecord extends RecordBase {
 
@@ -33,7 +34,15 @@ public class ResourceDowntimeServiceRecord extends RecordBase {
 	public String toString(Object field, Authorization auth)
 	{
 		if(field == null) return null;
-		//TODO
+		try {
+			if(field == service_id) {
+				ServiceModel model = new ServiceModel(auth);
+				ServiceRecord rec = model.get(service_id);
+				return rec.description;
+			}
+		} catch(SQLException e) {
+			//forget it then..
+		}
 		return field.toString();
 	}
 }

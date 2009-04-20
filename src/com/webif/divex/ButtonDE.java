@@ -34,8 +34,8 @@ public class ButtonDE extends DivEx {
 		
 		switch(style) {
 		case BUTTON:
-			out.print("<input type='button' id='"+getNodeID()+"' onclick='"+js+"' value='"+
-				StringEscapeUtils.escapeHtml(title)+"' />");
+			out.print("<input type='button' id='"+getNodeID()+"' onclick='"+js+"' value='&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"+
+				StringEscapeUtils.escapeHtml(title)+"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' />");
 			break;
 		case ALINK:
 			out.print("<a href='#' id='"+getNodeID()+"' onclick='"+js+"'>"+

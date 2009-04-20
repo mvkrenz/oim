@@ -52,7 +52,7 @@ public class SelectFormElementDE extends FormElementDEBase<Integer>
 	
 	public void onEvent(Event event) {
 		try {
-			value = Integer.parseInt(event.getValue());
+			value = Integer.parseInt((String)event.value);
 		} catch (NumberFormatException e) {
 			value = null;
 		}

@@ -153,8 +153,14 @@ public abstract class RecordBase implements Comparable<RecordBase> {
 				Comparable me = (Comparable)fld.get(this);
 				Comparable you = (Comparable)fld.get(o);				
 				if(me == you) continue;
+				if(me == null) {
+					//me can't  be null since we are doing me.compareTo later
+					return -1;
+				}
 				if(you == null) {
-					throw new NullPointerException("Key Field [" + fld.getName() + "] in [" + o.getClass().getName()+ "] is null while comparing keys");
+					//you can't be null since I can't pass null object to compareTo
+					return 1;
+					//throw new NullPointerException("Key Field [" + fld.getName() + "] in [" + o.getClass().getName()+ "] is null while comparing keys");
 				}				
 	        	int cmp = me.compareTo(you);
 	        	if(cmp != 0) return cmp;

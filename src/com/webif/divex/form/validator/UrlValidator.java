@@ -9,6 +9,7 @@ public class UrlValidator implements IFormElementValidator<String>
 	static private org.apache.commons.validator.UrlValidator urlvalidator = new org.apache.commons.validator.UrlValidator(schemes);
 
 	public Boolean isValid(String value) {
+		if(value == null || value.length() == 0) return true;
 		return (urlvalidator.isValid(value));
 	}
 	

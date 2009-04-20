@@ -13,10 +13,12 @@ import com.webif.divex.form.TextFormElementDE;
 
 import edu.iu.grid.oim.model.db.record.VOReportNameRecord;
 import edu.iu.grid.oim.model.db.record.VOReportNameFqanRecord;
+import edu.iu.grid.oim.view.divex.ResourceServicesDE.ServiceEditor;
+import edu.iu.grid.oim.view.divex.VOReportNamesDE.VOReportNameEditor;
 
 public class VOReportNameFqanDE extends FormElementDEBase {
 
-	ArrayList<VOReportNameFqanEditor> vo_report_name_fqans = new ArrayList<VOReportNameFqanEditor>();
+	//ArrayList<VOReportNameFqanEditor> vo_report_name_fqans = new ArrayList<VOReportNameFqanEditor>();
 	private ButtonDE add_button;
 
 	class VOReportNameFqanEditor extends FormElementDEBase
@@ -56,7 +58,7 @@ public class VOReportNameFqanDE extends FormElementDEBase {
 		}
 
 		public void render(PrintWriter out) {
-			out.write("<div class=\"vo_report_name_fqan\">");
+			out.write("<div id=\""+getNodeID()+"\" class=\"vo_report_name_fqan\">");
 			text.render(out);
 			remove_button.render(out);
 			out.write("</div>");
@@ -65,14 +67,14 @@ public class VOReportNameFqanDE extends FormElementDEBase {
 	
 	public void removeVOReportNameFqan(VOReportNameFqanEditor vo_report_name_fqan)
 	{
-		vo_report_name_fqans.remove(vo_report_name_fqan);
+		remove(vo_report_name_fqan);
 		redraw();
 	}
 	
 	public void addVOReportNameFqan(String vo_report_name_fqan) { 
 		VOReportNameFqanEditor elem = new VOReportNameFqanEditor(this);
 		elem.setValue(vo_report_name_fqan);
-		vo_report_name_fqans.add(elem);
+		//vo_report_name_fqans.add(elem);
 		redraw();
 	}
 	
@@ -92,24 +94,41 @@ public class VOReportNameFqanDE extends FormElementDEBase {
 	public ArrayList<String> getVOReportNameFqans()
 	{
 		ArrayList<String> records = new ArrayList<String>();
-		for(VOReportNameFqanEditor vo_report_name_fqan : vo_report_name_fqans) {
-			String str = vo_report_name_fqan.getValue();
-			if(str.length() > 0) {
-				records.add(str);
+		for(DivEx node : childnodes) {
+			if(node instanceof VOReportNameFqanEditor) {
+				VOReportNameFqanEditor vo_report_name_fqan = (VOReportNameFqanEditor)node;
+				String str = vo_report_name_fqan.getValue();
+				if(str.length() > 0) {
+					records.add(str);
+				}
 			}
 		}
 		return records;
 	}
-
-	@Override
+/*
+	public void validate()
+	{
+		//validate all downtimes
+		redraw();
+		valid = true;
+		for(VOReportNameFqanEditor vo_report_name_fqan : vo_report_name_fqans) {
+			if(!vo_report_name_fqan.isValid()) {
+				valid = false;
+			}
+		}
+	}
+*/
 	protected void onEvent(Event e) {
 		// TODO Auto-generated method stub
 	}
 
 	public void render(PrintWriter out) {
 		out.print("<div id=\""+getNodeID()+"\">");
-		for(VOReportNameFqanEditor vo_report_name_fqan : vo_report_name_fqans) {
-			vo_report_name_fqan.render(out);
+		for(DivEx node : childnodes) {
+			if(node instanceof VOReportNameFqanEditor) {
+				VOReportNameFqanEditor vo_report_name_fqan = (VOReportNameFqanEditor)node;
+				vo_report_name_fqan.render(out);
+			}
 		}
 		add_button.render(out);
 		out.print("</div>");

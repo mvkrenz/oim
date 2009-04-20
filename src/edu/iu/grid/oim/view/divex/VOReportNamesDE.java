@@ -29,16 +29,17 @@ import edu.iu.grid.oim.model.db.record.VOReportNameFqanRecord;
 import edu.iu.grid.oim.model.db.record.VOReportNameRecord;
 import edu.iu.grid.oim.model.db.record.VOReportContactRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
+import edu.iu.grid.oim.view.divex.ResourceAliasDE.AliasEditor;
 
 public class VOReportNamesDE extends FormElementDEBase {
 
-	ArrayList<VOReportNameEditor> vo_report_names = new ArrayList<VOReportNameEditor>();
+	//ArrayList<VOReportNameEditor> vo_report_names = new ArrayList<VOReportNameEditor>();
 	ArrayList<Integer> vo_report_id_taken = new ArrayList<Integer>();
 	private ContactModel cmodel;
 	private ArrayList<VOReportNameRecord> vorepname_records;
 	private ButtonDE add_button;
 	
-	class VOReportNameEditor extends DivEx
+	class VOReportNameEditor extends FormElementDEBase
 	{
 		//VO Report Name Details
 		private Integer id;
@@ -114,7 +115,7 @@ public class VOReportNamesDE extends FormElementDEBase {
 		}
 
 		public void render(PrintWriter out) {
-			out.write("<div class=\"vo_report_name_editor\">");
+			out.write("<div id=\""+getNodeID()+"\" class=\"vo_report_name_editor\">");
 			
 			out.write("<span class=\"right\">");
 			remove_button.render(out);
@@ -151,7 +152,7 @@ public class VOReportNamesDE extends FormElementDEBase {
 	
 	public void removeVOReportName(VOReportNameEditor vo_report_name)
 	{
-		vo_report_names.remove(vo_report_name);
+		remove(vo_report_name);
 		redraw();
 	}
 	
@@ -161,7 +162,7 @@ public class VOReportNamesDE extends FormElementDEBase {
 
 		VOReportNameEditor elem = new VOReportNameEditor(this, vorepname_record,
 										fqan_records, vorc_list);
-		vo_report_names.add(elem);
+		//vo_report_names.add(elem);
 		redraw();
 	}
 	
@@ -181,8 +182,22 @@ public class VOReportNamesDE extends FormElementDEBase {
 			
 		});
 	}
-
-	@Override
+	/*
+	public void validate()
+	{
+		redraw();
+		valid = true;
+		
+		for(DivEx node : childnodes) {
+			if(node instanceof VOReportNameEditor) {
+				VOReportNameEditor vo_report_name = (VOReportNameEditor)node;
+				if(!vo_report_name.isValid()) {
+					valid = false;
+				}
+			}
+		}
+	}
+	*/
 	protected void onEvent(Event e) {
 		// TODO Auto-generated method stub
 	}
@@ -190,8 +205,11 @@ public class VOReportNamesDE extends FormElementDEBase {
 	public void render(PrintWriter out) {
 		out.print("<div id=\""+getNodeID()+"\">");
 		
-		for(VOReportNameEditor vo_report_name : vo_report_names) {
-			vo_report_name.render(out);
+		for(DivEx node : childnodes) {
+			if(node instanceof VOReportNameEditor) {
+				VOReportNameEditor vo_report_name = (VOReportNameEditor)node;
+				vo_report_name.render(out);
+			}
 		}
 		add_button.render(out);
 		out.print("</div>");
@@ -200,8 +218,11 @@ public class VOReportNamesDE extends FormElementDEBase {
 	public ArrayList<VOReportNameRecord> getVOReportNameRecords()
 	{
 		ArrayList<VOReportNameRecord> vorepname_records = new ArrayList<VOReportNameRecord>();
-		for(VOReportNameEditor vo_report_name : vo_report_names) {
-			vorepname_records.add(vo_report_name.getVOReportNameRecord());
+		for(DivEx node : childnodes) {
+			if(node instanceof VOReportNameEditor) {
+				VOReportNameEditor vo_report_name = (VOReportNameEditor)node;
+				vorepname_records.add(vo_report_name.getVOReportNameRecord());
+			}
 		}
 		return vorepname_records;
 	}

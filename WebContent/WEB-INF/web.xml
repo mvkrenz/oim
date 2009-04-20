@@ -277,11 +277,21 @@
 		<description>
 		</description>
 		<display-name>
-		RSSServlet</display-name>
-		<servlet-name>RSSServlet</servlet-name>
+		MetricServlet</display-name>
+		<servlet-name>MetricServlet</servlet-name>
 		<servlet-class>
-		edu.iu.grid.oim.servlet.RSSServlet</servlet-class>
+		edu.iu.grid.oim.servlet.MetricServlet</servlet-class>
 	</servlet>	
+	
+	<servlet>
+		<description>
+		</description>
+		<display-name>
+		MetricEditServlet</display-name>
+		<servlet-name>MetricEditServlet</servlet-name>
+		<servlet-class>
+		edu.iu.grid.oim.servlet.MetricEditServlet</servlet-class>
+	</servlet>		
 	
 	<servlet-mapping>
 		<servlet-name>DivexServlet</servlet-name>
@@ -401,8 +411,13 @@
 	</servlet-mapping>
 
 	<servlet-mapping>
-		<servlet-name>RSSServlet</servlet-name>
-		<url-pattern>/rss</url-pattern>
+		<servlet-name>MetricServlet</servlet-name>
+		<url-pattern>/metric</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+		<servlet-name>MetricEditServlet</servlet-name>
+		<url-pattern>/metricedit</url-pattern>
 	</servlet-mapping>
 	
 	<welcome-file-list>

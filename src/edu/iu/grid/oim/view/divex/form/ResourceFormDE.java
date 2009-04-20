@@ -13,7 +13,6 @@ import com.webif.divex.EventListener;
 import com.webif.divex.form.FormDE;
 import com.webif.divex.StaticDE;
 import com.webif.divex.form.CheckBoxFormElementDE;
-import com.webif.divex.form.SelectFormElementDE;
 import com.webif.divex.form.TextAreaFormElementDE;
 import com.webif.divex.form.TextFormElementDE;
 import com.webif.divex.form.validator.DoubleValidator;
@@ -27,7 +26,6 @@ import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.ResourceAliasModel;
 import edu.iu.grid.oim.model.db.ResourceContactModel;
 import edu.iu.grid.oim.model.db.ResourceDowntimeModel;
-import edu.iu.grid.oim.model.db.ResourceGroupModel;
 import edu.iu.grid.oim.model.db.ResourceServiceModel;
 import edu.iu.grid.oim.model.db.ResourceWLCGModel;
 import edu.iu.grid.oim.model.db.ServiceModel;
@@ -37,11 +35,9 @@ import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.ResourceAliasRecord;
 import edu.iu.grid.oim.model.db.record.ResourceContactRecord;
 import edu.iu.grid.oim.model.db.record.ResourceDowntimeRecord;
-import edu.iu.grid.oim.model.db.record.ResourceGroupRecord;
 import edu.iu.grid.oim.model.db.record.ResourceRecord;
 import edu.iu.grid.oim.model.db.record.ResourceServiceRecord;
 import edu.iu.grid.oim.model.db.record.ResourceWLCGRecord;
-import edu.iu.grid.oim.view.GenericView;
 import edu.iu.grid.oim.view.divex.ContactEditorDE;
 import edu.iu.grid.oim.view.divex.OIMHierarchySelector;
 import edu.iu.grid.oim.view.divex.ResourceAliasDE;
@@ -156,8 +152,18 @@ public class ResourceFormDE extends FormDE
 			}
 		}
 		
-		new StaticDE(this, "<h2>Downime Schedule</h2>");
-		downtimes = new ResourceDowntimesDE(this, auth);
+		new StaticDE(this, "<h2>Resource Services</h2>");
+		ServiceModel smodel = new ServiceModel(auth);
+		resource_services = new ResourceServicesDE(this, smodel.getAll());
+		ResourceServiceModel rsmodel = new ResourceServiceModel(auth);
+		if(id != null) {
+			for(ResourceServiceRecord rarec : rsmodel.getAllByResourceID(id)) {
+				resource_services.addService(rarec);
+			}
+		}
+
+		new StaticDE(this, "<h2>Future Downtime Schedule</h2>");
+		downtimes = new ResourceDowntimesDE(this, auth, id, resource_services);
 		ResourceDowntimeModel dmodel = new ResourceDowntimeModel(auth);
 		if(id != null) {
 			for(ResourceDowntimeRecord drec : dmodel.getFutureDowntimesByResourceID(rec.id)) {
@@ -165,12 +171,41 @@ public class ResourceFormDE extends FormDE
 			}
 		}
 		
+		new StaticDE(this, "<h2>Contact Information</h2>");
+		HashMap<Integer/*contact_type_id*/, ArrayList<ResourceContactRecord>> voclist_grouped = null;
+		if(id != null) {
+			ResourceContactModel vocmodel = new ResourceContactModel(auth);
+			ArrayList<ResourceContactRecord> voclist = vocmodel.getByResourceID(id);
+			voclist_grouped = vocmodel.groupByContactTypeID(voclist);
+		} else {
+			//set user's contact as submitter
+			voclist_grouped = new HashMap<Integer, ArrayList<ResourceContactRecord>>();
+			ArrayList<ResourceContactRecord> list = new ArrayList<ResourceContactRecord>();
+			ResourceContactRecord submitter = new ResourceContactRecord();
+			submitter.contact_id = auth.getContactID();
+			submitter.contact_rank_id = 1;//primary
+			submitter.contact_type_id = 1;//submitter
+			list.add(submitter);
+			voclist_grouped.put(1/*submitter*/, list);
+		}
+		ContactTypeModel ctmodel = new ContactTypeModel(auth);
+		for(int contact_type_id : contact_types) {
+			ContactEditorDE editor = createContactEditor(voclist_grouped, ctmodel.get(contact_type_id));
+			//disable submitter editor if needed
+			if(!auth.allows("admin")) {
+				if(contact_type_id == 1) { //1 = Submitter Contact
+					editor.setDisabled(true);
+				}
+			}
+			contact_editors.put(contact_type_id, editor);
+		}
+		
 		new StaticDE(this, "<h2>WLCG Information</h2>");
 		wlcg = new CheckBoxFormElementDE(this);
 		wlcg.setLabel("This is a WLCG resource");
 		wlcg.addEventListener(new EventListener() {
 			public void handleEvent(Event e) {	
-				if(e.getValue().compareTo("true") == 0) {
+				if(((String)e.value).compareTo("true") == 0) {
 					hideWLCGElements(false);
 				} else {
 					hideWLCGElements(true);
@@ -236,44 +271,7 @@ public class ResourceFormDE extends FormDE
 				hideWLCGElements(false);
 			}
 		}
-		new StaticDE(this, "<h2>Resource Services</h2>");
-		ServiceModel smodel = new ServiceModel(auth);
-		resource_services = new ResourceServicesDE(this, smodel.getAll());
-		ResourceServiceModel rsmodel = new ResourceServiceModel(auth);
-		if(id != null) {
-			for(ResourceServiceRecord rarec : rsmodel.getAllByResourceID(id)) {
-				resource_services.addService(rarec);
-			}
-		}
 		
-		new StaticDE(this, "<h2>Contact Information</h2>");
-		HashMap<Integer/*contact_type_id*/, ArrayList<ResourceContactRecord>> voclist_grouped = null;
-		if(id != null) {
-			ResourceContactModel vocmodel = new ResourceContactModel(auth);
-			ArrayList<ResourceContactRecord> voclist = vocmodel.getByResourceID(id);
-			voclist_grouped = vocmodel.groupByContactTypeID(voclist);
-		} else {
-			//set user's contact as submitter
-			voclist_grouped = new HashMap<Integer, ArrayList<ResourceContactRecord>>();
-			ArrayList<ResourceContactRecord> list = new ArrayList<ResourceContactRecord>();
-			ResourceContactRecord submitter = new ResourceContactRecord();
-			submitter.contact_id = auth.getContactID();
-			submitter.contact_rank_id = 1;//primary
-			submitter.contact_type_id = 1;//submitter
-			list.add(submitter);
-			voclist_grouped.put(1/*submitter*/, list);
-		}
-		ContactTypeModel ctmodel = new ContactTypeModel(auth);
-		for(int contact_type_id : contact_types) {
-			ContactEditorDE editor = createContactEditor(voclist_grouped, ctmodel.get(contact_type_id));
-			//disable submitter editor if needed
-			if(!auth.allows("admin")) {
-				if(contact_type_id == 1) { //1 = Submitter Contact
-					editor.setDisabled(true);
-				}
-			}
-			contact_editors.put(contact_type_id, editor);
-		}
 	}
 	
 	private void hideWLCGElements(Boolean b)
@@ -368,13 +366,17 @@ public class ResourceFormDE extends FormDE
 						aliases.getAliases(), 
 						getContactRecordsFromEditor(), 
 						wrec,
-						resource_services.getResourceServiceRecords());
+						resource_services.getResourceServiceRecords(),
+						downtimes.getDowntimeEditors(),
+						downtimes.getAffectedServiceRecords());
 			} else {
 				model.updateDetail(rec, 
 						aliases.getAliases(), 
 						getContactRecordsFromEditor(),
 						wrec,
-						resource_services.getResourceServiceRecords());
+						resource_services.getResourceServiceRecords(),
+						downtimes.getDowntimeEditors(),
+						downtimes.getAffectedServiceRecords());
 			}
 		} catch (Exception e) {
 			alert(e.getMessage());

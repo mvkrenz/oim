@@ -138,7 +138,7 @@ public abstract class SmallTableModelBase<T extends RecordBase> extends ModelBas
 			
 			//find new / updated records
 	    	for(T newrec : newrecs) {
-	    		try {
+	    		//try {
 	    			T oldrec = get(newrec);
 		    		if(oldrec == null) {
 		    			insert(newrec);
@@ -147,10 +147,12 @@ public abstract class SmallTableModelBase<T extends RecordBase> extends ModelBas
 		    	    		update(oldrec, newrec);
 		    	    	}
 		    		}
+		    	/*
 	    		} catch (NullPointerException e) {
 	    			//if newrec contains null id fields (new record), get(newrec) throws exception, if that happens just to insert
 	    			insert(newrec);
 	    		}
+	    		*/
 	    	}
 		} catch (SQLException e) {
 			if(rollback) {

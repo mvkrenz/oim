@@ -129,7 +129,7 @@ public class VOFormDE extends FormDE
 		}
 		parent_vo.addEventListener(new EventListener () {
 			public void handleEvent(Event e) {
-				handleParentVOSelection(Integer.parseInt(e.getValue()));
+				handleParentVOSelection(Integer.parseInt((String)e.value));
 			}
 		});
 		

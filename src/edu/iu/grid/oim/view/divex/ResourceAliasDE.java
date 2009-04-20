@@ -15,10 +15,11 @@ import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.ResourceAliasRecord;
 import edu.iu.grid.oim.view.divex.ContactEditorDE.ContactDE;
 import edu.iu.grid.oim.view.divex.ContactEditorDE.Rank;
+import edu.iu.grid.oim.view.divex.ResourceDowntimesDE.DowntimeEditor;
 
 public class ResourceAliasDE extends FormElementDEBase {
 
-	ArrayList<AliasEditor> aliases = new ArrayList<AliasEditor>();
+	//ArrayList<AliasEditor> aliases = new ArrayList<AliasEditor>();
 	private ButtonDE add_button;
 
 	class AliasEditor extends FormElementDEBase
@@ -59,7 +60,7 @@ public class ResourceAliasDE extends FormElementDEBase {
 
 		@Override
 		public void render(PrintWriter out) {
-			out.write("<div class=\"resource_alias\">");
+			out.write("<div id=\""+getNodeID()+"\" class=\"resource_alias\">");
 			text.render(out);
 			remove_button.render(out);
 			out.write("</div>");
@@ -69,14 +70,14 @@ public class ResourceAliasDE extends FormElementDEBase {
 	
 	public void removeAlias(AliasEditor alias)
 	{
-		aliases.remove(alias);
+		remove(alias);
 		redraw();
 	}
 	
 	public void addAlias(String alias) { 
 		AliasEditor elem = new AliasEditor(this);
 		elem.setValue(alias);
-		aliases.add(elem);
+		//aliases.add(elem);
 		redraw();
 	}
 	
@@ -96,10 +97,13 @@ public class ResourceAliasDE extends FormElementDEBase {
 	public ArrayList<String> getAliases()
 	{
 		ArrayList<String> records = new ArrayList<String>();
-		for(AliasEditor alias : aliases) {
-			String str = alias.getValue();
-			if(str.length() > 0) {
-				records.add(str);
+		for(DivEx node : childnodes) {
+			if(node instanceof AliasEditor) {
+				AliasEditor alias = (AliasEditor)node;
+				String str = alias.getValue();
+				if(str.length() > 0) {
+					records.add(str);
+				}
 			}
 		}
 		return records;
@@ -110,12 +114,27 @@ public class ResourceAliasDE extends FormElementDEBase {
 		// TODO Auto-generated method stub
 
 	}
+	/*
+	public void validate()
+	{
+		redraw();
+		valid = true;
+		
+		for(AliasEditor alias : aliases) {
+			if(!alias.isValid()) {
+				valid = false;
+			}
+		}
+	}
+	*/
 
 	@Override
 	public void render(PrintWriter out) {
 		out.print("<div id=\""+getNodeID()+"\">");
-		for(AliasEditor alias : aliases) {
-			alias.render(out);
+		for(DivEx node : childnodes) {
+			if(node instanceof AliasEditor) {
+				node.render(out);
+			}
 		}
 		add_button.render(out);
 		out.print("</div>");

@@ -62,6 +62,12 @@ public class AdminServlet extends ServletBase  {
 			hierarchy_list.add(new LinkView("site", "Administrative Sites"));
 			hierarchy_list.add(new LinkView("resourcegroup", "Resource Groups"));
 			contentview.add(hierarchy_list);
+			
+			ListView metric_list = new ListView();
+			metric_list.add(new LinkView("metric", "RSV Metric"));
+			metric_list.add(new LinkView("service", "Service")); //service table, metric_service table
+			metric_list.add(new LinkView("servicegroup", "Service Group"));
+			contentview.add(metric_list);
 		}
 
 		if ((auth.allows("admin")) || (auth.allows("edit_measurement"))) {

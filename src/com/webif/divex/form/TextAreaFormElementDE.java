@@ -22,7 +22,7 @@ public class TextAreaFormElementDE extends FormElementDEBase<String>  {
 	}
 	
 	public void onEvent(Event e) {
-		value = e.getValue().trim();
+		value = ((String)e.value).trim();
 		validate();
 	}
 	

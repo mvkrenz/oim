@@ -129,7 +129,7 @@ public class ContactEditorDE extends FormElementDEBase<HashMap<ContactEditorDE.R
 		
 		protected void onEvent(Event e) {
 
-			int contact_id = Integer.parseInt(e.getValue());
+			int contact_id = Integer.parseInt((String)e.value);
 			try {
 				ContactRecord person = pmodel.get(contact_id);
 				addSelected(person, Enum2DBRank(rank));
@@ -140,6 +140,7 @@ public class ContactEditorDE extends FormElementDEBase<HashMap<ContactEditorDE.R
 		
 	    /* replace multiple whitespaces between words with single blank */
 	    private String itrim(String source) {
+	    	if(source == null) return null;
 	        return source.replaceAll("\\b\\s{2,}\\b", " ");
 	    }
 

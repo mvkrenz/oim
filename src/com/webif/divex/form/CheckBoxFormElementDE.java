@@ -45,7 +45,7 @@ public class CheckBoxFormElementDE extends FormElementDEBase<Boolean> {
 	}
 	
 	public void onEvent(Event e) {
-		if(e.getValue().compareTo("true") == 0) {
+		if(((String)e.value).compareTo("true") == 0) {
 			value = true;
 		} else {
 			value = false;
