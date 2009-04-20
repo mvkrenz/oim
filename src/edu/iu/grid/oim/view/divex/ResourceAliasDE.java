@@ -109,26 +109,11 @@ public class ResourceAliasDE extends FormElementDEBase {
 		return records;
 	}
 
-	@Override
 	protected void onEvent(Event e) {
 		// TODO Auto-generated method stub
 
 	}
-	/*
-	public void validate()
-	{
-		redraw();
-		valid = true;
-		
-		for(AliasEditor alias : aliases) {
-			if(!alias.isValid()) {
-				valid = false;
-			}
-		}
-	}
-	*/
 
-	@Override
 	public void render(PrintWriter out) {
 		out.print("<div id=\""+getNodeID()+"\">");
 		for(DivEx node : childnodes) {

@@ -66,10 +66,13 @@ abstract public class FormElementDEBase<ValueType> extends DivEx {
 		}
 		
 		//if required, run RequiredValidator
-		if(isRequired()) {
-			if(value == null || value.toString().trim().length() == 0) {
+		if(value == null || value.toString().trim().length() == 0) {
+			if(isRequired()) {
 				error = "This is a required field. Please specify a value.";
 				valid = false;
+				return;
+			} else {
+				//the field is not-required and it's empty - no futher validation necessary
 				return;
 			}
 		}

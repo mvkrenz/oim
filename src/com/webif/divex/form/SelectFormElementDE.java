@@ -21,7 +21,9 @@ public class SelectFormElementDE extends FormElementDEBase<Integer>
 	
 	public void render(PrintWriter out) 
 	{
-		out.print("<div id=\""+getNodeID()+"\">");
+		out.write("<div ");
+		renderClass(out);
+		out.write("id=\""+getNodeID()+"\">");
 		if(!hidden) {
 			if(label != null) {
 				out.print("<label>"+StringEscapeUtils.escapeHtml(label)+"</label><br/>");

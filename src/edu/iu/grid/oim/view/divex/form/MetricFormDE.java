@@ -77,7 +77,6 @@ public class MetricFormDE extends FormDE
 		common_name.setValue(rec.common_name);
 		common_name.setRequired(true);
 		
-		
 		abbrev = new TextFormElementDE(this);
 		abbrev.setLabel("Abbreviation");
 		abbrev.setValue(rec.abbrev);
@@ -107,7 +106,6 @@ public class MetricFormDE extends FormDE
 		wlcg_metric_type.setLabel("WLCG Metric Type");
 		wlcg_metric_type.setValue(rec.wlcg_metric_type.toString());
 		wlcg_metric_type.setRequired(true);
-
 	}
 	
 	private HashMap<Integer, String> getMetricNames() throws AuthorizationException, SQLException

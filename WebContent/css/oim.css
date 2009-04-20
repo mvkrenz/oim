@@ -91,7 +91,7 @@ font-weight: bold;
 {
 margin-bottom: 10px;
 }
-.service_editor, .downtime_editor, .vo_report_name_editor
+.service_editor, .downtime_editor, .vo_report_name_editor, .metric_service_editor
 {
 	background-color: #eee;
 	margin-bottom: 5px;

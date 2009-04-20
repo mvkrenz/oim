@@ -576,19 +576,16 @@ SET character_set_client = @saved_cs_client;
 --
 
 DROP TABLE IF EXISTS `service`;
-SET @saved_cs_client     = @@character_set_client;
-SET character_set_client = utf8;
-CREATE TABLE `service` (
+CREATE TABLE  `service` (
   `id` int(11) NOT NULL auto_increment,
   `name` varchar(512) collate utf8_unicode_ci NOT NULL,
   `description` text collate utf8_unicode_ci,
-  `port` varchar(128) collate utf8_unicode_ci default NULL COMMENT 'If service runs on specific port, use this field to store that info.',
+  `port` int(10) unsigned default NULL COMMENT 'If service runs on specific port, use this field to store that info.',
   `service_group_id` int(11) NOT NULL,
   PRIMARY KEY  (`id`),
   KEY `service_service_group` (`service_group_id`),
   CONSTRAINT `service_service_group` FOREIGN KEY (`service_group_id`) REFERENCES `service_group` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=108 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
-SET character_set_client = @saved_cs_client;
 
 --
 -- Table structure for table `service_group`

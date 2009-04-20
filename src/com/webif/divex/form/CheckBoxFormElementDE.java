@@ -17,7 +17,9 @@ public class CheckBoxFormElementDE extends FormElementDEBase<Boolean> {
 	}
 	
 	public void render(PrintWriter out) {
-		out.print("<div id=\""+getNodeID()+"\">");
+		out.write("<div ");
+		renderClass(out);
+		out.write("id=\""+getNodeID()+"\">");
 		if(!hidden) {
 			String checked = "";
 			if(value == true) { //value should never be null by design
@@ -25,7 +27,7 @@ public class CheckBoxFormElementDE extends FormElementDEBase<Boolean> {
 			}
 			out.print("<input type='checkbox' onchange='divex(\""+getNodeID()+"\", event, this.checked);' "+checked+"/>");
 			if(label != null) {
-				out.print(" <label>"+StringEscapeUtils.escapeHtml(label)+"</label><br/>");
+				out.print(" <label>"+StringEscapeUtils.escapeHtml(label)+"</label>");
 			}
 		}
 		out.print("</div>");
