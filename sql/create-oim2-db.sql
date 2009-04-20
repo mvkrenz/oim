@@ -735,8 +735,9 @@ SET @saved_cs_client     = @@character_set_client;
 SET character_set_client = utf8;
 CREATE TABLE `vo_report_name_fqan` (
   `vo_report_name_id` int(11) NOT NULL,
-  `fqan` varchar(240) collate utf8_unicode_ci NOT NULL,
-  PRIMARY KEY  USING BTREE (`vo_report_name_id`,`fqan`),
+  `group_name` varchar(64) collate utf8_unicode_ci NOT NULL,
+  `role` varchar(64) collate utf8_unicode_ci NULL,
+  PRIMARY KEY  USING BTREE (`vo_report_name_id`,`group_name`,`role`),
   CONSTRAINT `vo_report_name_vo_fqan` FOREIGN KEY (`vo_report_name_id`) REFERENCES `vo_report_name` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=71 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 SET character_set_client = @saved_cs_client;
