@@ -311,7 +311,38 @@
 		<servlet-name>ServiceEditServlet</servlet-name>
 		<servlet-class>
 		edu.iu.grid.oim.servlet.ServiceEditServlet</servlet-class>
-	</servlet>		
+	</servlet>	
+	
+	
+	<servlet>
+		<description>
+		</description>
+		<display-name>
+		ServiceGroupServlet</display-name>
+		<servlet-name>ServiceGroupServlet</servlet-name>
+		<servlet-class>
+		edu.iu.grid.oim.servlet.ServiceGroupServlet</servlet-class>
+	</servlet>	
+	
+	<servlet>
+		<description>
+		</description>
+		<display-name>
+		ServiceGroupEditServlet</display-name>
+		<servlet-name>ServiceGroupEditServlet</servlet-name>
+		<servlet-class>
+		edu.iu.grid.oim.servlet.ServiceGroupEditServlet</servlet-class>
+	</servlet>
+	
+	<servlet>
+		<description>
+		</description>
+		<display-name>
+		LogServlet</display-name>
+		<servlet-name>LogServlet</servlet-name>
+		<servlet-class>
+		edu.iu.grid.oim.servlet.LogServlet</servlet-class>
+	</servlet>			
 	
 	<servlet-mapping>
 		<servlet-name>DivexServlet</servlet-name>
@@ -448,6 +479,21 @@
 	<servlet-mapping>
 		<servlet-name>ServiceEditServlet</servlet-name>
 		<url-pattern>/serviceedit</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+		<servlet-name>ServiceGroupServlet</servlet-name>
+		<url-pattern>/servicegroup</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+		<servlet-name>ServiceGroupEditServlet</servlet-name>
+		<url-pattern>/servicegroupedit</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+		<servlet-name>LogServlet</servlet-name>
+		<url-pattern>/log</url-pattern>
 	</servlet-mapping>
 	
 	<welcome-file-list>

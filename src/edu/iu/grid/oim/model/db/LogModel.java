@@ -4,25 +4,45 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.Collection;
 
 import org.apache.log4j.Logger;
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.model.db.record.LogRecord;
 
-public class LogModel extends SmallTableModelBase<LogRecord> {
+public class LogModel extends ModelBase {
     static Logger log = Logger.getLogger(LogModel.class);  
     
-    //enum Type {authenticate, insert, update, delete}
+	//public enum Type {ALL, RESOURCE, VO, SC, CONTACT, SITE, FACILITY};
+    private Authorization auth;
     
     public LogModel(Authorization _auth) 
     {
-    	super(_auth, "log");
+    	auth = _auth;
     }
     
     LogRecord createRecord(ResultSet rs) throws SQLException
 	{
 		return new LogRecord(rs);
 	}
+    
+    public Collection<LogRecord> getLatest(String model) throws SQLException
+    {
+    	ArrayList<LogRecord> recs = new ArrayList<LogRecord>();
+    	
+    	String sql = "SELECT * FROM log WHERE timestamp > curtime() - 86400 * 7 AND model LIKE ?";
+		PreparedStatement stmt = getConnection().prepareStatement(sql); 
+		stmt.setString(1, model);
+		ResultSet rs = stmt.executeQuery();
+		while(rs.next()) {
+			LogRecord rec = new LogRecord(rs);
+			if(rec.model.compareTo(model) == 0) {
+				recs.add(new LogRecord(rs));
+			}
+		}
+		return recs;
+    }
     
     public int insert(String type, String model, String xml) throws SQLException
     {

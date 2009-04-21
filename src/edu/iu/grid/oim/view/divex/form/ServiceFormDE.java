@@ -125,14 +125,11 @@ public class ServiceFormDE extends FormDE
 			
 			ServiceModel model = new ServiceModel(auth);
 			if(rec.id == null) {
-				model.insert(rec);
+				model.insertDetail(rec, metric_service.getMetricServiceRecords());
 			} else {
-				model.update(model.get(rec), rec);
+				model.updateDetail(rec, metric_service.getMetricServiceRecords());
 			}
-		 } catch (AuthorizationException e) {
-			log.error(e);
-			return false;
-		} catch (SQLException e) {
+		} catch (Exception e) {
 			log.error(e);
 			alert(e.getMessage());
 			return false;

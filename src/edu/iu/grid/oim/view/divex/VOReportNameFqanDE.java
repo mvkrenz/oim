@@ -42,12 +42,12 @@ public class VOReportNameFqanDE extends FormElementDEBase {
 			group_name.setLabel("Group Name");
 			group_name.setRequired(true);
 			group_name.setValue("FOO");
-			group_name.addClass("inline");
+			//group_name.addClass("inline");
 			
 			role = new TextFormElementDE(this);
 			role.setLabel("Role");
 			role.setValue("BAR");
-			role.addClass("inline");
+			//role.addClass("inline");
 			
 			remove_button = new ButtonDE(this, "images/delete.png");
 			remove_button.setStyle(ButtonDE.Style.IMAGE);
@@ -85,9 +85,14 @@ public class VOReportNameFqanDE extends FormElementDEBase {
 		}
 
 		public void render(PrintWriter out) {
-			out.write("<div id=\""+getNodeID()+"\" class=\"vo_report_name_fqan\">");
-			role.render(out);
+			out.write("<div id=\""+getNodeID()+"\" class=\"vo_report_name_fqan round indent\">");
+			
+			out.write("<span class=\"right\">");
 			remove_button.render(out);
+			out.write("</span>");
+			
+			group_name.render(out);
+			role.render(out);
 			out.write("</div>");
 		}
 	}

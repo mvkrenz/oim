@@ -185,10 +185,12 @@ public abstract class RecordBase implements Comparable<RecordBase> {
 		ArrayList<String> lables = new ArrayList();
 		return lables;
 	}
+	/*
 	//override this to do custom conversion
-	public String toString(Object field, Authorization auth)
+	public String toString(Field field, Authorization auth)
 	{
 		if(field == null) return null;
 		return field.toString();
 	}
+	*/
 }

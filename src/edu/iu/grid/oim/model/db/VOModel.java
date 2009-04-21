@@ -104,7 +104,7 @@ public class VOModel extends SmallTableModelBase<VORecord>
 			for(VOContactRecord vcrec : contacts) {
 				vcrec.vo_id = rec.id;
 			}
-			cmodel.update(cmodel.getByVOID(rec.id), contacts);
+			cmodel.insert(contacts);
 			
 			//process parent_vo
 			VOVOModel vvmodel = new VOVOModel(auth);
@@ -236,6 +236,7 @@ public class VOModel extends SmallTableModelBase<VORecord>
 			throw new Exception(e);
 		}			
 	}
+	
 	public ArrayList<VORecord> getAll() throws SQLException
 	{
 		ArrayList<VORecord> list = new ArrayList<VORecord>();

@@ -122,7 +122,7 @@ public class ResourceModel extends SmallTableModelBase<ResourceRecord> {
 			for(ResourceContactRecord vcrec : contacts) {
 				vcrec.resource_id = rec.id;
 			}
-			cmodel.update(cmodel.getByResourceID(rec.id), contacts);
+			cmodel.insert(contacts);
 		
 			//process resource alias
 			ResourceAliasModel ramodel = new ResourceAliasModel(auth);
@@ -153,6 +153,9 @@ public class ResourceModel extends SmallTableModelBase<ResourceRecord> {
 			ResourceDowntimeModel dmodel = new ResourceDowntimeModel(auth);
 			for(ResourceDowntimesDE.DowntimeEditor downtime_editor : downtimes) {
 				ResourceDowntimeRecord downtime = downtime_editor.getDowntimeRecord();
+				
+				downtime.resource_id = rec.id;
+				
 				dmodel.insert(downtime); //key is now set
 			
 				//process downtime service

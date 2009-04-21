@@ -52,10 +52,10 @@ public class MetricServiceDE extends FormElementDEBase {
 			});
 		}
 
-		public void setService(Integer service_id) {
-			metric.setValue(service_id);
+		public void setMetric(Integer metric_id) {
+			metric.setValue(metric_id);
 		}
-		public Integer getService() {
+		public Integer getMetric() {
 			return metric.getValue();
 		}
 		public void setCritical(Boolean b) {
@@ -97,7 +97,7 @@ public class MetricServiceDE extends FormElementDEBase {
 	
 	public void addMetric(MetricServiceRecord rec) { 
 		MetricEditor elem = new MetricEditor(this);
-		elem.setService(rec.service_id);
+		elem.setMetric(rec.metric_id);
 		elem.setCritical(rec.critical);
 		redraw();
 	}

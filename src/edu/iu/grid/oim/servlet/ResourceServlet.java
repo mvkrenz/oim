@@ -19,11 +19,16 @@ import com.webif.divex.ButtonDE;
 import com.webif.divex.DivEx;
 import com.webif.divex.DivExRoot;
 import com.webif.divex.Event;
+import com.webif.divex.form.CheckBoxFormElementDE;
+import com.webif.divex.form.TextFormElementDE;
 
 import edu.iu.grid.oim.lib.Config;
 import edu.iu.grid.oim.model.db.ContactRankModel;
 import edu.iu.grid.oim.model.db.ContactTypeModel;
 import edu.iu.grid.oim.model.db.ContactModel;
+import edu.iu.grid.oim.model.db.DNModel;
+import edu.iu.grid.oim.model.db.DowntimeClassModel;
+import edu.iu.grid.oim.model.db.DowntimeSeverityModel;
 import edu.iu.grid.oim.model.db.ResourceAliasModel;
 import edu.iu.grid.oim.model.db.ResourceContactModel;
 import edu.iu.grid.oim.model.db.ResourceDowntimeModel;
@@ -31,6 +36,7 @@ import edu.iu.grid.oim.model.db.ResourceDowntimeServiceModel;
 import edu.iu.grid.oim.model.db.ResourceGroupModel;
 import edu.iu.grid.oim.model.db.ResourceModel;
 import edu.iu.grid.oim.model.db.ResourceServiceModel;
+import edu.iu.grid.oim.model.db.ResourceWLCGModel;
 import edu.iu.grid.oim.model.db.ServiceModel;
 import edu.iu.grid.oim.model.db.record.ContactRankRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
@@ -42,6 +48,7 @@ import edu.iu.grid.oim.model.db.record.ResourceDowntimeServiceRecord;
 import edu.iu.grid.oim.model.db.record.ResourceGroupRecord;
 import edu.iu.grid.oim.model.db.record.ResourceRecord;
 import edu.iu.grid.oim.model.db.record.ResourceServiceRecord;
+import edu.iu.grid.oim.model.db.record.ResourceWLCGRecord;
 import edu.iu.grid.oim.model.db.record.ServiceRecord;
 import edu.iu.grid.oim.view.ContentView;
 import edu.iu.grid.oim.view.DivExWrapper;
@@ -140,12 +147,11 @@ public class ResourceServlet extends ServletBase implements Servlet {
 				downtime_view.add(createDowntimeView(root, drec));
 			}
 			table.addRow("Future Downtime Schedule", downtime_view);
-	
+
+			//contacts (only shows contacts that are filled out)
 			ContactTypeModel ctmodel = new ContactTypeModel(auth);
 			ContactRankModel crmodel = new ContactRankModel(auth);
 			ContactModel pmodel = new ContactModel(auth);
-			
-			//contacts (only shows contacts that are filled out)
 			ResourceContactModel rcmodel = new ResourceContactModel(auth);
 			ArrayList<ResourceContactRecord> rclist = rcmodel.getByResourceID(rec.id);
 			HashMap<Integer, ArrayList<ResourceContactRecord>> voclist_grouped = rcmodel.groupByContactTypeID(rclist);
@@ -166,7 +172,12 @@ public class ResourceServlet extends ServletBase implements Servlet {
 				}
 				
 				table.addRow(ctrec.name, new HtmlView(cliststr));
-			}			
+			}		
+			
+			//WLCG
+			ResourceWLCGModel wmodel = new ResourceWLCGModel(auth);
+			ResourceWLCGRecord wrec = wmodel.get(rec.id);
+			table.addRow("WLCG Information", createWLCGView(wrec));
 		
 			class EditButtonDE extends ButtonDE
 			{
@@ -184,6 +195,31 @@ public class ResourceServlet extends ServletBase implements Servlet {
 		}
 		
 		return contentview;
+	}
+	
+	private IView createWLCGView(ResourceWLCGRecord rec)
+	{
+		GenericView view = new GenericView();
+		if(rec == null) {
+			view.add(new HtmlView("No WLCG Information"));
+			return view;
+		}
+		RecordTableView table = new RecordTableView("inner_table");
+		view.add(table);
+		/*
+		private CheckBoxFormElementDE wlcg;
+		private CheckBoxFormElementDE interop_bdii;
+		private CheckBoxFormElementDE interop_monitoring;
+		private CheckBoxFormElementDE interop_accounting;
+		private TextFormElementDE wlcg_accounting_name;
+		private TextFormElementDE ksi2k_minimum;
+		private TextFormElementDE ksi2k_maximum;
+		private TextFormElementDE storage_capacity_minimum;
+		private TextFormElementDE storage_capacity_maximum;
+		*/
+		
+		
+		return view;
 	}
 	
 	private IView createServiceView(ResourceServiceRecord rec)
@@ -218,10 +254,18 @@ public class ResourceServlet extends ServletBase implements Servlet {
 		table.addRow("Summary", rec.downtime_summary);
 		table.addRow("Start Time", rec.start_time.toString() + " UTC");
 		table.addRow("End Time", rec.end_time.toString() + " UTC");
-		table.addRow("Downtime Class", rec.toString(rec.downtime_class_id, auth));
-		table.addRow("Downtime Severity", rec.toString(rec.downtime_severity_id, auth));
+		
+		DowntimeClassModel dtcmodel = new DowntimeClassModel(auth);
+		table.addRow("Downtime Class", dtcmodel.get(rec.downtime_class_id).name);
+		
+		DowntimeSeverityModel dtsmodel = new DowntimeSeverityModel(auth);
+		table.addRow("Downtime Severity", dtsmodel.get(rec.downtime_severity_id).name);
+		
 		table.addRow("Affected Services", createAffectedServices(rec.id));
-		table.addRow("DN", rec.toString(rec.dn_id, auth));
+		
+		DNModel dnmodel = new DNModel(auth);
+		table.addRow("DN", dnmodel.get(rec.dn_id).dn_string);
+		
 		table.addRow("Disable", rec.disable);		
 
 		view.add(table);

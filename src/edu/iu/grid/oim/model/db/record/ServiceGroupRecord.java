@@ -13,6 +13,6 @@ public class ServiceGroupRecord extends RecordBase {
 	//load from existing record
 	public ServiceGroupRecord(ResultSet rs) throws SQLException { super(rs); }
 	//for creating new record
-	public ServiceGroupRecord()	throws SQLException {}
+	public ServiceGroupRecord() {}
 
 }

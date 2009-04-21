@@ -184,6 +184,4 @@ INSERT INTO `authorization_type_action` (`authorization_type_id`,`action_id`) VA
  (4,18),
  (5,18)
 ;
- 
-INSERT INTO `notification` (`notification`, `dn_id`) VALUES
-("<Notification><Class>edu.iu.grid.oim.notification.VONotification</Class><VOID>1</VOID><ContactID>238</ContactID></Notification>", 123);
+

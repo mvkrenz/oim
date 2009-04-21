@@ -1,7 +1,13 @@
 package edu.iu.grid.oim.servlet;
 
 import java.io.IOException;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Set;
+
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -16,29 +22,37 @@ import com.webif.divex.DivExRoot;
 import com.webif.divex.Event;
 
 import edu.iu.grid.oim.lib.Config;
-import edu.iu.grid.oim.model.db.MetricModel;
-import edu.iu.grid.oim.model.db.MetricServiceModel;
-import edu.iu.grid.oim.model.db.ResourceDowntimeModel;
-import edu.iu.grid.oim.model.db.ServiceModel;
-import edu.iu.grid.oim.model.db.record.MetricServiceRecord;
-import edu.iu.grid.oim.model.db.record.ResourceDowntimeRecord;
-import edu.iu.grid.oim.model.db.record.ServiceRecord;
-
+import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
+import edu.iu.grid.oim.model.db.ContactRankModel;
+import edu.iu.grid.oim.model.db.ContactTypeModel;
+import edu.iu.grid.oim.model.db.ContactModel;
+import edu.iu.grid.oim.model.db.ResourceGroupModel;
+import edu.iu.grid.oim.model.db.SCContactModel;
+import edu.iu.grid.oim.model.db.SCModel;
+import edu.iu.grid.oim.model.db.ServiceGroupModel;
+import edu.iu.grid.oim.model.db.record.ServiceGroupRecord;
+import edu.iu.grid.oim.model.db.record.SCRecord;
+import edu.iu.grid.oim.model.db.record.SCContactRecord;
+import edu.iu.grid.oim.model.db.record.ContactRankRecord;
+import edu.iu.grid.oim.model.db.record.ContactTypeRecord;
+import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.view.ContentView;
 import edu.iu.grid.oim.view.DivExWrapper;
-import edu.iu.grid.oim.view.GenericView;
 import edu.iu.grid.oim.view.HtmlView;
 import edu.iu.grid.oim.view.IView;
 import edu.iu.grid.oim.view.MenuView;
 import edu.iu.grid.oim.view.Page;
 import edu.iu.grid.oim.view.RecordTableView;
 import edu.iu.grid.oim.view.SideContentView;
+import edu.iu.grid.oim.view.TableView;
+import edu.iu.grid.oim.view.Utils;
+import edu.iu.grid.oim.view.TableView.Row;
 
-public class ServiceServlet extends ServletBase implements Servlet {
+public class ServiceGroupServlet extends ServletBase implements Servlet {
 	private static final long serialVersionUID = 1L;
-	static Logger log = Logger.getLogger(ServiceServlet.class);  
+	static Logger log = Logger.getLogger(ServiceGroupServlet.class);  
 	
-    public ServiceServlet() {
+    public ServiceGroupServlet() {
         // TODO Auto-generated constructor stub
     }
 
@@ -47,7 +61,7 @@ public class ServiceServlet extends ServletBase implements Servlet {
 		setAuth(request);
 		auth.check("admin");
 		
-		try {	
+		try {
 			//construct view
 			MenuView menuview = createMenuView("admin");
 			DivExRoot root = DivExRoot.getInstance(request);
@@ -64,29 +78,20 @@ public class ServiceServlet extends ServletBase implements Servlet {
 		throws ServletException, SQLException
 	{
 		ContentView contentview = new ContentView();	
-		contentview.add(new HtmlView("<h1>Service</h1>"));
-
-		ServiceModel model = new ServiceModel(auth);
-		
-		for(ServiceRecord rec : model.getAll()) {
-			contentview.add(new HtmlView("<h2>"+StringEscapeUtils.escapeHtml(rec.name)+"</h2>"));
+		contentview.add(new HtmlView("<h1>Resource Groups</h1>"));
 	
+		ServiceGroupModel model = new ServiceGroupModel(auth);
+		Collection<ServiceGroupRecord> rgs = model.getAll();
+		for(ServiceGroupRecord rec : rgs) {
+			contentview.add(new HtmlView("<h2>"+StringEscapeUtils.escapeHtml(rec.name)+"</h2>"));
+
+			
 			RecordTableView table = new RecordTableView();
 			contentview.add(table);
+
 			table.addRow("Name", rec.name);
 			table.addRow("Description", rec.description);
-			table.addRow("Port", rec.toString(rec.port, auth));
-			table.addRow("Service Group ID", rec.toString(rec.service_group_id, auth));
 			
-			//downtime
-			GenericView metric_view = new GenericView();
-			MetricServiceModel dmodel = new MetricServiceModel(auth);
-			for(MetricServiceRecord drec : dmodel.getAllByServiceID(rec.id)) {
-				metric_view.add(createMetricView(root, drec));
-			}
-			table.addRow("Metrics", metric_view);
-		
-		 	
 			class EditButtonDE extends ButtonDE
 			{
 				String url;
@@ -99,28 +104,30 @@ public class ServiceServlet extends ServletBase implements Servlet {
 					redirect(url);
 				}
 			};
-			table.add(new DivExWrapper(new EditButtonDE(root, Config.getApplicationBase()+"/serviceedit?id=" + rec.id)));
+			table.add(new DivExWrapper(new EditButtonDE(root, Config.getApplicationBase()+"/servicegroupedit?id=" + rec.id)));
 		}
 		
 		return contentview;
-	}
-
-	private IView createMetricView(DivExRoot root, MetricServiceRecord rec) 
-	{
-		GenericView view = new GenericView();
-		RecordTableView table = new RecordTableView("inner_table");
-		table.addHeaderRow(rec.toString(rec.metric_id, auth));
-		table.addRow("Critical", rec.critical);
-	
-		view.add(table);
-		
-		return view;
 	}
 	
 	private SideContentView createSideView(DivExRoot root)
 	{
 		SideContentView view = new SideContentView();
-		view.add("About", new HtmlView("Todo.."));		
+		
+		class NewButtonDE extends ButtonDE
+		{
+			String url;
+			public NewButtonDE(DivEx parent, String _url)
+			{
+				super(parent, "Add New Service Group");
+				url = _url;
+			}
+			protected void onEvent(Event e) {
+				redirect(url);
+			}
+		};
+		view.add("Operation", new NewButtonDE(root, "servicegroupedit"));
+		view.add("About", new HtmlView("This page shows a list of Service Groups that you have access to edit."));		
 		return view;
 	}
 }

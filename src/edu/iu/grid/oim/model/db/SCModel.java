@@ -103,7 +103,8 @@ public class SCModel extends SmallTableModelBase<SCRecord> {
 			for(SCContactRecord sccrec : contacts) {
 				sccrec.sc_id = rec.id;
 			}
-			cmodel.update(cmodel.getBySCID(rec.id), contacts);
+			cmodel.insert(contacts);
+			
 			getConnection().commit();
 			getConnection().setAutoCommit(true);
 		} catch (SQLException e) {

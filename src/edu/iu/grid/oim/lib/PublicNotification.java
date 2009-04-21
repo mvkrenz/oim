@@ -16,8 +16,13 @@ import java.util.Set;
 
 //post the public log information to somewhere user can access to
 public class PublicNotification {
-	public  static BlogEntry publish(String title, String content, ArrayList<String> categories) throws IOException, ServiceException
+	public static void publish(String title, String content, ArrayList<String> categories) throws IOException, ServiceException
 	{
+		//posting to blogspot idea has failed..
+		//1) blogspot limts the number of post
+		//2) blogspot doesn't allow advanced category query (although the doc says it does)
+		
+		/*
 		String BlogID = "5150742677623931956"; //OIM Update (obtained from the URL on blogger.com)
 		
 		//connect to our blogger service
@@ -37,7 +42,8 @@ public class PublicNotification {
 		
 		//do insert
 		BlogEntry insertedEntry = myService.insert(postUrl, myEntry);
-		
+				
 		return insertedEntry;
+		*/
 	}
 }
