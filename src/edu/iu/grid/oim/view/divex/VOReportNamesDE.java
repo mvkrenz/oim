@@ -62,20 +62,23 @@ public class VOReportNamesDE extends FormElementDEBase {
 			id    = vorepname_record.id;
 			vo_id = vorepname_record.vo_id;
 
+			new StaticDE(this, "<h3>Report Name</h3>");
+
 			vo_report_name = new TextFormElementDE(this);
-			vo_report_name.setLabel("Report Name");
+			//vo_report_name.setLabel("");
 			vo_report_name.setRequired(true);
 			vo_report_name.setValue(vorepname_record.name);
 
+			new StaticDE(this, "<h3>Associated FQANs</h3>");
 			vo_report_name_fqan = new VOReportNameFqanDE (this);
 
 			if (fqan_records != null) { 
 				for(VOReportNameFqanRecord fqan_record : fqan_records) {
-					vo_report_name_fqan.addVOReportNameFqan(fqan_record.fqan);
+					vo_report_name_fqan.addVOReportNameFqan (fqan_record);
 				}
 			}
 			new StaticDE(this, "<h3>Subscriber Information</h3>");
-			ContactEditorDE vorc_editor = new ContactEditorDE (this, cmodel, false, false);
+			ContactEditorDE vorc_editor = new ContactEditorDE (this, cmodel, false, true);
 			vorc_editor.setShowRank(false);
 			vorc_editor.setMinContacts(ContactEditorDE.Rank.PRIMARY, 1);
 			if(vorc_list != null) {

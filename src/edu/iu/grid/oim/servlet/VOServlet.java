@@ -212,8 +212,8 @@ public class VOServlet extends ServletBase implements Servlet {
 		
 		try {
 			table.addHeaderRow(record.name);
-			table.addRow("Associated FQANs", new HtmlView (getVOReportNameFqans(record.id)));
-
+			table.addRow("Associated FQANs", new HtmlView (""));
+			table.addRow("", new HtmlView (getVOReportNameFqans(record.id)));
 			ContactTypeModel ctmodel = new ContactTypeModel(auth);
 			ContactRankModel crmodel = new ContactRankModel(auth);
 			ContactModel pmodel = new ContactModel(auth);
@@ -243,13 +243,18 @@ public class VOServlet extends ServletBase implements Servlet {
 	private String getVOReportNameFqans(int vo_report_name_id) throws SQLException
 	{
 		String html = "";
-		VOReportNameFqanModel vorepnamefqn_model = new VOReportNameFqanModel(auth);
-		ArrayList<VOReportNameFqanRecord> records = vorepnamefqn_model.getAllByVOReportNameID(vo_report_name_id);
+		VOReportNameFqanModel vorepnamefqan_model = new VOReportNameFqanModel(auth);
+		ArrayList<VOReportNameFqanRecord> records = vorepnamefqan_model.getAllByVOReportNameID(vo_report_name_id);
+		// I don't like spitting out non-CSS HTML here .. leaving it for now. -agopu
+		html = "<table width='100%'>\n\t<tr>\n\t\t<th>Group Name</th> <th>Optional Role</th>\n\t</tr>\n";
 		for(VOReportNameFqanRecord record : records) {
-			html += StringEscapeUtils.escapeHtml(record.fqan) + "<br/>";
+			html += "\t<tr>\n\t\t<td>" + StringEscapeUtils.escapeHtml(record.group_name) + 
+			   		"</td> <td>" + StringEscapeUtils.escapeHtml(record.role) + "</td>\n\t</tr>\n";
 		}
+		html += "</table>";
 		return html;
 	}
+
 
 	private SideContentView createSideView(DivExRoot root)
 	{

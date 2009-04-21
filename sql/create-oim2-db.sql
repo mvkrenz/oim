@@ -735,7 +735,7 @@ SET @saved_cs_client     = @@character_set_client;
 SET character_set_client = utf8;
 CREATE TABLE `vo_report_name_fqan` (
   `vo_report_name_id` int(11) NOT NULL,
-  `group_name` varchar(64) collate utf8_unicode_ci NOT NULL,
+  `group_name` varchar(128) collate utf8_unicode_ci NOT NULL,
   `role` varchar(64) collate utf8_unicode_ci NULL,
   PRIMARY KEY  USING BTREE (`vo_report_name_id`,`group_name`,`role`),
   CONSTRAINT `vo_report_name_vo_fqan` FOREIGN KEY (`vo_report_name_id`) REFERENCES `vo_report_name` (`id`)

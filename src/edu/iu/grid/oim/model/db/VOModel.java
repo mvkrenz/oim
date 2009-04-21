@@ -164,7 +164,6 @@ public class VOModel extends SmallTableModelBase<VORecord>
 			Integer parent_vo_id, 
 			ArrayList<Integer> field_of_science, 
 			ArrayList<VOReportNameRecord> vo_report_names) throws Exception
-
 	{
 		//Do insert / update to our DB
 		try {
@@ -222,6 +221,8 @@ public class VOModel extends SmallTableModelBase<VORecord>
 				vo_report_name.vo_id = rec.id; 
 			}
 			vorepname_model.update(vorepname_model.getAllByVOID(rec.id),vo_report_names);	
+			
+			
 			
 			getConnection().commit();
 			getConnection().setAutoCommit(true);

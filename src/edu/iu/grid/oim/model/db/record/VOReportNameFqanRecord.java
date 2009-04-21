@@ -6,7 +6,8 @@ import java.sql.SQLException;
 public class VOReportNameFqanRecord extends RecordBase  
 {
 	@Key public Integer vo_report_name_id;
-	@Key public String fqan;
+	@Key public String group_name;
+	@Key public String role;
 	
 	//load from existing record
 	public VOReportNameFqanRecord(ResultSet rs) throws SQLException { super(rs); }
