@@ -25,6 +25,7 @@ import edu.iu.grid.oim.model.db.VOReportNameFqanModel;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.ResourceContactRecord;
 import edu.iu.grid.oim.model.db.record.ServiceRecord;
+import edu.iu.grid.oim.model.db.record.VOContactRecord;
 import edu.iu.grid.oim.model.db.record.VOReportNameFqanRecord;
 import edu.iu.grid.oim.model.db.record.VOReportNameRecord;
 import edu.iu.grid.oim.model.db.record.VOReportContactRecord;
@@ -78,9 +79,10 @@ public class VOReportNamesDE extends FormElementDEBase {
 				}
 			}
 			new StaticDE(this, "<h3>Subscriber Information</h3>");
-			ContactEditorDE vorc_editor = new ContactEditorDE (this, cmodel, false, true);
+			ContactEditorDE vorc_editor = new ContactEditorDE (this, cmodel, false, false);
 			vorc_editor.setShowRank(false);
-			vorc_editor.setMinContacts(ContactEditorDE.Rank.PRIMARY, 1);
+			vorc_editor.setMinContacts(ContactEditorDE.Rank.PRIMARY, 0);
+			vorc_editor.setMaxContacts(ContactEditorDE.Rank.PRIMARY, 128);
 			if(vorc_list != null) {
 				for(VOReportContactRecord vorc_record : vorc_list) {
 					ContactRecord keyrec = new ContactRecord();
@@ -228,6 +230,50 @@ public class VOReportNamesDE extends FormElementDEBase {
 			}
 		}
 		return vorepname_records;
+	}
+	public ArrayList<VOReportNameFqanRecord> getVOReportNameFqanRecords()
+	{
+		ArrayList<VOReportNameFqanRecord> vorepnamefqan_records = new ArrayList<VOReportNameFqanRecord>();
+		for(DivEx node : childnodes) {
+			if(node instanceof VOReportNameEditor) {
+				VOReportNameEditor vo_report_name = (VOReportNameEditor)node;
+				//vorepnamefqan_records.addAll(vo_report_name.vo_report_name_fqan.getVOReportNameFqanRecords());
+				vorepnamefqan_records.addAll(vo_report_name.vo_report_name_fqan.getVOReportNameFqanRecords());
+			}
+		}
+		return vorepnamefqan_records;
+	}
+	
+
+	public ArrayList<VOReportContactRecord> getVOReportContactRecords()
+	{
+		ArrayList<VOReportContactRecord> vorepcontact_records = new ArrayList<VOReportContactRecord>();
+		for(DivEx node : childnodes) {
+			if(node instanceof VOReportNameEditor) {
+				VOReportNameEditor vo_report_name = (VOReportNameEditor)node;
+				ArrayList <ContactRecord> contacts = vo_report_name.contact_editor.getContactRecordsByRank(1);
+				
+				for (ContactRecord contact : contacts) {
+					vorepcontact_records.add(createVOReportContact(contact,vo_report_name.id));
+				}
+			}
+		}
+		return vorepcontact_records;
+	}
+
+	// Should this be in model/record code? Too tired to think right now. -agopu
+	// Set VOReportContact record for vo_report_name from the ContactRecord
+	// Beware that VOContactRecord's vo_report_name_id is not populated.. 
+	//  we need to fill it out with appropriate value later
+	private VOReportContactRecord createVOReportContact(ContactRecord contact, Integer vo_report_name_id)
+	{
+		VOReportContactRecord vorepcontact_record = new VOReportContactRecord();
+		vorepcontact_record.vo_report_name_id = vo_report_name_id;
+		vorepcontact_record.contact_id = contact.id;
+		vorepcontact_record.contact_type_id = 10; /*VO report contact */
+		vorepcontact_record.contact_rank_id = 1;  /*only one rank - primary */
+		
+		return vorepcontact_record;
 	}
 
 }

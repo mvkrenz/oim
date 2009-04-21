@@ -20,7 +20,8 @@ import edu.iu.grid.oim.model.db.record.VOFieldOfScienceRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
 import edu.iu.grid.oim.model.db.record.VOVORecord;
 import edu.iu.grid.oim.model.db.record.VOReportNameRecord;
-import edu.iu.grid.oim.model.db.record.VOReportNameRecord;
+import edu.iu.grid.oim.model.db.record.VOReportNameFqanRecord;
+import edu.iu.grid.oim.model.db.record.VOReportContactRecord;
 
 public class VOModel extends SmallTableModelBase<VORecord>
 {	
@@ -89,7 +90,10 @@ public class VOModel extends SmallTableModelBase<VORecord>
 			ArrayList<VOContactRecord> contacts, 
 			Integer parent_vo_id, 
 			ArrayList<Integer> field_of_science,
-			ArrayList<VOReportNameRecord> vo_report_names) throws Exception
+			ArrayList<VOReportNameRecord> report_name_records,
+			ArrayList<VOReportNameFqanRecord> fqan_records,
+			ArrayList<VOReportContactRecord> report_contact_records) throws Exception
+
 	{
 		try {			
 			//process detail information
@@ -141,10 +145,22 @@ public class VOModel extends SmallTableModelBase<VORecord>
 		
 			//process VO report names
 			VOReportNameModel vorepname_model = new VOReportNameModel(auth);
-			for(VOReportNameRecord vo_report_name : vo_report_names) {
-				vo_report_name.vo_id = rec.id; 
+			VOReportNameFqanModel vorepnamefqan_model = new VOReportNameFqanModel(auth);
+			ArrayList<VOReportNameFqanRecord> old_fqan_records = new ArrayList<VOReportNameFqanRecord> ();
+			
+			// Preprocessing; collect old fqan records -- can this be passed along instead? -agopu
+			for(VOReportNameRecord vo_report_name : report_name_records) {
+				vo_report_name.vo_id = rec.id; // redundant, isn't it? perhaps not.
+				old_fqan_records.addAll(vorepnamefqan_model.getAllByVOReportNameID(vo_report_name.id));
 			}
-			vorepname_model.insert(vo_report_names);		
+			
+			// report names themselves
+			vorepname_model.insert(report_name_records);		
+
+			// fqans
+			vorepnamefqan_model.insert(fqan_records);
+	
+			// VO reporting contacts
 			
 			getConnection().commit();
 			getConnection().setAutoCommit(true);
@@ -163,7 +179,9 @@ public class VOModel extends SmallTableModelBase<VORecord>
 			ArrayList<VOContactRecord> contacts, 
 			Integer parent_vo_id, 
 			ArrayList<Integer> field_of_science, 
-			ArrayList<VOReportNameRecord> vo_report_names) throws Exception
+			ArrayList<VOReportNameRecord> report_name_records,
+			ArrayList<VOReportNameFqanRecord> fqan_records,
+			ArrayList<VOReportContactRecord> report_contact_records) throws Exception
 	{
 		//Do insert / update to our DB
 		try {
@@ -217,12 +235,22 @@ public class VOModel extends SmallTableModelBase<VORecord>
 
 			//process VO report names
 			VOReportNameModel vorepname_model = new VOReportNameModel(auth);
-			for(VOReportNameRecord vo_report_name : vo_report_names) {
-				vo_report_name.vo_id = rec.id; 
+			VOReportNameFqanModel vorepnamefqan_model = new VOReportNameFqanModel(auth);
+			ArrayList<VOReportNameFqanRecord> old_fqan_records = new ArrayList<VOReportNameFqanRecord> ();
+			
+			// Preprocessing; collect old fqan records -- can this be passed along instead? -agopu
+			for(VOReportNameRecord vo_report_name : report_name_records) {
+				vo_report_name.vo_id = rec.id; // redundant, isn't it? perhaps not.
+				old_fqan_records.addAll(vorepnamefqan_model.getAllByVOReportNameID(vo_report_name.id));
 			}
-			vorepname_model.update(vorepname_model.getAllByVOID(rec.id),vo_report_names);	
 			
-			
+			// report names themselves
+			vorepname_model.update(vorepname_model.getAllByVOID(rec.id),report_name_records);	
+
+			// fqans
+			vorepnamefqan_model.update (old_fqan_records, fqan_records);
+	
+			// VO reporting contacts
 			
 			getConnection().commit();
 			getConnection().setAutoCommit(true);

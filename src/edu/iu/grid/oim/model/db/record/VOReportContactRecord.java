@@ -15,6 +15,4 @@ public class VOReportContactRecord extends RecordBase
 	//for creating new record
 	public VOReportContactRecord() {}
 	
-	// AG: Do we need to add getLabels, etc. type functions?? 
-	//  If yes, we should perhaps put them in a parent class? No?
 }

@@ -28,14 +28,17 @@ public class VOReportNameFqanDE extends FormElementDEBase {
 
 	class VOReportNameFqanEditor extends FormElementDEBase
 	{
+		private Integer vo_report_name_id;
 		private TextFormElementDE group_name;
 		private TextFormElementDE role;
 		private ButtonDE remove_button;
 		private VOReportNameFqanEditor myself;
 		
-		protected VOReportNameFqanEditor(DivEx parent) {
+		protected VOReportNameFqanEditor(DivEx parent, VOReportNameFqanRecord vorepnamefqan_record) {
 			super(parent);
 			myself = this;
+
+			vo_report_name_id  = vorepnamefqan_record.vo_report_name_id;
 
 			new StaticDE(this, "<h3>FQAN</h3>");
 			group_name = new TextFormElementDE(this);
@@ -74,8 +77,9 @@ public class VOReportNameFqanDE extends FormElementDEBase {
 		}
 		public VOReportNameFqanRecord getVOReportNameFqanRecord() {
 			VOReportNameFqanRecord record = new VOReportNameFqanRecord();
-			record.group_name = group_name.getValue();
-			record.role       = role.getValue();
+			record.vo_report_name_id = vo_report_name_id;
+			record.group_name        = group_name.getValue();
+			record.role              = role.getValue();
 			return record;
 		}
 
@@ -104,7 +108,7 @@ public class VOReportNameFqanDE extends FormElementDEBase {
 	}
 	
 	public void addVOReportNameFqan(VOReportNameFqanRecord record) { 
-		VOReportNameFqanEditor elem = new VOReportNameFqanEditor(this);
+		VOReportNameFqanEditor elem = new VOReportNameFqanEditor(this, record);
 		elem.setGroupName(record.group_name);
 		elem.setRole(record.role);
 		redraw();

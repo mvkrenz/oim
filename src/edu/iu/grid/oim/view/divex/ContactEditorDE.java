@@ -33,6 +33,7 @@ public class ContactEditorDE extends FormElementDEBase<HashMap<ContactEditorDE.R
 	public enum Rank {PRIMARY, SECONDARY, TERTIARY };
 	private HashMap<Rank/*rank_id*/, ArrayList<ContactDE>> selected = new HashMap();
 	
+	// Default max contact limits - can be overridden 
 	private int max_primary = 1;
 	private int max_secondary = 1;
 	private int max_tertiary = 16;
@@ -49,7 +50,17 @@ public class ContactEditorDE extends FormElementDEBase<HashMap<ContactEditorDE.R
 	public void setMinContacts(Rank rank, int min) {
 		addValidator(new MinValidator(rank, min));
 	}
-	
+	public void setMaxContacts(Rank rank, int max) {
+		if (rank == Rank.PRIMARY) { 
+				max_primary = max;
+		}
+		else if (rank == Rank.SECONDARY) { 
+			max_secondary= max;
+		}
+		else { 
+			max_tertiary= max;
+		}
+	}	
 	public void setDisabled(Boolean b) { 
 		super.setDisabled(b);
 		primary_newcontact.setDisabled(b);
@@ -311,6 +322,17 @@ public class ContactEditorDE extends FormElementDEBase<HashMap<ContactEditorDE.R
 		return records;
 	}
 
+	public ArrayList<ContactRecord> getContactRecordsByRank(Integer _rank)
+	{
+		ArrayList<ContactRecord> records = new ArrayList<ContactRecord>();
+		ArrayList<ContactDE> contact_divs = selected.get(_rank);
+		for(ContactDE contact_div : contact_divs) {
+			records.add(contact_div.person);
+		}
+		return records;
+	}
+	
+	
 	public void render(PrintWriter out) 
 	{
 		out.print("<div id=\""+getNodeID()+"\">");

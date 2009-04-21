@@ -444,13 +444,16 @@ public class VOFormDE extends FormDE
 						contacts, 
 						parent_vo.getValue(), 
 						field_of_science_ids,
-						vo_report_name_div.getVOReportNameRecords());
+						vo_report_name_div.getVOReportNameFqanRecords(),
+						vo_report_name_div.getVOReportContactRecords());
 			} else {
 				model.updateDetail(rec, 
 						contacts, 
 						parent_vo.getValue(), 
 						field_of_science_ids,
-						vo_report_name_div.getVOReportNameRecords());
+						vo_report_name_div.getVOReportNameRecords(),
+						vo_report_name_div.getVOReportNameFqanRecords(),
+						vo_report_name_div.getVOReportContactRecords());
 			}
 		} catch (Exception e) {
 			alert(e.getMessage());
