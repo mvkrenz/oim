@@ -49,7 +49,7 @@ abstract public class FormDE extends FormElementDEBase {
 			//error = "Please correct the issues before submitting your form.";
 			//redraw();
 			//scrollToShow();
-			alert("Please correct the issues before submitting your form.");
+			alert("Please correct the issues flagged above, and then resubmit!");
 		}
 	}
 	

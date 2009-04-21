@@ -14,11 +14,8 @@ import com.webif.divex.form.FormElementDEBase;
 import com.webif.divex.form.SelectFormElementDE;
 import com.webif.divex.form.TextFormElementDE;
 
-import edu.iu.grid.oim.model.db.record.MetricServiceRecord;
 import edu.iu.grid.oim.model.db.record.VOReportNameRecord;
 import edu.iu.grid.oim.model.db.record.VOReportNameFqanRecord;
-import edu.iu.grid.oim.view.divex.MetricServiceDE.MetricEditor;
-import edu.iu.grid.oim.view.divex.ResourceServicesDE.ServiceEditor;
 import edu.iu.grid.oim.view.divex.VOReportNamesDE.VOReportNameEditor;
 
 public class VOReportNameFqanDE extends FormElementDEBase {

@@ -12,6 +12,9 @@ import com.webif.divex.form.CheckBoxFormElementDE;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
+
+import edu.iu.grid.oim.model.VOReportConsolidator;
+
 import edu.iu.grid.oim.model.db.record.RecordBase;
 import edu.iu.grid.oim.model.db.record.ResourceAliasRecord;
 import edu.iu.grid.oim.model.db.record.ResourceServiceRecord;
@@ -90,9 +93,10 @@ public class VOModel extends SmallTableModelBase<VORecord>
 			ArrayList<VOContactRecord> contacts, 
 			Integer parent_vo_id, 
 			ArrayList<Integer> field_of_science,
-			ArrayList<VOReportNameRecord> report_name_records,
-			ArrayList<VOReportNameFqanRecord> fqan_records,
-			ArrayList<VOReportContactRecord> report_contact_records) throws Exception
+			ArrayList<VOReportConsolidator> report_consolidated_records) throws Exception
+//			ArrayList<VOReportNameRecord> report_name_records,
+//			ArrayList<VOReportNameFqanRecord> fqan_records,
+//			ArrayList<VOReportContactRecord> report_contact_records) throws Exception
 
 	{
 		try {			
@@ -146,21 +150,28 @@ public class VOModel extends SmallTableModelBase<VORecord>
 			//process VO report names
 			VOReportNameModel vorepname_model = new VOReportNameModel(auth);
 			VOReportNameFqanModel vorepnamefqan_model = new VOReportNameFqanModel(auth);
-			ArrayList<VOReportNameFqanRecord> old_fqan_records = new ArrayList<VOReportNameFqanRecord> ();
-			
-			// Preprocessing; collect old fqan records -- can this be passed along instead? -agopu
-			for(VOReportNameRecord vo_report_name : report_name_records) {
-				vo_report_name.vo_id = rec.id; // redundant, isn't it? perhaps not.
-				old_fqan_records.addAll(vorepnamefqan_model.getAllByVOReportNameID(vo_report_name.id));
-			}
-			
-			// report names themselves
-			vorepname_model.insert(report_name_records);		
+			VOReportContactModel vorepcontact_model = new VOReportContactModel(auth);
 
-			// fqans
-			vorepnamefqan_model.insert(fqan_records);
-	
-			// VO reporting contacts
+			for (VOReportConsolidator consolidated_record : report_consolidated_records) {
+				VOReportNameRecord vorepname_record = consolidated_record.name; 
+				vorepname_record.vo_id = rec.id; 
+
+				// report names themselves
+				vorepname_model.insert(vorepname_record);		
+
+				ArrayList <VOReportNameFqanRecord> fqan_records = consolidated_record.fqans; 
+				for (VOReportNameFqanRecord fqan_record : fqan_records ) {
+					fqan_record.vo_report_name_id = vorepname_record.id;
+				}
+				vorepnamefqan_model.insert(fqan_records);
+
+				ArrayList <VOReportContactRecord> contact_records = consolidated_record.vorep_contacts; 
+				for (VOReportContactRecord contact_record : contact_records ) {
+					contact_record.vo_report_name_id = vorepname_record.id;
+				}
+				vorepcontact_model.insert(contact_records);
+
+			}
 			
 			getConnection().commit();
 			getConnection().setAutoCommit(true);
@@ -179,9 +190,10 @@ public class VOModel extends SmallTableModelBase<VORecord>
 			ArrayList<VOContactRecord> contacts, 
 			Integer parent_vo_id, 
 			ArrayList<Integer> field_of_science, 
-			ArrayList<VOReportNameRecord> report_name_records,
-			ArrayList<VOReportNameFqanRecord> fqan_records,
-			ArrayList<VOReportContactRecord> report_contact_records) throws Exception
+			ArrayList<VOReportConsolidator> report_consolidated_records) throws Exception
+//			ArrayList<VOReportNameRecord> report_name_records,
+//			ArrayList<VOReportNameFqanRecord> fqan_records,
+//			ArrayList<VOReportContactRecord> report_contact_records) throws Exception
 	{
 		//Do insert / update to our DB
 		try {
@@ -236,21 +248,35 @@ public class VOModel extends SmallTableModelBase<VORecord>
 			//process VO report names
 			VOReportNameModel vorepname_model = new VOReportNameModel(auth);
 			VOReportNameFqanModel vorepnamefqan_model = new VOReportNameFqanModel(auth);
-			ArrayList<VOReportNameFqanRecord> old_fqan_records = new ArrayList<VOReportNameFqanRecord> ();
-			
-			// Preprocessing; collect old fqan records -- can this be passed along instead? -agopu
-			for(VOReportNameRecord vo_report_name : report_name_records) {
-				vo_report_name.vo_id = rec.id; // redundant, isn't it? perhaps not.
-				old_fqan_records.addAll(vorepnamefqan_model.getAllByVOReportNameID(vo_report_name.id));
-			}
-			
-			// report names themselves
-			vorepname_model.update(vorepname_model.getAllByVOID(rec.id),report_name_records);	
+			VOReportContactModel vorepcontact_model = new VOReportContactModel(auth);
+			ArrayList<VOReportNameRecord> vorepname_records = new ArrayList<VOReportNameRecord> ();
 
-			// fqans
-			vorepnamefqan_model.update (old_fqan_records, fqan_records);
-	
-			// VO reporting contacts
+			for (VOReportConsolidator consolidated_record : report_consolidated_records) {
+				ArrayList<VOReportNameFqanRecord> old_fqan_records = new ArrayList<VOReportNameFqanRecord> ();
+				ArrayList<VOReportContactRecord> old_contact_records = new ArrayList<VOReportContactRecord> ();
+
+				VOReportNameRecord vorepname_record = consolidated_record.name; 
+				vorepname_record.vo_id = rec.id;
+				vorepname_records.add(vorepname_record);
+				old_fqan_records.addAll(vorepnamefqan_model.getAllByVOReportNameID(vorepname_record.id));
+				old_contact_records.addAll(vorepcontact_model.getByVOReportNameID(vorepname_record.id));
+
+				// fqans
+				ArrayList <VOReportNameFqanRecord> fqan_records = consolidated_record.fqans; 
+				for (VOReportNameFqanRecord fqan_record : fqan_records ) {
+					fqan_record.vo_report_name_id = vorepname_record.id;
+				}
+				vorepnamefqan_model.update (old_fqan_records, fqan_records);
+		
+				// VO reporting contacts
+				ArrayList <VOReportContactRecord> contact_records = consolidated_record.vorep_contacts; 
+				for (VOReportContactRecord contact_record : contact_records ) {
+					contact_record.vo_report_name_id = vorepname_record.id;
+				}
+				vorepcontact_model.update(old_contact_records,contact_records);
+			}
+			// report names themselves
+			vorepname_model.update(vorepname_model.getAllByVOID(rec.id),vorepname_records);	
 			
 			getConnection().commit();
 			getConnection().setAutoCommit(true);

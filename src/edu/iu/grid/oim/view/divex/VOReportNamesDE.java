@@ -18,6 +18,10 @@ import com.webif.divex.form.SelectFormElementDE;
 import com.webif.divex.form.TextFormElementDE;
 import com.webif.divex.form.validator.UniqueValidator;
 
+import edu.iu.grid.oim.view.divex.VOReportNamesDE.VOReportNameEditor;
+
+import edu.iu.grid.oim.model.VOReportConsolidator;
+
 import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.ContactTypeModel;
 import edu.iu.grid.oim.model.db.VOReportContactModel;
@@ -30,7 +34,7 @@ import edu.iu.grid.oim.model.db.record.VOReportNameFqanRecord;
 import edu.iu.grid.oim.model.db.record.VOReportNameRecord;
 import edu.iu.grid.oim.model.db.record.VOReportContactRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
-import edu.iu.grid.oim.view.divex.ResourceAliasDE.AliasEditor;
+
 
 public class VOReportNamesDE extends FormElementDEBase {
 
@@ -220,47 +224,84 @@ public class VOReportNamesDE extends FormElementDEBase {
 		out.print("</div>");
 	}
 
-	public ArrayList<VOReportNameRecord> getVOReportNameRecords()
+	public ArrayList<VOReportConsolidator> getConsolidatedVOReportName()
 	{
-		ArrayList<VOReportNameRecord> vorepname_records = new ArrayList<VOReportNameRecord>();
+//		ArrayList<VOReportNameRecord> vorepname_records = new ArrayList<VOReportNameRecord>();
+		ArrayList<VOReportConsolidator> vorep_consolidated_records = new ArrayList<VOReportConsolidator>();
+		
 		for(DivEx node : childnodes) {
 			if(node instanceof VOReportNameEditor) {
 				VOReportNameEditor vo_report_name = (VOReportNameEditor)node;
-				vorepname_records.add(vo_report_name.getVOReportNameRecord());
-			}
-		}
-		return vorepname_records;
-	}
-	public ArrayList<VOReportNameFqanRecord> getVOReportNameFqanRecords()
-	{
-		ArrayList<VOReportNameFqanRecord> vorepnamefqan_records = new ArrayList<VOReportNameFqanRecord>();
-		for(DivEx node : childnodes) {
-			if(node instanceof VOReportNameEditor) {
-				VOReportNameEditor vo_report_name = (VOReportNameEditor)node;
-				//vorepnamefqan_records.addAll(vo_report_name.vo_report_name_fqan.getVOReportNameFqanRecords());
-				vorepnamefqan_records.addAll(vo_report_name.vo_report_name_fqan.getVOReportNameFqanRecords());
-			}
-		}
-		return vorepnamefqan_records;
-	}
-	
+				VOReportNameRecord vorepname_record = new VOReportNameRecord ();
+				ArrayList<VOReportNameFqanRecord> vorepnamefqan_records = new ArrayList<VOReportNameFqanRecord>();
+				ArrayList<VOReportContactRecord> vorepcontact_records = new ArrayList<VOReportContactRecord>();
 
-	public ArrayList<VOReportContactRecord> getVOReportContactRecords()
-	{
-		ArrayList<VOReportContactRecord> vorepcontact_records = new ArrayList<VOReportContactRecord>();
-		for(DivEx node : childnodes) {
-			if(node instanceof VOReportNameEditor) {
-				VOReportNameEditor vo_report_name = (VOReportNameEditor)node;
-				ArrayList <ContactRecord> contacts = vo_report_name.contact_editor.getContactRecordsByRank(1);
+				ArrayList <ContactRecord> contacts = new ArrayList <ContactRecord> (); 
 				
-				for (ContactRecord contact : contacts) {
-					vorepcontact_records.add(createVOReportContact(contact,vo_report_name.id));
+				if (vo_report_name.vo_report_name != null) {
+					vorepname_record = vo_report_name.getVOReportNameRecord();
 				}
+				if (vo_report_name.vo_report_name_fqan != null) {
+					vorepnamefqan_records.addAll(vo_report_name.vo_report_name_fqan.getVOReportNameFqanRecords());
+				}
+
+				if (vo_report_name.contact_editor != null) {
+					contacts = vo_report_name.contact_editor.getContactRecordsByRank(Integer.valueOf(1));
+					for (ContactRecord contact : contacts) {
+						vorepcontact_records.add(createVOReportContact(contact,vo_report_name.id));
+					}
+				}
+				VOReportConsolidator consolidated_record = new VOReportConsolidator 
+					(vorepname_record, vorepnamefqan_records, vorepcontact_records);
+				vorep_consolidated_records.add(consolidated_record);
 			}
 		}
-		return vorepcontact_records;
+		return vorep_consolidated_records;
 	}
 
+//	public ArrayList<VOReportNameRecord> getVOReportNameRecords()
+//	{
+//		ArrayList<VOReportNameRecord> vorepname_records = new ArrayList<VOReportNameRecord>();
+//		for(DivEx node : childnodes) {
+//			if(node instanceof VOReportNameEditor) {
+//				VOReportNameEditor vo_report_name = (VOReportNameEditor)node;
+//				vorepname_records.add(vo_report_name.getVOReportNameRecord());
+//			}
+//		}
+//		return vorepname_records;
+//	}
+//	
+//
+//	public ArrayList<VOReportNameFqanRecord> getVOReportNameFqanRecords()
+//	{
+//		ArrayList<VOReportNameFqanRecord> vorepnamefqan_records = new ArrayList<VOReportNameFqanRecord>();
+//		for(DivEx node : childnodes) {
+//			if(node instanceof VOReportNameEditor) {
+//				VOReportNameEditor vo_report_name = (VOReportNameEditor)node;
+//				//vorepnamefqan_records.addAll(vo_report_name.vo_report_name_fqan.getVOReportNameFqanRecords());
+//				vorepnamefqan_records.addAll(vo_report_name.vo_report_name_fqan.getVOReportNameFqanRecords());
+//			}
+//		}
+//		return vorepnamefqan_records;
+//	}
+//	
+//
+//	public ArrayList<VOReportContactRecord> getVOReportContactRecords()
+//	{
+//		ArrayList<VOReportContactRecord> vorepcontact_records = new ArrayList<VOReportContactRecord>();
+//		for(DivEx node : childnodes) {
+//			if(node instanceof VOReportNameEditor) {
+//				VOReportNameEditor vo_report_name = (VOReportNameEditor)node;
+//				ArrayList <ContactRecord> contacts = vo_report_name.contact_editor.getContactRecordsByRank(1);
+//				
+//				for (ContactRecord contact : contacts) {
+//					vorepcontact_records.add(createVOReportContact(contact,vo_report_name.id));
+//				}
+//			}
+//		}
+//		return vorepcontact_records;
+//	}
+//
 	// Should this be in model/record code? Too tired to think right now. -agopu
 	// Set VOReportContact record for vo_report_name from the ContactRecord
 	// Beware that VOContactRecord's vo_report_name_id is not populated.. 
@@ -275,5 +316,4 @@ public class VOReportNamesDE extends FormElementDEBase {
 		
 		return vorepcontact_record;
 	}
-
 }
