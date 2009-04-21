@@ -7,7 +7,12 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpressionException;
+
 import org.apache.log4j.Logger;
+import org.w3c.dom.Document;
 
 import com.webif.divex.form.CheckBoxFormElementDE;
 
@@ -61,6 +66,18 @@ public class ResourceModel extends SmallTableModelBase<ResourceRecord> {
 	    	}
 	    }	    	
 	    return list;
+	}
+	
+	//override this to reveal the log to particular user
+	public Boolean hasLogAccess(XPath xpath, Document doc)
+	{
+		try {
+			Integer id = Integer.parseInt((String)xpath.evaluate("//Keys/Key[Name='id']/Value", doc, XPathConstants.STRING));
+			return canEdit(id);
+		} catch (XPathExpressionException e) {
+			//TODO - hummm.. I guess I return false?
+			return false;
+		}
 	}
 	
 	public boolean canEdit(int id)

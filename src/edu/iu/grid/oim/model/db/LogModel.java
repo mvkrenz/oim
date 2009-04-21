@@ -1,5 +1,7 @@
 package edu.iu.grid.oim.model.db;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -7,7 +9,17 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathFactory;
+
 import org.apache.log4j.Logger;
+import org.w3c.dom.Document;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.model.db.record.LogRecord;
 
@@ -19,7 +31,7 @@ public class LogModel extends ModelBase {
     
     public LogModel(Authorization _auth) 
     {
-    	auth = _auth;
+    	super(_auth);
     }
     
     LogRecord createRecord(ResultSet rs) throws SQLException
@@ -29,18 +41,19 @@ public class LogModel extends ModelBase {
     
     public Collection<LogRecord> getLatest(String model) throws SQLException
     {
-    	ArrayList<LogRecord> recs = new ArrayList<LogRecord>();
+    	//no auth check -- client needs to figure out if the log is accessible to the user or not
     	
+    	ArrayList<LogRecord> recs = new ArrayList<LogRecord>();
+
     	String sql = "SELECT * FROM log WHERE timestamp > curtime() - 86400 * 7 AND model LIKE ?";
 		PreparedStatement stmt = getConnection().prepareStatement(sql); 
 		stmt.setString(1, model);
 		ResultSet rs = stmt.executeQuery();
 		while(rs.next()) {
 			LogRecord rec = new LogRecord(rs);
-			if(rec.model.compareTo(model) == 0) {
-				recs.add(new LogRecord(rs));
-			}
+			recs.add(new LogRecord(rs));
 		}
+    	
 		return recs;
     }
     

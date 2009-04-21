@@ -1,11 +1,25 @@
 package com.webif.divex;
 
 import java.io.PrintWriter;
+import java.util.ArrayList;
 
 import org.apache.commons.lang.StringEscapeUtils;
 
 public class ButtonDE extends DivEx {
 	String title;
+	
+	private ArrayList<String> classes = new ArrayList<String>();
+	public void addClass(String _class) {
+		classes.add(_class);
+	}
+	protected void renderClass(PrintWriter out) {
+		out.write("class=\"");
+		for(String _class : classes) {
+			out.write(_class);
+			out.write(" ");
+		}
+		out.write("\"");
+	}
 	
 	static public enum Style { BUTTON, ALINK, IMAGE };
 	Style style = Style.BUTTON;
@@ -34,15 +48,21 @@ public class ButtonDE extends DivEx {
 		
 		switch(style) {
 		case BUTTON:
-			out.print("<input type='button' id='"+getNodeID()+"' onclick='"+js+"' value='&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"+
+			out.write("<input ");
+			renderClass(out);
+			out.write("type='button' id='"+getNodeID()+"' onclick='"+js+"' value='&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"+
 				StringEscapeUtils.escapeHtml(title)+"&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;' />");
 			break;
 		case ALINK:
-			out.print("<a href='#' id='"+getNodeID()+"' onclick='"+js+"'>"+
+			out.write("<a ");
+			renderClass(out);
+			out.write("href='#' id='"+getNodeID()+"' onclick='"+js+"'>"+
 				StringEscapeUtils.escapeHtml(title)+"</a>");
 			break;
 		case IMAGE:
-			out.print("<a href='#' id='"+getNodeID()+"' onclick='"+js+"'><img src='"+title+"' alt='button'/></a>");
+			out.write("<a ");
+			renderClass(out);
+			out.write("href='#' id='"+getNodeID()+"' onclick='"+js+"'><img src='"+title+"' alt='button'/></a>");
 			break;
 		}
 	}

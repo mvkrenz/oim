@@ -5,7 +5,13 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
+
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpressionException;
+
 import org.apache.log4j.Logger;
+import org.w3c.dom.Document;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
@@ -20,6 +26,12 @@ public class SiteModel extends SmallTableModelBase<SiteRecord> {
 	public SiteModel(Authorization _auth) {
 		super(_auth, "site");
 	}
+	
+	public String getName()
+	{
+		return "Site";
+	}
+	
 	SiteRecord createRecord(ResultSet rs) throws SQLException
 	{
 		return new SiteRecord(rs);

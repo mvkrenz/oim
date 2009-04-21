@@ -100,7 +100,8 @@ margin-bottom: 10px;
 }
 .vo_report_name_fqan
 {
-	background-color: #ccc;
+	background-color: #fff;
+	border: 1px solid #ccc;
 }
 
 div.contact

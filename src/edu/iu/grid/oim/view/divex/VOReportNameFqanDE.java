@@ -89,7 +89,7 @@ public class VOReportNameFqanDE extends FormElementDEBase {
 		}
 
 		public void render(PrintWriter out) {
-			out.write("<div id=\""+getNodeID()+"\" class=\"vo_report_name_fqan round indent\">");
+			out.write("<div id=\""+getNodeID()+"\" class=\"vo_report_name_fqan round\">");
 			
 			out.write("<span class=\"right\">");
 			remove_button.render(out);
@@ -122,8 +122,8 @@ public class VOReportNameFqanDE extends FormElementDEBase {
 			public void handleEvent(Event e) {
 				addVOReportNameFqan(new VOReportNameFqanRecord());
 			}
-			
 		});
+		//add_button.addClass("indent");
 	}
 
 	public ArrayList<VOReportNameFqanRecord> getVOReportNameFqanRecords()

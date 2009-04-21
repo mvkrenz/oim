@@ -6,14 +6,16 @@ import org.apache.commons.lang.StringEscapeUtils;
 
 //beware of XSS risk! don't use this to display non-html content
 //(if you do, make sure it's HTML escaped)
-public class HtmlView implements IView 
+public class CDataView implements IView 
 {
 	private String html;
-	public HtmlView(String _html) {
+	public CDataView(String _html) {
 		html = _html;
 	}
 	public void render(PrintWriter out) {
-		out.write(html);
+		out.write("<pre>");
+		out.write(StringEscapeUtils.escapeHtml(html));
+		out.write("</pre>");
 	}
 
 }
