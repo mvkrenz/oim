@@ -31,8 +31,8 @@ import edu.iu.grid.oim.model.db.record.VOContactRecord;
 import edu.iu.grid.oim.model.db.record.VOFieldOfScienceRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
 import edu.iu.grid.oim.model.db.record.VOVORecord;
-import edu.iu.grid.oim.view.divex.ResourceDowntimesDE;
-import edu.iu.grid.oim.view.divex.ResourceDowntimesDE.DowntimeEditor;
+import edu.iu.grid.oim.view.divex.form.ResourceDowntimeFormDE;
+import edu.iu.grid.oim.view.divex.form.ResourceDowntimeFormDE.DowntimeEditor;
 
 public class ResourceModel extends SmallTableModelBase<ResourceRecord> {
     static Logger log = Logger.getLogger(ResourceModel.class);  
@@ -121,9 +121,9 @@ public class ResourceModel extends SmallTableModelBase<ResourceRecord> {
 			ArrayList<String> resource_aliases,
 			ArrayList<ResourceContactRecord> contacts,
 			ResourceWLCGRecord wrec,
-			ArrayList<ResourceServiceRecord> resource_services,
-			ArrayList<ResourceDowntimesDE.DowntimeEditor> downtimes,
-			HashMap<DowntimeEditor, ArrayList<ResourceDowntimeServiceRecord>> downtime_services) throws Exception
+			ArrayList<ResourceServiceRecord> resource_services/*,
+			ArrayList<ResourceDowntimeFormDE.DowntimeEditor> downtimes,
+			HashMap<DowntimeEditor, ArrayList<ResourceDowntimeServiceRecord>> downtime_services*/) throws Exception
 	{
 		try {
 			
@@ -165,10 +165,10 @@ public class ResourceModel extends SmallTableModelBase<ResourceRecord> {
 				ResourceWLCGModel wmodel = new ResourceWLCGModel(auth);
 				wmodel.insert(wrec);
 			}
-			
+			/*
 			//process downtime schedule
 			ResourceDowntimeModel dmodel = new ResourceDowntimeModel(auth);
-			for(ResourceDowntimesDE.DowntimeEditor downtime_editor : downtimes) {
+			for(ResourceDowntimeFormDE.DowntimeEditor downtime_editor : downtimes) {
 				ResourceDowntimeRecord downtime = downtime_editor.getDowntimeRecord();
 				
 				downtime.resource_id = rec.id;
@@ -183,7 +183,7 @@ public class ResourceModel extends SmallTableModelBase<ResourceRecord> {
 					rdsmodel.insert(service);
 				}
 			}	
-			
+			*/
 			getConnection().commit();
 			getConnection().setAutoCommit(true);
 		} catch (SQLException e) {
@@ -201,9 +201,9 @@ public class ResourceModel extends SmallTableModelBase<ResourceRecord> {
 			ArrayList<String> resource_aliases,
 			ArrayList<ResourceContactRecord> contacts,
 			ResourceWLCGRecord wrec,
-			ArrayList<ResourceServiceRecord> resource_services,
-			ArrayList<ResourceDowntimesDE.DowntimeEditor> downtimes,
-			HashMap<DowntimeEditor, ArrayList<ResourceDowntimeServiceRecord>> downtime_services) throws Exception
+			ArrayList<ResourceServiceRecord> resource_services/*,
+			ArrayList<ResourceDowntimeFormDE.DowntimeEditor> downtimes,
+			HashMap<DowntimeEditor, ArrayList<ResourceDowntimeServiceRecord>> downtime_services*/) throws Exception
 	{
 		//Do insert / update to our DB
 		try {		
@@ -256,10 +256,10 @@ public class ResourceModel extends SmallTableModelBase<ResourceRecord> {
 				}
 			}
 			
-			
+			/*
 			//process downtime schedule
 			ResourceDowntimeModel dmodel = new ResourceDowntimeModel(auth);
-			for(ResourceDowntimesDE.DowntimeEditor downtime_editor : downtimes) {
+			for(ResourceDowntimeFormDE.DowntimeEditor downtime_editor : downtimes) {
 				ResourceDowntimeRecord downtime = downtime_editor.getDowntimeRecord();
 				ResourceDowntimeServiceModel rdsmodel = new ResourceDowntimeServiceModel(auth);
 				ArrayList<ResourceDowntimeServiceRecord> services = downtime_services.get(downtime_editor);
@@ -279,7 +279,8 @@ public class ResourceModel extends SmallTableModelBase<ResourceRecord> {
 				}
 				rdsmodel.update(rdsmodel.getByDowntimeID(downtime.id), services);			
 			
-			}	
+			}
+			*/
 			
 			getConnection().commit();
 			getConnection().setAutoCommit(true);

@@ -41,7 +41,6 @@ import edu.iu.grid.oim.model.db.record.ResourceWLCGRecord;
 import edu.iu.grid.oim.view.divex.ContactEditorDE;
 import edu.iu.grid.oim.view.divex.OIMHierarchySelector;
 import edu.iu.grid.oim.view.divex.ResourceAliasDE;
-import edu.iu.grid.oim.view.divex.ResourceDowntimesDE;
 import edu.iu.grid.oim.view.divex.ResourceServicesDE;
 
 public class ResourceFormDE extends FormDE 
@@ -60,7 +59,7 @@ public class ResourceFormDE extends FormDE
 	private CheckBoxFormElementDE disable;
 	private OIMHierarchySelector resource_group_id;
 	private ResourceAliasDE aliases;
-	private ResourceDowntimesDE downtimes;
+	//private ResourceDowntimeFormDE downtimes;
 	private ResourceServicesDE resource_services;
 	
 	private CheckBoxFormElementDE wlcg;
@@ -161,15 +160,16 @@ public class ResourceFormDE extends FormDE
 				resource_services.addService(rarec);
 			}
 		}
-
+		/*
 		new StaticDE(this, "<h2>Future Downtime Schedule</h2>");
-		downtimes = new ResourceDowntimesDE(this, auth, id, resource_services);
+		downtimes = new ResourceDowntimeFormDE(this, auth, id, resource_services);
 		ResourceDowntimeModel dmodel = new ResourceDowntimeModel(auth);
 		if(id != null) {
 			for(ResourceDowntimeRecord drec : dmodel.getFutureDowntimesByResourceID(rec.id)) {
 				downtimes.addDowntime(drec);
 			}
 		}
+		*/
 		
 		new StaticDE(this, "<h2>Contact Information</h2>");
 		HashMap<Integer/*contact_type_id*/, ArrayList<ResourceContactRecord>> voclist_grouped = null;
@@ -366,17 +366,17 @@ public class ResourceFormDE extends FormDE
 						aliases.getAliases(), 
 						getContactRecordsFromEditor(), 
 						wrec,
-						resource_services.getResourceServiceRecords(),
+						resource_services.getResourceServiceRecords()/*,
 						downtimes.getDowntimeEditors(),
-						downtimes.getAffectedServiceRecords());
+						downtimes.getAffectedServiceRecords()*/);
 			} else {
 				model.updateDetail(rec, 
 						aliases.getAliases(), 
 						getContactRecordsFromEditor(),
 						wrec,
-						resource_services.getResourceServiceRecords(),
+						resource_services.getResourceServiceRecords()/*,
 						downtimes.getDowntimeEditors(),
-						downtimes.getAffectedServiceRecords());
+						downtimes.getAffectedServiceRecords()*/);
 			}
 		} catch (Exception e) {
 			alert(e.getMessage());

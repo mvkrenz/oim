@@ -140,6 +140,7 @@ public class ResourceServlet extends ServletBase implements Servlet {
 			}
 			table.addRow("Services", services_view);
 			
+			/*
 			//downtime
 			GenericView downtime_view = new GenericView();
 			ResourceDowntimeModel dmodel = new ResourceDowntimeModel(auth);
@@ -147,7 +148,8 @@ public class ResourceServlet extends ServletBase implements Servlet {
 				downtime_view.add(createDowntimeView(root, drec));
 			}
 			table.addRow("Future Downtime Schedule", downtime_view);
-
+			*/
+			
 			//contacts (only shows contacts that are filled out)
 			ContactTypeModel ctmodel = new ContactTypeModel(auth);
 			ContactRankModel crmodel = new ContactRankModel(auth);
@@ -245,7 +247,7 @@ public class ResourceServlet extends ServletBase implements Servlet {
 		
 		return view;
 	}
-	
+	/*
 	private IView createDowntimeView(final DivExRoot root, ResourceDowntimeRecord rec) throws SQLException
 	{
 		GenericView view = new GenericView();
@@ -272,7 +274,7 @@ public class ResourceServlet extends ServletBase implements Servlet {
 		
 		return view;
 	}
-	
+	*/
 	private IView createAffectedServices(int downtime_id) throws SQLException
 	{
 		String html = "";

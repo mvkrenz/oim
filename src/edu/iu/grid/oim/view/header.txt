@@ -29,4 +29,4 @@
         <h1><a href="">OSG Information Management System (OIM)</a></h1>
         <h2>by Grid Operations Center</h2>
     </div>
-
+    

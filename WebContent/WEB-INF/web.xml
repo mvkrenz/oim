@@ -115,6 +115,28 @@
 		<servlet-class>
 		edu.iu.grid.oim.servlet.ResourceEditServlet</servlet-class>
 	</servlet>
+	
+
+	<servlet>
+		<description>
+		</description>
+		<display-name>
+		ResourceDowntimeServlet</display-name>
+		<servlet-name>ResourceDowntimeServlet</servlet-name>
+		<servlet-class>
+		edu.iu.grid.oim.servlet.ResourceDowntimeServlet</servlet-class>
+	</servlet>
+	<servlet>
+		<description>
+		</description>
+		<display-name>
+		ResourceDowntimeEditServlet</display-name>
+		<servlet-name>ResourceDowntimeEditServlet</servlet-name>
+		<servlet-class>
+		edu.iu.grid.oim.servlet.ResourceDowntimeEditServlet</servlet-class>
+	</servlet>	
+
+	
 	<servlet>
 		<description>
 		</description>
@@ -384,10 +406,25 @@
 		<servlet-name>SiteEditServlet</servlet-name>
 		<url-pattern>/siteedit</url-pattern>
 	</servlet-mapping>
+	
+	<servlet-mapping>
+		<servlet-name>ResourceServlet</servlet-name>
+		<url-pattern>/resource</url-pattern>
+	</servlet-mapping>
 	<servlet-mapping>
 		<servlet-name>ResourceEditServlet</servlet-name>
 		<url-pattern>/resourceedit</url-pattern>
 	</servlet-mapping>
+	
+	<servlet-mapping>
+		<servlet-name>ResourceDowntimeServlet</servlet-name>
+		<url-pattern>/resourcedowntime</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>ResourceDowntimeEditServlet</servlet-name>
+		<url-pattern>/resourcedowntimeedit</url-pattern>
+	</servlet-mapping>
+	
 	<servlet-mapping>
 		<servlet-name>SCServlet</servlet-name>
 		<url-pattern>/sc</url-pattern>

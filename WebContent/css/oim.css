@@ -1,3 +1,11 @@
+.divex_processing
+{
+	color: gray;
+	text-decoration: none;
+	cursor:progress;
+}
+
+
 a img
 {
 border: none;
@@ -184,13 +192,6 @@ background-color: #ccc;
 float:right;
 text-align:right;
 }
-.disabled
-{
-	color: gray;
-	text-decoration: none;
-	cursor:progress;
-}
-
 .indent
 {
 margin-left: 16px;
@@ -231,3 +232,4 @@ div[onclick]
 {
 cursor:pointer;
 }
+

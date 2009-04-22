@@ -1,6 +1,16 @@
 
+var divex_processing = false;
+function divexClearProcessing() {
+	divex_processing = false;
+	$(".divex_processing").removeClass("divex_processing");
+}
 
 function divex(id, event, value) {
+	if(divex_processing == true) {
+		return;
+	}
+	divex_processing = true;
+	
 	//stop bubble
 	if(!event) var event = window.event;//IE
 	if(event) {
@@ -20,12 +30,14 @@ function divex(id, event, value) {
 		type: "POST",
 		dataType: "script",//Evaluates the response as JavaScript and returns it as plain text. Disables caching unless option "cache" is used. Note: This will turn POSTs into GETs for remote-domain requests. 
 	   success: function(msg){
-	   },
+				   divexClearProcessing();
+		},
 	   error: function (XMLHttpRequest, textStatus, errorThrown) {
 		   // typically only one of textStatus or errorThrown 
 		   // will have info
 		   alert(textStatus.errorThrown);
 		   this; // the options for this ajax request
+		   divexClearProcessing();
 	   }
 	});
 }

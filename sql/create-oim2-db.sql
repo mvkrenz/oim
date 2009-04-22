@@ -492,22 +492,16 @@ CREATE TABLE `resource_downtime` (
 ) ENGINE=InnoDB AUTO_INCREMENT=1000136 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 SET character_set_client = @saved_cs_client;
 
---
--- Table structure for table `resource_downtime_service`
---
 
 DROP TABLE IF EXISTS `resource_downtime_service`;
-SET @saved_cs_client     = @@character_set_client;
-SET character_set_client = utf8;
-CREATE TABLE `resource_downtime_service` (
+CREATE TABLE  `resource_downtime_service` (
   `resource_downtime_id` int(11) NOT NULL,
   `service_id` int(11) NOT NULL,
   PRIMARY KEY  (`resource_downtime_id`,`service_id`),
   KEY `service_resource_downtime_service` (`service_id`),
-  CONSTRAINT `resource_downtime_resource_downtime_service` FOREIGN KEY (`resource_downtime_id`) REFERENCES `resource_downtime` (`id`),
+  CONSTRAINT `resource_downtime_resource_downtime_service` FOREIGN KEY (`resource_downtime_id`) REFERENCES `resource_downtime` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `service_resource_downtime_service` FOREIGN KEY (`service_id`) REFERENCES `service` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
-SET character_set_client = @saved_cs_client;
 
 --
 -- Table structure for table `resource_group`

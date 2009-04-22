@@ -27,11 +27,10 @@ public class LogModel extends ModelBase {
     static Logger log = Logger.getLogger(LogModel.class);  
     
 	//public enum Type {ALL, RESOURCE, VO, SC, CONTACT, SITE, FACILITY};
-    private Authorization auth;
     
     public LogModel(Authorization _auth) 
     {
-    	super(_auth);
+    	super(_auth, "log");
     }
     
     LogRecord createRecord(ResultSet rs) throws SQLException

@@ -27,15 +27,12 @@ public abstract class SmallTableModelBase<T extends RecordBase> extends ModelBas
     static Logger log = Logger.getLogger(SmallTableModelBase.class);  
 	private static HashMap<String, TreeSet<RecordBase>> cache = new HashMap();
 	abstract T createRecord(ResultSet rs) throws SQLException;
-
-    protected String table_name;
     
     static private String NonPublicInformation = "(Non-public information)";
     
     public SmallTableModelBase(Authorization _auth, String _table_name) 
     {
-    	super(_auth);
-    	table_name = _table_name;
+    	super(_auth, _table_name);
     }    
     
 	protected class KeyComparator implements Comparator<RecordBase>

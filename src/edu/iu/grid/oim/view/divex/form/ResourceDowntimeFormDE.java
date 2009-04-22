@@ -1,4 +1,4 @@
-package edu.iu.grid.oim.view.divex;
+package edu.iu.grid.oim.view.divex.form;
 
 import java.io.PrintWriter;
 import java.sql.SQLException;
@@ -12,6 +12,8 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 
+import javax.servlet.ServletException;
+
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 
@@ -21,33 +23,39 @@ import com.webif.divex.Event;
 import com.webif.divex.EventListener;
 import com.webif.divex.StaticDE;
 import com.webif.divex.form.CheckBoxFormElementDE;
+import com.webif.divex.form.FormDE;
 import com.webif.divex.form.FormElementDEBase;
 import com.webif.divex.form.SelectFormElementDE;
 import com.webif.divex.form.TextAreaFormElementDE;
 import com.webif.divex.form.TextFormElementDE;
 
 import edu.iu.grid.oim.lib.Authorization;
+import edu.iu.grid.oim.model.ResourceDowntime;
 import edu.iu.grid.oim.model.db.DowntimeClassModel;
 import edu.iu.grid.oim.model.db.DowntimeSeverityModel;
+import edu.iu.grid.oim.model.db.ResourceDowntimeModel;
 import edu.iu.grid.oim.model.db.ResourceDowntimeServiceModel;
+import edu.iu.grid.oim.model.db.ResourceModel;
 import edu.iu.grid.oim.model.db.ResourceServiceModel;
 import edu.iu.grid.oim.model.db.ServiceModel;
 import edu.iu.grid.oim.model.db.record.DowntimeClassRecord;
 import edu.iu.grid.oim.model.db.record.DowntimeSeverityRecord;
 import edu.iu.grid.oim.model.db.record.ResourceDowntimeRecord;
 import edu.iu.grid.oim.model.db.record.ResourceDowntimeServiceRecord;
+import edu.iu.grid.oim.model.db.record.ResourceRecord;
 import edu.iu.grid.oim.model.db.record.ResourceServiceRecord;
+import edu.iu.grid.oim.model.db.record.ResourceWLCGRecord;
 import edu.iu.grid.oim.model.db.record.ServiceRecord;
-import edu.iu.grid.oim.view.divex.ResourceServicesDE.ServiceEditor;
-import edu.iu.grid.oim.view.divex.form.ResourceFormDE;
+import edu.iu.grid.oim.view.divex.ResourceServicesDE;
 
-public class ResourceDowntimesDE extends FormElementDEBase {
-    static Logger log = Logger.getLogger(ResourceDowntimesDE.class); 
+public class ResourceDowntimeFormDE extends FormDE {
+    static Logger log = Logger.getLogger(ResourceDowntimeFormDE.class); 
     
 	//ArrayList<DowntimeEditor> downtimes = new ArrayList<DowntimeEditor>();
 	private ButtonDE add_button;
 	private ArrayList<ResourceDowntimeRecord> downtime_recs;
 	private Authorization auth;
+	private int resource_id;
 	
 	private ResourceServicesDE resource_services_de;
 	
@@ -67,9 +75,8 @@ public class ResourceDowntimesDE extends FormElementDEBase {
 		private SelectFormElementDE class_id;
 		private SelectFormElementDE severity_id;
 		private CheckBoxFormElementDE disable;
-		
-		//why don't I just use DivEx's childnodes list? because I need to map ServiceEditor back to affected service checkbox
-		private HashMap<ServiceEditor, CheckBoxFormElementDE> affected_services;
+			
+		private HashMap<Integer/*service_id*/, CheckBoxFormElementDE> affected_services = new HashMap();
 		
 		private ButtonDE remove_button;
 		private DowntimeEditor myself;
@@ -264,10 +271,13 @@ public class ResourceDowntimesDE extends FormElementDEBase {
 			}
 			
 			new StaticDE(this, "<h3>Affected Services</h3>");
-			affected_services = new HashMap<ServiceEditor, CheckBoxFormElementDE>();
-			ArrayList<ServiceEditor> ses = resource_services_de.getServiceEditors();
-			for(ServiceEditor se : ses) {
-				addService(se);
+			//affected_services = new HashMap<ServiceEditor, CheckBoxFormElementDE>();
+			//ArrayList<ServiceEditor> ses = resource_services_de.getServiceEditors();
+			//for(ServiceEditor se : ses) {
+			ResourceServiceModel rsmodel = new ResourceServiceModel(auth);
+			Collection<ResourceServiceRecord> rsrecs = rsmodel.getAllByResourceID(rec.resource_id);
+			for(ResourceServiceRecord rsrec : rsrecs) {
+				addService(rsrec.service_id);
 			}
 			
 			remove_button = new ButtonDE(this, "images/delete.png");
@@ -281,9 +291,8 @@ public class ResourceDowntimesDE extends FormElementDEBase {
 			
 		}
 		
-		public void addService(ServiceEditor se)
+		public void addService(Integer service_id)
 		{
-			Integer service_id = se.getService();
 			
 			final ServiceModel servicemodel = new ServiceModel(auth);
 			ResourceDowntimeServiceModel rdsmodel = new ResourceDowntimeServiceModel(auth);
@@ -296,40 +305,22 @@ public class ResourceDowntimesDE extends FormElementDEBase {
 				} else {
 					elem.setLabel("(Service Name Not Yet Selected)");
 				}
+				affected_services.put(service_id, elem);
 				ResourceDowntimeServiceRecord keyrec = new ResourceDowntimeServiceRecord();
 				keyrec.resource_downtime_id = downtime_id;
 				keyrec.service_id = service_id;
 				if(rdsmodel.get(keyrec) != null) {
 					elem.setValue(true);
 				}
-				affected_services.put(se, elem);
 				redraw();
-				
-				//listen for service name change
-				se.addServiceEventListener(new EventListener(){
-					public void handleEvent(Event e) {
-						//change the label
-						try {
-							Integer new_service_id = Integer.parseInt((String)e.value);
-							ServiceRecord rec = servicemodel.get(new_service_id);
-							elem.setLabel(rec.name);
-							redraw();
-						} catch (Exception e1) {
-							elem.setLabel("(Service Name Not Yet Selected)");
-							redraw();
-						}
-					}
-				});
 			} catch(SQLException e) {
 				log.error(e);
 			}
-			
-
 		}
-		public void removeService(ServiceEditor se)
+		public void removeService(Integer service_id)
 		{
-			CheckBoxFormElementDE check = affected_services.get(se);
-			affected_services.remove(se);
+			CheckBoxFormElementDE check = affected_services.get(service_id);
+			affected_services.remove(service_id);
 			remove(check);
 			redraw();
 		}
@@ -367,6 +358,7 @@ public class ResourceDowntimesDE extends FormElementDEBase {
 			ResourceDowntimeRecord rec = new ResourceDowntimeRecord();
 
 			rec.id = downtime_id;
+			rec.resource_id = resource_id;
 			rec.downtime_summary = summary.getValue();
 			
 			Calendar cal = Calendar.getInstance();
@@ -391,140 +383,94 @@ public class ResourceDowntimesDE extends FormElementDEBase {
 		public ArrayList<ResourceDowntimeServiceRecord> getAffectedServiceRecords()
 		{
 			ArrayList<ResourceDowntimeServiceRecord> list = new ArrayList();
-			for(ServiceEditor se : affected_services.keySet()) {
-				CheckBoxFormElementDE checkbox = affected_services.get(se);
+			for(Integer service_id : affected_services.keySet()) {
+				CheckBoxFormElementDE checkbox = affected_services.get(service_id);
 				if(checkbox.getValue()) {
 					ResourceDowntimeServiceRecord rec = new ResourceDowntimeServiceRecord();
 					rec.resource_downtime_id = downtime_id;
-					rec.service_id = se.getService();
+					rec.service_id = service_id;
 					list.add(rec);
 				}	
 			}
 			
 			return list;
 		}
-	}
-	/*
-	public void addService(Integer service_id) throws SQLException
-	{
-		for(DowntimeEditor downtime : downtimes) {
-			downtime.addService(service_id);
+		
+		public ResourceDowntime getResourceDowntime()
+		{
+			ResourceDowntime downtime = new ResourceDowntime();
+			downtime.downtime = getDowntimeRecord();
+			downtime.services = getAffectedServiceRecords();
+			return downtime;
 		}
 	}
-	
-	public void removeService(Integer service_id) throws SQLException
-	{
-		for(DowntimeEditor downtime : downtimes) {
-			downtime.removeService(service_id);
-		}	
-	}
-	*/
+
 	public void removeDowntime(DowntimeEditor downtime)
 	{
 		remove(downtime);
 		redraw();
 	}
 	
-	public void addDowntime(ResourceDowntimeRecord rec) throws SQLException { 
+	public DowntimeEditor addDowntime(ResourceDowntimeRecord rec) throws SQLException { 
 		DowntimeEditor elem = new DowntimeEditor(this, rec, auth);
 		redraw();
-	}
-	/*
-	public void validate()
-	{
-		//validate all downtimes
-		redraw();
-		valid = true;
-		for(DowntimeEditor downtime : downtimes) {
-			if(!downtime.isValid()) {
-				valid = false;
-			}
-		}
-	}
-	*/
-	public ResourceDowntimesDE(DivEx parent, Authorization _auth, final Integer resource_id, ResourceServicesDE _resource_services_de) {
-		super(parent);
-		auth = _auth;
-		resource_services_de = _resource_services_de;
-		resource_services_de.addEventListener(new EventListener(){
-			public void handleEvent(Event e) {
-				ServiceEditor se = (ServiceEditor)e.value;
-				if(e.action.compareTo("remove") == 0) {
-					for(DivEx node : childnodes) {
-						if(node instanceof DowntimeEditor) {
-							DowntimeEditor downtime = (DowntimeEditor)node;
-							downtime.removeService(se);
-						}
-					}
-				} else if(e.action.compareTo("add") == 0) {
-					for(DivEx node : childnodes) {
-						if(node instanceof DowntimeEditor) {
-							DowntimeEditor downtime = (DowntimeEditor)node;
-							downtime.addService(se);
-						}
-					}	
-				}
-			}
-		});
-		
-		add_button = new ButtonDE(this, "Add New Downtime");
-		add_button.setStyle(ButtonDE.Style.ALINK);
-		add_button.addEventListener(new EventListener() {
-			public void handleEvent(Event e) {
-				try {
-					ResourceDowntimeRecord rec = new ResourceDowntimeRecord();
-					rec.resource_id = resource_id;
-					addDowntime(rec);
-				} catch (SQLException e1) {
-					log.error(e1);
-				}
-			}
-		});
+		return elem;
 	}
 
-	public ArrayList<DowntimeEditor> getDowntimeEditors()
+	public ResourceDowntimeFormDE(DivEx parent, Authorization _auth, String _origin_url, final Integer _resource_id) throws SQLException {
+		super(parent, _origin_url);
+		auth = _auth;
+		resource_id = _resource_id;
+		
+		ResourceDowntimeModel dmodel = new ResourceDowntimeModel(auth);	
+		for(ResourceDowntimeRecord drec : dmodel.getFutureDowntimesByResourceID(resource_id)) {
+			addDowntime(drec);
+		}
+	}
+
+	public ArrayList<ResourceDowntime> getResourceDowntimes()
 	{
-		ArrayList<DowntimeEditor> downtimes = new ArrayList<DowntimeEditor>();
+		ArrayList<ResourceDowntime> downtimes = new ArrayList<ResourceDowntime>();
 		for(DivEx node : childnodes) {
 			if(node instanceof DowntimeEditor) {
-				downtimes.add((DowntimeEditor)node);
+				DowntimeEditor downtime = (DowntimeEditor)node;
+				downtimes.add(downtime.getResourceDowntime());
 			}
 		}
 		return downtimes;
 	}
 	
+	/*
 	//if new downtime is created, we don't have a way to match it back to the specific downtime (since downtime_id isn't set yet)
 	//so this returns a hashmap with downtime editor associated with it as a key
-	public HashMap<DowntimeEditor, ArrayList<ResourceDowntimeServiceRecord>> getAffectedServiceRecords()
+	public HashMap<Integer, ArrayList<ResourceDowntimeServiceRecord>> getAffectedServiceRecords()
 	{
-		HashMap<DowntimeEditor, ArrayList<ResourceDowntimeServiceRecord>> downtime_recs = 
-			new HashMap<DowntimeEditor, ArrayList<ResourceDowntimeServiceRecord>>();
+		HashMap<Integer, ArrayList<ResourceDowntimeServiceRecord>> downtime_recs = 
+			new HashMap<Integer, ArrayList<ResourceDowntimeServiceRecord>>();
 		for(DivEx node : childnodes) {
 			if(node instanceof DowntimeEditor) {
 				DowntimeEditor downtime = (DowntimeEditor)node;
 				ArrayList<ResourceDowntimeServiceRecord> a_downtime_recs = downtime.getAffectedServiceRecords();
-				downtime_recs.put(downtime, downtime.getAffectedServiceRecords());
+				downtime_recs.put(downtime.downtime_id, downtime.getAffectedServiceRecords());
 			}
 		}
 		return downtime_recs;		
 	}
-
+	*/
 	protected void onEvent(Event e) {
 		// TODO Auto-generated method stub
 
 	}
-	public void render(PrintWriter out) {
-		out.print("<div id=\""+getNodeID()+"\">");
-		
-		for(DivEx node : childnodes) {
-			if(node instanceof DowntimeEditor) {
-				DowntimeEditor downtime = (DowntimeEditor)node;
-				downtime.render(out);
-			}
+
+	protected Boolean doSubmit() {		
+		ResourceDowntimeModel model = new ResourceDowntimeModel(auth);
+		try {
+			model.updateDetail(resource_id, getResourceDowntimes());
+		} catch (Exception e) {
+			alert(e.getMessage());
+			return false;
 		}
-		add_button.render(out);
-		
-		out.print("</div>");
+		return true;
 	}
 
 }

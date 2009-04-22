@@ -66,7 +66,6 @@ public abstract class DivEx {
 			js += "targetOffset -= $('"+container+"').offset().top;";
 			js += "$('"+container+"').scrollTop(targetOffset);";
 		}
-		
 	}
 
 	private ArrayList<EventListener> event_listeners = new ArrayList<EventListener>();
@@ -139,6 +138,12 @@ public abstract class DivEx {
 			PrintWriter writer = response.getWriter();
 			response.setContentType("text/html");
 			render(writer);
+			
+			//additionally, output any javascript
+			writer.write("<script type=\"text/javascript\">");
+			writer.print(root.outputUpdatecode());
+			writer.write("</script>");
+			
 		} else if(action.compareTo("request") == 0) {
 			//it could be any content type - let handler decide
 			this.onRequest(request, response);
@@ -180,7 +185,7 @@ public abstract class DivEx {
 	public void redraw() {
 		needupdate = true;
 	}
-	
+	/*
 	public static String encodeHTML(String s)
 	{
 	    StringBuffer out = new StringBuffer();
@@ -198,4 +203,5 @@ public abstract class DivEx {
 	    }
 	    return out.toString();
 	}
+	*/
 }

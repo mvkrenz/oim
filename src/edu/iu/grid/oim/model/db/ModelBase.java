@@ -1,7 +1,9 @@
 package edu.iu.grid.oim.model.db;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.Comparator;
 
 import javax.naming.Context;
@@ -22,10 +24,12 @@ public class ModelBase {
 	private static Connection connection;
     
 	protected Authorization auth;
+    protected String table_name;
     
-	protected ModelBase(Authorization _auth)
+	protected ModelBase(Authorization _auth, String _table_name)
 	{
     	auth = _auth;
+    	table_name = _table_name;
 	}
 	public ModelBase()
 	{
@@ -65,4 +69,21 @@ public class ModelBase {
 	{
 		return false;
 	}
+	/*
+	//I get following warning when I try to run DISABLE KEYS command
+	//"Table storage engine for 'resource_downtime_service' doesn't have this option"
+	//disableKey and enableKey allows dropping records from both parent / foreign table
+	public void disableKey() throws SQLException
+	{
+		String sql = "ALTER TABLE "+table_name+" DISABLE KEYS";
+		PreparedStatement stmt = getConnection().prepareStatement(sql);
+		stmt.execute();
+	}
+	public void enableKey() throws SQLException
+	{
+		String sql = "ALTER TABLE "+table_name+" ENABLE KEYS";
+		PreparedStatement stmt = getConnection().prepareStatement(sql);
+		stmt.execute();
+	}
+	*/
 }
