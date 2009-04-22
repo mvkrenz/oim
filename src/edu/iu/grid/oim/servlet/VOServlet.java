@@ -220,7 +220,7 @@ public class VOServlet extends ServletBase implements Servlet {
 			
 			//reporting contacts 
 			VOReportContactModel vorc_model = new VOReportContactModel(auth);
-			ArrayList<VOReportContactRecord> vorc_list = vorc_model.getByVOReportNameID(record.id);
+			Collection<VOReportContactRecord> vorc_list = vorc_model.getAllByVOReportNameID(record.id);
 			String cliststr = "";
 			for(VOReportContactRecord vrc_record : vorc_list) {
 				ContactRecord person = pmodel.get(vrc_record.contact_id);
@@ -244,7 +244,7 @@ public class VOServlet extends ServletBase implements Servlet {
 	{
 		String html = "";
 		VOReportNameFqanModel vorepnamefqan_model = new VOReportNameFqanModel(auth);
-		ArrayList<VOReportNameFqanRecord> records = vorepnamefqan_model.getAllByVOReportNameID(vo_report_name_id);
+		Collection<VOReportNameFqanRecord> records = vorepnamefqan_model.getAllByVOReportNameID(vo_report_name_id);
 		// I don't like spitting out non-CSS HTML here .. leaving it for now. -agopu
 		html = "<table width='100%'>\n\t<tr>\n\t\t<th>Group Name</th> <th>Optional Role</th>\n\t</tr>\n";
 		for(VOReportNameFqanRecord record : records) {

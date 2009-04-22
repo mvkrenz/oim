@@ -25,7 +25,7 @@ import com.webif.divex.form.validator.UrlValidator;
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
 
-import edu.iu.grid.oim.model.VOReportConsolidator;
+import edu.iu.grid.oim.model.VOReport;
 
 import edu.iu.grid.oim.model.db.ContactRankModel;
 import edu.iu.grid.oim.model.db.ContactTypeModel;
@@ -84,7 +84,7 @@ public class VOFormDE extends FormDE
 	private HashMap<Integer, CheckBoxFormElementDE> field_of_science;
 	private SelectFormElementDE parent_vo;
 	
-	private VOReportConsolidator vorep_consolidator;
+	private VOReport vorep_consolidator;
 	private VOReportNamesDE vo_report_name_div;
 	
 	//contact types to edit
@@ -282,8 +282,8 @@ public class VOFormDE extends FormDE
 			for(VOReportNameRecord vorepname_rec : vorepname_model.getAllByVOID(id)) {
 				
 				VOReportContactModel vorcmodel = new VOReportContactModel(auth);
-				ArrayList<VOReportContactRecord> vorc_list = vorcmodel.getByVOReportNameID(vorepname_rec.id);
-				ArrayList<VOReportNameFqanRecord> vorepnamefqan_list = vorepnamefqan_model.getAllByVOReportNameID(vorepname_rec.id);
+				Collection<VOReportContactRecord> vorc_list = vorcmodel.getAllByVOReportNameID(vorepname_rec.id);
+				Collection<VOReportNameFqanRecord> vorepnamefqan_list = vorepnamefqan_model.getAllByVOReportNameID(vorepname_rec.id);
 				vo_report_name_div.addVOReportName(vorepname_rec,
 							vorepnamefqan_list, vorc_list);
 			}
@@ -448,17 +448,13 @@ public class VOFormDE extends FormDE
 						contacts, 
 						parent_vo.getValue(), 
 						field_of_science_ids,
-						vo_report_name_div.getConsolidatedVOReportName());
-//						vo_report_name_div.getVOReportNameFqanRecords(),
-//						vo_report_name_div.getVOReportContactRecords());
+						vo_report_name_div.getVOReports());
 			} else {
 				model.updateDetail(rec, 
 						contacts, 
 						parent_vo.getValue(), 
 						field_of_science_ids,
-						vo_report_name_div.getConsolidatedVOReportName());
-//				vo_report_name_div.getVOReportNameFqanRecords(),
-//				vo_report_name_div.getVOReportContactRecords());
+						vo_report_name_div.getVOReports());
 			}
 		} catch (Exception e) {
 			alert(e.getMessage());

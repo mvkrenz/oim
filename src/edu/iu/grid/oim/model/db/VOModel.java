@@ -19,8 +19,9 @@ import com.webif.divex.form.CheckBoxFormElementDE;
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
 
-import edu.iu.grid.oim.model.VOReportConsolidator;
+import edu.iu.grid.oim.model.VOReport;
 
+import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.RecordBase;
 import edu.iu.grid.oim.model.db.record.ResourceAliasRecord;
 import edu.iu.grid.oim.model.db.record.ResourceServiceRecord;
@@ -107,11 +108,7 @@ public class VOModel extends SmallTableModelBase<VORecord>
 			ArrayList<VOContactRecord> contacts, 
 			Integer parent_vo_id, 
 			ArrayList<Integer> field_of_science,
-			ArrayList<VOReportConsolidator> report_consolidated_records) throws Exception
-//			ArrayList<VOReportNameRecord> report_name_records,
-//			ArrayList<VOReportNameFqanRecord> fqan_records,
-//			ArrayList<VOReportContactRecord> report_contact_records) throws Exception
-
+			ArrayList<VOReport> report_consolidated_records) throws Exception
 	{
 		try {			
 			//process detail information
@@ -166,25 +163,29 @@ public class VOModel extends SmallTableModelBase<VORecord>
 			VOReportNameFqanModel vorepnamefqan_model = new VOReportNameFqanModel(auth);
 			VOReportContactModel vorepcontact_model = new VOReportContactModel(auth);
 
-			for (VOReportConsolidator consolidated_record : report_consolidated_records) {
+			for (VOReport consolidated_record : report_consolidated_records) {
 				VOReportNameRecord vorepname_record = consolidated_record.name; 
 				vorepname_record.vo_id = rec.id; 
 
 				// report names themselves
 				vorepname_model.insert(vorepname_record);		
 
+				//insert fqan
 				ArrayList <VOReportNameFqanRecord> fqan_records = consolidated_record.fqans; 
 				for (VOReportNameFqanRecord fqan_record : fqan_records ) {
 					fqan_record.vo_report_name_id = vorepname_record.id;
 				}
 				vorepnamefqan_model.insert(fqan_records);
 
-				ArrayList <VOReportContactRecord> contact_records = consolidated_record.vorep_contacts; 
-				for (VOReportContactRecord contact_record : contact_records ) {
-					contact_record.vo_report_name_id = vorepname_record.id;
+				//insert contacts
+				for (ContactRecord crec : consolidated_record.contacts) {
+					VOReportContactRecord vocrec = new VOReportContactRecord();
+					vocrec.contact_id = crec.id;
+					vocrec.contact_rank_id = 1;
+					vocrec.contact_type_id = 10;//TODO - watch it
+					vocrec.vo_report_name_id = vorepname_record.id;
+					vorepcontact_model.insert(vocrec);
 				}
-				vorepcontact_model.insert(contact_records);
-
 			}
 			
 			getConnection().commit();
@@ -204,10 +205,7 @@ public class VOModel extends SmallTableModelBase<VORecord>
 			ArrayList<VOContactRecord> contacts, 
 			Integer parent_vo_id, 
 			ArrayList<Integer> field_of_science, 
-			ArrayList<VOReportConsolidator> report_consolidated_records) throws Exception
-//			ArrayList<VOReportNameRecord> report_name_records,
-//			ArrayList<VOReportNameFqanRecord> fqan_records,
-//			ArrayList<VOReportContactRecord> report_contact_records) throws Exception
+			ArrayList<VOReport> report_consolidated_records) throws Exception
 	{
 		//Do insert / update to our DB
 		try {
@@ -223,7 +221,8 @@ public class VOModel extends SmallTableModelBase<VORecord>
 			for(VOContactRecord vcrec : contacts) {
 				vcrec.vo_id = rec.id;
 			}
-			cmodel.update(cmodel.getByVOID(rec.id), contacts);
+			Collection<VOContactRecord> old_vo_contacts = cmodel.getByVOID(rec.id);
+			cmodel.update(old_vo_contacts, contacts);
 			
 			//process parent_vo
 			VOVOModel vvmodel = new VOVOModel(auth);
@@ -263,34 +262,45 @@ public class VOModel extends SmallTableModelBase<VORecord>
 			VOReportNameModel vorepname_model = new VOReportNameModel(auth);
 			VOReportNameFqanModel vorepnamefqan_model = new VOReportNameFqanModel(auth);
 			VOReportContactModel vorepcontact_model = new VOReportContactModel(auth);
-			ArrayList<VOReportNameRecord> vorepname_records = new ArrayList<VOReportNameRecord> ();
 
-			for (VOReportConsolidator consolidated_record : report_consolidated_records) {
-				ArrayList<VOReportNameFqanRecord> old_fqan_records = new ArrayList<VOReportNameFqanRecord> ();
-				ArrayList<VOReportContactRecord> old_contact_records = new ArrayList<VOReportContactRecord> ();
+			for (VOReport consolidated_record : report_consolidated_records) {
+				VOReportNameRecord vorepname_record = consolidated_record.name; 
+				vorepname_record.vo_id = rec.id; 
+
+				//report names themselves
+				if (vorepname_record.id == null) { 
+					vorepname_model.insert(vorepname_record);		
+				}
+				else {
+					vorepname_model.update(vorepname_model.get(vorepname_record), vorepname_record);		
+				}
+				// Will update rest in separate for loop so the base keys are in place
+			}
+
+			for (VOReport consolidated_record : report_consolidated_records) {
 
 				VOReportNameRecord vorepname_record = consolidated_record.name; 
-				vorepname_record.vo_id = rec.id;
-				vorepname_records.add(vorepname_record);
-				old_fqan_records.addAll(vorepnamefqan_model.getAllByVOReportNameID(vorepname_record.id));
-				old_contact_records.addAll(vorepcontact_model.getByVOReportNameID(vorepname_record.id));
+				Integer report_id = vorepname_record.id;
 
-				// fqans
-				ArrayList <VOReportNameFqanRecord> fqan_records = consolidated_record.fqans; 
-				for (VOReportNameFqanRecord fqan_record : fqan_records ) {
-					fqan_record.vo_report_name_id = vorepname_record.id;
+				//update fqan
+				for (VOReportNameFqanRecord fqan_record : consolidated_record.fqans ) {
+				fqan_record.vo_report_name_id = report_id;
 				}
-				vorepnamefqan_model.update (old_fqan_records, fqan_records);
-		
-				// VO reporting contacts
-				ArrayList <VOReportContactRecord> contact_records = consolidated_record.vorep_contacts; 
-				for (VOReportContactRecord contact_record : contact_records ) {
-					contact_record.vo_report_name_id = vorepname_record.id;
+				vorepnamefqan_model.update(
+						vorepnamefqan_model.getAllByVOReportNameID(report_id), consolidated_record.fqans);
+	
+				//update contacts
+				ArrayList <VOReportContactRecord> vorcontacts = new ArrayList();
+				for (ContactRecord crec : consolidated_record.contacts) {
+					VOReportContactRecord vocrec = new VOReportContactRecord();
+					vocrec.contact_id = crec.id;
+					vocrec.contact_rank_id = 1;
+					vocrec.contact_type_id = 10;//TODO - watch it
+					vocrec.vo_report_name_id = report_id;
+					vorcontacts.add(vocrec);
 				}
-				vorepcontact_model.update(old_contact_records,contact_records);
+				vorepcontact_model.update(vorepcontact_model.getAllByVOReportNameID(report_id), vorcontacts);
 			}
-			// report names themselves
-			vorepname_model.update(vorepname_model.getAllByVOID(rec.id),vorepname_records);	
 			
 			getConnection().commit();
 			getConnection().setAutoCommit(true);
@@ -313,7 +323,4 @@ public class VOModel extends SmallTableModelBase<VORecord>
 		}
 		return list;
 	}
-	
-
 }
-

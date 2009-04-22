@@ -3,6 +3,7 @@ package edu.iu.grid.oim.view.divex;
 import java.io.PrintWriter;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 
 import org.apache.commons.lang.StringEscapeUtils;
@@ -20,7 +21,7 @@ import com.webif.divex.form.validator.UniqueValidator;
 
 import edu.iu.grid.oim.view.divex.VOReportNamesDE.VOReportNameEditor;
 
-import edu.iu.grid.oim.model.VOReportConsolidator;
+import edu.iu.grid.oim.model.VOReport;
 
 import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.ContactTypeModel;
@@ -51,15 +52,15 @@ public class VOReportNamesDE extends FormElementDEBase {
 		private Integer vo_id;
 		private TextFormElementDE vo_report_name;
 		private VOReportNameFqanDE vo_report_name_fqan;
-		private ContactEditorDE contact_editor; // = new ContactEditorDE;
+		private ContactEditorDE vorc_editor ; // = new ContactEditorDE;
 
 		private ButtonDE remove_button;
 		private VOReportNameEditor myself;
 
 		protected VOReportNameEditor(DivEx parent, 
 				VOReportNameRecord vorepname_record,
-				ArrayList<VOReportNameFqanRecord> fqan_records,
-				ArrayList<VOReportContactRecord> vorc_list) 
+				Collection<VOReportNameFqanRecord> vorepnamefqan_list,
+				Collection<VOReportContactRecord> vorc_list) 
 		{
 			super(parent);
 			myself = this;
@@ -77,13 +78,13 @@ public class VOReportNamesDE extends FormElementDEBase {
 			new StaticDE(this, "<h3>Associated FQANs</h3>");
 			vo_report_name_fqan = new VOReportNameFqanDE (this);
 
-			if (fqan_records != null) { 
-				for(VOReportNameFqanRecord fqan_record : fqan_records) {
+			if (vorepnamefqan_list != null) { 
+				for(VOReportNameFqanRecord fqan_record : vorepnamefqan_list) {
 					vo_report_name_fqan.addVOReportNameFqan (fqan_record);
 				}
 			}
 			new StaticDE(this, "<h3>Subscriber Information</h3>");
-			ContactEditorDE vorc_editor = new ContactEditorDE (this, cmodel, false, false);
+			vorc_editor = new ContactEditorDE (this, cmodel, false, false);
 			vorc_editor.setShowRank(false);
 			vorc_editor.setMinContacts(ContactEditorDE.Rank.PRIMARY, 0);
 			vorc_editor.setMaxContacts(ContactEditorDE.Rank.PRIMARY, 128);
@@ -111,7 +112,16 @@ public class VOReportNamesDE extends FormElementDEBase {
 				}
 			});
 		}	
-	
+
+		public VOReport getVOReport()
+		{
+			VOReport report = new VOReport();
+			report.name = getVOReportNameRecord();
+			report.fqans = vo_report_name_fqan.getVOReportNameFqanRecords();
+			report.contacts = vorc_editor.getContactRecordsByRank(Integer.valueOf(1));
+			return report;
+		}
+		
 		public void setVOReportName(Integer value) {
 			vo_report_name.setValue(value.toString());
 		}
@@ -166,11 +176,11 @@ public class VOReportNamesDE extends FormElementDEBase {
 	}
 	
 	public void addVOReportName(VOReportNameRecord vorepname_record, 
-					ArrayList<VOReportNameFqanRecord> fqan_records,
-					ArrayList<VOReportContactRecord> vorc_list) {
+					Collection<VOReportNameFqanRecord> vorepnamefqan_list,
+					Collection<VOReportContactRecord> vorc_list) {
 
 		VOReportNameEditor elem = new VOReportNameEditor(this, vorepname_record,
-										fqan_records, vorc_list);
+										vorepnamefqan_list, vorc_list);
 		//vo_report_names.add(elem);
 		redraw();
 	}
@@ -224,39 +234,17 @@ public class VOReportNamesDE extends FormElementDEBase {
 		out.print("</div>");
 	}
 
-	public ArrayList<VOReportConsolidator> getConsolidatedVOReportName()
+	public ArrayList<VOReport> getVOReports()
 	{
-//		ArrayList<VOReportNameRecord> vorepname_records = new ArrayList<VOReportNameRecord>();
-		ArrayList<VOReportConsolidator> vorep_consolidated_records = new ArrayList<VOReportConsolidator>();
+		ArrayList<VOReport> voreports = new ArrayList<VOReport>();
 		
 		for(DivEx node : childnodes) {
 			if(node instanceof VOReportNameEditor) {
 				VOReportNameEditor vo_report_name = (VOReportNameEditor)node;
-				VOReportNameRecord vorepname_record = new VOReportNameRecord ();
-				ArrayList<VOReportNameFqanRecord> vorepnamefqan_records = new ArrayList<VOReportNameFqanRecord>();
-				ArrayList<VOReportContactRecord> vorepcontact_records = new ArrayList<VOReportContactRecord>();
-
-				ArrayList <ContactRecord> contacts = new ArrayList <ContactRecord> (); 
-				
-				if (vo_report_name.vo_report_name != null) {
-					vorepname_record = vo_report_name.getVOReportNameRecord();
-				}
-				if (vo_report_name.vo_report_name_fqan != null) {
-					vorepnamefqan_records.addAll(vo_report_name.vo_report_name_fqan.getVOReportNameFqanRecords());
-				}
-
-				if (vo_report_name.contact_editor != null) {
-					contacts = vo_report_name.contact_editor.getContactRecordsByRank(Integer.valueOf(1));
-					for (ContactRecord contact : contacts) {
-						vorepcontact_records.add(createVOReportContact(contact,vo_report_name.id));
-					}
-				}
-				VOReportConsolidator consolidated_record = new VOReportConsolidator 
-					(vorepname_record, vorepnamefqan_records, vorepcontact_records);
-				vorep_consolidated_records.add(consolidated_record);
+				voreports.add(vo_report_name.getVOReport());
 			}
 		}
-		return vorep_consolidated_records;
+		return voreports;
 	}
 
 //	public ArrayList<VOReportNameRecord> getVOReportNameRecords()
@@ -306,14 +294,5 @@ public class VOReportNamesDE extends FormElementDEBase {
 	// Set VOReportContact record for vo_report_name from the ContactRecord
 	// Beware that VOContactRecord's vo_report_name_id is not populated.. 
 	//  we need to fill it out with appropriate value later
-	private VOReportContactRecord createVOReportContact(ContactRecord contact, Integer vo_report_name_id)
-	{
-		VOReportContactRecord vorepcontact_record = new VOReportContactRecord();
-		vorepcontact_record.vo_report_name_id = vo_report_name_id;
-		vorepcontact_record.contact_id = contact.id;
-		vorepcontact_record.contact_type_id = 10; /*VO report contact */
-		vorepcontact_record.contact_rank_id = 1;  /*only one rank - primary */
-		
-		return vorepcontact_record;
-	}
+
 }

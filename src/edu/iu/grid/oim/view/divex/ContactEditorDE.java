@@ -322,10 +322,13 @@ public class ContactEditorDE extends FormElementDEBase<HashMap<ContactEditorDE.R
 		return records;
 	}
 
-	public ArrayList<ContactRecord> getContactRecordsByRank(Integer _rank)
+	public ArrayList<ContactRecord> getContactRecordsByRank(Integer _rank_id)
 	{
+		Rank rank = DBRank2Enum(_rank_id);
+
 		ArrayList<ContactRecord> records = new ArrayList<ContactRecord>();
-		ArrayList<ContactDE> contact_divs = selected.get(_rank);
+		ArrayList<ContactDE> contact_divs = new ArrayList<ContactDE>();
+		contact_divs = selected.get(rank);
 		for(ContactDE contact_div : contact_divs) {
 			records.add(contact_div.person);
 		}

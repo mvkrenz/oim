@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 
 import org.apache.log4j.Logger;
@@ -27,7 +28,7 @@ public class VOReportContactModel extends SmallTableModelBase<VOReportContactRec
 		return new VOReportContactRecord();
 	}
 
-	public ArrayList<VOReportContactRecord> getByVOReportNameID(int vo_report_name_id) throws SQLException
+	public Collection<VOReportContactRecord> getAllByVOReportNameID(int vo_report_name_id) throws SQLException
 	{ 
 		ArrayList<VOReportContactRecord> list = new ArrayList<VOReportContactRecord>();
 		for(RecordBase record : getCache()) {

@@ -3,6 +3,7 @@ package edu.iu.grid.oim.model.db;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collection;
 
 import org.apache.log4j.Logger;
 
@@ -20,7 +21,7 @@ public class VOReportNameFqanModel extends SmallTableModelBase<VOReportNameFqanR
 	{
 		return new VOReportNameFqanRecord();
 	}
-	public ArrayList<VOReportNameFqanRecord> getAll() throws SQLException
+	public Collection<VOReportNameFqanRecord> getAll() throws SQLException
 	{
 		ArrayList<VOReportNameFqanRecord> list = new ArrayList<VOReportNameFqanRecord>();
 		for(RecordBase it : getCache()) {
@@ -28,7 +29,7 @@ public class VOReportNameFqanModel extends SmallTableModelBase<VOReportNameFqanR
 		}
 		return list;
 	}
-	public ArrayList<VOReportNameFqanRecord> getAllByVOReportNameID(int vo_report_name_id) throws SQLException
+	public Collection<VOReportNameFqanRecord> getAllByVOReportNameID(int vo_report_name_id) throws SQLException
 	{
 		ArrayList<VOReportNameFqanRecord> list = new ArrayList<VOReportNameFqanRecord>();
 		for(VOReportNameFqanRecord it : getAll()) {
