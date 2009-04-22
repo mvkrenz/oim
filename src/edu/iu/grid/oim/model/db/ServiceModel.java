@@ -29,9 +29,9 @@ public class ServiceModel extends SmallTableModelBase<ServiceRecord> {
     {
     	super(_auth, "service");
     }
-    ServiceRecord createRecord(ResultSet rs) throws SQLException
+    ServiceRecord createRecord() throws SQLException
 	{
-		return new ServiceRecord(rs);
+		return new ServiceRecord();
 	}
 	public ServiceRecord get(int id) throws SQLException {
 		ServiceRecord keyrec = new ServiceRecord();

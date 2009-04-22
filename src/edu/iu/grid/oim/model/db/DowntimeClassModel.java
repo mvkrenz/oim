@@ -23,9 +23,9 @@ public class DowntimeClassModel extends SmallTableModelBase<DowntimeClassRecord>
     {
     	super(auth, "downtime_class");
     }
-    DowntimeClassRecord createRecord(ResultSet rs) throws SQLException
+    DowntimeClassRecord createRecord() throws SQLException
 	{
-		return new DowntimeClassRecord(rs);
+		return new DowntimeClassRecord();
 	}
 	public ArrayList<DowntimeClassRecord> getAll() throws SQLException
 	{

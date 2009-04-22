@@ -3,7 +3,13 @@ package edu.iu.grid.oim.view;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 
+import org.apache.log4j.Logger;
+
+import edu.iu.grid.oim.servlet.LogServlet;
+
 public class TableView extends GenericView {
+    static Logger log = Logger.getLogger(LogServlet.class);  
+    
 	static public enum CellStyle { NORMAL, HEADER };
 	String cls = "";
 	
@@ -103,12 +109,14 @@ public class TableView extends GenericView {
 		}
 		
 		//display toolbar
-		out.print("<tr><td></td><td>");
-		for(IView v : children) {
-			v.render(out);
+		if(children.size() > 0) {
+			out.print("<tr><td></td><td>");
+			for(IView v : children) {
+				v.render(out);
+			}
+			out.print("</td></tr>");
 		}
-		out.print("</td></tr>");
-		
+			
 		out.print("</table>");		
 	}
 

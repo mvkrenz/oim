@@ -18,9 +18,9 @@ public class MetricServiceModel extends SmallTableModelBase<MetricServiceRecord>
     {
     	super(auth, "metric_service");
     }
-    MetricServiceRecord createRecord(ResultSet rs) throws SQLException
+    MetricServiceRecord createRecord() throws SQLException
 	{
-		return new MetricServiceRecord(rs);
+		return new MetricServiceRecord();
 	}
 	public MetricServiceRecord get(int metric_id, int service_id) throws SQLException {
 		MetricServiceRecord keyrec = new MetricServiceRecord();

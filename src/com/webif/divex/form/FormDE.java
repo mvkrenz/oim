@@ -7,7 +7,7 @@ import com.webif.divex.DivEx;
 import com.webif.divex.Event;
 import com.webif.divex.EventListener;
 
-abstract public class FormDE extends FormElementDEBase {
+abstract public class FormDE extends DivEx {
 	
 	//URL to go after cancel or submit button is selected
 	private String origin_url;

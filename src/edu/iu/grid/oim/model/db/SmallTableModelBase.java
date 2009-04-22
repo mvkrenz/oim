@@ -23,10 +23,10 @@ import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
 import edu.iu.grid.oim.model.db.record.RecordBase;
 import edu.iu.grid.oim.lib.PublicNotification;
 
-public abstract class SmallTableModelBase<T extends RecordBase> extends ModelBase {
+public abstract class SmallTableModelBase<T extends RecordBase> extends ModelBase<T> {
     static Logger log = Logger.getLogger(SmallTableModelBase.class);  
 	private static HashMap<String, TreeSet<RecordBase>> cache = new HashMap();
-	abstract T createRecord(ResultSet rs) throws SQLException;
+	abstract T createRecord() throws SQLException;
     
     static private String NonPublicInformation = "(Non-public information)";
     
@@ -51,7 +51,8 @@ public abstract class SmallTableModelBase<T extends RecordBase> extends ModelBas
 		    if (stmt.execute("SELECT * FROM "+table_name)) {
 		    	rs = stmt.getResultSet();
 		    	while(rs.next()) {
-		    		RecordBase rec = createRecord(rs);
+		    		RecordBase rec = createRecord();
+		    		rec.set(rs);
 		    		list.add(rec);
 				}
 		    }	

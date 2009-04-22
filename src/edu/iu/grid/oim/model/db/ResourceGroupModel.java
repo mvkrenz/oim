@@ -19,9 +19,9 @@ public class ResourceGroupModel extends SmallTableModelBase<ResourceGroupRecord>
 	public ResourceGroupModel(Authorization _auth) {
 		super(_auth, "resource_group");
 	}
-	ResourceGroupRecord createRecord(ResultSet rs) throws SQLException
+	ResourceGroupRecord createRecord() throws SQLException
 	{
-		return new ResourceGroupRecord(rs);
+		return new ResourceGroupRecord();
 	}
 	public ResourceGroupRecord get(int id) throws SQLException {
 		ResourceGroupRecord keyrec = new ResourceGroupRecord();

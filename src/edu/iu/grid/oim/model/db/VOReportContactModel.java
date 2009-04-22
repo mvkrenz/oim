@@ -22,9 +22,9 @@ public class VOReportContactModel extends SmallTableModelBase<VOReportContactRec
 		super(_auth, "vo_report_contact");
 		// TODO Auto-generated constructor stub
 	}
-	VOReportContactRecord createRecord(ResultSet rs) throws SQLException
+	VOReportContactRecord createRecord() throws SQLException
 	{
-		return new VOReportContactRecord(rs);
+		return new VOReportContactRecord();
 	}
 
 	public ArrayList<VOReportContactRecord> getByVOReportNameID(int vo_report_name_id) throws SQLException

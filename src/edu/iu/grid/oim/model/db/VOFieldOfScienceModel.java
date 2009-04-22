@@ -23,9 +23,9 @@ public class VOFieldOfScienceModel extends SmallTableModelBase<VOFieldOfScienceR
 	public VOFieldOfScienceModel(Authorization _auth) {
 		super(_auth, "vo_field_of_science");
 	}
-	VOFieldOfScienceRecord createRecord(ResultSet rs) throws SQLException
+	VOFieldOfScienceRecord createRecord() throws SQLException
 	{
-		return new VOFieldOfScienceRecord(rs);
+		return new VOFieldOfScienceRecord();
 	}
 
 	

@@ -7,7 +7,12 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpressionException;
+
 import org.apache.log4j.Logger;
+import org.w3c.dom.Document;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.model.ResourceDowntime;
@@ -30,14 +35,25 @@ public class ResourceDowntimeModel extends SmallTableModelBase<ResourceDowntimeR
 	public ResourceDowntimeModel(Authorization _auth) {
 		super(_auth, "resource_downtime");
 	}
-	ResourceDowntimeRecord createRecord(ResultSet rs) throws SQLException
+    public String getName()
+    {
+    	return "Resource Downtime";
+    }
+	ResourceDowntimeRecord createRecord() throws SQLException
 	{
-		return new ResourceDowntimeRecord(rs);
+		return new ResourceDowntimeRecord();
 	}
 	public ResourceDowntimeRecord get(int id) throws SQLException {
 		ResourceDowntimeRecord keyrec = new ResourceDowntimeRecord();
 		keyrec.id = id;
 		return get(keyrec);
+	}
+	
+	public Boolean hasLogAccess(XPath xpath, Document doc) throws XPathExpressionException
+	{
+		Integer id = Integer.parseInt((String)xpath.evaluate("//Keys/Key[Name='id']/Value", doc, XPathConstants.STRING));
+		ResourceModel model = new ResourceModel(auth);
+		return model.canEdit(id);
 	}
 	
 	public Collection<ResourceDowntimeRecord> getAll() throws SQLException {

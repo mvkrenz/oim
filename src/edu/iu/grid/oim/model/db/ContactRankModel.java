@@ -21,9 +21,9 @@ public class ContactRankModel extends SmallTableModelBase<ContactRankRecord> {
 	public ContactRankModel(Authorization _auth) {
 		super(_auth, "contact_rank");
 	}
-	ContactRankRecord createRecord(ResultSet rs) throws SQLException
+	ContactRankRecord createRecord() throws SQLException
 	{
-		return new ContactRankRecord(rs);
+		return new ContactRankRecord();
 	}
 	
 	public ContactRankRecord get(int id) throws SQLException {

@@ -24,9 +24,9 @@ public class ResourceWLCGModel extends SmallTableModelBase<ResourceWLCGRecord> {
     {
     	super(_auth, "resource_wlcg");
     }
-    ResourceWLCGRecord createRecord(ResultSet rs) throws SQLException
+    ResourceWLCGRecord createRecord() throws SQLException
 	{
-		return new ResourceWLCGRecord(rs);
+		return new ResourceWLCGRecord();
 	}
 	public ResourceWLCGRecord get(int id) throws SQLException {
 		ResourceWLCGRecord keyrec = new ResourceWLCGRecord();

@@ -7,7 +7,13 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpressionException;
+
 import org.apache.log4j.Logger;
+import org.w3c.dom.Document;
+
 import com.webif.divex.form.CheckBoxFormElementDE;
 
 import edu.iu.grid.oim.lib.Authorization;
@@ -34,10 +40,14 @@ public class VOModel extends SmallTableModelBase<VORecord>
     {
     	super(auth, "vo");
     }
-    VORecord createRecord(ResultSet rs) throws SQLException
+    VORecord createRecord() throws SQLException
 	{
-		return new VORecord(rs);
+		return new VORecord();
 	}
+    public String getName()
+    {
+    	return "Virtual Organization";
+    }
 	public VORecord get(int id) throws SQLException {
 		VORecord keyrec = new VORecord();
 		keyrec.id = id;
@@ -68,7 +78,11 @@ public class VOModel extends SmallTableModelBase<VORecord>
 		}
 		return list;
 	}
-	
+	public Boolean hasLogAccess(XPath xpath, Document doc) throws XPathExpressionException
+	{
+		Integer id = Integer.parseInt((String)xpath.evaluate("//Keys/Key[Name='id']/Value", doc, XPathConstants.STRING));
+		return canEdit(id);
+	}
 	public boolean canEdit(int vo_id)
 	{
 		if(auth.allows("admin")) return true;

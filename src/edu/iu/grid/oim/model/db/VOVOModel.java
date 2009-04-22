@@ -1,15 +1,7 @@
 package edu.iu.grid.oim.model.db;
 
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.HashMap;
-
 import org.apache.log4j.Logger;
-
-import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
-import edu.iu.grid.oim.model.db.record.ContactTypeRecord;
-import edu.iu.grid.oim.model.db.record.FacilityRecord;
 import edu.iu.grid.oim.model.db.record.VOVORecord;
 
 public class VOVOModel extends SmallTableModelBase<VOVORecord> {
@@ -19,9 +11,9 @@ public class VOVOModel extends SmallTableModelBase<VOVORecord> {
     {
     	super(_auth, "vo_vo");
     }
-    VOVORecord createRecord(ResultSet rs) throws SQLException
+    VOVORecord createRecord() throws SQLException
 	{
-		return new VOVORecord(rs);
+		return new VOVORecord();
 	}
 	public VOVORecord get(int id) throws SQLException {
 		VOVORecord keyrec = new VOVORecord();

@@ -24,9 +24,9 @@ public class ServiceGroupModel extends SmallTableModelBase<ServiceGroupRecord> {
     {
     	super(_auth, "service_group");
     }
-    ServiceGroupRecord createRecord(ResultSet rs) throws SQLException
+    ServiceGroupRecord createRecord() throws SQLException
 	{
-		return new ServiceGroupRecord(rs);
+		return new ServiceGroupRecord();
 	}
 	public ServiceGroupRecord get(int id) throws SQLException {
 		ServiceGroupRecord keyrec = new ServiceGroupRecord();

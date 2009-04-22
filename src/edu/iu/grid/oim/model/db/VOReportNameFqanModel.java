@@ -16,9 +16,9 @@ public class VOReportNameFqanModel extends SmallTableModelBase<VOReportNameFqanR
 	public VOReportNameFqanModel(Authorization _auth) {
 		super(_auth, "vo_report_name_fqan");
 	}
-	VOReportNameFqanRecord createRecord(ResultSet rs) throws SQLException
+	VOReportNameFqanRecord createRecord() throws SQLException
 	{
-		return new VOReportNameFqanRecord(rs);
+		return new VOReportNameFqanRecord();
 	}
 	public ArrayList<VOReportNameFqanRecord> getAll() throws SQLException
 	{

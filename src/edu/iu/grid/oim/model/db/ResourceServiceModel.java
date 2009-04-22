@@ -21,9 +21,9 @@ public class ResourceServiceModel extends SmallTableModelBase<ResourceServiceRec
 	public ResourceServiceModel(Authorization _auth) {
 		super(_auth, "resource_service");
 	}
-	ResourceServiceRecord createRecord(ResultSet rs) throws SQLException
+	ResourceServiceRecord createRecord() throws SQLException
 	{
-		return new ResourceServiceRecord(rs);
+		return new ResourceServiceRecord();
 	}
 	public ResourceServiceRecord get(int service_id, int resource_id) throws SQLException {
 		ResourceServiceRecord keyrec = new ResourceServiceRecord();

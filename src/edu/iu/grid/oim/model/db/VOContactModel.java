@@ -17,9 +17,9 @@ public class VOContactModel extends SmallTableModelBase<VOContactRecord> {
 	public VOContactModel(Authorization _auth) {
 		super(_auth, "vo_contact");
 	}
-	VOContactRecord createRecord(ResultSet rs) throws SQLException
+	VOContactRecord createRecord() throws SQLException
 	{
-		return new VOContactRecord(rs);
+		return new VOContactRecord();
 	}
 
 	public ArrayList<VOContactRecord> getByVOID(int vo_id) throws SQLException

@@ -33,9 +33,9 @@ public class LogModel extends ModelBase {
     	super(_auth, "log");
     }
     
-    LogRecord createRecord(ResultSet rs) throws SQLException
+    LogRecord createRecord() throws SQLException
 	{
-		return new LogRecord(rs);
+		return new LogRecord();
 	}
     
     public Collection<LogRecord> getLatest(String model) throws SQLException
@@ -44,7 +44,7 @@ public class LogModel extends ModelBase {
     	
     	ArrayList<LogRecord> recs = new ArrayList<LogRecord>();
 
-    	String sql = "SELECT * FROM log WHERE timestamp > curtime() - 86400 * 7 AND model LIKE ?";
+    	String sql = "SELECT * FROM log WHERE timestamp > curtime() - 86400 * 7 AND model LIKE ? ORDER BY timestamp DESC";
 		PreparedStatement stmt = getConnection().prepareStatement(sql); 
 		stmt.setString(1, model);
 		ResultSet rs = stmt.executeQuery();

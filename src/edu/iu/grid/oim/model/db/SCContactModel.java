@@ -19,9 +19,9 @@ public class SCContactModel extends SmallTableModelBase<SCContactRecord> {
 	public SCContactModel(Authorization _auth) {
 		super(_auth, "sc_contact");
 	}
-	SCContactRecord createRecord(ResultSet rs) throws SQLException
+	SCContactRecord createRecord() throws SQLException
 	{
-		return new SCContactRecord(rs);
+		return new SCContactRecord();
 	}
 	public ArrayList<SCContactRecord> getBySCID(int sc_id) throws SQLException
 	{ 

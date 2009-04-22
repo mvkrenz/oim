@@ -23,9 +23,9 @@ public class DowntimeActionModel extends SmallTableModelBase<DowntimeActionRecor
     {
     	super(auth, "downtime_action");
     }
-    DowntimeActionRecord createRecord(ResultSet rs) throws SQLException
+    DowntimeActionRecord createRecord() throws SQLException
 	{
-		return new DowntimeActionRecord(rs);
+		return new DowntimeActionRecord();
 	}
 	public ArrayList<DowntimeActionRecord> getAll() throws SQLException
 	{

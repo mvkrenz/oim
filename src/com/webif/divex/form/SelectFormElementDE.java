@@ -1,14 +1,12 @@
 package com.webif.divex.form;
 
 import java.io.PrintWriter;
-import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.apache.commons.lang.StringEscapeUtils;
 
 import com.webif.divex.DivEx;
 import com.webif.divex.Event;
-import com.webif.divex.form.validator.IFormElementValidator;
 
 public class SelectFormElementDE extends FormElementDEBase<Integer>
 {		

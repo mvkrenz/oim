@@ -20,9 +20,9 @@ public class DNAuthorizationTypeModel extends SmallTableModelBase<DNAuthorizatio
     {
     	super(auth, "dn_authorization_type");
     }
-    DNAuthorizationTypeRecord createRecord(ResultSet rs) throws SQLException
+    DNAuthorizationTypeRecord createRecord() throws SQLException
 	{
-		return new DNAuthorizationTypeRecord(rs);
+		return new DNAuthorizationTypeRecord();
 	}
 	public Collection<Integer> getAuthorizationTypesByDNID(Integer dn_id) throws SQLException
 	{

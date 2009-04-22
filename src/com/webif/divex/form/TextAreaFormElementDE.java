@@ -6,8 +6,6 @@ import org.apache.commons.lang.StringEscapeUtils;
 
 import com.webif.divex.Event;
 import com.webif.divex.DivEx;
-import com.webif.divex.form.validator.IFormElementValidator;
-import com.webif.divex.form.validator.RequiredValidator;
 
 public class TextAreaFormElementDE extends FormElementDEBase<String>  {
 	

@@ -19,9 +19,9 @@ public class ResourceAliasModel extends SmallTableModelBase<ResourceAliasRecord>
 	public ResourceAliasModel(Authorization _auth) {
 		super(_auth, "resource_alias");
 	}
-	ResourceAliasRecord createRecord(ResultSet rs) throws SQLException
+	ResourceAliasRecord createRecord() throws SQLException
 	{
-		return new ResourceAliasRecord(rs);
+		return new ResourceAliasRecord();
 	}
 	public ArrayList<ResourceAliasRecord> getAll() throws SQLException
 	{

@@ -23,9 +23,9 @@ public class DowntimeSeverityModel extends SmallTableModelBase<DowntimeSeverityR
     {
     	super(auth, "downtime_severity");
     }
-    DowntimeSeverityRecord createRecord(ResultSet rs) throws SQLException
+    DowntimeSeverityRecord createRecord() throws SQLException
 	{
-		return new DowntimeSeverityRecord(rs);
+		return new DowntimeSeverityRecord();
 	}
 	public ArrayList<DowntimeSeverityRecord> getAll() throws SQLException
 	{

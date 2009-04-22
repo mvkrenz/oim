@@ -6,7 +6,14 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpressionException;
+
 import org.apache.log4j.Logger;
+import org.w3c.dom.Document;
+
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
 import edu.iu.grid.oim.model.db.record.RecordBase;
@@ -20,9 +27,13 @@ public class SCModel extends SmallTableModelBase<SCRecord> {
     {
     	super(auth, "sc");
     }    
-    SCRecord createRecord(ResultSet rs) throws SQLException
+    public String getName()
+    {
+    	return "Support Center";
+    }
+    SCRecord createRecord() throws SQLException
 	{
-		return new SCRecord(rs);
+		return new SCRecord();
 	}
 
 	public Collection<SCRecord> getAllEditable() throws SQLException
@@ -37,6 +48,11 @@ public class SCModel extends SmallTableModelBase<SCRecord> {
 	    	} 	
 	    }
 	    return list;
+	}
+	public Boolean hasLogAccess(XPath xpath, Document doc) throws XPathExpressionException
+	{
+		Integer id = Integer.parseInt((String)xpath.evaluate("//Keys/Key[Name='id']/Value", doc, XPathConstants.STRING));
+		return canEdit(id);
 	}
 	public boolean canEdit(int id)
 	{

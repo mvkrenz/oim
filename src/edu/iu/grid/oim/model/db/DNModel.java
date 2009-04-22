@@ -25,9 +25,13 @@ public class DNModel extends SmallTableModelBase<DNRecord> {
     {
     	super(auth, "dn");
     }
-    DNRecord createRecord(ResultSet rs) throws SQLException
+    public String getName()
+    {
+    	return "DN";
+    }
+    DNRecord createRecord() throws SQLException
 	{
-		return new DNRecord(rs);
+		return new DNRecord();
 	}
 	
 	public DNRecord getByDNString(String dn_string) throws SQLException

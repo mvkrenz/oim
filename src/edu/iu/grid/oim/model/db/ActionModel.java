@@ -1,6 +1,5 @@
 package edu.iu.grid.oim.model.db;
 
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
@@ -17,9 +16,13 @@ public class ActionModel extends SmallTableModelBase<ActionRecord> {
     {
     	super(auth, "action");
     }
-    ActionRecord createRecord(ResultSet rs) throws SQLException
+    public String getName()
+    {
+    	return "Action";
+    }
+    ActionRecord createRecord() throws SQLException
 	{
-		return new ActionRecord(rs);
+		return new ActionRecord();
 	}
 	public ActionRecord get(int id) throws SQLException {
 		ActionRecord keyrec = new ActionRecord();

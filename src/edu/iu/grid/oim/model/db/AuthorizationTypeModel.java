@@ -22,9 +22,9 @@ public class AuthorizationTypeModel extends SmallTableModelBase<AuthorizationTyp
     {
     	super(auth, "authorization_type");
     }
-    AuthorizationTypeRecord createRecord(ResultSet rs) throws SQLException
+    AuthorizationTypeRecord createRecord() throws SQLException
 	{
-		return new AuthorizationTypeRecord(rs);
+		return new AuthorizationTypeRecord();
 	}
 	public ArrayList<AuthorizationTypeRecord> getAll() throws SQLException
 	{

@@ -14,9 +14,9 @@ public class ContactTypeModel extends SmallTableModelBase<ContactTypeRecord> {
 	public ContactTypeModel(Authorization _auth) {
 		super(_auth, "contact_type");
 	}
-	ContactTypeRecord createRecord(ResultSet rs) throws SQLException
+	ContactTypeRecord createRecord() throws SQLException
 	{
-		return new ContactTypeRecord(rs);
+		return new ContactTypeRecord();
 	}
 	
 	public ContactTypeRecord get(int id) throws SQLException {

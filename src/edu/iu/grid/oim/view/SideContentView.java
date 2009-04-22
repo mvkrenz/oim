@@ -23,9 +23,9 @@ public class SideContentView implements IView {
 	}
 	public void add(String title, IView v) {
 		children.add(new HtmlView("<h3>"+title+"</h3>"));
-		children.add(new HtmlView("<p class=\"indent\">"));
+		children.add(new HtmlView("<div class=\"indent\">"));
 		children.add(v);
-		children.add(new HtmlView("</p>"));
+		children.add(new HtmlView("</div>"));
 	}
 	
 	public void add(String title, DivEx de) {

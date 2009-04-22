@@ -7,13 +7,7 @@ import java.util.ArrayList;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.log4j.Logger;
-
-import edu.iu.grid.oim.servlet.AdminServlet;
-
-public abstract class DivEx {
-    static Logger log = Logger.getLogger(DivEx.class);  
-    
+public abstract class DivEx {    
 	private String nodeid;
 	private Boolean needupdate = false;
 	private String js = "";
@@ -132,7 +126,6 @@ public abstract class DivEx {
 	public void doGet(DivExRoot root, HttpServletRequest request, HttpServletResponse response) throws IOException
 	{	
 		String action = request.getParameter("action");
-		log.debug("DivEx Action:" + action);
 		
 		if(action.compareTo("load") == 0) {
 			PrintWriter writer = response.getWriter();

@@ -1,14 +1,10 @@
 package com.webif.divex;
 
 import java.io.PrintWriter;
-
 import javax.servlet.http.HttpServletRequest;
-
-import org.apache.log4j.Logger;
 
 public class DivExRoot extends DivEx
 {
-    static Logger log = Logger.getLogger(DivExRoot.class);  
     
 	static private int next_nodeid = 0;
 	static public String getNewNodeID()

@@ -1,10 +1,8 @@
 package edu.iu.grid.oim.model.db;
 
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 
 import javax.xml.xpath.XPath;
@@ -14,25 +12,14 @@ import javax.xml.xpath.XPathExpressionException;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 
-import com.webif.divex.form.CheckBoxFormElementDE;
-
 import edu.iu.grid.oim.lib.Authorization;
-import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
 import edu.iu.grid.oim.model.db.record.RecordBase;
 import edu.iu.grid.oim.model.db.record.ResourceAliasRecord;
 import edu.iu.grid.oim.model.db.record.ResourceContactRecord;
-import edu.iu.grid.oim.model.db.record.ResourceDowntimeRecord;
-import edu.iu.grid.oim.model.db.record.ResourceDowntimeServiceRecord;
-import edu.iu.grid.oim.model.db.record.ResourceGroupRecord;
 import edu.iu.grid.oim.model.db.record.ResourceRecord;
 import edu.iu.grid.oim.model.db.record.ResourceServiceRecord;
 import edu.iu.grid.oim.model.db.record.ResourceWLCGRecord;
 import edu.iu.grid.oim.model.db.record.VOContactRecord;
-import edu.iu.grid.oim.model.db.record.VOFieldOfScienceRecord;
-import edu.iu.grid.oim.model.db.record.VORecord;
-import edu.iu.grid.oim.model.db.record.VOVORecord;
-import edu.iu.grid.oim.view.divex.form.ResourceDowntimeFormDE;
-import edu.iu.grid.oim.view.divex.form.ResourceDowntimeFormDE.DowntimeEditor;
 
 public class ResourceModel extends SmallTableModelBase<ResourceRecord> {
     static Logger log = Logger.getLogger(ResourceModel.class);  
@@ -41,9 +28,13 @@ public class ResourceModel extends SmallTableModelBase<ResourceRecord> {
     {
     	super(auth, "resource");
     }
-    ResourceRecord createRecord(ResultSet rs) throws SQLException
+    public String getName()
+    {
+    	return "Resource";
+    }
+    public ResourceRecord createRecord() throws SQLException
 	{
-		return new ResourceRecord(rs);
+		return new ResourceRecord();
 	}
 	
 	public ArrayList<ResourceRecord> getByGroupID(int group_id) throws SQLException
@@ -57,7 +48,7 @@ public class ResourceModel extends SmallTableModelBase<ResourceRecord> {
 	}
 	public Collection<ResourceRecord> getAllEditable() throws SQLException
 	{	   
-		ArrayList<ResourceRecord> list = new ArrayList();
+		ArrayList<ResourceRecord> list = new ArrayList<ResourceRecord>();
     	//only select record that is editable
 	    for(RecordBase id : getCache()) {
 	    	ResourceRecord rec = (ResourceRecord)id;
@@ -67,19 +58,12 @@ public class ResourceModel extends SmallTableModelBase<ResourceRecord> {
 	    }	    	
 	    return list;
 	}
-	
-	//override this to reveal the log to particular user
-	public Boolean hasLogAccess(XPath xpath, Document doc)
+	public Boolean hasLogAccess(XPath xpath, Document doc) throws XPathExpressionException
 	{
-		try {
-			Integer id = Integer.parseInt((String)xpath.evaluate("//Keys/Key[Name='id']/Value", doc, XPathConstants.STRING));
-			return canEdit(id);
-		} catch (XPathExpressionException e) {
-			//TODO - hummm.. I guess I return false?
-			return false;
-		}
+		Integer id = Integer.parseInt((String)xpath.evaluate("//Keys/Key[Name='id']/Value", doc, XPathConstants.STRING));
+		return canEdit(id);
 	}
-	
+
 	public boolean canEdit(int id)
 	{
 		if(auth.allows("admin")) return true;

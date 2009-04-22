@@ -23,9 +23,9 @@ public class FacilityModel extends SmallTableModelBase<FacilityRecord> {
     {
     	super(_auth, "facility");
     }
-    FacilityRecord createRecord(ResultSet rs) throws SQLException
+    FacilityRecord createRecord() throws SQLException
 	{
-		return new FacilityRecord(rs);
+		return new FacilityRecord();
 	}
 	public FacilityRecord get(int id) throws SQLException {
 		FacilityRecord keyrec = new FacilityRecord();

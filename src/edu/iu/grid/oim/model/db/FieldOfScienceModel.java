@@ -17,9 +17,9 @@ public class FieldOfScienceModel extends SmallTableModelBase<FieldOfScienceRecor
     {
     	super(_auth, "field_of_science");
     }
-    FieldOfScienceRecord createRecord(ResultSet rs) throws SQLException
+    FieldOfScienceRecord createRecord() throws SQLException
 	{
-		return new FieldOfScienceRecord(rs);
+		return new FieldOfScienceRecord();
 	}
 	public ArrayList<FieldOfScienceRecord> getAll() throws SQLException
 	{

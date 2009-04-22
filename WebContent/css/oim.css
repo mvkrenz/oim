@@ -37,7 +37,7 @@ padding-right: 15px;
 }
 table.auth_matrix tr.checklist
 {
-border-bottom: 1px solid #ccc;
+border-bottom: 1px solid #ddd;
 }
 table.auth_matrix tr.checklist input[type=checkbox]
 {
@@ -54,14 +54,14 @@ line-height: 23px;
 }
 table.record_table td.record_data
 {
-border-bottom: 1px solid #ccc;
+border-bottom: 1px solid #ddd;
 }
 
 table.record_table th
 {
 text-align: left;
 width: 220px;
-border-bottom: 1px solid #ccc;
+border-bottom: 1px solid #ddd;
 padding-left: 3px;
 }
 tr.header
@@ -84,6 +84,35 @@ table.inner_table th, table.inner_table tr.header td
 {
 padding-left: 10px;
 width: 150px;
+}
+
+table.log_table
+{
+margin-top: 5px;
+margin-bottom: 5px;
+border-collapse: collapse;
+width: 100%;	
+text-align: left;
+}
+table.log_table th
+{
+width: 200px;
+}
+table.log_table tr.top
+{
+background-color: #ccc;
+}
+table.log_table tr
+{
+border-bottom: 1px solid #ddd;
+}
+table.log_table tr.top th
+{
+width: inherit;
+}
+table.log_table th, table.log_table td
+{
+padding: 3px;
 }
 
 .resource_alias

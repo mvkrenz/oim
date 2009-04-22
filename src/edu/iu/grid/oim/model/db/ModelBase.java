@@ -1,25 +1,24 @@
 package edu.iu.grid.oim.model.db;
 
 import java.sql.Connection;
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.Comparator;
-
 import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.sql.DataSource;
 import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.model.db.record.RecordBase;
-import edu.iu.grid.oim.servlet.ServletBase;
 
-public class ModelBase {
+public abstract class ModelBase<T extends RecordBase> {
     static Logger log = Logger.getLogger(ModelBase.class); 
 	private static Connection connection;
     
@@ -35,6 +34,8 @@ public class ModelBase {
 	{
 		auth = Authorization.Guest;
 	}
+    abstract T createRecord() throws SQLException;
+    
 	public void setAuthorization(Authorization _auth)
 	{
 		auth = _auth;
@@ -63,12 +64,13 @@ public class ModelBase {
 	{
 		return getClass().getName();
 	}
-	
+
 	//override this to reveal the log to particular user
-	public Boolean hasLogAccess(XPath xpath, Document doc)
+	public Boolean hasLogAccess(XPath xpath, Document doc) throws XPathExpressionException
 	{
 		return false;
 	}
+
 	/*
 	//I get following warning when I try to run DISABLE KEYS command
 	//"Table storage engine for 'resource_downtime_service' doesn't have this option"

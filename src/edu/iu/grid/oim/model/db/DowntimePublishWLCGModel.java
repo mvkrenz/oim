@@ -23,9 +23,9 @@ public class DowntimePublishWLCGModel extends SmallTableModelBase<DowntimePublis
     {
     	super(auth, "downtime_publish_wlcg");
     }
-    DowntimePublishWLCGRecord createRecord(ResultSet rs) throws SQLException
+    DowntimePublishWLCGRecord createRecord() throws SQLException
 	{
-		return new DowntimePublishWLCGRecord(rs);
+		return new DowntimePublishWLCGRecord();
 	}
 	public ArrayList<DowntimePublishWLCGRecord> getAll() throws SQLException
 	{

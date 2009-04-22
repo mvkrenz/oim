@@ -12,6 +12,8 @@ import java.net.URL;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -21,11 +23,15 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import com.webif.divex.ButtonDE;
@@ -48,6 +54,7 @@ import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.DNRecord;
 import edu.iu.grid.oim.model.db.record.LogRecord;
 import edu.iu.grid.oim.model.db.record.MetricRecord;
+import edu.iu.grid.oim.model.db.record.RecordBase;
 import edu.iu.grid.oim.model.db.record.ResourceRecord;
 import edu.iu.grid.oim.model.db.record.SCRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
@@ -63,12 +70,13 @@ import edu.iu.grid.oim.view.Page;
 import edu.iu.grid.oim.view.IView;
 import edu.iu.grid.oim.view.RecordTableView;
 import edu.iu.grid.oim.view.SideContentView;
+import edu.iu.grid.oim.view.TableView;
+import edu.iu.grid.oim.view.TableView.Row;
 
 public class LogServlet extends ServletBase  {
 	private static final long serialVersionUID = 1L;
     static Logger log = Logger.getLogger(LogServlet.class);  
- 
-	
+ 	
     public LogServlet() {
         super();
         // TODO Auto-generated constructor stub
@@ -98,7 +106,6 @@ public class LogServlet extends ServletBase  {
 		}
 		
 		try {
-			
 			//construct view
 			MenuView menuview = createMenuView("admin");
 			DivExRoot root = DivExRoot.getInstance(request);
@@ -137,23 +144,21 @@ public class LogServlet extends ServletBase  {
 					//Parse the log XML stored in the record
 					Document log = builder.parse(new StringBufferInputStream(rec.xml));
 				
-					//if user is not admin, I need to check the accessibility for each model
-					Boolean simulate_non_admin = true;
-					if(!auth.allows("admin") || simulate_non_admin) {
-						//let's check to see if user has access to this record
-						if(!somemodel.hasLogAccess(xpath, log)) {
-							continue;
-						}
-					}				
-					view.add(new HtmlView("<h2>" + somemodel.getName() + "("+rec.type+")</h2>"));
-					
+					//check the access
+					if(!somemodel.hasLogAccess(xpath, log)) {
+						continue;
+					}
+									
+					//display the log
+					view.add(new HtmlView("<h2>" + somemodel.getName() + " ("+rec.type+")</h2>"));
 					DNRecord dnrec = dmodel.get(rec.dn_id);
-					view.add(new HtmlView("<span class=\"right\">"+dnrec.dn_string+"<br/>Updated "+rec.timestamp.toString()+"</span>"));
-					view.add(new CDataView(rec.xml));
+					view.add(new HtmlView("<span>"+dnrec.dn_string+"<br/>Updated "+rec.timestamp.toString()+"</span>"));
+					view.add(createLogView(xpath, log));
 				} catch (SAXException e) {
 					view.add(new HtmlView("XML log Parse Error (" + somemodel.getName() + ") "+ e.toString()));
+				} catch (XPathExpressionException e) {
+					view.add(new HtmlView("XPath Expression Error (" + somemodel.getName() + ") "+ e.toString()));
 				}
-
 			}
 			
 		} catch (ParserConfigurationException e1) {
@@ -187,6 +192,67 @@ public class LogServlet extends ServletBase  {
 			
 		return view;
 	}
+	private IView createLogView(XPath xpath, Document dom) throws XPathExpressionException
+	{
+		RecordTableView table = new RecordTableView("log_table");
+		String type = (String)xpath.evaluate("//Type", dom, XPathConstants.STRING);
+		
+		//create header row
+		Row row = table.new Row();
+		row.setClass("top");
+		row.addHeaderCell(new HtmlView("Field"));
+		if(type.compareTo("Update") == 0) {
+			row.addHeaderCell(new HtmlView("Old Value"));
+			row.addHeaderCell(new HtmlView("New Value"));
+		} else if(type.compareTo("Insert") == 0) {
+			row.addHeaderCell(new HtmlView("Value"));
+		} else if(type.compareTo("Remove") == 0) {
+			row.addHeaderCell(new HtmlView("Value"));
+		}
+		table.addRow(row);
+		
+		//process keys
+		for(Node node : pullNonTextNode(dom.getElementsByTagName("Key"))) {
+			row = table.new Row();
+			ArrayList<Node> key = pullNonTextNode(node.getChildNodes());
+			Node name = key.get(0);
+			Node value = key.get(1);
+			row.addHeaderCell(new HtmlView(name.getTextContent()));
+			row.addCell(new HtmlView(StringEscapeUtils.escapeHtml(value.getTextContent())));
+			if(type.compareTo("Update") == 0) {
+				row.addCell(new HtmlView(""));
+			}
+			table.addRow(row);
+		}
+		
+		//process values
+		for(Node node : pullNonTextNode(dom.getElementsByTagName("Field"))) {
+			row = table.new Row();
+			ArrayList<Node> field = pullNonTextNode(node.getChildNodes());
+			Node name = field.get(0);
+			row.addHeaderCell(new HtmlView(name.getTextContent()));
+			Node value = field.get(1);
+			row.addCell(new HtmlView(StringEscapeUtils.escapeHtml(value.getTextContent())));
+			if(type.compareTo("Update") == 0) {
+				Node newvalue = field.get(2);
+				row.addCell(new HtmlView(StringEscapeUtils.escapeHtml(newvalue.getTextContent())));
+			}
+			table.addRow(row);
+		}
+		
+		return table;
+	}
+	
+	private ArrayList<Node> pullNonTextNode(NodeList nodes)
+	{
+		ArrayList<Node> list = new ArrayList();
+		for(int i = 0; i < nodes.getLength(); ++i) {
+			Node node = nodes.item(i);
+			if(node.getNodeType() != Node.ELEMENT_NODE) continue;
+			list.add(node);
+		}
+		return list;
+	}
 	
 	private SideContentView createSideView(DivExRoot root)
 	{
@@ -205,7 +271,7 @@ public class LogServlet extends ServletBase  {
 		types.add(new LinkView("log?type=sc", "Support Center"));
 		types.add(new HtmlView("<br/>"));
 		
-		types.add(new LinkView("log?type=contact", "Contat"));
+		types.add(new LinkView("log?type=contact", "Contact"));
 		types.add(new HtmlView("<br/>"));
 		
 		if(auth.allows("admin")) {

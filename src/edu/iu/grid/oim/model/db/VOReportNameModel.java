@@ -16,9 +16,9 @@ public class VOReportNameModel extends SmallTableModelBase<VOReportNameRecord> {
 	public VOReportNameModel(Authorization _auth) {
 		super(_auth, "vo_report_name");
 	}
-		VOReportNameRecord createRecord(ResultSet rs) throws SQLException
+		VOReportNameRecord createRecord() throws SQLException
 	{
-		return new VOReportNameRecord(rs);
+		return new VOReportNameRecord();
 	}
 	public ArrayList<VOReportNameRecord> getAll() throws SQLException
 	{

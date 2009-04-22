@@ -18,9 +18,9 @@ public class ResourceContactModel extends SmallTableModelBase<ResourceContactRec
 	public ResourceContactModel(Authorization _auth) {
 		super(_auth, "resource_contact");
 	}
-	ResourceContactRecord createRecord(ResultSet rs) throws SQLException
+	ResourceContactRecord createRecord() throws SQLException
 	{
-		return new ResourceContactRecord(rs);
+		return new ResourceContactRecord();
 	}
 
 	public ArrayList<ResourceContactRecord> getByResourceID(int resource_id) throws SQLException

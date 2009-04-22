@@ -17,9 +17,9 @@ public class CpuInfoModel extends SmallTableModelBase<CpuInfoRecord> {
     {
     	super(_auth, "cpu_info");
     }
-    CpuInfoRecord createRecord(ResultSet rs) throws SQLException
+    CpuInfoRecord createRecord() throws SQLException
 	{
-		return new CpuInfoRecord(rs);
+		return new CpuInfoRecord();
 	}
 	public ArrayList<CpuInfoRecord> getAll() throws SQLException
 	{

@@ -32,9 +32,9 @@ public class SiteModel extends SmallTableModelBase<SiteRecord> {
 		return "Site";
 	}
 	
-	SiteRecord createRecord(ResultSet rs) throws SQLException
+	SiteRecord createRecord() throws SQLException
 	{
-		return new SiteRecord(rs);
+		return new SiteRecord();
 	}
 	public ArrayList<SiteRecord> getAll() throws SQLException
 	{

@@ -4,7 +4,14 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpressionException;
+
 import org.apache.log4j.Logger;
+import org.w3c.dom.Document;
+
+import com.mysql.jdbc.Field;
 
 import edu.iu.grid.oim.model.db.record.OsgGridTypeRecord;
 import edu.iu.grid.oim.model.db.record.RecordBase;
@@ -18,9 +25,9 @@ public class OsgGridTypeModel extends SmallTableModelBase<OsgGridTypeRecord> {
     {
     	super(_auth, "osg_grid_type");
     }
-    OsgGridTypeRecord createRecord(ResultSet rs) throws SQLException
+    OsgGridTypeRecord createRecord() throws SQLException
 	{
-		return new OsgGridTypeRecord(rs);
+		return new OsgGridTypeRecord();
 	}
 	public ArrayList<OsgGridTypeRecord> getAll() throws SQLException
 	{
@@ -35,4 +42,11 @@ public class OsgGridTypeModel extends SmallTableModelBase<OsgGridTypeRecord> {
 		keyrec.id = id;
 		return get(keyrec);
 	}
+	/*
+	public Boolean hasLogAccess(XPath xpath, Document doc) throws XPathExpressionException
+	{		
+		if(auth.allows("allows")) return true;
+		return false;
+	}
+	*/
 }

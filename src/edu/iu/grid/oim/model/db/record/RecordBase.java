@@ -30,6 +30,10 @@ public abstract class RecordBase implements Comparable<RecordBase> {
     //use reflection to figure out how to read this record
 	public RecordBase(ResultSet rs) throws SQLException
 	{		
+		set(rs);
+	}
+	public void set(ResultSet rs) throws SQLException
+	{
     	try {
 			Field[] fields = getClass().getFields();
 			for(Field fld : fields) {

@@ -22,10 +22,14 @@ public class ResourceDowntimeServiceModel extends SmallTableModelBase<ResourceDo
 	public ResourceDowntimeServiceModel(Authorization _auth) {
 		super(_auth, "resource_downtime_service");
 	}
-	ResourceDowntimeServiceRecord createRecord(ResultSet rs) throws SQLException
+	ResourceDowntimeServiceRecord createRecord() throws SQLException
 	{
-		return new ResourceDowntimeServiceRecord(rs);
+		return new ResourceDowntimeServiceRecord();
 	}
+    public String getName()
+    {
+    	return "Resource Downtime";
+    }
 	public Collection<ResourceDowntimeServiceRecord> getAll() throws SQLException
 	{
 		ArrayList<ResourceDowntimeServiceRecord> list = new ArrayList<ResourceDowntimeServiceRecord>();
