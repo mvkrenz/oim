@@ -225,14 +225,17 @@ public class ResourceModel extends SmallTableModelBase<ResourceRecord> {
 			//process WLCG Record
 			ResourceWLCGModel wmodel = new ResourceWLCGModel(auth);
 			ResourceWLCGRecord oldrec = wmodel.get(rec.id);
-			wrec.resource_id = rec.id;
 			if(oldrec == null) {
 				//we don't have the record yet.. just do insert
-				wmodel.insert(wrec);
+				if(wrec != null) {
+					wrec.resource_id = rec.id;
+					wmodel.insert(wrec);
+				}
 			} else {
 				//we have old record
 				if(wrec != null) {
 					//update the record
+					wrec.resource_id = rec.id;
 					wmodel.update(oldrec, wrec);
 				} else {
 					//new one is null, so let's remove it
