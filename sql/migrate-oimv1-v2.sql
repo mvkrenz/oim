@@ -63,7 +63,7 @@ INSERT INTO contact
 	primary_phone, primary_phone_ext, secondary_phone, secondary_phone_ext,
 	address_line_1, address_line_2, city, state, zipcode, country,
 	active, disable)
-	(SELECT person_id, CONCAT(first_name,' ', middle_name, ' ', last_name),
+	(SELECT person_id, CONCAT(first_name,' ', last_name),
 	primary_email, secondary_email,
 	primary_phone, primary_phone_ext, secondary_phone, secondary_phone_ext, 
 	address_line_1, address_line_2, city, state, zipcode, cntry.name,
