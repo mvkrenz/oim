@@ -64,7 +64,7 @@ public class ServiceModel extends SmallTableModelBase<ServiceRecord> {
 			
 			getConnection().commit();
 			getConnection().setAutoCommit(true);
-		} catch (SQLException e) {
+		} catch (Exception e) {
 			log.error(e);
 			log.info("Rolling back Service Detail insert transaction.");
 			getConnection().rollback();
@@ -93,7 +93,7 @@ public class ServiceModel extends SmallTableModelBase<ServiceRecord> {
 			
 			getConnection().commit();
 			getConnection().setAutoCommit(true);
-		} catch (SQLException e) {
+		} catch (Exception e) {
 			log.error(e);
 			log.info("Rolling back VO insert transaction.");
 			getConnection().rollback();

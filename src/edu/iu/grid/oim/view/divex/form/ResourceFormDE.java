@@ -59,7 +59,6 @@ public class ResourceFormDE extends FormDE
 	private CheckBoxFormElementDE disable;
 	private OIMHierarchySelector resource_group_id;
 	private ResourceAliasDE aliases;
-	//private ResourceDowntimeFormDE downtimes;
 	private ResourceServicesDE resource_services;
 	
 	private CheckBoxFormElementDE wlcg;
@@ -150,16 +149,6 @@ public class ResourceFormDE extends FormDE
 				resource_services.addService(rarec);
 			}
 		}
-		/*
-		new StaticDE(this, "<h2>Future Downtime Schedule</h2>");
-		downtimes = new ResourceDowntimeFormDE(this, auth, id, resource_services);
-		ResourceDowntimeModel dmodel = new ResourceDowntimeModel(auth);
-		if(id != null) {
-			for(ResourceDowntimeRecord drec : dmodel.getFutureDowntimesByResourceID(rec.id)) {
-				downtimes.addDowntime(drec);
-			}
-		}
-		*/
 		
 		new StaticDE(this, "<h2>Contact Information</h2>");
 		new StaticDE(this, "<p>Add, remove, modify various types of contacts associated with your resource. These contacts have the authorization to modify this resource. Each contact entry field shows you a list of contacts as you type a name.</p>");

@@ -106,7 +106,7 @@ public class ResourceModel extends SmallTableModelBase<ResourceRecord> {
 			ArrayList<ResourceContactRecord> contacts,
 			ResourceWLCGRecord wrec,
 			ArrayList<ResourceServiceRecord> resource_services/*,
-			ArrayList<ResourceDowntimeFormDE.DowntimeEditor> downtimes,
+			ArrayList<ResourceDowntimeEditorDE.DowntimeEditor> downtimes,
 			HashMap<DowntimeEditor, ArrayList<ResourceDowntimeServiceRecord>> downtime_services*/) throws Exception
 	{
 		try {
@@ -152,7 +152,7 @@ public class ResourceModel extends SmallTableModelBase<ResourceRecord> {
 			/*
 			//process downtime schedule
 			ResourceDowntimeModel dmodel = new ResourceDowntimeModel(auth);
-			for(ResourceDowntimeFormDE.DowntimeEditor downtime_editor : downtimes) {
+			for(ResourceDowntimeEditorDE.DowntimeEditor downtime_editor : downtimes) {
 				ResourceDowntimeRecord downtime = downtime_editor.getDowntimeRecord();
 				
 				downtime.resource_id = rec.id;
@@ -170,7 +170,7 @@ public class ResourceModel extends SmallTableModelBase<ResourceRecord> {
 			*/
 			getConnection().commit();
 			getConnection().setAutoCommit(true);
-		} catch (SQLException e) {
+		} catch (Exception e) {
 			log.error(e);
 			log.info("Rolling back VO insert transaction.");
 			getConnection().rollback();
@@ -186,7 +186,7 @@ public class ResourceModel extends SmallTableModelBase<ResourceRecord> {
 			ArrayList<ResourceContactRecord> contacts,
 			ResourceWLCGRecord wrec,
 			ArrayList<ResourceServiceRecord> resource_services/*,
-			ArrayList<ResourceDowntimeFormDE.DowntimeEditor> downtimes,
+			ArrayList<ResourceDowntimeEditorDE.DowntimeEditor> downtimes,
 			HashMap<DowntimeEditor, ArrayList<ResourceDowntimeServiceRecord>> downtime_services*/) throws Exception
 	{
 		//Do insert / update to our DB
@@ -243,7 +243,7 @@ public class ResourceModel extends SmallTableModelBase<ResourceRecord> {
 			/*
 			//process downtime schedule
 			ResourceDowntimeModel dmodel = new ResourceDowntimeModel(auth);
-			for(ResourceDowntimeFormDE.DowntimeEditor downtime_editor : downtimes) {
+			for(ResourceDowntimeEditorDE.DowntimeEditor downtime_editor : downtimes) {
 				ResourceDowntimeRecord downtime = downtime_editor.getDowntimeRecord();
 				ResourceDowntimeServiceModel rdsmodel = new ResourceDowntimeServiceModel(auth);
 				ArrayList<ResourceDowntimeServiceRecord> services = downtime_services.get(downtime_editor);
@@ -268,7 +268,7 @@ public class ResourceModel extends SmallTableModelBase<ResourceRecord> {
 			
 			getConnection().commit();
 			getConnection().setAutoCommit(true);
-		} catch (SQLException e) {
+		} catch (Exception e) {
 			log.error(e);
 			log.info("Rolling back VO insert transaction.");
 			getConnection().rollback();

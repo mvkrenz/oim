@@ -123,7 +123,7 @@ public class SCModel extends SmallTableModelBase<SCRecord> {
 			
 			getConnection().commit();
 			getConnection().setAutoCommit(true);
-		} catch (SQLException e) {
+		} catch (Exception e) {
 			log.error(e);
 			log.info("Rolling back SC insert transaction.");
 			getConnection().rollback();
@@ -154,7 +154,7 @@ public class SCModel extends SmallTableModelBase<SCRecord> {
 			
 			getConnection().commit();
 			getConnection().setAutoCommit(true);
-		} catch (SQLException e) {
+		} catch (Exception e) {
 			log.error(e);
 			log.info("Rolling back SC update-insert transaction.");
 			getConnection().rollback();

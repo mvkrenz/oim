@@ -94,7 +94,7 @@ public class DNModel extends SmallTableModelBase<DNRecord> {
 			
 			getConnection().commit();
 			getConnection().setAutoCommit(true);
-		} catch (SQLException e) {
+		} catch (Exception e) {
 			log.error(e);
 			log.info("Rolling back DN detail insert transaction.");
 			getConnection().rollback();
@@ -128,7 +128,7 @@ public class DNModel extends SmallTableModelBase<DNRecord> {
 		
 			getConnection().commit();
 			getConnection().setAutoCommit(true);
-		} catch (SQLException e) {
+		} catch (Exception e) {
 			log.error(e);
 			log.info("Rolling back DN detail update transaction.");
 			getConnection().rollback();

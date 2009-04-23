@@ -190,7 +190,7 @@ public class VOModel extends SmallTableModelBase<VORecord>
 			
 			getConnection().commit();
 			getConnection().setAutoCommit(true);
-		} catch (SQLException e) {
+		} catch (Exception e) {
 			log.error(e);
 			log.info("Rolling back VO insert transaction.");
 			getConnection().rollback();
@@ -304,7 +304,7 @@ public class VOModel extends SmallTableModelBase<VORecord>
 			
 			getConnection().commit();
 			getConnection().setAutoCommit(true);
-		} catch (SQLException e) {
+		} catch (Exception e) {
 			log.error(e);
 			log.info("Rolling back VO insert transaction.");
 			getConnection().rollback();

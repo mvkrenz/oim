@@ -140,16 +140,6 @@ public class ResourceServlet extends ServletBase implements Servlet {
 			}
 			table.addRow("Services", services_view);
 			
-			/*
-			//downtime
-			GenericView downtime_view = new GenericView();
-			ResourceDowntimeModel dmodel = new ResourceDowntimeModel(auth);
-			for(ResourceDowntimeRecord drec : dmodel.getFutureDowntimesByResourceID(rec.id)) {
-				downtime_view.add(createDowntimeView(root, drec));
-			}
-			table.addRow("Future Downtime Schedule", downtime_view);
-			*/
-			
 			//contacts (only shows contacts that are filled out)
 			ContactTypeModel ctmodel = new ContactTypeModel(auth);
 			ContactRankModel crmodel = new ContactRankModel(auth);
@@ -240,7 +230,6 @@ public class ResourceServlet extends ServletBase implements Servlet {
 			table.addRow("Hidden Service?", rec.hidden);
 			table.addRow("Central Service?", rec.central);
 			table.addRow("Optional ServiceURI Override", rec.endpoint_override);
-			// Hiding for now // table.addRow("Server List RegEx", rec.server_list_regex);
 			view.add(table);
 
 		} catch (SQLException e) {
@@ -249,34 +238,7 @@ public class ResourceServlet extends ServletBase implements Servlet {
 		
 		return view;
 	}
-	/*
-	private IView createDowntimeView(final DivExRoot root, ResourceDowntimeRecord rec) throws SQLException
-	{
-		GenericView view = new GenericView();
-		RecordTableView table = new RecordTableView("inner_table");
-		table.addHeaderRow("Downtime");
-		table.addRow("Summary", rec.downtime_summary);
-		table.addRow("Start Time", rec.start_time.toString() + " UTC");
-		table.addRow("End Time", rec.end_time.toString() + " UTC");
-		
-		DowntimeClassModel dtcmodel = new DowntimeClassModel(auth);
-		table.addRow("Downtime Class", dtcmodel.get(rec.downtime_class_id).name);
-		
-		DowntimeSeverityModel dtsmodel = new DowntimeSeverityModel(auth);
-		table.addRow("Downtime Severity", dtsmodel.get(rec.downtime_severity_id).name);
-		
-		table.addRow("Affected Services", createAffectedServices(rec.id));
-		
-		DNModel dnmodel = new DNModel(auth);
-		table.addRow("DN", dnmodel.get(rec.dn_id).dn_string);
-		
-		table.addRow("Disable", rec.disable);		
 
-		view.add(table);
-		
-		return view;
-	}
-	*/
 	private IView createAffectedServices(int downtime_id) throws SQLException
 	{
 		String html = "";

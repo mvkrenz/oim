@@ -89,7 +89,7 @@ public abstract class SmallTableModelBase<T extends RecordBase> extends ModelBas
 	    	for(T rec : recs) {
 	    		insert(rec);
 	    	}
-		} catch (SQLException e) {
+		} catch (Exception e) {
 			if(rollback) {
 				getConnection().rollback();
 				getConnection().setAutoCommit(true);
@@ -144,7 +144,7 @@ public abstract class SmallTableModelBase<T extends RecordBase> extends ModelBas
 	    	    	}
 	    		}
 	    	}
-		} catch (SQLException e) {
+		} catch (Exception e) {
 			if(rollback) {
 				getConnection().rollback();
 				getConnection().setAutoCommit(true);

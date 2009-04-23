@@ -15,7 +15,6 @@ import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.ResourceAliasRecord;
 import edu.iu.grid.oim.view.divex.ContactEditorDE.ContactDE;
 import edu.iu.grid.oim.view.divex.ContactEditorDE.Rank;
-import edu.iu.grid.oim.view.divex.form.ResourceDowntimeFormDE.DowntimeEditor;
 
 public class ResourceAliasDE extends FormElementDEBase {
 

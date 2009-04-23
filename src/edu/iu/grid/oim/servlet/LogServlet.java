@@ -107,7 +107,7 @@ public class LogServlet extends ServletBase  {
 		
 		try {
 			//construct view
-			MenuView menuview = createMenuView("admin");
+			MenuView menuview = createMenuView("log");
 			DivExRoot root = DivExRoot.getInstance(request);
 			ContentView contentview = createContentView(root, model);
 			Page page = new Page(menuview, contentview, createSideView(root));
@@ -257,31 +257,18 @@ public class LogServlet extends ServletBase  {
 	private SideContentView createSideView(DivExRoot root)
 	{
 		SideContentView view = new SideContentView();
-		GenericView types = new GenericView();
 		
-		types.add(new LinkView("log?type=all", "All"));
-		types.add(new HtmlView("<br/>"));
-		
-		types.add(new LinkView("log?type=resource", "Resource"));
-		types.add(new HtmlView("<br/>"));
-		
-		types.add(new LinkView("log?type=vo", "Virtual Organization"));
-		types.add(new HtmlView("<br/>"));
-		
-		types.add(new LinkView("log?type=sc", "Support Center"));
-		types.add(new HtmlView("<br/>"));
-		
-		types.add(new LinkView("log?type=contact", "Contact"));
-		types.add(new HtmlView("<br/>"));
-		
+		ListView list = new ListView();
+		list.add(new LinkView("log?type=all", "All"));
+		list.add(new LinkView("log?type=resource", "Resource"));
+		list.add(new LinkView("log?type=vo", "Virtual Organization" ));
+		list.add(new LinkView("log?type=sc", "Support Center"));
+		list.add(new LinkView("log?type=contact", "Contact"));		
 		if(auth.allows("admin")) {
-			types.add(new LinkView("log?type=site", "Site"));
-			types.add(new HtmlView("<br/>"));
-			
-			types.add(new LinkView("log?type=facility", "Facility"));	
-			types.add(new HtmlView("<br/>"));
+			list.add(new LinkView("log?type=site", "Site"));	
+			list.add(new LinkView("log?type=facility", "Facility"));	
 		}
-		view.add("Log Type", types);		
+		view.add("Log Type", list);		
 		return view;
 	}
 }

@@ -15,7 +15,6 @@ import com.webif.divex.form.TextFormElementDE;
 
 import edu.iu.grid.oim.model.db.record.ResourceServiceRecord;
 import edu.iu.grid.oim.model.db.record.ServiceRecord;
-import edu.iu.grid.oim.view.divex.form.ResourceDowntimeFormDE.DowntimeEditor;
 
 public class ResourceServicesDE extends FormElementDEBase {
 

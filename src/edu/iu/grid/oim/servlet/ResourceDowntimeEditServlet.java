@@ -28,7 +28,6 @@ import edu.iu.grid.oim.view.Page;
 import edu.iu.grid.oim.view.SideContentView;
 import edu.iu.grid.oim.view.divex.form.ResourceDowntimeFormDE;
 import edu.iu.grid.oim.view.divex.form.ResourceFormDE;
-import edu.iu.grid.oim.view.divex.form.ResourceDowntimeFormDE.DowntimeEditor;
 
 public class ResourceDowntimeEditServlet extends ServletBase implements Servlet {
 	private static final long serialVersionUID = 1L;
@@ -64,7 +63,7 @@ public class ResourceDowntimeEditServlet extends ServletBase implements Servlet 
 			} catch (SQLException e) {
 				throw new ServletException(e);
 			}	
-			title = "Update Downtime Schedule";
+			title = rec.name + " Downtime";
 		} else {
 			throw new ServletException("Can't do new resource");
 		}
@@ -90,22 +89,6 @@ public class ResourceDowntimeEditServlet extends ServletBase implements Servlet 
 	private SideContentView createSideView(DivExRoot root)
 	{
 		SideContentView view = new SideContentView();
-		
-		ButtonDE add_button = new ButtonDE(root, "Add New Downtime");
-		add_button.setStyle(ButtonDE.Style.ALINK);
-		add_button.addEventListener(new EventListener() {
-			public void handleEvent(Event e) {
-				try {
-					ResourceDowntimeRecord rec = new ResourceDowntimeRecord();
-					rec.resource_id = resource_id;
-					DowntimeEditor elem = form.addDowntime(rec);
-					elem.scrollToShow(null);
-				} catch (SQLException e1) {
-					log.error(e1);
-				}
-			}
-		});
-		view.add("Operation", add_button);
 		view.add("TODO", new HtmlView("Whatever"));
 		return view;
 	}
