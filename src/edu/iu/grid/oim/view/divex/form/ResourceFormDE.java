@@ -89,7 +89,8 @@ public class ResourceFormDE extends FormDE
 		
 		id = rec.id;
 		
-		new StaticDE(this, "<h2>Details</h2>");
+		new StaticDE(this, "<h2>Basic Resource Information</h2>");
+		new StaticDE(this, "<p>Add/modify basic information about this resource.</p>");
 		
 		//pull vos for unique validator
 		HashMap<Integer, String> resources = getResources();
@@ -104,45 +105,33 @@ public class ResourceFormDE extends FormDE
 		name.addValidator(new UniqueValidator<String>(resources.values()));
 		name.setRequired(true);
 		
-		description = new TextAreaFormElementDE(this);
-		description.setLabel("Description");
-		description.setValue(rec.description);
-		description.setRequired(true);
-				
-		url = new TextFormElementDE(this);
-		url.setLabel("URL");
-		url.setValue(rec.url);
-		url.addValidator(UrlValidator.getInstance());
-		url.setRequired(true);
-		
-		active = new CheckBoxFormElementDE(this);
-		active.setLabel("Active");
-		active.setValue(rec.active);
-		if(!auth.allows("admin")) {
-			active.setHidden(true);
-		}
-		
-		disable = new CheckBoxFormElementDE(this);
-		disable.setLabel("Disabled");
-		disable.setValue(rec.disable);
-		if(!auth.allows("admin")) {
-			disable.setHidden(true);
-		}
-		
-		resource_group_id = new OIMHierarchySelector(this, OIMHierarchySelector.Type.RESOURCE_GROUP, auth);
-		resource_group_id.setLabel("Resource Group");
-		resource_group_id.setRequired(true);
-		if(id != null) {
-			resource_group_id.setValue(rec.resource_group_id);
-		}
-		
 		fqdn = new TextFormElementDE(this);
-		fqdn.setLabel("FQDN");
+		fqdn.setLabel("Fully Qualified Domain Name (FQDN) of this resource");
 		fqdn.setValue(rec.fqdn);
 		fqdn.addValidator(new UniqueValidator<String>(resources.values()));
 		fqdn.setRequired(true);
 
-		new StaticDE(this, "<h3>Resource Aliases</h3>");
+		resource_group_id = new OIMHierarchySelector(this, OIMHierarchySelector.Type.RESOURCE_GROUP, auth);
+		resource_group_id.setLabel("Select Your Facility (Instituition), Site (Department), and Resource Group");
+		resource_group_id.setRequired(true);
+		if(id != null) {
+			resource_group_id.setValue(rec.resource_group_id);
+		}
+
+		description = new TextAreaFormElementDE(this);
+		description.setLabel("Short Description");
+		description.setValue(rec.description);
+		description.setRequired(true);
+				
+		url = new TextFormElementDE(this);
+		url.setLabel("Information URL");
+		url.setValue(rec.url);
+		url.addValidator(UrlValidator.getInstance());
+		url.setRequired(true);
+		
+		
+		new StaticDE(this, "<h3>Resource FQDN Aliases (If Applicable)</h3>");
+		new StaticDE(this, "<p>If you used a DNS alias as their main gatekeeper or SE head node FQDN (as defined above), then you can add real host name(s) here as reverse alias(es).</p>");
 		aliases = new ResourceAliasDE(this);
 		ResourceAliasModel ramodel = new ResourceAliasModel(auth);
 		if(id != null) {
@@ -151,7 +140,8 @@ public class ResourceFormDE extends FormDE
 			}
 		}
 		
-		new StaticDE(this, "<h2>Resource Services</h2>");
+		new StaticDE(this, "<h2>Resource Service(s)</h2>");
+		new StaticDE(this, "<p>Add, remove, modify services associated with your resource. For example, a CE or an SRM.</p>");
 		ServiceModel smodel = new ServiceModel(auth);
 		resource_services = new ResourceServicesDE(this, smodel.getAll());
 		ResourceServiceModel rsmodel = new ResourceServiceModel(auth);
@@ -172,6 +162,7 @@ public class ResourceFormDE extends FormDE
 		*/
 		
 		new StaticDE(this, "<h2>Contact Information</h2>");
+		new StaticDE(this, "<p>Add, remove, modify various types of contacts associated with your resource. These contacts have the authorization to modify this resource. Each contact entry field shows you a list of contacts as you type a name.</p>");
 		HashMap<Integer/*contact_type_id*/, ArrayList<ResourceContactRecord>> voclist_grouped = null;
 		if(id != null) {
 			ResourceContactModel vocmodel = new ResourceContactModel(auth);
@@ -200,7 +191,12 @@ public class ResourceFormDE extends FormDE
 			contact_editors.put(contact_type_id, editor);
 		}
 		
-		new StaticDE(this, "<h2>WLCG Information</h2>");
+		new StaticDE(this, "<h2>WLCG Interoperability Information (If Applicable)</h2>");
+		new StaticDE(this, "<p>Enable this section if your resource is part of the WLCG interoperability agreement. " + 
+					"You can then provide more interoperability details for this resource, including KSI2K Limits " + 
+					" and storage capacity min/max values. If you are not sure about any of these values, " + 
+					" ask your Owner VO(s)!</p>");
+
 		wlcg = new CheckBoxFormElementDE(this);
 		wlcg.setLabel("This is a WLCG resource");
 		wlcg.addEventListener(new EventListener() {
@@ -217,31 +213,41 @@ public class ResourceFormDE extends FormDE
 		new StaticDE(this, "<div class=\"indent\">");
 		{
 			interop_bdii = new CheckBoxFormElementDE(this);
-			interop_bdii.setLabel("Interop BDII");
+			interop_bdii.setLabel("Should this resource part of WLCG Interop BDII?");
 	
 			interop_monitoring = new CheckBoxFormElementDE(this);
-			interop_monitoring.setLabel("Interop Monitoring");
+			interop_monitoring.setLabel("Should this resource part of WLCG Interop Monitoring?");
 	
 			interop_accounting = new CheckBoxFormElementDE(this);
-			interop_accounting.setLabel("Interop Accounting");
-		
+			interop_accounting.setLabel("Should this resource part of WLCG Interop Accounting?");
+
+			interop_accounting.addEventListener(new EventListener() {
+				public void handleEvent(Event e) {	
+					if(((String)e.value).compareTo("true") == 0) {
+						hideWLCGAccountingName(false);
+					} else {
+						hideWLCGAccountingName(true);
+					}
+				}
+			});
+
 			wlcg_accounting_name = new TextFormElementDE(this);
 			wlcg_accounting_name.setLabel("WLCG Accounting Name");
-			
+
 			ksi2k_minimum = new TextFormElementDE(this);
-			ksi2k_minimum.setLabel("ksi2k_minimum");
+			ksi2k_minimum.setLabel("KSI2K Minimum");
 			ksi2k_minimum.addValidator(DoubleValidator.getInstance());
 			
 			ksi2k_maximum = new TextFormElementDE(this);
-			ksi2k_maximum.setLabel("ksi2k_maximum");
+			ksi2k_maximum.setLabel("KSI2K Maximum");
 			ksi2k_maximum.addValidator(DoubleValidator.getInstance());
 			
 			storage_capacity_minimum = new TextFormElementDE(this);
-			storage_capacity_minimum.setLabel("Storage Capacity Minimum");
+			storage_capacity_minimum.setLabel("Storage Capacity Minimum (in TeraBytes)");
 			storage_capacity_minimum.addValidator(DoubleValidator.getInstance());
 			
 			storage_capacity_maximum = new TextFormElementDE(this);
-			storage_capacity_maximum.setLabel("Storage Capacity Maximum");
+			storage_capacity_maximum.setLabel("Storage Capacity Maximum (in TeraBytes)");
 			storage_capacity_maximum.addValidator(DoubleValidator.getInstance());
 		}
 		new StaticDE(this, "</div>");
@@ -271,7 +277,21 @@ public class ResourceFormDE extends FormDE
 				hideWLCGElements(false);
 			}
 		}
+
+		new StaticDE(this, "<h2>Administrative Tasks</h2>");
+		active = new CheckBoxFormElementDE(this);
+		active.setLabel("Active");
+		active.setValue(rec.active);
+		if(!auth.allows("admin")) {
+			active.setHidden(true);
+		}
 		
+		disable = new CheckBoxFormElementDE(this);
+		disable.setLabel("Disabled");
+		disable.setValue(rec.disable);
+		if(!auth.allows("admin")) {
+			disable.setHidden(true);
+		}
 	}
 	
 	private void hideWLCGElements(Boolean b)
@@ -307,6 +327,13 @@ public class ResourceFormDE extends FormDE
 		storage_capacity_maximum.setHidden(b);
 		storage_capacity_maximum.redraw();
 		storage_capacity_maximum.setRequired(!b);
+	}
+
+	private void hideWLCGAccountingName(Boolean b)
+	{
+		wlcg_accounting_name.setHidden(b);
+		wlcg_accounting_name.redraw();
+		wlcg_accounting_name.setRequired(!b);
 	}
 	
 	private ContactEditorDE createContactEditor(HashMap<Integer, ArrayList<ResourceContactRecord>> voclist, ContactTypeRecord ctrec) throws SQLException

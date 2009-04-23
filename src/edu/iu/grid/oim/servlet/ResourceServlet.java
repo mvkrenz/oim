@@ -115,14 +115,10 @@ public class ResourceServlet extends ServletBase implements Servlet {
 			RecordTableView table = new RecordTableView();
 			contentview.add(table);
 
-			table.addRow("Description", rec.description);
-			table.addRow("URL", new HtmlView("<a target=\"_blank\" href=\""+rec.url+"\">"+rec.url+"</a>"));
-			table.addRow("Active", rec.active);
-			table.addRow("Disable", rec.disable);
-			table.addRow("FQDN", rec.fqdn);
-			table.addRow("Alias", new HtmlView(getAlias(rec.id)));
-			
-			//pull parent VO
+			table.addRow("Resource FQDN", rec.fqdn);
+
+			//pull resource group
+			// Can we show hierarchy here? -agopu
 			ResourceGroupModel model = new ResourceGroupModel(auth);
 			ResourceGroupRecord resource_group_rec = model.get(rec.resource_group_id);
 			String resource_group_name = null;
@@ -130,6 +126,10 @@ public class ResourceServlet extends ServletBase implements Servlet {
 				resource_group_name = resource_group_rec.name;
 			}
 			table.addRow("Resource Group Name", resource_group_name);
+
+			table.addRow("Resource Description", rec.description);
+			table.addRow("Information URL", new HtmlView("<a target=\"_blank\" href=\""+rec.url+"\">"+rec.url+"</a>"));
+			table.addRow("Resource FQDN Alias", new HtmlView(getAlias(rec.id)));
 			
 			//Resource Services
 			ResourceServiceModel rsmodel = new ResourceServiceModel(auth);
@@ -180,7 +180,10 @@ public class ResourceServlet extends ServletBase implements Servlet {
 			ResourceWLCGModel wmodel = new ResourceWLCGModel(auth);
 			ResourceWLCGRecord wrec = wmodel.get(rec.id);
 			table.addRow("WLCG Information", createWLCGView(wrec));
-		
+			
+			table.addRow("Active", rec.active);
+			table.addRow("Disable", rec.disable);
+
 			class EditButtonDE extends ButtonDE
 			{
 				String url;
@@ -194,6 +197,7 @@ public class ResourceServlet extends ServletBase implements Servlet {
 				}
 			};
 			table.add(new DivExWrapper(new EditButtonDE(root, Config.getApplicationBase()+"/resourceedit?resource_id=" + rec.id)));
+			table.add(new DivExWrapper(new EditButtonDE(root, Config.getApplicationBase()+"/resourcedowntimeedit?resource_id=" + rec.id)));
 		}
 		
 		return contentview;
@@ -207,20 +211,18 @@ public class ResourceServlet extends ServletBase implements Servlet {
 			return view;
 		}
 		RecordTableView table = new RecordTableView("inner_table");
+		table.addRow("Part of Interop BDII?", rec.interop_bdii);
+		table.addRow("Part of Interop Monitoring?", rec.interop_monitoring);
+		table.addRow("Part of Interop Accounting?", rec.interop_accounting);
+		if (rec.interop_accounting == true) {
+			table.addRow("WLCG Accounting Name", rec.accounting_name);
+		}
+		table.addRow("KSI2K Minimum", rec.ksi2k_minimum);
+		table.addRow("KSI2K Maximum", rec.ksi2k_maximum);
+		table.addRow("Storage Capacity Minimum (TB)", rec.storage_capacity_minimum);
+		table.addRow("Storage Capacity Maximum(TB)", rec.storage_capacity_maximum);
+		
 		view.add(table);
-		/*
-		private CheckBoxFormElementDE wlcg;
-		private CheckBoxFormElementDE interop_bdii;
-		private CheckBoxFormElementDE interop_monitoring;
-		private CheckBoxFormElementDE interop_accounting;
-		private TextFormElementDE wlcg_accounting_name;
-		private TextFormElementDE ksi2k_minimum;
-		private TextFormElementDE ksi2k_maximum;
-		private TextFormElementDE storage_capacity_minimum;
-		private TextFormElementDE storage_capacity_maximum;
-		*/
-		
-		
 		return view;
 	}
 	
@@ -235,10 +237,10 @@ public class ResourceServlet extends ServletBase implements Servlet {
 
 			RecordTableView table = new RecordTableView("inner_table");
 			table.addHeaderRow(srec.description);
-			table.addRow("Hidden", rec.hidden);
-			table.addRow("Central", rec.central);
-			table.addRow("End Point Override", rec.endpoint_override);
-			table.addRow("Server List RegEx", rec.server_list_regex);
+			table.addRow("Hidden Service?", rec.hidden);
+			table.addRow("Central Service?", rec.central);
+			table.addRow("Optional ServiceURI Override", rec.endpoint_override);
+			// Hiding for now // table.addRow("Server List RegEx", rec.server_list_regex);
 			view.add(table);
 
 		} catch (SQLException e) {
@@ -297,6 +299,7 @@ public class ResourceServlet extends ServletBase implements Servlet {
 		for(ResourceAliasRecord rec : recs) {
 			html += StringEscapeUtils.escapeHtml(rec.resource_alias) + "<br/>";
 		}
+		if (html.length() == 0) html = "N/A"; // Need to make this be consistent with other NULL/empty objects -agopu
 		return html;
 	}
 		

@@ -93,11 +93,12 @@ public class SCServlet extends ServletBase implements Servlet {
 		 	table.addRow("Long Name", rec.long_name);
 			table.addRow("Description", rec.description);
 			table.addRow("Community", rec.community);
+
+			table.addRow("Active", rec.active);
+			table.addRow("Disable", rec.disable);
 			if(auth.allows("admin")) {
 				table.addRow("Footprints ID", rec.footprints_id);
 			}
-			table.addRow("Active", rec.active);
-			table.addRow("Disable", rec.disable);
 
 			ContactTypeModel ctmodel = new ContactTypeModel(auth);
 			ContactRankModel crmodel = new ContactRankModel(auth);

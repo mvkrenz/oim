@@ -40,40 +40,44 @@ public class ResourceServicesDE extends FormElementDEBase {
 			super(parent);
 			myself = this;
 			
+			// Need service group based service selector -agopu
 			HashMap<Integer, String> kv = new HashMap();
 			for(ServiceRecord srec : service_recs) {
 				kv.put(srec.id, srec.name);
 			}
 			service = new SelectFormElementDE(this, kv);
-			service.setLabel("Service Name");
+			service.setLabel("Select A Service");
 			service.setRequired(true);
 			if(rec != null) {
 				service.setValue(rec.service_id);
 			}
 			
+			// These lines look a bit ugly -- needs clean up -agopu
 			hidden = new CheckBoxFormElementDE(this);
-			hidden.setLabel("Hidden Service");
+			hidden.setLabel("Is this a Hidden Service? (for eg., an internal gatekeeper inaccessible to the outside world; If you are not sure, leave it unchecked)");
 			if(rec != null) {
 				hidden.setValue(rec.hidden);
 			}
 			
 			central = new CheckBoxFormElementDE(this);
-			central.setLabel("Central");
+			central.setLabel("Is this a Centralized Service? (for eg., an infrastructure service like a BDII or an accounting server? If you are not sure, leave it unchecked)");
 			if(rec != null) {
 				central.setValue(rec.central);
 			}
 			
 			endpoint_override = new TextFormElementDE(this);
-			endpoint_override.setLabel("End Point Override");
+			endpoint_override.setLabel("Service URI Override (default serviceUri in the fqdn[:default_service_port][/service] format. For eg., \"research.iu.edu:2812/gsiftp\")");
 			if(rec != null) {
 				endpoint_override.setValue(rec.endpoint_override);
 			}
 
+			// Hiding this for now. Only Brian B knows how to use it.
 			server_list_regex = new TextFormElementDE(this);
 			server_list_regex.setLabel("Server List RegEx");
 			if(rec != null && rec.server_list_regex != null) {
 				server_list_regex.setValue(rec.server_list_regex.toString());
 			}
+			server_list_regex.setHidden(true);
 			
 			remove_button = new ButtonDE(this, "images/delete.png");
 			remove_button.setStyle(ButtonDE.Style.IMAGE);
