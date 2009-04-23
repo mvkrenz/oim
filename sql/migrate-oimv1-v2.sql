@@ -35,6 +35,7 @@ INSERT INTO metric_service (SELECT metric_id,service_id,critical FROM oim.metric
 INSERT INTO field_of_science (SELECT id,name FROM oim.field_of_science);
 
 INSERT INTO facility (SELECT facility_id,name,description,active,disable FROM oim.facility);
+INSERT INTO facility_contact (SELECT person_id,facility_id,type_id,rank_id FROM oim.facility_contact);
 
 INSERT INTO sc (SELECT sc_id,short_name,long_name,description,community,active,disable,footprints_id FROM oim.supportcenter);
 

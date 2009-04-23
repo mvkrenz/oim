@@ -275,6 +275,27 @@ CREATE TABLE `facility` (
 ) ENGINE=InnoDB AUTO_INCREMENT=10063 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 SET character_set_client = @saved_cs_client;
 
+
+DROP TABLE IF EXISTS `facility_contact`;
+SET @saved_cs_client     = @@character_set_client;
+SET character_set_client = utf8;
+CREATE TABLE `facility_contact` (
+  `contact_id` int(11) NOT NULL,
+  `facility_id` int(11) NOT NULL,
+  `contact_type_id` int(11) NOT NULL,
+  `contact_rank_id` int(11) NOT NULL,
+  PRIMARY KEY  (`contact_id`,`facility_id`,`contact_type_id`,`contact_rank_id`),
+  KEY `facility_facility_contact` (`facility_id`),
+  KEY `contact_type_facility_contact` (`contact_type_id`),
+  KEY `contact_rank_facility_contact` (`contact_rank_id`),
+  CONSTRAINT `contact_rank_facility_contact` FOREIGN KEY (`contact_rank_id`) REFERENCES `contact_rank` (`id`),
+  CONSTRAINT `contact_type_facility_contact` FOREIGN KEY (`contact_type_id`) REFERENCES `contact_type` (`id`),
+  CONSTRAINT `contact_faclity_contact` FOREIGN KEY (`contact_id`) REFERENCES `contact` (`id`),
+  CONSTRAINT `facility_facility_contact` FOREIGN KEY (`facility_id`) REFERENCES `facility` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+SET character_set_client = @saved_cs_client;
+
+
 --
 -- Table structure for table `field_of_science`
 --
