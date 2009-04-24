@@ -22,6 +22,7 @@ public class ServiceRecord extends RecordBase {
 	public ServiceRecord(ResultSet rs) throws SQLException { super(rs); }
 	//for creating new record
 	public ServiceRecord() {}
+	/*
 	public String toString(Object field, Authorization auth)
 	{
 		if(field == null) return null;
@@ -36,4 +37,5 @@ public class ServiceRecord extends RecordBase {
 		}
 		return field.toString();
 	}
+	*/
 }

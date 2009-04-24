@@ -18,7 +18,7 @@ public class ButtonDE extends DivEx {
 			out.write(_class);
 			out.write(" ");
 		}
-		out.write("\"");
+		out.write("\" ");
 	}
 	
 	static public enum Style { BUTTON, ALINK, IMAGE };

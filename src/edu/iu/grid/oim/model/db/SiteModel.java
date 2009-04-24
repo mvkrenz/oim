@@ -15,6 +15,7 @@ import org.w3c.dom.Document;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
+import edu.iu.grid.oim.model.Context;
 import edu.iu.grid.oim.model.db.record.FacilityRecord;
 import edu.iu.grid.oim.model.db.record.RecordBase;
 import edu.iu.grid.oim.model.db.record.ResourceRecord;
@@ -23,8 +24,8 @@ import edu.iu.grid.oim.model.db.record.SiteRecord;
 public class SiteModel extends SmallTableModelBase<SiteRecord> {
     static Logger log = Logger.getLogger(SiteModel.class); 
 
-	public SiteModel(Authorization _auth) {
-		super(_auth, "site");
+	public SiteModel(Context context) {
+		super(context, "site");
 	}
     public String getName()
     {

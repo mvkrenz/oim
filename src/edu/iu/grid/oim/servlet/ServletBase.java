@@ -1,41 +1,44 @@
 package edu.iu.grid.oim.servlet;
 
-import java.io.IOException;
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.ArrayList;
 
-import javax.naming.Context;
-import javax.naming.InitialContext;
-import javax.servlet.Servlet;
+import javax.naming.NamingException;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
-import javax.sql.DataSource;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 
 import edu.iu.grid.oim.lib.Authorization;
-import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
+import edu.iu.grid.oim.model.Context;
 import edu.iu.grid.oim.model.MenuItem;
-import edu.iu.grid.oim.view.ContentView;
-import edu.iu.grid.oim.view.LinkView;
 import edu.iu.grid.oim.view.MenuView;
-import edu.iu.grid.oim.view.Page;
 
 public class ServletBase extends HttpServlet {
     static Logger log = Logger.getLogger(ServletBase.class);  
+	
+    protected Context context;
 	protected Authorization auth;
-
+	
 	public void init(ServletConfig conf) throws ServletException {
 		super.init(conf);
 	}
 	
-	protected void setAuth(HttpServletRequest request) throws AuthorizationException
+	protected void setContext(HttpServletRequest request)
 	{
-		auth = new Authorization(request);
+		try {
+			context = new Context(request);
+			auth = context.getAuthorization();
+		} catch (NamingException e) {
+			log.error(e);
+		} catch (SQLException e) {
+			log.error(e);
+		}
 	}
+	
 	
 	protected MenuView createMenuView(String current)
 	{

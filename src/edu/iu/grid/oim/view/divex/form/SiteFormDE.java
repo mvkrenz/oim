@@ -28,6 +28,7 @@ import com.webif.divex.form.validator.UrlValidator;
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
 
+import edu.iu.grid.oim.model.Context;
 import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.SCModel;
 import edu.iu.grid.oim.model.db.SiteModel;
@@ -44,7 +45,8 @@ import edu.iu.grid.oim.view.divex.ContactEditorDE.Rank;
 public class SiteFormDE extends FormDE 
 {
     static Logger log = Logger.getLogger(SiteFormDE.class); 
-   
+    
+    private Context context;
 	protected Authorization auth;
 	private Integer id;
 	
@@ -64,11 +66,11 @@ public class SiteFormDE extends FormDE
 	private CheckBoxFormElementDE active;
 	private CheckBoxFormElementDE disable;
 	
-	public SiteFormDE(DivEx parent, SiteRecord rec, String origin_url, Authorization _auth) throws AuthorizationException, SQLException
+	public SiteFormDE(Context _context, SiteRecord rec, String origin_url) throws AuthorizationException, SQLException
 	{	
-		super(parent, origin_url);
-		auth = _auth;
-		
+		super(_context.getDivExRoot(), origin_url);
+		context = _context;
+		auth = context.getAuthorization();
 		id = rec.id;
 		
 		new StaticDE(this, "<h2>Details</h2>");
@@ -155,7 +157,7 @@ public class SiteFormDE extends FormDE
 	
 	private HashMap<Integer, String> getSites() throws AuthorizationException, SQLException
 	{
-		SiteModel model = new SiteModel(auth);
+		SiteModel model = new SiteModel(context);
 		HashMap<Integer, String> keyvalues = new HashMap<Integer, String>();
 		for(SiteRecord rec : model.getAll()) {
 			keyvalues.put(rec.id, rec.name);
@@ -165,7 +167,7 @@ public class SiteFormDE extends FormDE
 	
 	private HashMap<Integer, String> getSCs() throws AuthorizationException, SQLException
 	{
-		SCModel model = new SCModel(auth);
+		SCModel model = new SCModel(context);
 		HashMap<Integer, String> keyvalues = new HashMap<Integer, String>();
 		for(SCRecord rec : model.getAll()) {
 			keyvalues.put(rec.id, rec.name);
@@ -175,7 +177,7 @@ public class SiteFormDE extends FormDE
 
 	private HashMap<Integer, String> getFacilities() throws AuthorizationException, SQLException
 	{
-		FacilityModel model = new FacilityModel(auth);
+		FacilityModel model = new FacilityModel(context);
 		HashMap<Integer, String> keyvalues = new HashMap<Integer, String>();
 		for(FacilityRecord rec : model.getAll()) {
 			keyvalues.put(rec.id, rec.name);
@@ -224,7 +226,7 @@ public class SiteFormDE extends FormDE
 			}
 			*/
 			
-			SiteModel model = new SiteModel(auth);
+			SiteModel model = new SiteModel(context);
 			if(rec.id == null) {
 				model.insert(rec);
 			} else {

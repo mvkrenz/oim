@@ -21,6 +21,7 @@ import com.webif.divex.form.validator.UrlValidator;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
+import edu.iu.grid.oim.model.Context;
 import edu.iu.grid.oim.model.db.ContactTypeModel;
 import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.ResourceAliasModel;
@@ -47,6 +48,8 @@ public class ResourceFormDE extends FormDE
 {
     static Logger log = Logger.getLogger(ResourceFormDE.class); 
    
+    private Context context;
+    
 	protected Authorization auth;
 	private Integer id;
 	
@@ -81,10 +84,11 @@ public class ResourceFormDE extends FormDE
 	};
 	private HashMap<Integer, ContactEditorDE> contact_editors = new HashMap();
 	
-	public ResourceFormDE(DivEx parent, ResourceRecord rec, String origin_url, Authorization _auth) throws AuthorizationException, SQLException
+	public ResourceFormDE(Context _context, ResourceRecord rec, String origin_url) throws AuthorizationException, SQLException
 	{	
-		super(parent, origin_url);
-		auth = _auth;
+		super(_context.getDivExRoot(), origin_url);
+		context = _context;
+		auth = context.getAuthorization();
 		
 		id = rec.id;
 		
@@ -110,7 +114,7 @@ public class ResourceFormDE extends FormDE
 		fqdn.addValidator(new UniqueValidator<String>(resources.values()));
 		fqdn.setRequired(true);
 
-		resource_group_id = new OIMHierarchySelector(this, OIMHierarchySelector.Type.RESOURCE_GROUP, auth);
+		resource_group_id = new OIMHierarchySelector(this, context, OIMHierarchySelector.Type.RESOURCE_GROUP);
 		resource_group_id.setLabel("Select Your Facility (Instituition), Site (Department), and Resource Group");
 		resource_group_id.setRequired(true);
 		if(id != null) {
@@ -132,7 +136,7 @@ public class ResourceFormDE extends FormDE
 		new StaticDE(this, "<h3>Resource FQDN Aliases (If Applicable)</h3>");
 		new StaticDE(this, "<p>If you used a DNS alias as their main gatekeeper or SE head node FQDN (as defined above), then you can add real host name(s) here as reverse alias(es).</p>");
 		aliases = new ResourceAliasDE(this);
-		ResourceAliasModel ramodel = new ResourceAliasModel(auth);
+		ResourceAliasModel ramodel = new ResourceAliasModel(context);
 		if(id != null) {
 			for(ResourceAliasRecord rarec : ramodel.getAllByResourceID(id)) {
 				aliases.addAlias(rarec.resource_alias);
@@ -141,9 +145,9 @@ public class ResourceFormDE extends FormDE
 		
 		new StaticDE(this, "<h2>Resource Service(s)</h2>");
 		new StaticDE(this, "<p>Add, remove, modify services associated with your resource. For example, a CE or an SRM.</p>");
-		ServiceModel smodel = new ServiceModel(auth);
+		ServiceModel smodel = new ServiceModel(context);
 		resource_services = new ResourceServicesDE(this, smodel.getAll());
-		ResourceServiceModel rsmodel = new ResourceServiceModel(auth);
+		ResourceServiceModel rsmodel = new ResourceServiceModel(context);
 		if(id != null) {
 			for(ResourceServiceRecord rarec : rsmodel.getAllByResourceID(id)) {
 				resource_services.addService(rarec);
@@ -154,7 +158,7 @@ public class ResourceFormDE extends FormDE
 		new StaticDE(this, "<p>Add, remove, modify various types of contacts associated with your resource. These contacts have the authorization to modify this resource. Each contact entry field shows you a list of contacts as you type a name.</p>");
 		HashMap<Integer/*contact_type_id*/, ArrayList<ResourceContactRecord>> voclist_grouped = null;
 		if(id != null) {
-			ResourceContactModel vocmodel = new ResourceContactModel(auth);
+			ResourceContactModel vocmodel = new ResourceContactModel(context);
 			ArrayList<ResourceContactRecord> voclist = vocmodel.getByResourceID(id);
 			voclist_grouped = vocmodel.groupByContactTypeID(voclist);
 		} else {
@@ -168,7 +172,7 @@ public class ResourceFormDE extends FormDE
 			list.add(submitter);
 			voclist_grouped.put(1/*submitter*/, list);
 		}
-		ContactTypeModel ctmodel = new ContactTypeModel(auth);
+		ContactTypeModel ctmodel = new ContactTypeModel(context);
 		for(int contact_type_id : contact_types) {
 			ContactEditorDE editor = createContactEditor(voclist_grouped, ctmodel.get(contact_type_id));
 			//disable submitter editor if needed
@@ -241,7 +245,7 @@ public class ResourceFormDE extends FormDE
 		}
 		new StaticDE(this, "</div>");
 		hideWLCGElements(true);
-		ResourceWLCGModel wmodel = new ResourceWLCGModel(auth);
+		ResourceWLCGModel wmodel = new ResourceWLCGModel(context);
 		if(id != null) {
 			ResourceWLCGRecord wrec = wmodel.get(rec.id);
 			if(wrec != null) {
@@ -328,7 +332,7 @@ public class ResourceFormDE extends FormDE
 	private ContactEditorDE createContactEditor(HashMap<Integer, ArrayList<ResourceContactRecord>> voclist, ContactTypeRecord ctrec) throws SQLException
 	{
 		new StaticDE(this, "<h3>" + StringEscapeUtils.escapeHtml(ctrec.name) + "</h3>");
-		ContactModel pmodel = new ContactModel(auth);		
+		ContactModel pmodel = new ContactModel(context);		
 		ContactEditorDE editor = new ContactEditorDE(this, pmodel, ctrec.allow_secondary, ctrec.allow_tertiary);
 		
 		//if provided, populate currently selected contacts
@@ -375,7 +379,7 @@ public class ResourceFormDE extends FormDE
 			wrec.storage_capacity_minimum = storage_capacity_minimum.getValueAsDouble();
 		}
 		
-		ResourceModel model = new ResourceModel(auth);
+		ResourceModel model = new ResourceModel(context);
 		try {
 			if(rec.id == null) {
 				model.insertDetail(rec, 
@@ -427,7 +431,7 @@ public class ResourceFormDE extends FormDE
 	
 	private HashMap<Integer, String> getResources() throws SQLException
 	{
-		ResourceModel model = new ResourceModel(auth);
+		ResourceModel model = new ResourceModel(context);
 		HashMap<Integer, String> resources = new HashMap();
 		for(ResourceRecord rec : model.getAll()) {
 			resources.put(rec.id, rec.name);

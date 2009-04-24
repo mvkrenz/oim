@@ -38,7 +38,7 @@ public class ContactEditServlet extends ServletBase implements Servlet {
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{
-		setAuth(request);
+		setContext(request);
 		auth.check("edit_my_contact");
 		
 		ContactRecord rec;
@@ -48,7 +48,7 @@ public class ContactEditServlet extends ServletBase implements Servlet {
 		String id_str = request.getParameter("id");
 		if(id_str != null) {
 			//check authorization
-			ContactModel model = new ContactModel(auth);
+			ContactModel model = new ContactModel(context);
 			int id = Integer.parseInt(id_str);
 			if(!model.canEdit(id)) {
 				throw new ServletException("you can't edit that");
@@ -68,7 +68,7 @@ public class ContactEditServlet extends ServletBase implements Servlet {
 		}
 
 		String origin_url = Config.getApplicationBase()+"/"+parent_page;
-		ContactFormDE form = new ContactFormDE(DivExRoot.getInstance(request), rec, origin_url, auth);
+		ContactFormDE form = new ContactFormDE(context, rec, origin_url);
 		
 		//put the form in a view and display
 		ContentView contentview = new ContentView();

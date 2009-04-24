@@ -22,6 +22,7 @@ import com.webif.divex.form.validator.UrlValidator;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
+import edu.iu.grid.oim.model.Context;
 import edu.iu.grid.oim.model.db.ContactTypeModel;
 import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.SCModel;
@@ -37,18 +38,18 @@ public class OsgGridTypeFormDE extends FormDE
 {
     static Logger log = Logger.getLogger(OsgGridTypeFormDE.class); 
     
-    protected Connection con = null;
-	protected Authorization auth;
+    private Context context;
+    private Authorization auth;
 	private Integer id;
 	
 	private TextFormElementDE name;
 	private TextAreaFormElementDE description;
 	
-	public OsgGridTypeFormDE(DivEx parent, OsgGridTypeRecord rec, String origin_url, Authorization _auth) throws AuthorizationException, SQLException
+	public OsgGridTypeFormDE(Context _context, OsgGridTypeRecord rec, String origin_url) throws AuthorizationException, SQLException
 	{	
-		super(parent, origin_url);
-		auth = _auth;
-		
+		super(_context.getDivExRoot(), origin_url);
+		context = _context;
+		auth = context.getAuthorization();
 		id = rec.id;
 
 		//pull osg_grid_types for unique validator
@@ -74,7 +75,7 @@ public class OsgGridTypeFormDE extends FormDE
 	{
 		//pull all OsgGridTypes
 		HashMap<Integer, String> keyvalues = new HashMap<Integer, String>();
-		OsgGridTypeModel model = new OsgGridTypeModel(auth);
+		OsgGridTypeModel model = new OsgGridTypeModel(context);
 		for(OsgGridTypeRecord rec : model.getAll()) {
 			keyvalues.put(rec.id, rec.name);
 		}
@@ -93,7 +94,7 @@ public class OsgGridTypeFormDE extends FormDE
 		try {
 			auth.check("admin");
 			
-			OsgGridTypeModel model = new OsgGridTypeModel(auth);
+			OsgGridTypeModel model = new OsgGridTypeModel(context);
 			if(rec.id == null) {
 				model.insert(rec);
 			} else {

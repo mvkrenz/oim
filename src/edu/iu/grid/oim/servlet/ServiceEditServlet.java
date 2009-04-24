@@ -34,7 +34,7 @@ public class ServiceEditServlet extends ServletBase implements Servlet {
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{
-		setAuth(request);
+		setContext(request);
 		auth.check("admin");
 		
 		ServiceRecord rec;
@@ -46,7 +46,7 @@ public class ServiceEditServlet extends ServletBase implements Servlet {
 		if(id_str != null) {
 			//pull record to update
 			int id = Integer.parseInt(id_str);
-			ServiceModel model = new ServiceModel(auth);
+			ServiceModel model = new ServiceModel(context);
 			try {
 				rec = model.get(id);
 			} catch (SQLException e) {
@@ -61,7 +61,7 @@ public class ServiceEditServlet extends ServletBase implements Servlet {
 		ServiceFormDE form;
 		String origin_url = Config.getApplicationBase()+"/"+parent_page;
 		try {
-			form = new ServiceFormDE(DivExRoot.getInstance(request), rec, origin_url, auth);
+			form = new ServiceFormDE(context, rec, origin_url);
 		} catch (SQLException e) {
 			throw new ServletException(e);
 		}

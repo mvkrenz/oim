@@ -19,6 +19,7 @@ import com.webif.divex.form.validator.UrlValidator;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
+import edu.iu.grid.oim.model.Context;
 import edu.iu.grid.oim.model.db.ContactTypeModel;
 import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.OsgGridTypeModel;
@@ -46,7 +47,8 @@ import edu.iu.grid.oim.view.divex.ResourceServicesDE;
 public class ResourceGroupFormDE extends FormDE 
 {
     static Logger log = Logger.getLogger(ResourceGroupFormDE.class); 
-   
+    private Context context;
+    
 	protected Authorization auth;
 	private Integer id;
 	
@@ -57,10 +59,11 @@ public class ResourceGroupFormDE extends FormDE
 	private CheckBoxFormElementDE active;
 	private CheckBoxFormElementDE disable;
 	
-	public ResourceGroupFormDE(DivEx parent, ResourceGroupRecord rec, String origin_url, Authorization _auth) throws AuthorizationException, SQLException
+	public ResourceGroupFormDE(Context _context, ResourceGroupRecord rec, String origin_url) throws AuthorizationException, SQLException
 	{	
-		super(parent, origin_url);
-		auth = _auth;
+		super(_context.getDivExRoot(), origin_url);
+		context = _context;
+		auth = context.getAuthorization();
 		
 		id = rec.id;
 		
@@ -84,12 +87,12 @@ public class ResourceGroupFormDE extends FormDE
 		description.setValue(rec.description);
 		description.setRequired(true);
 		
-		site_id = new OIMHierarchySelector(this, OIMHierarchySelector.Type.SITE, auth);
+		site_id = new OIMHierarchySelector(this, context, OIMHierarchySelector.Type.SITE);
 		site_id.setLabel("Site");
 		site_id.setValue(rec.site_id);
 		site_id.setRequired(true);
 		
-		OsgGridTypeModel omodel = new OsgGridTypeModel(auth);
+		OsgGridTypeModel omodel = new OsgGridTypeModel(context);
 		HashMap<Integer, String> gridtype_kv = new HashMap();
 		for(OsgGridTypeRecord site_rec : omodel.getAll()) {
 			gridtype_kv.put(site_rec.id, site_rec.name);
@@ -119,7 +122,7 @@ public class ResourceGroupFormDE extends FormDE
 	private ContactEditorDE createContactEditor(HashMap<Integer, ArrayList<ResourceContactRecord>> voclist, ContactTypeRecord ctrec) throws SQLException
 	{
 		new StaticDE(this, "<h3>" + StringEscapeUtils.escapeHtml(ctrec.name) + "</h3>");
-		ContactModel pmodel = new ContactModel(auth);		
+		ContactModel pmodel = new ContactModel(context);		
 		ContactEditorDE editor = new ContactEditorDE(this, pmodel, ctrec.allow_secondary, ctrec.allow_tertiary);
 		
 		//if provided, populate currently selected contacts
@@ -151,7 +154,7 @@ public class ResourceGroupFormDE extends FormDE
 		rec.active = active.getValue();
 		rec.disable = disable.getValue();
 		
-		ResourceGroupModel model = new ResourceGroupModel(auth);
+		ResourceGroupModel model = new ResourceGroupModel(context);
 		try {
 			if(rec.id == null) {
 				model.insert(rec);
@@ -167,7 +170,7 @@ public class ResourceGroupFormDE extends FormDE
 	
 	private HashMap<Integer, String> getResourceGroups() throws SQLException
 	{
-		ResourceGroupModel model = new ResourceGroupModel(auth);
+		ResourceGroupModel model = new ResourceGroupModel(context);
 		HashMap<Integer, String> resource_groups = new HashMap();
 		for(ResourceGroupRecord rec : model.getAll()) {
 			resource_groups.put(rec.id, rec.name);

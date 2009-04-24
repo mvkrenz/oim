@@ -22,6 +22,7 @@ import com.webif.divex.form.validator.UrlValidator;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
+import edu.iu.grid.oim.model.Context;
 import edu.iu.grid.oim.model.db.AuthorizationTypeModel;
 import edu.iu.grid.oim.model.db.ContactTypeModel;
 import edu.iu.grid.oim.model.db.ContactModel;
@@ -43,19 +44,19 @@ public class UserFormDE extends FormDE
 {
     static Logger log = Logger.getLogger(UserFormDE.class); 
     
-    protected Connection con = null;
-	protected Authorization auth;
+    private Context context;
+	private Authorization auth;
 	private Integer id;
 	
 	private TextFormElementDE dn_string;
 	private ContactEditorDE contact;
 	private HashMap<Integer/*auth_type*/, CheckBoxFormElementDE> auth_types = new HashMap();
 	
-	public UserFormDE(DivEx parent, DNRecord rec, String origin_url, Authorization _auth) throws AuthorizationException, SQLException
+	public UserFormDE(Context _context, DNRecord rec, String origin_url) throws AuthorizationException, SQLException
 	{	
-		super(parent, origin_url);
-		auth = _auth;
-		
+		super(_context.getDivExRoot(), origin_url);
+		context = _context;
+		auth = context.getAuthorization();
 		id = rec.id;
 
 		dn_string = new TextFormElementDE(this);
@@ -64,16 +65,16 @@ public class UserFormDE extends FormDE
 		dn_string.setRequired(true);
 
 		new StaticDE(this, "<h3>Contact Person Name</h3>");
-		contact = new ContactEditorDE(this, new ContactModel(auth), false, false);
+		contact = new ContactEditorDE(this, new ContactModel(context), false, false);
 		contact.setShowRank(false);
 		contact.setMinContacts(ContactEditorDE.Rank.PRIMARY, 1);
-		ContactModel cmodel = new ContactModel(auth);
+		ContactModel cmodel = new ContactModel(context);
 		ContactRecord crec = cmodel.get(rec.contact_id);
 		contact.addSelected(crec, 1);//1 = is for primary (I know.. the api is not consistent with setMinContact() above)
 		
 		new StaticDE(this, "<h3>Authorization Types</h3>");
-		AuthorizationTypeModel atmodel = new AuthorizationTypeModel(auth);
-		DNAuthorizationTypeModel dnatmodel = new DNAuthorizationTypeModel(auth);
+		AuthorizationTypeModel atmodel = new AuthorizationTypeModel(context);
+		DNAuthorizationTypeModel dnatmodel = new DNAuthorizationTypeModel(context);
 		for(AuthorizationTypeRecord atrec : atmodel.getAll()) {
 			CheckBoxFormElementDE elem = new CheckBoxFormElementDE(this);
 			elem.setLabel(atrec.name);
@@ -114,7 +115,7 @@ public class UserFormDE extends FormDE
 		try {
 			auth.check("admin");
 			
-			DNModel model = new DNModel(auth);
+			DNModel model = new DNModel(context);
 			if(rec.id == null) {
 				model.insertDetail(rec, auths);
 			} else {

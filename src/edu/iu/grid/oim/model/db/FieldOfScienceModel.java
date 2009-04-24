@@ -1,6 +1,5 @@
 package edu.iu.grid.oim.model.db;
 
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
@@ -10,16 +9,16 @@ import javax.xml.xpath.XPathExpressionException;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 
-import edu.iu.grid.oim.lib.Authorization;
+import edu.iu.grid.oim.model.Context;
 import edu.iu.grid.oim.model.db.record.FieldOfScienceRecord;
 import edu.iu.grid.oim.model.db.record.RecordBase;
 
 public class FieldOfScienceModel extends SmallTableModelBase<FieldOfScienceRecord> {
     static Logger log = Logger.getLogger(FieldOfScienceModel.class);  
 	
-    public FieldOfScienceModel(Authorization _auth) 
+    public FieldOfScienceModel(Context context) 
     {
-    	super(_auth, "field_of_science");
+    	super(context, "field_of_science");
     }
     FieldOfScienceRecord createRecord() throws SQLException
 	{

@@ -13,6 +13,7 @@ import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 
 import edu.iu.grid.oim.lib.Authorization;
+import edu.iu.grid.oim.model.Context;
 import edu.iu.grid.oim.model.db.record.AuthorizationTypeRecord;
 import edu.iu.grid.oim.model.db.record.DNRecord;
 import edu.iu.grid.oim.model.db.record.RecordBase;
@@ -22,9 +23,9 @@ import edu.iu.grid.oim.model.db.record.VORecord;
 public class AuthorizationTypeModel extends SmallTableModelBase<AuthorizationTypeRecord> {
     static Logger log = Logger.getLogger(AuthorizationTypeModel.class);  
     
-    public AuthorizationTypeModel(Authorization auth) 
+    public AuthorizationTypeModel(Context context) 
     {
-    	super(auth, "authorization_type");
+    	super(context, "authorization_type");
     }
     AuthorizationTypeRecord createRecord() throws SQLException
 	{

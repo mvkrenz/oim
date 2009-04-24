@@ -49,16 +49,13 @@ public class FacilityServlet extends ServletBase implements Servlet {
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{	
-		setAuth(request);
+		setContext(request);
 		auth.check("admin");
 		
-		//pull list of all sites
-		FacilityModel model = new FacilityModel(auth);
 		try {	
 			//construct view
 			MenuView menuview = createMenuView("admin");
-			DivExRoot root = DivExRoot.getInstance(request);
-			ContentView contentview = createContentView(root, model.getAll());
+			ContentView contentview = createContentView();
 			
 			//setup crumbs
 			BreadCrumbView bread_crumb = new BreadCrumbView();
@@ -66,7 +63,7 @@ public class FacilityServlet extends ServletBase implements Servlet {
 			bread_crumb.addCrumb("Facility",  null);
 			contentview.setBreadCrumb(bread_crumb);
 			
-			Page page = new Page(menuview, contentview, createSideView(root));
+			Page page = new Page(menuview, contentview, createSideView());
 			page.render(response.getWriter());			
 		} catch (SQLException e) {
 			log.error(e);
@@ -74,9 +71,13 @@ public class FacilityServlet extends ServletBase implements Servlet {
 		}
 	}
 	
-	protected ContentView createContentView(final DivExRoot root, Collection<FacilityRecord> facilities) 
+	protected ContentView createContentView() 
 		throws ServletException, SQLException
 	{
+		//pull list of all sites
+		FacilityModel model = new FacilityModel(context);
+		Collection<FacilityRecord> facilities = model.getAll();
+		
 		ContentView contentview = new ContentView();	
 		contentview.add(new HtmlView("<h1>Facilities</h1>"));
 	
@@ -101,13 +102,13 @@ public class FacilityServlet extends ServletBase implements Servlet {
 					redirect(url);
 				}
 			};
-			table.add(new DivExWrapper(new EditButtonDE(root, Config.getApplicationBase()+"/facilityedit?facility_id=" + rec.id)));
+			table.add(new DivExWrapper(new EditButtonDE(context.getDivExRoot(), Config.getApplicationBase()+"/facilityedit?facility_id=" + rec.id)));
 		}
 		
 		return contentview;
 	}
 	
-	private SideContentView createSideView(DivExRoot root)
+	private SideContentView createSideView()
 	{
 		SideContentView view = new SideContentView();
 		
@@ -123,7 +124,7 @@ public class FacilityServlet extends ServletBase implements Servlet {
 				redirect(url);
 			}
 		};
-		view.add("Operation", new NewButtonDE(root, "facilityedit"));
+		view.add("Operation", new NewButtonDE(context.getDivExRoot(), "facilityedit"));
 		view.add("About", new HtmlView("This page shows a list of facilities that GOC staff maintain."));		
 		return view;
 	}

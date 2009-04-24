@@ -36,8 +36,7 @@ public class CpuInfoEditServlet extends ServletBase implements Servlet {
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{
-		setAuth(request);
-//		auth.check("edit_measurement");
+		setContext(request);
 		auth.check("admin");
 		
 		CpuInfoRecord rec;
@@ -49,7 +48,7 @@ public class CpuInfoEditServlet extends ServletBase implements Servlet {
 		if(cpu_info_id_str != null) {
 			//pull record to update
 			int cpu_info_id = Integer.parseInt(cpu_info_id_str);
-			CpuInfoModel model = new CpuInfoModel(auth);
+			CpuInfoModel model = new CpuInfoModel(context);
 			try {
 				CpuInfoRecord keyrec = new CpuInfoRecord();
 				keyrec.id =cpu_info_id;
@@ -66,7 +65,7 @@ public class CpuInfoEditServlet extends ServletBase implements Servlet {
 		CpuInfoFormDE form;
 		String origin_url = Config.getApplicationBase()+"/"+current_page;
 		try {
-			form = new CpuInfoFormDE(DivExRoot.getInstance(request), rec, origin_url, auth);
+			form = new CpuInfoFormDE(context, rec, origin_url);
 		} catch (SQLException e) {
 			throw new ServletException(e);
 		}

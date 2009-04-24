@@ -17,7 +17,7 @@ public class AuthorizationTypeActionRecord extends RecordBase {
 	public AuthorizationTypeActionRecord(ResultSet rs) throws SQLException { super(rs); }
 	//for creating new record
 	public AuthorizationTypeActionRecord() {}
-
+/*
 	public String getTitle() {
 		return "Authorization Matrix Record";
 	}
@@ -28,16 +28,16 @@ public class AuthorizationTypeActionRecord extends RecordBase {
 		return labels;
 	}
 
-	public String toString(Object field, Authorization auth)
+	public String toString(Object field, Context context)
 	{
 		if(field == null) return null;
 		try {
 			if(field == authorization_type_id) {
-				AuthorizationTypeModel model = new AuthorizationTypeModel(auth);
+				AuthorizationTypeModel model = new AuthorizationTypeModel(context);
 				AuthorizationTypeRecord rec = model.get(authorization_type_id);
 				return rec.name;
 			} else if(field == action_id) {
-				ActionModel model = new ActionModel(auth);
+				ActionModel model = new ActionModel(context);
 				ActionRecord rec = model.get(action_id);	
 				return rec.name;
 			}
@@ -46,4 +46,5 @@ public class AuthorizationTypeActionRecord extends RecordBase {
 		}
 		return field.toString();
 	}
+*/
 }

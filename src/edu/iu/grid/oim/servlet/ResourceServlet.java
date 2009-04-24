@@ -71,20 +71,15 @@ public class ResourceServlet extends ServletBase implements Servlet {
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{	
-		setAuth(request);
+		setContext(request);
+		auth.check("edit_my_resource");
 		
-		//pull list of all vos
-		Collection<ResourceRecord> resources = null;
-		ResourceModel model = new ResourceModel(auth);
 		try {
-			resources = model.getAllEditable();
-		
 			//construct view
 			MenuView menuview = createMenuView("resource");
-			DivExRoot root = DivExRoot.getInstance(request);
-			ContentView contentview = createContentView(root, resources);
+			ContentView contentview = createContentView();
 			
-			Page page = new Page(menuview, contentview, createSideView(root));
+			Page page = new Page(menuview, contentview, createSideView());
 			page.render(response.getWriter());			
 		} catch (SQLException e) {
 			log.error(e);
@@ -92,9 +87,12 @@ public class ResourceServlet extends ServletBase implements Servlet {
 		}
 	}
 	
-	protected ContentView createContentView(final DivExRoot root, Collection<ResourceRecord> resources) 
+	protected ContentView createContentView() 
 		throws ServletException, SQLException
 	{
+		ResourceModel model = new ResourceModel(context);
+		Collection<ResourceRecord> resources = model.getAllEditable();
+		
 		ContentView contentview = new ContentView();	
 		contentview.add(new HtmlView("<h1>Resource</h1>"));
 	
@@ -109,11 +107,6 @@ public class ResourceServlet extends ServletBase implements Servlet {
 			*/
 			contentview.add(new HtmlView("<h2>"+StringEscapeUtils.escapeHtml(name)+"</h2>"));
 	
-			/*
-			//RSS feed button
-			contentview.add(new HtmlView("<div class=\"right\"><a href=\"http://oimupdate.blogspot.com/feeds/posts/default/-/resource_"+rec.id+"\" target=\"_blank\"/>"+
-					"Subscribe to Updates</a></div>"));
-			*/
 			RecordTableView table = new RecordTableView();
 			contentview.add(table);
 
@@ -121,8 +114,8 @@ public class ResourceServlet extends ServletBase implements Servlet {
 
 			//pull resource group
 			// Can we show hierarchy here? -agopu
-			ResourceGroupModel model = new ResourceGroupModel(auth);
-			ResourceGroupRecord resource_group_rec = model.get(rec.resource_group_id);
+			ResourceGroupModel gmodel = new ResourceGroupModel(context);
+			ResourceGroupRecord resource_group_rec = gmodel.get(rec.resource_group_id);
 			String resource_group_name = null;
 			if(resource_group_rec != null) {
 				resource_group_name = resource_group_rec.name;
@@ -134,7 +127,7 @@ public class ResourceServlet extends ServletBase implements Servlet {
 			table.addRow("Resource FQDN Alias", new HtmlView(getAlias(rec.id)));
 			
 			//Resource Services
-			ResourceServiceModel rsmodel = new ResourceServiceModel(auth);
+			ResourceServiceModel rsmodel = new ResourceServiceModel(context);
 			ArrayList<ResourceServiceRecord> services = rsmodel.getAllByResourceID(rec.id);
 			GenericView services_view = new GenericView();
 			for(ResourceServiceRecord rsrec : services) {
@@ -143,10 +136,10 @@ public class ResourceServlet extends ServletBase implements Servlet {
 			table.addRow("Services", services_view);
 			
 			//contacts (only shows contacts that are filled out)
-			ContactTypeModel ctmodel = new ContactTypeModel(auth);
-			ContactRankModel crmodel = new ContactRankModel(auth);
-			ContactModel pmodel = new ContactModel(auth);
-			ResourceContactModel rcmodel = new ResourceContactModel(auth);
+			ContactTypeModel ctmodel = new ContactTypeModel(context);
+			ContactRankModel crmodel = new ContactRankModel(context);
+			ContactModel pmodel = new ContactModel(context);
+			ResourceContactModel rcmodel = new ResourceContactModel(context);
 			ArrayList<ResourceContactRecord> rclist = rcmodel.getByResourceID(rec.id);
 			HashMap<Integer, ArrayList<ResourceContactRecord>> voclist_grouped = rcmodel.groupByContactTypeID(rclist);
 			for(Integer type_id : voclist_grouped.keySet()) {
@@ -169,7 +162,7 @@ public class ResourceServlet extends ServletBase implements Servlet {
 			}		
 			
 			//WLCG
-			ResourceWLCGModel wmodel = new ResourceWLCGModel(auth);
+			ResourceWLCGModel wmodel = new ResourceWLCGModel(context);
 			ResourceWLCGRecord wrec = wmodel.get(rec.id);
 			table.addRow("WLCG Information", createWLCGView(wrec));
 			
@@ -188,8 +181,10 @@ public class ResourceServlet extends ServletBase implements Servlet {
 					redirect(url);
 				}
 			};
-			table.add(new DivExWrapper(new EditButtonDE(root, Config.getApplicationBase()+"/resourceedit?resource_id=" + rec.id)));
-			table.add(new DivExWrapper(new EditButtonDE(root, Config.getApplicationBase()+"/resourcedowntimeedit?resource_id=" + rec.id)));
+			table.add(new DivExWrapper(new EditButtonDE(context.getDivExRoot(), 
+					Config.getApplicationBase()+"/resourceedit?resource_id=" + rec.id)));
+			table.add(new DivExWrapper(new EditButtonDE(context.getDivExRoot(), 
+					Config.getApplicationBase()+"/resourcedowntimeedit?resource_id=" + rec.id)));
 		}
 		
 		return contentview;
@@ -223,7 +218,7 @@ public class ResourceServlet extends ServletBase implements Servlet {
 		GenericView view = new GenericView();
 		
 		try {
-			ServiceModel smodel = new ServiceModel(auth);
+			ServiceModel smodel = new ServiceModel(context);
 			ServiceRecord srec;
 			srec = smodel.get(rec.service_id);
 
@@ -244,12 +239,12 @@ public class ResourceServlet extends ServletBase implements Servlet {
 	private IView createAffectedServices(int downtime_id) throws SQLException
 	{
 		String html = "";
-		ResourceDowntimeServiceModel model = new ResourceDowntimeServiceModel(auth);
+		ResourceDowntimeServiceModel model = new ResourceDowntimeServiceModel(context);
 		Collection<ResourceDowntimeServiceRecord> services;
 
 		services = model.getByDowntimeID(downtime_id);
 		for(ResourceDowntimeServiceRecord service : services) {
-			html += service.toString(service.service_id, auth) + "<br/>";
+			html += service.service_id + "<br/>";
 		}
 		return new HtmlView(html);
 
@@ -258,7 +253,7 @@ public class ResourceServlet extends ServletBase implements Servlet {
 	private String getAlias(int resource_id) throws SQLException
 	{
 		String html = "";
-		ResourceAliasModel ramodel = new ResourceAliasModel(auth);
+		ResourceAliasModel ramodel = new ResourceAliasModel(context);
 		ArrayList<ResourceAliasRecord> recs = ramodel.getAllByResourceID(resource_id);
 		for(ResourceAliasRecord rec : recs) {
 			html += StringEscapeUtils.escapeHtml(rec.resource_alias) + "<br/>";
@@ -267,7 +262,7 @@ public class ResourceServlet extends ServletBase implements Servlet {
 		return html;
 	}
 		
-	private SideContentView createSideView(DivExRoot root)
+	private SideContentView createSideView()
 	{
 		SideContentView view = new SideContentView();
 		
@@ -283,7 +278,7 @@ public class ResourceServlet extends ServletBase implements Servlet {
 				redirect(url);
 			}
 		};
-		view.add("Operation", new NewButtonDE(root, "resourceedit"));
+		view.add("Operation", new NewButtonDE(context.getDivExRoot(), "resourceedit"));
 		view.add("About", new HtmlView("This page shows a list of resources that you have access to edit."));		
 		return view;
 	}

@@ -24,7 +24,7 @@ public class ResourceGroupRecord extends RecordBase {
 	public ResourceGroupRecord(ResultSet rs) throws SQLException { super(rs); }
 	//for creating new record
 	public ResourceGroupRecord() {}
-	
+	/*
 	public String getTitle() {
 		return "Resource Group : " + name;
 	}
@@ -54,4 +54,5 @@ public class ResourceGroupRecord extends RecordBase {
 		}
 		return field.toString();
 	}
+	*/
 }

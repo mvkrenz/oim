@@ -1,22 +1,13 @@
 package edu.iu.grid.oim.servlet;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
 import java.io.StringBufferInputStream;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
-import java.util.NoSuchElementException;
-
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.parsers.DocumentBuilder;
@@ -26,7 +17,6 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
-
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
@@ -38,9 +28,9 @@ import com.webif.divex.ButtonDE;
 import com.webif.divex.DivEx;
 import com.webif.divex.DivExRoot;
 import com.webif.divex.Event;
-
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Config;
+import edu.iu.grid.oim.model.Context;
 import edu.iu.grid.oim.model.MenuItem;
 import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.DNModel;
@@ -84,7 +74,7 @@ public class LogServlet extends ServletBase  {
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{
-		setAuth(request);
+		setContext(request);
 		
 		//pull log type
 		String model = "%";
@@ -108,9 +98,8 @@ public class LogServlet extends ServletBase  {
 		try {
 			//construct view
 			MenuView menuview = createMenuView("log");
-			DivExRoot root = DivExRoot.getInstance(request);
-			ContentView contentview = createContentView(root, model);
-			Page page = new Page(menuview, contentview, createSideView(root));
+			ContentView contentview = createContentView(model);
+			Page page = new Page(menuview, contentview, createSideView());
 			page.render(response.getWriter());			
 		} catch (SQLException e) {
 			log.error(e);
@@ -118,7 +107,7 @@ public class LogServlet extends ServletBase  {
 		}
 	}
 	
-	protected ContentView createContentView(final DivExRoot root, String model) throws ServletException, SQLException
+	protected ContentView createContentView(String model) throws ServletException, SQLException
 	{
 		ContentView view = new ContentView();	
 		view.add(new HtmlView("<h1>Log</h1>"));    	
@@ -127,18 +116,18 @@ public class LogServlet extends ServletBase  {
 	    	XPath xpath = XPathFactory.newInstance().newXPath();
 	    	DocumentBuilder builder;
 			builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-			DNModel dmodel = new DNModel(auth);
+			DNModel dmodel = new DNModel(context);
 			
 			//pull log entries that matches the log type
-			LogModel lmodel = new LogModel(auth);
+			LogModel lmodel = new LogModel(context);
 			Collection<LogRecord> recs = lmodel.getLatest(model);
 			builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
 			for(LogRecord rec : recs) {
 
 				//instantiate the model specified on the log (with Authorization as parameter)
 				Class modelClass = Class.forName(rec.model);
-				Constructor cons = modelClass.getConstructor(new Class[]{Authorization.class});
-				ModelBase somemodel = (ModelBase) cons.newInstance(auth);
+				Constructor cons = modelClass.getConstructor(new Class[]{Context.class});
+				ModelBase somemodel = (ModelBase) cons.newInstance(context);
 				
 				try {
 					//Parse the log XML stored in the record
@@ -254,7 +243,7 @@ public class LogServlet extends ServletBase  {
 		return list;
 	}
 	
-	private SideContentView createSideView(DivExRoot root)
+	private SideContentView createSideView()
 	{
 		SideContentView view = new SideContentView();
 		

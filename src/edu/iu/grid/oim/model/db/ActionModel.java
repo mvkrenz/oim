@@ -11,15 +11,16 @@ import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 
 import edu.iu.grid.oim.lib.Authorization;
+import edu.iu.grid.oim.model.Context;
 import edu.iu.grid.oim.model.db.record.ActionRecord;
 import edu.iu.grid.oim.model.db.record.RecordBase;
 
 public class ActionModel extends SmallTableModelBase<ActionRecord> {
     static Logger log = Logger.getLogger(ActionModel.class);  
     
-    public ActionModel(Authorization auth) 
+    public ActionModel(Context context) 
     {
-    	super(auth, "action");
+    	super(context, "action");
     }
     ActionRecord createRecord() throws SQLException
 	{

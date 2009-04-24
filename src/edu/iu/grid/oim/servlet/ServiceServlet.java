@@ -45,14 +45,13 @@ public class ServiceServlet extends ServletBase implements Servlet {
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{	
-		setAuth(request);
+		setContext(request);
 		auth.check("admin");
 		
 		try {	
 			//construct view
 			MenuView menuview = createMenuView("admin");
-			DivExRoot root = DivExRoot.getInstance(request);
-			ContentView contentview = createContentView(root);
+			ContentView contentview = createContentView();
 			
 			//setup crumbs
 			BreadCrumbView bread_crumb = new BreadCrumbView();
@@ -60,7 +59,7 @@ public class ServiceServlet extends ServletBase implements Servlet {
 			bread_crumb.addCrumb("Service",  null);
 			contentview.setBreadCrumb(bread_crumb);
 			
-			Page page = new Page(menuview, contentview, createSideView(root));
+			Page page = new Page(menuview, contentview, createSideView());
 			page.render(response.getWriter());			
 		} catch (SQLException e) {
 			log.error(e);
@@ -68,13 +67,13 @@ public class ServiceServlet extends ServletBase implements Servlet {
 		}
 	}
 	
-	protected ContentView createContentView(final DivExRoot root) 
+	protected ContentView createContentView() 
 		throws ServletException, SQLException
 	{
 		ContentView contentview = new ContentView();	
 		contentview.add(new HtmlView("<h1>Service</h1>"));
 
-		ServiceModel model = new ServiceModel(auth);
+		ServiceModel model = new ServiceModel(context);
 		
 		for(ServiceRecord rec : model.getAll()) {
 			contentview.add(new HtmlView("<h2>"+StringEscapeUtils.escapeHtml(rec.name)+"</h2>"));
@@ -83,14 +82,14 @@ public class ServiceServlet extends ServletBase implements Servlet {
 			contentview.add(table);
 			table.addRow("Name", rec.name);
 			table.addRow("Description", rec.description);
-			table.addRow("Port", rec.toString(rec.port, auth));
-			table.addRow("Service Group ID", rec.toString(rec.service_group_id, auth));
+			table.addRow("Port", rec.port.toString());
+			table.addRow("Service Group ID", rec.service_group_id.toString());
 			
 			//downtime
 			GenericView metric_view = new GenericView();
-			MetricServiceModel dmodel = new MetricServiceModel(auth);
+			MetricServiceModel dmodel = new MetricServiceModel(context);
 			for(MetricServiceRecord drec : dmodel.getAllByServiceID(rec.id)) {
-				metric_view.add(createMetricView(root, drec));
+				metric_view.add(createMetricView(drec));
 			}
 			table.addRow("Metrics", metric_view);
 		
@@ -107,17 +106,17 @@ public class ServiceServlet extends ServletBase implements Servlet {
 					redirect(url);
 				}
 			};
-			table.add(new DivExWrapper(new EditButtonDE(root, Config.getApplicationBase()+"/serviceedit?id=" + rec.id)));
+			table.add(new DivExWrapper(new EditButtonDE(context.getDivExRoot(), Config.getApplicationBase()+"/serviceedit?id=" + rec.id)));
 		}
 		
 		return contentview;
 	}
 
-	private IView createMetricView(DivExRoot root, MetricServiceRecord rec) 
+	private IView createMetricView(MetricServiceRecord rec) 
 	{
 		GenericView view = new GenericView();
 		RecordTableView table = new RecordTableView("inner_table");
-		table.addHeaderRow(rec.toString(rec.metric_id, auth));
+		table.addHeaderRow(rec.metric_id.toString());
 		table.addRow("Critical", rec.critical);
 	
 		view.add(table);
@@ -125,7 +124,7 @@ public class ServiceServlet extends ServletBase implements Servlet {
 		return view;
 	}
 	
-	private SideContentView createSideView(DivExRoot root)
+	private SideContentView createSideView()
 	{
 		SideContentView view = new SideContentView();
 		view.add("About", new HtmlView("Todo.."));		

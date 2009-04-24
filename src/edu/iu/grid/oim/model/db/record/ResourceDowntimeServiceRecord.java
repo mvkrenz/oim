@@ -21,7 +21,7 @@ public class ResourceDowntimeServiceRecord extends RecordBase {
 	public ResourceDowntimeServiceRecord(ResultSet rs) throws SQLException { super(rs); }
 	//for creating new record
 	public ResourceDowntimeServiceRecord() {}
-	
+	/*
 	public String getTitle() {
 		return "Resource Downtime Service";
 	}
@@ -45,4 +45,5 @@ public class ResourceDowntimeServiceRecord extends RecordBase {
 		}
 		return field.toString();
 	}
+	*/
 }

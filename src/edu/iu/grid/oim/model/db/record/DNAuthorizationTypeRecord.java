@@ -18,7 +18,7 @@ public class DNAuthorizationTypeRecord extends RecordBase {
 	public DNAuthorizationTypeRecord(ResultSet rs) throws SQLException { super(rs); }
 	//for creating new record
 	public DNAuthorizationTypeRecord() {}
-	
+	/*
 	public String getTitle() {
 		return "DN Authorization Type Record";
 	}
@@ -48,4 +48,5 @@ public class DNAuthorizationTypeRecord extends RecordBase {
 		}
 		return field.toString();
 	}
+	*/
 }

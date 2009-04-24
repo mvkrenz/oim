@@ -20,7 +20,7 @@ public class DNRecord extends RecordBase {
 	//for creating new record
 	public DNRecord() {}
 	
-	
+	/*
 	public String getTitle() {
 		return "DN Record";
 	}
@@ -46,4 +46,5 @@ public class DNRecord extends RecordBase {
 		}
 		return field.toString();
 	}
+	*/
 }

@@ -12,6 +12,7 @@ import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 
 import edu.iu.grid.oim.lib.Authorization;
+import edu.iu.grid.oim.model.Context;
 import edu.iu.grid.oim.model.db.record.OsgGridTypeRecord;
 import edu.iu.grid.oim.model.db.record.RecordBase;
 import edu.iu.grid.oim.model.db.record.ResourceAliasRecord;
@@ -23,8 +24,8 @@ import edu.iu.grid.oim.model.db.record.SCRecord;
 public class ResourceServiceModel extends SmallTableModelBase<ResourceServiceRecord> {
     static Logger log = Logger.getLogger(ResourceServiceModel.class); 
 
-	public ResourceServiceModel(Authorization _auth) {
-		super(_auth, "resource_service");
+	public ResourceServiceModel(Context context) {
+		super(context, "resource_service");
 	}
 	ResourceServiceRecord createRecord() throws SQLException
 	{
@@ -61,7 +62,7 @@ public class ResourceServiceModel extends SmallTableModelBase<ResourceServiceRec
 	public Boolean hasLogAccess(XPath xpath, Document doc) throws XPathExpressionException
 	{
 		Integer id = Integer.parseInt((String)xpath.evaluate("//Keys/Key[Name='resource_id']/Value", doc, XPathConstants.STRING));
-		ResourceModel model = new ResourceModel(auth);
+		ResourceModel model = new ResourceModel(context);
 		return model.canEdit(id);
 	}
 }

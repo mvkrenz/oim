@@ -58,14 +58,13 @@ public class ResourceGroupServlet extends ServletBase implements Servlet {
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{	
-		setAuth(request);
+		setContext(request);
 		auth.check("admin");
 		
 		try {
 			//construct view
 			MenuView menuview = createMenuView("admin");
-			DivExRoot root = DivExRoot.getInstance(request);
-			ContentView contentview = createContentView(root);
+			ContentView contentview = createContentView();
 			
 			//setup crumbs
 			BreadCrumbView bread_crumb = new BreadCrumbView();
@@ -73,7 +72,7 @@ public class ResourceGroupServlet extends ServletBase implements Servlet {
 			bread_crumb.addCrumb("Resource Group",  null);
 			contentview.setBreadCrumb(bread_crumb);
 			
-			Page page = new Page(menuview, contentview, createSideView(root));
+			Page page = new Page(menuview, contentview, createSideView());
 			page.render(response.getWriter());			
 		} catch (SQLException e) {
 			log.error(e);
@@ -81,29 +80,23 @@ public class ResourceGroupServlet extends ServletBase implements Servlet {
 		}
 	}
 	
-	protected ContentView createContentView(final DivExRoot root) 
+	protected ContentView createContentView() 
 		throws ServletException, SQLException
 	{
 		ContentView contentview = new ContentView();	
 		contentview.add(new HtmlView("<h1>Resource Group</h1>"));
 	
-		ResourceGroupModel model = new ResourceGroupModel(auth);
+		ResourceGroupModel model = new ResourceGroupModel(context);
 		Collection<ResourceGroupRecord> rgs = model.getAll();
 		for(ResourceGroupRecord rec : rgs) {
 			contentview.add(new HtmlView("<h2>"+StringEscapeUtils.escapeHtml(rec.name)+"</h2>"));
-			
-			/*
-			//RSS feed button
-			contentview.add(new HtmlView("<div class=\"right\"><a href=\"http://oimupdate.blogspot.com/feeds/posts/default/-/sc_"+rec.id+"\" target=\"_blank\"/>"+
-					"Subscribe to Updates</a></div>"));
-			*/
 			
 			RecordTableView table = new RecordTableView();
 			contentview.add(table);
 
 			table.addRow("Description", rec.description);
-			table.addRow("Site ID", rec.toString(rec.site_id, auth));
-			table.addRow("OSG Grid Type ID", rec.toString(rec.osg_grid_type_id, auth));
+			table.addRow("Site ID", rec.site_id.toString());
+			table.addRow("OSG Grid Type ID", rec.osg_grid_type_id.toString());
 			table.addRow("Active", rec.active);
 			table.addRow("Disable", rec.disable);
 
@@ -119,13 +112,13 @@ public class ResourceGroupServlet extends ServletBase implements Servlet {
 					redirect(url);
 				}
 			};
-			table.add(new DivExWrapper(new EditButtonDE(root, Config.getApplicationBase()+"/resourcegroupedit?id=" + rec.id)));
+			table.add(new DivExWrapper(new EditButtonDE(context.getDivExRoot(), Config.getApplicationBase()+"/resourcegroupedit?id=" + rec.id)));
 		}
 		
 		return contentview;
 	}
 	
-	private SideContentView createSideView(DivExRoot root)
+	private SideContentView createSideView()
 	{
 		SideContentView view = new SideContentView();
 		
@@ -141,7 +134,7 @@ public class ResourceGroupServlet extends ServletBase implements Servlet {
 				redirect(url);
 			}
 		};
-		view.add("Operation", new NewButtonDE(root, "resourcegroupedit"));
+		view.add("Operation", new NewButtonDE(context.getDivExRoot(), "resourcegroupedit"));
 		view.add("About", new HtmlView("This page shows a list of Resource Groups that you have access to edit."));		
 		return view;
 	}

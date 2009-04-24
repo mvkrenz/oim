@@ -57,19 +57,16 @@ public class ResourceDowntimeServlet extends ServletBase implements Servlet {
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{	
-		setAuth(request);
+		setContext(request);
+		auth.check("edit_my_resource");
 		
 		//pull list of all vos
-		Collection<ResourceRecord> resources = null;
-		ResourceModel model = new ResourceModel(auth);
-		try {
-			resources = model.getAllEditable();
-		
+
+		try {		
 			//construct view
 			MenuView menuview = createMenuView("resourcedowntime");
-			DivExRoot root = DivExRoot.getInstance(request);
-			ContentView contentview = createContentView(root, resources);
-			Page page = new Page(menuview, contentview, createSideView(root));
+			ContentView contentview = createContentView();
+			Page page = new Page(menuview, contentview, createSideView());
 			page.render(response.getWriter());			
 		} catch (SQLException e) {
 			log.error(e);
@@ -77,9 +74,12 @@ public class ResourceDowntimeServlet extends ServletBase implements Servlet {
 		}
 	}
 	
-	protected ContentView createContentView(final DivExRoot root, Collection<ResourceRecord> resources) 
+	protected ContentView createContentView() 
 		throws ServletException, SQLException
 	{
+		ResourceModel model = new ResourceModel(context);
+		Collection<ResourceRecord> resources = model.getAllEditable();
+		
 		ContentView contentview = new ContentView();	
 		contentview.add(new HtmlView("<h1>Resource Downtime</h1>"));
 	
@@ -93,17 +93,11 @@ public class ResourceDowntimeServlet extends ServletBase implements Servlet {
 			RecordTableView table = new RecordTableView();
 			contentview.add(table);
 			
-			/*
-			//some extra info.. (should I really display this?)
-			table.addRow("Description", rec.description);
-			table.addRow("FQDN", rec.fqdn);
-			*/
-			
 			//downtime
 			GenericView downtime_view = new GenericView();
-			ResourceDowntimeModel dmodel = new ResourceDowntimeModel(auth);
+			ResourceDowntimeModel dmodel = new ResourceDowntimeModel(context);
 			for(ResourceDowntimeRecord drec : dmodel.getFutureDowntimesByResourceID(rec.id)) {
-				downtime_view.add(createDowntimeView(root, drec));
+				downtime_view.add(createDowntimeView(drec));
 			}
 			table.addRow("Future Downtime Schedule", downtime_view);
 		
@@ -119,14 +113,14 @@ public class ResourceDowntimeServlet extends ServletBase implements Servlet {
 					redirect(url);
 				}
 			};
-			table.add(new DivExWrapper(new EditButtonDE(root, Config.getApplicationBase()+"/resourcedowntimeedit?id=" + rec.id)));
+			table.add(new DivExWrapper(new EditButtonDE(context.getDivExRoot(), Config.getApplicationBase()+"/resourcedowntimeedit?id=" + rec.id)));
 		}
 		
 		return contentview;
 	}
 	
 
-	private IView createDowntimeView(final DivExRoot root, ResourceDowntimeRecord rec) throws SQLException
+	private IView createDowntimeView(ResourceDowntimeRecord rec) throws SQLException
 	{
 		GenericView view = new GenericView();
 		RecordTableView table = new RecordTableView("inner_table");
@@ -135,15 +129,15 @@ public class ResourceDowntimeServlet extends ServletBase implements Servlet {
 		table.addRow("Start Time", rec.start_time.toString() + " UTC");
 		table.addRow("End Time", rec.end_time.toString() + " UTC");
 		
-		DowntimeClassModel dtcmodel = new DowntimeClassModel(auth);
+		DowntimeClassModel dtcmodel = new DowntimeClassModel(context);
 		table.addRow("Downtime Class", dtcmodel.get(rec.downtime_class_id).name);
 		
-		DowntimeSeverityModel dtsmodel = new DowntimeSeverityModel(auth);
+		DowntimeSeverityModel dtsmodel = new DowntimeSeverityModel(context);
 		table.addRow("Downtime Severity", dtsmodel.get(rec.downtime_severity_id).name);
 		
 		table.addRow("Affected Services", createAffectedServices(rec.id));
 		
-		DNModel dnmodel = new DNModel(auth);
+		DNModel dnmodel = new DNModel(context);
 		table.addRow("DN", dnmodel.get(rec.dn_id).dn_string);
 		
 		table.addRow("Disable", rec.disable);		
@@ -156,18 +150,18 @@ public class ResourceDowntimeServlet extends ServletBase implements Servlet {
 	private IView createAffectedServices(int downtime_id) throws SQLException
 	{
 		String html = "";
-		ResourceDowntimeServiceModel model = new ResourceDowntimeServiceModel(auth);
+		ResourceDowntimeServiceModel model = new ResourceDowntimeServiceModel(context);
 		Collection<ResourceDowntimeServiceRecord> services;
 
 		services = model.getByDowntimeID(downtime_id);
 		for(ResourceDowntimeServiceRecord service : services) {
-			html += service.toString(service.service_id, auth) + "<br/>";
+			html += service.service_id + "<br/>";
 		}
 		return new HtmlView(html);
 
 	}
 			
-	private SideContentView createSideView(DivExRoot root)
+	private SideContentView createSideView()
 	{
 		SideContentView view = new SideContentView();
 		

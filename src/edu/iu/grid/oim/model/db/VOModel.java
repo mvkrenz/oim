@@ -1,30 +1,18 @@
 package edu.iu.grid.oim.model.db;
 
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
-
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
-
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
-
-import com.webif.divex.form.CheckBoxFormElementDE;
-
-import edu.iu.grid.oim.lib.Authorization;
-import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
-
+import edu.iu.grid.oim.model.Context;
 import edu.iu.grid.oim.model.VOReport;
-
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.RecordBase;
-import edu.iu.grid.oim.model.db.record.ResourceAliasRecord;
-import edu.iu.grid.oim.model.db.record.ResourceServiceRecord;
 import edu.iu.grid.oim.model.db.record.VOContactRecord;
 import edu.iu.grid.oim.model.db.record.VOFieldOfScienceRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
@@ -37,9 +25,9 @@ public class VOModel extends SmallTableModelBase<VORecord>
 {	
     static Logger log = Logger.getLogger(VOModel.class);  
 
-    public VOModel(Authorization auth) 
+    public VOModel(Context context) 
     {
-    	super(auth, "vo");
+    	super(context, "vo");
     }
     VORecord createRecord() throws SQLException
 	{
@@ -72,7 +60,7 @@ public class VOModel extends SmallTableModelBase<VORecord>
 	private HashSet<Integer> getEditableIDs() throws SQLException
 	{
 		HashSet<Integer> list = new HashSet<Integer>();
-		VOContactModel model = new VOContactModel(auth);
+		VOContactModel model = new VOContactModel(context);
 		Collection<VOContactRecord> vcrecs = model.getByContactID(auth.getContactID());
 		for(VOContactRecord rec : vcrecs) {
 			list.add(rec.vo_id);
@@ -98,7 +86,7 @@ public class VOModel extends SmallTableModelBase<VORecord>
 	
 	public VORecord getParentVO(int child_vo_id) throws SQLException
 	{
-		VOVOModel model = new VOVOModel(auth);
+		VOVOModel model = new VOVOModel(context);
 		VOVORecord vovo = model.get(child_vo_id);
 		if(vovo == null) return null;
 		return get(vovo.parent_vo_id);	
@@ -118,7 +106,7 @@ public class VOModel extends SmallTableModelBase<VORecord>
 			insert(rec);
 			
 			//process contact information
-			VOContactModel cmodel = new VOContactModel(auth);
+			VOContactModel cmodel = new VOContactModel(context);
 			//reset vo_id on all contact records
 			for(VOContactRecord vcrec : contacts) {
 				vcrec.vo_id = rec.id;
@@ -126,7 +114,7 @@ public class VOModel extends SmallTableModelBase<VORecord>
 			cmodel.insert(contacts);
 			
 			//process parent_vo
-			VOVOModel vvmodel = new VOVOModel(auth);
+			VOVOModel vvmodel = new VOVOModel(context);
 			VOVORecord vvrec = new VOVORecord();
 			vvrec.child_vo_id = rec.id;
 			vvrec.parent_vo_id = parent_vo_id;
@@ -148,7 +136,7 @@ public class VOModel extends SmallTableModelBase<VORecord>
 			}
 			
 			//process field of science
-			VOFieldOfScienceModel vofsmodel = new VOFieldOfScienceModel(auth);
+			VOFieldOfScienceModel vofsmodel = new VOFieldOfScienceModel(context);
 			ArrayList<VOFieldOfScienceRecord> list = new ArrayList<VOFieldOfScienceRecord>();
 			for(Integer fsid : field_of_science) {
 				VOFieldOfScienceRecord vfosrec = new VOFieldOfScienceRecord();
@@ -159,9 +147,9 @@ public class VOModel extends SmallTableModelBase<VORecord>
 			vofsmodel.insert(list);
 		
 			//process VO report names
-			VOReportNameModel vorepname_model = new VOReportNameModel(auth);
-			VOReportNameFqanModel vorepnamefqan_model = new VOReportNameFqanModel(auth);
-			VOReportContactModel vorepcontact_model = new VOReportContactModel(auth);
+			VOReportNameModel vorepname_model = new VOReportNameModel(context);
+			VOReportNameFqanModel vorepnamefqan_model = new VOReportNameFqanModel(context);
+			VOReportContactModel vorepcontact_model = new VOReportContactModel(context);
 
 			for (VOReport consolidated_record : report_consolidated_records) {
 				VOReportNameRecord vorepname_record = consolidated_record.name; 
@@ -216,7 +204,7 @@ public class VOModel extends SmallTableModelBase<VORecord>
 			update(get(rec), rec);
 			
 			//process contact information
-			VOContactModel cmodel = new VOContactModel(auth);
+			VOContactModel cmodel = new VOContactModel(context);
 			//reset vo_id on all contact records
 			for(VOContactRecord vcrec : contacts) {
 				vcrec.vo_id = rec.id;
@@ -225,7 +213,7 @@ public class VOModel extends SmallTableModelBase<VORecord>
 			cmodel.update(old_vo_contacts, contacts);
 			
 			//process parent_vo
-			VOVOModel vvmodel = new VOVOModel(auth);
+			VOVOModel vvmodel = new VOVOModel(context);
 			VOVORecord vvrec = new VOVORecord();
 			vvrec.child_vo_id = rec.id;
 			vvrec.parent_vo_id = parent_vo_id;
@@ -247,7 +235,7 @@ public class VOModel extends SmallTableModelBase<VORecord>
 			}
 			
 			//process field of science
-			VOFieldOfScienceModel vofsmodel = new VOFieldOfScienceModel(auth);
+			VOFieldOfScienceModel vofsmodel = new VOFieldOfScienceModel(context);
 			ArrayList<VOFieldOfScienceRecord> list = new ArrayList<VOFieldOfScienceRecord>();
 			for(Integer fsid : field_of_science) {
 				VOFieldOfScienceRecord vfosrec = new VOFieldOfScienceRecord();
@@ -259,9 +247,9 @@ public class VOModel extends SmallTableModelBase<VORecord>
 			vofsmodel.update(vofsmodel.getByVOID(rec.id), list);
 
 			//process VO report names
-			VOReportNameModel vorepname_model = new VOReportNameModel(auth);
-			VOReportNameFqanModel vorepnamefqan_model = new VOReportNameFqanModel(auth);
-			VOReportContactModel vorepcontact_model = new VOReportContactModel(auth);
+			VOReportNameModel vorepname_model = new VOReportNameModel(context);
+			VOReportNameFqanModel vorepnamefqan_model = new VOReportNameFqanModel(context);
+			VOReportContactModel vorepcontact_model = new VOReportContactModel(context);
 
 			for (VOReport consolidated_record : report_consolidated_records) {
 				VOReportNameRecord vorepname_record = consolidated_record.name; 

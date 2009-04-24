@@ -31,7 +31,7 @@ public class VORecord extends RecordBase
 	public VORecord(ResultSet rs) throws SQLException { super(rs); }
 	//for creating new record
 	public VORecord() {}
-	
+	/*
 	public String getTitle() {
 		return "Virtual Oranization : " + name;
 	}
@@ -57,4 +57,5 @@ public class VORecord extends RecordBase
 		}
 		return field.toString();
 	}
+	*/
 }

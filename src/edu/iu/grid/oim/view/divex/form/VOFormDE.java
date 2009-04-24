@@ -25,6 +25,7 @@ import com.webif.divex.form.validator.UrlValidator;
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
 
+import edu.iu.grid.oim.model.Context;
 import edu.iu.grid.oim.model.VOReport;
 
 import edu.iu.grid.oim.model.db.ContactRankModel;
@@ -64,7 +65,8 @@ public class VOFormDE extends FormDE
 {
     static Logger log = Logger.getLogger(VOFormDE.class); 
    
-	protected Authorization auth;
+    private Context context;
+	private Authorization auth;
 	private Integer id;
 	
 	private TextFormElementDE name;
@@ -97,11 +99,11 @@ public class VOFormDE extends FormDE
 	};
 	private HashMap<Integer, ContactEditorDE> contact_editors = new HashMap();
 	
-	public VOFormDE(DivEx parent, VORecord rec, String origin_url, Authorization _auth) throws AuthorizationException, SQLException
+	public VOFormDE(Context _context, VORecord rec, String origin_url) throws AuthorizationException, SQLException
 	{	
-		super(parent, origin_url);
-		auth = _auth;
-		
+		super(_context.getDivExRoot(), origin_url);
+		context = _context;
+		auth = context.getAuthorization();
 		id = rec.id;
 		
 		//pull vos for unique validator
@@ -123,7 +125,7 @@ public class VOFormDE extends FormDE
 		parent_vo = new SelectFormElementDE(this, vos);
 		parent_vo.setLabel("Parent VO");
 		if(id != null) {
-			VOModel model = new VOModel(auth);
+			VOModel model = new VOModel(context);
 			VORecord parent_vo_rec = model.getParentVO(id);
 			if(parent_vo_rec != null) {
 				parent_vo.setValue(parent_vo_rec.id);
@@ -166,12 +168,12 @@ public class VOFormDE extends FormDE
 		new StaticDE(this, "<h3>Field Of Science</h3>");
 		ArrayList<Integer/*field_of_science_id*/> fslist = new ArrayList();
 		if(id != null) {
-			VOFieldOfScienceModel vofsmodel = new VOFieldOfScienceModel(auth);
+			VOFieldOfScienceModel vofsmodel = new VOFieldOfScienceModel(context);
 			for(VOFieldOfScienceRecord fsrec : vofsmodel.getByVOID(id)) {
 				fslist.add(fsrec.field_of_science_id);
 			}
 		}
-		FieldOfScienceModel fsmodel = new FieldOfScienceModel(auth);
+		FieldOfScienceModel fsmodel = new FieldOfScienceModel(context);
 		field_of_science = new HashMap();
 		for(FieldOfScienceRecord fsrec : fsmodel.getAll()) {
 			CheckBoxFormElementDE elem = new CheckBoxFormElementDE(this);
@@ -219,7 +221,7 @@ public class VOFormDE extends FormDE
 		new StaticDE(this, "<h2>Contact Information</h2>");
 		HashMap<Integer/*contact_type_id*/, ArrayList<VOContactRecord>> voclist_grouped = null;
 		if(id != null) {
-			VOContactModel vocmodel = new VOContactModel(auth);
+			VOContactModel vocmodel = new VOContactModel(context);
 			ArrayList<VOContactRecord> voclist = vocmodel.getByVOID(id);
 			voclist_grouped = vocmodel.groupByContactTypeID(voclist);
 		} else {
@@ -259,7 +261,7 @@ public class VOFormDE extends FormDE
 			security_contact_list.add(primary_security_contact);
 			voclist_grouped.put(2/*security_contact*/, security_contact_list);
 		}
-		ContactTypeModel ctmodel = new ContactTypeModel(auth);
+		ContactTypeModel ctmodel = new ContactTypeModel(context);
 		for(int contact_type_id : contact_types) {
 			ContactEditorDE editor = createContactEditor(voclist_grouped, ctmodel.get(contact_type_id));
 			//disable submitter editor if needed
@@ -273,15 +275,15 @@ public class VOFormDE extends FormDE
 
 		// Handle reporting names
 		new StaticDE(this, "<h2>Reporting Names</h2>");
-		VOReportNameModel vorepname_model = new VOReportNameModel(auth);
-		VOReportNameFqanModel vorepnamefqan_model = new VOReportNameFqanModel(auth);
-		ContactModel cmodel = new ContactModel (auth);
+		VOReportNameModel vorepname_model = new VOReportNameModel(context);
+		VOReportNameFqanModel vorepnamefqan_model = new VOReportNameFqanModel(context);
+		ContactModel cmodel = new ContactModel (context);
 		vo_report_name_div = new VOReportNamesDE(this, vorepname_model.getAll(), cmodel);
 
 		if(id != null) {
 			for(VOReportNameRecord vorepname_rec : vorepname_model.getAllByVOID(id)) {
 				
-				VOReportContactModel vorcmodel = new VOReportContactModel(auth);
+				VOReportContactModel vorcmodel = new VOReportContactModel(context);
 				Collection<VOReportContactRecord> vorc_list = vorcmodel.getAllByVOReportNameID(vorepname_rec.id);
 				Collection<VOReportNameFqanRecord> vorepnamefqan_list = vorepnamefqan_model.getAllByVOReportNameID(vorepname_rec.id);
 				vo_report_name_div.addVOReportName(vorepname_rec,
@@ -318,7 +320,7 @@ public class VOFormDE extends FormDE
 	private ContactEditorDE createContactEditor(HashMap<Integer, ArrayList<VOContactRecord>> voclist, ContactTypeRecord ctrec) throws SQLException
 	{
 		new StaticDE(this, "<h3>" + ctrec.name + "</h3>");
-		ContactModel pmodel = new ContactModel(auth);		
+		ContactModel pmodel = new ContactModel(context);		
 		ContactEditorDE editor = new ContactEditorDE(this, pmodel, ctrec.allow_secondary, ctrec.allow_tertiary);
 		
 		//if provided, populate currently selected contacts
@@ -339,7 +341,7 @@ public class VOFormDE extends FormDE
 	
 	private HashMap<Integer, String> getSCNames() throws AuthorizationException, SQLException
 	{
-		SCModel model = new SCModel(auth);
+		SCModel model = new SCModel(context);
 		HashMap<Integer, String> keyvalues = new HashMap<Integer, String>();
 		for(SCRecord rec : model.getAll()) {
 			keyvalues.put(rec.id, rec.name);
@@ -350,7 +352,7 @@ public class VOFormDE extends FormDE
 	private HashMap<Integer, String> getVONames() throws AuthorizationException, SQLException
 	{
 		//pull all VOs
-		VOModel model = new VOModel(auth);
+		VOModel model = new VOModel(context);
 		HashMap<Integer, String> keyvalues = new HashMap<Integer, String>();
 		for(VORecord rec : model.getAll()) {
 			keyvalues.put(rec.id, rec.name);
@@ -359,7 +361,7 @@ public class VOFormDE extends FormDE
 	}
 
 	private void handleParentVOSelection(Integer parent_vo_id) {
-		VOModel model = new VOModel (auth);
+		VOModel model = new VOModel (context);
 		try {
 			VORecord parent_vo_rec = model.get(parent_vo_id);
 			if ((primary_url.getValue() == null) || (primary_url.getValue().length() == 0)) {
@@ -441,7 +443,7 @@ public class VOFormDE extends FormDE
 			}
 		}
 		
-		VOModel model = new VOModel(auth);
+		VOModel model = new VOModel(context);
 		try {
 			if(rec.id == null) {
 				model.insertDetail(rec, 

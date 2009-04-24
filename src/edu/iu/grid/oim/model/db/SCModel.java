@@ -16,6 +16,7 @@ import org.w3c.dom.Document;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
+import edu.iu.grid.oim.model.Context;
 import edu.iu.grid.oim.model.db.record.RecordBase;
 import edu.iu.grid.oim.model.db.record.SCContactRecord;
 import edu.iu.grid.oim.model.db.record.SCRecord;
@@ -23,9 +24,9 @@ import edu.iu.grid.oim.model.db.record.SCRecord;
 public class SCModel extends SmallTableModelBase<SCRecord> {
     static Logger log = Logger.getLogger(SCModel.class);  
     
-    public SCModel(Authorization auth) 
+    public SCModel(Context context) 
     {
-    	super(auth, "sc");
+    	super(context, "sc");
     }    
     public String getName()
     {
@@ -114,7 +115,7 @@ public class SCModel extends SmallTableModelBase<SCRecord> {
 			insert(rec);
 			
 			//process contact information
-			SCContactModel cmodel = new SCContactModel(auth);
+			SCContactModel cmodel = new SCContactModel(context);
 			//reset sc_id on all contact records
 			for(SCContactRecord sccrec : contacts) {
 				sccrec.sc_id = rec.id;
@@ -145,7 +146,7 @@ public class SCModel extends SmallTableModelBase<SCRecord> {
 			update(get(rec), rec);
 			
 			//process contact information
-			SCContactModel cmodel = new SCContactModel(auth);
+			SCContactModel cmodel = new SCContactModel(context);
 			//reset vo_id on all contact records
 			for(SCContactRecord sccrec : contacts) {
 				sccrec.sc_id = rec.id;

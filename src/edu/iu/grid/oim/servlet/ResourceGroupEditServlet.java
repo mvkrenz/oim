@@ -40,7 +40,7 @@ public class ResourceGroupEditServlet extends ServletBase implements Servlet {
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{
-		setAuth(request);
+		setContext(request);
 		auth.check("admin");
 		
 		ResourceGroupRecord rec;
@@ -52,7 +52,7 @@ public class ResourceGroupEditServlet extends ServletBase implements Servlet {
 			if(id_str != null) {
 				//pull record to update
 				int id = Integer.parseInt(id_str);
-				ResourceGroupModel model = new ResourceGroupModel(auth);
+				ResourceGroupModel model = new ResourceGroupModel(context);
 				ResourceGroupRecord keyrec = new ResourceGroupRecord();
 				keyrec.id = id;
 				rec = model.get(keyrec);
@@ -62,9 +62,7 @@ public class ResourceGroupEditServlet extends ServletBase implements Servlet {
 				title = "New Resource Group";	
 			}
 
-			ResourceGroupFormDE form = new ResourceGroupFormDE(
-					DivExRoot.getInstance(request), rec, 
-					Config.getApplicationBase()+"/"+parent_page, auth);
+			ResourceGroupFormDE form = new ResourceGroupFormDE(context, rec, Config.getApplicationBase()+"/"+parent_page);
 			
 			//put the form in a view and display
 			ContentView contentview = new ContentView();

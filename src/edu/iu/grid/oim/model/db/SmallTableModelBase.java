@@ -1,8 +1,6 @@
 package edu.iu.grid.oim.model.db;
 
-import java.io.IOException;
 import java.lang.reflect.Field;
-import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -12,16 +10,10 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.TreeSet;
 import java.sql.PreparedStatement;
-
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
-
-import com.google.gdata.util.ServiceException;
-
-import edu.iu.grid.oim.lib.Authorization;
-import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
+import edu.iu.grid.oim.model.Context;
 import edu.iu.grid.oim.model.db.record.RecordBase;
-import edu.iu.grid.oim.lib.PublicNotification;
 
 public abstract class SmallTableModelBase<T extends RecordBase> extends ModelBase<T> {
     static Logger log = Logger.getLogger(SmallTableModelBase.class);  
@@ -30,9 +22,9 @@ public abstract class SmallTableModelBase<T extends RecordBase> extends ModelBas
     
     static private String NonPublicInformation = "(Non-public information)";
     
-    public SmallTableModelBase(Authorization _auth, String _table_name) 
+    public SmallTableModelBase(Context _context, String _table_name) 
     {
-    	super(_auth, _table_name);
+    	super(_context, _table_name);
     }    
     
 	protected class KeyComparator implements Comparator<RecordBase>
@@ -365,7 +357,7 @@ public abstract class SmallTableModelBase<T extends RecordBase> extends ModelBas
 	    	xml += "</Fields>\n";
 	    	xml += "</Log>";
 	    	
-			LogModel lmodel = new LogModel(auth);
+			LogModel lmodel = new LogModel(context);
 			int logid = lmodel.insert("insert", getClass().getName(), xml);	    
 			/*
 			plog += "Log ID " + logid;
@@ -435,7 +427,7 @@ public abstract class SmallTableModelBase<T extends RecordBase> extends ModelBas
 	    	//plog += "</table>";
 	    	xml += "</Fields>\n";
 	    	xml += "</Log>";
-			LogModel lmodel = new LogModel(auth);
+			LogModel lmodel = new LogModel(context);
 			int logid = lmodel.insert("remove", getClass().getName(), xml);	  
 			/*
 			plog += "Log ID " + logid;
@@ -512,7 +504,7 @@ public abstract class SmallTableModelBase<T extends RecordBase> extends ModelBas
 	    	//plog += "</table>";
 	    	xml += "</Fields>\n";
 	    	xml += "</Log>";
-			LogModel lmodel = new LogModel(auth);
+			LogModel lmodel = new LogModel(context);
 			int logid = lmodel.insert("update", getClass().getName(), xml);
 			/*
 			plog += "Log ID " + logid;

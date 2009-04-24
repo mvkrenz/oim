@@ -31,8 +31,9 @@ public class ErrorServlet extends ServletBase {
         // TODO Auto-generated constructor stub
     }
 
-	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		setAuth(request);
+	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
+	{
+		setContext(request);
 		
 		MenuView menuview = createMenuView("_error_");
 		ContentView contentview = createContentView(request);		

@@ -24,7 +24,7 @@ public class ResourceRecord extends RecordBase {
 	public ResourceRecord(ResultSet rs) throws SQLException { super(rs); }
 	//for creating new record
 	public ResourceRecord() {}
-	
+	/*
 	public String getTitle() {
 		return "Resource " + name;
 	}
@@ -49,4 +49,5 @@ public class ResourceRecord extends RecordBase {
 		}
 		return field.toString();
 	}
+	*/
 }

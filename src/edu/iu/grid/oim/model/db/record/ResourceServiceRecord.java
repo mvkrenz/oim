@@ -24,7 +24,7 @@ public class ResourceServiceRecord extends RecordBase {
 	public ResourceServiceRecord(ResultSet rs) throws SQLException { super(rs); }
 	//for creating new record
 	public ResourceServiceRecord() {}
-	
+	/*
 	public String getTitle() {
 		return "Resource Service";
 	}
@@ -54,4 +54,5 @@ public class ResourceServiceRecord extends RecordBase {
 		}
 		return field.toString();
 	}
+	*/
 }

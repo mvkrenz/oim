@@ -40,7 +40,7 @@ public class ServiceGroupEditServlet extends ServletBase implements Servlet {
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{
-		setAuth(request);
+		setContext(request);
 		auth.check("admin");
 		
 		ServiceGroupRecord rec;
@@ -52,7 +52,7 @@ public class ServiceGroupEditServlet extends ServletBase implements Servlet {
 			if(id_str != null) {
 				//pull record to update
 				int id = Integer.parseInt(id_str);
-				ServiceGroupModel model = new ServiceGroupModel(auth);
+				ServiceGroupModel model = new ServiceGroupModel(context);
 				ServiceGroupRecord keyrec = new ServiceGroupRecord();
 				keyrec.id = id;
 				rec = model.get(keyrec);
@@ -62,7 +62,7 @@ public class ServiceGroupEditServlet extends ServletBase implements Servlet {
 				title = "New Service Group";	
 			}
 
-			ServiceGroupFormDE form = new ServiceGroupFormDE(DivExRoot.getInstance(request), rec, Config.getApplicationBase()+"/"+parent_page, auth);
+			ServiceGroupFormDE form = new ServiceGroupFormDE(context, rec, Config.getApplicationBase()+"/"+parent_page);
 			
 			//put the form in a view and display
 			ContentView contentview = new ContentView();

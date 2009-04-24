@@ -19,6 +19,7 @@ public class MetricServiceRecord extends RecordBase {
 	public MetricServiceRecord(ResultSet rs) throws SQLException { super(rs); }
 	//for creating new record
 	public MetricServiceRecord() {}
+	/*
 	public String toString(Object field, Authorization auth)
 	{
 		if(field == null) return null;
@@ -37,4 +38,5 @@ public class MetricServiceRecord extends RecordBase {
 		}
 		return field.toString();
 	}
+	*/
 }

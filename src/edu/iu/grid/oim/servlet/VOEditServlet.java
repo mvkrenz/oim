@@ -2,18 +2,11 @@ package edu.iu.grid.oim.servlet;
 
 import java.io.IOException;
 import java.sql.SQLException;
-
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import org.apache.log4j.Logger;
-
-import com.google.gdata.data.introspection.Collection;
-import com.webif.divex.DivExRoot;
-
-import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Config;
 import edu.iu.grid.oim.model.db.VOModel;
 import edu.iu.grid.oim.model.db.record.VORecord;
@@ -36,7 +29,7 @@ public class VOEditServlet extends ServletBase implements Servlet {
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{
-		setAuth(request);
+		setContext(request);
 		auth.check("edit_my_vo");		
 		
 		VORecord rec;
@@ -48,7 +41,7 @@ public class VOEditServlet extends ServletBase implements Servlet {
 			
 			//check authorization
 			int vo_id = Integer.parseInt(vo_id_str);
-			VOModel model = new VOModel(auth);
+			VOModel model = new VOModel(context);
 			if(!model.canEdit(vo_id)) {
 				throw new ServletException("Sorry, you don't have permission to edit VO " + vo_id);
 			}
@@ -69,7 +62,7 @@ public class VOEditServlet extends ServletBase implements Servlet {
 		VOFormDE form;
 		String origin_url = Config.getApplicationBase()+"/"+parent_page;
 		try {
-			form = new VOFormDE(DivExRoot.getInstance(request), rec, origin_url, auth);
+			form = new VOFormDE(context, rec, origin_url);
 		} catch (SQLException e) {
 			throw new ServletException(e);
 		}

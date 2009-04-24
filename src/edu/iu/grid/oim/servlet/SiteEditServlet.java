@@ -36,7 +36,7 @@ public class SiteEditServlet extends ServletBase implements Servlet {
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{
-		setAuth(request);
+		setContext(request);
 		auth.check("admin");
 		
 		SiteRecord rec;
@@ -48,7 +48,7 @@ public class SiteEditServlet extends ServletBase implements Servlet {
 			if(site_id_str != null) {
 				//pull record to update
 				int site_id = Integer.parseInt(site_id_str);
-				SiteModel model = new SiteModel(auth);
+				SiteModel model = new SiteModel(context);
 				SiteRecord keyrec = new SiteRecord();
 				keyrec.id = site_id;
 				rec = model.get(keyrec);
@@ -60,7 +60,7 @@ public class SiteEditServlet extends ServletBase implements Servlet {
 	
 		SiteFormDE form;
 		String origin_url = Config.getApplicationBase()+"/"+current_page;
-			form = new SiteFormDE(DivExRoot.getInstance(request), rec, origin_url, auth);
+			form = new SiteFormDE(context, rec, origin_url);
 		
 		//put the form in a view and display
 		ContentView contentview = new ContentView();

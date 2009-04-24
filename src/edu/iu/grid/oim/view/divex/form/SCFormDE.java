@@ -23,6 +23,7 @@ import com.webif.divex.form.validator.UrlValidator;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
+import edu.iu.grid.oim.model.Context;
 import edu.iu.grid.oim.model.db.ContactRankModel;
 import edu.iu.grid.oim.model.db.ContactTypeModel;
 import edu.iu.grid.oim.model.db.ContactModel;
@@ -42,6 +43,7 @@ import edu.iu.grid.oim.view.divex.ContactEditorDE.Rank;
 public class SCFormDE extends FormDE 
 {
     static Logger log = Logger.getLogger(SCFormDE.class); 
+    private Context context;
    
 	protected Authorization auth;
 	private Integer id;
@@ -64,10 +66,11 @@ public class SCFormDE extends FormDE
 	};
 	private HashMap<Integer, ContactEditorDE> contact_editors = new HashMap();
 	
-	public SCFormDE(DivEx parent, SCRecord rec, String origin_url, Authorization _auth) throws AuthorizationException, SQLException
+	public SCFormDE(Context _context, SCRecord rec, String origin_url) throws AuthorizationException, SQLException
 	{	
-		super(parent, origin_url);
-		auth = _auth;
+		super(_context.getDivExRoot(), origin_url);
+		context = _context;
+		auth = context.getAuthorization();
 		
 		id = rec.id;
 		
@@ -125,7 +128,7 @@ public class SCFormDE extends FormDE
 		new StaticDE(this, "<h2>Contact Information</h2>");
 		HashMap<Integer/*contact_type_id*/, ArrayList<SCContactRecord>> scclist_grouped = null;
 		if(id != null) {
-			SCContactModel sccmodel = new SCContactModel(auth);
+			SCContactModel sccmodel = new SCContactModel(context);
 			ArrayList<SCContactRecord> scclist = sccmodel.getBySCID(id);
 			scclist_grouped = sccmodel.groupByContactTypeID(scclist);
 		} else {
@@ -139,7 +142,7 @@ public class SCFormDE extends FormDE
 			list.add(submitter);
 			scclist_grouped.put(1/*submitter*/, list);
 		}
-		ContactTypeModel ctmodel = new ContactTypeModel(auth);
+		ContactTypeModel ctmodel = new ContactTypeModel(context);
 		for(int contact_type_id : contact_types) {
 			ContactEditorDE editor = createContactEditor(scclist_grouped, ctmodel.get(contact_type_id));
 			//disable submitter editor if needed
@@ -155,7 +158,7 @@ public class SCFormDE extends FormDE
 	private ContactEditorDE createContactEditor(HashMap<Integer, ArrayList<SCContactRecord>> scclist, ContactTypeRecord ctrec) throws SQLException
 	{
 		new StaticDE(this, "<h3>" + ctrec.name + "</h3>");
-		ContactModel pmodel = new ContactModel(auth);		
+		ContactModel pmodel = new ContactModel(context);		
 		ContactEditorDE editor = new ContactEditorDE(this, pmodel, ctrec.allow_secondary, ctrec.allow_tertiary);
 		
 		//if provided, populate currently selected contacts
@@ -176,7 +179,7 @@ public class SCFormDE extends FormDE
 	
 	private HashMap<Integer, String> getSCs() throws AuthorizationException, SQLException
 	{
-		SCModel model = new SCModel(auth);
+		SCModel model = new SCModel(context);
 		HashMap<Integer, String> keyvalues = new HashMap<Integer, String>();
 		for(SCRecord rec : model.getAll()) {
 			keyvalues.put(rec.id, rec.name);
@@ -200,7 +203,7 @@ public class SCFormDE extends FormDE
 		
 		ArrayList<SCContactRecord> contacts = getContactRecordsFromEditor();
 		
-		SCModel model = new SCModel(auth);
+		SCModel model = new SCModel(context);
 		try {
 			if(rec.id == null) {
 				model.insertDetail(rec, contacts);

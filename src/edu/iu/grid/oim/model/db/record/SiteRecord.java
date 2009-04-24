@@ -28,6 +28,8 @@ public class SiteRecord extends RecordBase
 	public SiteRecord(ResultSet rs) throws SQLException { super(rs); }
 	//for creating new record
 	public SiteRecord()	throws SQLException {}
+	
+	/*
 	public String getTitle() {
 		return "Site " + name;
 	}
@@ -63,4 +65,5 @@ public class SiteRecord extends RecordBase
 		}
 		return field.toString();
 	}
+	*/
 }

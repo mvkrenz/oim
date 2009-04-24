@@ -33,11 +33,12 @@ public class ContactRecord extends RecordBase {
 	}
 	//for creating new record
 	public ContactRecord() {}
-	
+	/*	
 	public String getTitle() {
 		return "Contact Information for " + name;
 	}
 	
+
 	public ArrayList<String> getLables() {
 		ArrayList<String> labels = new ArrayList();
 		labels.add("contact");
@@ -45,6 +46,7 @@ public class ContactRecord extends RecordBase {
 		labels.add("dn_"+submitter_dn_id);
 		return labels;
 	}
+	
 	public String toString(Object field, Authorization auth)
 	{
 		if(field == null) return null;
@@ -59,4 +61,5 @@ public class ContactRecord extends RecordBase {
 		}
 		return field.toString();
 	}
+	*/
 }

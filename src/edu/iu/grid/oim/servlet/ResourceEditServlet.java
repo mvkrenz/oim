@@ -35,7 +35,7 @@ public class ResourceEditServlet extends ServletBase implements Servlet {
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{
-		setAuth(request);
+		setContext(request);
 		auth.check("edit_my_resource");
 		
 		ResourceRecord rec;
@@ -45,7 +45,7 @@ public class ResourceEditServlet extends ServletBase implements Servlet {
 		if(resource_id_str != null) {
 			//pull record to update
 			int resource_id = Integer.parseInt(resource_id_str);
-			ResourceModel model = new ResourceModel(auth);
+			ResourceModel model = new ResourceModel(context);
 			if(!model.canEdit(resource_id)) {
 				throw new ServletException("You can't edit that");
 			}
@@ -65,7 +65,7 @@ public class ResourceEditServlet extends ServletBase implements Servlet {
 		ResourceFormDE form;
 		String origin_url = Config.getApplicationBase()+"/"+parent_page;
 		try {
-			form = new ResourceFormDE(DivExRoot.getInstance(request), rec, origin_url, auth);
+			form = new ResourceFormDE(context, rec, origin_url);
 		} catch (SQLException e) {
 			throw new ServletException(e);
 		}

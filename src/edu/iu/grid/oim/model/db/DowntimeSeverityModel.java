@@ -1,10 +1,7 @@
 package edu.iu.grid.oim.model.db;
 
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
 
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathExpressionException;
@@ -12,20 +9,16 @@ import javax.xml.xpath.XPathExpressionException;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 
-import edu.iu.grid.oim.lib.Authorization;
-import edu.iu.grid.oim.model.db.record.AuthorizationTypeRecord;
-import edu.iu.grid.oim.model.db.record.DNRecord;
+import edu.iu.grid.oim.model.Context;
 import edu.iu.grid.oim.model.db.record.DowntimeSeverityRecord;
 import edu.iu.grid.oim.model.db.record.RecordBase;
-import edu.iu.grid.oim.model.db.record.SiteRecord;
-import edu.iu.grid.oim.model.db.record.VORecord;
 
 public class DowntimeSeverityModel extends SmallTableModelBase<DowntimeSeverityRecord> {
     static Logger log = Logger.getLogger(DowntimeSeverityModel.class);  
     
-    public DowntimeSeverityModel(Authorization auth) 
+    public DowntimeSeverityModel(Context context) 
     {
-    	super(auth, "downtime_severity");
+    	super(context, "downtime_severity");
     }
     DowntimeSeverityRecord createRecord() throws SQLException
 	{

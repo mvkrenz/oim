@@ -1,50 +1,36 @@
 package edu.iu.grid.oim.view.divex.form;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
-
 import org.apache.log4j.Logger;
-
-import com.webif.divex.DivEx;
 import com.webif.divex.Event;
 import com.webif.divex.form.FormDE;
-import com.webif.divex.StaticDE;
-import com.webif.divex.form.CheckBoxFormElementDE;
-import com.webif.divex.form.SelectFormElementDE;
 import com.webif.divex.form.TextAreaFormElementDE;
 import com.webif.divex.form.TextFormElementDE;
 import com.webif.divex.form.validator.UniqueValidator;
-import com.webif.divex.form.validator.UrlValidator;
-
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
-import edu.iu.grid.oim.model.db.ContactModel;
+import edu.iu.grid.oim.model.Context;
 import edu.iu.grid.oim.model.db.CpuInfoModel;
-import edu.iu.grid.oim.model.db.record.ContactRecord;
-import edu.iu.grid.oim.model.db.record.RecordBase;
 import edu.iu.grid.oim.model.db.record.CpuInfoRecord;
 
 public class CpuInfoFormDE extends FormDE 
 {
     static Logger log = Logger.getLogger(CpuInfoFormDE.class); 
     
-    protected Connection con = null;
-	protected Authorization auth;
+    private Context context;
+    private Authorization auth;
 	private Integer id;
 	
 	private TextFormElementDE name;
 	private TextFormElementDE normalization_constant;
 	private TextAreaFormElementDE notes;
 	
-	public CpuInfoFormDE(DivEx parent, CpuInfoRecord rec, String origin_url, Authorization _auth) throws AuthorizationException, SQLException
+	public CpuInfoFormDE(Context _context, CpuInfoRecord rec, String origin_url) throws AuthorizationException, SQLException
 	{	
-		super(parent, origin_url);
-		auth = _auth;
-		
+		super(_context.getDivExRoot(), origin_url);
+		context = _context;
+		auth = context.getAuthorization();
 		id = rec.id;
 
 		//pull osg_grid_types for unique validator
@@ -74,7 +60,7 @@ public class CpuInfoFormDE extends FormDE
 	{
 		//pull all OsgGridTypes
 		HashMap<Integer, String> keyvalues = new HashMap<Integer, String>();
-		CpuInfoModel model = new CpuInfoModel(auth);
+		CpuInfoModel model = new CpuInfoModel(context);
 		for(CpuInfoRecord rec : model.getAll()) {
 			keyvalues.put(rec.id, rec.name);
 		}
@@ -94,7 +80,7 @@ public class CpuInfoFormDE extends FormDE
 		try {
 			auth.check("admin");
 			
-			CpuInfoModel model = new CpuInfoModel(auth);
+			CpuInfoModel model = new CpuInfoModel(context);
 			if(rec.id == null) {
 				model.insert(rec);
 			} else {

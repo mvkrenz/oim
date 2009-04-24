@@ -67,14 +67,13 @@ public class MetricServlet extends ServletBase implements Servlet {
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{	
-		setAuth(request);
+		setContext(request);
 		auth.check("admin");
 		
 		try {	
 			//construct view
 			MenuView menuview = createMenuView("admin");
-			DivExRoot root = DivExRoot.getInstance(request);
-			ContentView contentview = createContentView(root);
+			ContentView contentview = createContentView();
 			
 			//setup crumbs
 			BreadCrumbView bread_crumb = new BreadCrumbView();
@@ -82,7 +81,7 @@ public class MetricServlet extends ServletBase implements Servlet {
 			bread_crumb.addCrumb("RSV Metric",  null);
 			contentview.setBreadCrumb(bread_crumb);
 			
-			Page page = new Page(menuview, contentview, createSideView(root));
+			Page page = new Page(menuview, contentview, createSideView());
 			page.render(response.getWriter());			
 		} catch (SQLException e) {
 			log.error(e);
@@ -90,13 +89,13 @@ public class MetricServlet extends ServletBase implements Servlet {
 		}
 	}
 	
-	protected ContentView createContentView(final DivExRoot root) 
+	protected ContentView createContentView() 
 		throws ServletException, SQLException
 	{
 		ContentView contentview = new ContentView();	
 		contentview.add(new HtmlView("<h1>RSV Metric</h1>"));
 
-		MetricModel model = new MetricModel(auth);
+		MetricModel model = new MetricModel(context);
 		
 		for(MetricRecord rec : model.getAll()) {
 			contentview.add(new HtmlView("<h2>"+StringEscapeUtils.escapeHtml(rec.name)+"</h2>"));
@@ -123,13 +122,13 @@ public class MetricServlet extends ServletBase implements Servlet {
 					redirect(url);
 				}
 			};
-			table.add(new DivExWrapper(new EditButtonDE(root, Config.getApplicationBase()+"/metricedit?id=" + rec.id)));
+			table.add(new DivExWrapper(new EditButtonDE(context.getDivExRoot(), Config.getApplicationBase()+"/metricedit?id=" + rec.id)));
 		}
 		
 		return contentview;
 	}
 
-	private SideContentView createSideView(DivExRoot root)
+	private SideContentView createSideView()
 	{
 		SideContentView view = new SideContentView();
 		view.add("About", new HtmlView("Todo.."));		

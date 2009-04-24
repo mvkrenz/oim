@@ -38,7 +38,7 @@ public class MetricEditServlet extends ServletBase implements Servlet {
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{
-		setAuth(request);
+		setContext(request);
 		auth.check("admin");
 		
 		MetricRecord rec;
@@ -50,7 +50,7 @@ public class MetricEditServlet extends ServletBase implements Servlet {
 		if(id_str != null) {
 			//pull record to update
 			int id = Integer.parseInt(id_str);
-			MetricModel model = new MetricModel(auth);
+			MetricModel model = new MetricModel(context);
 			try {
 				rec = model.get(id);
 			} catch (SQLException e) {
@@ -65,7 +65,7 @@ public class MetricEditServlet extends ServletBase implements Servlet {
 		MetricFormDE form;
 		String origin_url = Config.getApplicationBase()+"/"+parent_page;
 		try {
-			form = new MetricFormDE(DivExRoot.getInstance(request), rec, origin_url, auth);
+			form = new MetricFormDE(context, rec, origin_url);
 		} catch (SQLException e) {
 			throw new ServletException(e);
 		}

@@ -22,6 +22,7 @@ import com.webif.divex.form.validator.UrlValidator;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
+import edu.iu.grid.oim.model.Context;
 import edu.iu.grid.oim.model.db.ContactTypeModel;
 import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.ResourceDowntimeModel;
@@ -39,21 +40,22 @@ public class ResourceDowntimeFormDE extends FormDE
 {
     static Logger log = Logger.getLogger(ResourceDowntimeFormDE.class); 
     
-    protected Connection con = null;
-	protected Authorization auth;
+    private Context context;
+    private Authorization auth;
 	private Integer id;
 	
 	private ResourceDowntimeEditorDE downtime;
 	
-	public ResourceDowntimeFormDE(DivEx parent, Authorization _auth, String origin_url, int resource_id) throws AuthorizationException, SQLException
+	public ResourceDowntimeFormDE(Context _context, String origin_url, int resource_id) throws AuthorizationException, SQLException
 	{	
-		super(parent, origin_url);
-		auth = _auth;
-		
+		super(_context.getDivExRoot(), origin_url);
+		context = _context;
+		auth = context.getAuthorization();
 		id = resource_id;		
-		downtime = new ResourceDowntimeEditorDE(this, auth, resource_id);
+		
+		downtime = new ResourceDowntimeEditorDE(this, context, resource_id);
 	}
-	
+	/*
 	private HashMap<Integer, String> getOsgGridTypes() throws AuthorizationException, SQLException
 	{
 		//pull all OsgGridTypes
@@ -64,9 +66,9 @@ public class ResourceDowntimeFormDE extends FormDE
 		}
 		return keyvalues;
 	}
-	
+	*/
 	protected Boolean doSubmit() {		
-		ResourceDowntimeModel model = new ResourceDowntimeModel(auth);
+		ResourceDowntimeModel model = new ResourceDowntimeModel(context);
 		try {
 			model.updateDetail(id, downtime.getResourceDowntimes());
 		} catch (Exception e) {

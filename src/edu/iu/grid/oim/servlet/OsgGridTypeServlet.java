@@ -43,17 +43,13 @@ public class OsgGridTypeServlet extends ServletBase implements Servlet {
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{	
-		setAuth(request);
+		setContext(request);
 		auth.check("admin");
 
 		try {
 			//construct view
 			MenuView menuview = createMenuView("admin");
-			DivExRoot root = DivExRoot.getInstance(request);
-			
-			OsgGridTypeModel model = new OsgGridTypeModel(auth);
-			Collection<OsgGridTypeRecord> ogts = model.getAll();
-			ContentView contentview = createContentView(root, ogts);
+			ContentView contentview = createContentView();
 			
 			//setup crumbs
 			BreadCrumbView bread_crumb = new BreadCrumbView();
@@ -61,7 +57,7 @@ public class OsgGridTypeServlet extends ServletBase implements Servlet {
 			bread_crumb.addCrumb("OSG Grid Types",  null);
 			contentview.setBreadCrumb(bread_crumb);
 			
-			Page page = new Page(menuview, contentview, createSideView(root));
+			Page page = new Page(menuview, contentview, createSideView());
 			page.render(response.getWriter());			
 		} catch (SQLException e) {
 			log.error(e);
@@ -69,9 +65,12 @@ public class OsgGridTypeServlet extends ServletBase implements Servlet {
 		}
 	}
 	
-	protected ContentView createContentView(final DivExRoot root, Collection<OsgGridTypeRecord> ogts) 
+	protected ContentView createContentView() 
 		throws ServletException, SQLException
 	{
+		OsgGridTypeModel model = new OsgGridTypeModel(context);
+		Collection<OsgGridTypeRecord> ogts = model.getAll();
+		
 		ContentView contentview = new ContentView();	
 		contentview.add(new HtmlView("<h1>OSG Grid Types</h1>"));
 		
@@ -94,13 +93,13 @@ public class OsgGridTypeServlet extends ServletBase implements Servlet {
 					redirect(url);
 				}
 			};
-			table.add(new DivExWrapper(new EditButtonDE(root, Config.getApplicationBase()+"/osggridtypeedit?osg_grid_type_id=" + rec.id)));
+			table.add(new DivExWrapper(new EditButtonDE(context.getDivExRoot(), Config.getApplicationBase()+"/osggridtypeedit?osg_grid_type_id=" + rec.id)));
 		}
 		return contentview;
 	}
 
 	
-	private SideContentView createSideView(DivExRoot root)
+	private SideContentView createSideView()
 	{
 		SideContentView view = new SideContentView();
 		
@@ -116,7 +115,7 @@ public class OsgGridTypeServlet extends ServletBase implements Servlet {
 				redirect(url);
 			}
 		};
-		view.add("Operation", new NewButtonDE(root, "osggridtypeedit"));
+		view.add("Operation", new NewButtonDE(context.getDivExRoot(), "osggridtypeedit"));
 		
 		
 		

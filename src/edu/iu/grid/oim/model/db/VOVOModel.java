@@ -9,14 +9,15 @@ import javax.xml.xpath.XPathExpressionException;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 
+import edu.iu.grid.oim.model.Context;
 import edu.iu.grid.oim.model.db.record.VOVORecord;
 
 public class VOVOModel extends SmallTableModelBase<VOVORecord> {
     static Logger log = Logger.getLogger(VOVOModel.class);  
 	
-    public VOVOModel(edu.iu.grid.oim.lib.Authorization _auth) 
+    public VOVOModel(Context context) 
     {
-    	super(_auth, "vo_vo");
+    	super(context, "vo_vo");
     }
     VOVORecord createRecord() throws SQLException
 	{
@@ -34,7 +35,7 @@ public class VOVOModel extends SmallTableModelBase<VOVORecord> {
 	public Boolean hasLogAccess(XPath xpath, Document doc) throws XPathExpressionException
 	{
 		Integer id = Integer.parseInt((String)xpath.evaluate("//Keys/Key[Name='child_vo_id']/Value", doc, XPathConstants.STRING));
-		VOModel model = new VOModel(auth);
+		VOModel model = new VOModel(context);
 		return model.canEdit(id);
 	}
 }

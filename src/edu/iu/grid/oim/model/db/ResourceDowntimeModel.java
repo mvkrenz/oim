@@ -1,6 +1,5 @@
 package edu.iu.grid.oim.model.db;
 
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -13,7 +12,7 @@ import javax.xml.xpath.XPathExpressionException;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 
-import edu.iu.grid.oim.lib.Authorization;
+import edu.iu.grid.oim.model.Context;
 import edu.iu.grid.oim.model.ResourceDowntime;
 import edu.iu.grid.oim.model.db.record.RecordBase;
 import edu.iu.grid.oim.model.db.record.ResourceDowntimeRecord;
@@ -22,8 +21,8 @@ import edu.iu.grid.oim.model.db.record.ResourceDowntimeServiceRecord;
 public class ResourceDowntimeModel extends SmallTableModelBase<ResourceDowntimeRecord> {
     static Logger log = Logger.getLogger(ResourceDowntimeModel.class); 
 
-	public ResourceDowntimeModel(Authorization _auth) {
-		super(_auth, "resource_downtime");
+	public ResourceDowntimeModel(Context context) {
+		super(context, "resource_downtime");
 	}
     public String getName()
     {
@@ -42,7 +41,7 @@ public class ResourceDowntimeModel extends SmallTableModelBase<ResourceDowntimeR
 	public Boolean hasLogAccess(XPath xpath, Document doc) throws XPathExpressionException
 	{
 		Integer id = Integer.parseInt((String)xpath.evaluate("//Keys/Key[Name='id']/Value", doc, XPathConstants.STRING));
-		ResourceModel model = new ResourceModel(auth);
+		ResourceModel model = new ResourceModel(context);
 		return model.canEdit(id);
 	}
 	
@@ -73,8 +72,8 @@ public class ResourceDowntimeModel extends SmallTableModelBase<ResourceDowntimeR
 		try {		
 			getConnection().setAutoCommit(false);
 	
-			ResourceDowntimeModel dmodel = new ResourceDowntimeModel(auth);
-			ResourceDowntimeServiceModel rdsmodel = new ResourceDowntimeServiceModel(auth);
+			ResourceDowntimeModel dmodel = new ResourceDowntimeModel(context);
+			ResourceDowntimeServiceModel rdsmodel = new ResourceDowntimeServiceModel(context);
 			
 			//process downtime record itself
 			ArrayList<ResourceDowntimeRecord> downtime_recs = new ArrayList();

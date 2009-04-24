@@ -21,7 +21,7 @@ public class SCContactRecord extends RecordBase {
 	public SCContactRecord(ResultSet rs) throws SQLException { super(rs); }
 	//for creating new record
 	public SCContactRecord() {}
-	
+	/*
 	public String getTitle() {
 		return "SC Contact Record";
 	}
@@ -58,4 +58,5 @@ public class SCContactRecord extends RecordBase {
 		}
 		return field.toString();
 	}
+	*/
 }

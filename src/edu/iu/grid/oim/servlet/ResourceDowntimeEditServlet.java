@@ -43,7 +43,7 @@ public class ResourceDowntimeEditServlet extends ServletBase implements Servlet 
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{
-		setAuth(request);
+		setContext(request);
 		auth.check("edit_my_resource");
 		
 		ResourceRecord rec;
@@ -53,7 +53,7 @@ public class ResourceDowntimeEditServlet extends ServletBase implements Servlet 
 		if(id_str != null) {
 			//pull record to update
 			resource_id = Integer.parseInt(id_str);
-			ResourceModel model = new ResourceModel(auth);
+			ResourceModel model = new ResourceModel(context);
 			if(!model.canEdit(resource_id)) {
 				throw new ServletException("You can't edit that");
 			}
@@ -71,8 +71,7 @@ public class ResourceDowntimeEditServlet extends ServletBase implements Servlet 
 	
 		String origin_url = Config.getApplicationBase()+"/"+parent_page;
 		try {
-			DivExRoot root = DivExRoot.getInstance(request);
-			form = new ResourceDowntimeFormDE(root, auth, origin_url, resource_id);
+			form = new ResourceDowntimeFormDE(context, origin_url, resource_id);
 			
 			//put the form in a view and display
 			ContentView contentview = new ContentView();
@@ -85,7 +84,7 @@ public class ResourceDowntimeEditServlet extends ServletBase implements Servlet 
 			bread_crumb.addCrumb(rec.name,  null);
 			contentview.setBreadCrumb(bread_crumb);
 			
-			Page page = new Page(createMenuView(parent_page), contentview, createSideView(root));
+			Page page = new Page(createMenuView(parent_page), contentview, createSideView());
 			page.render(response.getWriter());	
 			
 		} catch (SQLException e) {
@@ -93,7 +92,7 @@ public class ResourceDowntimeEditServlet extends ServletBase implements Servlet 
 		}
 	}
 	
-	private SideContentView createSideView(DivExRoot root)
+	private SideContentView createSideView()
 	{
 		SideContentView view = new SideContentView();
 		view.add("TODO", new HtmlView("Whatever"));

@@ -1,6 +1,5 @@
 package edu.iu.grid.oim.model.db;
 
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
@@ -10,16 +9,16 @@ import javax.xml.xpath.XPathExpressionException;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 
+import edu.iu.grid.oim.model.Context;
 import edu.iu.grid.oim.model.db.record.CpuInfoRecord;
 import edu.iu.grid.oim.model.db.record.RecordBase;
-import edu.iu.grid.oim.lib.Authorization;
 
 public class CpuInfoModel extends SmallTableModelBase<CpuInfoRecord> {
     static Logger log = Logger.getLogger(CpuInfoModel.class);  
 	
-    public CpuInfoModel(Authorization _auth) 
+    public CpuInfoModel(Context _context) 
     {
-    	super(_auth, "cpu_info");
+    	super(_context, "cpu_info");
     }
     CpuInfoRecord createRecord() throws SQLException
 	{

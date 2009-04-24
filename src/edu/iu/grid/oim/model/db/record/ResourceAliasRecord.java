@@ -19,7 +19,7 @@ public class ResourceAliasRecord extends RecordBase {
 	public ResourceAliasRecord(ResultSet rs) throws SQLException { super(rs); }
 	//for creating new record
 	public ResourceAliasRecord() {}
-	
+	/*
 	public String getTitle() {
 		return "Resource Alias ";
 	}
@@ -44,4 +44,5 @@ public class ResourceAliasRecord extends RecordBase {
 		}
 		return field.toString();
 	}
+	*/
 }

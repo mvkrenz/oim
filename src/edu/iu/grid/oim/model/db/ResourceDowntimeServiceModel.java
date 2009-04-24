@@ -1,6 +1,5 @@
 package edu.iu.grid.oim.model.db;
 
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -12,21 +11,16 @@ import javax.xml.xpath.XPathExpressionException;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 
-import edu.iu.grid.oim.lib.Authorization;
-import edu.iu.grid.oim.model.db.record.OsgGridTypeRecord;
+import edu.iu.grid.oim.model.Context;
 import edu.iu.grid.oim.model.db.record.RecordBase;
-import edu.iu.grid.oim.model.db.record.ResourceAliasRecord;
 import edu.iu.grid.oim.model.db.record.ResourceDowntimeRecord;
 import edu.iu.grid.oim.model.db.record.ResourceDowntimeServiceRecord;
-import edu.iu.grid.oim.model.db.record.ResourceGroupRecord;
-import edu.iu.grid.oim.model.db.record.SCRecord;
-import edu.iu.grid.oim.model.db.record.VOReportNameRecord;
 
 public class ResourceDowntimeServiceModel extends SmallTableModelBase<ResourceDowntimeServiceRecord> {
     static Logger log = Logger.getLogger(ResourceDowntimeServiceModel.class); 
 
-	public ResourceDowntimeServiceModel(Authorization _auth) {
-		super(_auth, "resource_downtime_service");
+	public ResourceDowntimeServiceModel(Context context) {
+		super(context, "resource_downtime_service");
 	}
 	ResourceDowntimeServiceRecord createRecord() throws SQLException
 	{
@@ -56,7 +50,7 @@ public class ResourceDowntimeServiceModel extends SmallTableModelBase<ResourceDo
 		ArrayList<ResourceDowntimeServiceRecord> list = new ArrayList<ResourceDowntimeServiceRecord>();
 		
 		//grap all downtime_id
-		ResourceDowntimeModel rdmodel = new ResourceDowntimeModel(auth);
+		ResourceDowntimeModel rdmodel = new ResourceDowntimeModel(context);
 		Collection<ResourceDowntimeRecord> downtimes = rdmodel.getFutureDowntimesByResourceID(resource_id);
 		for(ResourceDowntimeRecord downtime : downtimes) {
 			list.addAll(getByDowntimeID(downtime.id));
@@ -71,11 +65,11 @@ public class ResourceDowntimeServiceModel extends SmallTableModelBase<ResourceDo
 	public Boolean hasLogAccess(XPath xpath, Document doc) throws XPathExpressionException
 	{
 		Integer resource_downtime_id = Integer.parseInt((String)xpath.evaluate("//Keys/Key[Name='resource_downtime_id']/Value", doc, XPathConstants.STRING));
-		ResourceDowntimeModel dmodel = new ResourceDowntimeModel(auth);
+		ResourceDowntimeModel dmodel = new ResourceDowntimeModel(context);
 		ResourceDowntimeRecord drec;
 		try {
 			drec = dmodel.get(resource_downtime_id);
-			ResourceModel model = new ResourceModel(auth);
+			ResourceModel model = new ResourceModel(context);
 			return model.canEdit(drec.resource_id);
 		} catch (SQLException e) {
 			log.error(e);

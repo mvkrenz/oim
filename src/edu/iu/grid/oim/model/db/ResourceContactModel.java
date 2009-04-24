@@ -13,6 +13,7 @@ import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 
 import edu.iu.grid.oim.lib.Authorization;
+import edu.iu.grid.oim.model.Context;
 import edu.iu.grid.oim.model.db.record.RecordBase;
 import edu.iu.grid.oim.model.db.record.ResourceContactRecord;
 import edu.iu.grid.oim.model.db.record.VOContactRecord;
@@ -20,8 +21,8 @@ import edu.iu.grid.oim.model.db.record.VOContactRecord;
 public class ResourceContactModel extends SmallTableModelBase<ResourceContactRecord> {
     static Logger log = Logger.getLogger(ResourceContactModel.class); 
 	
-	public ResourceContactModel(Authorization _auth) {
-		super(_auth, "resource_contact");
+	public ResourceContactModel(Context context) {
+		super(context, "resource_contact");
 	}
 	ResourceContactRecord createRecord() throws SQLException
 	{
@@ -74,7 +75,7 @@ public class ResourceContactModel extends SmallTableModelBase<ResourceContactRec
 	public Boolean hasLogAccess(XPath xpath, Document doc) throws XPathExpressionException
 	{
 		Integer id = Integer.parseInt((String)xpath.evaluate("//Keys/Key[Name='resource_id']/Value", doc, XPathConstants.STRING));
-		ResourceModel model = new ResourceModel(auth);
+		ResourceModel model = new ResourceModel(context);
 		return model.canEdit(id);
 	}
 }

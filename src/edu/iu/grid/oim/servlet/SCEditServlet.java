@@ -35,7 +35,7 @@ public class SCEditServlet extends ServletBase implements Servlet {
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{
-		setAuth(request);
+		setContext(request);
 		auth.check("edit_my_sc");
 		
 		SCRecord rec;
@@ -46,7 +46,7 @@ public class SCEditServlet extends ServletBase implements Servlet {
 		if(sc_id_str != null) {
 			//check authorization
 			int sc_id = Integer.parseInt(sc_id_str);
-			SCModel model = new SCModel(auth);			
+			SCModel model = new SCModel(context);			
 			if(!model.canEdit(sc_id)) {
 				throw new ServletException("Sorry, you don't have permission to edit this SC " + sc_id);
 			}
@@ -67,7 +67,7 @@ public class SCEditServlet extends ServletBase implements Servlet {
 		SCFormDE form;
 		String origin_url = Config.getApplicationBase()+"/"+parent_page;
 		try {
-			form = new SCFormDE(DivExRoot.getInstance(request), rec, origin_url, auth);
+			form = new SCFormDE(context, rec, origin_url);
 		} catch (SQLException e) {
 			throw new ServletException(e);
 		}

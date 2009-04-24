@@ -65,19 +65,14 @@ public class VOServlet extends ServletBase implements Servlet {
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{	
-		setAuth(request);
+		setContext(request);
+		auth.check("edit_my_vo");
 		
-		//pull list of all vos
-		Collection<VORecord> vos = null;
-		VOModel model = new VOModel(auth);
-		try {
-			vos = model.getAllEditable();
-		
+		try {	
 			//construct view
 			MenuView menuview = createMenuView("vo");
-			DivExRoot root = DivExRoot.getInstance(request);
-			ContentView contentview = createContentView(root, vos);
-			Page page = new Page(menuview, contentview, createSideView(root));
+			ContentView contentview = createContentView();
+			Page page = new Page(menuview, contentview, createSideView());
 			page.render(response.getWriter());			
 		} catch (SQLException e) {
 			log.error(e);
@@ -85,51 +80,46 @@ public class VOServlet extends ServletBase implements Servlet {
 		}
 	}
 	
-	protected ContentView createContentView(final DivExRoot root, Collection<VORecord> vos) 
+	protected ContentView createContentView() 
 		throws ServletException, SQLException
 	{
+		VOModel model = new VOModel(context);
+		Collection<VORecord> vos = model.getAllEditable();;
+
+		
 		ContentView contentview = new ContentView();	
 		contentview.add(new HtmlView("<h1>Virtual Organization</h1>"));
 	
 		for(VORecord rec : vos) {
 			contentview.add(new HtmlView("<h2>"+StringEscapeUtils.escapeHtml(rec.name)+"</h2>"));
-			/*
-			//RSS feed button
-			contentview.add(new HtmlView("<div class=\"right\"><a href=\"http://oimupdate.blogspot.com/feeds/posts/default/-/vo_"+rec.id+"\" target=\"_blank\"/>"+
-					"Subscribe to Updates</a></div>"));
-			*/
 			RecordTableView table = new RecordTableView();
 			contentview.add(table);
 
-			//pull parent VO
-			VOModel model = new VOModel(auth);
+			//pull parent vo
 			VORecord parent_vo_rec = model.getParentVO(rec.id);
 			String parent_vo_name = null;
 			if(parent_vo_rec != null) {
 				parent_vo_name = parent_vo_rec.name;
 			}
 			table.addRow("Parent VO", parent_vo_name);
-	
-			table.addRow("Support Center", rec.toString(rec.sc_id, auth));
-
+			table.addRow("Support Center", rec.sc_id.toString());
 			table.addRow("Long Name", rec.long_name);
 			table.addRow("Description", rec.description);
 			table.addRow("App Description", rec.app_description);
 			table.addRow("Community", rec.community);
 			table.addRow("Field of Scicnce", getFieldOfScience(rec.id));
-
 			table.addRow("Primary URL", new HtmlView("<a target=\"_blank\" href=\""+rec.primary_url+"\">"+rec.primary_url+"</a>"));
 			table.addRow("AUP URL", new HtmlView("<a target=\"_blank\" href=\""+rec.aup_url+"\">"+rec.aup_url+"</a>"));
 			table.addRow("Membership Services URL", new HtmlView("<a target=\"_blank\" href=\""+rec.membership_services_url+"\">"+rec.membership_services_url+"</a>"));
 			table.addRow("Purpose URL", new HtmlView("<a target=\"_blank\" href=\""+rec.purpose_url+"\">"+rec.purpose_url+"</a>"));
 			table.addRow("Support URL", new HtmlView("<a target=\"_blank\" href=\""+rec.support_url+"\">"+rec.support_url+"</a>"));
 		
-			ContactTypeModel ctmodel = new ContactTypeModel(auth);
-			ContactRankModel crmodel = new ContactRankModel(auth);
-			ContactModel pmodel = new ContactModel(auth);
+			ContactTypeModel ctmodel = new ContactTypeModel(context);
+			ContactRankModel crmodel = new ContactRankModel(context);
+			ContactModel pmodel = new ContactModel(context);
 			
 			//contacts (only shows contacts that are filled out)
-			VOContactModel vocmodel = new VOContactModel(auth);
+			VOContactModel vocmodel = new VOContactModel(context);
 			ArrayList<VOContactRecord> voclist = vocmodel.getByVOID(rec.id);
 			HashMap<Integer, ArrayList<VOContactRecord>> voclist_grouped = vocmodel.groupByContactTypeID(voclist);
 			for(Integer type_id : voclist_grouped.keySet()) {
@@ -152,7 +142,7 @@ public class VOServlet extends ServletBase implements Servlet {
 			}			
 
 			//VO Report Names
-			VOReportNameModel vorepname_model = new VOReportNameModel(auth);
+			VOReportNameModel vorepname_model = new VOReportNameModel(context);
 			ArrayList<VOReportNameRecord> vorepname_records = vorepname_model.getAllByVOID(rec.id);
 			GenericView vorepname_view = new GenericView();
 			for(VOReportNameRecord vorepname_record : vorepname_records) {
@@ -179,7 +169,7 @@ public class VOServlet extends ServletBase implements Servlet {
 					redirect(url);
 				}
 			};
-			table.add(new DivExWrapper(new EditButtonDE(root, Config.getApplicationBase()+"/voedit?vo_id=" + rec.id)));
+			table.add(new DivExWrapper(new EditButtonDE(context.getDivExRoot(), Config.getApplicationBase()+"/voedit?vo_id=" + rec.id)));
 
 		}
 		
@@ -188,14 +178,14 @@ public class VOServlet extends ServletBase implements Servlet {
 	
 	private IView getFieldOfScience(Integer vo_id) throws SQLException
 	{
-		VOFieldOfScienceModel model = new VOFieldOfScienceModel(auth);
+		VOFieldOfScienceModel model = new VOFieldOfScienceModel(context);
 		ArrayList<VOFieldOfScienceRecord> list = model.getByVOID(vo_id);
 		
 		if(list == null) {
 			return null;
 		}
 		String out = "";
-		FieldOfScienceModel fmodel = new FieldOfScienceModel(auth);
+		FieldOfScienceModel fmodel = new FieldOfScienceModel(context);
 		for(VOFieldOfScienceRecord rec : list) {
 			FieldOfScienceRecord keyrec = new FieldOfScienceRecord();
 			keyrec.id = rec.field_of_science_id;
@@ -214,12 +204,12 @@ public class VOServlet extends ServletBase implements Servlet {
 			table.addHeaderRow(record.name);
 			table.addRow("Associated FQANs", new HtmlView (""));
 			table.addRow("", new HtmlView (getVOReportNameFqans(record.id)));
-			ContactTypeModel ctmodel = new ContactTypeModel(auth);
-			ContactRankModel crmodel = new ContactRankModel(auth);
-			ContactModel pmodel = new ContactModel(auth);
+			ContactTypeModel ctmodel = new ContactTypeModel(context);
+			ContactRankModel crmodel = new ContactRankModel(context);
+			ContactModel pmodel = new ContactModel(context);
 			
 			//reporting contacts 
-			VOReportContactModel vorc_model = new VOReportContactModel(auth);
+			VOReportContactModel vorc_model = new VOReportContactModel(context);
 			Collection<VOReportContactRecord> vorc_list = vorc_model.getAllByVOReportNameID(record.id);
 			String cliststr = "";
 			for(VOReportContactRecord vrc_record : vorc_list) {
@@ -243,7 +233,7 @@ public class VOServlet extends ServletBase implements Servlet {
 	private String getVOReportNameFqans(int vo_report_name_id) throws SQLException
 	{
 		String html = "";
-		VOReportNameFqanModel vorepnamefqan_model = new VOReportNameFqanModel(auth);
+		VOReportNameFqanModel vorepnamefqan_model = new VOReportNameFqanModel(context);
 		Collection<VOReportNameFqanRecord> records = vorepnamefqan_model.getAllByVOReportNameID(vo_report_name_id);
 		// I don't like spitting out non-CSS HTML here .. leaving it for now. -agopu
 		html = "<table width='100%'>\n\t<tr>\n\t\t<th>Group Name</th> <th>Optional Role</th>\n\t</tr>\n";
@@ -256,7 +246,7 @@ public class VOServlet extends ServletBase implements Servlet {
 	}
 
 
-	private SideContentView createSideView(DivExRoot root)
+	private SideContentView createSideView()
 	{
 		SideContentView view = new SideContentView();
 		
@@ -272,7 +262,7 @@ public class VOServlet extends ServletBase implements Servlet {
 				redirect(url);
 			}
 		};
-		view.add("Operation", new NewButtonDE(root, "voedit"));
+		view.add("Operation", new NewButtonDE(context.getDivExRoot(), "voedit"));
 		view.add("About", new HtmlView("This page shows a list of Virtual Organization that you have access to edit."));		
 		return view;
 	}

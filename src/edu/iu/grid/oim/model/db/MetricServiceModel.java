@@ -1,6 +1,5 @@
 package edu.iu.grid.oim.model.db;
 
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -11,16 +10,16 @@ import javax.xml.xpath.XPathExpressionException;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 
-import edu.iu.grid.oim.lib.Authorization;
+import edu.iu.grid.oim.model.Context;
 import edu.iu.grid.oim.model.db.record.MetricServiceRecord;
 import edu.iu.grid.oim.model.db.record.RecordBase;
 
 public class MetricServiceModel extends SmallTableModelBase<MetricServiceRecord> {
     static Logger log = Logger.getLogger(MetricServiceModel.class);  
     
-    public MetricServiceModel(Authorization auth) 
+    public MetricServiceModel(Context context) 
     {
-    	super(auth, "metric_service");
+    	super(context, "metric_service");
     }
     MetricServiceRecord createRecord() throws SQLException
 	{

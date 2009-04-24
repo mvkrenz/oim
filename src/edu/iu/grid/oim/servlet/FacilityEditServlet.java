@@ -38,7 +38,7 @@ public class FacilityEditServlet extends ServletBase implements Servlet {
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{
-		setAuth(request);
+		setContext(request);
 		auth.check("admin");
 		
 		FacilityRecord rec;
@@ -50,7 +50,7 @@ public class FacilityEditServlet extends ServletBase implements Servlet {
 			if(facility_id_str != null) {
 				//pull record to update
 				int facility_id = Integer.parseInt(facility_id_str);
-				FacilityModel model = new FacilityModel(auth);
+				FacilityModel model = new FacilityModel(context);
 				FacilityRecord keyrec = new FacilityRecord();
 				keyrec.id = facility_id;
 				rec = model.get(keyrec);
@@ -62,7 +62,7 @@ public class FacilityEditServlet extends ServletBase implements Servlet {
 	
 		FacilityFormDE form;
 		String origin_url = Config.getApplicationBase()+"/"+parent_page;
-			form = new FacilityFormDE(DivExRoot.getInstance(request), rec, origin_url, auth);
+			form = new FacilityFormDE(context, rec, origin_url);
 		
 		//put the form in a view and display
 		ContentView contentview = new ContentView();

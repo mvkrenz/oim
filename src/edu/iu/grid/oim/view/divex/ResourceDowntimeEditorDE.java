@@ -3,7 +3,6 @@ package edu.iu.grid.oim.view.divex;
 import java.io.PrintWriter;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -11,48 +10,38 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
-
-import javax.servlet.ServletException;
-
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
-
 import com.webif.divex.ButtonDE;
 import com.webif.divex.DivEx;
 import com.webif.divex.Event;
 import com.webif.divex.EventListener;
 import com.webif.divex.StaticDE;
 import com.webif.divex.form.CheckBoxFormElementDE;
-import com.webif.divex.form.FormDE;
 import com.webif.divex.form.FormElementDEBase;
 import com.webif.divex.form.SelectFormElementDE;
 import com.webif.divex.form.TextAreaFormElementDE;
-import com.webif.divex.form.TextFormElementDE;
-
 import edu.iu.grid.oim.lib.Authorization;
+import edu.iu.grid.oim.model.Context;
 import edu.iu.grid.oim.model.ResourceDowntime;
 import edu.iu.grid.oim.model.db.DowntimeClassModel;
 import edu.iu.grid.oim.model.db.DowntimeSeverityModel;
 import edu.iu.grid.oim.model.db.ResourceDowntimeModel;
 import edu.iu.grid.oim.model.db.ResourceDowntimeServiceModel;
-import edu.iu.grid.oim.model.db.ResourceModel;
 import edu.iu.grid.oim.model.db.ResourceServiceModel;
 import edu.iu.grid.oim.model.db.ServiceModel;
 import edu.iu.grid.oim.model.db.record.DowntimeClassRecord;
 import edu.iu.grid.oim.model.db.record.DowntimeSeverityRecord;
 import edu.iu.grid.oim.model.db.record.ResourceDowntimeRecord;
 import edu.iu.grid.oim.model.db.record.ResourceDowntimeServiceRecord;
-import edu.iu.grid.oim.model.db.record.ResourceRecord;
 import edu.iu.grid.oim.model.db.record.ResourceServiceRecord;
-import edu.iu.grid.oim.model.db.record.ResourceWLCGRecord;
 import edu.iu.grid.oim.model.db.record.ServiceRecord;
-import edu.iu.grid.oim.view.divex.ResourceServicesDE;
-import edu.iu.grid.oim.view.divex.ResourceAliasDE.AliasEditor;
 
 public class ResourceDowntimeEditorDE extends FormElementDEBase {
     static Logger log = Logger.getLogger(ResourceDowntimeEditorDE.class); 
+
+    private Context context;
     
-	//ArrayList<DowntimeEditor> downtimes = new ArrayList<DowntimeEditor>();
 	private ButtonDE add_button;
 	private ArrayList<ResourceDowntimeRecord> downtime_recs;
 	private Authorization auth;
@@ -240,7 +229,7 @@ public class ResourceDowntimeEditorDE extends FormElementDEBase {
 			}
 			
 			HashMap<Integer, String> class_kv = new HashMap();
-			DowntimeClassModel dcmodel = new DowntimeClassModel(auth);
+			DowntimeClassModel dcmodel = new DowntimeClassModel(context);
 			for(DowntimeClassRecord dcrec : dcmodel.getAll()) {
 				class_kv.put(dcrec.id, dcrec.name);
 			}
@@ -252,7 +241,7 @@ public class ResourceDowntimeEditorDE extends FormElementDEBase {
 			}
 			
 			HashMap<Integer, String> severity_kv = new HashMap();
-			DowntimeSeverityModel smodel = new DowntimeSeverityModel(auth);
+			DowntimeSeverityModel smodel = new DowntimeSeverityModel(context);
 			for(DowntimeSeverityRecord dcrec : smodel.getAll()) {
 				severity_kv.put(dcrec.id, dcrec.name);
 			}
@@ -273,7 +262,7 @@ public class ResourceDowntimeEditorDE extends FormElementDEBase {
 			//affected_services = new HashMap<ServiceEditor, CheckBoxFormElementDE>();
 			//ArrayList<ServiceEditor> ses = resource_services_de.getServiceEditors();
 			//for(ServiceEditor se : ses) {
-			ResourceServiceModel rsmodel = new ResourceServiceModel(auth);
+			ResourceServiceModel rsmodel = new ResourceServiceModel(context);
 			Collection<ResourceServiceRecord> rsrecs = rsmodel.getAllByResourceID(resource_id);
 			for(ResourceServiceRecord rsrec : rsrecs) {
 				addService(rsrec.service_id);
@@ -293,8 +282,8 @@ public class ResourceDowntimeEditorDE extends FormElementDEBase {
 		public void addService(Integer service_id)
 		{
 			
-			final ServiceModel servicemodel = new ServiceModel(auth);
-			ResourceDowntimeServiceModel rdsmodel = new ResourceDowntimeServiceModel(auth);
+			final ServiceModel servicemodel = new ServiceModel(context);
+			ResourceDowntimeServiceModel rdsmodel = new ResourceDowntimeServiceModel(context);
 
 			try {
 				final CheckBoxFormElementDE elem = new CheckBoxFormElementDE(this);
@@ -416,12 +405,13 @@ public class ResourceDowntimeEditorDE extends FormElementDEBase {
 		return elem;
 	}
 
-	public ResourceDowntimeEditorDE(DivEx parent, Authorization _auth, final Integer _resource_id) throws SQLException {
+	public ResourceDowntimeEditorDE(DivEx parent, Context _context, final Integer _resource_id) throws SQLException {
 		super(parent);
-		auth = _auth;
+		context = _context;
+		auth = context.getAuthorization();
 		resource_id = _resource_id;
 		
-		ResourceDowntimeModel dmodel = new ResourceDowntimeModel(auth);	
+		ResourceDowntimeModel dmodel = new ResourceDowntimeModel(context);	
 		for(ResourceDowntimeRecord drec : dmodel.getFutureDowntimesByResourceID(resource_id)) {
 			addDowntime(drec);
 		}

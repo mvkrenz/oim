@@ -2,6 +2,7 @@ package com.webif.divex.form;
 
 import java.io.PrintWriter;
 import java.util.HashMap;
+import java.util.Random;
 
 import org.apache.commons.lang.StringEscapeUtils;
 
@@ -21,13 +22,13 @@ public class SelectFormElementDE extends FormElementDEBase<Integer>
 	{
 		out.write("<div ");
 		renderClass(out);
+		//Integer random = new Random().nextInt();
 		out.write("id=\""+getNodeID()+"\">");
 		if(!hidden) {
 			if(label != null) {
 				out.write("<label>"+StringEscapeUtils.escapeHtml(label)+"</label><br/>");
 			}
-			//FireFox has a bug where it select box doesn't have "name" attribute, it will misbehave when page is redrawn
-			out.write("<select name='"+getNodeID()+"_select' onchange='console.log(\"hello\");divex(\""+getNodeID()+"\", event, this.value);'>");
+			out.write("<select onchange='divex(\""+getNodeID()+"\", event, this.value);return true;'>");
 			out.write("<option value=\"\">(Please Select)</option>");
 			
 			for(Integer v : keyvalues.keySet()) {

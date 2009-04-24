@@ -24,6 +24,8 @@ public class VOContactRecord extends RecordBase {
 	public VOContactRecord()
 	{
 	}
+	
+	/*
 	public String getTitle() {
 		return "VO Contact Record";
 	}
@@ -60,4 +62,5 @@ public class VOContactRecord extends RecordBase {
 		}
 		return field.toString();
 	}
+	*/
 }

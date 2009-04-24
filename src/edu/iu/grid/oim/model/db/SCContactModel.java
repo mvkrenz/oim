@@ -16,14 +16,15 @@ import org.w3c.dom.Document;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
+import edu.iu.grid.oim.model.Context;
 import edu.iu.grid.oim.model.db.record.RecordBase;
 import edu.iu.grid.oim.model.db.record.SCContactRecord;
 
 public class SCContactModel extends SmallTableModelBase<SCContactRecord> {
     static Logger log = Logger.getLogger(SCContactModel.class); 
 
-	public SCContactModel(Authorization _auth) {
-		super(_auth, "sc_contact");
+	public SCContactModel(Context context) {
+		super(context, "sc_contact");
 	}
 	SCContactRecord createRecord() throws SQLException
 	{
@@ -75,7 +76,7 @@ public class SCContactModel extends SmallTableModelBase<SCContactRecord> {
 	public Boolean hasLogAccess(XPath xpath, Document doc) throws XPathExpressionException
 	{
 		Integer id = Integer.parseInt((String)xpath.evaluate("//Keys/Key[Name='sc_id']/Value", doc, XPathConstants.STRING));
-		SCModel model = new SCModel(auth);
+		SCModel model = new SCModel(context);
 		return model.canEdit(id);
 	}
 }

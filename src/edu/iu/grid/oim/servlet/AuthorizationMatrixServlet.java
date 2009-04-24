@@ -142,15 +142,15 @@ public class AuthorizationMatrixServlet extends ServletBase  {
 			super(parent, _origin_url);
 			
 			//pull action, auth_type, and matrix and construct matrix
-			AuthorizationTypeModel atmodel = new AuthorizationTypeModel(auth);
-			ActionModel amodel = new ActionModel(auth);
-			AuthorizationTypeActionModel atamodel = new AuthorizationTypeActionModel(auth);
+			AuthorizationTypeModel atmodel = new AuthorizationTypeModel(context);
+			ActionModel amodel = new ActionModel(context);
+			AuthorizationTypeActionModel atamodel = new AuthorizationTypeActionModel(context);
 			matrix = new AuthMatrix(parent, atmodel, amodel, atamodel);
 			add(matrix);
 		}
 
 		protected Boolean doSubmit() {			
-			AuthorizationTypeActionModel atamodel = new AuthorizationTypeActionModel(auth);
+			AuthorizationTypeActionModel atamodel = new AuthorizationTypeActionModel(context);
 			try {
 				auth.check("admin_authorization");
 				atamodel.update(atamodel.getAll(), matrix.getMatrixRecords());
@@ -174,15 +174,14 @@ public class AuthorizationMatrixServlet extends ServletBase  {
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{
-		setAuth(request);
+		setContext(request);
 	
 		//construct view
 		MenuView menuview = createMenuView("admin");
-		DivExRoot root = DivExRoot.getInstance(request);
 		ContentView contentview;
 		
 		try {
-			contentview = createContentView(root);
+			contentview = createContentView();
 			
 			//setup crumbs
 			BreadCrumbView bread_crumb = new BreadCrumbView();
@@ -198,11 +197,11 @@ public class AuthorizationMatrixServlet extends ServletBase  {
 			
 	}
 	
-	protected ContentView createContentView(DivEx root) throws SQLException
+	protected ContentView createContentView() throws SQLException
 	{			
 		ContentView contentview = new ContentView();
 		contentview.add(new HtmlView("<h1>Authorization Matrix</h1>"));
-		FormDE form = new AuthMatrixFormDE(root, "admin");
+		FormDE form = new AuthMatrixFormDE(context.getDivExRoot(), "admin");
 		contentview.add(new DivExWrapper(form));
 		return contentview;
 	}

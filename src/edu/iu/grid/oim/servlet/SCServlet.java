@@ -55,18 +55,14 @@ public class SCServlet extends ServletBase implements Servlet {
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{	
-		setAuth(request);
+		setContext(request);
+		auth.check("edit_my_sc");
 		
-		//pull list of all SCss
-		SCModel model = new SCModel(auth);
-		try {
-			Collection<SCRecord> scs = model.getAllEditable();
-		
+		try {		
 			//construct view
 			MenuView menuview = createMenuView("sc");
-			DivExRoot root = DivExRoot.getInstance(request);
-			ContentView contentview = createContentView(root, scs);
-			Page page = new Page(menuview, contentview, createSideView(root));
+			ContentView contentview = createContentView();
+			Page page = new Page(menuview, contentview, createSideView());
 			page.render(response.getWriter());			
 		} catch (SQLException e) {
 			log.error(e);
@@ -74,19 +70,18 @@ public class SCServlet extends ServletBase implements Servlet {
 		}
 	}
 	
-	protected ContentView createContentView(final DivExRoot root, Collection<SCRecord> scs) 
+	protected ContentView createContentView() 
 		throws ServletException, SQLException
 	{
+		SCModel model = new SCModel(context);
+		Collection<SCRecord> scs = model.getAllEditable();
+		
 		ContentView contentview = new ContentView();	
 		contentview.add(new HtmlView("<h1>Support Centers</h1>"));
 	
 		for(SCRecord rec : scs) {
 			contentview.add(new HtmlView("<h2>"+StringEscapeUtils.escapeHtml(rec.name)+"</h2>"));
-			/*
-			//RSS feed button
-			contentview.add(new HtmlView("<div class=\"right\"><a href=\"http://oimupdate.blogspot.com/feeds/posts/default/-/sc_"+rec.id+"\" target=\"_blank\"/>"+
-					"Subscribe to Updates</a></div>"));
-			*/
+
 			RecordTableView table = new RecordTableView();
 			contentview.add(table);
 
@@ -100,12 +95,12 @@ public class SCServlet extends ServletBase implements Servlet {
 				table.addRow("Footprints ID", rec.footprints_id);
 			}
 
-			ContactTypeModel ctmodel = new ContactTypeModel(auth);
-			ContactRankModel crmodel = new ContactRankModel(auth);
-			ContactModel pmodel = new ContactModel(auth);
+			ContactTypeModel ctmodel = new ContactTypeModel(context);
+			ContactRankModel crmodel = new ContactRankModel(context);
+			ContactModel pmodel = new ContactModel(context);
 			
 			//contacts (only shows contacts that are filled out)
-			SCContactModel sccmodel = new SCContactModel(auth);
+			SCContactModel sccmodel = new SCContactModel(context);
 			ArrayList<SCContactRecord> scclist = sccmodel.getBySCID(rec.id);
 			HashMap<Integer, ArrayList<SCContactRecord>> scclist_grouped = sccmodel.groupByContactTypeID(scclist);
 			for(Integer type_id : scclist_grouped.keySet()) {
@@ -138,13 +133,13 @@ public class SCServlet extends ServletBase implements Servlet {
 					redirect(url);
 				}
 			};
-			table.add(new DivExWrapper(new EditButtonDE(root, Config.getApplicationBase()+"/scedit?sc_id=" + rec.id)));
+			table.add(new DivExWrapper(new EditButtonDE(context.getDivExRoot(), Config.getApplicationBase()+"/scedit?sc_id=" + rec.id)));
 		}
 		
 		return contentview;
 	}
 	
-	private SideContentView createSideView(DivExRoot root)
+	private SideContentView createSideView()
 	{
 		SideContentView view = new SideContentView();
 		
@@ -160,7 +155,7 @@ public class SCServlet extends ServletBase implements Servlet {
 				redirect(url);
 			}
 		};
-		view.add("Operation", new NewButtonDE(root, "scedit"));
+		view.add("Operation", new NewButtonDE(context.getDivExRoot(), "scedit"));
 		view.add("About", new HtmlView("This page shows a list of Support Centers that you have access to edit."));		
 		return view;
 	}

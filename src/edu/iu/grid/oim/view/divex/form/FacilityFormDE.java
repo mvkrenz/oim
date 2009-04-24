@@ -7,9 +7,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-
 import org.apache.log4j.Logger;
-
 import com.webif.divex.DivEx;
 import com.webif.divex.Event;
 import com.webif.divex.form.FormDE;
@@ -20,14 +18,12 @@ import com.webif.divex.form.TextAreaFormElementDE;
 import com.webif.divex.form.TextFormElementDE;
 import com.webif.divex.form.validator.UniqueValidator;
 import com.webif.divex.form.validator.UrlValidator;
-
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
-
+import edu.iu.grid.oim.model.Context;
 import edu.iu.grid.oim.model.db.FacilityModel;
 import edu.iu.grid.oim.model.db.record.RecordBase;
 import edu.iu.grid.oim.model.db.record.FacilityRecord;
-
 import edu.iu.grid.oim.view.divex.ContactEditorDE;
 import edu.iu.grid.oim.view.divex.ContactEditorDE.Rank;
 
@@ -35,7 +31,8 @@ public class FacilityFormDE extends FormDE
 {
     static Logger log = Logger.getLogger(FacilityFormDE.class); 
    
-	protected Authorization auth;
+    private Context context;
+    private Authorization auth;
 	private Integer id;
 	
 	private TextFormElementDE name;
@@ -43,11 +40,11 @@ public class FacilityFormDE extends FormDE
 	private CheckBoxFormElementDE active;
 	private CheckBoxFormElementDE disable;
 	
-	public FacilityFormDE(DivEx parent, FacilityRecord rec, String origin_url, Authorization _auth) throws AuthorizationException, SQLException
+	public FacilityFormDE(Context _context, FacilityRecord rec, String origin_url) throws AuthorizationException, SQLException
 	{	
-		super(parent, origin_url);
-		auth = _auth;
-		
+		super(_context.getDivExRoot(), origin_url);
+		context = _context;
+		auth = context.getAuthorization();
 		id = rec.id;
 		
 		new StaticDE(this, "<h2>Details</h2>");
@@ -87,7 +84,7 @@ public class FacilityFormDE extends FormDE
 	
 	private HashMap<Integer, String> getFacilities() throws AuthorizationException, SQLException
 	{
-		FacilityModel model = new FacilityModel(auth);
+		FacilityModel model = new FacilityModel(context);
 		HashMap<Integer, String> keyvalues = new HashMap<Integer, String>();
 		for(FacilityRecord rec : model.getAll()) {
 			keyvalues.put(rec.id, rec.name);
@@ -108,7 +105,7 @@ public class FacilityFormDE extends FormDE
 			rec.active = active.getValue();
 			rec.disable = disable.getValue();
 			
-			FacilityModel model = new FacilityModel(auth);
+			FacilityModel model = new FacilityModel(context);
 
 			if(rec.id == null) {
 				model.insert(rec);

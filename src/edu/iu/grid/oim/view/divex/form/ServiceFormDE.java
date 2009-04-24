@@ -1,12 +1,8 @@
 package edu.iu.grid.oim.view.divex.form;
 
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.HashMap;
-
 import org.apache.log4j.Logger;
-
-import com.webif.divex.DivEx;
 import com.webif.divex.Event;
 import com.webif.divex.StaticDE;
 import com.webif.divex.form.FormDE;
@@ -16,24 +12,22 @@ import com.webif.divex.form.validator.UniqueValidator;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
+import edu.iu.grid.oim.model.Context;
 import edu.iu.grid.oim.model.db.MetricModel;
 import edu.iu.grid.oim.model.db.MetricServiceModel;
-import edu.iu.grid.oim.model.db.ResourceAliasModel;
 import edu.iu.grid.oim.model.db.ServiceGroupModel;
 import edu.iu.grid.oim.model.db.ServiceModel;
 import edu.iu.grid.oim.model.db.record.MetricRecord;
 import edu.iu.grid.oim.model.db.record.MetricServiceRecord;
-import edu.iu.grid.oim.model.db.record.ResourceAliasRecord;
 import edu.iu.grid.oim.model.db.record.ServiceGroupRecord;
 import edu.iu.grid.oim.model.db.record.ServiceRecord;
 import edu.iu.grid.oim.view.divex.MetricServiceDE;
-import edu.iu.grid.oim.view.divex.ResourceAliasDE;
 
 public class ServiceFormDE extends FormDE 
 {
     static Logger log = Logger.getLogger(ServiceFormDE.class); 
+    private Context context;
     
-    protected Connection con = null;
 	protected Authorization auth;
 	private Integer id;
 	
@@ -43,10 +37,11 @@ public class ServiceFormDE extends FormDE
 	private SelectFormElementDE service_group_id;
 	private MetricServiceDE metric_service;
 	
-	public ServiceFormDE(DivEx parent, ServiceRecord rec, String origin_url, Authorization _auth) throws AuthorizationException, SQLException
+	public ServiceFormDE(Context _context, ServiceRecord rec, String origin_url) throws AuthorizationException, SQLException
 	{	
-		super(parent, origin_url);
-		auth = _auth;
+		super(_context.getDivExRoot(), origin_url);
+		context = _context;
+		auth = context.getAuthorization();
 		
 		id = rec.id;
 
@@ -74,7 +69,7 @@ public class ServiceFormDE extends FormDE
 		}
 		
 		HashMap<Integer, String> kv = new HashMap<Integer, String>();
-		ServiceGroupModel sgmodel = new ServiceGroupModel(auth);
+		ServiceGroupModel sgmodel = new ServiceGroupModel(context);
 		for(ServiceGroupRecord sgrec : sgmodel.getAll()) {
 			kv.put(sgrec.id, sgrec.name);
 		}
@@ -84,13 +79,13 @@ public class ServiceFormDE extends FormDE
 		service_group_id.setRequired(true);
 		
 		new StaticDE(this, "<h3>RSV Metrics</h3>");
-		MetricModel mmodel = new MetricModel(auth);
+		MetricModel mmodel = new MetricModel(context);
 		HashMap<Integer, String> metric_kv = new HashMap<Integer, String>();
 		for(MetricRecord mrec : mmodel.getAll()) {
 			metric_kv.put(mrec.id, mrec.common_name);
 		}
 		metric_service = new MetricServiceDE(this, metric_kv);
-		MetricServiceModel msmodel = new MetricServiceModel(auth);
+		MetricServiceModel msmodel = new MetricServiceModel(context);
 		if(id != null) {
 			for(MetricServiceRecord srec : msmodel.getAllByServiceID(rec.id)) {
 				metric_service.addMetric(srec);
@@ -102,7 +97,7 @@ public class ServiceFormDE extends FormDE
 	{
 		//pull all OsgGridTypes
 		HashMap<Integer, String> keyvalues = new HashMap<Integer, String>();
-		ServiceModel model = new ServiceModel(auth);
+		ServiceModel model = new ServiceModel(context);
 		for(ServiceRecord rec : model.getAll()) {
 			keyvalues.put(rec.id, rec.name);
 		}
@@ -123,7 +118,7 @@ public class ServiceFormDE extends FormDE
 			rec.description = description.getValue();
 			rec.service_group_id = service_group_id.getValue();
 			
-			ServiceModel model = new ServiceModel(auth);
+			ServiceModel model = new ServiceModel(context);
 			if(rec.id == null) {
 				model.insertDetail(rec, metric_service.getMetricServiceRecords());
 			} else {

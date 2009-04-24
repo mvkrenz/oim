@@ -19,6 +19,7 @@ import com.webif.divex.form.validator.UrlValidator;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
+import edu.iu.grid.oim.model.Context;
 import edu.iu.grid.oim.model.db.ContactTypeModel;
 import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.OsgGridTypeModel;
@@ -48,6 +49,7 @@ import edu.iu.grid.oim.view.divex.ResourceServicesDE;
 public class ServiceGroupFormDE extends FormDE 
 {
     static Logger log = Logger.getLogger(ServiceGroupFormDE.class); 
+    private Context context;
    
 	protected Authorization auth;
 	private Integer id;
@@ -55,10 +57,11 @@ public class ServiceGroupFormDE extends FormDE
 	private TextFormElementDE name;
 	private TextAreaFormElementDE description;
 	
-	public ServiceGroupFormDE(DivEx parent, ServiceGroupRecord rec, String origin_url, Authorization _auth) throws AuthorizationException, SQLException
+	public ServiceGroupFormDE(Context _context, ServiceGroupRecord rec, String origin_url) throws AuthorizationException, SQLException
 	{	
-		super(parent, origin_url);
-		auth = _auth;
+		super(_context.getDivExRoot(), origin_url);
+		context = _context;
+		auth = context.getAuthorization();
 		
 		id = rec.id;
 		
@@ -92,7 +95,7 @@ public class ServiceGroupFormDE extends FormDE
 		rec.name = name.getValue();
 		rec.description = description.getValue();
 		
-		ServiceGroupModel model = new ServiceGroupModel(auth);
+		ServiceGroupModel model = new ServiceGroupModel(context);
 		try {
 			if(rec.id == null) {
 				model.insert(rec);
@@ -108,7 +111,7 @@ public class ServiceGroupFormDE extends FormDE
 	
 	private HashMap<Integer, String> getResourceGroups() throws SQLException
 	{
-		ResourceGroupModel model = new ResourceGroupModel(auth);
+		ResourceGroupModel model = new ResourceGroupModel(context);
 		HashMap<Integer, String> resource_groups = new HashMap();
 		for(ResourceGroupRecord rec : model.getAll()) {
 			resource_groups.put(rec.id, rec.name);

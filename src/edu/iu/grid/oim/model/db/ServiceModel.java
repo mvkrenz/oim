@@ -1,37 +1,22 @@
 package edu.iu.grid.oim.model.db;
 
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.HashMap;
-
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathExpressionException;
-
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
-
-import edu.iu.grid.oim.lib.Authorization;
-import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
-import edu.iu.grid.oim.model.db.record.ContactTypeRecord;
-import edu.iu.grid.oim.model.db.record.FacilityRecord;
+import edu.iu.grid.oim.model.Context;
 import edu.iu.grid.oim.model.db.record.MetricServiceRecord;
 import edu.iu.grid.oim.model.db.record.RecordBase;
-import edu.iu.grid.oim.model.db.record.SCRecord;
 import edu.iu.grid.oim.model.db.record.ServiceRecord;
-import edu.iu.grid.oim.model.db.record.VOContactRecord;
-import edu.iu.grid.oim.model.db.record.VOFieldOfScienceRecord;
-import edu.iu.grid.oim.model.db.record.VORecord;
-import edu.iu.grid.oim.model.db.record.VOReportNameRecord;
-import edu.iu.grid.oim.model.db.record.VOVORecord;
 
 public class ServiceModel extends SmallTableModelBase<ServiceRecord> {
     static Logger log = Logger.getLogger(ServiceModel.class);  
 	
-    public ServiceModel(Authorization _auth) 
+    public ServiceModel(Context context) 
     {
-    	super(_auth, "service");
+    	super(context, "service");
     }
     ServiceRecord createRecord() throws SQLException
 	{
@@ -60,7 +45,7 @@ public class ServiceModel extends SmallTableModelBase<ServiceRecord> {
 			insert(rec);
 			
 			//process metric information
-			MetricServiceModel cmodel = new MetricServiceModel(auth);
+			MetricServiceModel cmodel = new MetricServiceModel(context);
 			for(MetricServiceRecord msrec : metrics) {
 				msrec.service_id = rec.id;
 			}
@@ -89,7 +74,7 @@ public class ServiceModel extends SmallTableModelBase<ServiceRecord> {
 			
 			update(get(rec), rec);
 			
-			MetricServiceModel cmodel = new MetricServiceModel(auth);
+			MetricServiceModel cmodel = new MetricServiceModel(context);
 			for(MetricServiceRecord msrec : metrics) {
 				msrec.service_id = rec.id;
 			}

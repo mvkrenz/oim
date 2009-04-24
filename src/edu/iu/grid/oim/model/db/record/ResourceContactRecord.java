@@ -25,6 +25,7 @@ public class ResourceContactRecord extends RecordBase {
 	{
 	}
 	
+	/*
 	public String getTitle() {
 		return "Resource Contact Record";
 	}
@@ -61,4 +62,5 @@ public class ResourceContactRecord extends RecordBase {
 		}
 		return field.toString();
 	}
+	*/
 }

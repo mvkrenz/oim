@@ -4,19 +4,15 @@ import java.io.PrintWriter;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
-
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
-
-import com.webif.divex.ButtonDE;
 import com.webif.divex.DivEx;
 import com.webif.divex.Event;
 import com.webif.divex.EventListener;
 import com.webif.divex.form.FormElementDEBase;
-
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Config;
-import edu.iu.grid.oim.model.db.CpuInfoModel;
+import edu.iu.grid.oim.model.Context;
 import edu.iu.grid.oim.model.db.FacilityModel;
 import edu.iu.grid.oim.model.db.ResourceGroupModel;
 import edu.iu.grid.oim.model.db.ResourceModel;
@@ -29,6 +25,8 @@ import edu.iu.grid.oim.model.db.record.SiteRecord;
 public class OIMHierarchySelector extends FormElementDEBase<Integer> {
     static Logger log = Logger.getLogger(OIMHierarchySelector.class);  
 	
+    private Context context;
+    
 	//target element to select
 	public enum Type {SITE, FACILITY, RESOURCE, RESOURCE_GROUP};
 	private Type type;
@@ -64,7 +62,7 @@ public class OIMHierarchySelector extends FormElementDEBase<Integer> {
 	class FacilitySelector extends ExpandableSelector {
 		public FacilitySelector(DivEx _parent) throws SQLException {
 			super(_parent);
-			FacilityModel model = new FacilityModel(auth);
+			FacilityModel model = new FacilityModel(context);
 			for(FacilityRecord rec : model.getAll()) {				
 				final FormElementDEBase<Integer> item;
 				if(type == Type.FACILITY) {
@@ -105,7 +103,7 @@ public class OIMHierarchySelector extends FormElementDEBase<Integer> {
 	class SiteSelector extends ExpandableSelector {		
 		public SiteSelector(DivEx _parent, int facility_id) throws SQLException {
 			super(_parent);
-			SiteModel model = new SiteModel(auth);
+			SiteModel model = new SiteModel(context);
 			for(SiteRecord rec : model.getByFacilityID(facility_id)) {	
 				final FormElementDEBase<Integer> item;
 				if(type == Type.SITE) {
@@ -146,7 +144,7 @@ public class OIMHierarchySelector extends FormElementDEBase<Integer> {
 	class ResourceGroupSelector extends ExpandableSelector {		
 		public ResourceGroupSelector(DivEx _parent, int site_id) throws SQLException {
 			super(_parent);
-			ResourceGroupModel model = new ResourceGroupModel(auth);
+			ResourceGroupModel model = new ResourceGroupModel(context);
 			for(ResourceGroupRecord rec : model.getBySiteID(site_id)) {			
 				final FormElementDEBase<Integer> item;
 				if(type == Type.RESOURCE_GROUP) {
@@ -188,7 +186,7 @@ public class OIMHierarchySelector extends FormElementDEBase<Integer> {
 	class ResourceSelector extends ExpandableSelector {
 		public ResourceSelector(DivEx _parent, int rg_id) throws SQLException {
 			super(_parent);
-			ResourceModel model = new ResourceModel(auth);
+			ResourceModel model = new ResourceModel(context);
 			for(ResourceRecord rec : model.getByGroupID(rg_id)) {
 				final FormElementDEBase<Integer> item;
 				if(type == Type.RESOURCE) {
@@ -220,10 +218,11 @@ public class OIMHierarchySelector extends FormElementDEBase<Integer> {
 		}
 	}
 	
-	public OIMHierarchySelector(DivEx parent, Type _type, Authorization _auth) throws SQLException {
+	public OIMHierarchySelector(DivEx parent, Context _context, Type _type) throws SQLException {
 		super(parent);
 		type = _type;
-		auth = _auth;
+		context = _context;
+		auth = context.getAuthorization();
 		
 		//let's begin with facility
 		facility_selector = new FacilitySelector(this);
@@ -248,19 +247,19 @@ public class OIMHierarchySelector extends FormElementDEBase<Integer> {
 	
 				case RESOURCE:
 					resource_id = id;
-					ResourceModel rmodel = new ResourceModel(auth);
+					ResourceModel rmodel = new ResourceModel(context);
 					ResourceRecord rrec = rmodel.get(id);
 					resource_group_id = rrec.resource_group_id;
 					id = resource_group_id;
 				case RESOURCE_GROUP:
 					resource_group_id = id;
-					ResourceGroupModel rgmodel = new ResourceGroupModel(auth);
+					ResourceGroupModel rgmodel = new ResourceGroupModel(context);
 					ResourceGroupRecord rgrec = rgmodel.get(id);
 					site_id = rgrec.site_id;
 					id = site_id;		
 				case SITE:
 					site_id = id;
-					SiteModel smodel = new SiteModel(auth);
+					SiteModel smodel = new SiteModel(context);
 					SiteRecord srec = smodel.get(id);
 					facility_id = srec.facility_id;
 					id = facility_id;

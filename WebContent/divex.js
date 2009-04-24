@@ -6,6 +6,7 @@ function divexClearProcessing() {
 }
 
 function divex(id, event, value) {
+	//make sure there is only one request at the same time (prevent double clicking of submit button)
 	if(divex_processing == true) {
 		return;
 	}

@@ -1,7 +1,5 @@
 package edu.iu.grid.oim.model.db;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -9,19 +7,11 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collection;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
-
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
-
-import edu.iu.grid.oim.lib.Authorization;
+import edu.iu.grid.oim.model.Context;
 import edu.iu.grid.oim.model.db.record.LogRecord;
 
 public class LogModel extends ModelBase {
@@ -29,9 +19,9 @@ public class LogModel extends ModelBase {
     
 	//public enum Type {ALL, RESOURCE, VO, SC, CONTACT, SITE, FACILITY};
     
-    public LogModel(Authorization _auth) 
+    public LogModel(Context context) 
     {
-    	super(_auth, "log");
+    	super(context, "log");
     }
     
     LogRecord createRecord() throws SQLException

@@ -13,6 +13,7 @@ import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 
 import edu.iu.grid.oim.lib.Authorization;
+import edu.iu.grid.oim.model.Context;
 import edu.iu.grid.oim.model.db.record.AuthorizationTypeActionRecord;
 import edu.iu.grid.oim.model.db.record.RecordBase;
 import edu.iu.grid.oim.model.db.record.SCRecord;
@@ -20,9 +21,9 @@ import edu.iu.grid.oim.model.db.record.SCRecord;
 public class AuthorizationTypeActionModel extends SmallTableModelBase<AuthorizationTypeActionRecord> {
     static Logger log = Logger.getLogger(AuthorizationTypeActionModel.class);  
     
-    public AuthorizationTypeActionModel(Authorization auth) 
+    public AuthorizationTypeActionModel(Context context) 
     {
-    	super(auth, "authorization_type_action");
+    	super(context, "authorization_type_action");
     }
     AuthorizationTypeActionRecord createRecord() throws SQLException
 	{

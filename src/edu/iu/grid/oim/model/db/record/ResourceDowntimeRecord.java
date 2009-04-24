@@ -34,7 +34,7 @@ public class ResourceDowntimeRecord extends RecordBase {
 	}
 	//for creating new record
 	public ResourceDowntimeRecord() {}
-	
+	/*
 	public String getTitle() {
 		return "Resource Downtime";
 	}
@@ -71,4 +71,5 @@ public class ResourceDowntimeRecord extends RecordBase {
 		}
 		return field.toString();
 	}
+	*/
 }

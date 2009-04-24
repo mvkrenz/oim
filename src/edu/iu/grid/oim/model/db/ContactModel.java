@@ -14,6 +14,7 @@ import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 
 import edu.iu.grid.oim.lib.Authorization;
+import edu.iu.grid.oim.model.Context;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.DNRecord;
 import edu.iu.grid.oim.model.db.record.RecordBase;
@@ -21,9 +22,9 @@ import edu.iu.grid.oim.model.db.record.RecordBase;
 public class ContactModel extends SmallTableModelBase<ContactRecord> {
     static Logger log = Logger.getLogger(ContactModel.class);  
 
-    public ContactModel(Authorization _auth) 
+    public ContactModel(Context _context) 
     {
-    	super(_auth, "contact");
+    	super(_context, "contact");
     }
     public String getName()
     {
@@ -65,7 +66,7 @@ public class ContactModel extends SmallTableModelBase<ContactRecord> {
 	//returns all record id that the user has access to
 	private HashSet<Integer> getEditableIDs() throws SQLException
 	{
-		DNModel dnmodel = new DNModel(auth);
+		DNModel dnmodel = new DNModel(context);
 		
 		HashSet<Integer> list = new HashSet<Integer>();
 		for(ContactRecord rec : getAll()) {

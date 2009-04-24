@@ -1,6 +1,5 @@
 package edu.iu.grid.oim.model.db;
 
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
@@ -10,24 +9,19 @@ import javax.xml.xpath.XPathExpressionException;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 
-import edu.iu.grid.oim.lib.Authorization;
-import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
+import edu.iu.grid.oim.model.Context;
 import edu.iu.grid.oim.model.db.record.DNAuthorizationTypeRecord;
 import edu.iu.grid.oim.model.db.record.DNRecord;
-import edu.iu.grid.oim.model.db.record.FacilityRecord;
-import edu.iu.grid.oim.model.db.record.OsgGridTypeRecord;
+
 import edu.iu.grid.oim.model.db.record.RecordBase;
-import edu.iu.grid.oim.model.db.record.VOContactRecord;
-import edu.iu.grid.oim.model.db.record.VOFieldOfScienceRecord;
-import edu.iu.grid.oim.model.db.record.VORecord;
-import edu.iu.grid.oim.model.db.record.VOVORecord;
+
 
 public class DNModel extends SmallTableModelBase<DNRecord> {
     static Logger log = Logger.getLogger(DNModel.class);  
     
-    public DNModel(Authorization auth) 
+    public DNModel(Context context) 
     {
-    	super(auth, "dn");
+    	super(context, "dn");
     }
     public String getName()
     {
@@ -94,7 +88,7 @@ public class DNModel extends SmallTableModelBase<DNRecord> {
 			insert(rec);
 			
 			//insert auth_type
-			DNAuthorizationTypeModel amodel = new DNAuthorizationTypeModel(auth);
+			DNAuthorizationTypeModel amodel = new DNAuthorizationTypeModel(context);
 			ArrayList<DNAuthorizationTypeRecord> arecs = new ArrayList<DNAuthorizationTypeRecord>();
 			for(Integer auth_type : auth_types) {
 				DNAuthorizationTypeRecord arec = new DNAuthorizationTypeRecord();
@@ -128,7 +122,7 @@ public class DNModel extends SmallTableModelBase<DNRecord> {
 			update(get(rec), rec);
 			
 			//update auth_type
-			DNAuthorizationTypeModel amodel = new DNAuthorizationTypeModel(auth);
+			DNAuthorizationTypeModel amodel = new DNAuthorizationTypeModel(context);
 			ArrayList<DNAuthorizationTypeRecord> arecs = new ArrayList<DNAuthorizationTypeRecord>();
 			for(Integer auth_type : auth_types) {
 				DNAuthorizationTypeRecord arec = new DNAuthorizationTypeRecord();

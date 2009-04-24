@@ -62,16 +62,13 @@ public class SiteServlet extends ServletBase implements Servlet {
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{	
-		setAuth(request);
+		setContext(request);
 		auth.check("admin");
 		
-		//pull list of all sites
-		SiteModel model = new SiteModel(auth);
 		try {	
 			//construct view
 			MenuView menuview = createMenuView("admin");
-			DivExRoot root = DivExRoot.getInstance(request);
-			ContentView contentview = createContentView(root, model.getAll());
+			ContentView contentview = createContentView();
 			
 			//setup crumbs
 			BreadCrumbView bread_crumb = new BreadCrumbView();
@@ -79,7 +76,7 @@ public class SiteServlet extends ServletBase implements Servlet {
 			bread_crumb.addCrumb("Site",  null);
 			contentview.setBreadCrumb(bread_crumb);
 			
-			Page page = new Page(menuview, contentview, createSideView(root));
+			Page page = new Page(menuview, contentview, createSideView());
 			page.render(response.getWriter());			
 		} catch (SQLException e) {
 			log.error(e);
@@ -87,9 +84,12 @@ public class SiteServlet extends ServletBase implements Servlet {
 		}
 	}
 	
-	protected ContentView createContentView(final DivExRoot root, Collection<SiteRecord> sites) 
+	protected ContentView createContentView() 
 		throws ServletException, SQLException
 	{
+		SiteModel model = new SiteModel(context);
+		Collection<SiteRecord> sites = model.getAll();
+		
 		ContentView contentview = new ContentView();	
 		contentview.add(new HtmlView("<h1>Administrativs Sites</h1>"));
 	
@@ -128,7 +128,7 @@ public class SiteServlet extends ServletBase implements Servlet {
 					redirect(url);
 				}
 			};
-			table.add(new DivExWrapper(new EditButtonDE(root, Config.getApplicationBase()+"/siteedit?site_id=" + rec.id)));
+			table.add(new DivExWrapper(new EditButtonDE(context.getDivExRoot(), Config.getApplicationBase()+"/siteedit?site_id=" + rec.id)));
 		}
 		
 		return contentview;
@@ -137,7 +137,7 @@ public class SiteServlet extends ServletBase implements Servlet {
 	private String getSCName(Integer sc_id) throws SQLException
 	{
 		if(sc_id == null) return null;
-		SCModel model = new SCModel(auth);
+		SCModel model = new SCModel(context);
 		SCRecord sc = model.get(sc_id);	
 		if(sc == null) {
 			return null;
@@ -148,7 +148,7 @@ public class SiteServlet extends ServletBase implements Servlet {
 	private String getFacilityName(Integer facility_id) throws SQLException
 	{
 		if(facility_id == null) return null;
-		FacilityModel model = new FacilityModel(auth);
+		FacilityModel model = new FacilityModel(context);
 		FacilityRecord facility = model.get(facility_id);	
 		if(facility == null) {
 			return null;
@@ -156,7 +156,7 @@ public class SiteServlet extends ServletBase implements Servlet {
 		return facility.name;
 	}
 
-	private SideContentView createSideView(DivExRoot root)
+	private SideContentView createSideView()
 	{
 		SideContentView view = new SideContentView();
 		
@@ -172,7 +172,7 @@ public class SiteServlet extends ServletBase implements Servlet {
 				redirect(url);
 			}
 		};
-		view.add("Operation", new NewButtonDE(root, "siteedit"));
+		view.add("Operation", new NewButtonDE(context.getDivExRoot(), "siteedit"));
 		view.add("About", new HtmlView("This page shows a list of administratives sites in various facilities that GOC staff maintain."));		
 		return view;
 	}

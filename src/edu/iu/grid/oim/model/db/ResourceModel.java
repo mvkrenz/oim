@@ -12,7 +12,7 @@ import javax.xml.xpath.XPathExpressionException;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 
-import edu.iu.grid.oim.lib.Authorization;
+import edu.iu.grid.oim.model.Context;
 import edu.iu.grid.oim.model.db.record.RecordBase;
 import edu.iu.grid.oim.model.db.record.ResourceAliasRecord;
 import edu.iu.grid.oim.model.db.record.ResourceContactRecord;
@@ -24,9 +24,9 @@ import edu.iu.grid.oim.model.db.record.VOContactRecord;
 public class ResourceModel extends SmallTableModelBase<ResourceRecord> {
     static Logger log = Logger.getLogger(ResourceModel.class);  
     
-    public ResourceModel(Authorization auth) 
+    public ResourceModel(Context context) 
     {
-    	super(auth, "resource");
+    	super(context, "resource");
     }
     public String getName()
     {
@@ -80,7 +80,7 @@ public class ResourceModel extends SmallTableModelBase<ResourceRecord> {
 	private HashSet<Integer> getEditableIDs() throws SQLException
 	{
 		HashSet<Integer> list = new HashSet<Integer>();
-		VOContactModel model = new VOContactModel(auth);
+		VOContactModel model = new VOContactModel(context);
 		Collection<VOContactRecord> vcrecs = model.getByContactID(auth.getContactID());
 		for(VOContactRecord rec : vcrecs) {
 			list.add(rec.vo_id);
@@ -118,7 +118,7 @@ public class ResourceModel extends SmallTableModelBase<ResourceRecord> {
 			insert(rec);
 			
 			//process contact information
-			ResourceContactModel cmodel = new ResourceContactModel(auth);
+			ResourceContactModel cmodel = new ResourceContactModel(context);
 			//reset vo_id on all contact records
 			for(ResourceContactRecord vcrec : contacts) {
 				vcrec.resource_id = rec.id;
@@ -126,7 +126,7 @@ public class ResourceModel extends SmallTableModelBase<ResourceRecord> {
 			cmodel.insert(contacts);
 		
 			//process resource alias
-			ResourceAliasModel ramodel = new ResourceAliasModel(auth);
+			ResourceAliasModel ramodel = new ResourceAliasModel(context);
 			ArrayList<ResourceAliasRecord> list = new ArrayList<ResourceAliasRecord>();
 			for(String alias : resource_aliases) {
 				ResourceAliasRecord rarec = new ResourceAliasRecord();
@@ -140,13 +140,13 @@ public class ResourceModel extends SmallTableModelBase<ResourceRecord> {
 			for(ResourceServiceRecord rsrec : resource_services) {
 				rsrec.resource_id = rec.id;
 			}
-			ResourceServiceModel rsmodel = new ResourceServiceModel(auth);
+			ResourceServiceModel rsmodel = new ResourceServiceModel(context);
 			rsmodel.insert(resource_services);
 			
 			//process WLCG Resource record
 			if(wrec != null) {
 				wrec.resource_id = rec.id;
-				ResourceWLCGModel wmodel = new ResourceWLCGModel(auth);
+				ResourceWLCGModel wmodel = new ResourceWLCGModel(context);
 				wmodel.insert(wrec);
 			}
 			/*
@@ -197,7 +197,7 @@ public class ResourceModel extends SmallTableModelBase<ResourceRecord> {
 			update(get(rec), rec);
 			
 			//process contact information
-			ResourceContactModel cmodel = new ResourceContactModel(auth);
+			ResourceContactModel cmodel = new ResourceContactModel(context);
 			//reset vo_id on all contact records
 			for(ResourceContactRecord vcrec : contacts) {
 				vcrec.resource_id = rec.id;
@@ -205,7 +205,7 @@ public class ResourceModel extends SmallTableModelBase<ResourceRecord> {
 			cmodel.update(cmodel.getByResourceID(rec.id), contacts);
 			
 			//process resource alias
-			ResourceAliasModel ramodel = new ResourceAliasModel(auth);
+			ResourceAliasModel ramodel = new ResourceAliasModel(context);
 			ArrayList<ResourceAliasRecord> list = new ArrayList<ResourceAliasRecord>();
 			for(String alias : resource_aliases) {
 				ResourceAliasRecord rarec = new ResourceAliasRecord();
@@ -219,11 +219,11 @@ public class ResourceModel extends SmallTableModelBase<ResourceRecord> {
 			for(ResourceServiceRecord rsrec : resource_services) {
 				rsrec.resource_id = rec.id;
 			}
-			ResourceServiceModel rsmodel = new ResourceServiceModel(auth);
+			ResourceServiceModel rsmodel = new ResourceServiceModel(context);
 			rsmodel.update(rsmodel.getAllByResourceID(rec.id), resource_services);
 			
 			//process WLCG Record
-			ResourceWLCGModel wmodel = new ResourceWLCGModel(auth);
+			ResourceWLCGModel wmodel = new ResourceWLCGModel(context);
 			ResourceWLCGRecord oldrec = wmodel.get(rec.id);
 			if(oldrec == null) {
 				//we don't have the record yet.. just do insert

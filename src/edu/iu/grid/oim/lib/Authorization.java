@@ -2,7 +2,7 @@ package edu.iu.grid.oim.lib;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.security.cert.X509Certificate;
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Collection;
 import java.util.HashSet;
@@ -11,9 +11,9 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.log4j.Logger;
 
+import edu.iu.grid.oim.model.Context;
 import edu.iu.grid.oim.model.db.ActionModel;
 import edu.iu.grid.oim.model.db.AuthorizationTypeActionModel;
-import edu.iu.grid.oim.model.db.AuthorizationTypeModel;
 import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.DNAuthorizationTypeModel;
 import edu.iu.grid.oim.model.db.DNModel;
@@ -24,11 +24,13 @@ import edu.iu.grid.oim.model.db.record.DNRecord;
 public class Authorization {
 	static Logger log = Logger.getLogger(Authorization.class);  
 	
+	private Context guest_context;
+	
 	private String user_dn = null;
     private Integer dn_id = null;
     private Integer contact_id = null;
     
-    private HashSet<String> actions = new HashSet();
+    private HashSet<String> actions = new HashSet<String>();
     
     public String getUserDN()
     {
@@ -44,7 +46,7 @@ public class Authorization {
     }
     public ContactRecord getContact() throws SQLException
     {
-    	ContactModel model = new ContactModel(this);
+    	ContactModel model = new ContactModel(guest_context);
     	return model.get(contact_id);
     }
     
@@ -60,7 +62,7 @@ public class Authorization {
 		return actions.contains(action);
 
 	}
-	
+	/*
 	//use this instance for guest authentication
 	public static Authorization Guest = new Authorization();
 	private Authorization()
@@ -78,19 +80,19 @@ public class Authorization {
 			log.error(e);
 		}
 	}
-	
+	*/
 	//pull user_dn from Apache's SSL_CLIENT_S_DN
-	public Authorization(HttpServletRequest request) 
+	public Authorization(HttpServletRequest request, Connection connection) 
 	{		
+		guest_context = Context.getGuestContext(connection);
+		
 		//tomcat native way..
 		//X509Certificate[] certs = (X509Certificate[]) request.getAttribute("javax.servlet.request.X509Certificate");
 		//user_dn = certs[0].getSubjectDN().getName();
 		
-		//Use ENV passed from Apache
 		user_dn = (String)request.getAttribute("SSL_CLIENT_S_DN");
 		
-		//in order to test this locally (with no Apache SSL handling..)
-		//let's override DN to my DN.
+		//debug - for development
 		if(request.getLocalName().compareTo("localhost") == 0) {
 			InetAddress addr;
 			try {
@@ -117,14 +119,14 @@ public class Authorization {
 		log.info("Authenticated User DN: "+user_dn);
 		
 		try {
-			DNModel dnmodel = new DNModel(Guest);
-			init(dnmodel.getByDNString(user_dn));
+			DNModel dnmodel = new DNModel(guest_context);
+			initAction(dnmodel.getByDNString(user_dn));
 		} catch (SQLException e) {
 			log.error(e);
 		}
 	}
 	
-	private void init(DNRecord certdn) throws SQLException
+	private void initAction(DNRecord certdn) throws SQLException
 	{
 		if(certdn == null) {
 			log.info("The DN not found in Certificate table");
@@ -133,10 +135,10 @@ public class Authorization {
 			contact_id = certdn.contact_id;
 			user_dn = certdn.dn_string;
 			
-			DNAuthorizationTypeModel dnauthtypemodel = new DNAuthorizationTypeModel(Guest);
+			DNAuthorizationTypeModel dnauthtypemodel = new DNAuthorizationTypeModel(guest_context);
 			Collection<Integer> auth_type_ids = dnauthtypemodel.getAuthorizationTypesByDNID(certdn.id);
-			AuthorizationTypeActionModel authactionmodel = new AuthorizationTypeActionModel(Guest);
-			ActionModel actionmodel = new ActionModel(Authorization.Guest);
+			AuthorizationTypeActionModel authactionmodel = new AuthorizationTypeActionModel(guest_context);
+			ActionModel actionmodel = new ActionModel(guest_context);
 			for(Integer auth_type_id : auth_type_ids) {
 				Collection<Integer> aids = authactionmodel.getActionByAuthTypeID(auth_type_id);
 				for(Integer aid : aids) {

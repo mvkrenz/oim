@@ -1,25 +1,21 @@
 package edu.iu.grid.oim.model.db;
 
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
-
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
-
-import edu.iu.grid.oim.lib.Authorization;
+import edu.iu.grid.oim.model.Context;
 import edu.iu.grid.oim.model.db.record.RecordBase;
 import edu.iu.grid.oim.model.db.record.VOReportNameRecord;
 
 public class VOReportNameModel extends SmallTableModelBase<VOReportNameRecord> {
     static Logger log = Logger.getLogger(VOReportNameModel.class); 
 
-	public VOReportNameModel(Authorization _auth) {
-		super(_auth, "vo_report_name");
+	public VOReportNameModel(Context context) {
+		super(context, "vo_report_name");
 	}
 		VOReportNameRecord createRecord() throws SQLException
 	{
@@ -56,7 +52,7 @@ public class VOReportNameModel extends SmallTableModelBase<VOReportNameRecord> {
 	public Boolean hasLogAccess(XPath xpath, Document doc) throws XPathExpressionException
 	{
 		Integer id = Integer.parseInt((String)xpath.evaluate("//Keys/Key[Name='vo_id']/Value", doc, XPathConstants.STRING));
-		VOModel model = new VOModel(auth);
+		VOModel model = new VOModel(context);
 		return model.canEdit(id);
 	}
 }

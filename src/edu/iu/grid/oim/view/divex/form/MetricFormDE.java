@@ -22,6 +22,7 @@ import com.webif.divex.form.validator.UrlValidator;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
+import edu.iu.grid.oim.model.Context;
 import edu.iu.grid.oim.model.db.ContactTypeModel;
 import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.MetricModel;
@@ -39,8 +40,8 @@ public class MetricFormDE extends FormDE
 {
     static Logger log = Logger.getLogger(MetricFormDE.class); 
     
-    protected Connection con = null;
-	protected Authorization auth;
+    private Context context;
+    private Authorization auth;
 	private Integer id;
 	
 	private TextFormElementDE name;
@@ -53,11 +54,11 @@ public class MetricFormDE extends FormDE
 	private TextFormElementDE wlcg_metric_type;
 	
 	
-	public MetricFormDE(DivEx parent, MetricRecord rec, String origin_url, Authorization _auth) throws AuthorizationException, SQLException
+	public MetricFormDE(Context _context, MetricRecord rec, String origin_url) throws AuthorizationException, SQLException
 	{	
-		super(parent, origin_url);
-		auth = _auth;
-		
+		super(_context.getDivExRoot(), origin_url);
+		context = _context;
+		auth = context.getAuthorization();
 		id = rec.id;
 
 		//pull metric names for unique validator
@@ -112,7 +113,7 @@ public class MetricFormDE extends FormDE
 	{
 		//pull all OsgGridTypes
 		HashMap<Integer, String> keyvalues = new HashMap<Integer, String>();
-		MetricModel model = new MetricModel(auth);
+		MetricModel model = new MetricModel(context);
 		for(MetricRecord rec : model.getAll()) {
 			keyvalues.put(rec.id, rec.name);
 		}
@@ -134,7 +135,7 @@ public class MetricFormDE extends FormDE
 			rec.help_url = help_url.getValue();
 			rec.wlcg_metric_type = wlcg_metric_type.getValue();
 			
-			MetricModel model = new MetricModel(auth);
+			MetricModel model = new MetricModel(context);
 			if(rec.id == null) {
 				model.insert(rec);
 			} else {

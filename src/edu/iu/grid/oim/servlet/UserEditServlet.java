@@ -40,7 +40,7 @@ public class UserEditServlet extends ServletBase implements Servlet {
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{
-		setAuth(request);
+		setContext(request);
 		auth.check("admin");
 	
 		String title;
@@ -52,7 +52,7 @@ public class UserEditServlet extends ServletBase implements Servlet {
 			if(dn_id_str != null) {
 				//pull record to update
 				int id = Integer.parseInt(dn_id_str);
-				DNModel dnmodel = new DNModel(auth);
+				DNModel dnmodel = new DNModel(context);
 				rec = dnmodel.get(id);
 				title = "Update User";
 			} else {
@@ -60,7 +60,7 @@ public class UserEditServlet extends ServletBase implements Servlet {
 				title = "New User";	
 			}
 		
-			UserFormDE form = new UserFormDE(DivExRoot.getInstance(request), rec, Config.getApplicationBase()+"/"+current_page, auth);
+			UserFormDE form = new UserFormDE(context, rec, Config.getApplicationBase()+"/"+current_page);
 			
 			//put the form in a view and display
 			ContentView contentview = new ContentView();

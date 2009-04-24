@@ -13,6 +13,7 @@ import org.w3c.dom.Document;
 
 import com.mysql.jdbc.Field;
 
+import edu.iu.grid.oim.model.Context;
 import edu.iu.grid.oim.model.db.record.OsgGridTypeRecord;
 import edu.iu.grid.oim.model.db.record.RecordBase;
 import edu.iu.grid.oim.model.db.record.SCRecord;
@@ -21,9 +22,9 @@ import edu.iu.grid.oim.lib.Authorization;
 public class OsgGridTypeModel extends SmallTableModelBase<OsgGridTypeRecord> {
     static Logger log = Logger.getLogger(OsgGridTypeModel.class);  
 	
-    public OsgGridTypeModel(Authorization _auth) 
+    public OsgGridTypeModel(Context context) 
     {
-    	super(_auth, "osg_grid_type");
+    	super(context, "osg_grid_type");
     }
     OsgGridTypeRecord createRecord() throws SQLException
 	{

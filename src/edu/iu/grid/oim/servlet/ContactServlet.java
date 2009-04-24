@@ -57,18 +57,16 @@ public class ContactServlet extends ServletBase implements Servlet {
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{	
-		setAuth(request);
+		setContext(request);
 		
 		//pull list of all SCs
-		ContactModel model = new ContactModel(auth);
+		ContactModel model = new ContactModel(context);
 		try {
-			Collection<ContactRecord> contacts = model.getAllEditable();
 		
 			//construct view
 			MenuView menuview = createMenuView("contact");
-			DivExRoot root = DivExRoot.getInstance(request);
-			ContentView contentview = createContentView(root, contacts);
-			Page page = new Page(menuview, contentview, createSideView(root));
+			ContentView contentview = createContentView();
+			Page page = new Page(menuview, contentview, createSideView());
 			page.render(response.getWriter());			
 		} catch (SQLException e) {
 			log.error(e);
@@ -76,22 +74,19 @@ public class ContactServlet extends ServletBase implements Servlet {
 		}
 	}
 	
-	protected ContentView createContentView(final DivExRoot root, Collection<ContactRecord> contacts) 
+	protected ContentView createContentView() 
 		throws ServletException, SQLException
 	{
+		ContactModel model = new ContactModel(context);
+		Collection<ContactRecord> contacts = model.getAllEditable();
+		
 		ContentView contentview = new ContentView();	
 		contentview.add(new HtmlView("<h1>Contacts</h1>"));
 		
-		DNModel dnmodel = new DNModel(auth);
+		DNModel dnmodel = new DNModel(context);
 	
 		for(ContactRecord rec : contacts) {
 			contentview.add(new HtmlView("<h2>"+StringEscapeUtils.escapeHtml(rec.name)+"</h2>"));
-	
-			/* -- let's not publish this via RSS since most of the data is non-public anyway
-			//RSS feed button
-			contentview.add(new HtmlView("<div class=\"right\"><a href=\"http://oimupdate.blogspot.com/feeds/posts/default/-/contact_"+rec.id+"\" target=\"_blank\"/>"+
-					"Subscribe to Updates</a></div>"));
-			*/
 			
 			RecordTableView table = new RecordTableView();
 			contentview.add(table);
@@ -119,7 +114,7 @@ public class ContactServlet extends ServletBase implements Servlet {
 			table.addRow("Contact Preference", rec.contact_preference);	
 			
 			if(auth.allows("admin")) {
-				table.addRow("Submitter DN", rec.toString(rec.submitter_dn_id, auth));
+				table.addRow("Submitter DN", rec.submitter_dn_id.toString());
 			}
 			
 			if(auth.allows("admin")) {
@@ -143,13 +138,13 @@ public class ContactServlet extends ServletBase implements Servlet {
 					redirect(url);
 				}
 			};
-			table.add(new DivExWrapper(new EditButtonDE(root, Config.getApplicationBase()+"/contactedit?id=" + rec.id)));
+			table.add(new DivExWrapper(new EditButtonDE(context.getDivExRoot(), Config.getApplicationBase()+"/contactedit?id=" + rec.id)));
 		}
 		
 		return contentview;
 	}
 	
-	private SideContentView createSideView(DivExRoot root)
+	private SideContentView createSideView()
 	{
 		SideContentView view = new SideContentView();
 		
@@ -165,7 +160,7 @@ public class ContactServlet extends ServletBase implements Servlet {
 				redirect(url);
 			}
 		};
-		view.add("Operation", new NewButtonDE(root, "contactedit"));		
+		view.add("Operation", new NewButtonDE(context.getDivExRoot(), "contactedit"));		
 		return view;
 	}
 }

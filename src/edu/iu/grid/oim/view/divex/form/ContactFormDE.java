@@ -24,6 +24,7 @@ import com.webif.divex.form.validator.UrlValidator;
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
 
+import edu.iu.grid.oim.model.Context;
 import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.DNModel;
 import edu.iu.grid.oim.model.db.SCModel;
@@ -45,6 +46,7 @@ public class ContactFormDE extends FormDE
 {
     static Logger log = Logger.getLogger(ContactFormDE.class); 
    
+    private Context context;
     private Authorization auth;
 	private Integer id;
 	
@@ -60,10 +62,11 @@ public class ContactFormDE extends FormDE
 	private TextAreaFormElementDE contact_preference;
 	private SelectFormElementDE submitter_dn;
 	
-	public ContactFormDE(DivEx parent, ContactRecord rec, String origin_url, Authorization _auth)
+	public ContactFormDE(Context _context, ContactRecord rec, String origin_url)
 	{	
-		super(parent, origin_url);
-		auth = _auth;
+		super(_context.getDivExRoot(), origin_url);
+		context = _context;
+		auth = context.getAuthorization();
 		id = rec.id;
 
 		name = new TextFormElementDE(this);
@@ -160,7 +163,7 @@ public class ContactFormDE extends FormDE
 		//create DN selector
 		HashMap<Integer, String> dns = new HashMap();
 		try {
-			DNModel dnmodel = new DNModel(auth);;
+			DNModel dnmodel = new DNModel(context);;
 			for(DNRecord dnrec : dnmodel.getAll()) {
 				dns.put(dnrec.id, dnrec.dn_string);
 			}
@@ -199,7 +202,7 @@ public class ContactFormDE extends FormDE
 		rec.contact_preference = contact_preference.getValue();
 		rec.submitter_dn_id = submitter_dn.getValue();
 		
-		ContactModel model = new ContactModel(auth);
+		ContactModel model = new ContactModel(context);
 		try {
 			if(rec.id == null) {
 				model.insert(rec);
