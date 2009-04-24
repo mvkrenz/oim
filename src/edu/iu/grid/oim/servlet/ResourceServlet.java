@@ -50,6 +50,7 @@ import edu.iu.grid.oim.model.db.record.ResourceRecord;
 import edu.iu.grid.oim.model.db.record.ResourceServiceRecord;
 import edu.iu.grid.oim.model.db.record.ResourceWLCGRecord;
 import edu.iu.grid.oim.model.db.record.ServiceRecord;
+import edu.iu.grid.oim.view.BreadCrumbView;
 import edu.iu.grid.oim.view.ContentView;
 import edu.iu.grid.oim.view.DivExWrapper;
 import edu.iu.grid.oim.view.GenericView;
@@ -82,6 +83,7 @@ public class ResourceServlet extends ServletBase implements Servlet {
 			MenuView menuview = createMenuView("resource");
 			DivExRoot root = DivExRoot.getInstance(request);
 			ContentView contentview = createContentView(root, resources);
+			
 			Page page = new Page(menuview, contentview, createSideView(root));
 			page.render(response.getWriter());			
 		} catch (SQLException e) {

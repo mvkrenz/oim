@@ -23,6 +23,7 @@ import edu.iu.grid.oim.lib.Config;
 import edu.iu.grid.oim.model.db.OsgGridTypeModel;
 import edu.iu.grid.oim.model.db.record.OsgGridTypeRecord;
 import edu.iu.grid.oim.model.db.record.RecordBase;
+import edu.iu.grid.oim.view.BreadCrumbView;
 import edu.iu.grid.oim.view.ContentView;
 import edu.iu.grid.oim.view.DivExWrapper;
 import edu.iu.grid.oim.view.HtmlView;
@@ -53,6 +54,13 @@ public class OsgGridTypeServlet extends ServletBase implements Servlet {
 			OsgGridTypeModel model = new OsgGridTypeModel(auth);
 			Collection<OsgGridTypeRecord> ogts = model.getAll();
 			ContentView contentview = createContentView(root, ogts);
+			
+			//setup crumbs
+			BreadCrumbView bread_crumb = new BreadCrumbView();
+			bread_crumb.addCrumb("Administration",  "admin");
+			bread_crumb.addCrumb("OSG Grid Types",  null);
+			contentview.setBreadCrumb(bread_crumb);
+			
 			Page page = new Page(menuview, contentview, createSideView(root));
 			page.render(response.getWriter());			
 		} catch (SQLException e) {
@@ -86,7 +94,7 @@ public class OsgGridTypeServlet extends ServletBase implements Servlet {
 					redirect(url);
 				}
 			};
-			table.add(new DivExWrapper(new EditButtonDE(root, Config.getApplicationBase()+"/osg_grid_type_edit?osg_grid_type_id=" + rec.id)));
+			table.add(new DivExWrapper(new EditButtonDE(root, Config.getApplicationBase()+"/osggridtypeedit?osg_grid_type_id=" + rec.id)));
 		}
 		return contentview;
 	}
@@ -108,7 +116,7 @@ public class OsgGridTypeServlet extends ServletBase implements Servlet {
 				redirect(url);
 			}
 		};
-		view.add("Operation", new NewButtonDE(root, "osg_grid_type_edit"));
+		view.add("Operation", new NewButtonDE(root, "osggridtypeedit"));
 		
 		
 		

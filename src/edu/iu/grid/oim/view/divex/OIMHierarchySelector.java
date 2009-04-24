@@ -232,88 +232,93 @@ public class OIMHierarchySelector extends FormElementDEBase<Integer> {
 	//override this to add auto-expand feature
 	public void setValue(Integer id) { 
 		super.setValue(id);
-		
-		Integer facility_id = null;
-		Integer site_id = null;
-		Integer resource_group_id = null;
-		Integer resource_id = null;
-		
-		try {
-			//trace IDs in backward to find which item to expand (notice no-break)
-			switch(type) {
 
-			case RESOURCE:
-				resource_id = id;
-				ResourceModel rmodel = new ResourceModel(auth);
-				ResourceRecord rrec = rmodel.get(id);
-				resource_group_id = rrec.resource_group_id;
-				id = resource_group_id;
-			case RESOURCE_GROUP:
-				resource_group_id = id;
-				ResourceGroupModel rgmodel = new ResourceGroupModel(auth);
-				ResourceGroupRecord rgrec = rgmodel.get(id);
-				site_id = rgrec.site_id;
-				id = site_id;		
-			case SITE:
-				site_id = id;
-				SiteModel smodel = new SiteModel(auth);
-				SiteRecord srec = smodel.get(id);
-				facility_id = srec.facility_id;
-				id = facility_id;
-			case FACILITY:
-				facility_id = id;
-			}
+		if(id == null) {
+			select(null);
+		} else {
+		
+			Integer facility_id = null;
+			Integer site_id = null;
+			Integer resource_group_id = null;
+			Integer resource_id = null;
 			
-			//expand one by one
-			FormElementDEBase elem = null;
-			Expandable<Integer> item = null;
-			if(facility_id != null) {
-				elem = facility_selector.getItem(facility_id);
-				if(elem instanceof Expandable) {
-					item = (Expandable)elem;
-					facility_selector.loadChild(item);
-					item.setExpand(true);
-					item.redraw();
+			try {
+				//trace IDs in backward to find which item to expand (notice no-break)
+				switch(type) {
+	
+				case RESOURCE:
+					resource_id = id;
+					ResourceModel rmodel = new ResourceModel(auth);
+					ResourceRecord rrec = rmodel.get(id);
+					resource_group_id = rrec.resource_group_id;
+					id = resource_group_id;
+				case RESOURCE_GROUP:
+					resource_group_id = id;
+					ResourceGroupModel rgmodel = new ResourceGroupModel(auth);
+					ResourceGroupRecord rgrec = rgmodel.get(id);
+					site_id = rgrec.site_id;
+					id = site_id;		
+				case SITE:
+					site_id = id;
+					SiteModel smodel = new SiteModel(auth);
+					SiteRecord srec = smodel.get(id);
+					facility_id = srec.facility_id;
+					id = facility_id;
+				case FACILITY:
+					facility_id = id;
 				}
-			}
-			if(site_id != null) {
-				SiteSelector selector = (SiteSelector)item.getChild();
-				elem = selector.getItem(site_id);
-				if(elem instanceof Expandable) {
-					item = (Expandable)elem;
-					selector.loadChild(item);
-					item.setExpand(true);
-					item.redraw();
+				
+				//expand one by one
+				FormElementDEBase elem = null;
+				Expandable<Integer> item = null;
+				if(facility_id != null) {
+					elem = facility_selector.getItem(facility_id);
+					if(elem instanceof Expandable) {
+						item = (Expandable)elem;
+						facility_selector.loadChild(item);
+						item.setExpand(true);
+						item.redraw();
+					}
 				}
-			}
-			if(resource_group_id != null) {
-				ResourceGroupSelector selector = (ResourceGroupSelector)item.getChild();
-				elem = selector.getItem(resource_group_id);
-				if(elem instanceof Expandable) {
-					item = (Expandable)elem;
-					selector.loadChild(item);
-					item.setExpand(true);
-					item.redraw();
+				if(site_id != null) {
+					SiteSelector selector = (SiteSelector)item.getChild();
+					elem = selector.getItem(site_id);
+					if(elem instanceof Expandable) {
+						item = (Expandable)elem;
+						selector.loadChild(item);
+						item.setExpand(true);
+						item.redraw();
+					}
 				}
-			}
-			if(resource_id != null) {
-				ResourceSelector selector = (ResourceSelector)item.getChild();
-				elem = selector.getItem(resource_id);
-				if(elem instanceof Expandable) {
-					//for now, this should never be called
-					item = (Expandable)elem;
-					selector.loadChild(item);
-					item.setExpand(true);
-					item.redraw();			
+				if(resource_group_id != null) {
+					ResourceGroupSelector selector = (ResourceGroupSelector)item.getChild();
+					elem = selector.getItem(resource_group_id);
+					if(elem instanceof Expandable) {
+						item = (Expandable)elem;
+						selector.loadChild(item);
+						item.setExpand(true);
+						item.redraw();
+					}
 				}
+				if(resource_id != null) {
+					ResourceSelector selector = (ResourceSelector)item.getChild();
+					elem = selector.getItem(resource_id);
+					if(elem instanceof Expandable) {
+						//for now, this should never be called
+						item = (Expandable)elem;
+						selector.loadChild(item);
+						item.setExpand(true);
+						item.redraw();			
+					}
+				}
+				
+				//finally, the last one that is pulled as elem should be selectable that we must select
+				select((Selectable)elem);
+				elem.scrollToShow("#" + getNodeID() + " .oim_hierarchy");
+				
+			} catch (SQLException e) {
+				//TODO..
 			}
-			
-			//finally, the last one that is pulled as elem should be selectable that we must select
-			select((Selectable)elem);
-			elem.scrollToShow("#" + getNodeID() + " .oim_hierarchy");
-			
-		} catch (SQLException e) {
-			//TODO..
 		}
 	}
 	
@@ -406,7 +411,6 @@ public class OIMHierarchySelector extends FormElementDEBase<Integer> {
 	}
 	
 	public void select(Selectable<Integer> sel) {
-		value = sel.getValue();
 		
 		//de-select current selection
 		for(Selectable s : selectables) {
@@ -415,9 +419,15 @@ public class OIMHierarchySelector extends FormElementDEBase<Integer> {
 				s.redraw();
 			}
 		}
-		//select new selection
-		sel.setSelected(true);
-		sel.redraw();
+		
+		if(sel != null) {
+			//select new selection
+			sel.setSelected(true);
+			sel.redraw();
+			value = sel.getValue();
+		} else {
+			value = null;
+		}
 	}
 
 }

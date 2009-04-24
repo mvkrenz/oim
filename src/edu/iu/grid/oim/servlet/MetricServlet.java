@@ -44,6 +44,7 @@ import edu.iu.grid.oim.model.db.record.SiteRecord;
 import edu.iu.grid.oim.model.db.record.FacilityRecord;
 import edu.iu.grid.oim.model.db.record.DNRecord;
 
+import edu.iu.grid.oim.view.BreadCrumbView;
 import edu.iu.grid.oim.view.ContentView;
 import edu.iu.grid.oim.view.DivExWrapper;
 import edu.iu.grid.oim.view.HtmlView;
@@ -74,6 +75,13 @@ public class MetricServlet extends ServletBase implements Servlet {
 			MenuView menuview = createMenuView("admin");
 			DivExRoot root = DivExRoot.getInstance(request);
 			ContentView contentview = createContentView(root);
+			
+			//setup crumbs
+			BreadCrumbView bread_crumb = new BreadCrumbView();
+			bread_crumb.addCrumb("Administration",  "admin");
+			bread_crumb.addCrumb("RSV Metric",  null);
+			contentview.setBreadCrumb(bread_crumb);
+			
 			Page page = new Page(menuview, contentview, createSideView(root));
 			page.render(response.getWriter());			
 		} catch (SQLException e) {

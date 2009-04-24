@@ -18,6 +18,7 @@ import edu.iu.grid.oim.lib.Config;
 import edu.iu.grid.oim.model.db.FacilityModel;
 import edu.iu.grid.oim.model.db.record.FacilityRecord;
 
+import edu.iu.grid.oim.view.BreadCrumbView;
 import edu.iu.grid.oim.view.ContentView;
 import edu.iu.grid.oim.view.DivExWrapper;
 import edu.iu.grid.oim.view.HtmlView;
@@ -29,7 +30,7 @@ import edu.iu.grid.oim.view.divex.form.FacilityFormDE;
 public class FacilityEditServlet extends ServletBase implements Servlet {
 	private static final long serialVersionUID = 1L;
 	static Logger log = Logger.getLogger(FacilityEditServlet.class);  
-	private String current_page = "facility";	
+	private String parent_page = "facility";	
 
     public FacilityEditServlet() {
         super();
@@ -60,7 +61,7 @@ public class FacilityEditServlet extends ServletBase implements Servlet {
 			}
 	
 		FacilityFormDE form;
-		String origin_url = Config.getApplicationBase()+"/"+current_page;
+		String origin_url = Config.getApplicationBase()+"/"+parent_page;
 			form = new FacilityFormDE(DivExRoot.getInstance(request), rec, origin_url, auth);
 		
 		//put the form in a view and display
@@ -68,7 +69,14 @@ public class FacilityEditServlet extends ServletBase implements Servlet {
 		contentview.add(new HtmlView("<h1>"+title+"</h1>"));	
 		contentview.add(new DivExWrapper(form));
 		
-		Page page = new Page(createMenuView(current_page), contentview, createSideView());
+		//setup crumbs
+		BreadCrumbView bread_crumb = new BreadCrumbView();
+		bread_crumb.addCrumb("Administration",  "admin");
+		bread_crumb.addCrumb("Facility",  parent_page);
+		bread_crumb.addCrumb(rec.name,  null);
+		contentview.setBreadCrumb(bread_crumb);
+		
+		Page page = new Page(createMenuView(parent_page), contentview, createSideView());
 		
 		page.render(response.getWriter());	
 		} catch (SQLException e) {

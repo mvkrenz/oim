@@ -19,6 +19,7 @@ import edu.iu.grid.oim.model.db.ResourceGroupModel;
 import edu.iu.grid.oim.model.db.SiteModel;
 import edu.iu.grid.oim.model.db.record.ResourceGroupRecord;
 import edu.iu.grid.oim.model.db.record.SiteRecord;
+import edu.iu.grid.oim.view.BreadCrumbView;
 import edu.iu.grid.oim.view.ContentView;
 import edu.iu.grid.oim.view.DivExWrapper;
 import edu.iu.grid.oim.view.HtmlView;
@@ -31,6 +32,7 @@ import edu.iu.grid.oim.view.divex.form.SiteFormDE;
 public class ResourceGroupEditServlet extends ServletBase implements Servlet {
 	private static final long serialVersionUID = 1L;
 	static Logger log = Logger.getLogger(ResourceGroupEditServlet.class);  
+	private String parent_page = "resourcegroup";	
 	
     public ResourceGroupEditServlet() {
         super();
@@ -62,12 +64,19 @@ public class ResourceGroupEditServlet extends ServletBase implements Servlet {
 
 			ResourceGroupFormDE form = new ResourceGroupFormDE(
 					DivExRoot.getInstance(request), rec, 
-					Config.getApplicationBase()+"/resourcegroup", auth);
+					Config.getApplicationBase()+"/"+parent_page, auth);
 			
 			//put the form in a view and display
 			ContentView contentview = new ContentView();
 			contentview.add(new HtmlView("<h1>"+title+"</h1>"));	
 			contentview.add(new DivExWrapper(form));
+			
+			//setup crumbs
+			BreadCrumbView bread_crumb = new BreadCrumbView();
+			bread_crumb.addCrumb("Administration",  "admin");
+			bread_crumb.addCrumb("Resource Group",  parent_page);
+			bread_crumb.addCrumb(rec.name,  null);
+			contentview.setBreadCrumb(bread_crumb);
 			
 			Page page = new Page(createMenuView("admin"), contentview, createSideView());
 			

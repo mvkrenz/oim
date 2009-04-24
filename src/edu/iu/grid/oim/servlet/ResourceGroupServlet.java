@@ -35,6 +35,7 @@ import edu.iu.grid.oim.model.db.record.SCContactRecord;
 import edu.iu.grid.oim.model.db.record.ContactRankRecord;
 import edu.iu.grid.oim.model.db.record.ContactTypeRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
+import edu.iu.grid.oim.view.BreadCrumbView;
 import edu.iu.grid.oim.view.ContentView;
 import edu.iu.grid.oim.view.DivExWrapper;
 import edu.iu.grid.oim.view.HtmlView;
@@ -60,13 +61,18 @@ public class ResourceGroupServlet extends ServletBase implements Servlet {
 		setAuth(request);
 		auth.check("admin");
 		
-		//pull list of all Resource Groupus
-
 		try {
 			//construct view
 			MenuView menuview = createMenuView("admin");
 			DivExRoot root = DivExRoot.getInstance(request);
 			ContentView contentview = createContentView(root);
+			
+			//setup crumbs
+			BreadCrumbView bread_crumb = new BreadCrumbView();
+			bread_crumb.addCrumb("Administration",  "admin");
+			bread_crumb.addCrumb("Resource Group",  null);
+			contentview.setBreadCrumb(bread_crumb);
+			
 			Page page = new Page(menuview, contentview, createSideView(root));
 			page.render(response.getWriter());			
 		} catch (SQLException e) {
@@ -79,7 +85,7 @@ public class ResourceGroupServlet extends ServletBase implements Servlet {
 		throws ServletException, SQLException
 	{
 		ContentView contentview = new ContentView();	
-		contentview.add(new HtmlView("<h1>Resource Groups</h1>"));
+		contentview.add(new HtmlView("<h1>Resource Group</h1>"));
 	
 		ResourceGroupModel model = new ResourceGroupModel(auth);
 		Collection<ResourceGroupRecord> rgs = model.getAll();

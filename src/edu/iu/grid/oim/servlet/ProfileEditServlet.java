@@ -30,7 +30,7 @@ import edu.iu.grid.oim.view.SideContentView;
 public class ProfileEditServlet extends ServletBase implements Servlet {
 	private static final long serialVersionUID = 1L;
 	static Logger log = Logger.getLogger(ProfileEditServlet.class);  
-	private String current_page = "profileedit";	
+	private String parent_page = "home";	
 
     public ProfileEditServlet() {
         super();
@@ -43,29 +43,16 @@ public class ProfileEditServlet extends ServletBase implements Servlet {
 		ContactRecord rec;
 		try {
 			rec = auth.getContact();
-			/* -- this involves adding new DN
-			if(rec == null) {
-				//create new record
-				ContactModel model = new ContactModel(auth);
-				rec = new ContactRecord();
-				rec.submitter_dn_id = auth.getDNID();
-				model.insert(rec);//generated key are inserted back to the rec now.
 				
-				//associate with this dn
-				DNModel dnmode = new DNModel(auth);
-				//dnmode.update()
-			}
-			*/
-				
-			String origin_url = Config.getApplicationBase()+"/"+current_page;
+			String origin_url = Config.getApplicationBase()+"/"+parent_page;
 			ContactFormDE form = new ContactFormDE(DivExRoot.getInstance(request), rec, origin_url, auth);
 			
 			//put the form in a view and display
 			ContentView contentview = new ContentView();
-			contentview.add(new HtmlView("<h1>Edit Profile</h1>"));	
+			contentview.add(new HtmlView("<h1>Edit Your Profile</h1>"));	
 			contentview.add(new DivExWrapper(form));
 			
-			Page page = new Page(createMenuView(current_page), contentview, createSideView());
+			Page page = new Page(createMenuView("profileedit"), contentview, createSideView());
 			page.render(response.getWriter());	
 			
 		} catch (SQLException e) {

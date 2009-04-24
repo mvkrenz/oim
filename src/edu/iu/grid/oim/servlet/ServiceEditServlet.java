@@ -15,6 +15,7 @@ import com.webif.divex.DivExRoot;
 import edu.iu.grid.oim.lib.Config;
 import edu.iu.grid.oim.model.db.ServiceModel;
 import edu.iu.grid.oim.model.db.record.ServiceRecord;
+import edu.iu.grid.oim.view.BreadCrumbView;
 import edu.iu.grid.oim.view.ContentView;
 import edu.iu.grid.oim.view.DivExWrapper;
 import edu.iu.grid.oim.view.HtmlView;
@@ -25,7 +26,7 @@ import edu.iu.grid.oim.view.divex.form.ServiceFormDE;
 public class ServiceEditServlet extends ServletBase implements Servlet {
 	private static final long serialVersionUID = 1L;
 	static Logger log = Logger.getLogger(ServiceEditServlet.class);  
-	private String current_page = "service";	
+	private String parent_page = "service";	
 
     public ServiceEditServlet() {
         super();
@@ -58,7 +59,7 @@ public class ServiceEditServlet extends ServletBase implements Servlet {
 		}
 	
 		ServiceFormDE form;
-		String origin_url = Config.getApplicationBase()+"/"+current_page;
+		String origin_url = Config.getApplicationBase()+"/"+parent_page;
 		try {
 			form = new ServiceFormDE(DivExRoot.getInstance(request), rec, origin_url, auth);
 		} catch (SQLException e) {
@@ -69,6 +70,13 @@ public class ServiceEditServlet extends ServletBase implements Servlet {
 		ContentView contentview = new ContentView();
 		contentview.add(new HtmlView("<h1>"+title+"</h1>"));	
 		contentview.add(new DivExWrapper(form));
+		
+		//setup crumbs
+		BreadCrumbView bread_crumb = new BreadCrumbView();
+		bread_crumb.addCrumb("Administration",  "admin");
+		bread_crumb.addCrumb("Service",  parent_page);
+		bread_crumb.addCrumb(rec.name, null);
+		contentview.setBreadCrumb(bread_crumb);
 		
 		Page page = new Page(createMenuView("admin"), contentview, createSideView());	
 		page.render(response.getWriter());	

@@ -32,6 +32,7 @@ import edu.iu.grid.oim.model.db.record.ActionRecord;
 import edu.iu.grid.oim.model.db.record.AuthorizationTypeActionRecord;
 import edu.iu.grid.oim.model.db.record.AuthorizationTypeRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
+import edu.iu.grid.oim.view.BreadCrumbView;
 import edu.iu.grid.oim.view.ContentView;
 import edu.iu.grid.oim.view.DivExWrapper;
 import edu.iu.grid.oim.view.HtmlView;
@@ -182,6 +183,13 @@ public class AuthorizationMatrixServlet extends ServletBase  {
 		
 		try {
 			contentview = createContentView(root);
+			
+			//setup crumbs
+			BreadCrumbView bread_crumb = new BreadCrumbView();
+			bread_crumb.addCrumb("Administration",  "admin");
+			bread_crumb.addCrumb("Authorization Matrix",  null);
+			contentview.setBreadCrumb(bread_crumb);
+			
 			Page page = new Page(menuview, contentview, createSideView());
 			page.render(response.getWriter());
 		} catch (SQLException e) {

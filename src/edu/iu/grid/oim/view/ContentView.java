@@ -4,12 +4,19 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 
 public class ContentView extends GenericView {
+	BreadCrumbView bread_crumb;
+	public void setBreadCrumb(BreadCrumbView _crumb)
+	{
+		bread_crumb = _crumb;
+	}
+	
 	public void render(PrintWriter out)
 	{
 		out.println("<div id=\"content\">");
 		
-		//output bread
-		out.println("<div id=\"breadcrumb\">You are here &gt; Somewhere &gt; Somewhere</div>");
+		if(bread_crumb != null) {
+			bread_crumb.render(out);
+		}
 		
 		super.render(out);
 		

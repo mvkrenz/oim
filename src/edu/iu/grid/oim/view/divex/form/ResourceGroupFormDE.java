@@ -84,22 +84,10 @@ public class ResourceGroupFormDE extends FormDE
 		description.setValue(rec.description);
 		description.setRequired(true);
 		
-		/*
-		SiteModel smodel = new SiteModel(auth);
-		HashMap<Integer, String> site_kv = new HashMap();
-		for(SiteRecord site_rec : smodel.getAll()) {
-				site_kv.put(site_rec.id, site_rec.name);
-		}
-		site_id = new SelectFormElementDE(this, site_kv);
-		site_id.setLabel("Site");
-		site_id.setRequired(true);
-		if(id != null) {
-			site_id.setValue(rec.site_id);
-		}
-		*/
 		site_id = new OIMHierarchySelector(this, OIMHierarchySelector.Type.SITE, auth);
 		site_id.setLabel("Site");
 		site_id.setValue(rec.site_id);
+		site_id.setRequired(true);
 		
 		OsgGridTypeModel omodel = new OsgGridTypeModel(auth);
 		HashMap<Integer, String> gridtype_kv = new HashMap();

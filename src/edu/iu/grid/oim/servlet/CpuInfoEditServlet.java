@@ -18,6 +18,7 @@ import edu.iu.grid.oim.model.db.CpuInfoModel;
 import edu.iu.grid.oim.model.db.record.CpuInfoRecord;
 import edu.iu.grid.oim.view.divex.form.CpuInfoFormDE;
 
+import edu.iu.grid.oim.view.BreadCrumbView;
 import edu.iu.grid.oim.view.ContentView;
 import edu.iu.grid.oim.view.DivExWrapper;
 import edu.iu.grid.oim.view.HtmlView;
@@ -74,6 +75,14 @@ public class CpuInfoEditServlet extends ServletBase implements Servlet {
 		ContentView contentview = new ContentView();
 		contentview.add(new HtmlView("<h1>"+title+"</h1>"));	
 		contentview.add(new DivExWrapper(form));
+		
+		//setup crumbs
+		BreadCrumbView bread_crumb = new BreadCrumbView();
+		bread_crumb.addCrumb("Administration",  "admin");
+		bread_crumb.addCrumb("CPU Information",  "cpuinfo");
+		bread_crumb.addCrumb(rec.name,  null);
+
+		contentview.setBreadCrumb(bread_crumb);
 		
 		Page page = new Page(createMenuView("admin"), contentview, createSideView());	
 		page.render(response.getWriter());	

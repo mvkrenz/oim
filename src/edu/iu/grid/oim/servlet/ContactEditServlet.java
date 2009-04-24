@@ -20,6 +20,7 @@ import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.SCRecord;
 import edu.iu.grid.oim.view.divex.form.ContactFormDE;
 import edu.iu.grid.oim.view.divex.form.SCFormDE;
+import edu.iu.grid.oim.view.BreadCrumbView;
 import edu.iu.grid.oim.view.ContentView;
 import edu.iu.grid.oim.view.DivExWrapper;
 import edu.iu.grid.oim.view.HtmlView;
@@ -29,7 +30,7 @@ import edu.iu.grid.oim.view.SideContentView;
 public class ContactEditServlet extends ServletBase implements Servlet {
 	private static final long serialVersionUID = 1L;
 	static Logger log = Logger.getLogger(ContactEditServlet.class);  
-	private String current_page = "contact";	
+	private String parent_page = "contact";	
 
     public ContactEditServlet() {
         super();
@@ -66,7 +67,7 @@ public class ContactEditServlet extends ServletBase implements Servlet {
 			title = "New Contact";	
 		}
 
-		String origin_url = Config.getApplicationBase()+"/"+current_page;
+		String origin_url = Config.getApplicationBase()+"/"+parent_page;
 		ContactFormDE form = new ContactFormDE(DivExRoot.getInstance(request), rec, origin_url, auth);
 		
 		//put the form in a view and display
@@ -74,7 +75,13 @@ public class ContactEditServlet extends ServletBase implements Servlet {
 		contentview.add(new HtmlView("<h1>"+title+"</h1>"));	
 		contentview.add(new DivExWrapper(form));
 		
-		Page page = new Page(createMenuView(current_page), contentview, createSideView());
+		//setup crumbs
+		BreadCrumbView bread_crumb = new BreadCrumbView();
+		bread_crumb.addCrumb("Contact",  parent_page);
+		bread_crumb.addCrumb(rec.name,  null);
+		contentview.setBreadCrumb(bread_crumb);
+		
+		Page page = new Page(createMenuView(parent_page), contentview, createSideView());
 		page.render(response.getWriter());	
 	}
 	

@@ -1,3 +1,4 @@
+<br clear="all"/>
 <div id="footer">
 &copy; 2009 Indiana University GOC
 </div>

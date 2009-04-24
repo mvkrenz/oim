@@ -19,6 +19,7 @@ import edu.iu.grid.oim.model.db.DNModel;
 import edu.iu.grid.oim.model.db.SiteModel;
 import edu.iu.grid.oim.model.db.record.DNRecord;
 import edu.iu.grid.oim.model.db.record.SiteRecord;
+import edu.iu.grid.oim.view.BreadCrumbView;
 import edu.iu.grid.oim.view.ContentView;
 import edu.iu.grid.oim.view.DivExWrapper;
 import edu.iu.grid.oim.view.HtmlView;
@@ -65,6 +66,13 @@ public class UserEditServlet extends ServletBase implements Servlet {
 			ContentView contentview = new ContentView();
 			contentview.add(new HtmlView("<h1>"+title+"</h1>"));	
 			contentview.add(new DivExWrapper(form));
+			
+			//setup crumbs
+			BreadCrumbView bread_crumb = new BreadCrumbView();
+			bread_crumb.addCrumb("Administration",  "admin");
+			bread_crumb.addCrumb("User",  "user");
+			bread_crumb.addCrumb(rec.dn_string, null);
+			contentview.setBreadCrumb(bread_crumb);
 			
 			Page page = new Page(createMenuView("admin"), contentview, createSideView());			
 			page.render(response.getWriter());	
