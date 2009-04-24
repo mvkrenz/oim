@@ -85,7 +85,6 @@ public class VOServlet extends ServletBase implements Servlet {
 	{
 		VOModel model = new VOModel(context);
 		Collection<VORecord> vos = model.getAllEditable();;
-
 		
 		ContentView contentview = new ContentView();	
 		contentview.add(new HtmlView("<h1>Virtual Organization</h1>"));

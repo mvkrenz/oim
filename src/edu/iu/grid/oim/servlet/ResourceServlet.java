@@ -29,6 +29,7 @@ import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.DNModel;
 import edu.iu.grid.oim.model.db.DowntimeClassModel;
 import edu.iu.grid.oim.model.db.DowntimeSeverityModel;
+import edu.iu.grid.oim.model.db.FieldOfScienceModel;
 import edu.iu.grid.oim.model.db.ResourceAliasModel;
 import edu.iu.grid.oim.model.db.ResourceContactModel;
 import edu.iu.grid.oim.model.db.ResourceDowntimeModel;
@@ -38,9 +39,13 @@ import edu.iu.grid.oim.model.db.ResourceModel;
 import edu.iu.grid.oim.model.db.ResourceServiceModel;
 import edu.iu.grid.oim.model.db.ResourceWLCGModel;
 import edu.iu.grid.oim.model.db.ServiceModel;
+import edu.iu.grid.oim.model.db.VOFieldOfScienceModel;
+import edu.iu.grid.oim.model.db.VOModel;
+import edu.iu.grid.oim.model.db.VOResourceOwnershipModel;
 import edu.iu.grid.oim.model.db.record.ContactRankRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.ContactTypeRecord;
+import edu.iu.grid.oim.model.db.record.FieldOfScienceRecord;
 import edu.iu.grid.oim.model.db.record.ResourceAliasRecord;
 import edu.iu.grid.oim.model.db.record.ResourceContactRecord;
 import edu.iu.grid.oim.model.db.record.ResourceDowntimeRecord;
@@ -50,6 +55,9 @@ import edu.iu.grid.oim.model.db.record.ResourceRecord;
 import edu.iu.grid.oim.model.db.record.ResourceServiceRecord;
 import edu.iu.grid.oim.model.db.record.ResourceWLCGRecord;
 import edu.iu.grid.oim.model.db.record.ServiceRecord;
+import edu.iu.grid.oim.model.db.record.VOFieldOfScienceRecord;
+import edu.iu.grid.oim.model.db.record.VORecord;
+import edu.iu.grid.oim.model.db.record.VOResourceOwnershipRecord;
 import edu.iu.grid.oim.view.BreadCrumbView;
 import edu.iu.grid.oim.view.ContentView;
 import edu.iu.grid.oim.view.DivExWrapper;
@@ -135,6 +143,9 @@ public class ResourceServlet extends ServletBase implements Servlet {
 			}
 			table.addRow("Services", services_view);
 			
+			// Ownership information
+			table.addRow("VO Owners of This Resource", getVOOwners(rec.id));
+			
 			//contacts (only shows contacts that are filled out)
 			ContactTypeModel ctmodel = new ContactTypeModel(context);
 			ContactRankModel crmodel = new ContactRankModel(context);
@@ -181,10 +192,23 @@ public class ResourceServlet extends ServletBase implements Servlet {
 					redirect(url);
 				}
 			};
+			class EditDowntimeButtonDE extends ButtonDE
+			{
+				String url;
+				public EditDowntimeButtonDE(DivEx parent, String _url)
+				{
+					super(parent, "Add/Edit Downtime");
+					this.setStyle(Style.ALINK);
+					url = _url;
+				}
+				protected void onEvent(Event e) {
+					redirect(url);
+				}
+			};
 			table.add(new DivExWrapper(new EditButtonDE(context.getDivExRoot(), 
 					Config.getApplicationBase()+"/resourceedit?resource_id=" + rec.id)));
-			table.add(new DivExWrapper(new EditButtonDE(context.getDivExRoot(), 
-					Config.getApplicationBase()+"/resourcedowntimeedit?resource_id=" + rec.id)));
+			table.add(new DivExWrapper(new EditDowntimeButtonDE(context.getDivExRoot(), 
+					Config.getApplicationBase()+"/resourcedowntimeedit?id=" + rec.id)));
 		}
 		
 		return contentview;
@@ -261,7 +285,31 @@ public class ResourceServlet extends ServletBase implements Servlet {
 		if (html.length() == 0) html = "N/A"; // Need to make this be consistent with other NULL/empty objects -agopu
 		return html;
 	}
+
+	private IView getVOOwners(Integer resource_id) throws SQLException
+	{
+		VOResourceOwnershipModel model = new VOResourceOwnershipModel(context);
+		Collection<VOResourceOwnershipRecord> list = model.getAllByResourceID(resource_id);
 		
+		if(list == null) {
+			return null;
+		}
+		
+		String out = "";
+		VOModel vo_model = new VOModel(context);
+		for(VOResourceOwnershipRecord rec : list) {
+//			VORecord keyrec = new VORecord();
+//			keyrec.id = rec.vo_id;
+			VORecord vo_rec = vo_model.get(rec.vo_id);
+			out += vo_rec.name;
+			if (rec.percent != null) {
+				out += ": " + rec.percent + "%";
+			}
+			out += "<br/>";
+		}
+		return new HtmlView(out);
+	}
+
 	private SideContentView createSideView()
 	{
 		SideContentView view = new SideContentView();

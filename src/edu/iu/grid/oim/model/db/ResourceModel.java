@@ -20,6 +20,7 @@ import edu.iu.grid.oim.model.db.record.ResourceRecord;
 import edu.iu.grid.oim.model.db.record.ResourceServiceRecord;
 import edu.iu.grid.oim.model.db.record.ResourceWLCGRecord;
 import edu.iu.grid.oim.model.db.record.VOContactRecord;
+import edu.iu.grid.oim.model.db.record.VOResourceOwnershipRecord;
 
 public class ResourceModel extends SmallTableModelBase<ResourceRecord> {
     static Logger log = Logger.getLogger(ResourceModel.class);  
@@ -105,7 +106,8 @@ public class ResourceModel extends SmallTableModelBase<ResourceRecord> {
 			ArrayList<String> resource_aliases,
 			ArrayList<ResourceContactRecord> contacts,
 			ResourceWLCGRecord wrec,
-			ArrayList<ResourceServiceRecord> resource_services/*,
+			ArrayList<ResourceServiceRecord> resource_services,
+			ArrayList<VOResourceOwnershipRecord> owners/*,
 			ArrayList<ResourceDowntimeEditorDE.DowntimeEditor> downtimes,
 			HashMap<DowntimeEditor, ArrayList<ResourceDowntimeServiceRecord>> downtime_services*/) throws Exception
 	{
@@ -142,6 +144,14 @@ public class ResourceModel extends SmallTableModelBase<ResourceRecord> {
 			}
 			ResourceServiceModel rsmodel = new ResourceServiceModel(context);
 			rsmodel.insert(resource_services);
+			
+			//process resource owners
+			for(VOResourceOwnershipRecord owner_rec : owners) {
+				owner_rec.resource_id = rec.id;
+			}
+			VOResourceOwnershipModel voresowner_model = new VOResourceOwnershipModel(context);
+			voresowner_model.insert(owners);
+
 			
 			//process WLCG Resource record
 			if(wrec != null) {
@@ -185,7 +195,8 @@ public class ResourceModel extends SmallTableModelBase<ResourceRecord> {
 			ArrayList<String> resource_aliases,
 			ArrayList<ResourceContactRecord> contacts,
 			ResourceWLCGRecord wrec,
-			ArrayList<ResourceServiceRecord> resource_services/*,
+			ArrayList<ResourceServiceRecord> resource_services,
+			ArrayList<VOResourceOwnershipRecord> owners/*,
 			ArrayList<ResourceDowntimeEditorDE.DowntimeEditor> downtimes,
 			HashMap<DowntimeEditor, ArrayList<ResourceDowntimeServiceRecord>> downtime_services*/) throws Exception
 	{
@@ -221,6 +232,14 @@ public class ResourceModel extends SmallTableModelBase<ResourceRecord> {
 			}
 			ResourceServiceModel rsmodel = new ResourceServiceModel(context);
 			rsmodel.update(rsmodel.getAllByResourceID(rec.id), resource_services);
+			
+			//process resource owners
+			for(VOResourceOwnershipRecord owner_rec : owners) {
+				owner_rec.resource_id = rec.id;
+			}
+			VOResourceOwnershipModel voresowner_model = new VOResourceOwnershipModel(context);
+			voresowner_model.update(voresowner_model.getAllByResourceID(rec.id), owners);
+			
 			
 			//process WLCG Record
 			ResourceWLCGModel wmodel = new ResourceWLCGModel(context);

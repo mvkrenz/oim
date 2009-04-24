@@ -202,7 +202,7 @@ public class ResourceServicesDE extends FormElementDEBase {
 	
 	public void validate()
 	{
-		//validate all downtimes
+		//validate all services
 		redraw();
 		valid = true;
 		for(ServiceEditor service : services) {

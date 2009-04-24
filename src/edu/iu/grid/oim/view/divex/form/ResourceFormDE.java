@@ -31,6 +31,8 @@ import edu.iu.grid.oim.model.db.ResourceServiceModel;
 import edu.iu.grid.oim.model.db.ResourceWLCGModel;
 import edu.iu.grid.oim.model.db.ServiceModel;
 import edu.iu.grid.oim.model.db.ResourceModel;
+import edu.iu.grid.oim.model.db.VOModel;
+import edu.iu.grid.oim.model.db.VOResourceOwnershipModel;
 import edu.iu.grid.oim.model.db.record.ContactTypeRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.ResourceAliasRecord;
@@ -39,10 +41,12 @@ import edu.iu.grid.oim.model.db.record.ResourceDowntimeRecord;
 import edu.iu.grid.oim.model.db.record.ResourceRecord;
 import edu.iu.grid.oim.model.db.record.ResourceServiceRecord;
 import edu.iu.grid.oim.model.db.record.ResourceWLCGRecord;
+import edu.iu.grid.oim.model.db.record.VOResourceOwnershipRecord;
 import edu.iu.grid.oim.view.divex.ContactEditorDE;
 import edu.iu.grid.oim.view.divex.OIMHierarchySelector;
 import edu.iu.grid.oim.view.divex.ResourceAliasDE;
 import edu.iu.grid.oim.view.divex.ResourceServicesDE;
+import edu.iu.grid.oim.view.divex.VOResourceOwnershipDE;
 
 public class ResourceFormDE extends FormDE 
 {
@@ -63,6 +67,7 @@ public class ResourceFormDE extends FormDE
 	private OIMHierarchySelector resource_group_id;
 	private ResourceAliasDE aliases;
 	private ResourceServicesDE resource_services;
+	private VOResourceOwnershipDE owners;
 	
 	private CheckBoxFormElementDE wlcg;
 	private CheckBoxFormElementDE interop_bdii;
@@ -135,7 +140,7 @@ public class ResourceFormDE extends FormDE
 		
 		new StaticDE(this, "<h3>Resource FQDN Aliases (If Applicable)</h3>");
 		new StaticDE(this, "<p>If you used a DNS alias as their main gatekeeper or SE head node FQDN (as defined above), then you can add real host name(s) here as reverse alias(es).</p>");
-		aliases = new ResourceAliasDE(this);
+		aliases = new ResourceAliasDE (this);
 		ResourceAliasModel ramodel = new ResourceAliasModel(context);
 		if(id != null) {
 			for(ResourceAliasRecord rarec : ramodel.getAllByResourceID(id)) {
@@ -153,7 +158,19 @@ public class ResourceFormDE extends FormDE
 				resource_services.addService(rarec);
 			}
 		}
-		
+
+		// Resource ownership stuff
+		new StaticDE(this, "<h3>VO Owner(s)</h3>");
+		new StaticDE(this, "<p>Add/modify VO ownership of this resource.</p>");
+		VOModel vo_model = new VOModel(context);
+		owners = new VOResourceOwnershipDE(this, vo_model.getAll());
+		VOResourceOwnershipModel voresowner_model = new VOResourceOwnershipModel(context);
+		if(id != null) {
+			for(VOResourceOwnershipRecord voresowner_rec : voresowner_model.getAllByResourceID(id)) {
+				owners.addOwner(voresowner_rec);
+			}
+		}
+
 		new StaticDE(this, "<h2>Contact Information</h2>");
 		new StaticDE(this, "<p>Add, remove, modify various types of contacts associated with your resource. These contacts have the authorization to modify this resource. Each contact entry field shows you a list of contacts as you type a name.</p>");
 		HashMap<Integer/*contact_type_id*/, ArrayList<ResourceContactRecord>> voclist_grouped = null;
@@ -386,15 +403,16 @@ public class ResourceFormDE extends FormDE
 						aliases.getAliases(), 
 						getContactRecordsFromEditor(), 
 						wrec,
-						resource_services.getResourceServiceRecords()/*,
-						downtimes.getDowntimeEditors(),
+						resource_services.getResourceServiceRecords(),
+						owners.getOwners()/*,downtimes.getDowntimeEditors(),
 						downtimes.getAffectedServiceRecords()*/);
 			} else {
 				model.updateDetail(rec, 
 						aliases.getAliases(), 
 						getContactRecordsFromEditor(),
 						wrec,
-						resource_services.getResourceServiceRecords()/*,
+						resource_services.getResourceServiceRecords(),
+						owners.getOwners()/*,
 						downtimes.getDowntimeEditors(),
 						downtimes.getAffectedServiceRecords()*/);
 			}
