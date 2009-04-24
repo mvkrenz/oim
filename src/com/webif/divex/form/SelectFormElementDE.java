@@ -24,11 +24,12 @@ public class SelectFormElementDE extends FormElementDEBase<Integer>
 		out.write("id=\""+getNodeID()+"\">");
 		if(!hidden) {
 			if(label != null) {
-				out.print("<label>"+StringEscapeUtils.escapeHtml(label)+"</label><br/>");
+				out.write("<label>"+StringEscapeUtils.escapeHtml(label)+"</label><br/>");
 			}
-			out.print("<select onchange='divex(\""+getNodeID()+"\", event, this.value);'>");
-			out.print("<option value=\"\">(Please Select)</option>");
-	
+			//FireFox has a bug where it select box doesn't have "name" attribute, it will misbehave when page is redrawn
+			out.write("<select name='"+getNodeID()+"_select' onchange='console.log(\"hello\");divex(\""+getNodeID()+"\", event, this.value);'>");
+			out.write("<option value=\"\">(Please Select)</option>");
+			
 			for(Integer v : keyvalues.keySet()) {
 				String name = keyvalues.get(v);
 				String selected = "";
@@ -37,14 +38,14 @@ public class SelectFormElementDE extends FormElementDEBase<Integer>
 						selected = "selected=\"selected\"";
 					}
 				}
-				out.print("<option value=\""+v+"\" "+selected+">"+StringEscapeUtils.escapeHtml(name)+"</option>");
+				out.write("<option value=\""+v+"\" "+selected+">"+StringEscapeUtils.escapeHtml(name)+"</option>");
 			}
 			out.print("</select>");
 			if(isRequired()) {
-				out.print(" * Required");
+				out.write(" * Required");
 			}
 			if(error != null) {
-				out.print("<p class='elementerror round'>"+StringEscapeUtils.escapeHtml(error)+"</p>");
+				out.write("<p class='elementerror round'>"+StringEscapeUtils.escapeHtml(error)+"</p>");
 			}
 		}
 		out.print("</div>");

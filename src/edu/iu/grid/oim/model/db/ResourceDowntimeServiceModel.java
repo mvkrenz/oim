@@ -5,7 +5,12 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpressionException;
+
 import org.apache.log4j.Logger;
+import org.w3c.dom.Document;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.model.db.record.OsgGridTypeRecord;
@@ -15,6 +20,7 @@ import edu.iu.grid.oim.model.db.record.ResourceDowntimeRecord;
 import edu.iu.grid.oim.model.db.record.ResourceDowntimeServiceRecord;
 import edu.iu.grid.oim.model.db.record.ResourceGroupRecord;
 import edu.iu.grid.oim.model.db.record.SCRecord;
+import edu.iu.grid.oim.model.db.record.VOReportNameRecord;
 
 public class ResourceDowntimeServiceModel extends SmallTableModelBase<ResourceDowntimeServiceRecord> {
     static Logger log = Logger.getLogger(ResourceDowntimeServiceModel.class); 
@@ -26,10 +32,6 @@ public class ResourceDowntimeServiceModel extends SmallTableModelBase<ResourceDo
 	{
 		return new ResourceDowntimeServiceRecord();
 	}
-    public String getName()
-    {
-    	return "Resource Downtime";
-    }
 	public Collection<ResourceDowntimeServiceRecord> getAll() throws SQLException
 	{
 		ArrayList<ResourceDowntimeServiceRecord> list = new ArrayList<ResourceDowntimeServiceRecord>();
@@ -61,5 +63,23 @@ public class ResourceDowntimeServiceModel extends SmallTableModelBase<ResourceDo
 		}
 		
 		return list;
+	}
+    public String getName()
+    {
+    	return "Resource Downtime / Service";
+    }
+	public Boolean hasLogAccess(XPath xpath, Document doc) throws XPathExpressionException
+	{
+		Integer resource_downtime_id = Integer.parseInt((String)xpath.evaluate("//Keys/Key[Name='resource_downtime_id']/Value", doc, XPathConstants.STRING));
+		ResourceDowntimeModel dmodel = new ResourceDowntimeModel(auth);
+		ResourceDowntimeRecord drec;
+		try {
+			drec = dmodel.get(resource_downtime_id);
+			ResourceModel model = new ResourceModel(auth);
+			return model.canEdit(drec.resource_id);
+		} catch (SQLException e) {
+			log.error(e);
+		}
+		return false;
 	}
 }

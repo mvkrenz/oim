@@ -4,7 +4,12 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpressionException;
+
 import org.apache.log4j.Logger;
+import org.w3c.dom.Document;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.model.db.record.RecordBase;
@@ -28,6 +33,12 @@ public class VOReportNameModel extends SmallTableModelBase<VOReportNameRecord> {
 		}
 		return list;
 	}
+	public VOReportNameRecord get(int vo_report_name_id) throws SQLException
+	{
+		VOReportNameRecord keyrec = new VOReportNameRecord();
+		keyrec.id = vo_report_name_id;
+		return get(keyrec);
+	}
 	public ArrayList<VOReportNameRecord> getAllByVOID(int vo_id) throws SQLException
 	{
 		ArrayList<VOReportNameRecord> list = new ArrayList<VOReportNameRecord>();
@@ -37,5 +48,15 @@ public class VOReportNameModel extends SmallTableModelBase<VOReportNameRecord> {
 			}
 		}
 		return list;		
+	}
+    public String getName()
+    {
+    	return "Virtual Organization Report Name";
+    }
+	public Boolean hasLogAccess(XPath xpath, Document doc) throws XPathExpressionException
+	{
+		Integer id = Integer.parseInt((String)xpath.evaluate("//Keys/Key[Name='vo_id']/Value", doc, XPathConstants.STRING));
+		VOModel model = new VOModel(auth);
+		return model.canEdit(id);
 	}
 }

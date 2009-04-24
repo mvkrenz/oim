@@ -9,6 +9,11 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathExpressionException;
+
+import org.w3c.dom.Document;
+
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
 import edu.iu.grid.oim.model.db.record.ContactRankRecord;
@@ -30,5 +35,17 @@ public class ContactRankModel extends SmallTableModelBase<ContactRankRecord> {
 		ContactRankRecord keyrec = new ContactRankRecord();
 		keyrec.id = id;
 		return get(keyrec);
+	}
+    public String getName()
+    {
+    	return "Contact Rank";
+    }
+	public Boolean hasLogAccess(XPath xpath, Document doc) throws XPathExpressionException
+	{
+		//Integer id = Integer.parseInt((String)xpath.evaluate("//Keys/Key[Name='id']/Value", doc, XPathConstants.STRING));
+		if(auth.allows("admin")) {
+			return true;
+		}
+		return false;
 	}
 }

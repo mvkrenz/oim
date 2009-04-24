@@ -66,10 +66,7 @@ public abstract class ModelBase<T extends RecordBase> {
 	}
 
 	//override this to reveal the log to particular user
-	public Boolean hasLogAccess(XPath xpath, Document doc) throws XPathExpressionException
-	{
-		return false;
-	}
+	abstract public Boolean hasLogAccess(XPath xpath, Document doc) throws XPathExpressionException;
 
 	/*
 	//I get following warning when I try to run DISABLE KEYS command

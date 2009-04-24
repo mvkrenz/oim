@@ -5,7 +5,12 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpressionException;
+
 import org.apache.log4j.Logger;
+import org.w3c.dom.Document;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.model.db.record.RecordBase;
@@ -60,5 +65,15 @@ public class VOContactModel extends SmallTableModelBase<VOContactRecord> {
 			if(vcrec.contact_id.compareTo(contact_id) == 0) list.add(vcrec);
 		}		
 		return list;
+	}
+    public String getName()
+    {
+    	return "Virtual Organization Contact";
+    }
+	public Boolean hasLogAccess(XPath xpath, Document doc) throws XPathExpressionException
+	{
+		Integer id = Integer.parseInt((String)xpath.evaluate("//Keys/Key[Name='vo_id']/Value", doc, XPathConstants.STRING));
+		VOModel model = new VOModel(auth);
+		return model.canEdit(id);
 	}
 }

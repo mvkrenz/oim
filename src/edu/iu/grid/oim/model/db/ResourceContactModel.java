@@ -5,7 +5,12 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpressionException;
+
 import org.apache.log4j.Logger;
+import org.w3c.dom.Document;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.model.db.record.RecordBase;
@@ -61,5 +66,15 @@ public class ResourceContactModel extends SmallTableModelBase<ResourceContactRec
 			if(vcrec.contact_id == contact_id) list.add(vcrec);
 		}		
 		return list;
+	}
+    public String getName()
+    {
+    	return "Resource Contact";
+    }
+	public Boolean hasLogAccess(XPath xpath, Document doc) throws XPathExpressionException
+	{
+		Integer id = Integer.parseInt((String)xpath.evaluate("//Keys/Key[Name='resource_id']/Value", doc, XPathConstants.STRING));
+		ResourceModel model = new ResourceModel(auth);
+		return model.canEdit(id);
 	}
 }

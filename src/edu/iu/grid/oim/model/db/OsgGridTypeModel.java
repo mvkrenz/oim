@@ -42,11 +42,16 @@ public class OsgGridTypeModel extends SmallTableModelBase<OsgGridTypeRecord> {
 		keyrec.id = id;
 		return get(keyrec);
 	}
-	/*
+    public String getName()
+    {
+    	return "OSG Grid Type";
+    }
 	public Boolean hasLogAccess(XPath xpath, Document doc) throws XPathExpressionException
-	{		
-		if(auth.allows("allows")) return true;
+	{
+		//Integer id = Integer.parseInt((String)xpath.evaluate("//Keys/Key[Name='id']/Value", doc, XPathConstants.STRING));
+		if(auth.allows("admin")) {
+			return true;
+		}
 		return false;
 	}
-	*/
 }

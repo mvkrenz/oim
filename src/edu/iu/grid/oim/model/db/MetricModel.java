@@ -4,7 +4,11 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathExpressionException;
+
 import org.apache.log4j.Logger;
+import org.w3c.dom.Document;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.model.db.record.ActionRecord;
@@ -34,5 +38,17 @@ public class MetricModel extends SmallTableModelBase<MetricRecord> {
 			list.add((MetricRecord)it);
 		}
 		return list;
+	}
+    public String getName()
+    {
+    	return "Metric";
+    }
+	public Boolean hasLogAccess(XPath xpath, Document doc) throws XPathExpressionException
+	{
+		//Integer id = Integer.parseInt((String)xpath.evaluate("//Keys/Key[Name='id']/Value", doc, XPathConstants.STRING));
+		if(auth.allows("admin")) {
+			return true;
+		}
+		return false;
 	}
 }

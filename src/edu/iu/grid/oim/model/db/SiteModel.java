@@ -26,10 +26,17 @@ public class SiteModel extends SmallTableModelBase<SiteRecord> {
 	public SiteModel(Authorization _auth) {
 		super(_auth, "site");
 	}
-	
-	public String getName()
+    public String getName()
+    {
+    	return "Site";
+    }
+	public Boolean hasLogAccess(XPath xpath, Document doc) throws XPathExpressionException
 	{
-		return "Site";
+		//Integer id = Integer.parseInt((String)xpath.evaluate("//Keys/Key[Name='id']/Value", doc, XPathConstants.STRING));
+		if(auth.allows("admin")) {
+			return true;
+		}
+		return false;
 	}
 	
 	SiteRecord createRecord() throws SQLException

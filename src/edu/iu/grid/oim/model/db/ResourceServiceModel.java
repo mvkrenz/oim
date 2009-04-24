@@ -4,7 +4,12 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpressionException;
+
 import org.apache.log4j.Logger;
+import org.w3c.dom.Document;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.model.db.record.OsgGridTypeRecord;
@@ -48,5 +53,15 @@ public class ResourceServiceModel extends SmallTableModelBase<ResourceServiceRec
 			}
 		}
 		return list;		
+	}
+    public String getName()
+    {
+    	return "Resource Service";
+    }
+	public Boolean hasLogAccess(XPath xpath, Document doc) throws XPathExpressionException
+	{
+		Integer id = Integer.parseInt((String)xpath.evaluate("//Keys/Key[Name='resource_id']/Value", doc, XPathConstants.STRING));
+		ResourceModel model = new ResourceModel(auth);
+		return model.canEdit(id);
 	}
 }

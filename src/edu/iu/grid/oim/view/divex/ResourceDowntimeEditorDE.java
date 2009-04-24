@@ -274,11 +274,9 @@ public class ResourceDowntimeEditorDE extends FormElementDEBase {
 			//ArrayList<ServiceEditor> ses = resource_services_de.getServiceEditors();
 			//for(ServiceEditor se : ses) {
 			ResourceServiceModel rsmodel = new ResourceServiceModel(auth);
-			if(rec.resource_id != null) {
-				Collection<ResourceServiceRecord> rsrecs = rsmodel.getAllByResourceID(rec.resource_id);
-				for(ResourceServiceRecord rsrec : rsrecs) {
-					addService(rsrec.service_id);
-				}
+			Collection<ResourceServiceRecord> rsrecs = rsmodel.getAllByResourceID(resource_id);
+			for(ResourceServiceRecord rsrec : rsrecs) {
+				addService(rsrec.service_id);
 			}
 			
 			remove_button = new ButtonDE(this, "images/delete.png");
