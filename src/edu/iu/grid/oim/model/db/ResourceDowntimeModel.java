@@ -82,15 +82,13 @@ public class ResourceDowntimeModel extends SmallTableModelBase<ResourceDowntimeR
 			}
 			dmodel.update(dmodel.getFutureDowntimesByResourceID(resource_id), downtime_recs);
 			
-			//process service records
 			for(ResourceDowntime downtime : downtimes) {
 				ResourceDowntimeRecord downtime_rec = downtime.downtime;
 
+				//process service records
 				ArrayList<ResourceDowntimeServiceRecord> services = downtime.services;
-				//update the downtime_id
 				for(ResourceDowntimeServiceRecord service : services) {
 					service.resource_downtime_id = downtime_rec.id;
-
 				}
 				rdsmodel.update(rdsmodel.getByDowntimeID(downtime_rec.id), services);			
 			}

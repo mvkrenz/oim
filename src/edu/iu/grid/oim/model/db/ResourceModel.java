@@ -159,25 +159,7 @@ public class ResourceModel extends SmallTableModelBase<ResourceRecord> {
 				ResourceWLCGModel wmodel = new ResourceWLCGModel(context);
 				wmodel.insert(wrec);
 			}
-			/*
-			//process downtime schedule
-			ResourceDowntimeModel dmodel = new ResourceDowntimeModel(auth);
-			for(ResourceDowntimeEditorDE.DowntimeEditor downtime_editor : downtimes) {
-				ResourceDowntimeRecord downtime = downtime_editor.getDowntimeRecord();
-				
-				downtime.resource_id = rec.id;
-				
-				dmodel.insert(downtime); //key is now set
-			
-				//process downtime service
-				ResourceDowntimeServiceModel rdsmodel = new ResourceDowntimeServiceModel(auth);
-				ArrayList<ResourceDowntimeServiceRecord> services = downtime_services.get(downtime_editor);
-				for(ResourceDowntimeServiceRecord service : services) {
-					service.resource_downtime_id = downtime.id;
-					rdsmodel.insert(service);
-				}
-			}	
-			*/
+
 			getConnection().commit();
 			getConnection().setAutoCommit(true);
 		} catch (Exception e) {
@@ -261,32 +243,6 @@ public class ResourceModel extends SmallTableModelBase<ResourceRecord> {
 					wmodel.remove(oldrec);
 				}
 			}
-			
-			/*
-			//process downtime schedule
-			ResourceDowntimeModel dmodel = new ResourceDowntimeModel(auth);
-			for(ResourceDowntimeEditorDE.DowntimeEditor downtime_editor : downtimes) {
-				ResourceDowntimeRecord downtime = downtime_editor.getDowntimeRecord();
-				ResourceDowntimeServiceModel rdsmodel = new ResourceDowntimeServiceModel(auth);
-				ArrayList<ResourceDowntimeServiceRecord> services = downtime_services.get(downtime_editor);
-				
-				downtime.resource_id = rec.id;
-				
-				//process the downtime record itself
-				if(downtime.id != null) {
-					dmodel.update(dmodel.get(downtime.id), downtime);
-				} else {
-					dmodel.insert(downtime);
-					//update the id
-					for(ResourceDowntimeServiceRecord service : services) {
-						service.resource_downtime_id = downtime.id;
-
-					}
-				}
-				rdsmodel.update(rdsmodel.getByDowntimeID(downtime.id), services);			
-			
-			}
-			*/
 			
 			getConnection().commit();
 			getConnection().setAutoCommit(true);

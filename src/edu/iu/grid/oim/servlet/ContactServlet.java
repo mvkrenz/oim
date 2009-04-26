@@ -20,6 +20,7 @@ import com.webif.divex.ButtonDE;
 import com.webif.divex.DivEx;
 import com.webif.divex.DivExRoot;
 import com.webif.divex.Event;
+import com.webif.divex.TogglerDE;
 
 import edu.iu.grid.oim.lib.Config;
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
@@ -46,6 +47,7 @@ import edu.iu.grid.oim.view.SideContentView;
 import edu.iu.grid.oim.view.TableView;
 import edu.iu.grid.oim.view.Utils;
 import edu.iu.grid.oim.view.TableView.Row;
+import edu.iu.grid.oim.view.divex.ViewWrapperDE;
 
 public class ContactServlet extends ServletBase implements Servlet {
 	private static final long serialVersionUID = 1L;
@@ -89,7 +91,8 @@ public class ContactServlet extends ServletBase implements Servlet {
 			contentview.add(new HtmlView("<h2>"+StringEscapeUtils.escapeHtml(rec.name)+"</h2>"));
 			
 			RecordTableView table = new RecordTableView();
-			contentview.add(table);
+			contentview.add(new TogglerDE(context.getDivExRoot(), new ViewWrapperDE(context.getDivExRoot(), table)));
+			//contentview.add(table);
 
 		 	table.addRow("Primary Email", rec.primary_email);
 		 	table.addRow("Secondary Email", rec.secondary_email);
@@ -114,7 +117,11 @@ public class ContactServlet extends ServletBase implements Servlet {
 			table.addRow("Contact Preference", rec.contact_preference);	
 			
 			if(auth.allows("admin")) {
-				table.addRow("Submitter DN", rec.submitter_dn_id.toString());
+				String submitter_dn = null;
+				if(rec.submitter_dn_id != null) {
+					submitter_dn = rec.submitter_dn_id.toString();
+				}
+				table.addRow("Submitter DN", submitter_dn);
 			}
 			
 			if(auth.allows("admin")) {

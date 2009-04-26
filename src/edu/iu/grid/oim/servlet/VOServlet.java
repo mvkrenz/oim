@@ -17,6 +17,7 @@ import com.webif.divex.ButtonDE;
 import com.webif.divex.DivEx;
 import com.webif.divex.DivExRoot;
 import com.webif.divex.Event;
+import com.webif.divex.TogglerDE;
 
 import edu.iu.grid.oim.lib.Config;
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
@@ -54,6 +55,8 @@ import edu.iu.grid.oim.view.SideContentView;
 import edu.iu.grid.oim.view.TableView;
 import edu.iu.grid.oim.view.Utils;
 import edu.iu.grid.oim.view.TableView.Row;
+import edu.iu.grid.oim.view.TableView.Row.Cell;
+import edu.iu.grid.oim.view.divex.ViewWrapperDE;
 
 public class VOServlet extends ServletBase implements Servlet {
 	private static final long serialVersionUID = 1L;
@@ -91,8 +94,10 @@ public class VOServlet extends ServletBase implements Servlet {
 	
 		for(VORecord rec : vos) {
 			contentview.add(new HtmlView("<h2>"+StringEscapeUtils.escapeHtml(rec.name)+"</h2>"));
+			
 			RecordTableView table = new RecordTableView();
-			contentview.add(table);
+			contentview.add(new TogglerDE(context.getDivExRoot(), new ViewWrapperDE(context.getDivExRoot(), table)));
+//			contentview.add(table);
 
 			//pull parent vo
 			VORecord parent_vo_rec = model.getParentVO(rec.id);
@@ -201,8 +206,12 @@ public class VOServlet extends ServletBase implements Servlet {
 		
 		try {
 			table.addHeaderRow(record.name);
+			
 			table.addRow("Associated FQANs", new HtmlView (""));
-			table.addRow("", new HtmlView (getVOReportNameFqans(record.id)));
+			Row row = table.new Row();
+			row.addCell(getVOReportNameFqans(record.id), 2);
+			table.addRow(row);
+			
 			ContactTypeModel ctmodel = new ContactTypeModel(context);
 			ContactRankModel crmodel = new ContactRankModel(context);
 			ContactModel pmodel = new ContactModel(context);
@@ -229,21 +238,24 @@ public class VOServlet extends ServletBase implements Servlet {
 		return view;
 	}
 	
-	private String getVOReportNameFqans(int vo_report_name_id) throws SQLException
+	private IView getVOReportNameFqans(int vo_report_name_id) throws SQLException
 	{
-		String html = "";
 		VOReportNameFqanModel vorepnamefqan_model = new VOReportNameFqanModel(context);
 		Collection<VOReportNameFqanRecord> records = vorepnamefqan_model.getAllByVOReportNameID(vo_report_name_id);
 		// I don't like spitting out non-CSS HTML here .. leaving it for now. -agopu
-		html = "<table width='100%'>\n\t<tr>\n\t\t<th>Group Name</th> <th>Optional Role</th>\n\t</tr>\n";
+		RecordTableView table = new RecordTableView("fqan_table");
+		Row header_row = table.new Row();
+		header_row.addHeaderCell(new HtmlView("Group Name"));
+		header_row.addHeaderCell(new HtmlView("Optional Role"));
+		table.addRow(header_row);
 		for(VOReportNameFqanRecord record : records) {
-			html += "\t<tr>\n\t\t<td>" + StringEscapeUtils.escapeHtml(record.group_name) + 
-			   		"</td> <td>" + StringEscapeUtils.escapeHtml(record.role) + "</td>\n\t</tr>\n";
+			Row row = table.new Row();
+			row.addCell(new HtmlView(StringEscapeUtils.escapeHtml(record.group_name)));
+			row.addCell(new HtmlView(StringEscapeUtils.escapeHtml(record.role)));
+			table.addRow(row);
 		}
-		html += "</table>";
-		return html;
+		return table;
 	}
-
 
 	private SideContentView createSideView()
 	{

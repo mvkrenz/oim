@@ -30,11 +30,11 @@ public class TableView extends GenericView {
 			IView content;
 			int span;
 			
-			Cell(IView _content) {
+			public Cell(IView _content) {
 				content = _content;
 				span = 1;
 			}
-			Cell(IView _content, int _span) {
+			public Cell(IView _content, int _span) {
 				content = _content;
 				span = _span;
 			}

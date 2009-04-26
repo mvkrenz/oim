@@ -20,6 +20,7 @@ import com.webif.divex.ButtonDE;
 import com.webif.divex.DivEx;
 import com.webif.divex.DivExRoot;
 import com.webif.divex.Event;
+import com.webif.divex.TogglerDE;
 
 import edu.iu.grid.oim.lib.Config;
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
@@ -44,6 +45,7 @@ import edu.iu.grid.oim.view.SideContentView;
 import edu.iu.grid.oim.view.TableView;
 import edu.iu.grid.oim.view.Utils;
 import edu.iu.grid.oim.view.TableView.Row;
+import edu.iu.grid.oim.view.divex.ViewWrapperDE;
 
 public class SCServlet extends ServletBase implements Servlet {
 	private static final long serialVersionUID = 1L;
@@ -83,7 +85,8 @@ public class SCServlet extends ServletBase implements Servlet {
 			contentview.add(new HtmlView("<h2>"+StringEscapeUtils.escapeHtml(rec.name)+"</h2>"));
 
 			RecordTableView table = new RecordTableView();
-			contentview.add(table);
+			contentview.add(new TogglerDE(context.getDivExRoot(), new ViewWrapperDE(context.getDivExRoot(), table)));
+			//contentview.add(table);
 
 		 	table.addRow("Long Name", rec.long_name);
 			table.addRow("Description", rec.description);

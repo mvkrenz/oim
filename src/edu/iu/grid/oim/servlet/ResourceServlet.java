@@ -1,64 +1,48 @@
 package edu.iu.grid.oim.servlet;
 
 import java.io.IOException;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
-
 import com.webif.divex.ButtonDE;
 import com.webif.divex.DivEx;
-import com.webif.divex.DivExRoot;
 import com.webif.divex.Event;
-import com.webif.divex.form.CheckBoxFormElementDE;
-import com.webif.divex.form.TextFormElementDE;
+import com.webif.divex.TogglerDE;
 
 import edu.iu.grid.oim.lib.Config;
 import edu.iu.grid.oim.model.db.ContactRankModel;
 import edu.iu.grid.oim.model.db.ContactTypeModel;
 import edu.iu.grid.oim.model.db.ContactModel;
-import edu.iu.grid.oim.model.db.DNModel;
-import edu.iu.grid.oim.model.db.DowntimeClassModel;
-import edu.iu.grid.oim.model.db.DowntimeSeverityModel;
-import edu.iu.grid.oim.model.db.FieldOfScienceModel;
 import edu.iu.grid.oim.model.db.ResourceAliasModel;
 import edu.iu.grid.oim.model.db.ResourceContactModel;
-import edu.iu.grid.oim.model.db.ResourceDowntimeModel;
 import edu.iu.grid.oim.model.db.ResourceDowntimeServiceModel;
 import edu.iu.grid.oim.model.db.ResourceGroupModel;
 import edu.iu.grid.oim.model.db.ResourceModel;
 import edu.iu.grid.oim.model.db.ResourceServiceModel;
 import edu.iu.grid.oim.model.db.ResourceWLCGModel;
 import edu.iu.grid.oim.model.db.ServiceModel;
-import edu.iu.grid.oim.model.db.VOFieldOfScienceModel;
 import edu.iu.grid.oim.model.db.VOModel;
 import edu.iu.grid.oim.model.db.VOResourceOwnershipModel;
 import edu.iu.grid.oim.model.db.record.ContactRankRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.ContactTypeRecord;
-import edu.iu.grid.oim.model.db.record.FieldOfScienceRecord;
 import edu.iu.grid.oim.model.db.record.ResourceAliasRecord;
 import edu.iu.grid.oim.model.db.record.ResourceContactRecord;
-import edu.iu.grid.oim.model.db.record.ResourceDowntimeRecord;
 import edu.iu.grid.oim.model.db.record.ResourceDowntimeServiceRecord;
 import edu.iu.grid.oim.model.db.record.ResourceGroupRecord;
 import edu.iu.grid.oim.model.db.record.ResourceRecord;
 import edu.iu.grid.oim.model.db.record.ResourceServiceRecord;
 import edu.iu.grid.oim.model.db.record.ResourceWLCGRecord;
 import edu.iu.grid.oim.model.db.record.ServiceRecord;
-import edu.iu.grid.oim.model.db.record.VOFieldOfScienceRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
 import edu.iu.grid.oim.model.db.record.VOResourceOwnershipRecord;
-import edu.iu.grid.oim.view.BreadCrumbView;
 import edu.iu.grid.oim.view.ContentView;
 import edu.iu.grid.oim.view.DivExWrapper;
 import edu.iu.grid.oim.view.GenericView;
@@ -68,6 +52,7 @@ import edu.iu.grid.oim.view.MenuView;
 import edu.iu.grid.oim.view.Page;
 import edu.iu.grid.oim.view.RecordTableView;
 import edu.iu.grid.oim.view.SideContentView;
+import edu.iu.grid.oim.view.divex.ViewWrapperDE;
 
 public class ResourceServlet extends ServletBase implements Servlet {
 	private static final long serialVersionUID = 1L;
@@ -115,8 +100,9 @@ public class ResourceServlet extends ServletBase implements Servlet {
 			*/
 			contentview.add(new HtmlView("<h2>"+StringEscapeUtils.escapeHtml(name)+"</h2>"));
 	
+			//Place table in side the ViewWrapper, then wrap that into Toggler
 			RecordTableView table = new RecordTableView();
-			contentview.add(table);
+			contentview.add(new TogglerDE(context.getDivExRoot(), new ViewWrapperDE(context.getDivExRoot(), table)));
 
 			table.addRow("Resource FQDN", rec.fqdn);
 

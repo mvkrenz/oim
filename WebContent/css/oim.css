@@ -4,8 +4,6 @@
 	text-decoration: none;
 	cursor:progress;
 }
-
-
 a img
 {
 border: none;
@@ -43,11 +41,9 @@ table.auth_matrix tr.checklist input[type=checkbox]
 {
 margin-top: 4px;
 }
-
 table.record_table
 {
 padding-bottom: 5px;
-margin-bottom: 5px;
 width: 100%;
 border-collapse: collapse;
 line-height: 23px;
@@ -56,7 +52,6 @@ table.record_table td.record_data
 {
 border-bottom: 1px solid #ddd;
 }
-
 table.record_table th
 {
 text-align: left;
@@ -79,11 +74,26 @@ background-color: #eee;
 border-collapse: collapse;
 width: 100%;
 }
-
 table.inner_table th, table.inner_table tr.header td
 {
 padding-left: 10px;
 width: 150px;
+}
+table.fqan_table
+{
+width: 100%;
+background-color: white;
+border-collapse: collapse;
+}
+table.fqan_table th, table.fqan_table tr.header td
+{
+padding-left: 10px;
+}
+table.fqan_table td
+{
+padding-left: 10px;
+font-size: 8pt;
+font-family: Courier New;
 }
 
 table.log_table
