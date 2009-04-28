@@ -72,7 +72,7 @@ public class MetricServlet extends ServletBase implements Servlet {
 		
 		try {	
 			//construct view
-			MenuView menuview = createMenuView("admin");
+			MenuView menuview = new MenuView(context, "admin");
 			ContentView contentview = createContentView();
 			
 			//setup crumbs

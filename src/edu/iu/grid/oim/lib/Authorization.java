@@ -87,7 +87,7 @@ public class Authorization {
 				log.debug("Server on localhost." +hostname);
 		        if(hostname.compareTo("HAYASHIS") == 0) {
 					log.debug("Server on localhost. Overriding the DN to Soichi's");
-					user_dn = "/DC=org/DC=doegrids/OU=People/CN=Soichi Hayashi 461343 - foo";
+					user_dn = "/DC=org/DC=doegrids/OU=People/CN=Soichi Hayashi 461343";
 					//user_dn = "/DC=org/DC=doegrids/OU=People/CN=Alain Roy 424511"; //OSG user
 		        } else if ((hostname.compareTo("lav-ag-desktop") == 0) || 
 		        	(hostname.compareTo("SATRIANI") == 0)){

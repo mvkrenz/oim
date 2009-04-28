@@ -64,7 +64,7 @@ public class ResourceDowntimeServlet extends ServletBase implements Servlet {
 
 		try {		
 			//construct view
-			MenuView menuview = createMenuView("resourcedowntime");
+			MenuView menuview =new MenuView(context, "resourcedowntime");
 			ContentView contentview = createContentView();
 			Page page = new Page(menuview, contentview, createSideView());
 			page.render(response.getWriter());			

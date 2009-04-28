@@ -66,7 +66,7 @@ public class ContactServlet extends ServletBase implements Servlet {
 		try {
 		
 			//construct view
-			MenuView menuview = createMenuView("contact");
+			MenuView menuview = new MenuView(context, "contact");
 			ContentView contentview = createContentView();
 			Page page = new Page(menuview, contentview, createSideView());
 			page.render(response.getWriter());			

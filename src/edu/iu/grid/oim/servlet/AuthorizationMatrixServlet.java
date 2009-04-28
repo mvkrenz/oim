@@ -177,7 +177,7 @@ public class AuthorizationMatrixServlet extends ServletBase  {
 		setContext(request);
 	
 		//construct view
-		MenuView menuview = createMenuView("admin");
+		MenuView menuview = new MenuView(context, "admin");
 		ContentView contentview;
 		
 		try {

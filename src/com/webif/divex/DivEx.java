@@ -48,7 +48,7 @@ public abstract class DivEx {
 	}
 	public void redirect(String url) {
 		//if we emit redirect, we don't want to emit anything else.. just jump!
-		getRoot().redirect(url);
+		getRoot().setRedirect(url);
 	}
 	
 	//set container(jquery selector) to null if you want to scroll the whole page.
@@ -131,12 +131,13 @@ public abstract class DivEx {
 			PrintWriter writer = response.getWriter();
 			response.setContentType("text/html");
 			render(writer);
-			
+
 			//additionally, output any javascript
 			writer.write("<script type=\"text/javascript\">");
+			writer.write("$(document).ready(function() {");
 			writer.print(root.outputUpdatecode());
+			writer.write("});");
 			writer.write("</script>");
-			
 		} else if(action.compareTo("request") == 0) {
 			//it could be any content type - let handler decide
 			this.onRequest(request, response);

@@ -33,7 +33,7 @@ public class HomeServlet extends ServletBase  {
 	{
 		setContext(request);
 		
-		MenuView menuview = createMenuView("home");
+		MenuView menuview = new MenuView(context, "home");
 		ContentView contentview;
 		if(auth.getDNID() == null) {
 			contentview = createSignupContentView();	

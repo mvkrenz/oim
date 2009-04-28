@@ -69,7 +69,7 @@ public class ResourceServlet extends ServletBase implements Servlet {
 		
 		try {
 			//construct view
-			MenuView menuview = createMenuView("resource");
+			MenuView menuview = new MenuView(context, "resource");
 			ContentView contentview = createContentView();
 			
 			Page page = new Page(menuview, contentview, createSideView());
@@ -149,9 +149,7 @@ public class ResourceServlet extends ServletBase implements Servlet {
 					ContactRecord person = pmodel.get(vcrec.contact_id);
 					ContactRankRecord rank = crmodel.get(vcrec.contact_rank_id);
 
-					cliststr += "<div class='contact_rank contact_"+rank.name+"'>"+rank.name+"</div>";
-					cliststr += person.name;
-				
+					cliststr += "<div class='contact_rank contact_"+rank.name+"'>"+person.name+"</div>";
 				}
 				
 				table.addRow(ctrec.name, new HtmlView(cliststr));

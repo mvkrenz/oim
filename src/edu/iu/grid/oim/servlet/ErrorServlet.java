@@ -36,7 +36,7 @@ public class ErrorServlet extends ServletBase {
 	{
 		setContext(request);
 		
-		MenuView menuview = createMenuView("_error_");
+		MenuView menuview = new MenuView(context, "_error_");
 		ContentView contentview = createContentView(request);		
 		Page page = new Page(menuview, contentview, new SideContentView());
 		page.render(response.getWriter());	

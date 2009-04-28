@@ -22,13 +22,13 @@ public class SelectFormElementDE extends FormElementDEBase<Integer>
 	{
 		out.write("<div ");
 		renderClass(out);
-		//Integer random = new Random().nextInt();
 		out.write("id=\""+getNodeID()+"\">");
 		if(!hidden) {
 			if(label != null) {
 				out.write("<label>"+StringEscapeUtils.escapeHtml(label)+"</label><br/>");
 			}
-			out.write("<select onchange='divex(\""+getNodeID()+"\", event, this.value);return true;'>");
+			Integer random = Math.abs(new Random().nextInt());
+			out.write("<select id=\""+getNodeID()+"_select\" onchange='divex(\""+getNodeID()+"\", event, this.value);return true;'>");
 			out.write("<option value=\"\">(Please Select)</option>");
 			
 			for(Integer v : keyvalues.keySet()) {
@@ -48,6 +48,12 @@ public class SelectFormElementDE extends FormElementDEBase<Integer>
 			if(error != null) {
 				out.write("<p class='elementerror round'>"+StringEscapeUtils.escapeHtml(error)+"</p>");
 			}
+			/*
+			out.write("<script type=\"text/javascript\">");
+			out.write("console.dir($('#"+getNodeID()+"_select'));");
+			out.write("$('#"+getNodeID()+"_select').change(function() { alert(this.value); var event = new Object(); divex('"+getNodeID()+"', null, this.value); });");
+			out.write("</script>");
+			*/
 		}
 		out.print("</div>");
 	}

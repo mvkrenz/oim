@@ -20,6 +20,7 @@ import edu.iu.grid.oim.model.db.record.SiteRecord;
 import edu.iu.grid.oim.view.ContentView;
 import edu.iu.grid.oim.view.DivExWrapper;
 import edu.iu.grid.oim.view.HtmlView;
+import edu.iu.grid.oim.view.MenuView;
 import edu.iu.grid.oim.view.Page;
 import edu.iu.grid.oim.view.SideContentView;
 
@@ -28,7 +29,7 @@ import edu.iu.grid.oim.view.divex.form.SiteFormDE;
 public class SiteEditServlet extends ServletBase implements Servlet {
 	private static final long serialVersionUID = 1L;
 	static Logger log = Logger.getLogger(SiteEditServlet.class);  
-	private String current_page = "site";	
+	private String parent_page = "site";	
 
     public SiteEditServlet() {
         super();
@@ -59,7 +60,7 @@ public class SiteEditServlet extends ServletBase implements Servlet {
 			}
 	
 		SiteFormDE form;
-		String origin_url = Config.getApplicationBase()+"/"+current_page;
+		String origin_url = Config.getApplicationBase()+"/"+parent_page;
 			form = new SiteFormDE(context, rec, origin_url);
 		
 		//put the form in a view and display
@@ -67,7 +68,7 @@ public class SiteEditServlet extends ServletBase implements Servlet {
 		contentview.add(new HtmlView("<h1>"+title+"</h1>"));	
 		contentview.add(new DivExWrapper(form));
 		
-		Page page = new Page(createMenuView(current_page), contentview, createSideView());
+		Page page = new Page(new MenuView(context, parent_page), contentview, createSideView());
 		
 		page.render(response.getWriter());	
 		} catch (SQLException e) {

@@ -74,7 +74,7 @@ public class VOServlet extends ServletBase implements Servlet {
 		
 		try {	
 			//construct view
-			MenuView menuview = createMenuView("vo");
+			MenuView menuview = new MenuView(context, "vo");
 			ContentView contentview = createContentView();
 			Page page = new Page(menuview, contentview, createSideView());
 			page.render(response.getWriter());			
@@ -98,7 +98,6 @@ public class VOServlet extends ServletBase implements Servlet {
 			
 			RecordTableView table = new RecordTableView();
 			contentview.add(new TogglerDE(context.getDivExRoot(), new ViewWrapperDE(context.getDivExRoot(), table)));
-//			contentview.add(table);
 
 			//pull parent vo
 			VORecord parent_vo_rec = model.getParentVO(rec.id);

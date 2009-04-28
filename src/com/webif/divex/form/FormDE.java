@@ -32,23 +32,18 @@ abstract public class FormDE extends DivEx {
 		cancelbutton = new ButtonDE(this, "Cancel");
 		cancelbutton.setStyle(ButtonDE.Style.ALINK);
 		cancelbutton.addEventListener(new EventListener() {
-			public void handleEvent(Event e) { 
-				redirect(origin_url);
-			}
+			public void handleEvent(Event e) { redirect(origin_url); }
 		});
 	}
 	
 	private void submit()
 	{
-		if(isValid()) {
+		validate();
+		if(valid) {
 			if(doSubmit()) {
-				//alert("Success!");
 				redirect(origin_url);	
 			}
 		} else {
-			//error = "Please correct the issues before submitting your form.";
-			//redraw();
-			//scrollToShow();
 			alert("Please correct the issues flagged above, and then resubmit!");
 		}
 	}
@@ -72,11 +67,6 @@ abstract public class FormDE extends DivEx {
 			}
 		}
 	}
-	public Boolean isValid()
-	{
-		validate();
-		return valid;
-	}
 	
 	protected void onEvent(Event e) {
 		// TODO Auto-generated method stub
@@ -91,7 +81,6 @@ abstract public class FormDE extends DivEx {
 			if(child == submitbutton || child == cancelbutton) continue;
 			
 			if(child instanceof FormElementDEBase) {
-				FormElementDEBase elem = (FormElementDEBase)child;
 				out.print("<div class=\"form_element\">");
 				child.render(out);
 				out.print("</div>");

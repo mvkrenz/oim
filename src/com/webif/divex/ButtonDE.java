@@ -56,13 +56,13 @@ public class ButtonDE extends DivEx {
 		case ALINK:
 			out.write("<a ");
 			renderClass(out);
-			out.write("href='#' id='"+getNodeID()+"' onclick='"+js+"'>"+
+			out.write("href='' id='"+getNodeID()+"' onclick='"+js+"'>"+
 				StringEscapeUtils.escapeHtml(title)+"</a>");
 			break;
 		case IMAGE:
 			out.write("<a ");
 			renderClass(out);
-			out.write("href='#' id='"+getNodeID()+"' onclick='"+js+"'><img src='"+title+"' alt='button'/></a>");
+			out.write("href='' id='"+getNodeID()+"' onclick='"+js+"'><img src='"+title+"' alt='button'/></a>");
 			break;
 		}
 	}

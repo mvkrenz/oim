@@ -39,7 +39,7 @@ public class AdminServlet extends ServletBase  {
 		setContext(request);
 		auth.check("admin");
 		
-		MenuView menuview = createMenuView("admin");
+		MenuView menuview = new MenuView(context, "admin");
 		ContentView contentview = createContentView();
 		Page page = new Page(menuview, contentview, createSideView());
 		page.render(response.getWriter());	

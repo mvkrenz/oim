@@ -30,16 +30,16 @@ function divex(id, event, value) {
 			value : value },
 		type: "POST",
 		dataType: "script",//Evaluates the response as JavaScript and returns it as plain text. Disables caching unless option "cache" is used. Note: This will turn POSTs into GETs for remote-domain requests. 
-	   success: function(msg){
-				   divexClearProcessing();
+	    success: function(msg){
+		    divexClearProcessing();
 		},
-	   error: function (XMLHttpRequest, textStatus, errorThrown) {
+	    error: function (XMLHttpRequest, textStatus, errorThrown) {
 		   // typically only one of textStatus or errorThrown 
 		   // will have info
 		   alert(textStatus.errorThrown);
 		   this; // the options for this ajax request
 		   divexClearProcessing();
-	   }
+	    }
 	});
 }
 
@@ -57,9 +57,28 @@ function divex_replace( node, url )
 		complete: function(res, status){
 			// If successful, inject the HTML into all the matched elements
 			if ( status == "success" || status == "notmodified" )
-				// See if a selector was specified
+				//jquery 1.3.2 has a bug with replaceWith such that it add the content before removing the old content
+				//this causes certain form element being replaced to temporary co-exist with previous element (with identical ID)
+				//thus causing event handlers to mulfunction (lockup in my case). By removing the content before, I can
+				//avoid this issue
+				node.empty();
 				node.replaceWith(res.responseText);
 		}
 	});
 	return this;
+}
+
+//Firefox 3.0.10 (and may others) has a bug where windows.location based redirect directly
+//from the returned javascript causes the browser history to incorrectly enter entry and hitting
+//back button will make the browser skip previous page and render previous - previous page.
+//timeout will prevent this issue from happening.
+var divex_redirect_url = null;
+function divex_doRedirect()
+{
+	window.location = divex_redirect_url;
+}
+function divex_redirect(url)
+{
+	divex_redirect_url = url;
+	setTimeout(divex_doRedirect, 0); //immediately call the timer
 }

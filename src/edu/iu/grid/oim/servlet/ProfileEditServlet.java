@@ -24,6 +24,7 @@ import edu.iu.grid.oim.view.divex.form.SCFormDE;
 import edu.iu.grid.oim.view.ContentView;
 import edu.iu.grid.oim.view.DivExWrapper;
 import edu.iu.grid.oim.view.HtmlView;
+import edu.iu.grid.oim.view.MenuView;
 import edu.iu.grid.oim.view.Page;
 import edu.iu.grid.oim.view.SideContentView;
 
@@ -53,7 +54,7 @@ public class ProfileEditServlet extends ServletBase implements Servlet {
 			contentview.add(new HtmlView("<h1>Edit Your Profile</h1>"));	
 			contentview.add(new DivExWrapper(form));
 			
-			Page page = new Page(createMenuView("profileedit"), contentview, createSideView());
+			Page page = new Page(new MenuView(context, "profileedit"), contentview, createSideView());
 			page.render(response.getWriter());	
 			
 		} catch (SQLException e) {

@@ -15,13 +15,11 @@ public class DivExRoot extends DivEx
 	}
 	
 	private String redirect_url;
+	public void setRedirect(String url) { redirect_url = url; }
+	public String getRedirect() { return redirect_url; }
 	
 	public DivExRoot() {
 		super(null);
-	}
-	public void redirect(String url) 
-	{
-		redirect_url = url;
 	}
 
 	static public DivExRoot getInstance(HttpServletRequest request)
@@ -40,7 +38,8 @@ public class DivExRoot extends DivEx
 	{
 		//if redirect is set, we don't need any updatecode - just jump!
 		if(redirect_url != null) {
-			String js = "document.location = '"+redirect_url+"';";
+			//String js = "document.location = '"+redirect_url+"';";
+			String js = "divex_redirect(\""+redirect_url+"\")";
 			redirect_url = null;
 			return js;
 		}

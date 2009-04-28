@@ -23,6 +23,7 @@ import edu.iu.grid.oim.view.BreadCrumbView;
 import edu.iu.grid.oim.view.ContentView;
 import edu.iu.grid.oim.view.DivExWrapper;
 import edu.iu.grid.oim.view.HtmlView;
+import edu.iu.grid.oim.view.MenuView;
 import edu.iu.grid.oim.view.Page;
 import edu.iu.grid.oim.view.SideContentView;
 
@@ -74,7 +75,7 @@ public class UserEditServlet extends ServletBase implements Servlet {
 			bread_crumb.addCrumb(rec.dn_string, null);
 			contentview.setBreadCrumb(bread_crumb);
 			
-			Page page = new Page(createMenuView("admin"), contentview, createSideView());			
+			Page page = new Page(new MenuView(context, "admin"), contentview, createSideView());			
 			page.render(response.getWriter());	
 		} catch (SQLException e) {
 			throw new ServletException(e);

@@ -24,6 +24,7 @@ import edu.iu.grid.oim.view.BreadCrumbView;
 import edu.iu.grid.oim.view.ContentView;
 import edu.iu.grid.oim.view.DivExWrapper;
 import edu.iu.grid.oim.view.HtmlView;
+import edu.iu.grid.oim.view.MenuView;
 import edu.iu.grid.oim.view.Page;
 import edu.iu.grid.oim.view.SideContentView;
 
@@ -81,7 +82,7 @@ public class ContactEditServlet extends ServletBase implements Servlet {
 		bread_crumb.addCrumb(rec.name,  null);
 		contentview.setBreadCrumb(bread_crumb);
 		
-		Page page = new Page(createMenuView(parent_page), contentview, createSideView());
+		Page page = new Page(new MenuView(context, parent_page), contentview, createSideView());
 		page.render(response.getWriter());	
 	}
 	

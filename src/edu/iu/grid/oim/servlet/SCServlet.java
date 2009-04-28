@@ -62,7 +62,7 @@ public class SCServlet extends ServletBase implements Servlet {
 		
 		try {		
 			//construct view
-			MenuView menuview = createMenuView("sc");
+			MenuView menuview = new MenuView(context, "sc");
 			ContentView contentview = createContentView();
 			Page page = new Page(menuview, contentview, createSideView());
 			page.render(response.getWriter());			
