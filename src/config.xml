@@ -2,4 +2,5 @@
 <!-- For Local Development -->
 <ApplicationBase>http://localhost:8080/oim</ApplicationBase>
 <StaticBase>http://localhost:8080/oim</StaticBase>
+<Debug>false</Debug>
 </Config>

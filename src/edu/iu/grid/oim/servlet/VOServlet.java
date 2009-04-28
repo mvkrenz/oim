@@ -56,6 +56,7 @@ import edu.iu.grid.oim.view.TableView;
 import edu.iu.grid.oim.view.Utils;
 import edu.iu.grid.oim.view.TableView.Row;
 import edu.iu.grid.oim.view.TableView.Row.Cell;
+import edu.iu.grid.oim.view.divex.ContactEditorDE;
 import edu.iu.grid.oim.view.divex.ViewWrapperDE;
 
 public class VOServlet extends ServletBase implements Servlet {
@@ -139,10 +140,9 @@ public class VOServlet extends ServletBase implements Servlet {
 					cliststr += "<div class='contact_rank contact_"+rank.name+"'>";
 					cliststr += person.name;
 					cliststr += "</div>";
-				
 				}
-				
 				table.addRow(ctrec.name, new HtmlView(cliststr));
+				
 			}			
 
 			//VO Report Names
@@ -159,8 +159,7 @@ public class VOServlet extends ServletBase implements Servlet {
 			}
 			table.addRow("Active", rec.active);
 			table.addRow("Deactivated", rec.disable);
-			
-			
+						
 			class EditButtonDE extends ButtonDE
 			{
 				String url;
@@ -174,7 +173,6 @@ public class VOServlet extends ServletBase implements Servlet {
 				}
 			};
 			table.add(new DivExWrapper(new EditButtonDE(context.getDivExRoot(), Config.getApplicationBase()+"/voedit?vo_id=" + rec.id)));
-
 		}
 		
 		return contentview;

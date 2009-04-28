@@ -14,27 +14,29 @@ public class Config {
     static Logger log = Logger.getLogger(Config.class);  
     
     private String appbase;
-	static public String getApplicationBase() {
-		return config.appbase;
-	}
-    private String staticbase;
-	static public String getStaticBase() {
-		return config.staticbase;
-	}	
+	static public String getApplicationBase() { return config.appbase; }
     
-	//why private? - don't allow client instantiation (use getInstance) 
+	private String staticbase;
+	static public String getStaticBase() { return config.staticbase; }
+
+	private Boolean debug;
+	static public Boolean isDebug() { return config.debug; }	
+    
+	//why private? - don't allow client instantiation (use static getters)
 	private Config() 
 	{
 		try {
 			XPath xpath = XPathFactory.newInstance().newXPath();
 			InputStream is = getClass().getResourceAsStream("/config.xml");
 			InputSource config_xml = new InputSource(is);	
-	
-			//load config
+
 			appbase = (String)xpath.evaluate("//ApplicationBase", config_xml);
 			is.reset();
 			
 			staticbase = (String)xpath.evaluate("//StaticBase", config_xml);
+			is.reset();
+			
+			debug = ((String)xpath.evaluate("//Debug", config_xml)).compareTo("true") == 0;
 			is.reset();
 
 		} catch (XPathExpressionException e) {

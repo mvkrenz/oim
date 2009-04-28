@@ -14,25 +14,31 @@ public class Context {
     static Logger log = Logger.getLogger(Context.class);  
     
 	private DivExRoot divex_root;
-	private Authorization auth;
+	private Authorization auth = new Authorization();
 	private Connection connection;
 	private HttpServletRequest request;
 	
-	public Context(HttpServletRequest _request) throws NamingException, SQLException
+	public Context(HttpServletRequest _request)
 	{	
 		request = _request;
 		
-		//create DB connection (per context now!)
-		javax.naming.Context initContext = new InitialContext();
-		javax.naming.Context envContext = (javax.naming.Context)initContext.lookup("java:/comp/env");
-		DataSource ds = (DataSource)envContext.lookup("jdbc/oim");
-		connection = ds.getConnection();
-		initContext.close();
+		try {
+			javax.naming.Context initContext = new InitialContext();
+			javax.naming.Context envContext = (javax.naming.Context)initContext.lookup("java:/comp/env");
+			DataSource ds = (DataSource)envContext.lookup("jdbc/oim");
+			connection = ds.getConnection();
+			initContext.close();
+			
+			auth = new Authorization(request, connection);
+		} catch (SQLException e) {
+			log.error(e);
+		} catch (NamingException e) {
+			log.error(e);
+		}
 		
 		divex_root = DivExRoot.getInstance(request);
-		auth = new Authorization(request, connection);
 		
-		log.info("Context initialized with " + connection.toString());
+		//log.info("Context initialized with " + connection.toString());
 	}
 	
 	public static Context getGuestContext(Connection db)

@@ -60,27 +60,11 @@ public class Authorization {
 	public Boolean allows(String action)
 	{
 		return actions.contains(action);
-
-	}
-	/*
-	//use this instance for guest authentication
-	public static Authorization Guest = new Authorization();
-	private Authorization()
-	{
 	}
 	
-	//blindly accept the authentication of user based on dn_id
-	public Authorization(int _dn_id)
-	{
-		try {
-			DNModel model = new DNModel(Guest);
-			DNRecord rec = model.get(_dn_id);
-			init(rec);
-		} catch (SQLException e) {
-			log.error(e);
-		}
-	}
-	*/
+	//Guest
+	public Authorization() {}
+	
 	//pull user_dn from Apache's SSL_CLIENT_S_DN
 	public Authorization(HttpServletRequest request, Connection connection) 
 	{		
@@ -103,7 +87,7 @@ public class Authorization {
 				log.debug("Server on localhost." +hostname);
 		        if(hostname.compareTo("HAYASHIS") == 0) {
 					log.debug("Server on localhost. Overriding the DN to Soichi's");
-					user_dn = "/DC=org/DC=doegrids/OU=People/CN=Soichi Hayashi 461343";
+					user_dn = "/DC=org/DC=doegrids/OU=People/CN=Soichi Hayashi 461343 - foo";
 					//user_dn = "/DC=org/DC=doegrids/OU=People/CN=Alain Roy 424511"; //OSG user
 		        } else if ((hostname.compareTo("lav-ag-desktop") == 0) || 
 		        	(hostname.compareTo("SATRIANI") == 0)){

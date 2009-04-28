@@ -6,7 +6,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import edu.iu.grid.oim.lib.Config;
 import edu.iu.grid.oim.view.ContentView;
 import edu.iu.grid.oim.view.HtmlView;
 import edu.iu.grid.oim.view.MenuView;
@@ -16,18 +15,10 @@ import edu.iu.grid.oim.view.SideContentView;
 /**
  * Servlet implementation class ErrorServlet
  */
-public class ErrorServlet extends ServletBase {
-	private static final long serialVersionUID = 1L;
-    
-	protected static String[] vars = {
-        "javax.servlet.error.status_code",
-        "javax.servlet.error.exception_type",
-        "javax.servlet.error.message",
-        "javax.servlet.error.exception",
-        "javax.servlet.error.request_uri"
-    };
+public class Error404Servlet extends ServletBase {
 
-    public ErrorServlet() {
+
+    public Error404Servlet() {
         super();
         // TODO Auto-generated constructor stub
     }
@@ -47,19 +38,8 @@ public class ErrorServlet extends ServletBase {
 		ContentView contentview = new ContentView();
         
 		contentview.add(new HtmlView("<h2>Oops!</h2>"));
-		contentview.add(new HtmlView("<p>Sorry, we have encountered a problem.</p>"));
-		
-		if(Config.isDebug()) {
-			contentview.add(new HtmlView("<table>"));
-	        for (int i = 0; i < vars.length; i++) {
-	    		contentview.add(new HtmlView("<TR><TD>" + vars[i] + "</TD><TD>" +
-	                request.getAttribute(vars[i]) + 
-	                "</TD></TR>"));
-	        }
-	        contentview.add(new HtmlView("</table>"));
-		} else {
-			contentview.add(new HtmlView("<p>Detail of this issue has been logged and GOC will be processing this issue. Please check back later.</p>"));			
-		}
+		contentview.add(new HtmlView("<p>Sorry, we can't find the page you have requested.</p>"));
+		contentview.add(new HtmlView("<p>If you think this is a bug, please submit an issue ticket at <a href=\"https://oim.grid.iu.edu/gocticket\">GOC Ticket Submission Form</a>.</p>"));
 		
 		return contentview;
 	}

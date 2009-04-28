@@ -34,7 +34,13 @@ public class HomeServlet extends ServletBase  {
 		setContext(request);
 		
 		MenuView menuview = createMenuView("home");
-		ContentView contentview = createContentView();
+		ContentView contentview;
+		if(auth.getDNID() == null) {
+			contentview = createSignupContentView();	
+		} else {
+			contentview = createContentView();
+		}
+		
 		Page page = new Page(menuview, contentview, new SideContentView());
 		page.render(response.getWriter());	
 	}
@@ -44,6 +50,17 @@ public class HomeServlet extends ServletBase  {
 		ContentView contentview = new ContentView();
 		
 		contentview.add(new HtmlView("<h1>OIM Home</h1>"));
+		
+		return contentview;
+	}
+	
+	protected ContentView createSignupContentView()
+	{
+		ContentView contentview = new ContentView();
+		
+		contentview.add(new HtmlView("<h1>OIM Registration</h1>"));
+		contentview.add(new HtmlView("<p>Your DN ("+auth.getUserDN()+") is not yet registered at OIM.</p>"));
+		contentview.add(new HtmlView("<p>Please open a ticket at <a href=\"https://oim.grid.iu.edu/gocticket\">GOC Ticket Form</a> requesting your OIM account.</p>"));
 		
 		return contentview;
 	}

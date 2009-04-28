@@ -3,8 +3,8 @@
 	<display-name>oim</display-name>
 
 	<context-param>
-		<param-name>debug</param-name>
-		<param-value>true</param-value>
+		<param-name>someparam</param-name>
+		<param-value>somevalu</param-value>
 	</context-param>
 	
 	<servlet>
@@ -43,6 +43,16 @@
 		<servlet-class>
 		edu.iu.grid.oim.servlet.ErrorServlet</servlet-class>
 	</servlet>
+	<servlet>
+		<description>
+		</description>
+		<display-name>
+		404Servlet</display-name>
+		<servlet-name>Error404Servlet</servlet-name>
+		<servlet-class>
+		edu.iu.grid.oim.servlet.Error404Servlet</servlet-class>
+	</servlet>
+	
 	<servlet>
 		<description>
 		</description>
@@ -373,11 +383,7 @@
 	<servlet-mapping>
 		<servlet-name>HomeServlet</servlet-name>
 		<url-pattern>/home</url-pattern>
-	</servlet-mapping>
-	<servlet-mapping>
-		<servlet-name>ErrorServlet</servlet-name>
-		<url-pattern>/error</url-pattern>
-	</servlet-mapping>
+	</servlet-mapping>	
 	<servlet-mapping>
 		<servlet-name>VOServlet</servlet-name>
 		<url-pattern>/vo</url-pattern>
@@ -537,14 +543,27 @@
 		<welcome-file>index.jsp</welcome-file>
 	</welcome-file-list>
 	
-	<error-page>
+	<servlet-mapping>
+		<servlet-name>Error404Servlet</servlet-name>
+		<url-pattern>/404</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>ErrorServlet</servlet-name>
+		<url-pattern>/error</url-pattern>
+	</servlet-mapping>
+	
+   <error-page>
      <error-code>404</error-code>
+     <location>/404</location>
+   </error-page>
+   
+   <error-page>
+     <error-code>500</error-code>
      <location>/error</location>
    </error-page>
    
 	<error-page>
-		<exception-type>java.lang.Exception</exception-type>
+		<exception-type>UnhandledException</exception-type>
     	<location>/error</location>
 	</error-page>
-
 </web-app>

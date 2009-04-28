@@ -1,6 +1,5 @@
 package edu.iu.grid.oim.servlet;
 
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
@@ -29,16 +28,9 @@ public class ServletBase extends HttpServlet {
 	
 	protected void setContext(HttpServletRequest request)
 	{
-		try {
-			context = new Context(request);
-			auth = context.getAuthorization();
-		} catch (NamingException e) {
-			log.error(e);
-		} catch (SQLException e) {
-			log.error(e);
-		}
+		context = new Context(request);
+		auth = context.getAuthorization();	
 	}
-	
 	
 	protected MenuView createMenuView(String current)
 	{
@@ -56,10 +48,5 @@ public class ServletBase extends HttpServlet {
 		}
 		MenuView menuview = new MenuView(menu, current);
 		return menuview;
-	}
-	
-	boolean debug()
-	{
-		return (getServletContext().getInitParameter("debug").compareTo("true") == 0);	
 	}
 }
