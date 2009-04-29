@@ -352,9 +352,7 @@ public class ContactEditorDE extends FormElementDEBase<HashMap<ContactEditorDE.R
 			renderContactList(out, tertiary_newcontact, selected.get(Rank.TERTIARY), "Tertiary", max_tertiary);
 		}
 		out.print("</table>");
-		if(error != null) {
-			out.print("<p class='elementerror round'>"+StringEscapeUtils.escapeHtml(error)+"</p>");
-		}
+		error.render(out);
 		out.print("</div>");
 	}
 	

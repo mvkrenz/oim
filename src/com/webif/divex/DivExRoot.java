@@ -4,8 +4,7 @@ import java.io.PrintWriter;
 import javax.servlet.http.HttpServletRequest;
 
 public class DivExRoot extends DivEx
-{
-    
+{    
 	static private int next_nodeid = 0;
 	static public String getNewNodeID()
 	{
@@ -32,24 +31,18 @@ public class DivExRoot extends DivEx
     	return root;
 	}
 	
-	//override it with public interface since this is root. user can call this at root to emit
-	//all update code
-	public String outputUpdatecode()
-	{
-		//if redirect is set, we don't need any updatecode - just jump!
-		if(redirect_url != null) {
-			//String js = "document.location = '"+redirect_url+"';";
-			String js = "divex_redirect(\""+redirect_url+"\")";
-			redirect_url = null;
-			return js;
-		}
-		return super.outputUpdatecode();
-	}
-	
 	//flush all JS code - this is for a view container to emit DivEx related JS script
+    private String js = "";
+    public void addJS(String _js) { js += _js; }
 	public void flushJS(PrintWriter out)
 	{
-		super.flushJS(out);
+		if(js.length() != 0) {
+			out.write("divex_jscallback = function() {");
+			out.write(js);
+			out.write("};");
+			out.write("setTimeout(divex_runjs, 0)");
+			js = "";
+		}
 	}
 
 	protected void onEvent(Event e) {

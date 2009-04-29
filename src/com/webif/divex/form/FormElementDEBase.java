@@ -3,7 +3,10 @@ package com.webif.divex.form;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 
+import org.apache.commons.lang.StringEscapeUtils;
+
 import com.webif.divex.DivEx;
+import com.webif.divex.Event;
 import com.webif.divex.form.validator.IFormElementValidator;
 
 abstract public class FormElementDEBase<ValueType> extends DivEx {
@@ -30,7 +33,28 @@ abstract public class FormElementDEBase<ValueType> extends DivEx {
 	//validation suite
 	protected ArrayList<IFormElementValidator<ValueType>> validators = new ArrayList<IFormElementValidator<ValueType>>();
 	public void addValidator(IFormElementValidator<ValueType> _validator) { validators.add(_validator); }
-	protected String error;
+	protected ErrorDE error = new ErrorDE(this);
+	protected class ErrorDE extends DivEx
+	{
+		public ErrorDE(DivEx _parent) {
+			super(_parent);
+			// TODO Auto-generated constructor stub
+		}
+		private String error;
+		public void set(String _error) { error = _error; }
+		public String get() { return error; }
+		protected void onEvent(Event e) {
+			// TODO Auto-generated method stub
+			
+		}
+		public void render(PrintWriter out) {
+			out.write("<div id=\""+getNodeID()+"\">");
+			if(error != null) {
+				out.write("<p class='elementerror round'>"+StringEscapeUtils.escapeHtml(error)+"</p>");
+			}
+			out.write("</div>");
+		}
+	}
 	protected Boolean valid = true;
 	public Boolean isValid() { 
 		validate();
@@ -44,7 +68,7 @@ abstract public class FormElementDEBase<ValueType> extends DivEx {
 	//elements
 	public void validate()
 	{
-		redraw();
+		error.redraw();
 		
 		//validate *all* child elements first
 		boolean children_valid = true;
@@ -60,7 +84,7 @@ abstract public class FormElementDEBase<ValueType> extends DivEx {
 			}
 		}
 		if(!children_valid) {
-			error = "Child element is invalid.";
+			error.set("Child element is invalid.");
 			valid = false;
 			return;
 		}
@@ -68,7 +92,7 @@ abstract public class FormElementDEBase<ValueType> extends DivEx {
 		//if required, run RequiredValidator
 		if(value == null || value.toString().trim().length() == 0) {
 			if(isRequired()) {
-				error = "This is a required field. Please specify a value.";
+				error.set("This is a required field. Please specify a value.");
 				valid = false;
 				return;
 			} else {
@@ -81,14 +105,14 @@ abstract public class FormElementDEBase<ValueType> extends DivEx {
 		for(IFormElementValidator<ValueType> validator : validators) {
 			if(!validator.isValid(value)) {
 				//bad..
-				error = validator.getMessage();
+				error.set(validator.getMessage());
 				valid = false;
 				return;
 			}
 		}
 		
 		//all good..
-		error = null;
+		error.set(null);
 		valid = true;
 	}
 	

@@ -403,9 +403,7 @@ public class OIMHierarchySelector extends FormElementDEBase<Integer> {
 			out.print(" * Required");
 		}
 		out.write("</td></tr></table>");
-		if(error != null) {
-			out.print("<p class='elementerror round'>"+StringEscapeUtils.escapeHtml(error)+"</p>");
-		}
+		error.render(out);
 		out.write("</div>");
 	}
 	
@@ -427,6 +425,8 @@ public class OIMHierarchySelector extends FormElementDEBase<Integer> {
 		} else {
 			value = null;
 		}
+		
+		validate();
 	}
 
 }

@@ -87,7 +87,7 @@ public class ResourceDowntimeEditorDE extends FormElementDEBase {
 					validate();
 				} catch (ParseException e1) {
 					redraw();
-					error = "Please specify a valid date such as 4/17/2009";
+					error.set("Please specify a valid date such as 4/17/2009");
 					valid = false;
 				}
 			}
@@ -110,9 +110,7 @@ public class ResourceDowntimeEditorDE extends FormElementDEBase {
 				if(isRequired()) {
 					out.print(" * Required");
 				}
-				if(error != null) {
-					out.print("<p class='elementerror round'>"+StringEscapeUtils.escapeHtml(error)+"</p>");
-				}
+				error.render(out);
 				
 				//setup the datepicker
 				out.write("<script type=\"text/javascript\">");
@@ -150,7 +148,7 @@ public class ResourceDowntimeEditorDE extends FormElementDEBase {
 					validate();
 				} catch (ParseException e1) {
 					redraw();
-					error = "Please specify a valid time such as 0:00 AM";
+					error.set("Please specify a valid time such as 0:00 AM");
 					valid = false;
 				}
 			}
@@ -178,9 +176,7 @@ public class ResourceDowntimeEditorDE extends FormElementDEBase {
 				if(isRequired()) {
 					out.print(" * Required");
 				}
-				if(error != null) {
-					out.print("<p class='elementerror round'>"+StringEscapeUtils.escapeHtml(error)+"</p>");
-				}
+				error.render(out);
 				out.write("</div>");
 			}
 		}
@@ -276,7 +272,7 @@ public class ResourceDowntimeEditorDE extends FormElementDEBase {
 					removeDowntime(myself);	
 				}
 			});
-			
+		
 		}
 		
 		public void addService(Integer service_id)
@@ -337,7 +333,7 @@ public class ResourceDowntimeEditorDE extends FormElementDEBase {
 					child.render(out);
 				}
 			}
-			
+		
 			out.write("</div>");
 		}
 

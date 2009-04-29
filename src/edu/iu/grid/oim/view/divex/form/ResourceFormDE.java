@@ -20,6 +20,7 @@ import com.webif.divex.form.validator.UniqueValidator;
 import com.webif.divex.form.validator.UrlValidator;
 
 import edu.iu.grid.oim.lib.Authorization;
+import edu.iu.grid.oim.lib.Footprint;
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
 import edu.iu.grid.oim.model.Context;
 import edu.iu.grid.oim.model.db.ContactTypeModel;
@@ -137,7 +138,6 @@ public class ResourceFormDE extends FormDE
 		url.addValidator(UrlValidator.getInstance());
 		url.setRequired(true);
 		
-		
 		new StaticDE(this, "<h3>Resource FQDN Aliases (If Applicable)</h3>");
 		new StaticDE(this, "<p>If you used a DNS alias as their main gatekeeper or SE head node FQDN (as defined above), then you can add real host name(s) here as reverse alias(es).</p>");
 		aliases = new ResourceAliasDE (this);
@@ -160,7 +160,7 @@ public class ResourceFormDE extends FormDE
 		}
 
 		// Resource ownership stuff
-		new StaticDE(this, "<h3>VO Owner(s)</h3>");
+		new StaticDE(this, "<h2>VO Owner(s)</h2>");
 		new StaticDE(this, "<p>Add/modify VO ownership of this resource.</p>");
 		VOModel vo_model = new VOModel(context);
 		owners = new VOResourceOwnershipDE(this, vo_model.getAll());
@@ -406,6 +406,11 @@ public class ResourceFormDE extends FormDE
 						resource_services.getResourceServiceRecords(),
 						owners.getOwners()/*,downtimes.getDowntimeEditors(),
 						downtimes.getAffectedServiceRecords()*/);
+				
+				//create footprint ticket
+				Footprint fp = new Footprint(context);
+				fp.createTicket();
+				
 			} else {
 				model.updateDetail(rec, 
 						aliases.getAliases(), 

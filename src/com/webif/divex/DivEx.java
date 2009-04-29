@@ -10,7 +10,6 @@ import javax.servlet.http.HttpServletResponse;
 public abstract class DivEx {    
 	private String nodeid;
 	private Boolean needupdate = false;
-	private String js = "";
 	private DivEx parent;
 	
 	public DivEx(DivEx _parent) {
@@ -40,11 +39,11 @@ public abstract class DivEx {
 	 
 	public void alert(String msg)
 	{
-		js += "alert(\""+msg+"\");";
+		js("alert('"+msg+"');");
 	}
 	public void js(String _js)
 	{
-		js += _js;
+		getRoot().addJS(_js);
 	}
 	public void redirect(String url) {
 		//if we emit redirect, we don't want to emit anything else.. just jump!
@@ -53,12 +52,12 @@ public abstract class DivEx {
 	
 	//set container(jquery selector) to null if you want to scroll the whole page.
 	public void scrollToShow(String container) {
-		js += "var targetOffset = $(\"#"+nodeid+"\").offset().top;";
+		js("var targetOffset = $('#"+nodeid+"').offset().top;");
 		if(container == null) {
-			js += "$('html,body').animate({scrollTop: targetOffset}, 500);";
+			js("$('html,body').animate({scrollTop: targetOffset}, 500);");
 		} else {
-			js += "targetOffset -= $('"+container+"').offset().top;";
-			js += "$('"+container+"').scrollTop(targetOffset);";
+			js("targetOffset -= $('"+container+"').offset().top;");
+			js("$('"+container+"').scrollTop(targetOffset);");
 		}
 	}
 
@@ -69,9 +68,7 @@ public abstract class DivEx {
 	//DivEx calls this on *root* upon completion of event handler
 	protected String outputUpdatecode()
 	{
-		//start with user specified js code
-		String code = js;
-		js = "";
+		String code = "";
 		
 		//find child nodes who needs update
 		if(needupdate) {
@@ -84,10 +81,11 @@ public abstract class DivEx {
 				code += d.outputUpdatecode();
 			}
 		}
-		
+			
 		return code;
 	}
 	
+	/*
 	protected void flushJS(PrintWriter out)
 	{
 		out.write(js);
@@ -96,6 +94,7 @@ public abstract class DivEx {
 			d.flushJS(out);
 		}
 	}
+	*/
 	
 	//recursively set mine and my children's needupdate flag
 	public void setNeedupdate(Boolean b)
@@ -131,28 +130,40 @@ public abstract class DivEx {
 			PrintWriter writer = response.getWriter();
 			response.setContentType("text/html");
 			render(writer);
-
+/*
 			//additionally, output any javascript
 			writer.write("<script type=\"text/javascript\">");
 			writer.write("$(document).ready(function() {");
 			writer.print(root.outputUpdatecode());
 			writer.write("});");
 			writer.write("</script>");
+*/
 		} else if(action.compareTo("request") == 0) {
 			//it could be any content type - let handler decide
 			this.onRequest(request, response);
 		} else {
+			//normal divex event
+			PrintWriter writer = response.getWriter();
+			response.setContentType("text/javascript");
 			String value = request.getParameter("value");
 			Event e = new Event(action, value);
 
 			//handle my event handler
 			onEvent(e);
 			notifyListener(e);
+			
+			//if redirect is set, we don't need to do any update
+			if(root.getRedirect() != null) {
+				writer.write("divex_redirect(\""+root.getRedirect()+"\")"); //use divex_rediret for jump bug
+				root.setRedirect(null);
+				return;
+			}
 
 			//emit all requested update code
-			PrintWriter writer = response.getWriter();
-			response.setContentType("text/javascript");
 			writer.print(root.outputUpdatecode());
+			
+			//emit javascript
+			root.flushJS(writer);
 		}
 	}
 	protected void notifyListener(Event e)
@@ -179,23 +190,4 @@ public abstract class DivEx {
 	public void redraw() {
 		needupdate = true;
 	}
-	/*
-	public static String encodeHTML(String s)
-	{
-	    StringBuffer out = new StringBuffer();
-	    for(int i=0; i<s.length(); i++)
-	    {
-	        char c = s.charAt(i);
-	        if(c > 127 || c=='"' || c=='\'' || c=='<' || c=='>')
-	        {
-	           out.append("&#"+(int)c+";");
-	        }
-	        else
-	        {
-	            out.append(c);
-	        }
-	    }
-	    return out.toString();
-	}
-	*/
 }

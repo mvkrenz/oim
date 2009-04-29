@@ -35,9 +35,7 @@ public class TextFormElementDE extends FormElementDEBase<String> {
 			if(isRequired()) {
 				out.print(" * Required");
 			}
-			if(error != null) {
-				out.print("<p class='elementerror round'>"+StringEscapeUtils.escapeHtml(error)+"</p>");
-			}
+			error.render(out);
 		}
 		out.print("</div>");
 	}
