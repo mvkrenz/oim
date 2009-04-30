@@ -48,7 +48,7 @@ abstract public class FormElementDEBase<ValueType> extends DivEx {
 			
 		}
 		public void render(PrintWriter out) {
-			out.write("<div id=\""+getNodeID()+"\">");
+			out.write("<div class=\"inline\" id=\""+getNodeID()+"\">");
 			if(error != null) {
 				out.write("<p class='elementerror round'>"+StringEscapeUtils.escapeHtml(error)+"</p>");
 			}

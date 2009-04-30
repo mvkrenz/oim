@@ -54,28 +54,37 @@ public class LogServlet extends ServletBase  {
 		setContext(request);
 		
 		//pull log type
-		String model = "%";
+		String filter = null;
+		String title = null;
+		
 		String dirty_type = request.getParameter("type");
-		if(dirty_type == null || dirty_type.compareTo("all") == 0) {
-			model = "%";
-		} else if(dirty_type.compareTo("resource") == 0) {
-			model = "%ResourceModel";
-		} else if(dirty_type.compareTo("vo") == 0) {
-			model = "%VOModel";
-		} else if(dirty_type.compareTo("sc") == 0) {
-			model = "%SCModel";
-		} else if(dirty_type.compareTo("contact") == 0) {
-			model = "%ContactModel";
-		} else if(dirty_type.compareTo("site") == 0) {
-			model = "%SiteModel";
-		} else if(dirty_type.compareTo("facility") == 0) {
-			model = "%FacilityModel";
+		if(dirty_type == null || dirty_type.equals("all")) {
+			filter = "%";
+			title = "Logs";
+		} else if(dirty_type.equals("resource")) {
+			filter = "%Resource%";
+			title = "Resource Logs";
+		} else if(dirty_type.equals("vo")) {
+			filter = "%VO%";
+			title = "Virtual Organization Logs";
+		} else if(dirty_type.equals("sc")) {
+			filter = "%SC%";
+			title = "Support Center Logs";
+		} else if(dirty_type.equals("contact")) {
+			filter = "%Contact%";
+			title = "Contact Logs";
+		} else if(dirty_type.equals("site")) {
+			filter = "%Site%";
+			title = "Site Logs";
+		} else if(dirty_type.equals("facility")) {
+			filter = "%Facility%";
+			title = "Facility Logs";
 		}
 		
 		try {
 			//construct view
 			MenuView menuview = new MenuView(context, "log");
-			ContentView contentview = createContentView(model);
+			ContentView contentview = createContentView(filter, title);
 			Page page = new Page(menuview, contentview, createSideView());
 			page.render(response.getWriter());			
 		} catch (SQLException e) {
@@ -84,10 +93,10 @@ public class LogServlet extends ServletBase  {
 		}
 	}
 	
-	protected ContentView createContentView(String model) throws ServletException, SQLException
+	protected ContentView createContentView(String filter, String title) throws ServletException, SQLException
 	{
 		ContentView view = new ContentView();	
-		view.add(new HtmlView("<h1>Log</h1>"));    	
+		view.add(new HtmlView("<h1>"+title+"</h1>"));    	
     	
 		try {
 	    	XPath xpath = XPathFactory.newInstance().newXPath();
@@ -97,7 +106,7 @@ public class LogServlet extends ServletBase  {
 			
 			//pull log entries that matches the log type
 			LogModel lmodel = new LogModel(context);
-			Collection<LogRecord> recs = lmodel.getLatest(model);
+			Collection<LogRecord> recs = lmodel.getLatest(filter);
 			builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
 			for(LogRecord rec : recs) {
 
@@ -119,7 +128,7 @@ public class LogServlet extends ServletBase  {
 					view.add(new HtmlView("<h2>" + somemodel.getName() + " ("+rec.type+")</h2>"));
 					DNRecord dnrec = dmodel.get(rec.dn_id);
 					view.add(new HtmlView("<span>"+dnrec.dn_string+"<br/>Updated "+rec.timestamp.toString()+"</span>"));
-					view.add(createLogView(xpath, log));
+					view.add(createLogView(xpath, somemodel, log));
 				} catch (SAXException e) {
 					view.add(new HtmlView("XML log Parse Error (" + somemodel.getName() + ") "+ e.toString()));
 				} catch (XPathExpressionException e) {
@@ -158,7 +167,8 @@ public class LogServlet extends ServletBase  {
 			
 		return view;
 	}
-	private IView createLogView(XPath xpath, Document dom) throws XPathExpressionException
+	
+	private IView createLogView(XPath xpath, ModelBase model, Document dom) throws XPathExpressionException
 	{
 		RecordTableView table = new RecordTableView("log_table");
 		String type = (String)xpath.evaluate("//Type", dom, XPathConstants.STRING);
@@ -183,8 +193,17 @@ public class LogServlet extends ServletBase  {
 			ArrayList<Node> key = pullNonTextNode(node.getChildNodes());
 			Node name = key.get(0);
 			Node value = key.get(1);
-			row.addHeaderCell(new HtmlView(name.getTextContent()));
-			row.addCell(new HtmlView(StringEscapeUtils.escapeHtml(value.getTextContent())));
+			String field_name = name.getTextContent();
+			String human_value;
+			try {
+				human_value = model.getHumanValue(field_name, value.getTextContent());
+			} catch (NumberFormatException e) {
+				human_value = "(Format Exception)";
+			} catch (SQLException e) {
+				human_value = "(SQL Exception)";
+			}
+			row.addHeaderCell(new HtmlView(field_name));
+			row.addCell(new HtmlView(StringEscapeUtils.escapeHtml(human_value)));
 			if(type.compareTo("Update") == 0) {
 				row.addCell(new HtmlView(""));
 			}
@@ -195,13 +214,32 @@ public class LogServlet extends ServletBase  {
 		for(Node node : pullNonTextNode(dom.getElementsByTagName("Field"))) {
 			row = table.new Row();
 			ArrayList<Node> field = pullNonTextNode(node.getChildNodes());
+			
 			Node name = field.get(0);
-			row.addHeaderCell(new HtmlView(name.getTextContent()));
+			String field_name = name.getTextContent();
+			row.addHeaderCell(new HtmlView(field_name));
+			
 			Node value = field.get(1);
-			row.addCell(new HtmlView(StringEscapeUtils.escapeHtml(value.getTextContent())));
+			String human_value;
+			try {
+				human_value = model.getHumanValue(field_name, value.getTextContent());
+			} catch (NumberFormatException e) {
+				human_value = "(Format Exception)";
+			} catch (SQLException e) {
+				human_value = "(SQL Exception)";
+			}
+			row.addCell(new HtmlView(StringEscapeUtils.escapeHtml(human_value)));
+			
 			if(type.compareTo("Update") == 0) {
 				Node newvalue = field.get(2);
-				row.addCell(new HtmlView(StringEscapeUtils.escapeHtml(newvalue.getTextContent())));
+				try {
+					human_value = model.getHumanValue(field_name, newvalue.getTextContent());
+				} catch (NumberFormatException e) {
+					human_value = "(Format Exception)";
+				} catch (SQLException e) {
+					human_value = "(SQL Exception)";
+				}
+				row.addCell(new HtmlView(StringEscapeUtils.escapeHtml(human_value)));
 			}
 			table.addRow(row);
 		}

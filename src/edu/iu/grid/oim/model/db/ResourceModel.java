@@ -16,6 +16,7 @@ import edu.iu.grid.oim.model.Context;
 import edu.iu.grid.oim.model.db.record.RecordBase;
 import edu.iu.grid.oim.model.db.record.ResourceAliasRecord;
 import edu.iu.grid.oim.model.db.record.ResourceContactRecord;
+import edu.iu.grid.oim.model.db.record.ResourceGroupRecord;
 import edu.iu.grid.oim.model.db.record.ResourceRecord;
 import edu.iu.grid.oim.model.db.record.ResourceServiceRecord;
 import edu.iu.grid.oim.model.db.record.ResourceWLCGRecord;
@@ -36,6 +37,16 @@ public class ResourceModel extends SmallTableModelBase<ResourceRecord> {
     public ResourceRecord createRecord() throws SQLException
 	{
 		return new ResourceRecord();
+	}
+	
+	public String getHumanValue(String field_name, String value) throws NumberFormatException, SQLException
+	{
+		if(field_name.equals("resource_group_id")) {
+			ResourceGroupModel model = new ResourceGroupModel(context);
+			ResourceGroupRecord rec = model.get(Integer.parseInt(value));
+			return value + " (" + rec.name + ")";
+		}
+		return value;
 	}
 	
 	public ArrayList<ResourceRecord> getByGroupID(int group_id) throws SQLException

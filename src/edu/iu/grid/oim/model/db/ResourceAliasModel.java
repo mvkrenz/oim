@@ -17,6 +17,7 @@ import edu.iu.grid.oim.model.db.record.OsgGridTypeRecord;
 import edu.iu.grid.oim.model.db.record.RecordBase;
 import edu.iu.grid.oim.model.db.record.ResourceAliasRecord;
 import edu.iu.grid.oim.model.db.record.ResourceGroupRecord;
+import edu.iu.grid.oim.model.db.record.ResourceRecord;
 import edu.iu.grid.oim.model.db.record.SCRecord;
 
 public class ResourceAliasModel extends SmallTableModelBase<ResourceAliasRecord> {
@@ -57,4 +58,14 @@ public class ResourceAliasModel extends SmallTableModelBase<ResourceAliasRecord>
 		ResourceModel model = new ResourceModel(context);
 		return model.canEdit(id);
 	}
+	public String getHumanValue(String field_name, String value) throws NumberFormatException, SQLException
+	{
+		if(field_name.equals("resource_id")) {
+			ResourceModel model = new ResourceModel(context);
+			ResourceRecord rec = model.get(Integer.parseInt(value));
+			return value + " (" + rec.name + ")";
+		}
+		return value;
+	}
+	
 }

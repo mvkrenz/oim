@@ -106,7 +106,7 @@ public class VOServlet extends ServletBase implements Servlet {
 				parent_vo_name = parent_vo_rec.name;
 			}
 			table.addRow("Parent VO", parent_vo_name);
-			table.addRow("Support Center", rec.sc_id.toString());
+			table.addRow("Support Center", getSCName(rec.sc_id));
 			table.addRow("Long Name", rec.long_name);
 			table.addRow("Description", rec.description);
 			table.addRow("App Description", rec.app_description);
@@ -175,6 +175,13 @@ public class VOServlet extends ServletBase implements Servlet {
 		}
 		
 		return contentview;
+	}
+	
+	private String getSCName(Integer sc_id) throws SQLException
+	{
+		SCModel model = new SCModel(context);
+		SCRecord rec = model.get(sc_id);
+		return rec.name;
 	}
 	
 	private IView getFieldOfScience(Integer vo_id) throws SQLException

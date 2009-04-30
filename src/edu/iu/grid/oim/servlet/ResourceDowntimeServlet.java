@@ -26,6 +26,8 @@ import edu.iu.grid.oim.lib.Config;
 import edu.iu.grid.oim.model.db.DNModel;
 import edu.iu.grid.oim.model.db.DowntimeClassModel;
 import edu.iu.grid.oim.model.db.DowntimeSeverityModel;
+import edu.iu.grid.oim.model.db.ResourceServiceModel;
+import edu.iu.grid.oim.model.db.ServiceModel;
 
 import edu.iu.grid.oim.model.db.ResourceDowntimeModel;
 import edu.iu.grid.oim.model.db.ResourceDowntimeServiceModel;
@@ -34,6 +36,8 @@ import edu.iu.grid.oim.model.db.ResourceModel;
 
 import edu.iu.grid.oim.model.db.record.ResourceDowntimeRecord;
 import edu.iu.grid.oim.model.db.record.ResourceDowntimeServiceRecord;
+import edu.iu.grid.oim.model.db.record.ResourceServiceRecord;
+import edu.iu.grid.oim.model.db.record.ServiceRecord;
 
 import edu.iu.grid.oim.model.db.record.ResourceRecord;
 
@@ -154,8 +158,10 @@ public class ResourceDowntimeServlet extends ServletBase implements Servlet {
 		Collection<ResourceDowntimeServiceRecord> services;
 
 		services = model.getByDowntimeID(downtime_id);
+		ServiceModel smodel = new ServiceModel(context);
 		for(ResourceDowntimeServiceRecord service : services) {
-			html += service.service_id + "<br/>";
+			ServiceRecord rec = smodel.get(service.service_id);
+			html += rec.name + "<br/>";
 		}
 		return new HtmlView(html);
 

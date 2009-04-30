@@ -31,21 +31,15 @@ public abstract class ModelBase<T extends RecordBase> {
 	{
 		return context.getConnection();
 	}
-	/*
-	public ModelBase()
-	{	
-		context = new Context();
+	
+	//override this to provide human readable value
+	public String getHumanValue(String field_name, String value) throws NumberFormatException, SQLException
+	{
+		return value;
 	}
-	*/
+	
     abstract T createRecord() throws SQLException;
     
-    /*
-	public void setAuthorization(Authorization _auth)
-	{
-		auth = _auth;
-	}
-	*/
-	
 	public String getName()
 	{
 		return getClass().getName();

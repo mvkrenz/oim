@@ -14,8 +14,13 @@ import org.w3c.dom.Document;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.model.Context;
+import edu.iu.grid.oim.model.db.record.ContactRankRecord;
+import edu.iu.grid.oim.model.db.record.ContactRecord;
+import edu.iu.grid.oim.model.db.record.ContactTypeRecord;
 import edu.iu.grid.oim.model.db.record.RecordBase;
 import edu.iu.grid.oim.model.db.record.ResourceContactRecord;
+import edu.iu.grid.oim.model.db.record.ResourceGroupRecord;
+import edu.iu.grid.oim.model.db.record.ResourceRecord;
 import edu.iu.grid.oim.model.db.record.VOContactRecord;
 
 public class ResourceContactModel extends SmallTableModelBase<ResourceContactRecord> {
@@ -77,5 +82,27 @@ public class ResourceContactModel extends SmallTableModelBase<ResourceContactRec
 		Integer id = Integer.parseInt((String)xpath.evaluate("//Keys/Key[Name='resource_id']/Value", doc, XPathConstants.STRING));
 		ResourceModel model = new ResourceModel(context);
 		return model.canEdit(id);
+	}
+	
+	public String getHumanValue(String field_name, String value) throws NumberFormatException, SQLException
+	{
+		if(field_name.equals("contact_id")) {
+			ContactModel model = new ContactModel(context);
+			ContactRecord rec = model.get(Integer.parseInt(value));
+			return value + " (" + rec.name + ")";
+		} else if(field_name.equals("resource_id")) {
+			ResourceModel model = new ResourceModel(context);
+			ResourceRecord rec = model.get(Integer.parseInt(value));
+			return value + " (" + rec.name + ")";			
+		} else if(field_name.equals("contact_type_id")) {
+			ContactTypeModel model = new ContactTypeModel(context);
+			ContactTypeRecord rec = model.get(Integer.parseInt(value));
+			return value + " (" + rec.name + ")";			
+		} else if(field_name.equals("contact_rank_id")) {
+			ContactRankModel model = new ContactRankModel(context);
+			ContactRankRecord rec = model.get(Integer.parseInt(value));
+			return value + " (" + rec.name + ")";			
+		}
+		return value;
 	}
 }

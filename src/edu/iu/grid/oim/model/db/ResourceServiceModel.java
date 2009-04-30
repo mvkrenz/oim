@@ -18,8 +18,11 @@ import edu.iu.grid.oim.model.db.record.RecordBase;
 import edu.iu.grid.oim.model.db.record.ResourceAliasRecord;
 import edu.iu.grid.oim.model.db.record.ResourceDowntimeRecord;
 import edu.iu.grid.oim.model.db.record.ResourceGroupRecord;
+import edu.iu.grid.oim.model.db.record.ResourceRecord;
 import edu.iu.grid.oim.model.db.record.ResourceServiceRecord;
 import edu.iu.grid.oim.model.db.record.SCRecord;
+import edu.iu.grid.oim.model.db.record.ServiceRecord;
+import edu.iu.grid.oim.model.db.record.VORecord;
 
 public class ResourceServiceModel extends SmallTableModelBase<ResourceServiceRecord> {
     static Logger log = Logger.getLogger(ResourceServiceModel.class); 
@@ -64,5 +67,18 @@ public class ResourceServiceModel extends SmallTableModelBase<ResourceServiceRec
 		Integer id = Integer.parseInt((String)xpath.evaluate("//Keys/Key[Name='resource_id']/Value", doc, XPathConstants.STRING));
 		ResourceModel model = new ResourceModel(context);
 		return model.canEdit(id);
+	}
+	public String getHumanValue(String field_name, String value) throws NumberFormatException, SQLException
+	{
+		if(field_name.equals("resource_id")) {
+			ResourceModel model = new ResourceModel(context);
+			ResourceRecord rec = model.get(Integer.parseInt(value));
+			return value + " (" + rec.name + ")";
+		} else if(field_name.equals("service_id")) {
+			ServiceModel model = new ServiceModel(context);
+			ServiceRecord rec = model.get(Integer.parseInt(value));
+			return value + " (" + rec.name + ")";
+		}
+		return value;
 	}
 }

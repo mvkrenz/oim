@@ -105,7 +105,7 @@ public class Footprint
             
             SOAPElement arg4_8 = args.addChildElement( env.createName("title") );
             arg4_8.addAttribute( env.createName("type","xsi",""), "xsd:string" );
-            arg4_8.addTextNode("This title comes from Java");
+            arg4_8.addTextNode("OIM Resource Registration - " + resource_name);
             
             SOAPElement arg4_1 = args.addChildElement( env.createName("priorityNumber") );
             arg4_1.addAttribute( env.createName("type","xsi",""), "xsd:int" );
@@ -117,14 +117,14 @@ public class Footprint
 
             SOAPElement arg4_5 = args.addChildElement( env.createName("assignees") );
             arg4_5.addAttribute( env.createName("type","xsi",""), "SOAP-ENC:Array" );
-            arg4_5.addAttribute( env.createName("arrayType","SOAP-ENC",""), "xsd:string[1]" );//CHANGE [1] to [n] based on the number of assignee.. (why!!!)
+            arg4_5.addAttribute( env.createName("arrayType","SOAP-ENC",""), "xsd:string[1]" );//CHANGE [1] to [n] based on the number of items
             SOAPElement arg4_5_1 = arg4_5.addChildElement( env.createName("item") );
             arg4_5_1.addAttribute( env.createName("type","xsi",""), "xsd:string" );
             arg4_5_1.addTextNode("hayashis");
             
             SOAPElement ccs = args.addChildElement( env.createName("permanentCCs") );
             ccs.addAttribute( env.createName("type","xsi",""), "SOAP-ENC:Array" );
-            ccs.addAttribute( env.createName("arrayType","SOAP-ENC",""), "xsd:string[2]" );//CHANGE [1] to [n] based on the number of assignee.. (why!!!)
+            ccs.addAttribute( env.createName("arrayType","SOAP-ENC",""), "xsd:string[2]" );//CHANGE [1] to [n] based on the number of items
             SOAPElement cc1 = ccs.addChildElement( env.createName("item") );
             cc1.addAttribute( env.createName("type","xsi",""), "xsd:string" );
             cc1.addTextNode("oim-dev@OPENSCIENCEGRID.ORG");
