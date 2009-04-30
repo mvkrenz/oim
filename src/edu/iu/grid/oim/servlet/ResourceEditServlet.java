@@ -10,9 +10,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
 
-import com.webif.divex.DivExRoot;
-
-import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Config;
 import edu.iu.grid.oim.model.db.ResourceModel;
 import edu.iu.grid.oim.model.db.record.ResourceRecord;

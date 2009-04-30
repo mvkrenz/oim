@@ -2,5 +2,12 @@
 <!-- For Local Development -->
 <ApplicationBase>http://localhost:8080/oim</ApplicationBase>
 <StaticBase>http://localhost:8080/oim</StaticBase>
+<SSLTruststorePath>C:/dev/java/InstallCert/jssecacerts</SSLTruststorePath>
+<Footprints>
+	<URI>https://tick.globalnoc.iu.edu/MRWebServices</URI>
+	<URL>https://tick.globalnoc.iu.edu/MRcgi/MRWebServices.pl</URL>
+	<Username>goc</Username>
+	<Password>5be1499a577add53307142asdaq2WSagsASDGa</Password>
+</Footprints>
 <Debug>true</Debug>
 </Config>

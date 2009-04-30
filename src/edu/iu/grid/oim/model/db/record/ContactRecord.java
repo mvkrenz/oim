@@ -33,33 +33,28 @@ public class ContactRecord extends RecordBase {
 	}
 	//for creating new record
 	public ContactRecord() {}
-	/*	
-	public String getTitle() {
-		return "Contact Information for " + name;
-	}
 	
-
-	public ArrayList<String> getLables() {
-		ArrayList<String> labels = new ArrayList();
-		labels.add("contact");
-		labels.add("contact_"+id);
-		labels.add("dn_"+submitter_dn_id);
-		return labels;
-	}
-	
-	public String toString(Object field, Authorization auth)
+	public String getFirstName()
 	{
-		if(field == null) return null;
-		try {
-			if(field == submitter_dn_id) {
-				DNModel model = new DNModel(auth);
-				DNRecord rec = model.get(submitter_dn_id);
-				return rec.dn_string;
-			}
-		} catch(SQLException e) {
-			//forget it then..
+		String[] tokens = name.split(" ");
+		if(tokens.length < 2) {
+			return name;
 		}
-		return field.toString();
+		return tokens[0];
 	}
-	*/
+	public String getLastName()
+	{
+		String[] tokens = name.split(" ");
+		if(tokens.length < 2) {
+			return "";
+		}
+		String lastname = "";
+		for(int i = 1; i < tokens.length; ++i) {
+			if(lastname.length() != 0) {
+				lastname += " ";
+			}
+			lastname += tokens[i];
+		}
+		return lastname;
+	}
 }

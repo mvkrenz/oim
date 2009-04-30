@@ -57,7 +57,7 @@ import edu.iu.grid.oim.view.Utils;
 import edu.iu.grid.oim.view.TableView.Row;
 import edu.iu.grid.oim.view.TableView.Row.Cell;
 import edu.iu.grid.oim.view.divex.ContactEditorDE;
-import edu.iu.grid.oim.view.divex.ViewWrapperDE;
+import edu.iu.grid.oim.view.divex.form.ViewWrapperDE;
 
 public class VOServlet extends ServletBase implements Servlet {
 	private static final long serialVersionUID = 1L;

@@ -45,7 +45,7 @@ import edu.iu.grid.oim.view.SideContentView;
 import edu.iu.grid.oim.view.TableView;
 import edu.iu.grid.oim.view.Utils;
 import edu.iu.grid.oim.view.TableView.Row;
-import edu.iu.grid.oim.view.divex.ViewWrapperDE;
+import edu.iu.grid.oim.view.divex.form.ViewWrapperDE;
 
 public class SCServlet extends ServletBase implements Servlet {
 	private static final long serialVersionUID = 1L;

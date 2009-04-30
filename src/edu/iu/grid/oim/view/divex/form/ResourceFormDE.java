@@ -1,5 +1,6 @@
 package edu.iu.grid.oim.view.divex.form;
 
+import java.io.InputStream;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -20,6 +21,7 @@ import com.webif.divex.form.validator.UniqueValidator;
 import com.webif.divex.form.validator.UrlValidator;
 
 import edu.iu.grid.oim.lib.Authorization;
+import edu.iu.grid.oim.lib.FileReader;
 import edu.iu.grid.oim.lib.Footprint;
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
 import edu.iu.grid.oim.model.Context;
@@ -404,12 +406,11 @@ public class ResourceFormDE extends FormDE
 						getContactRecordsFromEditor(), 
 						wrec,
 						resource_services.getResourceServiceRecords(),
-						owners.getOwners()/*,downtimes.getDowntimeEditors(),
-						downtimes.getAffectedServiceRecords()*/);
+						owners.getOwners());
 				
 				//create footprint ticket
 				Footprint fp = new Footprint(context);
-				fp.createTicket();
+				fp.createNewResourceTicket(rec.name);
 				
 			} else {
 				model.updateDetail(rec, 
@@ -417,9 +418,7 @@ public class ResourceFormDE extends FormDE
 						getContactRecordsFromEditor(),
 						wrec,
 						resource_services.getResourceServiceRecords(),
-						owners.getOwners()/*,
-						downtimes.getDowntimeEditors(),
-						downtimes.getAffectedServiceRecords()*/);
+						owners.getOwners());
 			}
 		} catch (Exception e) {
 			alert(e.getMessage());
