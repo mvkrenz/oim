@@ -48,6 +48,20 @@ public class ContactModel extends SmallTableModelBase<ContactRecord> {
 		}
 		return list;
 	}
+	public ContactRecord getByemail(String email) throws SQLException
+	{
+		for(RecordBase it : getCache()) {
+			ContactRecord rec = (ContactRecord)it;
+			if(rec.primary_email != null && rec.primary_email.equals(email)) {
+				return rec;
+			}
+			if(rec.secondary_email != null && rec.secondary_email.equals(email)) {
+				return rec;
+			}
+		}
+		return null;
+	}
+	
 	public Collection<ContactRecord> getAllEditable() throws SQLException
 	{	   
 		ArrayList<ContactRecord> list = new ArrayList();

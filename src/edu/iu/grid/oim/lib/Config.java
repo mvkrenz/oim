@@ -31,6 +31,9 @@ public class Config {
 	static public String getFootprintsUsername() { return config.footprints_username; }
 	private String footprints_password;
 	static public String getFootprintsPassword() { return config.footprints_password; }
+
+	private String doe_cn;
+	static public String getDOECN() { return config.doe_cn; }
 	
 	private String ssl_truststore;
 	static public String getSSLTrustStorePath() { return config.ssl_truststore; }
@@ -65,6 +68,9 @@ public class Config {
 			is.reset();
 			
 			ssl_truststore = (String)xpath.evaluate("//SSLTruststorePath", config_xml);;
+			is.reset();
+			
+			doe_cn = (String)xpath.evaluate("//DOECN", config_xml);;
 			is.reset();
 
 		} catch (XPathExpressionException e) {

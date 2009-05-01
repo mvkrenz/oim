@@ -18,7 +18,11 @@ public class MenuView implements IView {
 	public MenuView(Context context, String _current) {
 		Authorization auth = context.getAuthorization();
 		
-		menu.add(new MenuItem("Home", "home"));
+		if(auth.getDNID() == null) {
+			menu.add(new MenuItem("Resiter", "register"));
+		} else {
+			menu.add(new MenuItem("Home", "home"));
+		}
 		
 		if(auth.allows("edit_my_vo")) {
 			menu.add(new MenuItem("Virtual Organizations", "vo"));

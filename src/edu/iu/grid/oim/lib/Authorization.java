@@ -27,23 +27,16 @@ public class Authorization {
 	private Context guest_context;
 	
 	private String user_dn = null;
-    private Integer dn_id = null;
+	private String user_cn = null;
+	private Integer dn_id = null;
     private Integer contact_id = null;
     
     private HashSet<String> actions = new HashSet<String>();
     
-    public String getUserDN()
-    {
-    	return user_dn;
-    }
-    public Integer getDNID()
-    {
-    	return dn_id;
-    }
-    public Integer getContactID()
-    {
-    	return contact_id;
-    }
+    public String getUserDN() { return user_dn; }
+    public String getUserCN() { return user_cn; }
+    public Integer getDNID() { return dn_id; }
+    public Integer getContactID() { return contact_id; }
     public ContactRecord getContact() throws SQLException
     {
     	ContactModel model = new ContactModel(guest_context);
@@ -75,6 +68,7 @@ public class Authorization {
 		//user_dn = certs[0].getSubjectDN().getName();
 		
 		user_dn = (String)request.getAttribute("SSL_CLIENT_S_DN");
+		user_cn = (String)request.getAttribute("SSL_CLIENT_I_DN_CN");
 		
 		//debug - for development
 		if(request.getLocalName().compareTo("localhost") == 0) {
@@ -96,19 +90,25 @@ public class Authorization {
 					//user_dn = "/DC=org/DC=doegrids/OU=People/CN=Alain Roy 424511";      //OSG user
 					// user_dn = "/DC=gov/DC=fnal/O=Fermilab/OU=People/CN=Keith Chadwick/CN=UID:chadwick"; // End user VO admin
 					//user_dn = "/DC=org/DC=doegrids/OU=People/CN=Mine Altunay 215076"; // Security auth
-		        }				
+		        }		
+		        user_cn = Config.getDOECN();
 			} catch (UnknownHostException e) {
 				//ignore then..
 			}
 		}
 		
 		log.info("Authenticated User DN: "+user_dn);
+		log.info("SSL_CLIENT_I_DN_CN: " + user_cn);
 		
-		try {
-			DNModel dnmodel = new DNModel(guest_context);
-			initAction(dnmodel.getByDNString(user_dn));
-		} catch (SQLException e) {
-			log.error(e);
+		if(!user_cn.equals(Config.getDOECN())) {
+			log.error("DN_CN is not \""+Config.getDOECN()+"\". It is \"" + user_cn + "\". Logging in as guest.");
+		} else {
+			try {
+				DNModel dnmodel = new DNModel(guest_context);
+				initAction(dnmodel.getByDNString(user_dn));
+			} catch (SQLException e) {
+				log.error(e);
+			}
 		}
 	}
 	

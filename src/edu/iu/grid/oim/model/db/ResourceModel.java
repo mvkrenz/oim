@@ -92,10 +92,10 @@ public class ResourceModel extends SmallTableModelBase<ResourceRecord> {
 	private HashSet<Integer> getEditableIDs() throws SQLException
 	{
 		HashSet<Integer> list = new HashSet<Integer>();
-		VOContactModel model = new VOContactModel(context);
-		Collection<VOContactRecord> vcrecs = model.getByContactID(auth.getContactID());
-		for(VOContactRecord rec : vcrecs) {
-			list.add(rec.vo_id);
+		ResourceContactModel model = new ResourceContactModel(context);
+		Collection<ResourceContactRecord> rrecs = model.getByContactID(auth.getContactID());
+		for(ResourceContactRecord rec : rrecs) {
+			list.add(rec.resource_id);
 		}
 		return list;
 	}
@@ -175,7 +175,7 @@ public class ResourceModel extends SmallTableModelBase<ResourceRecord> {
 			getConnection().setAutoCommit(true);
 		} catch (Exception e) {
 			log.error(e);
-			log.info("Rolling back VO insert transaction.");
+			log.info("Rolling back resource insert transaction.");
 			getConnection().rollback();
 			getConnection().setAutoCommit(true);
 			
@@ -259,7 +259,7 @@ public class ResourceModel extends SmallTableModelBase<ResourceRecord> {
 			getConnection().setAutoCommit(true);
 		} catch (Exception e) {
 			log.error(e);
-			log.info("Rolling back VO insert transaction.");
+			log.info("Rolling back resource insert transaction.");
 			getConnection().rollback();
 			getConnection().setAutoCommit(true);
 			

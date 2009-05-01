@@ -12,6 +12,7 @@ import org.apache.log4j.Logger;
 
 import com.webif.divex.DivExRoot;
 
+import edu.iu.grid.oim.lib.Config;
 import edu.iu.grid.oim.model.MenuItem;
 import edu.iu.grid.oim.view.ContentView;
 import edu.iu.grid.oim.view.HtmlView;
@@ -36,7 +37,8 @@ public class HomeServlet extends ServletBase  {
 		MenuView menuview = new MenuView(context, "home");
 		ContentView contentview;
 		if(auth.getDNID() == null) {
-			contentview = createSignupContentView();	
+			response.sendRedirect(Config.getApplicationBase() + "/register");
+			return;
 		} else {
 			contentview = createContentView();
 		}
@@ -53,16 +55,4 @@ public class HomeServlet extends ServletBase  {
 		
 		return contentview;
 	}
-	
-	protected ContentView createSignupContentView()
-	{
-		ContentView contentview = new ContentView();
-		
-		contentview.add(new HtmlView("<h1>OIM Registration</h1>"));
-		contentview.add(new HtmlView("<p>Your DN ("+auth.getUserDN()+") is not yet registered at OIM.</p>"));
-		contentview.add(new HtmlView("<p>Please open a ticket at <a href=\"https://oim.grid.iu.edu/gocticket\">GOC Ticket Form</a> requesting your OIM account.</p>"));
-		
-		return contentview;
-	}
-
 }

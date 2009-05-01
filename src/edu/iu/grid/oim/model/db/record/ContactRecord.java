@@ -36,6 +36,7 @@ public class ContactRecord extends RecordBase {
 	
 	public String getFirstName()
 	{
+		if(name == null) return "";
 		String[] tokens = name.split(" ");
 		if(tokens.length < 2) {
 			return name;
@@ -44,6 +45,7 @@ public class ContactRecord extends RecordBase {
 	}
 	public String getLastName()
 	{
+		if(name == null) return "";
 		String[] tokens = name.split(" ");
 		if(tokens.length < 2) {
 			return "";
