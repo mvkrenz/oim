@@ -4,6 +4,11 @@
 	text-decoration: none;
 	cursor:progress;
 }
+input.sample
+{
+color: #ccc;
+}
+
 a img
 {
 border: none;

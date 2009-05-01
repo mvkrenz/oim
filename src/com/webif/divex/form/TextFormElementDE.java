@@ -27,17 +27,50 @@ public class TextFormElementDE extends FormElementDEBase<String> {
 			if(label != null) {
 				out.print("<label>"+StringEscapeUtils.escapeHtml(label)+"</label><br/>");
 			}
-			String current_value = value;
+			
+			String current_value = StringEscapeUtils.escapeHtml(value);
 			if(value == null) {
 				current_value = "";
 			}
-			out.print("<input type='text' style='width: "+width+"px;' onchange='divex(\""+getNodeID()+"\", event, this.value);' value=\""+StringEscapeUtils.escapeHtml(current_value)+"\"/>");
+			String sample = StringEscapeUtils.escapeHtml(sample_value);
+			if(sample_value == null) {
+				sample = "";
+			}
+			out.write("<input id=\""+getNodeID()+"_input\" type=\"text\" style=\"width: "+width+"px;\" onchange=\"divex('"+getNodeID()+"', event, this.value);\" sample=\""+sample+"\" value=\""+current_value+"\"/>");
+			out.write("<script type=\"text/javascript\">\n");
+			//out.write("setTimeout(function() {");
+				//out.write("console.log('setting');");
+				out.write("var input = $(\"#"+getNodeID()+"_input\");\n");
+				out.write("if(input.val() == \"\") {\n");
+				out.write(" input.addClass(\"sample\");\n");
+				out.write(" input.val(input.attr('sample'));\n");
+				out.write("}\n");
+			
+				out.write("input.change(function() {\n");
+				out.write("});\n");
+				
+				out.write("input.focus(function() {");
+				out.write("	if($(this).hasClass(\"sample\")) {");
+				out.write(" 	this.value = \"\";");
+				out.write("		$(this).removeClass(\"sample\");");
+				out.write(" }");
+				out.write("});");
+				
+				out.write("input.blur(function() {");
+				out.write(" if(this.value == \"\") {");
+				out.write(" 	$(this).val($(this).attr('sample'));");
+				out.write("		$(this).addClass(\"sample\");");
+				out.write(" }");
+				out.write("});");
+			//out.write("}, 0);");
+			out.write("</script>");
+			
 			if(isRequired()) {
-				out.print(" * Required");
+				out.write(" * Required");
 			}
 			error.render(out);
 		}
-		out.print("</div>");
+		out.write("</div>");
 	}
 	
 	public void onEvent(Event e) {

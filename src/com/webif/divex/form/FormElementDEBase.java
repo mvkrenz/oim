@@ -84,7 +84,7 @@ abstract public class FormElementDEBase<ValueType> extends DivEx {
 			}
 		}
 		if(!children_valid) {
-			error.set("Child element is invalid.");
+			//error.set("Child element is invalid.");
 			valid = false;
 			return;
 		}
@@ -119,6 +119,9 @@ abstract public class FormElementDEBase<ValueType> extends DivEx {
 	protected ValueType value;
 	public void setValue(ValueType _value) { value = _value; }
 	public ValueType getValue() { return value; }
+	
+	protected ValueType sample_value;
+	public void setSampleValue(ValueType _sample_value) { sample_value = _sample_value; }
 	
 	protected String label;
 	public void setLabel(String _label) { label = _label; }

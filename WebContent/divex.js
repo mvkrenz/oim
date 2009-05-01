@@ -8,7 +8,7 @@ function divexClearProcessing() {
 function divex(id, event, value) {
 	//make sure there is only one request at the same time (prevent double clicking of submit button)
 	if(divex_processing_id == id) {
-		console.log('previous request on same target still running - ignoring');
+		//console.log('previous request on same target still running - ignoring');
 		return;
 	}
 	divex_processing_id = id;
@@ -73,7 +73,7 @@ function divex_runjs()
 		//console.log('counter is 0. running jscallack');
 		divex_jscallback();
 	} else {
-		console.log('waiting');
+		//console.log('waiting');
 		setTimeout(divex_runjs, 50);
 	}
 }

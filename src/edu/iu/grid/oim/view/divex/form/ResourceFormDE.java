@@ -115,12 +115,14 @@ public class ResourceFormDE extends FormDE
 		name.setValue(rec.name);
 		name.addValidator(new UniqueValidator<String>(resources.values()));
 		name.setRequired(true);
+		name.setSampleValue("Indiana_Sample_CE");
 		
 		fqdn = new TextFormElementDE(this);
 		fqdn.setLabel("Fully Qualified Domain Name (FQDN) of this resource");
 		fqdn.setValue(rec.fqdn);
 		fqdn.addValidator(new UniqueValidator<String>(resources.values()));
 		fqdn.setRequired(true);
+		fqdn.setSampleValue("gate01.sample.edu");
 
 		resource_group_id = new OIMHierarchySelector(this, context, OIMHierarchySelector.Type.RESOURCE_GROUP);
 		resource_group_id.setLabel("Select Your Facility (Instituition), Site (Department), and Resource Group");
@@ -139,6 +141,7 @@ public class ResourceFormDE extends FormDE
 		url.setValue(rec.url);
 		url.addValidator(UrlValidator.getInstance());
 		url.setRequired(true);
+		url.setSampleValue("http://sample.edu/information");
 		
 		new StaticDE(this, "<h3>Resource FQDN Aliases (If Applicable)</h3>");
 		new StaticDE(this, "<p>If you used a DNS alias as their main gatekeeper or SE head node FQDN (as defined above), then you can add real host name(s) here as reverse alias(es).</p>");
@@ -245,22 +248,27 @@ public class ResourceFormDE extends FormDE
 
 			wlcg_accounting_name = new TextFormElementDE(this);
 			wlcg_accounting_name.setLabel("WLCG Accounting Name");
+			wlcg_accounting_name.setSampleValue("ABC Accounting");
 
 			ksi2k_minimum = new TextFormElementDE(this);
 			ksi2k_minimum.setLabel("KSI2K Minimum");
 			ksi2k_minimum.addValidator(DoubleValidator.getInstance());
+			ksi2k_minimum.setSampleValue("100.0");
 			
 			ksi2k_maximum = new TextFormElementDE(this);
 			ksi2k_maximum.setLabel("KSI2K Maximum");
 			ksi2k_maximum.addValidator(DoubleValidator.getInstance());
+			ksi2k_maximum.setSampleValue("500.0");
 			
 			storage_capacity_minimum = new TextFormElementDE(this);
 			storage_capacity_minimum.setLabel("Storage Capacity Minimum (in TeraBytes)");
 			storage_capacity_minimum.addValidator(DoubleValidator.getInstance());
+			storage_capacity_minimum.setSampleValue("1.0");
 			
 			storage_capacity_maximum = new TextFormElementDE(this);
 			storage_capacity_maximum.setLabel("Storage Capacity Maximum (in TeraBytes)");
 			storage_capacity_maximum.addValidator(DoubleValidator.getInstance());
+			storage_capacity_maximum.setSampleValue("5.5");
 		}
 		new StaticDE(this, "</div>");
 		hideWLCGElements(true);
