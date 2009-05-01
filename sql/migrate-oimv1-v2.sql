@@ -155,6 +155,9 @@ INSERT INTO `action` (`id`,`name`,`description`) VALUES
  (9, 'read_all_contact','Allow read-access to all VO contacts (for example, security group)'),         
  (11,'edit_my_sc','Allow user-level read/write access to SCs for authorized users (contacts)'),
  (13,'edit_my_contact','Allow user-level read/write access to registered contact profiles'),
+ (14,'edit_all_facility','Allow user-level read/write access to all facilitiesfor registered users (contacts)'),
+ (15,'edit_all_site','Allow user-level read/write access to all sites for registered users (contacts)'),
+ (16,'edit_all_resource_group','Allow user-level read/write access to all resource groups for registered users (contacts)'),
  (17,'edit_my_resource','Allow user-level read/write access to resources for authorized users (contacts)'),
  (18,'edit_measurement','Allow specific user-level read/write access to CPU Info list for authorized users (contacts)')
  ;
@@ -179,6 +182,12 @@ INSERT INTO `authorization_type_action` (`authorization_type_id`,`action_id`) VA
  (4,11),
  (1,13),
  (4,13),
+ (1,14),
+ (4,14),
+ (1,15),
+ (4,15),
+ (1,16),
+ (4,16),
  (1,17),
  (4,17),
  (4,18),

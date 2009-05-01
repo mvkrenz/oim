@@ -18,8 +18,10 @@ public class MenuView implements IView {
 	public MenuView(Context context, String _current) {
 		Authorization auth = context.getAuthorization();
 		
+		// TODO Need a clean way to show a nice page when unregistered user shows up with links 
+		//   to MYOSG for public OIM information, etc. -agopu
 		if(auth.getDNID() == null) {
-			menu.add(new MenuItem("Resiter", "register"));
+			menu.add(new MenuItem("Register to OIM", "register"));
 		} else {
 			menu.add(new MenuItem("Home", "home"));
 		}
@@ -41,10 +43,15 @@ public class MenuView implements IView {
 		}
 		
 		// Do we need auth checks for these given we will allow anyone to edit? I guess not .. -agopu
-		menu.add(new MenuItem("Resource Groups", "resourcegroup"));	
-		menu.add(new MenuItem("Sites", "site"));	
-		menu.add(new MenuItem("Facilities", "facility"));	
-
+		if(auth.allows("edit_all_resource_group")) {
+			menu.add(new MenuItem("Resource Groups", "resourcegroup"));	
+		}
+		if(auth.allows("edit_all_site")) {
+			menu.add(new MenuItem("Sites", "site"));	
+		}
+		if(auth.allows("edit_all_facility")) {
+			menu.add(new MenuItem("Facilities", "facility"));	
+		}
 		if(auth.allows("edit_my_contact")) {
 			menu.add(new MenuItem("Contacts", "contact"));
 		}

@@ -69,6 +69,13 @@ public class ContactFormDE extends FormDE
 		auth = context.getAuthorization();
 		id = rec.id;
 
+		
+		if (rec != null) {
+			if (rec.active.compareTo(true) != 0) {
+				new StaticDE(this, "<h3>Inactive User Account Warning:</h3><p>Your user account has not been activated yet; You can continue to make changes to it but beware that you will not be able to registration activities till the account is activated by GOC staff. Contact the OSG GOC if you have any questions.</p>");
+			}
+		}
+
 		name = new TextFormElementDE(this);
 		name.setLabel("Full Name");
 		name.setValue(rec.name);

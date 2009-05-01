@@ -42,7 +42,7 @@ public class ResourceGroupEditServlet extends ServletBase implements Servlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{
 		setContext(request);
-		//auth.check("admin");
+		auth.check("edit_all_resource_group");
 		
 		ResourceGroupRecord rec;
 		String title;

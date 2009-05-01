@@ -46,6 +46,7 @@ public class Authorization {
 	public void check(String action) throws AuthorizationException
 	{
 		if(!allows(action)) {
+			// TODO Need cleaner error message in these situations -agopu
 			throw new AuthorizationException("Action:"+action+" is not authorized for " + user_dn);
 		}
 	}

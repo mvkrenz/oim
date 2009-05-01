@@ -63,6 +63,7 @@ public class RegisterServlet extends ServletBase  {
 		ContentView contentview = new ContentView();
 		
 		contentview.add(new HtmlView("<h1>OIM Registration</h1>"));
+		contentview.add(new HtmlView("<h3>Unregistered User DN!</h3>"));
 		
 		WizardDE wizard = new WizardDE(context.getDivExRoot());
 		wizard.setPage(new GreetingPage(wizard));
@@ -115,8 +116,8 @@ public class RegisterServlet extends ServletBase  {
 		}
 		
 		public void render(PrintWriter out) {
-			out.write("<p>Your DN ("+auth.getUserDN()+") is not yet registered at OIM. </p>");
-			out.write("<p>If you'd like to register now, please click register button.</p>");		
+			out.write("<p>The DN ("+auth.getUserDN()+"), that is loaded on your web browser, is not registered on OIM. </p>");
+			out.write("<p>If you would like to register now, please click the register button.</p>");		
 			button.render(out);
 		}
 
@@ -137,7 +138,7 @@ public class RegisterServlet extends ServletBase  {
 			wizard = _wizard;
 			
 			email = new TextFormElementDE(this);
-			email.setLabel("Your Email");
+			email.setLabel("Enter Your Email");
 			email.setRequired(true);
 			
 			class CheckValidator implements IFormElementValidator
@@ -156,12 +157,13 @@ public class RegisterServlet extends ServletBase  {
 			}
 			
 			email_check = new TextFormElementDE(this);
-			email_check.setLabel("Your Email (Again)");
+			email_check.setLabel("Re-enter Your Email");
 			email_check.setRequired(true);
 			email_check.addValidator(new CheckValidator(email));
 			
 			phone = new TextFormElementDE(this);
-			phone.setLabel("Your Phone Number");
+			// TODO Need formatting help here -agopu
+			phone.setLabel("Enter Your Phone Number");
 			phone.setRequired(true);
 		}
 
@@ -183,7 +185,8 @@ public class RegisterServlet extends ServletBase  {
 					rec.primary_email = email.getValue();
 					rec.primary_phone = phone.getValue();
 					rec.person = true;
-					rec.active = true;
+					// Setting to false by default
+					rec.active = false;
 					rec.disable = false;
 					model.insert(rec);
 				} else {
