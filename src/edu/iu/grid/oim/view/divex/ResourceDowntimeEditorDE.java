@@ -253,6 +253,9 @@ public class ResourceDowntimeEditorDE extends FormElementDEBase {
 			if(rec.disable != null) {
 				disable.setValue(rec.disable);
 			}
+			if (!auth.equals("admin")) {
+				disable.setHidden(true);
+			}
 			
 			new StaticDE(this, "<h3>Affected Services</h3>");
 			//affected_services = new HashMap<ServiceEditor, CheckBoxFormElementDE>();
@@ -266,7 +269,7 @@ public class ResourceDowntimeEditorDE extends FormElementDEBase {
 			
 			remove_button = new ButtonDE(this, "images/delete.png");
 			remove_button.setStyle(ButtonDE.Style.IMAGE);
-			remove_button.setConfirm(true, "Do you really want to remove this downtime schedule?");
+			remove_button.setConfirm(true, "Do you really want to remove this downtime schedule? If you are sure, then click yes, and then hit submit");
 			remove_button.addEventListener(new EventListener() {
 				public void handleEvent(Event e) {
 					removeDowntime(myself);	
@@ -408,7 +411,8 @@ public class ResourceDowntimeEditorDE extends FormElementDEBase {
 		resource_id = _resource_id;
 		
 		ResourceDowntimeModel dmodel = new ResourceDowntimeModel(context);	
-		for(ResourceDowntimeRecord drec : dmodel.getFutureDowntimesByResourceID(resource_id)) {
+		Collection <ResourceDowntimeRecord> dt_records = dmodel.getFutureDowntimesByResourceID(resource_id);
+		for(ResourceDowntimeRecord drec : dt_records) {
 			addDowntime(drec);
 		}
 		
@@ -443,11 +447,19 @@ public class ResourceDowntimeEditorDE extends FormElementDEBase {
 	}
 
 	public void render(PrintWriter out) {
+		int count = 0;
+		
 		out.print("<div id=\""+getNodeID()+"\">");
+
 		for(DivEx node : childnodes) {
 			if(node instanceof DowntimeEditor) {
+				count++;
 				node.render(out);
 			}
+		}
+		// Adding some clear text to make it look less odd. Is there a cleaner way to do this? -agopu
+		if (count == 0) {
+			new StaticDE(this, "<h3>No existing downtimes for this resource. Click link below to schedule a downtime!</h3>").render(out);
 		}
 		add_button.render(out);
 		out.print("</div>");

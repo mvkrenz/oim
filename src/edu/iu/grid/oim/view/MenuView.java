@@ -20,24 +20,28 @@ public class MenuView implements IView {
 		
 		menu.add(new MenuItem("Home", "home"));
 		
+		if(auth.allows("edit_my_vo")) {
+			menu.add(new MenuItem("Virtual Organizations", "vo"));
+		}
+		
+		if(auth.allows("edit_my_sc")) {
+			menu.add(new MenuItem("Support Centers", "sc"));
+		}
+
 		if(auth.allows("edit_my_resource")) {
-			menu.add(new MenuItem("Resource", "resource"));
+			menu.add(new MenuItem("Resources", "resource"));
 		}
 		
 		if(auth.allows("edit_my_resource")) {
 			menu.add(new MenuItem("Downtime", "resourcedowntime"));
 		}
 		
-		if(auth.allows("edit_my_vo")) {
-			menu.add(new MenuItem("Virtual Organization", "vo"));
-		}
-		
-		if(auth.allows("edit_my_sc")) {
-			menu.add(new MenuItem("Support Center", "sc"));
-		}
-		
+		// Do we need auth checks for these given we will allow anyone to edit? I guess not .. -agopu
+		menu.add(new MenuItem("Sites", "site"));	
+		menu.add(new MenuItem("Facilities", "facility"));	
+
 		if(auth.allows("edit_my_contact")) {
-			menu.add(new MenuItem("Contact", "contact"));
+			menu.add(new MenuItem("Contacts", "contact"));
 		}
 		
 		if(auth.getDNID() != null) {
@@ -47,11 +51,10 @@ public class MenuView implements IView {
 		if(auth.getDNID() != null) {
 			menu.add(new MenuItem("Log", "log"));
 		}
-		
 		if(auth.allows("admin")) {
-			menu.add(new MenuItem("Administration", "admin"));	
+			menu.add(new MenuItem("Admin", "admin"));	
 		}
-		
+
 		current = _current;
 	}
 	

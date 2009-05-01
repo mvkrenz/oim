@@ -70,7 +70,7 @@ public class ContactFormDE extends FormDE
 		id = rec.id;
 
 		name = new TextFormElementDE(this);
-		name.setLabel("Name");
+		name.setLabel("Full Name");
 		name.setValue(rec.name);
 		name.setRequired(true);
 		
@@ -85,56 +85,65 @@ public class ContactFormDE extends FormDE
 		secondary_email.setValue(rec.secondary_email);
 		secondary_email.addValidator(new EmailValidator());
 
-		primary_phone_ext = new TextFormElementDE(this);
-		primary_phone_ext.setLabel("Primary Phone Extension");
-		primary_phone_ext.setValue(rec.primary_phone_ext);
-		//primary_phone_ext.setRequired(true);
-		
 		primary_phone = new TextFormElementDE(this);
 		primary_phone.setLabel("Primary Phone");
 		primary_phone.setValue(rec.primary_phone);
 		primary_phone.setRequired(true);
-		
-		secondary_phone_ext = new TextFormElementDE(this);
-		secondary_phone_ext.setLabel("Secondary Phone Extension");
-		secondary_phone_ext.setValue(rec.secondary_phone_ext);
-		//secondary_phone_ext.setRequired(true);
-		
+
+		primary_phone_ext = new TextFormElementDE(this);
+		primary_phone_ext.setLabel("Primary Phone Extension");
+		primary_phone_ext.setValue(rec.primary_phone_ext);
+
 		secondary_phone = new TextFormElementDE(this);
 		secondary_phone.setLabel("Secondary Phone");
 		secondary_phone.setValue(rec.secondary_phone);
-		//secondary_phone.setRequired(true);
 
+		secondary_phone_ext = new TextFormElementDE(this);
+		secondary_phone_ext.setLabel("Secondary Phone Extension");
+		secondary_phone_ext.setValue(rec.secondary_phone_ext);
+		
 		address_line_1 = new TextFormElementDE(this);
 		address_line_1.setLabel("Street Address");
 		address_line_1.setValue(rec.address_line_1);
-		//address_line_1.setRequired(false);
 
 		address_line_2 = new TextFormElementDE(this);
 		address_line_2.setLabel("Address Line 2");
 		address_line_2.setValue(rec.address_line_2);
-		//address_line_2.setRequired(false);
 
 		city = new TextFormElementDE(this);
 		city.setLabel("City");
 		city.setValue(rec.city);
-		//city.setRequired(true);
+		city.setRequired(true);
 
 		state = new TextFormElementDE(this);
 		state.setLabel("State");
 		state.setValue(rec.state);
-		//state.setRequired(true);
+		state.setRequired(true);
 
 		zipcode = new TextFormElementDE(this);
 		zipcode.setLabel("Zipcode");
 		zipcode.setValue(rec.zipcode);
-		//zipcode.setRequired(true);
+		zipcode.setRequired(true);
 
 		country = new TextFormElementDE(this);
 		country.setLabel("Country");
 		country.setValue(rec.country);
-		//country.setRequired(true);
+		country.setRequired(true);
 		
+		contact_preference = new TextAreaFormElementDE(this);
+		contact_preference.setLabel("Enter Additional Contact Preferences: For example, you as a site admin might prefer to be contacted by phone or by email.");
+		contact_preference.setValue(rec.contact_preference);
+
+		if(auth.allows("admin")) {
+			new StaticDE(this, "<h2>Administrative Tasks</h2>");
+		}
+		person = new CheckBoxFormElementDE(this);
+		person.setLabel("Person");
+		person.setValue(rec.person);
+		if(!auth.allows("admin")) {
+			person.setHidden(true);
+		}
+
 		active = new CheckBoxFormElementDE(this);
 		active.setLabel("Active");
 		active.setValue(rec.active);
@@ -148,17 +157,6 @@ public class ContactFormDE extends FormDE
 		if(!auth.allows("admin")) {
 			disable.setHidden(true);
 		}
-		
-		person = new CheckBoxFormElementDE(this);
-		person.setLabel("Person");
-		person.setValue(rec.person);
-		if(!auth.allows("admin")) {
-			person.setHidden(true);
-		}
-		
-		contact_preference = new TextAreaFormElementDE(this);
-		contact_preference.setLabel("Contact Preference");
-		contact_preference.setValue(rec.contact_preference);
 		
 		//create DN selector
 		HashMap<Integer, String> dns = new HashMap();

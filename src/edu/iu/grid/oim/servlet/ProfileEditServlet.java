@@ -51,7 +51,7 @@ public class ProfileEditServlet extends ServletBase implements Servlet {
 			
 			//put the form in a view and display
 			ContentView contentview = new ContentView();
-			contentview.add(new HtmlView("<h1>Edit Your Profile</h1>"));	
+			contentview.add(new HtmlView("<h1>Edit Your User Profile</h1>"));	
 			contentview.add(new DivExWrapper(form));
 			
 			Page page = new Page(new MenuView(context, "profileedit"), contentview, createSideView());

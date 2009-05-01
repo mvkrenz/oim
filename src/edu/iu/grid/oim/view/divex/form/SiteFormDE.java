@@ -73,8 +73,9 @@ public class SiteFormDE extends FormDE
 		auth = context.getAuthorization();
 		id = rec.id;
 		
-		new StaticDE(this, "<h2>Details</h2>");
-		
+		new StaticDE(this, "<h2>Site Information</h2>");
+		new StaticDE(this, "<p>Add/modify basic information about this site.<br>NOTE: A site represents a department or a sub-organization within a an instituition (like BNL, Fermilab, etc.) or a university, referred to as facility.</p>");
+
 		//pull sites for unique validator
 		HashMap<Integer, String> sites = getSites();
 		if(id != null) {
@@ -83,26 +84,32 @@ public class SiteFormDE extends FormDE
 		}
 
 		facility_id = new SelectFormElementDE(this, getFacilities());
-		facility_id.setLabel("Facility");
+		facility_id.setLabel("Select the facility this site is part of");
 		facility_id.setValue(rec.facility_id);
 		facility_id.setRequired(true);
 
 		name = new TextFormElementDE(this);
-		name.setLabel("Site Name");
+		name.setLabel("Enter this Site's short Name");
 		name.setValue(rec.name);
 		name.addValidator(new UniqueValidator<String>(sites.values()));
 		name.setRequired(true);
 		
 		long_name = new TextFormElementDE(this);
-		long_name.setLabel("Long Name");
+		long_name.setLabel("Enter Longer Name, if applicable");
 		long_name.setValue(rec.long_name);
 		long_name.setRequired(false);
 				
 		description = new TextAreaFormElementDE(this);
-		description.setLabel("Description");
+		description.setLabel("Enter Site Description");
 		description.setValue(rec.description);
 		description.setRequired(false);
 
+		sc_id = new SelectFormElementDE(this, getSCs());
+		sc_id.setLabel("Select Support Center for this Site");
+		sc_id.setValue(rec.sc_id);
+		sc_id.setRequired(true);
+
+		new StaticDE(this, "<h2>Geographical Address Information</h2>");
 		address_line_1 = new TextFormElementDE(this);
 		address_line_1.setLabel("Street Address");
 		address_line_1.setValue(rec.address_line_1);
@@ -134,11 +141,10 @@ public class SiteFormDE extends FormDE
 		country.setLabel("Country");
 		country.setValue(rec.country);
 		country.setRequired(true);
-		
-		sc_id = new SelectFormElementDE(this, getSCs());
-		sc_id.setLabel("Support Center");
-		sc_id.setValue(rec.sc_id);
-		sc_id.setRequired(true);
+
+		if(auth.allows("admin")) {
+			new StaticDE(this, "<h2>Administrative Tasks</h2>");
+		}
 
 		active = new CheckBoxFormElementDE(this);
 		active.setLabel("Active");

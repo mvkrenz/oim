@@ -298,7 +298,9 @@ public class ResourceFormDE extends FormDE
 			}
 		}
 
-		new StaticDE(this, "<h2>Administrative Tasks</h2>");
+		if(auth.allows("admin")) {
+			new StaticDE(this, "<h2>Administrative Tasks</h2>");
+		}
 		active = new CheckBoxFormElementDE(this);
 		active.setLabel("Active");
 		active.setValue(rec.active);

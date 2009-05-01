@@ -47,8 +47,6 @@ public class FacilityFormDE extends FormDE
 		auth = context.getAuthorization();
 		id = rec.id;
 		
-		new StaticDE(this, "<h2>Details</h2>");
-		
 		//pull facilities for unique validator
 		HashMap<Integer, String> sites = getFacilities();
 		if(id != null) {
@@ -56,17 +54,23 @@ public class FacilityFormDE extends FormDE
 			sites.remove(id);
 		}
 
+		new StaticDE(this, "<h2>Facility Information</h2>");
+		new StaticDE(this, "<p>Add/modify basic information about this facility.<br>NOTE: A facility represents an instituition (like BNL, Fermilab, etc.) or a university.</p>");
 		name = new TextFormElementDE(this);
-		name.setLabel("Site Name");
+		name.setLabel("Facility Name");
 		name.setValue(rec.name);
 		name.addValidator(new UniqueValidator<String>(sites.values()));
 		name.setRequired(true);
 		
 		description = new TextAreaFormElementDE(this);
-		description.setLabel("Description");
+		description.setLabel("Short Description");
 		description.setValue(rec.description);
 		description.setRequired(false);
-		
+	
+		if(auth.allows("admin")) {
+			new StaticDE(this, "<h2>Administrative Tasks</h2>");
+			new StaticDE(this, "<p>NOTE: These fields are editable only by GOC administrative staff.</p>");
+		}
 		active = new CheckBoxFormElementDE(this);
 		active.setLabel("Active");
 		active.setValue(rec.active);

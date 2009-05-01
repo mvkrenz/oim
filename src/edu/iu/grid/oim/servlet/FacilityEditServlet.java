@@ -40,7 +40,8 @@ public class FacilityEditServlet extends ServletBase implements Servlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{
 		setContext(request);
-		auth.check("admin");
+		// Do we still need an "edit_my_facility" type check given we will allow anyone to edit?
+		// auth.check("admin");
 		
 		FacilityRecord rec;
 		String title;
@@ -72,7 +73,7 @@ public class FacilityEditServlet extends ServletBase implements Servlet {
 		
 		//setup crumbs
 		BreadCrumbView bread_crumb = new BreadCrumbView();
-		bread_crumb.addCrumb("Administration",  "admin");
+		//bread_crumb.addCrumb("Administration",  "admin");
 		bread_crumb.addCrumb("Facility",  parent_page);
 		bread_crumb.addCrumb(rec.name,  null);
 		contentview.setBreadCrumb(bread_crumb);

@@ -82,10 +82,12 @@ public class ServiceServlet extends ServletBase implements Servlet {
 			contentview.add(table);
 			table.addRow("Name", rec.name);
 			table.addRow("Description", rec.description);
-			table.addRow("Port", rec.port.toString());
+			if (rec.port != null) {
+				table.addRow("Port", rec.port.toString());	
+			}
 			table.addRow("Service Group ID", rec.service_group_id.toString());
 			
-			//downtime
+			//Metric stuff
 			GenericView metric_view = new GenericView();
 			MetricServiceModel dmodel = new MetricServiceModel(context);
 			for(MetricServiceRecord drec : dmodel.getAllByServiceID(rec.id)) {
@@ -116,7 +118,14 @@ public class ServiceServlet extends ServletBase implements Servlet {
 	{
 		GenericView view = new GenericView();
 		RecordTableView table = new RecordTableView("inner_table");
-		table.addHeaderRow(rec.metric_id.toString());
+		MetricModel metric_model = new MetricModel(context);
+		// Probably need to be more careful looking for null stuff
+		try {
+			table.addHeaderRow(rec.metric_id.toString()+ " " + metric_model.get(rec.metric_id).name);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		table.addRow("Critical", rec.critical);
 	
 		view.add(table);

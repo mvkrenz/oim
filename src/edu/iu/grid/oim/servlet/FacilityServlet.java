@@ -50,16 +50,16 @@ public class FacilityServlet extends ServletBase implements Servlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{	
 		setContext(request);
-		auth.check("admin");
+		//auth.check("admin");
 		
 		try {	
 			//construct view
-			MenuView menuview = new MenuView(context, "admin");
+			MenuView menuview = new MenuView(context, "facility");
 			ContentView contentview = createContentView();
 			
 			//setup crumbs
 			BreadCrumbView bread_crumb = new BreadCrumbView();
-			bread_crumb.addCrumb("Administration",  "admin");
+			//bread_crumb.addCrumb("Administration",  "admin");
 			bread_crumb.addCrumb("Facility",  null);
 			contentview.setBreadCrumb(bread_crumb);
 			

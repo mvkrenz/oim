@@ -63,16 +63,15 @@ public class SiteServlet extends ServletBase implements Servlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{	
 		setContext(request);
-		auth.check("admin");
+		//auth.check("admin");
 		
 		try {	
 			//construct view
-			MenuView menuview = new MenuView(context, "admin");
+			MenuView menuview = new MenuView(context, "site");
 			ContentView contentview = createContentView();
 			
 			//setup crumbs
 			BreadCrumbView bread_crumb = new BreadCrumbView();
-			bread_crumb.addCrumb("Administration",  "admin");
 			bread_crumb.addCrumb("Site",  null);
 			contentview.setBreadCrumb(bread_crumb);
 			
@@ -109,10 +108,8 @@ public class SiteServlet extends ServletBase implements Servlet {
 			table.addRow("Country", rec.country);
 			table.addRow("Longitude", rec.longitude);
 			table.addRow("Latitude", rec.latitude);
-
 			table.addRow("Facility", getFacilityName(rec.facility_id));
 			table.addRow("Support Center", getSCName(rec.sc_id));
-//			table.addRow("Submitter Contact", getSubmitterName(rec.submitter_dn_id));
 			table.addRow("Active", rec.active);
 			table.addRow("Disable", rec.disable);
 

@@ -100,17 +100,23 @@ public class ResourceDowntimeServlet extends ServletBase implements Servlet {
 			//downtime
 			GenericView downtime_view = new GenericView();
 			ResourceDowntimeModel dmodel = new ResourceDowntimeModel(context);
-			for(ResourceDowntimeRecord drec : dmodel.getFutureDowntimesByResourceID(rec.id)) {
+			Collection <ResourceDowntimeRecord> dt_records = dmodel.getFutureDowntimesByResourceID(rec.id);
+			for(ResourceDowntimeRecord drec : dt_records) {
 				downtime_view.add(createDowntimeView(drec));
 			}
-			table.addRow("Future Downtime Schedule", downtime_view);
+			if (dt_records.isEmpty()) {
+				table.addRow("No Existing Downtime Schedule", downtime_view);
+			}
+			else {
+				table.addRow("Existing Downtime Schedule", downtime_view);
+			}
 		
 			class EditButtonDE extends ButtonDE
 			{
 				String url;
 				public EditButtonDE(DivEx parent, String _url)
 				{
-					super(parent, "Edit");
+					super(parent, "Add/Edit Downtime");
 					url = _url;
 				}
 				protected void onEvent(Event e) {
