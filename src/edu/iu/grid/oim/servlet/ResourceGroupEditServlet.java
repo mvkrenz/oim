@@ -42,7 +42,7 @@ public class ResourceGroupEditServlet extends ServletBase implements Servlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{
 		setContext(request);
-		auth.check("admin");
+		//auth.check("admin");
 		
 		ResourceGroupRecord rec;
 		String title;
@@ -72,12 +72,11 @@ public class ResourceGroupEditServlet extends ServletBase implements Servlet {
 			
 			//setup crumbs
 			BreadCrumbView bread_crumb = new BreadCrumbView();
-			bread_crumb.addCrumb("Administration",  "admin");
 			bread_crumb.addCrumb("Resource Group",  parent_page);
 			bread_crumb.addCrumb(rec.name,  null);
 			contentview.setBreadCrumb(bread_crumb);
 			
-			Page page = new Page(new MenuView(context, "admin"), contentview, createSideView());
+			Page page = new Page(new MenuView(context, "resourcegroup"), contentview, createSideView());
 			
 			page.render(response.getWriter());	
 		} catch (SQLException e) {

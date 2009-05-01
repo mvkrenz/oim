@@ -41,6 +41,7 @@ public class MenuView implements IView {
 		}
 		
 		// Do we need auth checks for these given we will allow anyone to edit? I guess not .. -agopu
+		menu.add(new MenuItem("Resource Groups", "resourcegroup"));	
 		menu.add(new MenuItem("Sites", "site"));	
 		menu.add(new MenuItem("Facilities", "facility"));	
 

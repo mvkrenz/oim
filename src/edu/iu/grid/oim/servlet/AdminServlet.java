@@ -51,23 +51,17 @@ public class AdminServlet extends ServletBase  {
 		
 		contentview.add(new HtmlView("<h1>OIM Administration</h1>"));
 		if(auth.allows("admin")) {
-			ListView list = new ListView();
-			list.add(new LinkView("osggridtype", "OSG Grid Types"));
-			list.add(new LinkView("authmatrix", "Authorization" ));
-			list.add(new LinkView("user", "User" ));
-			contentview.add(list);
+			ListView auth_list = new ListView();
+			auth_list.add(new LinkView("authmatrix", "Authorization-Action Matrix" ));
+			auth_list.add(new LinkView("user", "User-Authorization Level Mapping" ));
+			contentview.add(auth_list);
 			
-			ListView hierarchy_list = new ListView();
-			hierarchy_list.add(new LinkView("facility", "Facilities"));
-			hierarchy_list.add(new LinkView("site", "Administrative Sites"));
-			hierarchy_list.add(new LinkView("resourcegroup", "Resource Groups"));
-			contentview.add(hierarchy_list);
-			
-			ListView metric_list = new ListView();
-			metric_list.add(new LinkView("metric", "RSV Metric"));
-			metric_list.add(new LinkView("service", "Service")); //service table, metric_service table
-			metric_list.add(new LinkView("servicegroup", "Service Group"));
-			contentview.add(metric_list);
+			ListView goc_task_list = new ListView();
+			goc_task_list.add(new LinkView("osggridtype", "OSG Grid Types"));
+			goc_task_list.add(new LinkView("servicegroup", "Service Groups"));
+			goc_task_list.add(new LinkView("service", "Services")); //service table, metric_service table
+			goc_task_list.add(new LinkView("metric", "RSV Metrics"));
+			contentview.add(goc_task_list);
 		}
 
 		if ((auth.allows("admin")) || (auth.allows("edit_measurement"))) {

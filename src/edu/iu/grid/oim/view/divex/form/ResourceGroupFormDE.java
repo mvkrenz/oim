@@ -67,7 +67,8 @@ public class ResourceGroupFormDE extends FormDE
 		
 		id = rec.id;
 		
-		new StaticDE(this, "<h2>Details</h2>");
+		new StaticDE(this, "<h2>Resource Group Information</h2>");
+		new StaticDE(this, "<p>A resource group is a logical grouping of CEs, SEs, etc. that make up one unit. Resource groups are referred to as \"sites\" by many people on the OSG. </p>");
 		
 		//pull vos for unique validator
 		HashMap<Integer, String> resource_groups = getResourceGroups();
@@ -81,11 +82,6 @@ public class ResourceGroupFormDE extends FormDE
 		name.setValue(rec.name);
 		name.addValidator(new UniqueValidator<String>(resource_groups.values()));
 		name.setRequired(true);
-		
-		description = new TextAreaFormElementDE(this);
-		description.setLabel("Description");
-		description.setValue(rec.description);
-		description.setRequired(true);
 		
 		site_id = new OIMHierarchySelector(this, context, OIMHierarchySelector.Type.SITE);
 		site_id.setLabel("Site");
@@ -103,7 +99,16 @@ public class ResourceGroupFormDE extends FormDE
 		if(id != null) {
 			osg_grid_type_id.setValue(rec.osg_grid_type_id);
 		}
-		
+
+		description = new TextAreaFormElementDE(this);
+		description.setLabel("Description");
+		description.setValue(rec.description);
+		description.setRequired(true);
+
+		if(auth.allows("admin")) {
+			new StaticDE(this, "<h2>Administrative Tasks</h2>");
+		}
+
 		active = new CheckBoxFormElementDE(this);
 		active.setLabel("Active");
 		active.setValue(rec.active);

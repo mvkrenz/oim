@@ -26,9 +26,11 @@ import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
 import edu.iu.grid.oim.model.db.ContactRankModel;
 import edu.iu.grid.oim.model.db.ContactTypeModel;
 import edu.iu.grid.oim.model.db.ContactModel;
+import edu.iu.grid.oim.model.db.OsgGridTypeModel;
 import edu.iu.grid.oim.model.db.ResourceGroupModel;
 import edu.iu.grid.oim.model.db.SCContactModel;
 import edu.iu.grid.oim.model.db.SCModel;
+import edu.iu.grid.oim.model.db.SiteModel;
 import edu.iu.grid.oim.model.db.record.ResourceGroupRecord;
 import edu.iu.grid.oim.model.db.record.SCRecord;
 import edu.iu.grid.oim.model.db.record.SCContactRecord;
@@ -59,16 +61,15 @@ public class ResourceGroupServlet extends ServletBase implements Servlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{	
 		setContext(request);
-		auth.check("admin");
+		// auth.check("admin");
 		
 		try {
 			//construct view
-			MenuView menuview = new MenuView(context, "admin");
+			MenuView menuview = new MenuView(context, "resourcegroup");
 			ContentView contentview = createContentView();
 			
 			//setup crumbs
 			BreadCrumbView bread_crumb = new BreadCrumbView();
-			bread_crumb.addCrumb("Administration",  "admin");
 			bread_crumb.addCrumb("Resource Group",  null);
 			contentview.setBreadCrumb(bread_crumb);
 			
@@ -87,6 +88,12 @@ public class ResourceGroupServlet extends ServletBase implements Servlet {
 		contentview.add(new HtmlView("<h1>Resource Group</h1>"));
 	
 		ResourceGroupModel model = new ResourceGroupModel(context);
+		SiteModel site_model = new SiteModel (context);
+		OsgGridTypeModel ogt_model = new OsgGridTypeModel (context);
+		
+//		Collection<SiteRecord> sites = site_model.getAll();
+//		Collection<OsgGridTypeRecord> grid_types = ogt_model.getAll();
+		
 		Collection<ResourceGroupRecord> rgs = model.getAll();
 		for(ResourceGroupRecord rec : rgs) {
 			contentview.add(new HtmlView("<h2>"+StringEscapeUtils.escapeHtml(rec.name)+"</h2>"));
@@ -95,8 +102,8 @@ public class ResourceGroupServlet extends ServletBase implements Servlet {
 			contentview.add(table);
 
 			table.addRow("Description", rec.description);
-			table.addRow("Site ID", rec.site_id.toString());
-			table.addRow("OSG Grid Type ID", rec.osg_grid_type_id.toString());
+			table.addRow("Site", site_model.get(rec.site_id).name);
+			table.addRow("OSG Grid Type", ogt_model.get(rec.osg_grid_type_id).name);
 			table.addRow("Active", rec.active);
 			table.addRow("Disable", rec.disable);
 
