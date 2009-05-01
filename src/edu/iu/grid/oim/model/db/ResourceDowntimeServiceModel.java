@@ -69,6 +69,9 @@ public class ResourceDowntimeServiceModel extends SmallTableModelBase<ResourceDo
 		ResourceDowntimeRecord drec;
 		try {
 			drec = dmodel.get(resource_downtime_id);
+			if(drec == null) {
+				return false;
+			}
 			ResourceModel model = new ResourceModel(context);
 			return model.canEdit(drec.resource_id);
 		} catch (SQLException e) {
