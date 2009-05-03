@@ -55,18 +55,7 @@ public class ResourceDowntimeFormDE extends FormDE
 		
 		downtime = new ResourceDowntimeEditorDE(this, context, resource_id);
 	}
-	/*
-	private HashMap<Integer, String> getOsgGridTypes() throws AuthorizationException, SQLException
-	{
-		//pull all OsgGridTypes
-		HashMap<Integer, String> keyvalues = new HashMap<Integer, String>();
-		OsgGridTypeModel model = new OsgGridTypeModel(auth);
-		for(OsgGridTypeRecord rec : model.getAll()) {
-			keyvalues.put(rec.id, rec.name);
-		}
-		return keyvalues;
-	}
-	*/
+	
 	protected Boolean doSubmit() {		
 		ResourceDowntimeModel model = new ResourceDowntimeModel(context);
 		try {

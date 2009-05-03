@@ -116,7 +116,7 @@ public class ResourceDowntimeServlet extends ServletBase implements Servlet {
 				String url;
 				public EditButtonDE(DivEx parent, String _url)
 				{
-					super(parent, "Add/Edit Downtime");
+					super(parent, "Edit");
 					url = _url;
 				}
 				protected void onEvent(Event e) {

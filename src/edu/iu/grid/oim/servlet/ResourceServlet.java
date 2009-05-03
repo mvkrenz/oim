@@ -159,6 +159,23 @@ public class ResourceServlet extends ServletBase implements Servlet {
 			ResourceWLCGModel wmodel = new ResourceWLCGModel(context);
 			ResourceWLCGRecord wrec = wmodel.get(rec.id);
 			table.addRow("WLCG Information", createWLCGView(wrec));
+
+			class EditDowntimeButtonDE extends ButtonDE
+			{
+				String url;
+				public EditDowntimeButtonDE(DivEx parent, String _url)
+				{
+					super(parent, "Add/Edit Downtime");
+					this.setStyle(Style.ALINK);
+					url = _url;
+				}
+				protected void onEvent(Event e) {
+					redirect(url);
+				}
+			};
+
+			table.addRow("Downtime", new DivExWrapper(new EditDowntimeButtonDE(context.getDivExRoot(), 
+					Config.getApplicationBase()+"/resourcedowntimeedit?id=" + rec.id)));
 			
 			table.addRow("Active", rec.active);
 			table.addRow("Disable", rec.disable);
@@ -175,23 +192,9 @@ public class ResourceServlet extends ServletBase implements Servlet {
 					redirect(url);
 				}
 			};
-			class EditDowntimeButtonDE extends ButtonDE
-			{
-				String url;
-				public EditDowntimeButtonDE(DivEx parent, String _url)
-				{
-					super(parent, "Add/Edit Downtime");
-					this.setStyle(Style.ALINK);
-					url = _url;
-				}
-				protected void onEvent(Event e) {
-					redirect(url);
-				}
-			};
 			table.add(new DivExWrapper(new EditButtonDE(context.getDivExRoot(), 
 					Config.getApplicationBase()+"/resourceedit?resource_id=" + rec.id)));
-			table.add(new DivExWrapper(new EditDowntimeButtonDE(context.getDivExRoot(), 
-					Config.getApplicationBase()+"/resourcedowntimeedit?id=" + rec.id)));
+
 		}
 		
 		return contentview;

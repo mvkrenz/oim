@@ -269,7 +269,7 @@ public class ResourceDowntimeEditorDE extends FormElementDEBase {
 			
 			remove_button = new ButtonDE(this, "images/delete.png");
 			remove_button.setStyle(ButtonDE.Style.IMAGE);
-			remove_button.setConfirm(true, "Do you really want to remove this downtime schedule? If you are sure, then click yes, and then hit submit");
+			remove_button.setConfirm(true, "Do you really want to remove this downtime schedule?");
 			remove_button.addEventListener(new EventListener() {
 				public void handleEvent(Event e) {
 					removeDowntime(myself);	
@@ -459,7 +459,7 @@ public class ResourceDowntimeEditorDE extends FormElementDEBase {
 		}
 		// Adding some clear text to make it look less odd. Is there a cleaner way to do this? -agopu
 		if (count == 0) {
-			new StaticDE(this, "<h3>No existing downtimes for this resource. Click link below to schedule a downtime!</h3>").render(out);
+			new StaticDE(this, "<p>No existing downtimes for this resource.</p>").render(out);
 		}
 		add_button.render(out);
 		out.print("</div>");
