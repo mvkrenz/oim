@@ -236,7 +236,7 @@ public class ResourceServlet extends ServletBase implements Servlet {
 			table.addHeaderRow(srec.description);
 			table.addRow("Hidden Service?", rec.hidden);
 			table.addRow("Central Service?", rec.central);
-			table.addRow("Optional ServiceURI Override", rec.endpoint_override);
+			table.addRow("ServiceURI Override", rec.endpoint_override);
 			view.add(table);
 
 		} catch (SQLException e) {

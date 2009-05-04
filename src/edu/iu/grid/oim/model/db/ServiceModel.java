@@ -10,6 +10,7 @@ import edu.iu.grid.oim.model.Context;
 import edu.iu.grid.oim.model.db.record.MetricServiceRecord;
 import edu.iu.grid.oim.model.db.record.RecordBase;
 import edu.iu.grid.oim.model.db.record.ServiceRecord;
+import edu.iu.grid.oim.model.db.record.SiteRecord;
 
 public class ServiceModel extends SmallTableModelBase<ServiceRecord> {
     static Logger log = Logger.getLogger(ServiceModel.class);  
@@ -35,7 +36,15 @@ public class ServiceModel extends SmallTableModelBase<ServiceRecord> {
 		}
 		return list;
 	}
-	
+	public ArrayList<ServiceRecord> getByServiceGroupID(int service_group_id) throws SQLException
+	{
+		ArrayList<ServiceRecord> list = new ArrayList<ServiceRecord>();
+		for(RecordBase rec : getCache()) {
+			ServiceRecord srec = (ServiceRecord)rec;
+			if(srec.service_group_id.compareTo(service_group_id) == 0) list.add(srec);
+		}
+		return list;
+	}	
 	public void insertDetail(ServiceRecord rec, 
 			ArrayList<MetricServiceRecord> metrics) throws Exception
 	{

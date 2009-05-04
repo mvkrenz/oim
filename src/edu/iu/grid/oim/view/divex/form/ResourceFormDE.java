@@ -49,6 +49,7 @@ import edu.iu.grid.oim.view.divex.ContactEditorDE;
 import edu.iu.grid.oim.view.divex.OIMHierarchySelector;
 import edu.iu.grid.oim.view.divex.ResourceAliasDE;
 import edu.iu.grid.oim.view.divex.ResourceServicesDE;
+import edu.iu.grid.oim.view.divex.ResourceWLCGDE;
 import edu.iu.grid.oim.view.divex.VOResourceOwnershipDE;
 
 public class ResourceFormDE extends FormDE 
@@ -71,16 +72,9 @@ public class ResourceFormDE extends FormDE
 	private ResourceAliasDE aliases;
 	private ResourceServicesDE resource_services;
 	private VOResourceOwnershipDE owners;
-	
+
 	private CheckBoxFormElementDE wlcg;
-	private CheckBoxFormElementDE interop_bdii;
-	private CheckBoxFormElementDE interop_monitoring;
-	private CheckBoxFormElementDE interop_accounting;
-	private TextFormElementDE wlcg_accounting_name;
-	private TextFormElementDE ksi2k_minimum;
-	private TextFormElementDE ksi2k_maximum;
-	private TextFormElementDE storage_capacity_minimum;
-	private TextFormElementDE storage_capacity_maximum;
+	private ResourceWLCGDE wlcg_section;
 	
 	//contact types to edit
 	private int contact_types[] = {
@@ -156,7 +150,7 @@ public class ResourceFormDE extends FormDE
 		new StaticDE(this, "<h2>Resource Service(s)</h2>");
 		new StaticDE(this, "<p>Add, remove, modify services associated with your resource. For example, a CE or an SRM.</p>");
 		ServiceModel smodel = new ServiceModel(context);
-		resource_services = new ResourceServicesDE(this, smodel.getAll());
+		resource_services = new ResourceServicesDE(this, context, smodel.getAll());
 		ResourceServiceModel rsmodel = new ResourceServiceModel(context);
 		if(id != null) {
 			for(ResourceServiceRecord rarec : rsmodel.getAllByResourceID(id)) {
@@ -212,91 +206,20 @@ public class ResourceFormDE extends FormDE
 					" and storage capacity min/max values. If you are not sure about any of these values, " + 
 					" ask your Owner VO(s)!</p>");
 
+		//wlcg_section = new ResourceWLCGDE (this, context, null);
+
 		wlcg = new CheckBoxFormElementDE(this);
 		wlcg.setLabel("This is a WLCG resource");
-		wlcg.addEventListener(new EventListener() {
-			public void handleEvent(Event e) {	
-				if(((String)e.value).compareTo("true") == 0) {
-					hideWLCGElements(false);
-				} else {
-					hideWLCGElements(true);
-				}
-			}
-		});
-		
 		//indent the whole WCLG things
 		new StaticDE(this, "<div class=\"indent\">");
-		{
-			interop_bdii = new CheckBoxFormElementDE(this);
-			interop_bdii.setLabel("Should this resource part of WLCG Interop BDII?");
-	
-			interop_monitoring = new CheckBoxFormElementDE(this);
-			interop_monitoring.setLabel("Should this resource part of WLCG Interop Monitoring?");
-	
-			interop_accounting = new CheckBoxFormElementDE(this);
-			interop_accounting.setLabel("Should this resource part of WLCG Interop Accounting?");
-
-			interop_accounting.addEventListener(new EventListener() {
-				public void handleEvent(Event e) {	
-					if(((String)e.value).compareTo("true") == 0) {
-						hideWLCGAccountingName(false);
-					} else {
-						hideWLCGAccountingName(true);
-					}
-				}
-			});
-
-			wlcg_accounting_name = new TextFormElementDE(this);
-			wlcg_accounting_name.setLabel("WLCG Accounting Name");
-			wlcg_accounting_name.setSampleValue("ABC Accounting");
-
-			ksi2k_minimum = new TextFormElementDE(this);
-			ksi2k_minimum.setLabel("KSI2K Minimum");
-			ksi2k_minimum.addValidator(DoubleValidator.getInstance());
-			ksi2k_minimum.setSampleValue("100.0");
-			
-			ksi2k_maximum = new TextFormElementDE(this);
-			ksi2k_maximum.setLabel("KSI2K Maximum");
-			ksi2k_maximum.addValidator(DoubleValidator.getInstance());
-			ksi2k_maximum.setSampleValue("500.0");
-			
-			storage_capacity_minimum = new TextFormElementDE(this);
-			storage_capacity_minimum.setLabel("Storage Capacity Minimum (in TeraBytes)");
-			storage_capacity_minimum.addValidator(DoubleValidator.getInstance());
-			storage_capacity_minimum.setSampleValue("1.0");
-			
-			storage_capacity_maximum = new TextFormElementDE(this);
-			storage_capacity_maximum.setLabel("Storage Capacity Maximum (in TeraBytes)");
-			storage_capacity_maximum.addValidator(DoubleValidator.getInstance());
-			storage_capacity_maximum.setSampleValue("5.5");
-		}
-		new StaticDE(this, "</div>");
-		hideWLCGElements(true);
-		ResourceWLCGModel wmodel = new ResourceWLCGModel(context);
 		if(id != null) {
+			ResourceWLCGModel wmodel = new ResourceWLCGModel(context);
 			ResourceWLCGRecord wrec = wmodel.get(rec.id);
 			if(wrec != null) {
-				//if WLCG record exist, populate the values
-				wlcg.setValue(true);
-				interop_bdii.setValue(wrec.interop_bdii);
-				interop_monitoring.setValue(wrec.interop_monitoring);
-				interop_accounting.setValue(wrec.interop_accounting);
-				wlcg_accounting_name.setValue(wrec.accounting_name);
-				if(wrec.ksi2k_minimum != null) {
-					ksi2k_minimum.setValue(wrec.ksi2k_minimum.toString());
-				}
-				if(wrec.ksi2k_maximum != null) {
-					ksi2k_maximum.setValue(wrec.ksi2k_maximum.toString());
-				}
-				if(wrec.storage_capacity_minimum != null) {
-					storage_capacity_minimum.setValue(wrec.storage_capacity_minimum.toString());
-				}
-				if(wrec.storage_capacity_maximum != null) {
-					storage_capacity_maximum.setValue(wrec.storage_capacity_maximum.toString());
-				}
-				hideWLCGElements(false);
+				wlcg_section = new ResourceWLCGDE (this, context, wrec);
 			}
 		}
+		new StaticDE(this, "</div>");
 
 		if(auth.allows("admin")) {
 			new StaticDE(this, "<h2>Administrative Tasks</h2>");
@@ -314,48 +237,6 @@ public class ResourceFormDE extends FormDE
 		if(!auth.allows("admin")) {
 			disable.setHidden(true);
 		}
-	}
-	
-	private void hideWLCGElements(Boolean b)
-	{
-		interop_bdii.setHidden(b);
-		interop_bdii.redraw();
-		interop_bdii.setRequired(!b);
-		
-		interop_monitoring.setHidden(b);
-		interop_monitoring.redraw();
-		interop_monitoring.setRequired(!b);
-		
-		interop_accounting.setHidden(b);
-		interop_accounting.redraw();
-		interop_accounting.setRequired(!b);
-		
-		wlcg_accounting_name.setHidden(b);
-		wlcg_accounting_name.redraw();
-		wlcg_accounting_name.setRequired(!b);
-		
-		ksi2k_minimum.setHidden(b);
-		ksi2k_minimum.redraw();
-		ksi2k_minimum.setRequired(!b);
-		
-		ksi2k_maximum.setHidden(b);
-		ksi2k_maximum.redraw();
-		ksi2k_maximum.setRequired(!b);
-		
-		storage_capacity_minimum.setHidden(b);
-		storage_capacity_minimum.redraw();
-		storage_capacity_minimum.setRequired(!b);
-		
-		storage_capacity_maximum.setHidden(b);
-		storage_capacity_maximum.redraw();
-		storage_capacity_maximum.setRequired(!b);
-	}
-
-	private void hideWLCGAccountingName(Boolean b)
-	{
-		wlcg_accounting_name.setHidden(b);
-		wlcg_accounting_name.redraw();
-		wlcg_accounting_name.setRequired(!b);
 	}
 	
 	private ContactEditorDE createContactEditor(HashMap<Integer, ArrayList<ResourceContactRecord>> voclist, ContactTypeRecord ctrec) throws SQLException
@@ -397,15 +278,7 @@ public class ResourceFormDE extends FormDE
 		//If WLCG is on, then create wlcg record
 		ResourceWLCGRecord wrec = null;
 		if(wlcg.getValue()) {
-			wrec = new ResourceWLCGRecord();
-			wrec.interop_bdii = interop_bdii.getValue();
-			wrec.interop_monitoring = interop_monitoring.getValue();
-			wrec.interop_accounting = interop_accounting.getValue();
-			wrec.accounting_name = wlcg_accounting_name.getValue();
-			wrec.ksi2k_minimum = ksi2k_minimum.getValueAsDouble();
-			wrec.ksi2k_maximum = ksi2k_maximum.getValueAsDouble();
-			wrec.storage_capacity_maximum = storage_capacity_maximum.getValueAsDouble();
-			wrec.storage_capacity_minimum = storage_capacity_minimum.getValueAsDouble();
+			wrec = wlcg_section.getWlcgRecord();
 		}
 		
 		ResourceModel model = new ResourceModel(context);

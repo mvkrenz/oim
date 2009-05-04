@@ -1,6 +1,7 @@
 package edu.iu.grid.oim.view.divex;
 
 import java.io.PrintWriter;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -13,6 +14,7 @@ import com.webif.divex.form.FormElementDEBase;
 import com.webif.divex.form.SelectFormElementDE;
 import com.webif.divex.form.TextFormElementDE;
 
+import edu.iu.grid.oim.model.Context;
 import edu.iu.grid.oim.model.db.record.ResourceServiceRecord;
 import edu.iu.grid.oim.model.db.record.ServiceRecord;
 
@@ -21,12 +23,13 @@ public class ResourceServicesDE extends FormElementDEBase {
 	ArrayList<ServiceEditor> services = new ArrayList<ServiceEditor>();
 	ArrayList<Integer> service_id_taken = new ArrayList<Integer>();
 	private ButtonDE add_button;
+	private Context context;
 	private ArrayList<ServiceRecord> service_recs;
 
 	class ServiceEditor extends FormElementDEBase
 	{
 		//service details
-		private SelectFormElementDE service;
+		private ServiceGroupHierarchySelector service;
 		private TextFormElementDE endpoint_override;
 		private CheckBoxFormElementDE hidden;
 		private CheckBoxFormElementDE central;
@@ -39,19 +42,20 @@ public class ResourceServicesDE extends FormElementDEBase {
 			super(parent);
 			myself = this;
 			
-			// Need service group based service selector -agopu
-			HashMap<Integer, String> kv = new HashMap();
-			for(ServiceRecord srec : service_recs) {
-				kv.put(srec.id, srec.name);
+			
+			try {
+				service = new ServiceGroupHierarchySelector(this, context, ServiceGroupHierarchySelector.Type.SERVICE);
+			} catch (SQLException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
 			}
-			service = new SelectFormElementDE(this, kv);
-			service.setLabel("Select A Service");
+			service.setLabel("Select a service group, then a service");
 			service.setRequired(true);
 			if(rec != null) {
 				service.setValue(rec.service_id);
 			}
-			
-			// These lines look a bit ugly -- needs clean up -agopu
+
+			// TODO These lines look a bit ugly -- needs clean up -agopu
 			hidden = new CheckBoxFormElementDE(this);
 			hidden.setLabel("Is this a Hidden Service? (for eg., an internal gatekeeper inaccessible to the outside world; If you are not sure, leave it unchecked)");
 			if(rec != null) {
@@ -172,8 +176,9 @@ public class ResourceServicesDE extends FormElementDEBase {
 		notifyListener(e);
 	}
 	
-	public ResourceServicesDE(DivEx parent, ArrayList<ServiceRecord> _service_recs) {
+	public ResourceServicesDE(DivEx parent, Context _context, ArrayList<ServiceRecord> _service_recs) {
 		super(parent);
+		context = _context;
 		service_recs = _service_recs;
 		
 		add_button = new ButtonDE(this, "Add New Service");
