@@ -56,6 +56,11 @@ public class ResourceWLCGDE extends FormElementDEBase {
 			interop_accounting = new CheckBoxFormElementDE(this);
 			interop_accounting.setLabel("Should this resource part of WLCG Interop Accounting?");
 
+			wlcg_accounting_name = new TextFormElementDE(this);
+			wlcg_accounting_name.setLabel("WLCG Accounting Name");
+			wlcg_accounting_name.setSampleValue("ABC Accounting");
+			hideWLCGAccountingName(true);
+
 			interop_accounting.addEventListener(new EventListener() {
 				public void handleEvent(Event e) {	
 					if(((String)e.value).compareTo("true") == 0) {
@@ -66,10 +71,6 @@ public class ResourceWLCGDE extends FormElementDEBase {
 				}
 			});
 			
-			wlcg_accounting_name = new TextFormElementDE(this);
-			wlcg_accounting_name.setLabel("WLCG Accounting Name");
-			wlcg_accounting_name.setSampleValue("ABC Accounting");
-
 			ksi2k_minimum = new TextFormElementDE(this);
 			ksi2k_minimum.setLabel("KSI2K Minimum");
 			ksi2k_minimum.addValidator(DoubleValidator.getInstance());
@@ -96,7 +97,12 @@ public class ResourceWLCGDE extends FormElementDEBase {
 				interop_bdii.setValue(wrec.interop_bdii);
 				interop_monitoring.setValue(wrec.interop_monitoring);
 				interop_accounting.setValue(wrec.interop_accounting);
-				wlcg_accounting_name.setValue(wrec.accounting_name);
+				
+				if (wrec.interop_accounting) {
+					wlcg_accounting_name.setValue(wrec.accounting_name);
+					hideWLCGAccountingName(false);
+				}
+				
 				if(wrec.ksi2k_minimum != null) {
 					ksi2k_minimum.setValue(wrec.ksi2k_minimum.toString());
 				}
@@ -115,7 +121,7 @@ public class ResourceWLCGDE extends FormElementDEBase {
 		private void hideWLCGAccountingName(Boolean b)
 		{
 			wlcg_accounting_name.setHidden(b);
-			wlcg_accounting_name.redraw();
+			redraw();
 			wlcg_accounting_name.setRequired(!b);
 		}
 
@@ -164,10 +170,14 @@ public class ResourceWLCGDE extends FormElementDEBase {
 		return editor.getWLCGRecord();
 	}
 
+	public void setWlcgRecord (ResourceWLCGRecord _wrec) {
+		editor  = new WLCGEditor(this, _wrec);
+	}
+
 	public ResourceWLCGDE(DivEx parent, Context _context, ResourceWLCGRecord _wrec) {
 		super(parent);
 		context = _context;
-		editor  = new WLCGEditor(this, _wrec);
+		setWlcgRecord (_wrec);
 	}
 
 	@Override
@@ -188,7 +198,9 @@ public class ResourceWLCGDE extends FormElementDEBase {
 	@Override
 	public void render(PrintWriter out) {
 		out.print("<div id=\""+getNodeID()+"\">");
-		editor.render(out);
+		if (!hidden) {
+			editor.render(out);
+		}
 		out.print("</div>");
 	}
 }

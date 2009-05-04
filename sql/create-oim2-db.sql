@@ -856,7 +856,7 @@ CREATE TABLE `resource_wlcg` (
   `interop_bdii` tinyint(1) NOT NULL,
   `interop_monitoring` tinyint(1) NOT NULL,
   `interop_accounting` tinyint(1) NOT NULL,
-  `accounting_name` varchar(256) collate utf8_unicode_ci NOT NULL,
+  `accounting_name` varchar(256) collate utf8_unicode_ci,
   `ksi2k_minimum` double NOT NULL,
   `ksi2k_maximum` double NOT NULL,
   `storage_capacity_minimum` double NOT NULL,

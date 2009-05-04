@@ -210,13 +210,29 @@ public class ResourceFormDE extends FormDE
 
 		wlcg = new CheckBoxFormElementDE(this);
 		wlcg.setLabel("This is a WLCG resource");
+
 		//indent the whole WCLG things
 		new StaticDE(this, "<div class=\"indent\">");
+		wlcg_section = new ResourceWLCGDE (this, context, null);
+		hideWLCGElement(true);
+
+		wlcg.addEventListener(new EventListener() {
+			public void handleEvent(Event e) {	
+				if(((String)e.value).compareTo("true") == 0) {
+					hideWLCGElement(false);
+				} else {
+					hideWLCGElement(true);
+				}
+			}
+		});
+
 		if(id != null) {
 			ResourceWLCGModel wmodel = new ResourceWLCGModel(context);
 			ResourceWLCGRecord wrec = wmodel.get(rec.id);
 			if(wrec != null) {
-				wlcg_section = new ResourceWLCGDE (this, context, wrec);
+				wlcg.setValue(true);
+				wlcg_section.setWlcgRecord(wrec);
+				hideWLCGElement(false);				
 			}
 		}
 		new StaticDE(this, "</div>");
@@ -237,6 +253,12 @@ public class ResourceFormDE extends FormDE
 		if(!auth.allows("admin")) {
 			disable.setHidden(true);
 		}
+	}
+	
+	private void hideWLCGElement(Boolean b)
+	{
+		wlcg_section.setHidden(b);
+		wlcg_section.redraw();
 	}
 	
 	private ContactEditorDE createContactEditor(HashMap<Integer, ArrayList<ResourceContactRecord>> voclist, ContactTypeRecord ctrec) throws SQLException
