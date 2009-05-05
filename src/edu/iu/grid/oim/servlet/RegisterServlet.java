@@ -51,7 +51,7 @@ public class RegisterServlet extends ServletBase  {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{
 		setContext(request);
-		
+		// TODO agopu: need check to see if an already registered user stumbled on this page.
 		MenuView menuview = new MenuView(context, "register");
 		ContentView contentview = createContentView();
 		Page page = new Page(menuview, contentview, new SideContentView());
@@ -116,8 +116,8 @@ public class RegisterServlet extends ServletBase  {
 		}
 		
 		public void render(PrintWriter out) {
-			out.write("<p>The DN ("+auth.getUserDN()+"), that is loaded on your web browser, is not registered on OIM. </p>");
-			out.write("<p>If you would like to register now, please click the register button.</p>");		
+			out.write("<p>Welcome to the OSG Information Management (OIM) system. The DN ("+auth.getUserDN()+"), that is loaded into your web browser, is not registered on OIM. </p>");
+			out.write("<p>To get access and begin using OIM, please register now by clicking the button below.</p>");		
 			button.render(out);
 		}
 
