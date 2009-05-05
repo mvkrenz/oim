@@ -102,8 +102,12 @@ public class ResourceServlet extends ServletBase implements Servlet {
 	
 			//Place table in side the ViewWrapper, then wrap that into Toggler
 			RecordTableView table = new RecordTableView();
-			contentview.add(new TogglerDE(context.getDivExRoot(), new ViewWrapperDE(context.getDivExRoot(), table)));
-
+			// TODO agopu: 10 is an arbitrary number -- perhaps we should make this a user preference? show/hide?
+			if (resources.size() > 10) {
+				contentview.add(new TogglerDE(context.getDivExRoot(), new ViewWrapperDE(context.getDivExRoot(), table), false));
+			} else {
+				contentview.add(new TogglerDE(context.getDivExRoot(), new ViewWrapperDE(context.getDivExRoot(), table), true));
+			}
 			table.addRow("Resource FQDN", rec.fqdn);
 
 			//pull resource group
@@ -314,6 +318,7 @@ public class ResourceServlet extends ServletBase implements Servlet {
 		};
 		view.add("Operation", new NewButtonDE(context.getDivExRoot(), "resourceedit"));
 		view.add("About", new HtmlView("This page shows a list of resources that you have access to edit."));		
+		view.add("Legend", new HtmlView("<p>Contacts are flagged by their rank:</p><p><br></p><p><div class=\'contact_rank contact_Primary\'>Primary</div></p><p><div class=\'contact_rank contact_Secondary\'>Secondary</div></p><p><div class=\'contact_rank contact_Tertiary\'>Tertiary</div></p>"));		
 		return view;
 	}
 }

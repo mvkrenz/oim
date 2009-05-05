@@ -87,44 +87,25 @@ public class SCFormDE extends FormDE
 		name.setValue(rec.name);
 		name.addValidator(new UniqueValidator<String>(scs.values()));
 		name.setRequired(true);
+		name.setSampleValue("GOC");
 		
 		long_name = new TextFormElementDE(this);
-		long_name.setLabel("Long Name");
+		long_name.setLabel("Enter a Long Name for this SC");
 		long_name.setValue(rec.long_name);
 		long_name.setRequired(true);
+		long_name.setSampleValue("OpenScienceGrid Operations Center");
 				
 		description = new TextAreaFormElementDE(this);
-		description.setLabel("Description");
+		description.setLabel("Enter a Description");
 		description.setValue(rec.description);
 		description.setRequired(true);
 
+		// TODO agopu Is this really necessary in both VO and SC?
 		community = new TextAreaFormElementDE(this);
-		community.setLabel("Community");
+		community.setLabel("Enter the Community this SC supports");
 		community.setValue(rec.community);
 		community.setRequired(true);
 
-		footprints_id = new TextFormElementDE(this);
-		footprints_id.setLabel("Footprints ID");
-		footprints_id.setValue(rec.footprints_id);
-		footprints_id.setRequired(true);
-		if(!auth.allows("admin")) {
-			footprints_id.setHidden(true);
-		}
-
-		active = new CheckBoxFormElementDE(this);
-		active.setLabel("Active");
-		active.setValue(rec.active);
-		if(!auth.allows("admin")) {
-			active.setHidden(true);
-		}
-		
-		disable = new CheckBoxFormElementDE(this);
-		disable.setLabel("Disabled");
-		disable.setValue(rec.disable);
-		if(!auth.allows("admin")) {
-			disable.setHidden(true);
-		}
-		
 		new StaticDE(this, "<h2>Contact Information</h2>");
 		HashMap<Integer/*contact_type_id*/, ArrayList<SCContactRecord>> scclist_grouped = null;
 		if(id != null) {
@@ -152,6 +133,30 @@ public class SCFormDE extends FormDE
 				}
 			}
 			contact_editors.put(contact_type_id, editor);
+		}
+		if(auth.allows("admin")) {
+			new StaticDE(this, "<h2>Administrative Tasks</h2>");
+		}
+		footprints_id = new TextFormElementDE(this);
+		footprints_id.setLabel("Footprints ID");
+		footprints_id.setValue(rec.footprints_id);
+		footprints_id.setRequired(true);
+		if(!auth.allows("admin")) {
+			footprints_id.setHidden(true);
+		}
+
+		active = new CheckBoxFormElementDE(this);
+		active.setLabel("Active");
+		active.setValue(rec.active);
+		if(!auth.allows("admin")) {
+			active.setHidden(true);
+		}
+		
+		disable = new CheckBoxFormElementDE(this);
+		disable.setLabel("Disabled");
+		disable.setValue(rec.disable);
+		if(!auth.allows("admin")) {
+			disable.setHidden(true);
 		}
 	}
 	

@@ -206,8 +206,6 @@ public class ResourceFormDE extends FormDE
 					" and storage capacity min/max values. If you are not sure about any of these values, " + 
 					" ask your Owner VO(s)!</p>");
 
-		//wlcg_section = new ResourceWLCGDE (this, context, null);
-
 		wlcg = new CheckBoxFormElementDE(this);
 		wlcg.setLabel("This is a WLCG resource");
 

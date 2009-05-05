@@ -87,9 +87,9 @@ public class Authorization {
 		        } else if ((hostname.compareTo("lav-ag-desktop") == 0) || 
 		        	(hostname.compareTo("SATRIANI") == 0)){
 					log.debug("Server on localhost. Overriding the DN to Arvind's");
-					//user_dn = "/DC=org/DC=doegrids/OU=People/CN=Arvind Gopu 369621";  // GOC
+					user_dn = "/DC=org/DC=doegrids/OU=People/CN=Arvind Gopu 369621";  // GOC
 					//user_dn = "/DC=org/DC=doegrids/OU=People/CN=Robert C Ball 331645"; // AGLT2 Admin
-					user_dn = "/DC=org/DC=doegrids/OU=People/CN=Robert W. Gardner Jr. 669916" ; // AGLT2 vo owner's manager
+					//user_dn = "/DC=org/DC=doegrids/OU=People/CN=Robert W. Gardner Jr. 669916" ; // AGLT2 vo owner's manager
 					//user_dn = "/DC=org/DC=doegrids/OU=People/CN=Alain Roy 424511";      //OSG user
 					// user_dn = "/DC=gov/DC=fnal/O=Fermilab/OU=People/CN=Keith Chadwick/CN=UID:chadwick"; // End user VO admin
 					//user_dn = "/DC=org/DC=doegrids/OU=People/CN=Mine Altunay 215076"; // Security auth

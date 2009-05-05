@@ -85,18 +85,17 @@ public class SCServlet extends ServletBase implements Servlet {
 			contentview.add(new HtmlView("<h2>"+StringEscapeUtils.escapeHtml(rec.name)+"</h2>"));
 
 			RecordTableView table = new RecordTableView();
-			contentview.add(new TogglerDE(context.getDivExRoot(), new ViewWrapperDE(context.getDivExRoot(), table)));
+			// TODO agopu: 10 is an arbitrary number -- perhaps we should make this a user preference? show/hide?
+			if (scs.size() > 10) {
+				contentview.add(new TogglerDE(context.getDivExRoot(), new ViewWrapperDE(context.getDivExRoot(), table),false));
+			} else {
+				contentview.add(new TogglerDE(context.getDivExRoot(), new ViewWrapperDE(context.getDivExRoot(), table),true));
+			}
 			//contentview.add(table);
 
 		 	table.addRow("Long Name", rec.long_name);
 			table.addRow("Description", rec.description);
 			table.addRow("Community", rec.community);
-
-			table.addRow("Active", rec.active);
-			table.addRow("Disable", rec.disable);
-			if(auth.allows("admin")) {
-				table.addRow("Footprints ID", rec.footprints_id);
-			}
 
 			ContactTypeModel ctmodel = new ContactTypeModel(context);
 			ContactRankModel crmodel = new ContactRankModel(context);
@@ -123,6 +122,11 @@ public class SCServlet extends ServletBase implements Servlet {
 				
 				table.addRow(ctrec.name, new HtmlView(cliststr));
 			}			
+			if(auth.allows("admin")) {
+				table.addRow("Footprints ID", rec.footprints_id);
+			}
+			table.addRow("Active", rec.active);
+			table.addRow("Disable", rec.disable);
 		
 			class EditButtonDE extends ButtonDE
 			{
@@ -158,8 +162,10 @@ public class SCServlet extends ServletBase implements Servlet {
 				redirect(url);
 			}
 		};
+
 		view.add("Operation", new NewButtonDE(context.getDivExRoot(), "scedit"));
 		view.add("About", new HtmlView("This page shows a list of Support Centers that you have access to edit."));		
+		view.add("Legend", new HtmlView("<p>Contacts are flagged by their rank:</p><p><br></p><p><div class=\'contact_rank contact_Primary\'>Primary</div></p><p><div class=\'contact_rank contact_Secondary\'>Secondary</div></p><p><div class=\'contact_rank contact_Tertiary\'>Tertiary</div></p>"));		
 		return view;
 	}
 }

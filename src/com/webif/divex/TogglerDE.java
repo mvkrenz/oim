@@ -13,7 +13,28 @@ public class TogglerDE extends DivEx {
 	DivEx content;
 	Boolean show = false;
 	TogglerDE me;
-	
+
+	public TogglerDE(DivEx parent, DivEx _content, Boolean _show) {
+		super(parent);
+		show = _show;
+		me = this;
+		content = _content;
+		show_button = new ButtonDE(this, "Show Detail");
+		show_button.setStyle(Style.ALINK);
+		show_button.addEventListener(new EventListener() {
+			public void handleEvent(Event e) {
+				show = true;
+				me.redraw();
+			}});
+		hide_button = new ButtonDE(this, "Hide Detail");
+		hide_button.setStyle(Style.ALINK);
+		hide_button.addEventListener(new EventListener() {
+			public void handleEvent(Event e) {
+				show = false;
+				me.redraw();
+			}});
+	}
+		
 	public TogglerDE(DivEx parent, DivEx _content) {
 		super(parent);
 		me = this;

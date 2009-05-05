@@ -33,6 +33,7 @@ import edu.iu.grid.oim.model.db.ContactTypeModel;
 import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.FieldOfScienceModel;
 import edu.iu.grid.oim.model.db.ResourceServiceModel;
+import edu.iu.grid.oim.model.db.ResourceWLCGModel;
 import edu.iu.grid.oim.model.db.ServiceModel;
 import edu.iu.grid.oim.model.db.VOReportContactModel;
 import edu.iu.grid.oim.model.db.VOReportNameModel;
@@ -47,6 +48,7 @@ import edu.iu.grid.oim.model.db.record.ContactTypeRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.FieldOfScienceRecord;
 import edu.iu.grid.oim.model.db.record.RecordBase;
+import edu.iu.grid.oim.model.db.record.ResourceWLCGRecord;
 import edu.iu.grid.oim.model.db.record.VOReportContactRecord;
 import edu.iu.grid.oim.model.db.record.VOReportNameRecord;
 import edu.iu.grid.oim.model.db.record.VOReportNameFqanRecord;
@@ -57,6 +59,7 @@ import edu.iu.grid.oim.model.db.record.VORecord;
 import edu.iu.grid.oim.model.db.record.VOVORecord;
 import edu.iu.grid.oim.view.divex.ContactEditorDE;
 import edu.iu.grid.oim.view.divex.ResourceServicesDE;
+import edu.iu.grid.oim.view.divex.ResourceWLCGDE;
 import edu.iu.grid.oim.view.divex.VOReportNamesDE;
 import edu.iu.grid.oim.view.divex.VOReportNameFqanDE;
 import edu.iu.grid.oim.view.divex.ContactEditorDE.Rank;
@@ -84,6 +87,7 @@ public class VOFormDE extends FormDE
 	private CheckBoxFormElementDE active;
 	private CheckBoxFormElementDE disable;
 	private HashMap<Integer, CheckBoxFormElementDE> field_of_science;
+	private CheckBoxFormElementDE child_vo;
 	private SelectFormElementDE parent_vo;
 	
 	private VOReport vorep_consolidator;
@@ -106,6 +110,9 @@ public class VOFormDE extends FormDE
 		auth = context.getAuthorization();
 		id = rec.id;
 		
+		new StaticDE(this, "<h2>Basic VO Information</h2>");
+		new StaticDE(this, "<p>Add/modify basic information about this VO.</p>");
+
 		//pull vos for unique validator
 		HashMap<Integer, String> vos = getVONames();
 		if(id != null) { //if doing update, remove my own name (I can use my own name)
@@ -118,54 +125,39 @@ public class VOFormDE extends FormDE
 		name.setValue(rec.name);
 		name.addValidator(new UniqueValidator<String>(vos.values()));
 		name.setRequired(true);
+		name.setSampleValue("CDF");
 		if (auth.allows("admin")) {
 			name.setDisabled(true);
 		}
-		
-		parent_vo = new SelectFormElementDE(this, vos);
-		parent_vo.setLabel("Parent VO");
-		if(id != null) {
-			VOModel model = new VOModel(context);
-			VORecord parent_vo_rec = model.getParentVO(id);
-			if(parent_vo_rec != null) {
-				parent_vo.setValue(parent_vo_rec.id);
-			}
-			// AG: Need to clean this up; especially for VOs that are not child VOs of a parent
-			// .. perhaps a yes/no first?
-		}
-		parent_vo.addEventListener(new EventListener () {
-			public void handleEvent(Event e) {
-				handleParentVOSelection(Integer.parseInt((String)e.value));
-			}
-		});
-		
+
+		long_name = new TextFormElementDE(this);
+		long_name.setLabel("Enter the Long Name for this VO");
+		long_name.setValue(rec.long_name);
+		long_name.setRequired(true); // TODO: agopu should this be required?
+		long_name.setSampleValue("Collider Detector at Fermilab");
 
 		sc_id = new SelectFormElementDE(this, getSCNames());
-		sc_id.setLabel("Support Center");
+		sc_id.setLabel("Select a Support Center that will support this VO");
 		sc_id.setValue(rec.sc_id);
 		sc_id.setRequired(true);
 
-		long_name = new TextFormElementDE(this);
-		long_name.setLabel("Long Name");
-		long_name.setValue(rec.long_name);
-		long_name.setRequired(true);
-				
+		new StaticDE(this, "<h3>Extended Descriptions</h3>");
 		description = new TextAreaFormElementDE(this);
-		description.setLabel("Description");
+		description.setLabel("Enter a Description for this VO");
 		description.setValue(rec.description);
 		description.setRequired(true);
 
 		app_description = new TextAreaFormElementDE(this);
-		app_description.setLabel("App Description");
+		app_description.setLabel("Enter an Application Description");
 		app_description.setValue(rec.app_description);
 		app_description.setRequired(true);
 
 		community = new TextAreaFormElementDE(this);
-		community.setLabel("Community");
+		community.setLabel("Describe the Community this VO serves");
 		community.setValue(rec.community);
 		community.setRequired(true);
 
-		new StaticDE(this, "<h3>Field Of Science</h3>");
+		new StaticDE(this, "<h2>Select Field Of Science(s) applicable to this VO</h2>");
 		ArrayList<Integer/*field_of_science_id*/> fslist = new ArrayList();
 		if(id != null) {
 			VOFieldOfScienceModel vofsmodel = new VOFieldOfScienceModel(context);
@@ -186,7 +178,45 @@ public class VOFormDE extends FormDE
 			}
 		}
 
-		new StaticDE(this, "<h3>Relevant URLs</h3>");
+		new StaticDE(this, "<h2>Sub-VO Mapping.</h2>");
+		child_vo = new CheckBoxFormElementDE(this);
+		child_vo.setLabel("Is this a sub-VO of an existing VO? For example, FermilabMinos is a sub VO of the Fermilab VO.");
+
+		//indent the parent VO stuff
+		new StaticDE(this, "<div class=\"indent\">");
+		parent_vo = new SelectFormElementDE(this, vos);
+		parent_vo.setLabel("Select a Parent VO");
+		hideParentVOSelector(true);
+
+		child_vo.addEventListener(new EventListener() {
+			public void handleEvent(Event e) {	
+				if(((String)e.value).compareTo("true") == 0) {
+					hideParentVOSelector(false);
+				} else {
+					hideParentVOSelector(true);
+				}
+			}
+		});
+
+		if(id != null) {
+			VOModel model = new VOModel(context);
+			VORecord parent_vo_rec = model.getParentVO(id);
+			if(parent_vo_rec != null) {
+				parent_vo.setValue(parent_vo_rec.id);
+				child_vo.setValue(true);
+				hideParentVOSelector(false);				
+			}
+			// AG: Need to clean this up; especially for VOs that are not child VOs of a parent
+			// .. perhaps a yes/no first?
+			}
+			parent_vo.addEventListener(new EventListener () {
+				public void handleEvent(Event e) {
+					handleParentVOSelection(Integer.parseInt((String)e.value));
+				}
+			});
+		new StaticDE(this, "</div>");
+
+		new StaticDE(this, "<h2>Relevant URLs</h2>");
 		primary_url = new TextFormElementDE(this);
 		primary_url.setLabel("Primary URL");
 		primary_url.setValue(rec.primary_url);
@@ -200,7 +230,7 @@ public class VOFormDE extends FormDE
 		aup_url.setRequired(true);
 
 		membership_services_url = new TextFormElementDE(this);
-		membership_services_url.setLabel("Membership Services URL");
+		membership_services_url.setLabel("Membership Services (VOMS) URL");
 		membership_services_url.setValue(rec.membership_services_url);
 		membership_services_url.addValidator(UrlValidator.getInstance());
 		membership_services_url.setRequired(true);
@@ -274,7 +304,7 @@ public class VOFormDE extends FormDE
 		}
 
 		// Handle reporting names
-		new StaticDE(this, "<h2>Reporting Names</h2>");
+		new StaticDE(this, "<h2>Reporting Names for your VO</h2>");
 		VOReportNameModel vorepname_model = new VOReportNameModel(context);
 		VOReportNameFqanModel vorepnamefqan_model = new VOReportNameFqanModel(context);
 		ContactModel cmodel = new ContactModel (context);
@@ -317,6 +347,12 @@ public class VOFormDE extends FormDE
 		}
 	}
 	
+	private void hideParentVOSelector(Boolean b)
+	{
+		parent_vo.setHidden(b);
+		parent_vo.redraw();
+	}
+
 	private ContactEditorDE createContactEditor(HashMap<Integer, ArrayList<VOContactRecord>> voclist, ContactTypeRecord ctrec) throws SQLException
 	{
 		new StaticDE(this, "<h3>" + ctrec.name + "</h3>");

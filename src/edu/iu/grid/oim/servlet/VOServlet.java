@@ -97,13 +97,21 @@ public class VOServlet extends ServletBase implements Servlet {
 			contentview.add(new HtmlView("<h2>"+StringEscapeUtils.escapeHtml(rec.name)+"</h2>"));
 			
 			RecordTableView table = new RecordTableView();
-			contentview.add(new TogglerDE(context.getDivExRoot(), new ViewWrapperDE(context.getDivExRoot(), table)));
+			// TODO agopu: 10 is an arbitrary number -- perhaps we should make this a user preference? show/hide?
+			if (vos.size() > 10) {
+				contentview.add(new TogglerDE(context.getDivExRoot(), new ViewWrapperDE(context.getDivExRoot(), table), false));
+			} else {
+				contentview.add(new TogglerDE(context.getDivExRoot(), new ViewWrapperDE(context.getDivExRoot(), table), true));
+			}
 
 			//pull parent vo
 			VORecord parent_vo_rec = model.getParentVO(rec.id);
 			String parent_vo_name = null;
 			if(parent_vo_rec != null) {
 				parent_vo_name = parent_vo_rec.name;
+			}
+			else {
+				parent_vo_name = "N/A";
 			}
 			table.addRow("Parent VO", parent_vo_name);
 			table.addRow("Support Center", getSCName(rec.sc_id));
@@ -279,6 +287,7 @@ public class VOServlet extends ServletBase implements Servlet {
 		};
 		view.add("Operation", new NewButtonDE(context.getDivExRoot(), "voedit"));
 		view.add("About", new HtmlView("This page shows a list of Virtual Organization that you have access to edit."));		
+		view.add("Legend", new HtmlView("<p>Contacts are flagged by their rank:</p><p><br></p><p><div class=\'contact_rank contact_Primary\'>Primary</div></p><p><div class=\'contact_rank contact_Secondary\'>Secondary</div></p><p><div class=\'contact_rank contact_Tertiary\'>Tertiary</div></p>"));		
 		return view;
 	}
 }

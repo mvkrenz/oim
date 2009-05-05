@@ -18,12 +18,13 @@ public class MenuView implements IView {
 	public MenuView(Context context, String _current) {
 		Authorization auth = context.getAuthorization();
 		
+		// Always show home page with information about what OIM is... how can we make this better? -agopu
+		menu.add(new MenuItem("Home", "home"));
+
 		// TODO Need a clean way to show a nice page when unregistered user shows up with links 
 		//   to MYOSG for public OIM information, etc. -agopu
 		if(auth.getDNID() == null) {
 			menu.add(new MenuItem("Register to OIM", "register"));
-		} else {
-			menu.add(new MenuItem("Home", "home"));
 		}
 		
 		if(auth.allows("edit_my_vo")) {
@@ -66,6 +67,8 @@ public class MenuView implements IView {
 		if(auth.allows("admin")) {
 			menu.add(new MenuItem("Admin", "admin"));	
 		}
+		// Show Help to anyone
+		menu.add(new MenuItem("Help", "help"));
 
 		current = _current;
 	}

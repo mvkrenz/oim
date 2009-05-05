@@ -87,7 +87,7 @@ public class ResourceGroupEditServlet extends ServletBase implements Servlet {
 	private SideContentView createSideView()
 	{
 		SideContentView view = new SideContentView();
-		view.add("TODO", new HtmlView("Whatever"));
+		view.add("Sidebar", new HtmlView("No content yet"));
 		return view;
 	}
 }

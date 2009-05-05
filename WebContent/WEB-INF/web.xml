@@ -385,6 +385,15 @@
 		<servlet-class>
 		edu.iu.grid.oim.servlet.LogServlet</servlet-class>
 	</servlet>	
+	<servlet>
+		<description>
+		</description>
+		<display-name>
+		HelpServlet</display-name>
+		<servlet-name>HelpServlet</servlet-name>
+		<servlet-class>
+		edu.iu.grid.oim.servlet.HelpServlet</servlet-class>
+	</servlet>
 	
 	<servlet-mapping>
 		<servlet-name>DivexServlet</servlet-name>
@@ -547,6 +556,11 @@
 	<servlet-mapping>
 		<servlet-name>LogServlet</servlet-name>
 		<url-pattern>/log</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+		<servlet-name>HelpServlet</servlet-name>
+		<url-pattern>/help</url-pattern>
 	</servlet-mapping>
 	
 	<servlet-mapping>

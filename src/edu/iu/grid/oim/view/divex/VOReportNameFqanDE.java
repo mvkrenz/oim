@@ -39,13 +39,13 @@ public class VOReportNameFqanDE extends FormElementDEBase {
 
 			new StaticDE(this, "<h3>FQAN</h3>");
 			group_name = new TextFormElementDE(this);
-			group_name.setLabel("Group Name");
+			group_name.setLabel("Enter the Group Name");
 			group_name.setRequired(true);
 			group_name.setValue("FOO");
 			//group_name.addClass("inline");
 			
 			role = new TextFormElementDE(this);
-			role.setLabel("Role");
+			role.setLabel("Enter a Role (if applicable)");
 			role.setValue("BAR");
 			//role.addClass("inline");
 			

@@ -52,6 +52,15 @@ public class HomeServlet extends ServletBase  {
 		ContentView contentview = new ContentView();
 		
 		contentview.add(new HtmlView("<h1>OIM Home</h1>"));
+
+		// TODO agopu: need to clean this up with some divs etc. Nicer font, etc.
+		String welcome_string = "<p>Welcome to the OSG Information Management System. " + 
+			"In the menu along the top, you will find options for registering or updating information. " + 
+			"The Grid Operations Center has developed this system to grant members more efficiency and control over the information they register with us.</p>"+
+			"<p>If you are registering your personal information with us for the first time, you will need to wait for the OIM administrators to activate your membership before you are able to register or update Virtual Organization, Support Center or Resource information.</p>"+
+			"<p>For Standard Operating Procedures, Registration Instructions, and OIM Definitions for entering OIM data please see the Help Menu.</p>"; 
+		
+		contentview.add(new HtmlView(welcome_string));
 		
 		return contentview;
 	}
