@@ -91,14 +91,37 @@ public class ResourceModel extends SmallTableModelBase<ResourceRecord> {
 	//returns all record id that the user has access to
 	private HashSet<Integer> getEditableIDs() throws SQLException
 	{
+		// First, add all resources someone is contact for
 		HashSet<Integer> list = new HashSet<Integer>();
 		ResourceContactModel model = new ResourceContactModel(context);
 		Collection<ResourceContactRecord> rrecs = model.getByContactID(auth.getContactID());
 		for(ResourceContactRecord rec : rrecs) {
 			list.add(rec.resource_id);
 		}
+		
+		// Second, find VOs someone is VO Manager for, and add all resources owned by that VO
+		VOContactModel voc_model = new VOContactModel(context);
+		Collection<VOContactRecord> voc_recs = voc_model.getByContactID(auth.getContactID());
+
+		HashSet<Integer> voids = new HashSet<Integer>();
+		for (VOContactRecord voc_rec: voc_recs) {
+			// VO Manager is contact type 6
+			if(voc_rec.contact_type_id == 6) {
+				voids.add(voc_rec.vo_id);
+			}
+		}
+		VOResourceOwnershipModel voresowner_model = new VOResourceOwnershipModel (context);  
+
+		for(Integer vo_id : voids) {
+			Collection<VOResourceOwnershipRecord> voresowners = voresowner_model.getAllByVOID(vo_id);
+			for (VOResourceOwnershipRecord voresowner : voresowners) {
+				list.add(voresowner.resource_id);
+			}
+		}
+
 		return list;
 	}
+
 	public ResourceRecord get(int id) throws SQLException {
 		ResourceRecord keyrec = new ResourceRecord();
 		keyrec.id = id;

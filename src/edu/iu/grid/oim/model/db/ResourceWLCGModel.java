@@ -2,6 +2,10 @@ package edu.iu.grid.oim.model.db;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.TreeSet;
+
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
@@ -9,8 +13,11 @@ import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import edu.iu.grid.oim.model.Context;
 import edu.iu.grid.oim.model.db.record.RecordBase;
+import edu.iu.grid.oim.model.db.record.ResourceContactRecord;
 import edu.iu.grid.oim.model.db.record.ResourceRecord;
 import edu.iu.grid.oim.model.db.record.ResourceWLCGRecord;
+import edu.iu.grid.oim.model.db.record.VOContactRecord;
+import edu.iu.grid.oim.model.db.record.VOResourceOwnershipRecord;
 
 public class ResourceWLCGModel extends SmallTableModelBase<ResourceWLCGRecord> {
     static Logger log = Logger.getLogger(ResourceWLCGModel.class);  

@@ -10,9 +10,14 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
 
+import com.webif.divex.DivEx;
+import com.webif.divex.form.FormDE;
+
 import edu.iu.grid.oim.lib.Config;
+import edu.iu.grid.oim.model.Context;
 import edu.iu.grid.oim.model.db.ResourceModel;
 import edu.iu.grid.oim.model.db.record.ResourceRecord;
+import edu.iu.grid.oim.model.db.record.ResourceWLCGRecord;
 import edu.iu.grid.oim.view.BreadCrumbView;
 import edu.iu.grid.oim.view.ContentView;
 import edu.iu.grid.oim.view.DivExWrapper;
@@ -35,7 +40,7 @@ public class ResourceEditServlet extends ServletBase implements Servlet {
 	{
 		setContext(request);
 		auth.check("edit_my_resource");
-		
+
 		ResourceRecord rec;
 		String title;
 
@@ -59,28 +64,28 @@ public class ResourceEditServlet extends ServletBase implements Servlet {
 			rec = new ResourceRecord();
 			title = "New Resource";	
 		}
-	
-		ResourceFormDE form;
+
+		FormDE form;
 		String origin_url = Config.getApplicationBase()+"/"+parent_page;
 		try {
 			form = new ResourceFormDE(context, rec, origin_url);
 		} catch (SQLException e) {
 			throw new ServletException(e);
 		}
-		
+
 		//put the form in a view and display
 		ContentView contentview = new ContentView();
 		contentview.add(new HtmlView("<h1>"+title+"</h1>"));	
 		contentview.add(new DivExWrapper(form));
-		
+
 		//setup crumbs
 		BreadCrumbView bread_crumb = new BreadCrumbView();
 		bread_crumb.addCrumb("Resource", parent_page);
 		bread_crumb.addCrumb(rec.name,  null);
 		contentview.setBreadCrumb(bread_crumb);
-		
+
 		Page page = new Page(new MenuView(context, parent_page), contentview, createSideView());
-		page.render(response.getWriter());	
+		page.render(response.getWriter());
 	}
 	
 	private SideContentView createSideView()

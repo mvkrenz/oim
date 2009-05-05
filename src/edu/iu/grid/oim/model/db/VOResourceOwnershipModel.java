@@ -37,14 +37,25 @@ public class VOResourceOwnershipModel extends SmallTableModelBase<VOResourceOwne
 	{
 		ArrayList<VOResourceOwnershipRecord> list = new ArrayList<VOResourceOwnershipRecord>();
 		for(VOResourceOwnershipRecord it : getAll()) {
-			if(it.resource_id.compareTo(resource_id) == 0) {
+			if(it.resource_id.equals(resource_id)) {
 				list.add(it);
 			}
 		}
 		return list;		
 	}
 	
-    public String getName()
+	public Collection<VOResourceOwnershipRecord> getAllByVOID(int vo_id) throws SQLException
+	{
+		ArrayList<VOResourceOwnershipRecord> list = new ArrayList<VOResourceOwnershipRecord>();
+		for(VOResourceOwnershipRecord it : getAll()) {
+			if(it.vo_id.equals (vo_id)) {
+				list.add(it);
+			}
+		}
+		return list;		
+	}
+	
+	public String getName()
     {
     	return "Resource / VO Ownership";
     }
