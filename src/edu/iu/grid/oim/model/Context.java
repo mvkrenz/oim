@@ -15,7 +15,7 @@ public class Context {
     
 	private DivExRoot divex_root;
 	private Authorization auth = new Authorization();
-	private Connection connection;
+	private Connection connection = null;
 	private HttpServletRequest request;
 	
 	public Context(HttpServletRequest _request)
@@ -39,6 +39,13 @@ public class Context {
 		divex_root = DivExRoot.getInstance(request);
 		
 		//log.info("Context initialized with " + connection.toString());
+	}
+	
+	public void finalize() throws Throwable
+	{
+		if(connection != null) {
+			connection.close();
+		}
 	}
 	
 	public static Context getGuestContext(Connection db)
