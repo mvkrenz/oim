@@ -8,7 +8,9 @@ import javax.xml.xpath.XPathExpressionException;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import edu.iu.grid.oim.model.Context;
+import edu.iu.grid.oim.model.db.record.FieldOfScienceRecord;
 import edu.iu.grid.oim.model.db.record.RecordBase;
+import edu.iu.grid.oim.model.db.record.VORecord;
 import edu.iu.grid.oim.model.db.record.VOReportNameRecord;
 
 public class VOReportNameModel extends SmallTableModelBase<VOReportNameRecord> {
@@ -49,9 +51,19 @@ public class VOReportNameModel extends SmallTableModelBase<VOReportNameRecord> {
     {
     	return "Virtual Organization Report Name";
     }
+	public String getHumanValue(String field_name, String value) throws NumberFormatException, SQLException
+	{
+		if(field_name.equals("vo_id")) {
+			VOModel model = new VOModel(context);
+			VORecord rec = model.get(Integer.parseInt(value));
+			return value + " (" + rec.name + ")";
+		}
+		return value;
+	} 
 	public Boolean hasLogAccess(XPath xpath, Document doc) throws XPathExpressionException
 	{
-		Integer id = Integer.parseInt((String)xpath.evaluate("//Keys/Key[Name='vo_id']/Value", doc, XPathConstants.STRING));
+		String str = (String)xpath.evaluate("//Keys/Key[Name='id']/Value", doc, XPathConstants.STRING);
+		Integer id = Integer.parseInt(str);
 		VOModel model = new VOModel(context);
 		return model.canEdit(id);
 	}

@@ -62,7 +62,7 @@ public class SiteServlet extends ServletBase implements Servlet {
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{	
-		setContext(request);
+		//setContext(request);
 		auth.check("edit_all_site");
 		
 		try {	

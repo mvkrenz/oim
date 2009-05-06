@@ -8,8 +8,11 @@ import javax.xml.xpath.XPathExpressionException;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import edu.iu.grid.oim.model.Context;
+import edu.iu.grid.oim.model.db.record.FieldOfScienceRecord;
 import edu.iu.grid.oim.model.db.record.RecordBase;
 import edu.iu.grid.oim.model.db.record.VOFieldOfScienceRecord;
+import edu.iu.grid.oim.model.db.record.VORecord;
+import edu.iu.grid.oim.model.db.record.VOReportNameRecord;
 
 public class VOFieldOfScienceModel extends SmallTableModelBase<VOFieldOfScienceRecord> {
     static Logger log = Logger.getLogger(VOFieldOfScienceModel.class); 
@@ -36,6 +39,19 @@ public class VOFieldOfScienceModel extends SmallTableModelBase<VOFieldOfScienceR
     {
     	return "Virtual Organization / Field Of Science";
     }
+	public String getHumanValue(String field_name, String value) throws NumberFormatException, SQLException
+	{
+		if(field_name.equals("vo_id")) {
+			VOModel model = new VOModel(context);
+			VORecord rec = model.get(Integer.parseInt(value));
+			return value + " (" + rec.name + ")";
+		} else if(field_name.equals("field_of_science_id")) {
+			FieldOfScienceModel model = new FieldOfScienceModel(context);
+			FieldOfScienceRecord rec = model.get(Integer.parseInt(value));
+			return value + " (" + rec.name + ")";
+		}
+		return value;
+	}    
 	public Boolean hasLogAccess(XPath xpath, Document doc) throws XPathExpressionException
 	{
 		Integer id = Integer.parseInt((String)xpath.evaluate("//Keys/Key[Name='vo_id']/Value", doc, XPathConstants.STRING));

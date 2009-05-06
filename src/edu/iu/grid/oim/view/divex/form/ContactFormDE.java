@@ -1,48 +1,23 @@
 package edu.iu.grid.oim.view.divex.form;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
-
 import org.apache.log4j.Logger;
-
-import com.webif.divex.DivEx;
-import com.webif.divex.Event;
-import com.webif.divex.form.FormDE;
+import com.webif.divex.form.FormDEBase;
 import com.webif.divex.StaticDE;
 import com.webif.divex.form.CheckBoxFormElementDE;
 import com.webif.divex.form.SelectFormElementDE;
 import com.webif.divex.form.TextAreaFormElementDE;
 import com.webif.divex.form.TextFormElementDE;
 import com.webif.divex.form.validator.EmailValidator;
-import com.webif.divex.form.validator.UniqueValidator;
-import com.webif.divex.form.validator.UrlValidator;
-
 import edu.iu.grid.oim.lib.Authorization;
-import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
-
 import edu.iu.grid.oim.model.Context;
 import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.DNModel;
-import edu.iu.grid.oim.model.db.SCModel;
-import edu.iu.grid.oim.model.db.SiteModel;
-import edu.iu.grid.oim.model.db.FacilityModel;
-import edu.iu.grid.oim.model.db.VOModel;
 import edu.iu.grid.oim.model.db.record.DNRecord;
-import edu.iu.grid.oim.model.db.record.RecordBase;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
-import edu.iu.grid.oim.model.db.record.ResourceContactRecord;
-import edu.iu.grid.oim.model.db.record.SCRecord;
-import edu.iu.grid.oim.model.db.record.SiteRecord;
-import edu.iu.grid.oim.model.db.record.FacilityRecord;
 
-import edu.iu.grid.oim.view.divex.ContactEditorDE;
-import edu.iu.grid.oim.view.divex.ContactEditorDE.Rank;
-
-public class ContactFormDE extends FormDE 
+public class ContactFormDE extends FormDEBase 
 {
     static Logger log = Logger.getLogger(ContactFormDE.class); 
    
@@ -68,13 +43,6 @@ public class ContactFormDE extends FormDE
 		context = _context;
 		auth = context.getAuthorization();
 		id = rec.id;
-
-		
-		if (rec != null) {
-			if (rec.active.compareTo(true) != 0) {
-				new StaticDE(this, "<h3>Inactive User Account Warning:</h3><p>Your user account has not been activated yet; You can continue to make changes to it but beware that you will not be able to registration activities till the account is activated by GOC staff. Contact the OSG GOC if you have any questions.</p>");
-			}
-		}
 
 		name = new TextFormElementDE(this);
 		name.setLabel("Full Name");
@@ -183,8 +151,9 @@ public class ContactFormDE extends FormDE
 		}
 	}
 
-	protected Boolean doSubmit() {
-		//Construct SiteRecord
+	protected Boolean doSubmit() 
+	{
+		Boolean ret = true;
 		ContactRecord rec = new ContactRecord();
 		rec.id = id;
 	
@@ -216,8 +185,9 @@ public class ContactFormDE extends FormDE
 			}
 		} catch (Exception e) {
 			alert(e.getMessage());
-			return false;
+			ret = false;
 		}
-		return true;
+		context.close();
+		return ret;
 	}
 }

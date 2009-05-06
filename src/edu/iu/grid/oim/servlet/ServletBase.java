@@ -1,5 +1,6 @@
 package edu.iu.grid.oim.servlet;
 
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
@@ -8,6 +9,7 @@ import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
 
@@ -25,10 +27,17 @@ public class ServletBase extends HttpServlet {
 	public void init(ServletConfig conf) throws ServletException {
 		super.init(conf);
 	}
-	
-	protected void setContext(HttpServletRequest request)
+
+	protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException
 	{
-		context = new Context(request);
-		auth = context.getAuthorization();	
+		context = new Context(req);
+		auth = context.getAuthorization();
+		
+		String method = req.getMethod();
+		if(method.equals("GET")) {
+			doGet(req, resp);
+		}
+		
+		context.close();
 	}
 }

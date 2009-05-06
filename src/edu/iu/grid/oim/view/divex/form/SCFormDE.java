@@ -1,46 +1,29 @@
 package edu.iu.grid.oim.view.divex.form;
 
-import java.io.PrintWriter;
-import java.sql.Connection;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
-
 import org.apache.log4j.Logger;
-
-import com.webif.divex.DivEx;
-import com.webif.divex.Event;
-import com.webif.divex.form.FormDE;
+import com.webif.divex.form.FormDEBase;
 import com.webif.divex.StaticDE;
 import com.webif.divex.form.CheckBoxFormElementDE;
-import com.webif.divex.form.SelectFormElementDE;
 import com.webif.divex.form.TextAreaFormElementDE;
 import com.webif.divex.form.TextFormElementDE;
 import com.webif.divex.form.validator.UniqueValidator;
-import com.webif.divex.form.validator.UrlValidator;
-
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
 import edu.iu.grid.oim.model.Context;
-import edu.iu.grid.oim.model.db.ContactRankModel;
 import edu.iu.grid.oim.model.db.ContactTypeModel;
 import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.SCModel;
 import edu.iu.grid.oim.model.db.SCContactModel;
-import edu.iu.grid.oim.model.db.VOModel;
-import edu.iu.grid.oim.model.db.record.ContactRankRecord;
 import edu.iu.grid.oim.model.db.record.ContactTypeRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
-import edu.iu.grid.oim.model.db.record.RecordBase;
 import edu.iu.grid.oim.model.db.record.SCRecord;
 import edu.iu.grid.oim.model.db.record.SCContactRecord;
-import edu.iu.grid.oim.model.db.record.VOContactRecord;
 import edu.iu.grid.oim.view.divex.ContactEditorDE;
-import edu.iu.grid.oim.view.divex.ContactEditorDE.Rank;
 
-public class SCFormDE extends FormDE 
+public class SCFormDE extends FormDEBase 
 {
     static Logger log = Logger.getLogger(SCFormDE.class); 
     private Context context;
@@ -192,7 +175,9 @@ public class SCFormDE extends FormDE
 		return keyvalues;
 	}
 	
-	protected Boolean doSubmit() {
+	protected Boolean doSubmit() 
+	{
+		Boolean ret = true;
 		
 		//Construct VORecord
 		SCRecord rec = new SCRecord();
@@ -217,9 +202,10 @@ public class SCFormDE extends FormDE
 			}
 		} catch (Exception e) {
 			alert(e.getMessage());
-			return false;
+			ret = false;
 		}
-		return true;
+		context.close();
+		return ret;
 	}
 	
 	//retrieve contact records from the contact editor.

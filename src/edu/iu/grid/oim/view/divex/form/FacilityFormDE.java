@@ -10,7 +10,7 @@ import java.util.HashMap;
 import org.apache.log4j.Logger;
 import com.webif.divex.DivEx;
 import com.webif.divex.Event;
-import com.webif.divex.form.FormDE;
+import com.webif.divex.form.FormDEBase;
 import com.webif.divex.StaticDE;
 import com.webif.divex.form.CheckBoxFormElementDE;
 import com.webif.divex.form.SelectFormElementDE;
@@ -27,7 +27,7 @@ import edu.iu.grid.oim.model.db.record.FacilityRecord;
 import edu.iu.grid.oim.view.divex.ContactEditorDE;
 import edu.iu.grid.oim.view.divex.ContactEditorDE.Rank;
 
-public class FacilityFormDE extends FormDE 
+public class FacilityFormDE extends FormDEBase 
 {
     static Logger log = Logger.getLogger(FacilityFormDE.class); 
    
@@ -96,9 +96,9 @@ public class FacilityFormDE extends FormDE
 		return keyvalues;
 	}
 	
-	protected Boolean doSubmit() {
-
-		// Moved try block beginning from line 208 to handled SQL exception.. -agopu
+	protected Boolean doSubmit() 
+	{
+		Boolean ret = true;
 		try {
 			//Construct SiteRecord
 			FacilityRecord rec = new FacilityRecord();
@@ -118,8 +118,9 @@ public class FacilityFormDE extends FormDE
 			}
 		} catch (Exception e) {
 			alert(e.getMessage());
-			return false;
+			ret =  false;
 		}
-		return true;
+		context.close();
+		return ret;
 	}
 }

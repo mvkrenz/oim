@@ -16,7 +16,7 @@ import org.geonames.WebService;
 
 import com.webif.divex.DivEx;
 import com.webif.divex.Event;
-import com.webif.divex.form.FormDE;
+import com.webif.divex.form.FormDEBase;
 import com.webif.divex.StaticDE;
 import com.webif.divex.form.CheckBoxFormElementDE;
 import com.webif.divex.form.SelectFormElementDE;
@@ -42,7 +42,7 @@ import edu.iu.grid.oim.model.db.record.FacilityRecord;
 import edu.iu.grid.oim.view.divex.ContactEditorDE;
 import edu.iu.grid.oim.view.divex.ContactEditorDE.Rank;
 
-public class SiteFormDE extends FormDE 
+public class SiteFormDE extends FormDEBase 
 {
     static Logger log = Logger.getLogger(SiteFormDE.class); 
     
@@ -191,8 +191,10 @@ public class SiteFormDE extends FormDE
 		return keyvalues;
 	}
 
-	protected Boolean doSubmit() {
-
+	protected Boolean doSubmit() 
+	{
+		Boolean ret = true;
+		
 		// Moved try block beginning from line 208 to handled SQL exception.. -agopu
 		try {
 			//Construct SiteRecord
@@ -215,23 +217,7 @@ public class SiteFormDE extends FormDE
 	
 			rec.active = active.getValue();
 			rec.disable = disable.getValue();
-			
-			/*
-			//fetch long/lat information from http://www.geonames.org/source-code/
-			ToponymSearchCriteria searchCriteria = new ToponymSearchCriteria();
-			//searchCriteria.setQ(city.getValue() + ", " + state.getLabel() + ", " + country.getLabel());
-			searchCriteria.setQ("zurich");
-			ToponymSearchResult searchResult;
-			try {
-				searchResult = WebService.search(searchCriteria);
-				for (Toponym toponym : searchResult.getToponyms()) {
-					System.out.println(toponym.getName()+" "+ toponym.getCountryName());
-				}
-			} catch (Exception e) {
-				log.error(e);
-			}
-			*/
-			
+
 			SiteModel model = new SiteModel(context);
 			if(rec.id == null) {
 				model.insert(rec);
@@ -240,8 +226,9 @@ public class SiteFormDE extends FormDE
 			}
 		} catch (Exception e) {
 			alert(e.getMessage());
-			return false;
+			ret = false;
 		}
-		return true;
+		context.close();
+		return ret;
 	}
 }

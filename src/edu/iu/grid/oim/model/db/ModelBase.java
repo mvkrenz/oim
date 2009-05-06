@@ -27,9 +27,9 @@ public abstract class ModelBase<T extends RecordBase> {
 		
     	table_name = _table_name;
 	}
-	protected Connection getConnection()
+	protected Connection connectOIM() throws SQLException
 	{
-		return context.getConnection();
+		return context.connectOIM();
 	}
 	
 	//override this to provide human readable value

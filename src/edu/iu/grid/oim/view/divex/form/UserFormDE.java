@@ -11,7 +11,7 @@ import org.apache.log4j.Logger;
 
 import com.webif.divex.DivEx;
 import com.webif.divex.Event;
-import com.webif.divex.form.FormDE;
+import com.webif.divex.form.FormDEBase;
 import com.webif.divex.StaticDE;
 import com.webif.divex.form.CheckBoxFormElementDE;
 import com.webif.divex.form.SelectFormElementDE;
@@ -40,7 +40,7 @@ import edu.iu.grid.oim.model.db.record.SCRecord;
 import edu.iu.grid.oim.model.db.record.OsgGridTypeRecord;
 import edu.iu.grid.oim.view.divex.ContactEditorDE;
 
-public class UserFormDE extends FormDE 
+public class UserFormDE extends FormDEBase 
 {
     static Logger log = Logger.getLogger(UserFormDE.class); 
     
@@ -89,7 +89,9 @@ public class UserFormDE extends FormDE
 	
 	}
 	
-	protected Boolean doSubmit() {
+	protected Boolean doSubmit() 
+	{
+		Boolean ret = true;
 		
 		//Construct OsgGridTypeRecord
 		DNRecord rec = new DNRecord();
@@ -124,10 +126,10 @@ public class UserFormDE extends FormDE
 		} catch (Exception e) {
 			log.error(e);
 			alert(e.getMessage());
-			return false;
+			ret = false;
 		}
-
-		return true;
+		context.close();
+		return ret;
 	}
 
 	@Override

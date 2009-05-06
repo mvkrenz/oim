@@ -1,6 +1,7 @@
 package edu.iu.grid.oim.model.db;
 
 import java.lang.reflect.Field;
+import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -39,7 +40,8 @@ public abstract class SmallTableModelBase<T extends RecordBase> extends ModelBas
 		if(!cache.containsKey(table_name)) {
 			TreeSet<RecordBase> list = new TreeSet<RecordBase>(new KeyComparator());
 			ResultSet rs = null;
-			Statement stmt = getConnection().createStatement();
+			Connection conn = connectOIM();
+			Statement stmt = conn.createStatement();
 		    if (stmt.execute("SELECT * FROM "+table_name)) {
 		    	rs = stmt.getResultSet();
 		    	while(rs.next()) {
@@ -71,10 +73,11 @@ public abstract class SmallTableModelBase<T extends RecordBase> extends ModelBas
 
     public void insert(Collection<T> recs) throws SQLException 
     {
-		Boolean rollback = getConnection().getAutoCommit(); 
+    	Connection conn = connectOIM();
+		Boolean rollback = conn.getAutoCommit(); 
 		
 		if(rollback) {
-			getConnection().setAutoCommit(false);
+			conn.setAutoCommit(false);
 		}
 		try {			
 			//find new / updated records
@@ -83,15 +86,15 @@ public abstract class SmallTableModelBase<T extends RecordBase> extends ModelBas
 	    	}
 		} catch (Exception e) {
 			if(rollback) {
-				getConnection().rollback();
-				getConnection().setAutoCommit(true);
+				conn.rollback();
+				conn.setAutoCommit(true);
 			}
 			throw new SQLException(e);
 		}
 		
 		if(rollback) {
-			getConnection().commit();
-			getConnection().setAutoCommit(true);
+			conn.commit();
+			conn.setAutoCommit(true);
 		}
 		emptyCache();
     }
@@ -104,10 +107,11 @@ public abstract class SmallTableModelBase<T extends RecordBase> extends ModelBas
 	  	
 		//if auto commit is true, then do rollback, if caller is handling commit, 
 		//then don't do rollback here and let caller do the rollback.
-		Boolean rollback = getConnection().getAutoCommit(); 
+    	Connection conn = connectOIM();
+		Boolean rollback = conn.getAutoCommit(); 
 		
 		if(rollback) {
-			getConnection().setAutoCommit(false);
+			conn.setAutoCommit(false);
 		}
 		
 		try {
@@ -138,15 +142,15 @@ public abstract class SmallTableModelBase<T extends RecordBase> extends ModelBas
 	    	}
 		} catch (Exception e) {
 			if(rollback) {
-				getConnection().rollback();
-				getConnection().setAutoCommit(true);
+				conn.rollback();
+				conn.setAutoCommit(true);
 			}
 			throw new SQLException(e);
 		}
 		
 		if(rollback) {
-			getConnection().commit();
-			getConnection().setAutoCommit(true);
+			conn.commit();
+			conn.setAutoCommit(true);
 		}
 		emptyCache();
 	}
@@ -163,7 +167,8 @@ public abstract class SmallTableModelBase<T extends RecordBase> extends ModelBas
 	    		keysql += key.getName() + "=?";
 	    	}
 			String sql = "DELETE FROM "+table_name+" where " + keysql;
-			PreparedStatement stmt = getConnection().prepareStatement(sql);
+			Connection conn = connectOIM();
+			PreparedStatement stmt = conn.prepareStatement(sql);
 			int count = 1;
 			for(Field key : rec.getRecordKeys()) {
 	       		Object value = key.get(rec);
@@ -186,9 +191,7 @@ public abstract class SmallTableModelBase<T extends RecordBase> extends ModelBas
     
     //generated keys are inserted back to rec
     public void insert(RecordBase rec) throws SQLException
-    {
-		//auth.check("write_"+table_name);
-    	
+    { 	
 		//insert new contact records in batch
     	String fields = "";
     	String values = "";
@@ -201,7 +204,8 @@ public abstract class SmallTableModelBase<T extends RecordBase> extends ModelBas
     		values += "?";
     	}
 		String sql = "INSERT INTO "+table_name+" ("+fields+") VALUES ("+values+")";
-		PreparedStatement stmt = getConnection().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS); 
+		Connection conn = connectOIM();
+		PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS); 
     	try {
 	    	//set field values
 	    	int count = 1;
@@ -270,7 +274,8 @@ public abstract class SmallTableModelBase<T extends RecordBase> extends ModelBas
     		if(values.length() != 0) values += ", ";
     		values += f.getName() + "=?";
     	}  	
-    	stmt = getConnection().prepareStatement(sql);
+    	Connection conn = connectOIM();
+    	stmt = conn.prepareStatement(sql);
     	try {
 	    	//set field values
 	    	int count = 1;
@@ -306,7 +311,7 @@ public abstract class SmallTableModelBase<T extends RecordBase> extends ModelBas
 
     private String formatValue(Object obj)
     {
-    	if(obj == null) return "##null##";
+    	if(obj == null) return LogModel.NULL_TOKEN;
     	return StringEscapeUtils.escapeXml(obj.toString());
     }
     

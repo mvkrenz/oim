@@ -11,7 +11,7 @@ import org.apache.log4j.Logger;
 import com.webif.divex.DivEx;
 import com.webif.divex.Event;
 import com.webif.divex.EventListener;
-import com.webif.divex.form.FormDE;
+import com.webif.divex.form.FormDEBase;
 import com.webif.divex.StaticDE;
 import com.webif.divex.form.CheckBoxFormElementDE;
 import com.webif.divex.form.TextAreaFormElementDE;
@@ -52,7 +52,7 @@ import edu.iu.grid.oim.view.divex.ResourceServicesDE;
 import edu.iu.grid.oim.view.divex.ResourceWLCGDE;
 import edu.iu.grid.oim.view.divex.VOResourceOwnershipDE;
 
-public class ResourceFormDE extends FormDE 
+public class ResourceFormDE extends FormDEBase 
 {
     static Logger log = Logger.getLogger(ResourceFormDE.class); 
    
@@ -281,7 +281,9 @@ public class ResourceFormDE extends FormDE
 		return editor;
 	}
 	
-	protected Boolean doSubmit() {
+	protected Boolean doSubmit() 
+	{
+		Boolean ret = true;
 		
 		//Construct VORecord
 		ResourceRecord rec = new ResourceRecord();
@@ -325,9 +327,10 @@ public class ResourceFormDE extends FormDE
 			}
 		} catch (Exception e) {
 			alert(e.getMessage());
-			return false;
+			ret = false;
 		}
-		return true;
+		context.close();
+		return ret;
 	}
 	
 	//retrieve contact records from the contact editor.

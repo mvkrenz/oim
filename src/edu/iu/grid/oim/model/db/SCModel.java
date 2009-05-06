@@ -1,5 +1,6 @@
 package edu.iu.grid.oim.model.db;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -76,7 +77,8 @@ public class SCModel extends SmallTableModelBase<SCRecord> {
 		PreparedStatement stmt = null;
 
 		String sql = "SELECT * FROM sc_contact WHERE contact_id = ?";
-		stmt = getConnection().prepareStatement(sql); 
+		Connection conn = connectOIM();
+		stmt = conn.prepareStatement(sql); 
 		stmt.setInt(1, auth.getContactID());
 
 		rs = stmt.executeQuery();
@@ -106,10 +108,12 @@ public class SCModel extends SmallTableModelBase<SCRecord> {
 	public void insertDetail(SCRecord rec, 
 			ArrayList<SCContactRecord> contacts) throws Exception
 	{
+		Connection conn = null;
 		try {
 			
 			//process detail information
-			getConnection().setAutoCommit(false);
+			conn = connectOIM();
+			conn.setAutoCommit(false);
 			
 			//insert SC itself and get the new ID
 			insert(rec);
@@ -122,14 +126,15 @@ public class SCModel extends SmallTableModelBase<SCRecord> {
 			}
 			cmodel.insert(contacts);
 			
-			getConnection().commit();
-			getConnection().setAutoCommit(true);
+			conn.commit();
+			conn.setAutoCommit(true);
 		} catch (Exception e) {
 			log.error(e);
 			log.info("Rolling back SC insert transaction.");
-			getConnection().rollback();
-			getConnection().setAutoCommit(true);
-			
+			if(conn != null) {
+				conn.rollback();
+				conn.setAutoCommit(true);
+			}
 			//re-throw original exception
 			throw new Exception(e);
 		}	
@@ -138,10 +143,11 @@ public class SCModel extends SmallTableModelBase<SCRecord> {
 	public void updateDetail(SCRecord rec,
 			ArrayList<SCContactRecord> contacts) throws Exception
 	{
-		// update to DB
+		Connection conn = null;
 		try {
 			//process detail information
-			getConnection().setAutoCommit(false);
+			conn = connectOIM();
+			conn.setAutoCommit(false);
 			
 			update(get(rec), rec);
 			
@@ -153,14 +159,15 @@ public class SCModel extends SmallTableModelBase<SCRecord> {
 			}
 			cmodel.update(cmodel.getBySCID(rec.id), contacts);
 			
-			getConnection().commit();
-			getConnection().setAutoCommit(true);
+			conn.commit();
+			conn.setAutoCommit(true);
 		} catch (Exception e) {
 			log.error(e);
 			log.info("Rolling back SC update-insert transaction.");
-			getConnection().rollback();
-			getConnection().setAutoCommit(true);
-			
+			if(conn != null) {
+				conn.rollback();
+				conn.setAutoCommit(true);
+			}
 			//re-throw original exception
 			throw new Exception(e);
 		}			

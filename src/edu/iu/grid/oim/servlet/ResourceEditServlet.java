@@ -11,7 +11,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.log4j.Logger;
 
 import com.webif.divex.DivEx;
-import com.webif.divex.form.FormDE;
+import com.webif.divex.form.FormDEBase;
 
 import edu.iu.grid.oim.lib.Config;
 import edu.iu.grid.oim.model.Context;
@@ -38,7 +38,7 @@ public class ResourceEditServlet extends ServletBase implements Servlet {
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{
-		setContext(request);
+		//setContext(request);
 		auth.check("edit_my_resource");
 
 		ResourceRecord rec;
@@ -65,7 +65,7 @@ public class ResourceEditServlet extends ServletBase implements Servlet {
 			title = "New Resource";	
 		}
 
-		FormDE form;
+		FormDEBase form;
 		String origin_url = Config.getApplicationBase()+"/"+parent_page;
 		try {
 			form = new ResourceFormDE(context, rec, origin_url);

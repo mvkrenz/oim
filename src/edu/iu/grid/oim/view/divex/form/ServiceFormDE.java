@@ -5,7 +5,7 @@ import java.util.HashMap;
 import org.apache.log4j.Logger;
 import com.webif.divex.Event;
 import com.webif.divex.StaticDE;
-import com.webif.divex.form.FormDE;
+import com.webif.divex.form.FormDEBase;
 import com.webif.divex.form.SelectFormElementDE;
 import com.webif.divex.form.TextFormElementDE;
 import com.webif.divex.form.validator.UniqueValidator;
@@ -23,7 +23,7 @@ import edu.iu.grid.oim.model.db.record.ServiceGroupRecord;
 import edu.iu.grid.oim.model.db.record.ServiceRecord;
 import edu.iu.grid.oim.view.divex.MetricServiceDE;
 
-public class ServiceFormDE extends FormDE 
+public class ServiceFormDE extends FormDEBase 
 {
     static Logger log = Logger.getLogger(ServiceFormDE.class); 
     private Context context;
@@ -104,7 +104,9 @@ public class ServiceFormDE extends FormDE
 		return keyvalues;
 	}
 	
-	protected Boolean doSubmit() {
+	protected Boolean doSubmit() 
+	{
+		Boolean ret = true;
 		try {
 			auth.check("admin");
 			
@@ -127,10 +129,10 @@ public class ServiceFormDE extends FormDE
 		} catch (Exception e) {
 			log.error(e);
 			alert(e.getMessage());
-			return false;
+			ret = false;
 		}
-
-		return true;
+		context.close();
+		return ret;
 	}
 
 	@Override

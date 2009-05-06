@@ -13,7 +13,7 @@ import org.apache.log4j.Logger;
 import com.webif.divex.DivEx;
 import com.webif.divex.Event;
 import com.webif.divex.EventListener;
-import com.webif.divex.form.FormDE;
+import com.webif.divex.form.FormDEBase;
 import com.webif.divex.StaticDE;
 import com.webif.divex.form.CheckBoxFormElementDE;
 import com.webif.divex.form.SelectFormElementDE;
@@ -64,7 +64,7 @@ import edu.iu.grid.oim.view.divex.VOReportNamesDE;
 import edu.iu.grid.oim.view.divex.VOReportNameFqanDE;
 import edu.iu.grid.oim.view.divex.ContactEditorDE.Rank;
 
-public class VOFormDE extends FormDE 
+public class VOFormDE extends FormDEBase 
 {
     static Logger log = Logger.getLogger(VOFormDE.class); 
    
@@ -424,33 +424,15 @@ public class VOFormDE extends FormDE
 				sc_id.setValue(parent_vo_rec.sc_id);
 				sc_id.redraw();
 			}
-//
-//			HashMap<Integer/*contact_type_id*/, ArrayList<VOContactRecord>> voclist_grouped = null;
-//			VOContactModel vocmodel = new VOContactModel(auth);
-//			ArrayList<VOContactRecord> voclist = vocmodel.getByVOID(parent_vo_rec.id);
-//			voclist_grouped = vocmodel.groupByContactTypeID(voclist);
-//			ContactTypeModel ctmodel = new ContactTypeModel(auth);
-//			contact_editors.clear();
-//			for(int contact_type_id : contact_types) {
-//				ContactEditorDE editor = createContactEditor(voclist_grouped, ctmodel.get(contact_type_id));
-//				//disable submitter editor if needed
-//				if(!auth.allows("admin")) {
-//					if(contact_type_id == 1) { //1 = Submitter Contact
-//						editor.setDisabled(true);
-//					}
-//				}
-//				contact_editors.put(contact_type_id, editor);
-//				contact_editors.get(contact_type_id).redraw();
-//			}
+
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
 	
-	protected Boolean doSubmit() {
-		
-		//Construct VORecord
+	protected Boolean doSubmit() 
+	{
 		VORecord rec = new VORecord();
 		rec.id = id;
 	
@@ -479,6 +461,7 @@ public class VOFormDE extends FormDE
 			}
 		}
 		
+		Boolean ret = true;
 		VOModel model = new VOModel(context);
 		try {
 			if(rec.id == null) {
@@ -496,9 +479,11 @@ public class VOFormDE extends FormDE
 			}
 		} catch (Exception e) {
 			alert(e.getMessage());
-			return false;
+			log.error(e);
+			ret = false;
 		}
-		return true;
+		context.close();
+		return ret;
 	}
 	
 	//retrieve contact records from the contact editor.

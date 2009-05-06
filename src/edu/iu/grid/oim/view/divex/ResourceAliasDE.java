@@ -76,7 +76,6 @@ public class ResourceAliasDE extends FormElementDEBase {
 	public void addAlias(String alias) { 
 		AliasEditor elem = new AliasEditor(this);
 		elem.setValue(alias);
-		//aliases.add(elem);
 		redraw();
 	}
 	

@@ -51,7 +51,7 @@ public class LogServlet extends ServletBase  {
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{
-		setContext(request);
+		//setContext(request);
 		
 		//pull log type
 		String filter = null;

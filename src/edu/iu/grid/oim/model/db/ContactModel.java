@@ -18,6 +18,8 @@ import edu.iu.grid.oim.model.Context;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.DNRecord;
 import edu.iu.grid.oim.model.db.record.RecordBase;
+import edu.iu.grid.oim.model.db.record.ResourceRecord;
+import edu.iu.grid.oim.model.db.record.ServiceRecord;
 
 public class ContactModel extends SmallTableModelBase<ContactRecord> {
     static Logger log = Logger.getLogger(ContactModel.class);  
@@ -30,6 +32,20 @@ public class ContactModel extends SmallTableModelBase<ContactRecord> {
     {
     	return "Contact";
     }
+	public String getHumanValue(String field_name, String value) throws NumberFormatException, SQLException
+	{
+		if(field_name.equals("submitter_dn_id")) {
+			DNModel model = new DNModel(context);
+			if(value.equals(LogModel.NULL_TOKEN)) return value;
+			DNRecord rec = model.get(Integer.parseInt(value));
+			return value + " (" + rec.dn_string + ")";
+		} else if(field_name.equals("service_id")) {
+			ServiceModel model = new ServiceModel(context);
+			ServiceRecord rec = model.get(Integer.parseInt(value));
+			return value + " (" + rec.name + ")";
+		}
+		return value;
+	}
 	ContactRecord createRecord() throws SQLException
 	{
 		return new ContactRecord();

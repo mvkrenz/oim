@@ -19,7 +19,7 @@ import com.webif.divex.DivEx;
 import com.webif.divex.DivExRoot;
 import com.webif.divex.Event;
 import com.webif.divex.form.CheckBoxFormElementDE;
-import com.webif.divex.form.FormDE;
+import com.webif.divex.form.FormDEBase;
 import com.webif.divex.form.FormElementDEBase;
 
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
@@ -135,7 +135,7 @@ public class AuthorizationMatrixServlet extends ServletBase  {
 		}
 	}
 	
-    class AuthMatrixFormDE extends FormDE
+    class AuthMatrixFormDE extends FormDEBase
     {
         private AuthMatrix matrix;
 		public AuthMatrixFormDE(DivEx parent, String _origin_url) throws SQLException {
@@ -174,7 +174,7 @@ public class AuthorizationMatrixServlet extends ServletBase  {
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{
-		setContext(request);
+		//setContext(request);
 	
 		//construct view
 		MenuView menuview = new MenuView(context, "admin");
@@ -201,7 +201,7 @@ public class AuthorizationMatrixServlet extends ServletBase  {
 	{			
 		ContentView contentview = new ContentView();
 		contentview.add(new HtmlView("<h1>Authorization Matrix</h1>"));
-		FormDE form = new AuthMatrixFormDE(context.getDivExRoot(), "admin");
+		FormDEBase form = new AuthMatrixFormDE(context.getDivExRoot(), "admin");
 		contentview.add(new DivExWrapper(form));
 		return contentview;
 	}

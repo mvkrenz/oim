@@ -11,7 +11,7 @@ import org.apache.log4j.Logger;
 
 import com.webif.divex.DivEx;
 import com.webif.divex.Event;
-import com.webif.divex.form.FormDE;
+import com.webif.divex.form.FormDEBase;
 import com.webif.divex.StaticDE;
 import com.webif.divex.form.CheckBoxFormElementDE;
 import com.webif.divex.form.SelectFormElementDE;
@@ -36,7 +36,7 @@ import edu.iu.grid.oim.model.db.record.OsgGridTypeRecord;
 import edu.iu.grid.oim.view.divex.ContactEditorDE;
 import edu.iu.grid.oim.view.divex.ResourceDowntimeEditorDE;
 
-public class ResourceDowntimeFormDE extends FormDE 
+public class ResourceDowntimeFormDE extends FormDEBase 
 {
     static Logger log = Logger.getLogger(ResourceDowntimeFormDE.class); 
     
@@ -56,15 +56,18 @@ public class ResourceDowntimeFormDE extends FormDE
 		downtime = new ResourceDowntimeEditorDE(this, context, resource_id);
 	}
 	
-	protected Boolean doSubmit() {		
+	protected Boolean doSubmit() 
+	{
+		Boolean ret = true;
 		ResourceDowntimeModel model = new ResourceDowntimeModel(context);
 		try {
 			model.updateDetail(id, downtime.getResourceDowntimes());
 		} catch (Exception e) {
 			alert(e.getMessage());
-			return false;
+			ret = false;
 		}
-		return true;
+		context.close();
+		return ret;
 	}
 
 	@Override

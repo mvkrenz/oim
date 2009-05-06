@@ -7,7 +7,7 @@ import com.webif.divex.DivEx;
 import com.webif.divex.Event;
 import com.webif.divex.EventListener;
 
-abstract public class FormDE extends DivEx {
+abstract public class FormDEBase extends DivEx {
 	
 	//URL to go after cancel or submit button is selected
 	private String origin_url;
@@ -18,7 +18,7 @@ abstract public class FormDE extends DivEx {
 	//private String error;
 	private Boolean valid;
 	
-	public FormDE(DivEx parent, String _origin_url)
+	public FormDEBase(DivEx parent, String _origin_url)
 	{
 		super(parent);
 		

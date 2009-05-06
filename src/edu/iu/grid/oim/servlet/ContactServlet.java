@@ -1,53 +1,31 @@
 package edu.iu.grid.oim.servlet;
 
 import java.io.IOException;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Set;
-
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
-
 import com.webif.divex.ButtonDE;
 import com.webif.divex.DivEx;
-import com.webif.divex.DivExRoot;
 import com.webif.divex.Event;
 import com.webif.divex.TogglerDE;
-
 import edu.iu.grid.oim.lib.Config;
-import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
-import edu.iu.grid.oim.model.db.ContactRankModel;
-import edu.iu.grid.oim.model.db.ContactTypeModel;
 import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.DNModel;
-import edu.iu.grid.oim.model.db.SCContactModel;
-import edu.iu.grid.oim.model.db.SCModel;
 import edu.iu.grid.oim.model.db.record.DNRecord;
-import edu.iu.grid.oim.model.db.record.SCRecord;
-import edu.iu.grid.oim.model.db.record.SCContactRecord;
-import edu.iu.grid.oim.model.db.record.ContactRankRecord;
-import edu.iu.grid.oim.model.db.record.ContactTypeRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.view.ContentView;
 import edu.iu.grid.oim.view.DivExWrapper;
 import edu.iu.grid.oim.view.HtmlView;
-import edu.iu.grid.oim.view.IView;
 import edu.iu.grid.oim.view.MenuView;
 import edu.iu.grid.oim.view.Page;
 import edu.iu.grid.oim.view.RecordTableView;
 import edu.iu.grid.oim.view.SideContentView;
-import edu.iu.grid.oim.view.TableView;
-import edu.iu.grid.oim.view.Utils;
-import edu.iu.grid.oim.view.TableView.Row;
-import edu.iu.grid.oim.view.divex.form.ViewWrapperDE;
+import edu.iu.grid.oim.view.divex.ViewWrapperDE;
 
 public class ContactServlet extends ServletBase implements Servlet {
 	private static final long serialVersionUID = 1L;
@@ -59,7 +37,7 @@ public class ContactServlet extends ServletBase implements Servlet {
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{	
-		setContext(request);
+		//setContext(request);
 		
 		//pull list of all SCs
 		ContactModel model = new ContactModel(context);
@@ -92,7 +70,6 @@ public class ContactServlet extends ServletBase implements Servlet {
 			
 			RecordTableView table = new RecordTableView();
 			contentview.add(new TogglerDE(context.getDivExRoot(), new ViewWrapperDE(context.getDivExRoot(), table)));
-			//contentview.add(table);
 
 		 	table.addRow("Primary Email", rec.primary_email);
 		 	table.addRow("Secondary Email", rec.secondary_email);

@@ -17,7 +17,7 @@ import com.webif.divex.DivEx;
 import com.webif.divex.DivExRoot;
 import com.webif.divex.Event;
 import com.webif.divex.EventListener;
-import com.webif.divex.form.FormDE;
+import com.webif.divex.form.FormDEBase;
 import com.webif.divex.form.TextFormElementDE;
 import com.webif.divex.form.validator.IFormElementValidator;
 import com.webif.divex.form.validator.UniqueValidator;
@@ -50,7 +50,7 @@ public class RegisterServlet extends ServletBase  {
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{
-		setContext(request);
+		//setContext(request);
 		// TODO agopu: need check to see if an already registered user stumbled on this page.
 		MenuView menuview = new MenuView(context, "register");
 		ContentView contentview = createContentView();
@@ -126,7 +126,7 @@ public class RegisterServlet extends ServletBase  {
 			
 		}
 	}
-	class EnterEmailPage extends FormDE implements IWizardPage
+	class EnterEmailPage extends FormDEBase implements IWizardPage
  	{
 		WizardDE wizard;
 		private TextFormElementDE email;

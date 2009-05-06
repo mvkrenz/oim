@@ -1,4 +1,4 @@
-package edu.iu.grid.oim.view.divex.form;
+package edu.iu.grid.oim.view.divex;
 
 import java.io.PrintWriter;
 

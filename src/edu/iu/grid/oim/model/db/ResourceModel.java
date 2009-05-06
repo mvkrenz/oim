@@ -1,5 +1,6 @@
 package edu.iu.grid.oim.model.db;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -145,10 +146,10 @@ public class ResourceModel extends SmallTableModelBase<ResourceRecord> {
 			ArrayList<ResourceDowntimeEditorDE.DowntimeEditor> downtimes,
 			HashMap<DowntimeEditor, ArrayList<ResourceDowntimeServiceRecord>> downtime_services*/) throws Exception
 	{
+		Connection conn = null;
 		try {
-			
-			//process detail information
-			getConnection().setAutoCommit(false);
+			conn = connectOIM();		
+			conn.setAutoCommit(false);
 			
 			//insert resource itself and insert() will set rec.id with newly created id
 			insert(rec);
@@ -194,13 +195,15 @@ public class ResourceModel extends SmallTableModelBase<ResourceRecord> {
 				wmodel.insert(wrec);
 			}
 
-			getConnection().commit();
-			getConnection().setAutoCommit(true);
+			conn.commit();
+			conn.setAutoCommit(true);
 		} catch (Exception e) {
 			log.error(e);
 			log.info("Rolling back resource insert transaction.");
-			getConnection().rollback();
-			getConnection().setAutoCommit(true);
+			if(conn != null) {
+				conn.rollback();
+				conn.setAutoCommit(true);
+			}
 			
 			//re-throw original exception
 			throw new Exception(e);
@@ -212,15 +215,12 @@ public class ResourceModel extends SmallTableModelBase<ResourceRecord> {
 			ArrayList<ResourceContactRecord> contacts,
 			ResourceWLCGRecord wrec,
 			ArrayList<ResourceServiceRecord> resource_services,
-			ArrayList<VOResourceOwnershipRecord> owners/*,
-			ArrayList<ResourceDowntimeEditorDE.DowntimeEditor> downtimes,
-			HashMap<DowntimeEditor, ArrayList<ResourceDowntimeServiceRecord>> downtime_services*/) throws Exception
+			ArrayList<VOResourceOwnershipRecord> owners) throws Exception
 	{
-		//Do insert / update to our DB
+		Connection conn = null;
 		try {		
-			//process detail information
-			getConnection().setAutoCommit(false);
-			
+			conn = connectOIM();
+			conn.setAutoCommit(false);
 			update(get(rec), rec);
 			
 			//process contact information
@@ -278,14 +278,15 @@ public class ResourceModel extends SmallTableModelBase<ResourceRecord> {
 				}
 			}
 			
-			getConnection().commit();
-			getConnection().setAutoCommit(true);
+			conn.commit();
+			conn.setAutoCommit(true);
 		} catch (Exception e) {
 			log.error(e);
 			log.info("Rolling back resource insert transaction.");
-			getConnection().rollback();
-			getConnection().setAutoCommit(true);
-			
+			if(conn != null) {
+				conn.rollback();
+				conn.setAutoCommit(true);
+			}
 			//re-throw original exception
 			throw new Exception(e);
 		}			

@@ -1,12 +1,10 @@
 package edu.iu.grid.oim.servlet;
 
 import java.io.IOException;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Set;
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -15,12 +13,9 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 import com.webif.divex.ButtonDE;
 import com.webif.divex.DivEx;
-import com.webif.divex.DivExRoot;
 import com.webif.divex.Event;
 import com.webif.divex.TogglerDE;
-
 import edu.iu.grid.oim.lib.Config;
-import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
 import edu.iu.grid.oim.model.db.ContactRankModel;
 import edu.iu.grid.oim.model.db.ContactTypeModel;
 import edu.iu.grid.oim.model.db.ContactModel;
@@ -52,12 +47,8 @@ import edu.iu.grid.oim.view.MenuView;
 import edu.iu.grid.oim.view.Page;
 import edu.iu.grid.oim.view.RecordTableView;
 import edu.iu.grid.oim.view.SideContentView;
-import edu.iu.grid.oim.view.TableView;
-import edu.iu.grid.oim.view.Utils;
 import edu.iu.grid.oim.view.TableView.Row;
-import edu.iu.grid.oim.view.TableView.Row.Cell;
-import edu.iu.grid.oim.view.divex.ContactEditorDE;
-import edu.iu.grid.oim.view.divex.form.ViewWrapperDE;
+import edu.iu.grid.oim.view.divex.ViewWrapperDE;
 
 public class VOServlet extends ServletBase implements Servlet {
 	private static final long serialVersionUID = 1L;
@@ -69,7 +60,7 @@ public class VOServlet extends ServletBase implements Servlet {
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{	
-		setContext(request);
+		//setContext(request);
 		auth.check("edit_my_vo");
 		
 		try {	

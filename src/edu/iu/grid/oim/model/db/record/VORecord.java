@@ -7,7 +7,9 @@ import java.util.ArrayList;
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.model.db.ActionModel;
 import edu.iu.grid.oim.model.db.AuthorizationTypeModel;
+import edu.iu.grid.oim.model.db.ResourceGroupModel;
 import edu.iu.grid.oim.model.db.SCModel;
+import edu.iu.grid.oim.model.db.VOReportNameModel;
 
 public class VORecord extends RecordBase 
 {
@@ -31,31 +33,4 @@ public class VORecord extends RecordBase
 	public VORecord(ResultSet rs) throws SQLException { super(rs); }
 	//for creating new record
 	public VORecord() {}
-	/*
-	public String getTitle() {
-		return "Virtual Oranization : " + name;
-	}
-	
-	public ArrayList<String> getLables() {
-		ArrayList<String> labels = new ArrayList();
-		labels.add("vo");
-		labels.add("vo_"+id);
-		labels.add("sc_"+sc_id);
-		return labels;
-	}
-	public String toString(Object field, Authorization auth)
-	{
-		if(field == null) return null;
-		try {
-			if(field == sc_id) {
-				SCModel model = new SCModel(auth);
-				SCRecord rec = model.get(sc_id);
-				return rec.name;
-			}
-		} catch(SQLException e) {
-			//forget it then..
-		}
-		return field.toString();
-	}
-	*/
 }

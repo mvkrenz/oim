@@ -19,7 +19,7 @@ import edu.iu.grid.oim.view.divex.ResourceServicesDE.ServiceEditor;
 
 public class VOResourceOwnershipDE extends FormElementDEBase {
 
-	ArrayList<OwnershipEditor> owners = new ArrayList<OwnershipEditor>();
+	//ArrayList<OwnershipEditor> owners = new ArrayList<OwnershipEditor>();
 	ArrayList<Integer> owner_id_taken = new ArrayList<Integer>();
 	private ButtonDE add_button;
 	private ArrayList<VORecord> vo_recs;
@@ -95,37 +95,12 @@ public class VOResourceOwnershipDE extends FormElementDEBase {
 			// TODO Auto-generated method stub
 			
 		}
-
+		/*
 		public ArrayList<OwnershipEditor> getOwnershipEditors()
 		{
 			return owners;
 		}
-		
-//		public void removeOwner(OwnershipEditor owner)
-//		{
-//			owners.remove(owner);
-//			redraw();
-//			
-//			//notify any listener of our action
-//			Event e = new Event(null, null);
-//			e.action = "remove";
-//			e.value = owner;
-//			notifyListener(e);
-//		}
-//		
-//		public void addOwner(VOResourceOwnershipRecord rec) { 
-//			OwnershipEditor owner = new OwnershipEditor(this, rec, vo_recs);
-//			owners.add(owner);
-//			redraw();
-//			
-//			//notify any listener of our action
-//			Event e = new Event(null, null);
-//			e.action = "add";
-//			e.value = owner;
-//			notifyListener(e);
-//		}
-//		
-		
+		*/
 		public void render(PrintWriter out) {
 			out.write("<div id=\""+getNodeID()+"\" class=\"owner_editor\">");
 			
@@ -155,32 +130,34 @@ public class VOResourceOwnershipDE extends FormElementDEBase {
 	
 	public void removeOwner(OwnershipEditor owner)
 	{
-		owners.remove(owner);
+		remove(owner);
 		redraw();
-		
+		/*
 		//notify any listener of our action
 		Event e = new Event(null, null);
 		e.action = "remove";
 		e.value = owner;
 		notifyListener(e);
+		*/
 	}
 	
 	public void addOwner(VOResourceOwnershipRecord rec) { 
 		OwnershipEditor owner = new OwnershipEditor(this, rec, vo_recs);
-		owners.add(owner);
+		//owners.add(owner);
 		redraw();
-		
+		/*
 		//notify any listener of our action
 		Event e = new Event(null, null);
 		e.action = "add";
 		e.value = owner;
 		notifyListener(e);
+		*/
 	}
 	
 	public VOResourceOwnershipDE(DivEx parent, ArrayList<VORecord> _vo_recs) {
 		super(parent);
 		vo_recs = _vo_recs;
-
+		
 		add_button = new ButtonDE(this, "Add New Owner");
 		add_button.setStyle(ButtonDE.Style.ALINK);
 		add_button.addEventListener(new EventListener() {
@@ -211,7 +188,7 @@ public class VOResourceOwnershipDE extends FormElementDEBase {
 		// TODO Auto-generated method stub
 
 	}
-	
+	/*
 	public void validate()
 	{
 		//validate all downtimes
@@ -223,7 +200,7 @@ public class VOResourceOwnershipDE extends FormElementDEBase {
 			}
 		}
 	}	
-	
+	*/
 	public void render(PrintWriter out) {
 		out.print("<div id=\""+getNodeID()+"\">");
 		for(DivEx node : childnodes) {

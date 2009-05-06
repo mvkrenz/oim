@@ -25,7 +25,7 @@ public class Error404Servlet extends ServletBase {
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{
-		setContext(request);
+		//setContext(request);
 		
 		MenuView menuview = new MenuView(context, "_error_");
 		ContentView contentview = createContentView(request);		

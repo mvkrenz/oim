@@ -4,7 +4,7 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import org.apache.log4j.Logger;
 import com.webif.divex.Event;
-import com.webif.divex.form.FormDE;
+import com.webif.divex.form.FormDEBase;
 import com.webif.divex.form.TextAreaFormElementDE;
 import com.webif.divex.form.TextFormElementDE;
 import com.webif.divex.form.validator.UniqueValidator;
@@ -14,7 +14,7 @@ import edu.iu.grid.oim.model.Context;
 import edu.iu.grid.oim.model.db.CpuInfoModel;
 import edu.iu.grid.oim.model.db.record.CpuInfoRecord;
 
-public class CpuInfoFormDE extends FormDE 
+public class CpuInfoFormDE extends FormDEBase 
 {
     static Logger log = Logger.getLogger(CpuInfoFormDE.class); 
     
@@ -67,9 +67,9 @@ public class CpuInfoFormDE extends FormDE
 		return keyvalues;
 	}
 	
-	protected Boolean doSubmit() {
-		
-		//Construct OsgGridTypeRecord
+	protected Boolean doSubmit() 
+	{	
+		Boolean ret = true;
 		CpuInfoRecord rec = new CpuInfoRecord();
 		rec.id = id;
 		rec.name = name.getValue();
@@ -86,16 +86,13 @@ public class CpuInfoFormDE extends FormDE
 			} else {
 				model.update(model.get(rec), rec);
 			}
-		 } catch (AuthorizationException e) {
-			log.error(e);
-			return false;
-		} catch (SQLException e) {
+		 } catch (Exception e) {
 			log.error(e);
 			alert(e.getMessage());
-			return false;
+			ret = false;
 		}
-
-		return true;
+		context.close();
+		return ret;
 	}
 
 	@Override

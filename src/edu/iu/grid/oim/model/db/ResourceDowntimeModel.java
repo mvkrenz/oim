@@ -1,5 +1,6 @@
 package edu.iu.grid.oim.model.db;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -14,9 +15,15 @@ import org.w3c.dom.Document;
 
 import edu.iu.grid.oim.model.Context;
 import edu.iu.grid.oim.model.ResourceDowntime;
+import edu.iu.grid.oim.model.db.record.DNRecord;
+import edu.iu.grid.oim.model.db.record.DowntimeClassRecord;
+import edu.iu.grid.oim.model.db.record.DowntimeSeverityRecord;
+import edu.iu.grid.oim.model.db.record.OsgGridTypeRecord;
 import edu.iu.grid.oim.model.db.record.RecordBase;
 import edu.iu.grid.oim.model.db.record.ResourceDowntimeRecord;
 import edu.iu.grid.oim.model.db.record.ResourceDowntimeServiceRecord;
+import edu.iu.grid.oim.model.db.record.ResourceRecord;
+import edu.iu.grid.oim.model.db.record.SiteRecord;
 
 public class ResourceDowntimeModel extends SmallTableModelBase<ResourceDowntimeRecord> {
     static Logger log = Logger.getLogger(ResourceDowntimeModel.class); 
@@ -28,6 +35,27 @@ public class ResourceDowntimeModel extends SmallTableModelBase<ResourceDowntimeR
     {
     	return "Resource Downtime";
     }
+	public String getHumanValue(String field_name, String value) throws NumberFormatException, SQLException
+	{
+		if(field_name.equals("downtime_class_id")) {
+			DowntimeClassModel model = new DowntimeClassModel(context);
+			DowntimeClassRecord rec = model.get(Integer.parseInt(value));
+			return value + " (" + rec.name + ")";
+		} else if(field_name.equals("downtime_severity_id")) {
+			DowntimeSeverityModel model = new DowntimeSeverityModel(context);
+			DowntimeSeverityRecord rec = model.get(Integer.parseInt(value));
+			return value + " (" + rec.name + ")";
+		} else if(field_name.equals("resource_id")) {
+			ResourceModel model = new ResourceModel(context);
+			ResourceRecord rec = model.get(Integer.parseInt(value));
+			return value + " (" + rec.name + ")";
+		} else if(field_name.equals("dn_id")) {
+			DNModel model = new DNModel(context);
+			DNRecord rec = model.get(Integer.parseInt(value));
+			return value + " (" + rec.dn_string + ")";
+		}
+		return value;
+	}
 	ResourceDowntimeRecord createRecord() throws SQLException
 	{
 		return new ResourceDowntimeRecord();
@@ -69,8 +97,9 @@ public class ResourceDowntimeModel extends SmallTableModelBase<ResourceDowntimeR
 	
 	public void updateDetail(int resource_id, ArrayList<ResourceDowntime> downtimes) throws Exception
 	{
+		Connection conn = connectOIM();
 		try {		
-			getConnection().setAutoCommit(false);
+			conn.setAutoCommit(false);
 	
 			ResourceDowntimeModel dmodel = new ResourceDowntimeModel(context);
 			ResourceDowntimeServiceModel rdsmodel = new ResourceDowntimeServiceModel(context);
@@ -93,13 +122,13 @@ public class ResourceDowntimeModel extends SmallTableModelBase<ResourceDowntimeR
 				rdsmodel.update(rdsmodel.getByDowntimeID(downtime_rec.id), services);			
 			}
 			
-			getConnection().commit();
-			getConnection().setAutoCommit(true);
+			conn.commit();
+			conn.setAutoCommit(true);
 		} catch (Exception e) {
 			log.error(e);
 			log.info("Rolling back resource downtime transaction.");
-			getConnection().rollback();
-			getConnection().setAutoCommit(true);
+			conn.rollback();
+			conn.setAutoCommit(true);
 			
 			//re-throw original exception
 			throw new Exception(e);

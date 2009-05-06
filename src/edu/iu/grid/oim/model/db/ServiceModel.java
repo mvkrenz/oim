@@ -1,5 +1,6 @@
 package edu.iu.grid.oim.model.db;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import javax.xml.xpath.XPath;
@@ -48,8 +49,10 @@ public class ServiceModel extends SmallTableModelBase<ServiceRecord> {
 	public void insertDetail(ServiceRecord rec, 
 			ArrayList<MetricServiceRecord> metrics) throws Exception
 	{
+		Connection conn = null;
 		try {			
-			getConnection().setAutoCommit(false);
+			conn = connectOIM();
+			conn.setAutoCommit(false);
 			
 			insert(rec);
 			
@@ -60,14 +63,15 @@ public class ServiceModel extends SmallTableModelBase<ServiceRecord> {
 			}
 			cmodel.insert(metrics);
 			
-			getConnection().commit();
-			getConnection().setAutoCommit(true);
+			conn.commit();
+			conn.setAutoCommit(true);
 		} catch (Exception e) {
 			log.error(e);
 			log.info("Rolling back Service Detail insert transaction.");
-			getConnection().rollback();
-			getConnection().setAutoCommit(true);
-			
+			if(conn != null) {
+				conn.rollback();
+				conn.setAutoCommit(true);
+			}
 			//re-throw original exception
 			throw new Exception(e);
 		}	
@@ -76,10 +80,11 @@ public class ServiceModel extends SmallTableModelBase<ServiceRecord> {
 	public void updateDetail(ServiceRecord rec, 
 			ArrayList<MetricServiceRecord> metrics) throws Exception
 	{
+		Connection conn = null;
 		try {
-		
 			//process detail information
-			getConnection().setAutoCommit(false);
+			conn = connectOIM();
+			conn.setAutoCommit(false);
 			
 			update(get(rec), rec);
 			
@@ -89,14 +94,15 @@ public class ServiceModel extends SmallTableModelBase<ServiceRecord> {
 			}
 			cmodel.update(cmodel.getAllByServiceID(rec.id), metrics);
 			
-			getConnection().commit();
-			getConnection().setAutoCommit(true);
+			conn.commit();
+			conn.setAutoCommit(true);
 		} catch (Exception e) {
 			log.error(e);
 			log.info("Rolling back VO insert transaction.");
-			getConnection().rollback();
-			getConnection().setAutoCommit(true);
-			
+			if(conn != null) {
+				conn.rollback();
+				conn.setAutoCommit(true);
+			}
 			//re-throw original exception
 			throw new Exception(e);
 		}			

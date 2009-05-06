@@ -17,8 +17,13 @@ import org.w3c.dom.Document;
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
 import edu.iu.grid.oim.model.Context;
+import edu.iu.grid.oim.model.db.record.ContactRankRecord;
+import edu.iu.grid.oim.model.db.record.ContactRecord;
+import edu.iu.grid.oim.model.db.record.ContactTypeRecord;
 import edu.iu.grid.oim.model.db.record.RecordBase;
 import edu.iu.grid.oim.model.db.record.SCContactRecord;
+import edu.iu.grid.oim.model.db.record.SCRecord;
+import edu.iu.grid.oim.model.db.record.VORecord;
 
 public class SCContactModel extends SmallTableModelBase<SCContactRecord> {
     static Logger log = Logger.getLogger(SCContactModel.class); 
@@ -73,6 +78,27 @@ public class SCContactModel extends SmallTableModelBase<SCContactRecord> {
     {
     	return "Support Center Contact";
     }
+	public String getHumanValue(String field_name, String value) throws NumberFormatException, SQLException
+	{
+		if(field_name.equals("sc_id")) {
+			SCModel model = new SCModel(context);
+			SCRecord rec = model.get(Integer.parseInt(value));
+			return value + " (" + rec.name + ")";
+		} else if(field_name.equals("contact_type_id")) {
+			ContactTypeModel model = new ContactTypeModel(context);
+			ContactTypeRecord rec = model.get(Integer.parseInt(value));
+			return value + " (" + rec.name + ")";
+		} else if(field_name.equals("contact_rank_id")) {
+			ContactRankModel model = new ContactRankModel(context);
+			ContactRankRecord rec = model.get(Integer.parseInt(value));
+			return value + " (" + rec.name + ")";
+		} else if(field_name.equals("contact_id")) {
+			ContactModel model = new ContactModel(context);
+			ContactRecord rec = model.get(Integer.parseInt(value));
+			return value + " (" + rec.name + ")";
+		}
+		return value;
+	}
 	public Boolean hasLogAccess(XPath xpath, Document doc) throws XPathExpressionException
 	{
 		Integer id = Integer.parseInt((String)xpath.evaluate("//Keys/Key[Name='sc_id']/Value", doc, XPathConstants.STRING));

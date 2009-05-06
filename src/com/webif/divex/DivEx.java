@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang.StringEscapeUtils;
+
 public abstract class DivEx {    
 	private String nodeid;
 	private Boolean needupdate = false;
@@ -39,7 +41,7 @@ public abstract class DivEx {
 	 
 	public void alert(String msg)
 	{
-		js("alert('"+msg+"');");
+		js("alert('"+StringEscapeUtils.escapeJavaScript(msg)+"');");
 	}
 	public void js(String _js)
 	{

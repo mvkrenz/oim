@@ -16,9 +16,12 @@ import org.w3c.dom.Document;
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
 import edu.iu.grid.oim.model.Context;
+import edu.iu.grid.oim.model.db.record.DNRecord;
 import edu.iu.grid.oim.model.db.record.FacilityRecord;
 import edu.iu.grid.oim.model.db.record.RecordBase;
 import edu.iu.grid.oim.model.db.record.ResourceRecord;
+import edu.iu.grid.oim.model.db.record.SCRecord;
+import edu.iu.grid.oim.model.db.record.ServiceRecord;
 import edu.iu.grid.oim.model.db.record.SiteRecord;
 
 public class SiteModel extends SmallTableModelBase<SiteRecord> {
@@ -31,6 +34,19 @@ public class SiteModel extends SmallTableModelBase<SiteRecord> {
     {
     	return "Site";
     }
+	public String getHumanValue(String field_name, String value) throws NumberFormatException, SQLException
+	{
+		if(field_name.equals("sc_id")) {
+			SCModel model = new SCModel(context);
+			SCRecord rec = model.get(Integer.parseInt(value));
+			return value + " (" + rec.name + ")";
+		} else if(field_name.equals("facility_id")) {
+			FacilityModel model = new FacilityModel(context);
+			FacilityRecord rec = model.get(Integer.parseInt(value));
+			return value + " (" + rec.name + ")";
+		}
+		return value;
+	}
 	public Boolean hasLogAccess(XPath xpath, Document doc) throws XPathExpressionException
 	{
 		//Integer id = Integer.parseInt((String)xpath.evaluate("//Keys/Key[Name='id']/Value", doc, XPathConstants.STRING));

@@ -52,7 +52,7 @@ import edu.iu.grid.oim.view.MenuView;
 import edu.iu.grid.oim.view.Page;
 import edu.iu.grid.oim.view.RecordTableView;
 import edu.iu.grid.oim.view.SideContentView;
-import edu.iu.grid.oim.view.divex.form.ViewWrapperDE;
+import edu.iu.grid.oim.view.divex.ViewWrapperDE;
 
 public class ResourceServlet extends ServletBase implements Servlet {
 	private static final long serialVersionUID = 1L;
@@ -64,7 +64,7 @@ public class ResourceServlet extends ServletBase implements Servlet {
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{	
-		setContext(request);
+		//setContext(request);
 		auth.check("edit_my_resource");
 		
 		try {

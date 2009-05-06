@@ -32,19 +32,17 @@ public class HomeServlet extends ServletBase  {
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{
-		setContext(request);
+		//setContext(request);
 		
 		MenuView menuview = new MenuView(context, "home");
 		ContentView contentview;
 		if(auth.getDNID() == null) {
 			response.sendRedirect(Config.getApplicationBase() + "/register");
-			return;
 		} else {
 			contentview = createContentView();
+			Page page = new Page(menuview, contentview, new SideContentView());
+			page.render(response.getWriter());	
 		}
-		
-		Page page = new Page(menuview, contentview, new SideContentView());
-		page.render(response.getWriter());	
 	}
 	
 	protected ContentView createContentView()

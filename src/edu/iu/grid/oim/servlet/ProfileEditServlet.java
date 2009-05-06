@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.log4j.Logger;
 
 import com.webif.divex.DivExRoot;
+import com.webif.divex.StaticDE;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Config;
@@ -39,7 +40,7 @@ public class ProfileEditServlet extends ServletBase implements Servlet {
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{
-		setContext(request);
+		//setContext(request);
 		//no auth check for profile
 		
 		ContactRecord rec;
@@ -52,6 +53,12 @@ public class ProfileEditServlet extends ServletBase implements Servlet {
 			//put the form in a view and display
 			ContentView contentview = new ContentView();
 			contentview.add(new HtmlView("<h1>Edit Your User Profile</h1>"));	
+			
+			if (rec.active == false) {
+				contentview.add(new HtmlView("<h4>Inactive User Account Warning:</h4>"));
+				contentview.add(new HtmlView("<p>Your contact has not been activated yet; You can continue to make changes to it but beware that you will not be able to registration activities till the account is activated by GOC staff. Contact the OSG GOC if you have any questions.</p>"));
+			}
+			
 			contentview.add(new DivExWrapper(form));
 			
 			Page page = new Page(new MenuView(context, "profileedit"), contentview, createSideView());

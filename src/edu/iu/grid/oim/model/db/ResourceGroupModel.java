@@ -7,8 +7,12 @@ import javax.xml.xpath.XPathExpressionException;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import edu.iu.grid.oim.model.Context;
+import edu.iu.grid.oim.model.db.record.OsgGridTypeRecord;
 import edu.iu.grid.oim.model.db.record.RecordBase;
 import edu.iu.grid.oim.model.db.record.ResourceGroupRecord;
+import edu.iu.grid.oim.model.db.record.ResourceRecord;
+import edu.iu.grid.oim.model.db.record.ServiceRecord;
+import edu.iu.grid.oim.model.db.record.SiteRecord;
 
 public class ResourceGroupModel extends SmallTableModelBase<ResourceGroupRecord> {
     static Logger log = Logger.getLogger(ResourceGroupModel.class); 
@@ -46,6 +50,19 @@ public class ResourceGroupModel extends SmallTableModelBase<ResourceGroupRecord>
     {
     	return "Resource Group";
     }
+	public String getHumanValue(String field_name, String value) throws NumberFormatException, SQLException
+	{
+		if(field_name.equals("site_id")) {
+			SiteModel model = new SiteModel(context);
+			SiteRecord rec = model.get(Integer.parseInt(value));
+			return value + " (" + rec.name + ")";
+		} else if(field_name.equals("osg_grid_type_id")) {
+			OsgGridTypeModel model = new OsgGridTypeModel(context);
+			OsgGridTypeRecord rec = model.get(Integer.parseInt(value));
+			return value + " (" + rec.description + ")";
+		}
+		return value;
+	}
 	public Boolean hasLogAccess(XPath xpath, Document doc) throws XPathExpressionException
 	{
 		//Integer id = Integer.parseInt((String)xpath.evaluate("//Keys/Key[Name='id']/Value", doc, XPathConstants.STRING));

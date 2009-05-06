@@ -41,7 +41,7 @@ public class UserEditServlet extends ServletBase implements Servlet {
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{
-		setContext(request);
+		//setContext(request);
 		auth.check("admin");
 	
 		String title;

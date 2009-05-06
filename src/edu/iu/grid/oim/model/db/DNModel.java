@@ -1,20 +1,21 @@
 package edu.iu.grid.oim.model.db;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
-
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathExpressionException;
-
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
-
 import edu.iu.grid.oim.model.Context;
+import edu.iu.grid.oim.model.db.record.AuthorizationTypeRecord;
+import edu.iu.grid.oim.model.db.record.ContactRankRecord;
+import edu.iu.grid.oim.model.db.record.ContactRecord;
+import edu.iu.grid.oim.model.db.record.ContactTypeRecord;
 import edu.iu.grid.oim.model.db.record.DNAuthorizationTypeRecord;
 import edu.iu.grid.oim.model.db.record.DNRecord;
-
 import edu.iu.grid.oim.model.db.record.RecordBase;
-
+import edu.iu.grid.oim.model.db.record.VOReportNameRecord;
 
 public class DNModel extends SmallTableModelBase<DNRecord> {
     static Logger log = Logger.getLogger(DNModel.class);  
@@ -27,6 +28,15 @@ public class DNModel extends SmallTableModelBase<DNRecord> {
     {
     	return "DN";
     }
+	public String getHumanValue(String field_name, String value) throws NumberFormatException, SQLException
+	{
+		if(field_name.equals("contact_id")) {
+			ContactModel model = new ContactModel(context);
+			ContactRecord rec = model.get(Integer.parseInt(value));
+			return value + " (" + rec.name + ")";
+		}
+		return value;
+	}
 	public Boolean hasLogAccess(XPath xpath, Document doc) throws XPathExpressionException
 	{
 		//Integer id = Integer.parseInt((String)xpath.evaluate("//Keys/Key[Name='id']/Value", doc, XPathConstants.STRING));
@@ -80,9 +90,10 @@ public class DNModel extends SmallTableModelBase<DNRecord> {
 	public void insertDetail(DNRecord rec, 
 			ArrayList<Integer> auth_types) throws Exception
 	{
+		Connection conn = connectOIM();
 		try {		
 			//process detail information
-			getConnection().setAutoCommit(false);
+			conn.setAutoCommit(false);
 			
 			//insert rec itself and get the new ID
 			insert(rec);
@@ -98,13 +109,15 @@ public class DNModel extends SmallTableModelBase<DNRecord> {
 			}
 			amodel.insert(arecs);
 			
-			getConnection().commit();
-			getConnection().setAutoCommit(true);
-		} catch (Exception e) {
+			conn.commit();
+			conn.setAutoCommit(true);
+		} catch (SQLException e) {
 			log.error(e);
 			log.info("Rolling back DN detail insert transaction.");
-			getConnection().rollback();
-			getConnection().setAutoCommit(true);
+			if(conn != null) {
+				conn.rollback();
+				conn.setAutoCommit(true);
+			}
 			
 			//re-throw original exception
 			throw new Exception(e);
@@ -115,9 +128,10 @@ public class DNModel extends SmallTableModelBase<DNRecord> {
 			ArrayList<Integer> auth_types) throws Exception
 	{
 		//Do insert / update to our DB
+		Connection conn = connectOIM();
 		try {
 			//process detail information
-			getConnection().setAutoCommit(false);
+			conn.setAutoCommit(false);
 			
 			update(get(rec), rec);
 			
@@ -132,14 +146,15 @@ public class DNModel extends SmallTableModelBase<DNRecord> {
 			}
 			amodel.update(amodel.getAllByDNID(rec.id), arecs);
 		
-			getConnection().commit();
-			getConnection().setAutoCommit(true);
-		} catch (Exception e) {
+			conn.commit();
+			conn.setAutoCommit(true);
+		} catch (SQLException e) {
 			log.error(e);
 			log.info("Rolling back DN detail update transaction.");
-			getConnection().rollback();
-			getConnection().setAutoCommit(true);
-			
+			if(conn != null) {
+				conn.rollback();
+				conn.setAutoCommit(true);
+			}
 			//re-throw original exception
 			throw new Exception(e);
 		}			

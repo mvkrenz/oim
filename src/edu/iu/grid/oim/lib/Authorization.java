@@ -60,9 +60,9 @@ public class Authorization {
 	public Authorization() {}
 	
 	//pull user_dn from Apache's SSL_CLIENT_S_DN
-	public Authorization(HttpServletRequest request, Connection connection) 
+	public Authorization(HttpServletRequest request) 
 	{		
-		guest_context = Context.getGuestContext(connection);
+		guest_context = Context.getGuestContext();
 		
 		//tomcat native way..
 		//X509Certificate[] certs = (X509Certificate[]) request.getAttribute("javax.servlet.request.X509Certificate");

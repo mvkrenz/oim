@@ -8,7 +8,7 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 
 import com.webif.divex.DivEx;
-import com.webif.divex.form.FormDE;
+import com.webif.divex.form.FormDEBase;
 import com.webif.divex.StaticDE;
 import com.webif.divex.form.CheckBoxFormElementDE;
 import com.webif.divex.form.SelectFormElementDE;
@@ -46,7 +46,7 @@ import edu.iu.grid.oim.view.divex.OIMHierarchySelector;
 import edu.iu.grid.oim.view.divex.ResourceAliasDE;
 import edu.iu.grid.oim.view.divex.ResourceServicesDE;
 
-public class ServiceGroupFormDE extends FormDE 
+public class ServiceGroupFormDE extends FormDEBase 
 {
     static Logger log = Logger.getLogger(ServiceGroupFormDE.class); 
     private Context context;
@@ -86,7 +86,9 @@ public class ServiceGroupFormDE extends FormDE
 		description.setRequired(true);
 	}
 	
-	protected Boolean doSubmit() {
+	protected Boolean doSubmit() 
+	{
+		Boolean ret = true;
 		
 		//Construct VORecord
 		ServiceGroupRecord rec = new ServiceGroupRecord();
@@ -104,9 +106,10 @@ public class ServiceGroupFormDE extends FormDE
 			}
 		} catch (Exception e) {
 			alert(e.getMessage());
-			return false;
+			ret = false;
 		}
-		return true;
+		context.close();
+		return ret;
 	}
 	
 	private HashMap<Integer, String> getResourceGroups() throws SQLException

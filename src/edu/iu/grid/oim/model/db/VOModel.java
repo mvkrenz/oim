@@ -1,5 +1,6 @@
 package edu.iu.grid.oim.model.db;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -16,6 +17,7 @@ import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.RecordBase;
 import edu.iu.grid.oim.model.db.record.ResourceDowntimeRecord;
 import edu.iu.grid.oim.model.db.record.ResourceDowntimeServiceRecord;
+import edu.iu.grid.oim.model.db.record.SCRecord;
 import edu.iu.grid.oim.model.db.record.VOContactRecord;
 import edu.iu.grid.oim.model.db.record.VOFieldOfScienceRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
@@ -40,6 +42,15 @@ public class VOModel extends SmallTableModelBase<VORecord>
     {
     	return "Virtual Organization";
     }
+	public String getHumanValue(String field_name, String value) throws NumberFormatException, SQLException
+	{
+		if(field_name.equals("sc_id")) {
+			SCModel model = new SCModel(context);
+			SCRecord rec = model.get(Integer.parseInt(value));
+			return value + " (" + rec.name + ")";
+		}
+		return value;
+	} 
 	public VORecord get(int id) throws SQLException {
 		VORecord keyrec = new VORecord();
 		keyrec.id = id;
@@ -101,9 +112,11 @@ public class VOModel extends SmallTableModelBase<VORecord>
 			ArrayList<Integer> field_of_science,
 			ArrayList<VOReport> voreports) throws Exception
 	{
+		Connection conn = null;
 		try {			
 			//process detail information
-			getConnection().setAutoCommit(false);
+			conn = connectOIM();
+			conn.setAutoCommit(false);
 			
 			//insert VO itself and get the new ID
 			insert(rec);
@@ -151,13 +164,16 @@ public class VOModel extends SmallTableModelBase<VORecord>
 		
 			updateVOReports(rec.id, voreports); //yes, we can use update function to do the insert
 			
-			getConnection().commit();
-			getConnection().setAutoCommit(true);
+			conn.commit();
+			conn.setAutoCommit(true);
 		} catch (Exception e) {
 			log.error(e);
 			log.info("Rolling back VO insert transaction.");
-			getConnection().rollback();
-			getConnection().setAutoCommit(true);
+			if(conn != null) {
+				conn.rollback();
+				conn.setAutoCommit(true);
+
+			}
 			
 			//re-throw original exception
 			throw new Exception(e);
@@ -170,11 +186,11 @@ public class VOModel extends SmallTableModelBase<VORecord>
 			ArrayList<Integer> field_of_science, 
 			ArrayList<VOReport> voreports) throws Exception
 	{
-		//Do insert / update to our DB
+		Connection conn = null;
 		try {
 		
-			//process detail information
-			getConnection().setAutoCommit(false);
+			conn = connectOIM();
+			conn.setAutoCommit(false);
 			
 			update(get(rec), rec);
 			
@@ -223,14 +239,15 @@ public class VOModel extends SmallTableModelBase<VORecord>
 
 			updateVOReports(rec.id, voreports);
 			
-			getConnection().commit();
-			getConnection().setAutoCommit(true);
+			conn.commit();
+			conn.setAutoCommit(true);
 		} catch (Exception e) {
 			log.error(e);
 			log.info("Rolling back VO insert transaction.");
-			getConnection().rollback();
-			getConnection().setAutoCommit(true);
-			
+			if(conn != null) {
+				conn.rollback();
+				conn.setAutoCommit(true);
+			}
 			//re-throw original exception
 			throw new Exception(e);
 		}			

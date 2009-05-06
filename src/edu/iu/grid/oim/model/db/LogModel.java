@@ -1,5 +1,6 @@
 package edu.iu.grid.oim.model.db;
 
+import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -11,11 +12,13 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathExpressionException;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
+
 import edu.iu.grid.oim.model.Context;
 import edu.iu.grid.oim.model.db.record.LogRecord;
 
 public class LogModel extends ModelBase {
-    static Logger log = Logger.getLogger(LogModel.class);  
+    static Logger log = Logger.getLogger(LogModel.class); 
+    public static String NULL_TOKEN = "##null##";
     
 	//public enum Type {ALL, RESOURCE, VO, SC, CONTACT, SITE, FACILITY};
     
@@ -36,14 +39,14 @@ public class LogModel extends ModelBase {
     	ArrayList<LogRecord> recs = new ArrayList<LogRecord>();
 
     	String sql = "SELECT * FROM log WHERE timestamp > curtime() - 86400 * 7 AND model LIKE ? ORDER BY timestamp DESC";
-		PreparedStatement stmt = getConnection().prepareStatement(sql); 
+    	Connection conn = connectOIM();
+		PreparedStatement stmt = conn.prepareStatement(sql); 
 		stmt.setString(1, model);
 		ResultSet rs = stmt.executeQuery();
 		while(rs.next()) {
 			LogRecord rec = new LogRecord(rs);
 			recs.add(new LogRecord(rs));
 		}
-    	
 		return recs;
     }
     
@@ -52,7 +55,8 @@ public class LogModel extends ModelBase {
     	//no auth check... accessing log table is non-auth action
     	
 		String sql = "INSERT INTO log (`type`, `model`, `xml`, `dn_id`) VALUES (?, ?, ?, ?)";
-		PreparedStatement stmt = getConnection().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS); 
+		Connection conn = connectOIM();
+		PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS); 
 		stmt.setString(1, type);
 		stmt.setString(2, model);
 		stmt.setString(3, xml);
@@ -69,7 +73,9 @@ public class LogModel extends ModelBase {
 			throw new SQLException("didn't get a new log id");
 		}
 		int logid = ids.getInt(1);
+		
 		stmt.close();
+		
 		return logid;
     }
     public String getName()

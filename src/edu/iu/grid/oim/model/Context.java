@@ -15,54 +15,63 @@ public class Context {
     
 	private DivExRoot divex_root;
 	private Authorization auth = new Authorization();
-	private Connection connection = null;
 	private HttpServletRequest request;
+	private Connection oim_connection = null;
 	
 	public Context(HttpServletRequest _request)
 	{	
-		request = _request;
+		request = _request;		
+		auth = new Authorization(request);
+		divex_root = DivExRoot.getInstance(request);
+	}
+
+	public static Context getGuestContext()
+	{
+		return new Context();
+	}
+	private Context()
+	{
+	}
+
+	public void close()
+	{
+		try {
+			//close oim
+			if(oim_connection != null) {
+				oim_connection.close();
+			}
+			
+		} catch (SQLException e) {
+			log.error(e);
+		}
+	}
+	//make sure to close the connection as soon as you are done (inside the same function that you call connectOIM)
+	public Connection connectOIM() throws SQLException
+	{	
+		if(oim_connection != null) {
+			//if the same context already have open connection, reuse it
+			if(!oim_connection.isClosed()) {
+				log.info("Reusing OIM db connection for " + auth.getUserDN());
+				return oim_connection;
+			}
+		}
 		
+		//reconnect
 		try {
 			javax.naming.Context initContext = new InitialContext();
 			javax.naming.Context envContext = (javax.naming.Context)initContext.lookup("java:/comp/env");
 			DataSource ds = (DataSource)envContext.lookup("jdbc/oim");
-			connection = ds.getConnection();
+			oim_connection = ds.getConnection();
+			log.info("Requesting OIM db connection: " + oim_connection.toString() + " for " + auth.getUserDN());
 			initContext.close();
 			
-			auth = new Authorization(request, connection);
-		} catch (SQLException e) {
-			log.error(e);
+			return oim_connection;
 		} catch (NamingException e) {
 			log.error(e);
 		}
-		
-		divex_root = DivExRoot.getInstance(request);
-		
-		//log.info("Context initialized with " + connection.toString());
+		return null;
 	}
 	
-	public void finalize() throws Throwable
-	{
-		if(connection != null) {
-			connection.close();
-		}
-	}
-	
-	public static Context getGuestContext(Connection db)
-	{
-		return new Context(db);
-	}
-	private Context(Connection db)
-	{
-		//initialize with only the connection db
-		connection = db;
-	}
-	
-	//getters
-	public Connection getConnection()
-	{
-		return connection;
-	}
 	public Authorization getAuthorization()
 	{
 		return auth;

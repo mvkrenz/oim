@@ -148,7 +148,7 @@ public class ResourceDowntimeEditorDE extends FormElementDEBase {
 					validate();
 				} catch (ParseException e1) {
 					redraw();
-					error.set("Please specify a valid time such as 0:00 AM");
+					error.set("Please specify a valid time (example: 2:30 PM)");
 					valid = false;
 				}
 			}
@@ -186,7 +186,7 @@ public class ResourceDowntimeEditorDE extends FormElementDEBase {
 			myself = this;
 			downtime_id = rec.id;
 			
-			new StaticDE(this, "<h3>Start Time (UTC)</h3>");
+			new StaticDE(this, "<h3>Start Time</h3>");
 			start_date = new DateDE(this);
 			start_date.setLabel("Date");
 			start_date.setRequired(true);
@@ -195,13 +195,13 @@ public class ResourceDowntimeEditorDE extends FormElementDEBase {
 				start_date.setValue(rec.start_time);
 			}
 			start_time = new TimeDE(this);
-			start_time.setLabel("Time");
+			start_time.setLabel("Time (UTC)");
 			start_time.setRequired(true);
 			if(rec.start_time != null) {
 				start_time.setValue(rec.start_time);
 			}
 			
-			new StaticDE(this, "<h3>End Time (UTC)</h3>");
+			new StaticDE(this, "<h3>End Time</h3>");
 			end_date = new DateDE(this);
 			end_date.setLabel("Date");
 			end_date.setRequired(true);
@@ -210,7 +210,7 @@ public class ResourceDowntimeEditorDE extends FormElementDEBase {
 				end_date.setValue(rec.end_time);
 			}
 			end_time = new TimeDE(this);
-			end_time.setLabel("Time");
+			end_time.setLabel("Time (UTC)");
 			end_time.setRequired(true);
 			if(rec.end_time != null) {
 				end_time.setValue(rec.end_time);
