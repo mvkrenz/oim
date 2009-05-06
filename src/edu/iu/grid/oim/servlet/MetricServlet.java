@@ -131,6 +131,19 @@ public class MetricServlet extends ServletBase implements Servlet {
 	private SideContentView createSideView()
 	{
 		SideContentView view = new SideContentView();
+		class NewButtonDE extends ButtonDE
+		{
+			String url;
+			public NewButtonDE(DivEx parent, String _url)
+			{
+				super(parent, "Add New Metric");
+				url = _url;
+			}
+			protected void onEvent(Event e) {
+				redirect(url);
+			}
+		};
+		view.add("Operation", new NewButtonDE(context.getDivExRoot(), "metricedit"));
 		view.add("About", new HtmlView("Todo.."));		
 		return view;
 	}

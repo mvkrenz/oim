@@ -288,8 +288,6 @@ public class ResourceServlet extends ServletBase implements Servlet {
 		String out = "";
 		VOModel vo_model = new VOModel(context);
 		for(VOResourceOwnershipRecord rec : list) {
-//			VORecord keyrec = new VORecord();
-//			keyrec.id = rec.vo_id;
 			VORecord vo_rec = vo_model.get(rec.vo_id);
 			out += vo_rec.name;
 			if (rec.percent != null) {

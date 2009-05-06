@@ -328,15 +328,9 @@ CREATE TABLE  `log` (
   CONSTRAINT `log_ibfk_1` FOREIGN KEY (`dn_id`) REFERENCES `dn` (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Log table to store all OIM-DB changes for auditing purposes.';
 
---
--- Table structure for table `metric`
---
-
 DROP TABLE IF EXISTS `metric`;
-SET @saved_cs_client     = @@character_set_client;
-SET character_set_client = utf8;
-CREATE TABLE `metric` (
-  `id` int(11) NOT NULL,
+CREATE TABLE  `metric` (
+  `id` int(11) NOT NULL auto_increment,
   `name` varchar(512) collate utf8_unicode_ci NOT NULL,
   `common_name` varchar(512) collate utf8_unicode_ci default NULL,
   `abbrev` varchar(512) collate utf8_unicode_ci default NULL,
@@ -346,8 +340,7 @@ CREATE TABLE `metric` (
   `help_url` text collate utf8_unicode_ci,
   `wlcg_metric_type` varchar(512) collate utf8_unicode_ci NOT NULL default 'status' COMMENT 'Silly field to hold on to status or performance values as defined in WLCG specs 0.91.',
   PRIMARY KEY  (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
-SET character_set_client = @saved_cs_client;
+) ENGINE=InnoDB AUTO_INCREMENT=25 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
 -- Table structure for table `metric_service`
@@ -607,15 +600,12 @@ CREATE TABLE  `service` (
 --
 
 DROP TABLE IF EXISTS `service_group`;
-SET @saved_cs_client     = @@character_set_client;
-SET character_set_client = utf8;
-CREATE TABLE `service_group` (
-  `id` int(11) NOT NULL,
+CREATE TABLE  `service_group` (
+  `id` int(11) NOT NULL auto_increment,
   `name` varchar(256) collate utf8_unicode_ci NOT NULL,
   `description` text collate utf8_unicode_ci,
   PRIMARY KEY  (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
-SET character_set_client = @saved_cs_client;
+) ENGINE=InnoDB AUTO_INCREMENT=1001 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 --
 -- Table structure for table `site`

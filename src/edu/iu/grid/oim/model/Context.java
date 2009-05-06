@@ -51,7 +51,7 @@ public class Context {
 		if(oim_connection != null) {
 			//if the same context already have open connection, reuse it
 			if(!oim_connection.isClosed()) {
-				log.info("Reusing OIM db connection for " + auth.getUserDN());
+				//log.info("Reusing OIM db connection for " + auth.getUserDN());
 				return oim_connection;
 			}
 		}
@@ -62,7 +62,7 @@ public class Context {
 			javax.naming.Context envContext = (javax.naming.Context)initContext.lookup("java:/comp/env");
 			DataSource ds = (DataSource)envContext.lookup("jdbc/oim");
 			oim_connection = ds.getConnection();
-			log.info("Requesting OIM db connection: " + oim_connection.toString() + " for " + auth.getUserDN());
+			log.info("Requesting new OIM db connection: " + oim_connection.toString() + " for " + auth.getUserDN());
 			initContext.close();
 			
 			return oim_connection;

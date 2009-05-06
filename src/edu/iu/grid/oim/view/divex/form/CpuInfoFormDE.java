@@ -7,6 +7,8 @@ import com.webif.divex.Event;
 import com.webif.divex.form.FormDEBase;
 import com.webif.divex.form.TextAreaFormElementDE;
 import com.webif.divex.form.TextFormElementDE;
+import com.webif.divex.form.validator.DoubleValidator;
+import com.webif.divex.form.validator.IntegerValidator;
 import com.webif.divex.form.validator.UniqueValidator;
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
@@ -48,6 +50,7 @@ public class CpuInfoFormDE extends FormDEBase
 		normalization_constant = new TextFormElementDE(this);
 		normalization_constant.setLabel ("Normalization Constant"); 
 		normalization_constant.setValue(String.valueOf(rec.normalization_constant));
+		normalization_constant.addValidator(new DoubleValidator());
 		normalization_constant.setRequired(true);
 		
 		notes = new TextAreaFormElementDE(this);

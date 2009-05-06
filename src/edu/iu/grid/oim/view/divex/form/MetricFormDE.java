@@ -17,6 +17,7 @@ import com.webif.divex.form.CheckBoxFormElementDE;
 import com.webif.divex.form.SelectFormElementDE;
 import com.webif.divex.form.TextAreaFormElementDE;
 import com.webif.divex.form.TextFormElementDE;
+import com.webif.divex.form.validator.IntegerValidator;
 import com.webif.divex.form.validator.UniqueValidator;
 import com.webif.divex.form.validator.UrlValidator;
 
@@ -69,43 +70,62 @@ public class MetricFormDE extends FormDEBase
 		}
 		name = new TextFormElementDE(this);
 		name.setLabel("Name");
+		if(id != null) {
+		}
 		name.setValue(rec.name);
 		name.addValidator(new UniqueValidator<String>(metric_names.values()));
 		name.setRequired(true);
 		
 		common_name = new TextFormElementDE(this);
 		common_name.setLabel("Common Name");
-		common_name.setValue(rec.common_name);
+		if(id != null) {
+			common_name.setValue(rec.common_name);
+		}
 		common_name.setRequired(true);
 		
 		abbrev = new TextFormElementDE(this);
 		abbrev.setLabel("Abbreviation");
+		if(id != null) {
+			abbrev.setValue(rec.abbrev);
+		}
 		abbrev.setValue(rec.abbrev);
 		abbrev.setRequired(true);
 		
 		description = new TextAreaFormElementDE(this);
 		description.setLabel("Description");
-		description.setValue(rec.description);
+		if(id != null) {
+			description.setValue(rec.description);
+		}
 		description.setRequired(true);
 		
 		time_interval = new TextFormElementDE(this);
 		time_interval.setLabel("Time Interval");
-		time_interval.setValue(rec.time_interval.toString());
+		if(id != null) {
+			time_interval.setValue(rec.time_interval.toString());
+		}
 		time_interval.setRequired(true);
+		time_interval.addValidator(new IntegerValidator());
 
 		fresh_for = new TextFormElementDE(this);
 		fresh_for.setLabel("Fresh For");
-		fresh_for.setValue(rec.fresh_for.toString());
+		if(id != null) {
+			fresh_for.setValue(rec.fresh_for.toString());
+		}
 		fresh_for.setRequired(true);
+		fresh_for.addValidator(new IntegerValidator());
 		
 		help_url = new TextFormElementDE(this);
 		help_url.setLabel("Help URL");
 		help_url.addValidator(UrlValidator.getInstance());
-		help_url.setValue(rec.help_url);
+		if(id != null) {
+			help_url.setValue(rec.help_url);
+		}
 		
 		wlcg_metric_type = new TextFormElementDE(this);
 		wlcg_metric_type.setLabel("WLCG Metric Type");
-		wlcg_metric_type.setValue(rec.wlcg_metric_type.toString());
+		if(id != null) {
+			wlcg_metric_type.setValue(rec.wlcg_metric_type.toString());
+		}
 		wlcg_metric_type.setRequired(true);
 	}
 	

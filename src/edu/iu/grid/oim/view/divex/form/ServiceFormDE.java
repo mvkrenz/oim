@@ -8,6 +8,7 @@ import com.webif.divex.StaticDE;
 import com.webif.divex.form.FormDEBase;
 import com.webif.divex.form.SelectFormElementDE;
 import com.webif.divex.form.TextFormElementDE;
+import com.webif.divex.form.validator.IntegerValidator;
 import com.webif.divex.form.validator.UniqueValidator;
 
 import edu.iu.grid.oim.lib.Authorization;
@@ -64,6 +65,7 @@ public class ServiceFormDE extends FormDEBase
 		
 		port = new TextFormElementDE(this);
 		port.setLabel("Port");
+		port.addValidator(new IntegerValidator());
 		if(rec.port != null) {
 			port.setValue(rec.port.toString());
 		}

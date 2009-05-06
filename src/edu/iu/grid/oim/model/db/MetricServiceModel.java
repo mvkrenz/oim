@@ -11,8 +11,12 @@ import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 
 import edu.iu.grid.oim.model.Context;
+import edu.iu.grid.oim.model.db.record.FacilityRecord;
+import edu.iu.grid.oim.model.db.record.MetricRecord;
 import edu.iu.grid.oim.model.db.record.MetricServiceRecord;
 import edu.iu.grid.oim.model.db.record.RecordBase;
+import edu.iu.grid.oim.model.db.record.SCRecord;
+import edu.iu.grid.oim.model.db.record.ServiceRecord;
 
 public class MetricServiceModel extends SmallTableModelBase<MetricServiceRecord> {
     static Logger log = Logger.getLogger(MetricServiceModel.class);  
@@ -21,6 +25,19 @@ public class MetricServiceModel extends SmallTableModelBase<MetricServiceRecord>
     {
     	super(context, "metric_service");
     }
+	public String getHumanValue(String field_name, String value) throws NumberFormatException, SQLException
+	{
+		if(field_name.equals("metric_id")) {
+			MetricModel model = new MetricModel(context);
+			MetricRecord rec = model.get(Integer.parseInt(value));
+			return value + " (" + rec.name + ")";
+		} else if(field_name.equals("service_id")) {
+			ServiceModel model = new ServiceModel(context);
+			ServiceRecord rec = model.get(Integer.parseInt(value));
+			return value + " (" + rec.name + ")";
+		}
+		return value;
+	}
     MetricServiceRecord createRecord() throws SQLException
 	{
 		return new MetricServiceRecord();

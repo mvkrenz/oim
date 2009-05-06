@@ -108,29 +108,6 @@ public class UserServlet extends ServletBase implements Servlet {
 		
 		return contentview;
 	}
-	/*
-	private String getSCName(Integer sc_id) throws SQLException
-	{
-		if(sc_id == null) return null;
-		SCModel model = new SCModel(context);
-		SCRecord sc = model.get(sc_id);	
-		if(sc == null) {
-			return null;
-		}
-		return sc.name;
-	}
-	
-	private String getFacilityName(Integer facility_id) throws SQLException
-	{
-		if(facility_id == null) return null;
-		FacilityModel model = new FacilityModel(context);
-		FacilityRecord facility = model.get(facility_id);	
-		if(facility == null) {
-			return null;
-		}
-		return facility.name;
-	}
-	*/
 
 	private SideContentView createSideView()
 	{
