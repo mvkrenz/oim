@@ -94,7 +94,7 @@ public class Authorization {
 					// user_dn = "/DC=gov/DC=fnal/O=Fermilab/OU=People/CN=Keith Chadwick/CN=UID:chadwick"; // End user VO admin
 					//user_dn = "/DC=org/DC=doegrids/OU=People/CN=Mine Altunay 215076"; // Security auth
 		        }		
-		        user_cn = Config.getDOECN();
+		        user_cn = Config.getDOECN() + "bu";
 			} catch (UnknownHostException e) {
 				//ignore then..
 			}
@@ -102,16 +102,16 @@ public class Authorization {
 		
 		log.info("Authenticated User DN: "+user_dn);
 		log.info("SSL_CLIENT_I_DN_CN: " + user_cn);
-		
+		/*
 		if(!user_cn.equals(Config.getDOECN())) {
 			log.error("DN_CN is not \""+Config.getDOECN()+"\". It is \"" + user_cn + "\". Logging in as guest.");
 		} else {
-			try {
-				DNModel dnmodel = new DNModel(guest_context);
-				initAction(dnmodel.getByDNString(user_dn));
-			} catch (SQLException e) {
-				log.error(e);
-			}
+		*/
+		try {
+			DNModel dnmodel = new DNModel(guest_context);
+			initAction(dnmodel.getByDNString(user_dn));
+		} catch (SQLException e) {
+			log.error(e);
 		}
 	}
 	

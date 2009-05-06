@@ -97,6 +97,7 @@ abstract public class FormElementDEBase<ValueType> extends DivEx {
 				return;
 			} else {
 				//the field is not-required and it's empty - no futher validation necessary
+				valid = true;
 				return;
 			}
 		}
