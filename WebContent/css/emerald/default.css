@@ -28,7 +28,7 @@ vertical-align: top;
 }
 
 #header {
-	padding-left: 70px;
+	padding-left: 105px;
     background: #195866 url('images/n1.gif') repeat-x;
 	height: 60px;
 }
@@ -251,6 +251,6 @@ border: 1px solid #ccc;
 
 #logo {
 position:absolute;
-top:6px;
-left:0px;
+top:2px;
+left:2px;
 }

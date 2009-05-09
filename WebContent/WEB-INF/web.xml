@@ -395,6 +395,21 @@
 		edu.iu.grid.oim.servlet.HelpServlet</servlet-class>
 	</servlet>
 	
+	<servlet>
+		<description>
+		</description>
+		<display-name>
+		CalculatorServlet</display-name>
+		<servlet-name>CalculatorServlet</servlet-name>
+		<servlet-class>
+		com.webif.divex.sample.CalculatorServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>CalculatorServlet</servlet-name>
+		<url-pattern>/calculator</url-pattern>
+	</servlet-mapping>
+	
+		
 	<servlet-mapping>
 		<servlet-name>DivexServlet</servlet-name>
 		<url-pattern>/divex</url-pattern>

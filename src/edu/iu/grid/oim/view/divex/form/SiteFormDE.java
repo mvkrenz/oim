@@ -123,7 +123,7 @@ public class SiteFormDE extends FormDEBase
 		city = new TextFormElementDE(this);
 		city.setLabel("City");
 		city.setValue(rec.city);
-		city.setRequired(false);
+		city.setRequired(true);//on DB, this is non-nullable
 
 		// Need to make this dropdown? probably not.
 		state = new TextFormElementDE(this);

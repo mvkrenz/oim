@@ -394,11 +394,9 @@ SET character_set_client = @saved_cs_client;
 --
 
 DROP TABLE IF EXISTS `contact`;
-SET @saved_cs_client     = @@character_set_client;
-SET character_set_client = utf8;
 CREATE TABLE `contact` (
   `id` int(11) NOT NULL auto_increment,
-  `name` varchar(512) collate utf8_unicode_ci,
+  `name` varchar(512) collate utf8_unicode_ci default NULL,
   `primary_email` varchar(128) collate utf8_unicode_ci NOT NULL default 'foo@bar.com_CHANGE_THIS',
   `secondary_email` varchar(128) collate utf8_unicode_ci default NULL,
   `primary_phone` varchar(32) collate utf8_unicode_ci NOT NULL default '1-234-567-8900_CHANGE_THIS',
@@ -416,11 +414,12 @@ CREATE TABLE `contact` (
   `active` tinyint(1) NOT NULL default '0' COMMENT 'The active field has to be set by the programmatic interface, it''s set to false by default.',
   `disable` tinyint(1) NOT NULL default '0' COMMENT 'The disable field supersedes the active flag, and can be used to permanently inactivate a record. It has to be set by the programmatic interface, it''s set to false by default.',
   `contact_preference` text collate utf8_unicode_ci COMMENT 'this field can be used to store snippets about person like if they want you to avoid calling them, etc.',
+  `im` varchar(128) collate utf8_unicode_ci default NULL,
+  `photo_url` varchar(256) collate utf8_unicode_ci default NULL,
   PRIMARY KEY  (`id`),
   KEY `dn_person` (`submitter_dn_id`),
   CONSTRAINT `dn_person` FOREIGN KEY (`submitter_dn_id`) REFERENCES `dn` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=265 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='<strong><u>Person</u></strong>: Information about any person';
-SET character_set_client = @saved_cs_client;
+) ENGINE=InnoDB AUTO_INCREMENT=529 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='<strong><u>Person</u></strong>: Information about any person';
 
 --
 -- Table structure for table `resource`

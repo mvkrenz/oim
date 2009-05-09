@@ -6,7 +6,7 @@ import java.sql.SQLException;
 public class ActionRecord extends RecordBase {
 
 	@Key public Integer id;
-	@Name("Action Name") public String name;
+	public String name;
 	public String description;
 	
 	//load from existing record

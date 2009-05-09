@@ -1,16 +1,24 @@
 package edu.iu.grid.oim.view.divex.form;
 
+import java.io.PrintWriter;
 import java.sql.SQLException;
 import java.util.HashMap;
 import org.apache.log4j.Logger;
 import com.webif.divex.form.FormDEBase;
+import com.webif.divex.DivEx;
+import com.webif.divex.Event;
+import com.webif.divex.EventListener;
 import com.webif.divex.StaticDE;
 import com.webif.divex.form.CheckBoxFormElementDE;
+import com.webif.divex.form.FormElementDEBase;
 import com.webif.divex.form.SelectFormElementDE;
 import com.webif.divex.form.TextAreaFormElementDE;
 import com.webif.divex.form.TextFormElementDE;
 import com.webif.divex.form.validator.EmailValidator;
+import com.webif.divex.form.validator.UrlValidator;
+
 import edu.iu.grid.oim.lib.Authorization;
+import edu.iu.grid.oim.lib.Config;
 import edu.iu.grid.oim.model.Context;
 import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.DNModel;
@@ -33,9 +41,62 @@ public class ContactFormDE extends FormDEBase
 	private TextFormElementDE city, state, zipcode, country;
 	private CheckBoxFormElementDE active;
 	private CheckBoxFormElementDE disable;
+	private TextFormElementDE im;
+	private PhotoDE photo_url;
 	private CheckBoxFormElementDE person;
 	private TextAreaFormElementDE contact_preference;
 	private SelectFormElementDE submitter_dn;
+	
+	class PhotoDE extends FormElementDEBase<String>
+	{
+		public PhotoDE(DivEx _parent) {
+			super(_parent);
+			url = new TextFormElementDE(this);
+			url.addEventListener(new EventListener() {
+				public void handleEvent(Event e) {
+					PhotoDE.this.redraw();
+				}});
+			url.addValidator(UrlValidator.getInstance());
+		}
+
+		private TextFormElementDE url;
+
+		@Override
+		protected void onEvent(Event e) {
+			// TODO Auto-generated method stub
+			
+		}
+		
+		//bypass pretty much everything to url element
+		public void setSampleValue(String value) {
+			url.setSampleValue(value);
+		}
+		public void setValue(String value) {
+			url.setValue(value);
+		}
+		public String getValue() {
+			return url.getValue();
+		}
+		public Boolean isValid() { 
+			return url.isValid();
+		}
+		public void setLabel(String label) {
+			url.setLabel(label);
+		}
+
+		@Override
+		public void render(PrintWriter out) {
+			String img = url.getValue();
+			if(img == null || img.length() == 0) {
+				img = Config.getApplicationBase() + "/images/noavatar.gif";
+			}
+			
+			out.write("<div id=\""+getNodeID()+"\">");
+			url.render(out);
+			out.write("<img class=\"avatar_preview\" src=\""+img+"\"/>");
+			out.write("</div>");
+		}
+	}
 	
 	public ContactFormDE(Context _context, ContactRecord rec, String origin_url)
 	{	
@@ -118,7 +179,29 @@ public class ContactFormDE extends FormDEBase
 		if(!auth.allows("admin")) {
 			person.setHidden(true);
 		}
+		person.addEventListener(new EventListener() {
+			public void handleEvent(Event e) {
+				im.setHidden(!person.getValue());
+				im.redraw();
+				photo_url.setHidden(!person.getValue());
+				photo_url.redraw();
+			}});
+		
+		im = new TextFormElementDE(this);
+		im.setLabel("Instant Messaging Information");
+		im.setValue(rec.im);
+		im.setSampleValue("soichih@gtalk");
+		
+		photo_url = new PhotoDE(this);
+		photo_url.setLabel("Photo URL");
+		photo_url.setSampleValue("http://somewhere.com/myphoto.png");
+		photo_url.setValue(rec.photo_url);
 
+		if(rec.person == null || rec.person == false) {
+			im.setHidden(true);
+			photo_url.setHidden(true);
+		}
+		
 		active = new CheckBoxFormElementDE(this);
 		active.setLabel("Active");
 		active.setValue(rec.active);
@@ -173,6 +256,8 @@ public class ContactFormDE extends FormDEBase
 		rec.active = active.getValue();
 		rec.disable = disable.getValue();
 		rec.person = person.getValue();
+		rec.im = im.getValue();
+		rec.photo_url = photo_url.getValue();
 		rec.contact_preference = contact_preference.getValue();
 		rec.submitter_dn_id = submitter_dn.getValue();
 		

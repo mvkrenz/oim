@@ -349,10 +349,11 @@ public abstract class SmallTableModelBase<T extends RecordBase> extends ModelBas
 	    		xml += "\t<Name>" + StringEscapeUtils.escapeXml(name) + "</Name>\n";
 	    		xml += "\t<Value>" + formatValue(value) + "</Value>\n";
 	    		xml += "</Field>\n";
-	    		
+	    		/*
 	    		if(rec.isRestricted(f)) {
 	    			value = NonPublicInformation;
 	    		}
+	    		*/
 /*
     			plog += "<tr><th>"+StringEscapeUtils.escapeHtml(name)+"</th>"+
     			"<td>"+StringEscapeUtils.escapeHtml(rec.toString(f, auth))+"</td></tr>";	
@@ -420,10 +421,11 @@ public abstract class SmallTableModelBase<T extends RecordBase> extends ModelBas
 	    		xml += "\t<Name>" + StringEscapeUtils.escapeXml(name) + "</Name>\n";
 	    		xml += "\t<Value>" + formatValue(value) + "</Value>\n";
 	    		xml += "</Field>\n";
-	    		
+	    		/*
 	    		if(rec.isRestricted(f)) {
 	    			value = NonPublicInformation;
 	    		}
+	    		*/
 	    		/*
     			plog += "<tr><th>"+StringEscapeUtils.escapeHtml(name)+"</th>"+
     			"<td>"+StringEscapeUtils.escapeHtml(rec.toString(f, auth))+"</td></tr>";
@@ -495,11 +497,12 @@ public abstract class SmallTableModelBase<T extends RecordBase> extends ModelBas
 	    		xml += "\t<OldValue>" + formatValue(oldvalue) + "</OldValue>\n";
 	    		xml += "\t<NewValue>" + formatValue(newvalue) + "</NewValue>\n";
 	    		xml += "</Field>\n";
-	    		
+	    		/*
 	    		if(oldrec.isRestricted(f)) {
 	    			oldvalue = NonPublicInformation;
 	    			newvalue = NonPublicInformation;
 	    		}
+	    		*/
 	    		/*
 	    		plog += "<tr><th>"+StringEscapeUtils.escapeHtml(name)+"</th>"+
     			"<td>"+StringEscapeUtils.escapeHtml(oldrec.toString(f, auth))+"</td>" +

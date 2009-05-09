@@ -20,10 +20,6 @@ public abstract class RecordBase implements Comparable<RecordBase> {
 
 	@Retention(RetentionPolicy.RUNTIME)
 	public @interface Key {}
-	@Retention(RetentionPolicy.RUNTIME)
-	public @interface Restricted {}	
-	@Retention(RetentionPolicy.RUNTIME)
-	public @interface Name { String value(); }	
 	
 	static Logger log = Logger.getLogger(ServletBase.class);  
     
@@ -106,7 +102,7 @@ public abstract class RecordBase implements Comparable<RecordBase> {
 		record_keys.put(getClass(), keys);
 		record_fields.put(getClass(), fields);
 	}
-	
+	/*
 	public Boolean isRestricted(Field f)
 	{
 		Annotation[] as = f.getDeclaredAnnotations();
@@ -117,7 +113,7 @@ public abstract class RecordBase implements Comparable<RecordBase> {
 		}
 		return false;
 	}
-	
+	*/
 	//list fields that are different
 	public ArrayList<Field> diff(RecordBase rec)
 	{

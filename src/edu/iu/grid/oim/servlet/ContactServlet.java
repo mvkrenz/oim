@@ -91,6 +91,13 @@ public class ContactServlet extends ServletBase implements Servlet {
 			table.addRow("Disable", rec.disable);
 			
 			table.addRow("Person", rec.person);
+			table.addRow("Instant Messaging", rec.im);
+			
+			String img = rec.photo_url;
+			if(rec.photo_url == null || rec.photo_url.length() == 0) {
+				img = Config.getApplicationBase() + "/images/noavatar.gif";
+			} 
+			table.addRow("Photo", new HtmlView("<img class=\"avatar\" src=\""+img+"\"/>"));
 			table.addRow("Contact Preference", rec.contact_preference);	
 			
 			if(auth.allows("admin")) {

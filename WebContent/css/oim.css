@@ -275,4 +275,13 @@ div[onclick]
 {
 cursor:pointer;
 }
-
+img.avatar
+{
+margin: 2px;
+max-width: 100px;
+max-height: 100px;
+}
+img.avatar_preview
+{
+padding-top: 4px;
+}

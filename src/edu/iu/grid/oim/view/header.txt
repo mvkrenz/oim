@@ -29,7 +29,7 @@
 </head>
 <body>
     <div id="header">
-        <img id="logo" src="__STATICBASE__/images/oimlogo.png" alt="OIM"/>
+        <img id="logo" src="__STATICBASE__/images/osglogo.png" alt="OIM"/>
         <h1><a href="">OSG Information Management System (OIM)</a></h1>
         <h2>by Grid Operations Center</h2>
     </div>
