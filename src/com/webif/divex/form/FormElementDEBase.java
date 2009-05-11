@@ -61,7 +61,8 @@ abstract public class FormElementDEBase<ValueType> extends DivEx {
 		return valid; 
 	}
 	
-	//you need to override this to do its own child element loop if one of the element is expected to be
+	//Override this to do custom validation (make sure to call super.validate() inside)
+	//Also, you need to override this to do its own child element loop if one of the element is expected to be
 	//dynamically removed. most likely, if you have dynamic elements, you are keeping up with your own list
 	//of active elements. childnodes, on the other hand, doesn't handle removing of the element. Once it's there,
 	//it's there forever. So unnecessary validation may occur unless you override this to only loop your own
@@ -89,6 +90,9 @@ abstract public class FormElementDEBase<ValueType> extends DivEx {
 			return;
 		}
 		
+		error.set(null);
+		valid = true;
+		
 		//if required, run RequiredValidator
 		if(value == null || value.toString().trim().length() == 0) {
 			if(isRequired()) {
@@ -97,7 +101,6 @@ abstract public class FormElementDEBase<ValueType> extends DivEx {
 				return;
 			} else {
 				//the field is not-required and it's empty - no futher validation necessary
-				valid = true;
 				return;
 			}
 		}
@@ -111,10 +114,6 @@ abstract public class FormElementDEBase<ValueType> extends DivEx {
 				return;
 			}
 		}
-		
-		//all good..
-		error.set(null);
-		valid = true;
 	}
 	
 	protected ValueType value;

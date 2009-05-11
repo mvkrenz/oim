@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
@@ -21,6 +22,8 @@ import com.webif.divex.form.CheckBoxFormElementDE;
 import com.webif.divex.form.FormElementDEBase;
 import com.webif.divex.form.SelectFormElementDE;
 import com.webif.divex.form.TextAreaFormElementDE;
+import com.webif.divex.form.validator.IFormElementValidator;
+
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.model.Context;
 import edu.iu.grid.oim.model.ResourceDowntime;
@@ -67,7 +70,6 @@ public class ResourceDowntimeEditorDE extends FormElementDEBase {
 		private HashMap<Integer/*service_id*/, CheckBoxFormElementDE> affected_services = new HashMap();
 		
 		private ButtonDE remove_button;
-		private DowntimeEditor myself;
 
 		class DateDE extends FormElementDEBase<Date>
 		{
@@ -181,9 +183,29 @@ public class ResourceDowntimeEditorDE extends FormElementDEBase {
 			}
 		}
 		
+		public void validate()
+		{
+			//first, validate individual elements
+			super.validate();
+			
+			//check the data range
+			GregorianCalendar start = new GregorianCalendar();
+			start.set(Calendar.MILLISECOND, (int) start_date.getValue().getTime());
+			start.set(Calendar.HOUR, start_time.getValue().getHours());
+			start.set(Calendar.MINUTE, start_time.getValue().getMinutes());
+			
+			GregorianCalendar end = new GregorianCalendar();
+			end.set(Calendar.MILLISECOND, (int) end_date.getValue().getTime());
+			end.set(Calendar.HOUR, end_time.getValue().getHours());
+			end.set(Calendar.MINUTE, end_time.getValue().getMinutes());
+			if(start.getTimeInMillis() >= end.getTimeInMillis()) {
+				error.set("End data/time needs to be after the start date/time.");
+				valid = false;
+			}
+		}
+		
 		protected DowntimeEditor(DivEx parent, ResourceDowntimeRecord rec, Authorization auth) throws SQLException {
 			super(parent);
-			myself = this;
 			downtime_id = rec.id;
 			
 			new StaticDE(this, "<h3>Start Time</h3>");
@@ -194,12 +216,17 @@ public class ResourceDowntimeEditorDE extends FormElementDEBase {
 			if(rec.start_time != null) {
 				start_date.setValue(rec.start_time);
 			}
+			start_date.addEventListener(new EventListener() {
+				public void handleEvent(Event e) {validate();}});
+			
 			start_time = new TimeDE(this);
 			start_time.setLabel("Time (UTC)");
 			start_time.setRequired(true);
 			if(rec.start_time != null) {
 				start_time.setValue(rec.start_time);
 			}
+			start_time.addEventListener(new EventListener() {
+				public void handleEvent(Event e) {validate();}});
 			
 			new StaticDE(this, "<h3>End Time</h3>");
 			end_date = new DateDE(this);
@@ -209,12 +236,17 @@ public class ResourceDowntimeEditorDE extends FormElementDEBase {
 			if(rec.end_time != null) {
 				end_date.setValue(rec.end_time);
 			}
+			end_date.addEventListener(new EventListener() {
+				public void handleEvent(Event e) {validate();}});
+			
 			end_time = new TimeDE(this);
 			end_time.setLabel("Time (UTC)");
 			end_time.setRequired(true);
 			if(rec.end_time != null) {
 				end_time.setValue(rec.end_time);
 			}
+			end_time.addEventListener(new EventListener() {
+				public void handleEvent(Event e) {validate();}});
 			
 			new StaticDE(this, "<h3>Detail</h3>");
 			summary = new TextAreaFormElementDE(this);
@@ -272,10 +304,9 @@ public class ResourceDowntimeEditorDE extends FormElementDEBase {
 			remove_button.setConfirm(true, "Do you really want to remove this downtime schedule?");
 			remove_button.addEventListener(new EventListener() {
 				public void handleEvent(Event e) {
-					removeDowntime(myself);	
+					removeDowntime(DowntimeEditor.this);	
 				}
 			});
-		
 		}
 		
 		public void addService(Integer service_id)
