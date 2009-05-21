@@ -56,7 +56,7 @@ public class ResourceDowntimeEditServlet extends ServletBase implements Servlet 
 			resource_id = Integer.parseInt(id_str);
 			ResourceModel model = new ResourceModel(context);
 			if(!model.canEdit(resource_id)) {
-				throw new ServletException("You can't edit that");
+				throw new ServletException("You are not authorized to edit this resource!");
 			}
 			try {
 				ResourceRecord keyrec = new ResourceRecord();
@@ -67,7 +67,8 @@ public class ResourceDowntimeEditServlet extends ServletBase implements Servlet 
 			}	
 			title = rec.name + " Downtime";
 		} else {
-			throw new ServletException("Can't do new resource");
+			// TODO What is this comment about? Perhaps a copy n paste that did not get a new message?
+			throw new ServletException("You are not authorized to add a new resource");
 		}
 	
 		String origin_url = Config.getApplicationBase()+"/"+parent_page;
@@ -96,7 +97,7 @@ public class ResourceDowntimeEditServlet extends ServletBase implements Servlet 
 	private SideContentView createSideView()
 	{
 		SideContentView view = new SideContentView();
-		view.add("TODO", new HtmlView("Whatever"));
+		view.add("About", new HtmlView("This page allows you to schedule maintenance (downtime) for this resource, assuming you are listed as a contact for, and therefore are authorized to edit it."));		
 		return view;
 	}
 }

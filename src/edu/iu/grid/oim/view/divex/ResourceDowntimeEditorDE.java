@@ -65,7 +65,6 @@ public class ResourceDowntimeEditorDE extends FormElementDEBase {
 		
 		private SelectFormElementDE class_id;
 		private SelectFormElementDE severity_id;
-		private CheckBoxFormElementDE disable;
 			
 		private HashMap<Integer/*service_id*/, CheckBoxFormElementDE> affected_services = new HashMap();
 		
@@ -136,9 +135,9 @@ public class ResourceDowntimeEditorDE extends FormElementDEBase {
 				
 				SimpleDateFormat format = new SimpleDateFormat("KK:mm aa");
 				try {
-					value = format.parse("0:00 AM");
+					value = format.parse("12:00 PM");
 				} catch (ParseException e) {
-					//shoud not happen
+					//should not happen
 				}
 			}
 
@@ -201,7 +200,7 @@ public class ResourceDowntimeEditorDE extends FormElementDEBase {
 				end.set(Calendar.HOUR, end_time.getValue().getHours());
 				end.set(Calendar.MINUTE, end_time.getValue().getMinutes());
 				if(start.getTimeInMillis() >= end.getTimeInMillis()) {
-					error.set("End data/time needs to be after the start date/time.");
+					error.set("End date/time value needs to be later than the start date/time. Also, earliest start date/time allowed is today 0:00 AM.");
 					valid = false;
 				}				
 			}
@@ -270,6 +269,10 @@ public class ResourceDowntimeEditorDE extends FormElementDEBase {
 			if(rec.downtime_class_id != null) {
 				class_id.setValue(rec.downtime_class_id);
 			}
+			else {// Select first element as default, we could set this to any of the choices
+				if (class_kv != null) class_id.setValue(1);
+			}
+			
 			
 			HashMap<Integer, String> severity_kv = new HashMap();
 			DowntimeSeverityModel smodel = new DowntimeSeverityModel(context);
@@ -282,14 +285,8 @@ public class ResourceDowntimeEditorDE extends FormElementDEBase {
 			if(rec.downtime_severity_id != null) {
 				severity_id.setValue(rec.downtime_severity_id);
 			}
-			
-			disable = new CheckBoxFormElementDE(this);
-			disable.setLabel("Disable");
-			if(rec.disable != null) {
-				disable.setValue(rec.disable);
-			}
-			if (!auth.equals("admin")) {
-				disable.setHidden(true);
+			else { // Select first element as default, we could set this to any of the choices
+				if (severity_kv != null) severity_id.setValue(1);
 			}
 			
 			new StaticDE(this, "<h3>Affected Services</h3>");
@@ -331,6 +328,10 @@ public class ResourceDowntimeEditorDE extends FormElementDEBase {
 				keyrec.resource_downtime_id = downtime_id;
 				keyrec.service_id = service_id;
 				if(rdsmodel.get(keyrec) != null) {
+					elem.setValue(true);
+				}
+				// If this is a new add, then by default have all services selected. Proves to be less error prone! -agopu
+				if (downtime_id == null) {
 					elem.setValue(true);
 				}
 				redraw();
@@ -395,7 +396,6 @@ public class ResourceDowntimeEditorDE extends FormElementDEBase {
 			
 			rec.downtime_class_id = class_id.getValue();
 			rec.downtime_severity_id = severity_id.getValue();
-			rec.disable = disable.getValue();
 			rec.dn_id = auth.getDNID();
 
 			return rec;
@@ -493,7 +493,7 @@ public class ResourceDowntimeEditorDE extends FormElementDEBase {
 		}
 		// Adding some clear text to make it look less odd. Is there a cleaner way to do this? -agopu
 		if (count == 0) {
-			new StaticDE(this, "<p>No existing downtimes for this resource.</p>").render(out);
+			new StaticDE(this, "<p>No existing downtimes for this resource - click the \"Add\" link below to schedule a maintenance schedule. </p> <p>Once you have entered downtimes you would like to schedule do not forget to click on the <strong>Submit</strong> button!</p>").render(out);
 		}
 		add_button.render(out);
 		out.print("</div>");

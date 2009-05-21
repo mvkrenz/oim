@@ -142,7 +142,7 @@ public class ResourceGroupServlet extends ServletBase implements Servlet {
 			}
 		};
 		view.add("Operation", new NewButtonDE(context.getDivExRoot(), "resourcegroupedit"));
-		view.add("About", new HtmlView("This page shows a list of Resource Groups that you have access to edit."));		
+		view.add("About", new HtmlView("This page shows a list of Resource Groups that that all registered OIM users are able to edit. We ask that you please refrain from editing resource groups that are not directly related to you unless there is a specific reason to do so! All changes are audited by GOC staff."));		
 		return view;
 	}
 }

@@ -26,7 +26,6 @@ public class ResourceDowntimeRecord extends RecordBase {
 	public Integer downtime_severity_id;
 	public Integer resource_id;
 	public Integer dn_id;
-	public Boolean disable;
 	
 	//load from existing record
 	public ResourceDowntimeRecord(ResultSet rs) throws SQLException { 

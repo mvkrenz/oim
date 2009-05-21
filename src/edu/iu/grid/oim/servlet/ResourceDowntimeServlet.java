@@ -89,7 +89,6 @@ public class ResourceDowntimeServlet extends ServletBase implements Servlet {
 	
 		for(ResourceRecord rec : resources) {
 			
-			//TODO - need to make "disabled" more conspicuous
 			String name = rec.name;
 
 			contentview.add(new HtmlView("<h2>"+StringEscapeUtils.escapeHtml(name)+"</h2>"));
@@ -105,10 +104,10 @@ public class ResourceDowntimeServlet extends ServletBase implements Servlet {
 				downtime_view.add(createDowntimeView(drec));
 			}
 			if (dt_records.isEmpty()) {
-				table.addRow("No Existing Downtime Schedule", downtime_view);
+				table.addRow("No Existing Downtime Schedule - click button below to add new downtime", downtime_view);
 			}
 			else {
-				table.addRow("Existing Downtime Schedule", downtime_view);
+				table.addRow("Existing Downtime Schedule - click button below to edit a downtime or add an additional downtime", downtime_view);
 			}
 		
 			class EditButtonDE extends ButtonDE
@@ -116,7 +115,7 @@ public class ResourceDowntimeServlet extends ServletBase implements Servlet {
 				String url;
 				public EditButtonDE(DivEx parent, String _url)
 				{
-					super(parent, "Edit");
+					super(parent, "Add/Edit");
 					url = _url;
 				}
 				protected void onEvent(Event e) {
@@ -150,8 +149,6 @@ public class ResourceDowntimeServlet extends ServletBase implements Servlet {
 		DNModel dnmodel = new DNModel(context);
 		table.addRow("DN", dnmodel.get(rec.dn_id).dn_string);
 		
-		table.addRow("Disable", rec.disable);		
-
 		view.add(table);
 		
 		return view;
@@ -177,7 +174,7 @@ public class ResourceDowntimeServlet extends ServletBase implements Servlet {
 	{
 		SideContentView view = new SideContentView();
 		
-		view.add("About", new HtmlView("TODO..."));		
+		view.add("About", new HtmlView("This page allows you to schedule maintenance (downtime) for resources you are listed as a contact for, and therefore are authorized to edit."));		
 		return view;
 	}
 }

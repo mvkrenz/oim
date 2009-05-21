@@ -170,7 +170,7 @@ public class SiteServlet extends ServletBase implements Servlet {
 			}
 		};
 		view.add("Operation", new NewButtonDE(context.getDivExRoot(), "siteedit"));
-		view.add("About", new HtmlView("This page shows a list of administratives sites in various facilities that GOC staff maintain."));		
+		view.add("About", new HtmlView("This page shows a list of administratives sites in various facilities that all registered OIM users are able to edit. We ask that you please refrain from editing sites that are not directly related to you unless there is a specific reason to do so! All changes are audited by GOC staff."));		
 		return view;
 	}
 }
