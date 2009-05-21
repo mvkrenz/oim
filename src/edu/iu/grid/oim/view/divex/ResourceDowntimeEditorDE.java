@@ -188,19 +188,22 @@ public class ResourceDowntimeEditorDE extends FormElementDEBase {
 			//first, validate individual elements
 			super.validate();
 			
-			//check the data range
-			GregorianCalendar start = new GregorianCalendar();
-			start.set(Calendar.MILLISECOND, (int) start_date.getValue().getTime());
-			start.set(Calendar.HOUR, start_time.getValue().getHours());
-			start.set(Calendar.MINUTE, start_time.getValue().getMinutes());
-			
-			GregorianCalendar end = new GregorianCalendar();
-			end.set(Calendar.MILLISECOND, (int) end_date.getValue().getTime());
-			end.set(Calendar.HOUR, end_time.getValue().getHours());
-			end.set(Calendar.MINUTE, end_time.getValue().getMinutes());
-			if(start.getTimeInMillis() >= end.getTimeInMillis()) {
-				error.set("End data/time needs to be after the start date/time.");
-				valid = false;
+			//check the date range
+			if(start_date.getValue() != null && end_date.getValue() != null) {
+				//check the data range
+				GregorianCalendar start = new GregorianCalendar();
+				start.set(Calendar.MILLISECOND, (int) start_date.getValue().getTime());
+				start.set(Calendar.HOUR, start_time.getValue().getHours());
+				start.set(Calendar.MINUTE, start_time.getValue().getMinutes());
+				
+				GregorianCalendar end = new GregorianCalendar();
+				end.set(Calendar.MILLISECOND, (int) end_date.getValue().getTime());
+				end.set(Calendar.HOUR, end_time.getValue().getHours());
+				end.set(Calendar.MINUTE, end_time.getValue().getMinutes());
+				if(start.getTimeInMillis() >= end.getTimeInMillis()) {
+					error.set("End data/time needs to be after the start date/time.");
+					valid = false;
+				}				
 			}
 		}
 		
