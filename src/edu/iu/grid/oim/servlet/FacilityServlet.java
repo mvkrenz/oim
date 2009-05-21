@@ -5,6 +5,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Set;
 
@@ -76,7 +78,7 @@ public class FacilityServlet extends ServletBase implements Servlet {
 	{
 		//pull list of all sites
 		FacilityModel model = new FacilityModel(context);
-		Collection<FacilityRecord> facilities = model.getAll();
+		Collection<FacilityRecord> facilities = model.getAllAlphabetized();
 		
 		ContentView contentview = new ContentView();	
 		contentview.add(new HtmlView("<h1>Facilities</h1>"));

@@ -24,4 +24,7 @@ public class FacilityRecord extends RecordBase {
 		return 1;
 	}
 	*/
+	public String getName() {
+		return name;
+	}
 }

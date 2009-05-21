@@ -2,6 +2,8 @@ package edu.iu.grid.oim.model.db;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathExpressionException;
@@ -36,6 +38,14 @@ public class FacilityModel extends SmallTableModelBase<FacilityRecord> {
 		}
 		return list;
 	}
+	public ArrayList<FacilityRecord> getAllAlphabetized() throws SQLException
+	{
+		ArrayList<FacilityRecord> list = getAll();
+		AlphabeticalComparator alphabeticalComp = new AlphabeticalComparator ();
+		Collections.sort(list, alphabeticalComp);
+		return list;
+	}
+	
     public String getName()
     {
     	return "Facility";
@@ -47,5 +57,14 @@ public class FacilityModel extends SmallTableModelBase<FacilityRecord> {
 			return true;
 		}
 		return false;
+	}
+}
+
+// To sort by length of file/directory name (longest first).
+class AlphabeticalComparator implements Comparator<FacilityRecord> {
+
+    // Comparator interface requires defining compare method.
+	public int compare(FacilityRecord a, FacilityRecord b) {
+		return a.getName().compareToIgnoreCase(b.getName());
 	}
 }
