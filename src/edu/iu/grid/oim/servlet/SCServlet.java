@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
@@ -64,8 +66,13 @@ public class SCServlet extends ServletBase implements Servlet {
 		throws ServletException, SQLException
 	{
 		SCModel model = new SCModel(context);
-		Collection<SCRecord> scs = model.getAllEditableAlphabetized();
-		
+		ArrayList<SCRecord> scs = model.getAllEditable();
+		Collections.sort(scs, new Comparator <SCRecord>() {
+			public int compare(SCRecord a, SCRecord b) {
+				return a.getName().compareToIgnoreCase(b.getName()); // We are comparing based on name
+			}
+		});
+
 		ContentView contentview = new ContentView();	
 		contentview.add(new HtmlView("<h1>Support Centers</h1>"));
 	

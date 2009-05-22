@@ -1,30 +1,18 @@
 package edu.iu.grid.oim.model.db;
 
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
 
 import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 
-import edu.iu.grid.oim.lib.Authorization;
-import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
 import edu.iu.grid.oim.model.Context;
-import edu.iu.grid.oim.model.db.FacilityModel.AlphabeticalComparator;
-import edu.iu.grid.oim.model.db.record.DNRecord;
 import edu.iu.grid.oim.model.db.record.FacilityRecord;
 import edu.iu.grid.oim.model.db.record.RecordBase;
-import edu.iu.grid.oim.model.db.record.ResourceRecord;
 import edu.iu.grid.oim.model.db.record.SCRecord;
-import edu.iu.grid.oim.model.db.record.ServiceRecord;
 import edu.iu.grid.oim.model.db.record.SiteRecord;
 
 public class SiteModel extends SmallTableModelBase<SiteRecord> {
@@ -71,12 +59,6 @@ public class SiteModel extends SmallTableModelBase<SiteRecord> {
 		}
 		return list;
 	}
-	public ArrayList<SiteRecord> getAllAlphabetized() throws SQLException
-	{
-		ArrayList<SiteRecord> list = getAll();
-		Collections.sort(list, new AlphabeticalComparator ());
-		return list;
-	}
 	public SiteRecord get(int id) throws SQLException {
 		SiteRecord keyrec = new SiteRecord();
 		keyrec.id = id;
@@ -90,12 +72,5 @@ public class SiteModel extends SmallTableModelBase<SiteRecord> {
 			if(srec.facility_id.compareTo(facility_id) == 0) list.add(srec);
 		}
 		return list;
-	}
-	class AlphabeticalComparator implements Comparator<SiteRecord> {
-
-	    // Comparator interface requires defining compare method.
-		public int compare(SiteRecord a, SiteRecord b) {
-			return a.getName().compareToIgnoreCase(b.getName());
-		}
 	}
 }

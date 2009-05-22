@@ -17,7 +17,6 @@ import org.w3c.dom.Document;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.model.Context;
-import edu.iu.grid.oim.model.db.VOModel.AlphabeticalComparator;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.DNRecord;
 import edu.iu.grid.oim.model.db.record.RecordBase;
@@ -83,7 +82,7 @@ public class ContactModel extends SmallTableModelBase<ContactRecord> {
 		return null;
 	}
 	
-	public Collection<ContactRecord> getAllEditable() throws SQLException
+	public ArrayList<ContactRecord> getAllEditable() throws SQLException
 	{	   
 		ArrayList<ContactRecord> list = new ArrayList();
 
@@ -94,13 +93,6 @@ public class ContactModel extends SmallTableModelBase<ContactRecord> {
 	    		list.add(vorec);
 	    	}
 	    }	    	
-	    
-	    return list;
-	}
-	public Collection<ContactRecord> getAllEditableAlphabetized() throws SQLException
-	{	   
-		ArrayList<ContactRecord> list = (ArrayList<ContactRecord>) getAllEditable();
-		Collections.sort(list, new AlphabeticalComparator ());
 	    return list;
 	}
 	
@@ -139,11 +131,4 @@ public class ContactModel extends SmallTableModelBase<ContactRecord> {
 		}
 		return false;
 	}
-	class AlphabeticalComparator implements Comparator<ContactRecord> {
-	    // Comparator interface requires defining compare method. 
-		public int compare(ContactRecord a, ContactRecord b) {
-			// We are comparing based on name
-			return a.getName().compareToIgnoreCase(b.getName());
-		}
-	}	
 }

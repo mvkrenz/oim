@@ -27,6 +27,7 @@ import edu.iu.grid.oim.lib.Config;
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
 import edu.iu.grid.oim.model.db.FacilityModel;
 import edu.iu.grid.oim.model.db.record.FacilityRecord;
+import edu.iu.grid.oim.model.db.record.SiteRecord;
 
 import edu.iu.grid.oim.view.BreadCrumbView;
 import edu.iu.grid.oim.view.ContentView;
@@ -78,8 +79,13 @@ public class FacilityServlet extends ServletBase implements Servlet {
 	{
 		//pull list of all sites
 		FacilityModel model = new FacilityModel(context);
-		Collection<FacilityRecord> facilities = model.getAllAlphabetized();
-		
+		ArrayList<FacilityRecord> facilities = model.getAll();
+		Collections.sort(facilities, new Comparator<FacilityRecord> () {
+			public int compare(FacilityRecord a, FacilityRecord b) {
+				return a.getName().compareToIgnoreCase(b.getName());
+			}
+		});
+
 		ContentView contentview = new ContentView();	
 		contentview.add(new HtmlView("<h1>Facilities</h1>"));
 	

@@ -5,9 +5,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashSet;
 
 import javax.xml.xpath.XPath;
@@ -17,11 +14,7 @@ import javax.xml.xpath.XPathExpressionException;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 
-import edu.iu.grid.oim.lib.Authorization;
-import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
 import edu.iu.grid.oim.model.Context;
-import edu.iu.grid.oim.model.db.FacilityModel.AlphabeticalComparator;
-import edu.iu.grid.oim.model.db.record.FacilityRecord;
 import edu.iu.grid.oim.model.db.record.RecordBase;
 import edu.iu.grid.oim.model.db.record.SCContactRecord;
 import edu.iu.grid.oim.model.db.record.SCRecord;
@@ -42,7 +35,7 @@ public class SCModel extends SmallTableModelBase<SCRecord> {
 		return new SCRecord();
 	}
 
-	public Collection<SCRecord> getAllEditable() throws SQLException
+	public ArrayList<SCRecord> getAllEditable() throws SQLException
 	{		
 		ArrayList<SCRecord> list = new ArrayList();
 
@@ -54,12 +47,6 @@ public class SCModel extends SmallTableModelBase<SCRecord> {
 	    	} 	
 	    }
 	    return list;
-	}
-	public ArrayList<SCRecord> getAllEditableAlphabetized() throws SQLException
-	{
-		ArrayList<SCRecord> list = (ArrayList<SCRecord>) getAllEditable();
-		Collections.sort(list, new AlphabeticalComparator ());
-		return list;
 	}
 	public Boolean hasLogAccess(XPath xpath, Document doc) throws XPathExpressionException
 	{
@@ -182,12 +169,4 @@ public class SCModel extends SmallTableModelBase<SCRecord> {
 			throw new Exception(e);
 		}			
 	}
-	class AlphabeticalComparator implements Comparator<SCRecord> {
-	    // Comparator interface requires defining compare method. 
-		public int compare(SCRecord a, SCRecord b) {
-			// We are comparing based on name
-			return a.getName().compareToIgnoreCase(b.getName());
-		}
-	}	
 }
-

@@ -2,21 +2,16 @@ package edu.iu.grid.oim.model.db;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathExpressionException;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import edu.iu.grid.oim.model.Context;
-import edu.iu.grid.oim.model.db.FacilityModel.AlphabeticalComparator;
-import edu.iu.grid.oim.model.db.record.FacilityRecord;
 import edu.iu.grid.oim.model.db.record.OsgGridTypeRecord;
 import edu.iu.grid.oim.model.db.record.RecordBase;
 import edu.iu.grid.oim.model.db.record.ResourceGroupRecord;
-import edu.iu.grid.oim.model.db.record.ResourceRecord;
-import edu.iu.grid.oim.model.db.record.ServiceRecord;
+
 import edu.iu.grid.oim.model.db.record.SiteRecord;
 
 public class ResourceGroupModel extends SmallTableModelBase<ResourceGroupRecord> {
@@ -40,12 +35,6 @@ public class ResourceGroupModel extends SmallTableModelBase<ResourceGroupRecord>
 		for(RecordBase it : getCache()) {
 			list.add((ResourceGroupRecord)it);
 		}
-		return list;
-	}
-	public ArrayList<ResourceGroupRecord> getAllAlphabetized() throws SQLException
-	{
-		ArrayList<ResourceGroupRecord> list = getAll();
-		Collections.sort(list, new AlphabeticalComparator ());
 		return list;
 	}
 	public ArrayList<ResourceGroupRecord> getBySiteID(int site_id) throws SQLException
@@ -81,12 +70,5 @@ public class ResourceGroupModel extends SmallTableModelBase<ResourceGroupRecord>
 			return true;
 		}
 		return false;
-	}
-	class AlphabeticalComparator implements Comparator<ResourceGroupRecord> {
-	    // Comparator interface requires defining compare method. 
-		public int compare(ResourceGroupRecord a, ResourceGroupRecord b) {
-			// We are comparing based on name
-			return a.getName().compareToIgnoreCase(b.getName());
-		}
 	}
 }

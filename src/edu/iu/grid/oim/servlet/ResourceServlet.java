@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
@@ -84,8 +86,13 @@ public class ResourceServlet extends ServletBase implements Servlet {
 		throws ServletException, SQLException
 	{
 		ResourceModel model = new ResourceModel(context);
-		Collection<ResourceRecord> resources = model.getAllEditableAlphabetized();
-		
+		ArrayList<ResourceRecord> resources = model.getAllEditable();
+		Collections.sort(resources, new Comparator<ResourceRecord> () {
+			public int compare(ResourceRecord a, ResourceRecord b) {
+				return a.getName().compareToIgnoreCase(b.getName());
+			}
+		});
+
 		ContentView contentview = new ContentView();	
 		contentview.add(new HtmlView("<h1>Resource</h1>"));
 	

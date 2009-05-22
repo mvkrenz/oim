@@ -12,14 +12,11 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
+
 import edu.iu.grid.oim.model.Context;
-import edu.iu.grid.oim.model.ResourceDowntime;
 import edu.iu.grid.oim.model.VOReport;
-import edu.iu.grid.oim.model.db.SCModel.AlphabeticalComparator;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.RecordBase;
-import edu.iu.grid.oim.model.db.record.ResourceDowntimeRecord;
-import edu.iu.grid.oim.model.db.record.ResourceDowntimeServiceRecord;
 import edu.iu.grid.oim.model.db.record.SCRecord;
 import edu.iu.grid.oim.model.db.record.VOContactRecord;
 import edu.iu.grid.oim.model.db.record.VOFieldOfScienceRecord;
@@ -75,7 +72,13 @@ public class VOModel extends SmallTableModelBase<VORecord>
 	public Collection<VORecord> getAllEditableAlphabetized() throws SQLException
 	{	   
 		ArrayList<VORecord> list = (ArrayList<VORecord>) getAllEditable();
-		Collections.sort(list, new AlphabeticalComparator ());
+		Collections.sort(list, new Comparator<VORecord> (){
+		    // Comparator interface requires defining compare method. 
+			public int compare(VORecord a, VORecord b) {
+				// We are comparing based on name
+				return a.getName().compareToIgnoreCase(b.getName());
+			}
+		});
 	    return list;
 	}
 	
@@ -309,10 +312,4 @@ public class VOModel extends SmallTableModelBase<VORecord>
 		}
 		return list;
 	}
-	class AlphabeticalComparator implements Comparator<VORecord> {
-	    // Comparator interface requires defining compare method. 
-		public int compare(VORecord a, VORecord b) {
-			// We are comparing based on name
-			return a.getName().compareToIgnoreCase(b.getName());
-		}
-	}	}
+}

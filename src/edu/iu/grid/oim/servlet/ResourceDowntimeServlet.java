@@ -4,7 +4,10 @@ import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 
 import javax.servlet.Servlet;
@@ -38,6 +41,7 @@ import edu.iu.grid.oim.model.db.record.ResourceDowntimeRecord;
 import edu.iu.grid.oim.model.db.record.ResourceDowntimeServiceRecord;
 import edu.iu.grid.oim.model.db.record.ResourceServiceRecord;
 import edu.iu.grid.oim.model.db.record.ServiceRecord;
+import edu.iu.grid.oim.model.db.record.SiteRecord;
 
 import edu.iu.grid.oim.model.db.record.ResourceRecord;
 
@@ -82,8 +86,13 @@ public class ResourceDowntimeServlet extends ServletBase implements Servlet {
 		throws ServletException, SQLException
 	{
 		ResourceModel model = new ResourceModel(context);
-		Collection<ResourceRecord> resources = model.getAllEditableAlphabetized();
-		
+		ArrayList<ResourceRecord> resources = model.getAllEditable();
+		Collections.sort(resources, new Comparator<ResourceRecord> () {
+			public int compare(ResourceRecord a, ResourceRecord b) {
+				return a.getName().compareToIgnoreCase(b.getName());
+			}
+		});
+
 		ContentView contentview = new ContentView();	
 		contentview.add(new HtmlView("<h1>Resource Downtime</h1>"));
 	

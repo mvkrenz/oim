@@ -1,12 +1,10 @@
 package edu.iu.grid.oim.servlet;
 
 import java.io.IOException;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Set;
+import java.util.Collections;
+import java.util.Comparator;
 
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
@@ -18,37 +16,22 @@ import org.apache.log4j.Logger;
 
 import com.webif.divex.ButtonDE;
 import com.webif.divex.DivEx;
-import com.webif.divex.DivExRoot;
 import com.webif.divex.Event;
 
 import edu.iu.grid.oim.lib.Config;
-import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
-import edu.iu.grid.oim.model.db.ContactRankModel;
-import edu.iu.grid.oim.model.db.ContactTypeModel;
-import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.OsgGridTypeModel;
 import edu.iu.grid.oim.model.db.ResourceGroupModel;
-import edu.iu.grid.oim.model.db.SCContactModel;
-import edu.iu.grid.oim.model.db.SCModel;
 import edu.iu.grid.oim.model.db.SiteModel;
 import edu.iu.grid.oim.model.db.record.ResourceGroupRecord;
-import edu.iu.grid.oim.model.db.record.SCRecord;
-import edu.iu.grid.oim.model.db.record.SCContactRecord;
-import edu.iu.grid.oim.model.db.record.ContactRankRecord;
-import edu.iu.grid.oim.model.db.record.ContactTypeRecord;
-import edu.iu.grid.oim.model.db.record.ContactRecord;
+
 import edu.iu.grid.oim.view.BreadCrumbView;
 import edu.iu.grid.oim.view.ContentView;
 import edu.iu.grid.oim.view.DivExWrapper;
 import edu.iu.grid.oim.view.HtmlView;
-import edu.iu.grid.oim.view.IView;
 import edu.iu.grid.oim.view.MenuView;
 import edu.iu.grid.oim.view.Page;
 import edu.iu.grid.oim.view.RecordTableView;
 import edu.iu.grid.oim.view.SideContentView;
-import edu.iu.grid.oim.view.TableView;
-import edu.iu.grid.oim.view.Utils;
-import edu.iu.grid.oim.view.TableView.Row;
 
 public class ResourceGroupServlet extends ServletBase implements Servlet {
 	private static final long serialVersionUID = 1L;
@@ -91,10 +74,12 @@ public class ResourceGroupServlet extends ServletBase implements Servlet {
 		SiteModel site_model = new SiteModel (context);
 		OsgGridTypeModel ogt_model = new OsgGridTypeModel (context);
 		
-//		Collection<SiteRecord> sites = site_model.getAll();
-//		Collection<OsgGridTypeRecord> grid_types = ogt_model.getAll();
-		
-		Collection<ResourceGroupRecord> rgs = model.getAllAlphabetized();
+		ArrayList<ResourceGroupRecord> rgs = model.getAll();
+		Collections.sort(rgs, new Comparator<ResourceGroupRecord> () {
+			public int compare(ResourceGroupRecord a, ResourceGroupRecord b) {
+				return a.getName().compareToIgnoreCase(b.getName());
+			}
+		});
 		for(ResourceGroupRecord rec : rgs) {
 			contentview.add(new HtmlView("<h2>"+StringEscapeUtils.escapeHtml(rec.name)+"</h2>"));
 			

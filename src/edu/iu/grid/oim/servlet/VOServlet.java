@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
@@ -79,7 +81,12 @@ public class VOServlet extends ServletBase implements Servlet {
 		throws ServletException, SQLException
 	{
 		VOModel model = new VOModel(context);
-		Collection<VORecord> vos = model.getAllEditableAlphabetized();;
+		ArrayList<VORecord> vos = (ArrayList<VORecord>) model.getAllEditable();
+		Collections.sort(vos, new Comparator<VORecord> (){
+			public int compare(VORecord a, VORecord b) {
+				return a.getName().compareToIgnoreCase(b.getName()); // We are comparing based on name
+			}
+		});
 		
 		ContentView contentview = new ContentView();	
 		contentview.add(new HtmlView("<h1>Virtual Organization</h1>"));

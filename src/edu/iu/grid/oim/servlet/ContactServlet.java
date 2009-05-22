@@ -2,7 +2,11 @@ package edu.iu.grid.oim.servlet;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -18,6 +22,7 @@ import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.DNModel;
 import edu.iu.grid.oim.model.db.record.DNRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
+import edu.iu.grid.oim.model.db.record.VORecord;
 import edu.iu.grid.oim.view.ContentView;
 import edu.iu.grid.oim.view.DivExWrapper;
 import edu.iu.grid.oim.view.HtmlView;
@@ -58,8 +63,13 @@ public class ContactServlet extends ServletBase implements Servlet {
 		throws ServletException, SQLException
 	{
 		ContactModel model = new ContactModel(context);
-		Collection<ContactRecord> contacts = model.getAllEditableAlphabetized();
-		
+		ArrayList<ContactRecord> contacts = model.getAllEditable();
+		Collections.sort(contacts, new Comparator<ContactRecord> (){
+			public int compare(ContactRecord a, ContactRecord b) {
+				return a.getName().compareToIgnoreCase(b.getName()); // We are comparing based on name
+			}
+		});
+
 		ContentView contentview = new ContentView();	
 		contentview.add(new HtmlView("<h1>Contacts</h1>"));
 		

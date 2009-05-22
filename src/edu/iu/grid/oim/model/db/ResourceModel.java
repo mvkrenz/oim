@@ -4,8 +4,6 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashSet;
 
 import javax.xml.xpath.XPath;
@@ -16,7 +14,6 @@ import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 
 import edu.iu.grid.oim.model.Context;
-import edu.iu.grid.oim.model.db.ResourceGroupModel.AlphabeticalComparator;
 import edu.iu.grid.oim.model.db.record.RecordBase;
 import edu.iu.grid.oim.model.db.record.ResourceAliasRecord;
 import edu.iu.grid.oim.model.db.record.ResourceContactRecord;
@@ -62,7 +59,7 @@ public class ResourceModel extends SmallTableModelBase<ResourceRecord> {
 		}
 		return list;
 	}
-	public Collection<ResourceRecord> getAllEditable() throws SQLException
+	public ArrayList<ResourceRecord> getAllEditable() throws SQLException
 	{	   
 		ArrayList<ResourceRecord> list = new ArrayList<ResourceRecord>();
     	//only select record that is editable
@@ -74,12 +71,7 @@ public class ResourceModel extends SmallTableModelBase<ResourceRecord> {
 	    }	    	
 	    return list;
 	}
-	public ArrayList<ResourceRecord> getAllEditableAlphabetized() throws SQLException
-	{	   
-		ArrayList<ResourceRecord> list = (ArrayList<ResourceRecord>) getAllEditable();
-		Collections.sort(list, new AlphabeticalComparator ());
-		return list;
-	}
+
 	public Boolean hasLogAccess(XPath xpath, Document doc) throws XPathExpressionException
 	{
 		Integer id = Integer.parseInt((String)xpath.evaluate("//Keys/Key[Name='id']/Value", doc, XPathConstants.STRING));
@@ -299,13 +291,6 @@ public class ResourceModel extends SmallTableModelBase<ResourceRecord> {
 			//re-throw original exception
 			throw new Exception(e);
 		}			
-	}
-	class AlphabeticalComparator implements Comparator<ResourceRecord> {
-	    // Comparator interface requires defining compare method. 
-		public int compare(ResourceRecord a, ResourceRecord b) {
-			// We are comparing based on name
-			return a.getName().compareToIgnoreCase(b.getName());
-		}
 	}
 }
 

@@ -5,6 +5,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Set;
 
@@ -87,8 +89,13 @@ public class SiteServlet extends ServletBase implements Servlet {
 		throws ServletException, SQLException
 	{
 		SiteModel model = new SiteModel(context);
-		Collection<SiteRecord> sites = model.getAllAlphabetized();
-		
+		ArrayList<SiteRecord> sites = model.getAll();
+		Collections.sort(sites, new Comparator<SiteRecord> () {
+			public int compare(SiteRecord a, SiteRecord b) {
+				return a.getName().compareToIgnoreCase(b.getName());
+			}
+		});
+
 		ContentView contentview = new ContentView();	
 		contentview.add(new HtmlView("<h1>Administrativs Sites</h1>"));
 	
