@@ -159,7 +159,13 @@ INSERT INTO `action` (`id`,`name`,`description`) VALUES
  (15,'edit_all_site','Allow user-level read/write access to all sites for registered users (contacts)'),
  (16,'edit_all_resource_group','Allow user-level read/write access to all resource groups for registered users (contacts)'),
  (17,'edit_my_resource','Allow user-level read/write access to resources for authorized users (contacts)'),
- (18,'edit_measurement','Allow specific user-level read/write access to CPU Info list for authorized users (contacts)')
+ (18,'edit_measurement','Allow specific user-level read/write access to CPU Info list for authorized users (contacts)'),
+ (19,'ticket_admin', ''),
+ (20,'ticket_notify', ''),
+ (21,'ticket_view_security_ticket', ''),
+ (22,'ticket_update', ''),
+ (23,'ticket_ra', ''),
+ (24,'ticket_view_meta', '')
  ;
  
  -- CPU info
@@ -191,7 +197,15 @@ INSERT INTO `authorization_type_action` (`authorization_type_id`,`action_id`) VA
  (1,17),
  (4,17),
  (4,18),
- (5,18)
+ (5,18),
+ (3,21),
+ (4,18),
+ (4,19),
+ (4,20),
+ (4,21),
+ (4,22),
+ (4,23),
+ (4,24)
 ;
 
 INSERT INTO facility_contact (SELECT person_id,facility_id,type_id,rank_id FROM oim.facility_contact);

@@ -164,7 +164,6 @@ public class AuthorizationMatrixServlet extends ServletBase  {
 			
 			return true;
 		}
-    	
     }
 	
     public AuthorizationMatrixServlet() {
