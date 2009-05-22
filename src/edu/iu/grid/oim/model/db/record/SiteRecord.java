@@ -28,7 +28,9 @@ public class SiteRecord extends RecordBase
 	public SiteRecord(ResultSet rs) throws SQLException { super(rs); }
 	//for creating new record
 	public SiteRecord()	throws SQLException {}
-	
+	public String getName() {
+		return name;
+	}
 	/*
 	public String getTitle() {
 		return "Site " + name;

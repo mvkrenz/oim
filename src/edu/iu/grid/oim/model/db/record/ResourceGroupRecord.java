@@ -24,6 +24,9 @@ public class ResourceGroupRecord extends RecordBase {
 	public ResourceGroupRecord(ResultSet rs) throws SQLException { super(rs); }
 	//for creating new record
 	public ResourceGroupRecord() {}
+	public String getName() {
+		return name;
+	}
 	/*
 	public String getTitle() {
 		return "Resource Group : " + name;

@@ -16,6 +16,9 @@ public class FacilityRecord extends RecordBase {
 	public FacilityRecord(ResultSet rs) throws SQLException { super(rs); }
 	//for creating new record
 	public FacilityRecord()	throws SQLException {}
+	public String getName() {
+		return name;
+	}
 	/*
 	public int compareKeysTo(RecordBase o) {
 		if(this == o) return 0;
@@ -24,7 +27,4 @@ public class FacilityRecord extends RecordBase {
 		return 1;
 	}
 	*/
-	public String getName() {
-		return name;
-	}
 }

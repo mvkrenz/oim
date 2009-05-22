@@ -22,4 +22,7 @@ public class SCRecord extends RecordBase {
 	public SCRecord(ResultSet rs) throws SQLException { super(rs); }
 	//for creating new record
 	public SCRecord() {}
+	public String getName() {
+		return name;
+	}
 }

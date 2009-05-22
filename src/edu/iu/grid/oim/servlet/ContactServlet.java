@@ -58,30 +58,41 @@ public class ContactServlet extends ServletBase implements Servlet {
 		throws ServletException, SQLException
 	{
 		ContactModel model = new ContactModel(context);
-		Collection<ContactRecord> contacts = model.getAllEditable();
+		Collection<ContactRecord> contacts = model.getAllEditableAlphabetized();
 		
 		ContentView contentview = new ContentView();	
 		contentview.add(new HtmlView("<h1>Contacts</h1>"));
 		
+		return createContentViewHelper (contentview, contacts);
+	}
+
+	protected ContentView createContentViewHelper (ContentView contentview, Collection<ContactRecord> contacts) 
+		throws ServletException, SQLException
+	{  
 		DNModel dnmodel = new DNModel(context);
-	
+
 		for(ContactRecord rec : contacts) {
 			contentview.add(new HtmlView("<h2>"+StringEscapeUtils.escapeHtml(rec.name)+"</h2>"));
-			
+
 			RecordTableView table = new RecordTableView();
-			contentview.add(new TogglerDE(context.getDivExRoot(), new ViewWrapperDE(context.getDivExRoot(), table)));
+			// TODO agopu: 10 is an arbitrary number -- perhaps we should make this a user preference? show/hide?
+			if (contacts.size() > 10) {
+				contentview.add(new TogglerDE(context.getDivExRoot(), new ViewWrapperDE(context.getDivExRoot(), table),false));
+			} else {
+				contentview.add(new TogglerDE(context.getDivExRoot(), new ViewWrapperDE(context.getDivExRoot(), table),true));
+			}
 
-		 	table.addRow("Primary Email", rec.primary_email);
-		 	table.addRow("Secondary Email", rec.secondary_email);
-		 	
-		 	table.addRow("Primary Phone", rec.primary_phone);
-		 	table.addRow("Primary Phone Ext", rec.primary_phone_ext);
+			table.addRow("Primary Email", rec.primary_email);
+			table.addRow("Secondary Email", rec.secondary_email);
 
-		 	table.addRow("Secondary Phone", rec.secondary_phone);
-		 	table.addRow("Secondary Phone Ext", rec.secondary_phone_ext);
-		 	
-		 	table.addRow("Address Line 1", rec.address_line_1);
-		 	table.addRow("Address Line 2", rec.address_line_2);
+			table.addRow("Primary Phone", rec.primary_phone);
+			table.addRow("Primary Phone Ext", rec.primary_phone_ext);
+
+			table.addRow("Secondary Phone", rec.secondary_phone);
+			table.addRow("Secondary Phone Ext", rec.secondary_phone_ext);
+
+			table.addRow("Address Line 1", rec.address_line_1);
+			table.addRow("Address Line 2", rec.address_line_2);
 			table.addRow("City", rec.city);
 			table.addRow("State", rec.state);
 			table.addRow("ZIP Code", rec.zipcode);
@@ -89,17 +100,17 @@ public class ContactServlet extends ServletBase implements Servlet {
 
 			table.addRow("Active", rec.active);
 			table.addRow("Disable", rec.disable);
-			
+
 			table.addRow("Person", rec.person);
 			table.addRow("Instant Messaging", rec.im);
-			
+
 			String img = rec.photo_url;
 			if(rec.photo_url == null || rec.photo_url.length() == 0) {
 				img = Config.getApplicationBase() + "/images/noavatar.gif";
 			} 
 			table.addRow("Photo", new HtmlView("<img class=\"avatar\" src=\""+img+"\"/>"));
 			table.addRow("Contact Preference", rec.contact_preference);	
-			
+
 			if(auth.allows("admin")) {
 				String submitter_dn = null;
 				if(rec.submitter_dn_id != null) {
@@ -107,7 +118,7 @@ public class ContactServlet extends ServletBase implements Servlet {
 				}
 				table.addRow("Submitter DN", submitter_dn);
 			}
-			
+
 			if(auth.allows("admin")) {
 				String dn_string = "";
 				DNRecord dnrec = dnmodel.getByContactID(rec.id);
@@ -116,7 +127,7 @@ public class ContactServlet extends ServletBase implements Servlet {
 				}
 				table.addRow("Associated DN", dn_string);		
 			}
-			
+
 			class EditButtonDE extends ButtonDE
 			{
 				String url;
@@ -131,10 +142,8 @@ public class ContactServlet extends ServletBase implements Servlet {
 			};
 			table.add(new DivExWrapper(new EditButtonDE(context.getDivExRoot(), Config.getApplicationBase()+"/contactedit?id=" + rec.id)));
 		}
-		
 		return contentview;
-	}
-	
+	}	
 	private SideContentView createSideView()
 	{
 		SideContentView view = new SideContentView();

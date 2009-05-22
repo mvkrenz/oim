@@ -4,6 +4,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 
 import javax.xml.xpath.XPath;
@@ -15,11 +17,14 @@ import org.w3c.dom.Document;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.model.Context;
+import edu.iu.grid.oim.model.db.VOModel.AlphabeticalComparator;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.DNRecord;
 import edu.iu.grid.oim.model.db.record.RecordBase;
 import edu.iu.grid.oim.model.db.record.ResourceRecord;
+import edu.iu.grid.oim.model.db.record.SCRecord;
 import edu.iu.grid.oim.model.db.record.ServiceRecord;
+import edu.iu.grid.oim.model.db.record.VORecord;
 
 public class ContactModel extends SmallTableModelBase<ContactRecord> {
     static Logger log = Logger.getLogger(ContactModel.class);  
@@ -92,6 +97,12 @@ public class ContactModel extends SmallTableModelBase<ContactRecord> {
 	    
 	    return list;
 	}
+	public Collection<ContactRecord> getAllEditableAlphabetized() throws SQLException
+	{	   
+		ArrayList<ContactRecord> list = (ArrayList<ContactRecord>) getAllEditable();
+		Collections.sort(list, new AlphabeticalComparator ());
+	    return list;
+	}
 	
 	//returns all record id that the user has access to
 	private HashSet<Integer> getEditableIDs() throws SQLException
@@ -128,4 +139,11 @@ public class ContactModel extends SmallTableModelBase<ContactRecord> {
 		}
 		return false;
 	}
+	class AlphabeticalComparator implements Comparator<ContactRecord> {
+	    // Comparator interface requires defining compare method. 
+		public int compare(ContactRecord a, ContactRecord b) {
+			// We are comparing based on name
+			return a.getName().compareToIgnoreCase(b.getName());
+		}
+	}	
 }

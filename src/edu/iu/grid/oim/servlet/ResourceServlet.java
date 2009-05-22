@@ -84,7 +84,7 @@ public class ResourceServlet extends ServletBase implements Servlet {
 		throws ServletException, SQLException
 	{
 		ResourceModel model = new ResourceModel(context);
-		Collection<ResourceRecord> resources = model.getAllEditable();
+		Collection<ResourceRecord> resources = model.getAllEditableAlphabetized();
 		
 		ContentView contentview = new ContentView();	
 		contentview.add(new HtmlView("<h1>Resource</h1>"));

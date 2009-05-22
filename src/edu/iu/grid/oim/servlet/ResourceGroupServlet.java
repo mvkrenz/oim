@@ -94,7 +94,7 @@ public class ResourceGroupServlet extends ServletBase implements Servlet {
 //		Collection<SiteRecord> sites = site_model.getAll();
 //		Collection<OsgGridTypeRecord> grid_types = ogt_model.getAll();
 		
-		Collection<ResourceGroupRecord> rgs = model.getAll();
+		Collection<ResourceGroupRecord> rgs = model.getAllAlphabetized();
 		for(ResourceGroupRecord rec : rgs) {
 			contentview.add(new HtmlView("<h2>"+StringEscapeUtils.escapeHtml(rec.name)+"</h2>"));
 			

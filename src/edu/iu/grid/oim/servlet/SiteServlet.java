@@ -87,7 +87,7 @@ public class SiteServlet extends ServletBase implements Servlet {
 		throws ServletException, SQLException
 	{
 		SiteModel model = new SiteModel(context);
-		Collection<SiteRecord> sites = model.getAll();
+		Collection<SiteRecord> sites = model.getAllAlphabetized();
 		
 		ContentView contentview = new ContentView();	
 		contentview.add(new HtmlView("<h1>Administrativs Sites</h1>"));

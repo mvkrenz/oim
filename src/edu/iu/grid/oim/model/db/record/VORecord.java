@@ -33,4 +33,7 @@ public class VORecord extends RecordBase
 	public VORecord(ResultSet rs) throws SQLException { super(rs); }
 	//for creating new record
 	public VORecord() {}
+	public String getName() {
+		return name;
+	}
 }

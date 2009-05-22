@@ -64,7 +64,7 @@ public class SCServlet extends ServletBase implements Servlet {
 		throws ServletException, SQLException
 	{
 		SCModel model = new SCModel(context);
-		Collection<SCRecord> scs = model.getAllEditable();
+		Collection<SCRecord> scs = model.getAllEditableAlphabetized();
 		
 		ContentView contentview = new ContentView();	
 		contentview.add(new HtmlView("<h1>Support Centers</h1>"));

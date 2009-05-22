@@ -79,7 +79,7 @@ public class VOServlet extends ServletBase implements Servlet {
 		throws ServletException, SQLException
 	{
 		VOModel model = new VOModel(context);
-		Collection<VORecord> vos = model.getAllEditable();;
+		Collection<VORecord> vos = model.getAllEditableAlphabetized();;
 		
 		ContentView contentview = new ContentView();	
 		contentview.add(new HtmlView("<h1>Virtual Organization</h1>"));

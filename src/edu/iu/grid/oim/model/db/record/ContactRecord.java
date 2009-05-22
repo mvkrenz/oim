@@ -35,7 +35,9 @@ public class ContactRecord extends RecordBase {
 	}
 	//for creating new record
 	public ContactRecord() {}
-	
+	public String getName() {
+		return name;
+	}
 	public String getFirstName()
 	{
 		if(name == null) return "";
