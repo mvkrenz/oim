@@ -21,6 +21,9 @@ public class SCContactRecord extends RecordBase {
 	public SCContactRecord(ResultSet rs) throws SQLException { super(rs); }
 	//for creating new record
 	public SCContactRecord() {}
+	public Integer getRank() {
+		return contact_rank_id;
+	}
 	/*
 	public String getTitle() {
 		return "SC Contact Record";

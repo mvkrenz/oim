@@ -79,7 +79,9 @@ public class SiteEditServlet extends ServletBase implements Servlet {
 	private SideContentView createSideView()
 	{
 		SideContentView view = new SideContentView();
-		view.add("Sidebar", new HtmlView("No content yet"));
+		view.add("About", new HtmlView("This form allows you to edit this administrative site's (a.k.a deparment's) registration information.</p>"));		
+		view.addContactNote();		
+		// view.addContactLegent();		
 		return view;
 	}
 }

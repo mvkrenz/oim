@@ -133,9 +133,16 @@ public class VOServlet extends ServletBase implements Servlet {
 			ArrayList<VOContactRecord> voclist = vocmodel.getByVOID(rec.id);
 			HashMap<Integer, ArrayList<VOContactRecord>> voclist_grouped = vocmodel.groupByContactTypeID(voclist);
 			for(Integer type_id : voclist_grouped.keySet()) {
-				ArrayList<VOContactRecord> clist = voclist_grouped.get(type_id);
 				ContactTypeRecord ctrec = ctmodel.get(type_id);
-				
+
+				ArrayList<VOContactRecord> clist = voclist_grouped.get(type_id);
+				Collections.sort(clist, new Comparator<VOContactRecord> (){
+					public int compare(VOContactRecord a, VOContactRecord b) {
+						if (a.getRank() > b.getRank()) // We are comparing based on rank id 
+							return 1; 
+						return 0;
+					}
+				});
 				String cliststr = "";
 				
 				for(VOContactRecord vcrec : clist) {

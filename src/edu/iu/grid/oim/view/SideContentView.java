@@ -36,6 +36,13 @@ public class SideContentView implements IView {
 		add(title, new HtmlView(html));
 	}
 	
+	public void addContactNote () {
+		//TODO agopu need external link icon in CSS
+		add("Note about Contacts", new HtmlView("<p>The contact boxes allow you to search and assign contacts.</p><p>When assigning various contacts on this form, if you do not find the contact you are searching for, then <a href=\"contactedit\" target=\"_blank\">click here to add a new contact</a> first [opens in a new tab]."));		
+	}
+	public void addContactLegend () {
+		add("Legend", new HtmlView("<p>Contacts are flagged by their rank:</p><p><br></p><p><div class=\'contact_rank contact_Primary\'>Primary</div></p><p><div class=\'contact_rank contact_Secondary\'>Secondary</div></p><p><div class=\'contact_rank contact_Tertiary\'>Tertiary</div></p>"));		
+	}
 	public void render(PrintWriter out)
 	{
 		out.println("<div id=\"sideContent\">");

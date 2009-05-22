@@ -21,8 +21,9 @@ public class VOContactRecord extends RecordBase {
 	//load from existing record
 	public VOContactRecord(ResultSet rs) throws SQLException { super(rs); }
 	//for creating new record
-	public VOContactRecord()
-	{
+	public VOContactRecord() {	}
+	public Integer getRank() {
+		return contact_rank_id;
 	}
 	
 	/*

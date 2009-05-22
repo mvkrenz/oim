@@ -305,10 +305,12 @@ public class VOFormDE extends FormDEBase
 
 		// Handle reporting names
 		new StaticDE(this, "<h2>Reporting Names for your VO</h2>");
+		ContactModel cmodel = new ContactModel (context);
 		VOReportNameModel vorepname_model = new VOReportNameModel(context);
 		VOReportNameFqanModel vorepnamefqan_model = new VOReportNameFqanModel(context);
-		ContactModel cmodel = new ContactModel (context);
-		vo_report_name_div = new VOReportNamesDE(this, vorepname_model.getAll(), cmodel);
+
+		ArrayList<VOReportNameRecord> vorepname_records = vorepname_model.getAll();
+		vo_report_name_div = new VOReportNamesDE(this, vorepname_records, cmodel);
 
 		if(id != null) {
 			for(VOReportNameRecord vorepname_rec : vorepname_model.getAllByVOID(id)) {
@@ -320,7 +322,10 @@ public class VOFormDE extends FormDEBase
 							vorepnamefqan_list, vorc_list);
 			}
 		}
-		
+		else {
+			// TODO agopu need code here - Chris green's request for version 2.1
+			//new StaticDE(this, "<h3>NOTE: We are adding a default reporting names for this VO. You can modify it or add more.</h3>");		}
+		}
 		if(auth.allows("admin")) {
 			new StaticDE(this, "<h2>Administrative Tasks</h2>");
 		}

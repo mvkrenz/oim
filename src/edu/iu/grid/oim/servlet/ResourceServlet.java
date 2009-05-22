@@ -43,6 +43,7 @@ import edu.iu.grid.oim.model.db.record.ResourceRecord;
 import edu.iu.grid.oim.model.db.record.ResourceServiceRecord;
 import edu.iu.grid.oim.model.db.record.ResourceWLCGRecord;
 import edu.iu.grid.oim.model.db.record.ServiceRecord;
+import edu.iu.grid.oim.model.db.record.VOContactRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
 import edu.iu.grid.oim.model.db.record.VOResourceOwnershipRecord;
 import edu.iu.grid.oim.view.ContentView;
@@ -151,9 +152,16 @@ public class ResourceServlet extends ServletBase implements Servlet {
 			ArrayList<ResourceContactRecord> rclist = rcmodel.getByResourceID(rec.id);
 			HashMap<Integer, ArrayList<ResourceContactRecord>> voclist_grouped = rcmodel.groupByContactTypeID(rclist);
 			for(Integer type_id : voclist_grouped.keySet()) {
-				ArrayList<ResourceContactRecord> clist = voclist_grouped.get(type_id);
 				ContactTypeRecord ctrec = ctmodel.get(type_id);
 				
+				ArrayList<ResourceContactRecord> clist = voclist_grouped.get(type_id);
+				Collections.sort(clist, new Comparator<ResourceContactRecord> (){
+					public int compare(ResourceContactRecord a, ResourceContactRecord b) {
+						if (a.getRank() > b.getRank()) // We are comparing based on rank id 
+							return 1; 
+						return 0;
+					}
+				});
 				String cliststr = "";
 				
 				for(ResourceContactRecord vcrec : clist) {

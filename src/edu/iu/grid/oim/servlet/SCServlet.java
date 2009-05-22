@@ -28,6 +28,7 @@ import edu.iu.grid.oim.model.db.record.SCContactRecord;
 import edu.iu.grid.oim.model.db.record.ContactRankRecord;
 import edu.iu.grid.oim.model.db.record.ContactTypeRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
+import edu.iu.grid.oim.model.db.record.VOContactRecord;
 import edu.iu.grid.oim.view.ContentView;
 import edu.iu.grid.oim.view.DivExWrapper;
 import edu.iu.grid.oim.view.HtmlView;
@@ -101,8 +102,16 @@ public class SCServlet extends ServletBase implements Servlet {
 			ArrayList<SCContactRecord> scclist = sccmodel.getBySCID(rec.id);
 			HashMap<Integer, ArrayList<SCContactRecord>> scclist_grouped = sccmodel.groupByContactTypeID(scclist);
 			for(Integer type_id : scclist_grouped.keySet()) {
-				ArrayList<SCContactRecord> clist = scclist_grouped.get(type_id);
 				ContactTypeRecord ctrec = ctmodel.get(type_id);
+
+				ArrayList<SCContactRecord> clist = scclist_grouped.get(type_id);
+				Collections.sort(clist, new Comparator<SCContactRecord> (){
+					public int compare(SCContactRecord a, SCContactRecord b) {
+						if (a.getRank() > b.getRank()) // We are comparing based on rank id 
+							return 1; 
+						return 0;
+					}
+				});
 				
 				String cliststr = "";
 				

@@ -21,8 +21,10 @@ public class ResourceContactRecord extends RecordBase {
 	//load from existing record
 	public ResourceContactRecord(ResultSet rs) throws SQLException { super(rs); }
 	//for creating new record
-	public ResourceContactRecord()
-	{
+	public ResourceContactRecord() { }
+	
+	public Integer getRank() {
+		return contact_rank_id;
 	}
 	
 	/*
