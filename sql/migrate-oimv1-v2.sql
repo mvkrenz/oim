@@ -142,9 +142,16 @@ INSERT INTO resource_downtime_service (SELECT downtime_id,service_id FROM oim.re
 
 INSERT INTO downtime_publish_wlcg (SELECT downtime_id,downtime_action_id,publish_status,timestamp,disable FROM oim.downtime_publish_wlcg);
 
+-- ADDITIONAL INSERTS
+
+-- AUTH TYPES
 INSERT INTO authorization_type VALUES 
-	(5,'Measurement and Metrics Group')
-;
+	(5,'Measurement and Metrics Group');
+INSERT INTO authorization_type VALUES 
+	(6,'OSG Integration Test Bed (ITB) Group');
+INSERT INTO authorization_type VALUES 
+	(7,'OSG Storage Development Group');
+
 
 INSERT INTO `action` (`id`,`name`,`description`) VALUES 
  (1,'admin_authorization','Allow admin level read/write access to authorization/action matrix'),
@@ -165,7 +172,8 @@ INSERT INTO `action` (`id`,`name`,`description`) VALUES
  (21,'ticket_view_security_ticket', ''),
  (22,'ticket_update', ''),
  (23,'ticket_ra', ''),
- (24,'ticket_view_meta', '')
+ (24,'ticket_view_meta', ''),
+ (25,'ticket_edit_security_ticket', '')
  ;
  
  -- CPU info
@@ -198,14 +206,44 @@ INSERT INTO `authorization_type_action` (`authorization_type_id`,`action_id`) VA
  (4,17),
  (4,18),
  (5,18),
- (3,21),
- (4,18),
- (4,19),
- (4,20),
+ (4,19), -- ticket_admin
+ (4,20), -- ticket_notify
+ (3,21), -- ticket_view_security_ticket
  (4,21),
- (4,22),
- (4,23),
- (4,24)
-;
+ (4,22), -- ticket_update
+ (4,23), -- ticket_ra
+ (4,24), -- ticket_view_meta
+ (3,25), -- ticket_edit_security_ticket
+ (4,25)  
+ ;
 
 INSERT INTO facility_contact (SELECT person_id,facility_id,type_id,rank_id FROM oim.facility_contact);
+
+
+INSERT INTO field_of_science (name) VALUES 
+-- Biology
+    ('Biochemistry'),
+    ('Biophysics'),
+    ('Botany'),
+    ('Cellular Biology'),
+    ('Ecology'),
+    ('Medicine'),
+    ('Microbiology'),
+    ('Molecular Biology'),
+    ('Physiology'),
+    ('Zoology'),
+-- Physical science
+    ('Astronomy'),
+    ('Chemistry'),
+    ('Earth Sciences'),
+    ('Physics'),
+-- Formal science
+    ('Logic'),
+    ('Mathematics'),
+    ('Computer Science'),
+    ('Information Theory'),
+    ('Statistics'),
+-- Applied sciences
+    ('Engineering'),
+    ('Technology')
+ ;
