@@ -167,13 +167,13 @@ INSERT INTO `action` (`id`,`name`,`description`) VALUES
  (16,'edit_all_resource_group','Allow user-level read/write access to all resource groups for registered users (contacts)'),
  (17,'edit_my_resource','Allow user-level read/write access to resources for authorized users (contacts)'),
  (18,'edit_measurement','Allow specific user-level read/write access to CPU Info list for authorized users (contacts)'),
- (19,'ticket_admin', ''),
- (20,'ticket_notify', ''),
- (21,'ticket_view_security_ticket', ''),
- (22,'ticket_update', ''),
- (23,'ticket_ra', ''),
- (24,'ticket_view_meta', ''),
- (25,'ticket_edit_security_ticket', '')
+ (19,'gocticket_admin', ''),
+ (20,'gocticket_notify', ''),
+ (21,'gocticket_view_security_ticket', ''),
+ (22,'gocticket_update', ''),
+ (23,'goocticket_ra', ''),
+ (24,'gocticket_view_meta', ''),
+ (25,'gocticket_edit_security_ticket', '')
  ;
  
  -- CPU info
@@ -206,14 +206,14 @@ INSERT INTO `authorization_type_action` (`authorization_type_id`,`action_id`) VA
  (4,17),
  (4,18),
  (5,18),
- (4,19), -- ticket_admin
- (4,20), -- ticket_notify
- (3,21), -- ticket_view_security_ticket
+ (4,19), -- gocticket_admin
+ (4,20), -- gocticket_notify
+ (3,21), -- gocticket_view_security_ticket
  (4,21),
- (4,22), -- ticket_update
- (4,23), -- ticket_ra
- (4,24), -- ticket_view_meta
- (3,25), -- ticket_edit_security_ticket
+ (4,22), -- gocticket_update
+ (4,23), -- gocticket_ra
+ (4,24), -- gocticket_view_meta
+ (3,25), -- gocticket_edit_security_ticket
  (4,25)  
  ;
 
