@@ -199,10 +199,12 @@ public class ResourceDowntimeEditorDE extends FormElementDEBase {
 				end.set(Calendar.MILLISECOND, (int) end_date.getValue().getTime());
 				end.set(Calendar.HOUR, end_time.getValue().getHours());
 				end.set(Calendar.MINUTE, end_time.getValue().getMinutes());
+				/*
 				if(start.getTimeInMillis() >= end.getTimeInMillis()) {
 					error.set("End date/time value needs to be later than the start date/time. Also, earliest start date/time allowed is today 0:00 AM.");
 					valid = false;
-				}				
+				}
+				*/				
 			}
 		}
 		
