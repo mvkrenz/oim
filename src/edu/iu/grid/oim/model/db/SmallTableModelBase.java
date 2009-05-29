@@ -53,10 +53,19 @@ public abstract class SmallTableModelBase<T extends RecordBase> extends ModelBas
 		    cache.put(table_name, list);
 		}
 	}
-    protected void emptyCache() //used after we do insert/update
+    
+    //used after we do insert/update
+    protected void emptyCache() 
     {
    		cache.remove(table_name);
     }
+    
+    //force all SmallTableModelBase derived model's cache to be emptied
+    public static void emptyAllCache()
+    {
+    	cache = new HashMap();
+    }
+    
 	protected TreeSet<RecordBase> getCache() throws SQLException {
 		fillCache();
 		return cache.get(table_name);

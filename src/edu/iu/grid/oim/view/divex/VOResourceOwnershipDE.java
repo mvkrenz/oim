@@ -56,7 +56,7 @@ public class VOResourceOwnershipDE extends FormElementDEBase {
 			
 			remove_button = new ButtonDE(this, "images/delete.png");
 			remove_button.setStyle(ButtonDE.Style.IMAGE);
-			remove_button.setConfirm(true, "Do you really want to remove this owner record?");
+			//remove_button.setConfirm(true, "Do you really want to remove this owner record?");
 			remove_button.addEventListener(new EventListener() {
 				public void handleEvent(Event e) {
 					removeOwner(myself);	
