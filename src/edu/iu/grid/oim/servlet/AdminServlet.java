@@ -57,7 +57,8 @@ public class AdminServlet extends ServletBase  {
 		contentview.add(new HtmlView("<h1>OIM Administration</h1>"));
 		if(auth.allows("admin")) {
 			ListView auth_list = new ListView();
-			auth_list.add(new LinkView("action", "Actions" ));
+			auth_list.add(new LinkView("action", "Actions"));
+			auth_list.add(new LinkView("authtype", "Authorization Types"));
 			auth_list.add(new LinkView("authmatrix", "Authorization-Action Matrix" ));
 			auth_list.add(new LinkView("user", "User-Authorization Level Mapping" ));
 			contentview.add(auth_list);
