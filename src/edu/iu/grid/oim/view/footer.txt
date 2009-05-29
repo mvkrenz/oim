@@ -1,5 +1,6 @@
 <br clear="all"/>
 <div id="footer">
+<p style="float: right">Version __VERSION__</p>
 <img src="images/potato.png" align="left"/><p>&nbsp;Copyright (C) 2009 Indiana University - Developed for Open Science Grid</p>
 </div>
 </body>

@@ -326,7 +326,7 @@ public class ResourceServlet extends ServletBase implements Servlet {
 			percentages += (100-total);
 		}
 		
-		String url = "http://chart.apis.google.com/chart?chco=00cc00&cht=p3&chd=t:"+percentages+"0&chs=280x65&chl="+legends;
+		String url = "http://chart.apis.google.com/chart?chco=00cc00&cht=p3&chd=t:"+percentages+"0&chs=300x65&chl="+legends;
 		return new HtmlView("<img src=\""+url+"\"/>");
 	}
 

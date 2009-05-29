@@ -11,7 +11,9 @@ import org.apache.log4j.Logger;
 import org.xml.sax.InputSource;
 
 public class Config {
-    static Logger log = Logger.getLogger(Config.class);  
+	static public String getVersion() { return "2.1"; } //version shouldn't be configurable
+	
+	static Logger log = Logger.getLogger(Config.class);  
     
     private String appbase;
 	static public String getApplicationBase() { return config.appbase; }
@@ -19,6 +21,10 @@ public class Config {
 	private String staticbase;
 	static public String getStaticBase() { return config.staticbase; }
 
+    private String appname;
+	static public String getApplicationName() { return config.appname; }
+	
+	
 	private Boolean debug;
 	static public Boolean isDebug() { return config.debug; }	
 	
@@ -50,6 +56,9 @@ public class Config {
 			is.reset();
 			
 			staticbase = (String)xpath.evaluate("//StaticBase", config_xml);
+			is.reset();
+			
+			appname = (String)xpath.evaluate("//ApplicationName", config_xml);
 			is.reset();
 			
 			debug = ((String)xpath.evaluate("//Debug", config_xml)).compareTo("true") == 0;

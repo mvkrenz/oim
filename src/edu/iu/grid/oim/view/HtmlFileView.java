@@ -19,6 +19,8 @@ public class HtmlFileView implements IView {
 	{
 		content = FileReader.loadContent(is);
 		content = content.replaceAll("__STATICBASE__", Config.getStaticBase());
+		content = content.replaceAll("__APPNAME__", Config.getApplicationName());
+		content = content.replaceAll("__VERSION__", Config.getVersion());
 	}
 	public void render(PrintWriter out) {
 		out.print(content);
