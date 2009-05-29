@@ -57,11 +57,12 @@ public class AuthorizationMatrixServlet extends ServletBase  {
 		public void render(PrintWriter out) {
 			try {
 				out.print("<table class=\"auth_matrix\">");
+				out.print("<tr><td></td><th colspan=\""+authtypes.size()+"\">Authorization Types</th></tr>");
 				
 				//show list of auth types
-				out.print("<tr><td></td>");
+				out.print("<tr class=\"checklist\"><th valign=\"bottom\">Actions</th>");
 				for(AuthorizationTypeRecord type : authtypes) {
-					out.print("<th>"+type.name+"</th>");
+					out.print("<td>"+type.name+"</td>");
 				}
 				out.print("</tr>");
 				
@@ -74,8 +75,8 @@ public class AuthorizationMatrixServlet extends ServletBase  {
 					}
 					
 					//name & check boxes
-					out.print("<tr><th class=\"checklist tooltip\" tooltip=\""+tooltip+"\">"
-							+StringEscapeUtils.escapeHtml(action.name)+"</th>");
+					out.print("<tr class=\"checklist\"><td class=\"tooltip\" tooltip=\""+tooltip+"\">"
+							+StringEscapeUtils.escapeHtml(action.name)+"</td>");
 					for(AuthorizationTypeRecord type : authtypes) {
 						HashMap<Integer/*type_id*/, CheckBoxFormElementDE> clist = matrix.get(action.id);
 						out.print("<td>");

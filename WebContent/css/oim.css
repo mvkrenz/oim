@@ -38,6 +38,10 @@ text-align: left;
 padding-bottom: 3px;
 padding-right: 15px;
 }
+table.auth_matrix td
+{
+padding-right: 10px;
+}
 table.auth_matrix tr.checklist
 {
 border-bottom: 1px solid #ddd;
