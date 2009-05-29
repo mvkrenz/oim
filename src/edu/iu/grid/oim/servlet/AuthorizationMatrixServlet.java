@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 
 import com.webif.divex.ButtonDE;
@@ -23,6 +24,7 @@ import com.webif.divex.form.FormDEBase;
 import com.webif.divex.form.FormElementDEBase;
 
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
+import edu.iu.grid.oim.model.Context;
 import edu.iu.grid.oim.model.MenuItem;
 import edu.iu.grid.oim.model.db.ActionModel;
 import edu.iu.grid.oim.model.db.AuthorizationTypeActionModel;
@@ -47,9 +49,9 @@ public class AuthorizationMatrixServlet extends ServletBase  {
    
 	class AuthMatrix extends FormElementDEBase
 	{		
-		AuthorizationTypeModel tmodel;
-		ActionModel amodel;
+		ActionModel actionmodel;
 		AuthorizationTypeActionModel matrixmodel;
+		ArrayList<AuthorizationTypeRecord> authtypes;
 		
 		HashMap<Integer/*action_id*/, HashMap<Integer/*type_id*/, CheckBoxFormElementDE>> matrix = new HashMap();
 		public void render(PrintWriter out) {
@@ -58,21 +60,30 @@ public class AuthorizationMatrixServlet extends ServletBase  {
 				
 				//show list of auth types
 				out.print("<tr><td></td>");
-				for(AuthorizationTypeRecord type : tmodel.getAll()) {
+				for(AuthorizationTypeRecord type : authtypes) {
 					out.print("<th>"+type.name+"</th>");
 				}
 				out.print("</tr>");
 				
 				//now display all of our check boxes
-				for(ActionRecord action : amodel.getAll()) {
-					out.print("<tr class=\"checklist\"><th>"+action.name+"</th>");
-					for(AuthorizationTypeRecord type : tmodel.getAll()) {
+				for(ActionRecord action : actionmodel.getAll()) {
+					
+					String tooltip = StringEscapeUtils.escapeHtml(action.description);
+					if(tooltip.length() == 0) {
+						tooltip = "(No Description given for this action)";
+					}
+					
+					//name & check boxes
+					out.print("<tr><th class=\"checklist tooltip\" tooltip=\""+tooltip+"\">"
+							+StringEscapeUtils.escapeHtml(action.name)+"</th>");
+					for(AuthorizationTypeRecord type : authtypes) {
 						HashMap<Integer/*type_id*/, CheckBoxFormElementDE> clist = matrix.get(action.id);
 						out.print("<td>");
 						clist.get(type.id).render(out);
 						out.print("</td>");
 					}
 					out.print("</tr>");
+		
 				}
 				out.print("</table>");
 			} catch (SQLException e) {
@@ -80,21 +91,21 @@ public class AuthorizationMatrixServlet extends ServletBase  {
 			}
 		}
 		
-		public AuthMatrix(DivEx parent,
-				AuthorizationTypeModel _tmodel, 
-				ActionModel _amodel, 
-				AuthorizationTypeActionModel _matrixmodel) throws SQLException {
+		public AuthMatrix(DivEx parent, Context context) throws SQLException 
+		{
 			super(parent);
-			tmodel = _tmodel;
-			amodel = _amodel;
-			matrixmodel = _matrixmodel;
+			
+			actionmodel = new ActionModel(context); 
+			matrixmodel = new AuthorizationTypeActionModel(context);
+			AuthorizationTypeModel tmodel = new AuthorizationTypeModel(context); 
+			authtypes = tmodel.getAll();
 			
 			//create checkboxes for each action for each authtype
-			for(ActionRecord action : amodel.getAll()) {
+			for(ActionRecord action : actionmodel.getAll()) {
 				HashMap<Integer/*type_id*/, CheckBoxFormElementDE> as = new HashMap();
 				matrix.put(action.id, as);
 				Collection<Integer/*type_id*/> authorized = matrixmodel.getTypeByActionID(action.id);
-				for(AuthorizationTypeRecord type : tmodel.getAll()) {
+				for(AuthorizationTypeRecord type : authtypes) {
 					CheckBoxFormElementDE check = new CheckBoxFormElementDE(parent);
 					as.put(type.id, check);
 					if(authorized.contains(type.id)) {
@@ -142,10 +153,7 @@ public class AuthorizationMatrixServlet extends ServletBase  {
 			super(parent, _origin_url);
 			
 			//pull action, auth_type, and matrix and construct matrix
-			AuthorizationTypeModel atmodel = new AuthorizationTypeModel(context);
-			ActionModel amodel = new ActionModel(context);
-			AuthorizationTypeActionModel atamodel = new AuthorizationTypeActionModel(context);
-			matrix = new AuthMatrix(parent, atmodel, amodel, atamodel);
+			matrix = new AuthMatrix(parent, context);
 			add(matrix);
 		}
 

@@ -25,6 +25,39 @@
 	<!--[if lt IE 8]>
 	<script src="__STATICBASE__/IE8.js" type="text/javascript"></script>
 	<![endif]-->
+	
+	<style>
+	#tooltip {
+		position: absolute;
+		display: none;
+		background-color: white;
+		border: 1px solid black;
+		font-family: Arial;
+		padding: 3px;
+	}
+	.tooltip {
+		cursor: pointer;
+	}
+	</style>
+	<script type="text/javascript">
+	$(document).ready(function() {
+		$(".tooltip").hover(
+			function() {
+				$("#tooltip").text($(this).attr("tooltip"));
+				var pos = $(this).position();
+				
+				$("#tooltip").show();
+				$("#tooltip").css("left", pos.left);
+				$("#tooltip").css("top", pos.top + 25);
+				$(this).css("color", "orange");
+			},
+			function() {
+				$("#tooltip").hide();
+				$(this).css("color", "inherit");
+			}
+		);
+	});
+	</script>
 
 </head>
 <body>
@@ -34,3 +67,4 @@
         <h2>by Grid Operations Center</h2>
     </div>
     
+	<div id="tooltip">tooltip area</div>
