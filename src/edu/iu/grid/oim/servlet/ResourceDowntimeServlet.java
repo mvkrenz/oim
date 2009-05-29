@@ -103,7 +103,6 @@ public class ResourceDowntimeServlet extends ServletBase implements Servlet {
 			contentview.add(new HtmlView("<h2>"+StringEscapeUtils.escapeHtml(name)+"</h2>"));
 	
 			RecordTableView table = new RecordTableView();
-			contentview.add(table);
 			
 			//downtime
 			GenericView downtime_view = new GenericView();
@@ -113,18 +112,16 @@ public class ResourceDowntimeServlet extends ServletBase implements Servlet {
 				downtime_view.add(createDowntimeView(drec));
 			}
 			if (dt_records.isEmpty()) {
-				table.addRow("No Existing Downtime Schedule - click button below to add new downtime", downtime_view);
+				downtime_view.add(new HtmlView("No Existing Downtime Schedule"));
 			}
-			else {
-				table.addRow("Existing Downtime Schedule - click button below to edit a downtime or add an additional downtime", downtime_view);
-			}
+			table.addRow(new HtmlView("Downtime"), downtime_view);
 		
 			class EditButtonDE extends ButtonDE
 			{
 				String url;
 				public EditButtonDE(DivEx parent, String _url)
 				{
-					super(parent, "Add/Edit");
+					super(parent, "Add/Edit Downtime");
 					url = _url;
 				}
 				protected void onEvent(Event e) {
@@ -132,6 +129,7 @@ public class ResourceDowntimeServlet extends ServletBase implements Servlet {
 				}
 			};
 			table.add(new DivExWrapper(new EditButtonDE(context.getDivExRoot(), Config.getApplicationBase()+"/resourcedowntimeedit?id=" + rec.id)));
+			contentview.add(table);
 		}
 		
 		return contentview;
