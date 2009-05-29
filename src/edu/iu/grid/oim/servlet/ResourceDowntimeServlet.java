@@ -135,7 +135,6 @@ public class ResourceDowntimeServlet extends ServletBase implements Servlet {
 		return contentview;
 	}
 	
-
 	private IView createDowntimeView(ResourceDowntimeRecord rec) throws SQLException
 	{
 		GenericView view = new GenericView();
@@ -174,7 +173,6 @@ public class ResourceDowntimeServlet extends ServletBase implements Servlet {
 			html += rec.name + "<br/>";
 		}
 		return new HtmlView(html);
-
 	}
 			
 	private SideContentView createSideView()

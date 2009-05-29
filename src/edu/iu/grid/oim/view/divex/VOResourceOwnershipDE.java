@@ -11,6 +11,8 @@ import com.webif.divex.EventListener;
 import com.webif.divex.form.FormElementDEBase;
 import com.webif.divex.form.SelectFormElementDE;
 import com.webif.divex.form.TextFormElementDE;
+import com.webif.divex.form.validator.DoubleValidator;
+import com.webif.divex.form.validator.IFormElementValidator;
 
 import edu.iu.grid.oim.model.db.record.ResourceServiceRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
@@ -18,8 +20,6 @@ import edu.iu.grid.oim.model.db.record.VOResourceOwnershipRecord;
 import edu.iu.grid.oim.view.divex.ResourceServicesDE.ServiceEditor;
 
 public class VOResourceOwnershipDE extends FormElementDEBase {
-
-	//ArrayList<OwnershipEditor> owners = new ArrayList<OwnershipEditor>();
 	ArrayList<Integer> owner_id_taken = new ArrayList<Integer>();
 	private ButtonDE add_button;
 	private ArrayList<VORecord> vo_recs;
@@ -46,9 +46,15 @@ public class VOResourceOwnershipDE extends FormElementDEBase {
 				vo.setValue(rec.vo_id);
 			}
 			percent = new TextFormElementDE(this);
-			//text.addClass("inline");
 			percent.setLabel("Percentage of Ownership");
 			percent.setRequired(true);
+			percent.addValidator(new DoubleValidator());
+			percent.addEventListener(new EventListener() {
+				public void handleEvent(Event e) {
+					VOResourceOwnershipDE.this.validate();
+					
+				}});
+			percent.setSampleValue("100.0");
 
 			if (rec.percent != null) {
 				percent.setValue(rec.percent.toString());
@@ -89,18 +95,12 @@ public class VOResourceOwnershipDE extends FormElementDEBase {
 			rec.percent     = percent.getValueAsDouble();
 			return rec;
 		}
-		
-		@Override
+
 		protected void onEvent(Event e) {
 			// TODO Auto-generated method stub
 			
 		}
-		/*
-		public ArrayList<OwnershipEditor> getOwnershipEditors()
-		{
-			return owners;
-		}
-		*/
+		
 		public void render(PrintWriter out) {
 			out.write("<div id=\""+getNodeID()+"\" class=\"owner_editor\">");
 			
@@ -132,26 +132,12 @@ public class VOResourceOwnershipDE extends FormElementDEBase {
 	{
 		remove(owner);
 		redraw();
-		/*
-		//notify any listener of our action
-		Event e = new Event(null, null);
-		e.action = "remove";
-		e.value = owner;
-		notifyListener(e);
-		*/
 	}
 	
 	public void addOwner(VOResourceOwnershipRecord rec) { 
 		OwnershipEditor owner = new OwnershipEditor(this, rec, vo_recs);
-		//owners.add(owner);
 		redraw();
-		/*
-		//notify any listener of our action
-		Event e = new Event(null, null);
-		e.action = "add";
-		e.value = owner;
-		notifyListener(e);
-		*/
+		validate();
 	}
 	
 	public VOResourceOwnershipDE(DivEx parent, ArrayList<VORecord> _vo_recs) {
@@ -164,8 +150,7 @@ public class VOResourceOwnershipDE extends FormElementDEBase {
 			public void handleEvent(Event e) {
 				addOwner(new VOResourceOwnershipRecord());
 			}
-			
-		});
+		});	
 	}
 	
 	//Note: caller need to set the resource_id for each records
@@ -188,21 +173,35 @@ public class VOResourceOwnershipDE extends FormElementDEBase {
 		// TODO Auto-generated method stub
 
 	}
-	/*
+	
 	public void validate()
 	{
-		//validate all downtimes
-		redraw();
-		valid = true;
-		for(OwnershipEditor owner : owners) {
-			if(!owner.isValid()) {
-				valid = false;
+		error.redraw();
+		
+		//make sure percentage sums upto 100%
+		Double total = 0D;
+		for(DivEx node : childnodes) {					
+			if(node instanceof OwnershipEditor) {
+				OwnershipEditor owner = (OwnershipEditor)node;
+				if(!owner.isValid()) {
+					valid = true;
+					return;
+				}
+				total += Double.parseDouble(owner.percent.getValue());
 			}
 		}
-	}	
-	*/
+		if(total == 100D) {
+			error.clear();
+			valid = true;
+		} else {
+			error.set("Total percentage of ownership must be equal to 100% -- Current total is " + total + "%");
+			valid = false;
+		}
+	}
+	
 	public void render(PrintWriter out) {
 		out.print("<div id=\""+getNodeID()+"\">");
+		error.render(out);
 		for(DivEx node : childnodes) {
 			if(node instanceof OwnershipEditor) {
 				node.render(out);

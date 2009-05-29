@@ -129,6 +129,7 @@ public class ResourceFormDE extends FormDEBase
 		description.setLabel("Short Description");
 		description.setValue(rec.description);
 		description.setRequired(true);
+		description.setSampleValue("This is a hidden gatekeeper accessible from the FermiGrid site only. It reports to Gratia and RSV directly but offsite jobs can only get to it via the FermiGrid job gateway fermigridosg1");
 				
 		url = new TextFormElementDE(this);
 		url.setLabel("Information URL");
@@ -147,7 +148,7 @@ public class ResourceFormDE extends FormDEBase
 			}
 		}
 		
-		new StaticDE(this, "<h2>Resource Service(s)</h2>");
+		new StaticDE(this, "<h2>Resource Services</h2>");
 		new StaticDE(this, "<p>Add, remove, modify services associated with your resource. For example, a CE or an SRM.</p>");
 		ServiceModel smodel = new ServiceModel(context);
 		resource_services = new ResourceServicesDE(this, context, smodel.getAll());
@@ -159,7 +160,7 @@ public class ResourceFormDE extends FormDEBase
 		}
 
 		// Resource ownership stuff
-		new StaticDE(this, "<h2>VO Owner(s)</h2>");
+		new StaticDE(this, "<h2>VO Owners</h2>");
 		new StaticDE(this, "<p>Add/modify VO ownership of this resource.</p>");
 		VOModel vo_model = new VOModel(context);
 		owners = new VOResourceOwnershipDE(this, vo_model.getAll());

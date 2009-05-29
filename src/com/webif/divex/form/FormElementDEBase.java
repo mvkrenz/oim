@@ -42,6 +42,7 @@ abstract public class FormElementDEBase<ValueType> extends DivEx {
 		}
 		private String error;
 		public void set(String _error) { error = _error; }
+		public void clear() { error = null; }
 		public String get() { return error; }
 		protected void onEvent(Event e) {
 			// TODO Auto-generated method stub

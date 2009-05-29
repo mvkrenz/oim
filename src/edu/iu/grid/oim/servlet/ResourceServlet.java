@@ -67,7 +67,6 @@ public class ResourceServlet extends ServletBase implements Servlet {
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{	
-		//setContext(request);
 		auth.check("edit_my_resource");
 		
 		try {
@@ -101,11 +100,6 @@ public class ResourceServlet extends ServletBase implements Servlet {
 			
 			//TODO - need to make "disabled" more conspicuous
 			String name = rec.name;
-			/*
-			if(rec.disable) {
-				name += " (Disabled)";
-			}
-			*/
 			contentview.add(new HtmlView("<h2>"+StringEscapeUtils.escapeHtml(name)+"</h2>"));
 	
 			//Place table in side the ViewWrapper, then wrap that into Toggler
@@ -127,9 +121,12 @@ public class ResourceServlet extends ServletBase implements Servlet {
 				resource_group_name = resource_group_rec.name;
 			}
 			table.addRow("Resource Group Name", resource_group_name);
-
 			table.addRow("Resource Description", rec.description);
-			table.addRow("Information URL", new HtmlView("<a target=\"_blank\" href=\""+rec.url+"\">"+rec.url+"</a>"));
+			if(rec.url != null && rec.url.length() != 0) {
+				table.addRow("Information URL", new HtmlView("<a target=\"_blank\" href=\""+rec.url+"\">"+rec.url+"</a>"));	
+			} else {
+				table.addRow("Information URL", (String)null);
+			}
 			table.addRow("Resource FQDN Alias", new HtmlView(getAlias(rec.id)));
 			
 			//Resource Services
@@ -299,18 +296,38 @@ public class ResourceServlet extends ServletBase implements Servlet {
 		if(list == null) {
 			return null;
 		}
-		
-		String out = "";
+
+		String percentages = ""; //80,20
+		String legends = ""; //ATLAS(80%)|Other(20%)
+		Double total = 0D;
 		VOModel vo_model = new VOModel(context);
 		for(VOResourceOwnershipRecord rec : list) {
 			VORecord vo_rec = vo_model.get(rec.vo_id);
-			out += vo_rec.name;
-			if (rec.percent != null) {
-				out += ": " + rec.percent + "%";
+			
+			if(legends.length() != 0) {
+				legends += "|";
 			}
-			out += "<br/>";
+			legends += vo_rec.name+"("+rec.percent+"%)";
+			
+			if(percentages.length() != 0) {
+				percentages += ",";
+			}
+			percentages += rec.percent;
+			total += rec.percent;
 		}
-		return new HtmlView(out);
+		if(total < 100D) {
+			if(legends.length() != 0) {
+				legends += "|";
+			}
+			legends += "Unknown("+(100-total)+"%)";			
+			if(percentages.length() != 0) {
+				percentages += ",";
+			}
+			percentages += (100-total);
+		}
+		
+		String url = "http://chart.apis.google.com/chart?chco=00cc00&cht=p3&chd=t:"+percentages+"0&chs=280x65&chl="+legends;
+		return new HtmlView("<img src=\""+url+"\"/>");
 	}
 
 	private SideContentView createSideView()
