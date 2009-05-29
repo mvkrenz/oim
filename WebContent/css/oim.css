@@ -4,7 +4,7 @@
 	text-decoration: none;
 	cursor:progress;
 }
-input.sample
+input.sample, textarea.sample
 {
 color: #ccc;
 }
@@ -274,6 +274,7 @@ overflow: auto;
 border: 1px solid #ccc;
 padding: 5px;
 margin-right: 2px;
+background-color: white;
 }
 div[onclick]
 {
@@ -288,4 +289,14 @@ max-height: 100px;
 img.avatar_preview
 {
 padding-top: 4px;
+}
+a[target=_blank]
+{
+padding-left:15px;
+background:transparent url(../images/external_link_icon.gif) no-repeat 0 -1px;
+}
+a.mailto
+{
+padding-left:20px;
+background:transparent url(../images/email.png) no-repeat 0px 0px;
 }

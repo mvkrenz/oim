@@ -92,7 +92,7 @@ public class ContactServlet extends ServletBase implements Servlet {
 				contentview.add(new TogglerDE(context.getDivExRoot(), new ViewWrapperDE(context.getDivExRoot(), table),true));
 			}
 
-			table.addRow("Primary Email", rec.primary_email);
+			table.addRow("Primary Email", new HtmlView("<a class=\"mailto\" href=\"mailto:"+rec.primary_email+"\">"+StringEscapeUtils.escapeHtml(rec.primary_email)+"</a>"));
 			table.addRow("Secondary Email", rec.secondary_email);
 
 			table.addRow("Primary Phone", rec.primary_phone);
@@ -124,7 +124,8 @@ public class ContactServlet extends ServletBase implements Servlet {
 			if(auth.allows("admin")) {
 				String submitter_dn = null;
 				if(rec.submitter_dn_id != null) {
-					submitter_dn = rec.submitter_dn_id.toString();
+					DNRecord dn = dnmodel.get(rec.submitter_dn_id);
+					submitter_dn = dn.dn_string;
 				}
 				table.addRow("Submitter DN", submitter_dn);
 			}

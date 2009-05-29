@@ -111,7 +111,7 @@ public class VOFormDE extends FormDEBase
 		id = rec.id;
 		
 		new StaticDE(this, "<h2>Basic VO Information</h2>");
-		new StaticDE(this, "<p>Add/modify basic information about this VO.</p>");
+		new StaticDE(this, "<p>Add/modify basic information about this VO</p>");
 
 		//pull vos for unique validator
 		HashMap<Integer, String> vos = getVONames();
@@ -146,18 +146,22 @@ public class VOFormDE extends FormDEBase
 		description.setLabel("Enter a Description for this VO");
 		description.setValue(rec.description);
 		description.setRequired(true);
+		description.setSampleValue("Collider Detector at Fermilab");
 
 		app_description = new TextAreaFormElementDE(this);
 		app_description.setLabel("Enter an Application Description");
 		app_description.setValue(rec.app_description);
 		app_description.setRequired(true);
+		app_description.setSampleValue("CDF Analysis jobs will be run");
 
 		community = new TextAreaFormElementDE(this);
 		community.setLabel("Describe the Community this VO serves");
 		community.setValue(rec.community);
 		community.setRequired(true);
+		community.setSampleValue("The Collider Detector at Fermilab (CDF) experimental collaboration is committed to studying high energy particle collisions");
 
-		new StaticDE(this, "<h2>Select Field Of Science(s) applicable to this VO</h2>");
+		new StaticDE(this, "<h2>Field of Science</h2>");
+		new StaticDE(this, "<p>Select Field Of Science(s) applicable to this VO</p>");
 		ArrayList<Integer/*field_of_science_id*/> fslist = new ArrayList();
 		if(id != null) {
 			VOFieldOfScienceModel vofsmodel = new VOFieldOfScienceModel(context);
@@ -178,9 +182,10 @@ public class VOFormDE extends FormDEBase
 			}
 		}
 
-		new StaticDE(this, "<h2>Sub-VO Mapping.</h2>");
+		new StaticDE(this, "<h2>Sub-VO Mapping</h2>");
+		new StaticDE(this, "<p>Check below if this VO is a sub-VO of an existing VO. For example, FermilabMinos is a sub VO of the Fermilab VO.</p>");
 		child_vo = new CheckBoxFormElementDE(this);
-		child_vo.setLabel("Is this a sub-VO of an existing VO? For example, FermilabMinos is a sub VO of the Fermilab VO.");
+		child_vo.setLabel("This is a sub-VO");
 
 		//indent the parent VO stuff
 		new StaticDE(this, "<div class=\"indent\">");
@@ -222,31 +227,35 @@ public class VOFormDE extends FormDEBase
 		primary_url.setValue(rec.primary_url);
 		primary_url.addValidator(UrlValidator.getInstance());
 		primary_url.setRequired(true);
+		primary_url.setSampleValue("http://www-cdf.fnal.gov");
 
 		aup_url = new TextFormElementDE(this);
 		aup_url.setLabel("AUP URL");
 		aup_url.setValue(rec.aup_url);
 		aup_url.addValidator(UrlValidator.getInstance());
 		aup_url.setRequired(true);
+		aup_url.setSampleValue("http://www-cdf.fnal.gov");
 
 		membership_services_url = new TextFormElementDE(this);
 		membership_services_url.setLabel("Membership Services (VOMS) URL");
 		membership_services_url.setValue(rec.membership_services_url);
 		membership_services_url.addValidator(UrlValidator.getInstance());
 		membership_services_url.setRequired(true);
+		membership_services_url.setSampleValue("https://voms.fnal.gov:8443/voms/cdf/");
 
 		purpose_url = new TextFormElementDE(this);
 		purpose_url.setLabel("Purpose URL"); 
 		purpose_url.setValue(rec.purpose_url);
 		purpose_url.addValidator(UrlValidator.getInstance());
 		purpose_url.setRequired(true);
+		purpose_url.setSampleValue("http://www-cdf.fnal.gov");
 
 		support_url = new TextFormElementDE(this);
 		support_url.setLabel("Support URL"); 
 		support_url.setValue(rec.support_url);
 		support_url.addValidator(UrlValidator.getInstance());
 		support_url.setRequired(true);
-
+		support_url.setSampleValue("http://cdfcaf.fnal.gov");
 	
 		new StaticDE(this, "<h2>Contact Information</h2>");
 		HashMap<Integer/*contact_type_id*/, ArrayList<VOContactRecord>> voclist_grouped = null;

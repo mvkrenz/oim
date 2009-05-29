@@ -36,7 +36,6 @@ public class TextFormElementDE extends FormElementDEBase<String> {
 			if(sample_value == null) {
 				sample = "";
 			}
-			//System.out.println("current_value:" + current_value);
 			int random = (int)(Math.random()*10000);
 			out.write("<input id=\""+getNodeID()+"_input"+random+"\" type=\"text\" style=\"width: "+width+"px;\" onchange=\"divex('"+getNodeID()+"', event, this.value);\" sample=\""+sample+"\"/>");
 			out.write("<script type=\"text/javascript\">\n");
@@ -47,11 +46,9 @@ public class TextFormElementDE extends FormElementDEBase<String> {
 				out.write("if(input.val() == \"\") {\n");
 				out.write(" input.addClass(\"sample\");\n");
 				out.write(" input.val(input.attr('sample'));\n");
-				//out.write("console.log('setting value to ' + input.attr('sample'));");
 				out.write("}\n");
 				
 				out.write("input.focus(function() {");
-				//out.write("console.log('focus');");
 				out.write("	if($(this).hasClass(\"sample\")) {");
 				out.write(" 	this.value = \"\";");
 				out.write("		$(this).removeClass(\"sample\");");
@@ -59,7 +56,6 @@ public class TextFormElementDE extends FormElementDEBase<String> {
 				out.write("});");
 				
 				out.write("input.blur(function() {");
-				//out.write("console.log('blue');");
 				out.write(" if(this.value == \"\") {");
 				out.write(" 	$(this).val($(this).attr('sample'));");
 				out.write("		$(this).addClass(\"sample\");");

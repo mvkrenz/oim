@@ -12,9 +12,14 @@ import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 
 import edu.iu.grid.oim.model.Context;
+import edu.iu.grid.oim.model.db.record.DNRecord;
+import edu.iu.grid.oim.model.db.record.DowntimeClassRecord;
+import edu.iu.grid.oim.model.db.record.DowntimeSeverityRecord;
 import edu.iu.grid.oim.model.db.record.RecordBase;
 import edu.iu.grid.oim.model.db.record.ResourceDowntimeRecord;
 import edu.iu.grid.oim.model.db.record.ResourceDowntimeServiceRecord;
+import edu.iu.grid.oim.model.db.record.ResourceRecord;
+import edu.iu.grid.oim.model.db.record.ServiceRecord;
 
 public class ResourceDowntimeServiceModel extends SmallTableModelBase<ResourceDowntimeServiceRecord> {
     static Logger log = Logger.getLogger(ResourceDowntimeServiceModel.class); 
@@ -78,5 +83,14 @@ public class ResourceDowntimeServiceModel extends SmallTableModelBase<ResourceDo
 			log.error(e);
 		}
 		return false;
+	}
+	public String getHumanValue(String field_name, String value) throws NumberFormatException, SQLException
+	{
+		if(field_name.equals("service_id")) {
+			ServiceModel model = new ServiceModel(context);
+			ServiceRecord rec = model.get(Integer.parseInt(value));
+			return value + " (" + rec.name + ")";
+		}
+		return value;
 	}
 }

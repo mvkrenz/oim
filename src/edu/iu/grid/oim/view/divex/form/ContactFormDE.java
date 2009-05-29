@@ -91,9 +91,13 @@ public class ContactFormDE extends FormDEBase
 				img = Config.getApplicationBase() + "/images/noavatar.gif";
 			}
 			
-			out.write("<div id=\""+getNodeID()+"\">");
-			url.render(out);
-			out.write("<img class=\"avatar_preview\" src=\""+img+"\"/>");
+			out.print("<div ");
+			renderClass(out);
+			out.write("id=\""+getNodeID()+"\">");
+			if(!hidden) {
+				url.render(out);
+				out.write("<img class=\"avatar_preview\" src=\""+img+"\"/>");
+			}
 			out.write("</div>");
 		}
 	}
@@ -170,11 +174,11 @@ public class ContactFormDE extends FormDEBase
 		contact_preference.setLabel("Enter Additional Contact Preferences: For example, you as a site admin might prefer to be contacted by phone or by email.");
 		contact_preference.setValue(rec.contact_preference);
 
-		if(auth.allows("admin")) {
-			new StaticDE(this, "<h2>Administrative Tasks</h2>");
+		if(!auth.allows("admin")) {
+			new StaticDE(this, "<h2>Personal Information</h2>");
 		}
 		person = new CheckBoxFormElementDE(this);
-		person.setLabel("Person");
+		person.setLabel("This is a personal contact (not mailing list, etc...)");
 		person.setValue(rec.person);
 		if(!auth.allows("admin")) {
 			person.setHidden(true);
@@ -191,11 +195,17 @@ public class ContactFormDE extends FormDEBase
 		im.setLabel("Instant Messaging Information");
 		im.setValue(rec.im);
 		im.setSampleValue("soichih@gtalk");
+		im.addClass("indent");
 		
 		photo_url = new PhotoDE(this);
 		photo_url.setLabel("Photo URL");
 		photo_url.setSampleValue("http://somewhere.com/myphoto.png");
 		photo_url.setValue(rec.photo_url);
+		photo_url.addClass("indent");
+		
+		if(auth.allows("admin")) {
+			new StaticDE(this, "<h2>Administrative Tasks</h2>");
+		}
 
 		if(rec.person == null || rec.person == false) {
 			im.setHidden(true);

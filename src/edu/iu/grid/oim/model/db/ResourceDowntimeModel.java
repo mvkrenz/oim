@@ -23,6 +23,7 @@ import edu.iu.grid.oim.model.db.record.RecordBase;
 import edu.iu.grid.oim.model.db.record.ResourceDowntimeRecord;
 import edu.iu.grid.oim.model.db.record.ResourceDowntimeServiceRecord;
 import edu.iu.grid.oim.model.db.record.ResourceRecord;
+import edu.iu.grid.oim.model.db.record.ServiceRecord;
 import edu.iu.grid.oim.model.db.record.SiteRecord;
 
 public class ResourceDowntimeModel extends SmallTableModelBase<ResourceDowntimeRecord> {

@@ -126,11 +126,11 @@ public class LogServlet extends ServletBase  {
 									
 					//display the log
 					view.add(new HtmlView("<h2>" + somemodel.getName() + " ("+rec.type+")</h2>"));
-					String dn_string_to_print = "DN not available";
+					String dn_string_to_print = "(DN not available)";
 					if (rec.dn_id != null) {
 						dn_string_to_print = dmodel.get(rec.dn_id).dn_string;
 					}
-					view.add(new HtmlView("<span>"+dn_string_to_print+"<br/>Updated "+rec.timestamp.toString()+"</span>"));
+					view.add(new HtmlView("<span>By "+dn_string_to_print+"<br/>Updated "+rec.timestamp.toString()+"</span>"));
 					view.add(createLogView(xpath, somemodel, log));
 				} catch (SAXException e) {
 					view.add(new HtmlView("XML log Parse Error (" + somemodel.getName() + ") "+ e.toString()));
