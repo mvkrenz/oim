@@ -48,7 +48,7 @@ public class ResourceDowntimeFormDE extends FormDEBase
 	
 	public ResourceDowntimeFormDE(Context _context, String origin_url, int resource_id) throws AuthorizationException, SQLException
 	{	
-		super(_context.getDivExRoot(), origin_url);
+		super(_context.getPageRoot(), origin_url);
 		context = _context;
 		auth = context.getAuthorization();
 		id = resource_id;		

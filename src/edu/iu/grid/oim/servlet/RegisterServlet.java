@@ -65,7 +65,7 @@ public class RegisterServlet extends ServletBase  {
 		contentview.add(new HtmlView("<h1>OIM Registration</h1>"));
 		contentview.add(new HtmlView("<h3>Unregistered User DN!</h3>"));
 		
-		WizardDE wizard = new WizardDE(context.getDivExRoot());
+		WizardDE wizard = new WizardDE(context.getPageRoot());
 		wizard.setPage(new GreetingPage(wizard));
 		contentview.add(new DivExWrapper(wizard));
 		

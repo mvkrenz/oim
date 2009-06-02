@@ -108,7 +108,7 @@ public class ServiceServlet extends ServletBase implements Servlet {
 					redirect(url);
 				}
 			};
-			table.add(new DivExWrapper(new EditButtonDE(context.getDivExRoot(), Config.getApplicationBase()+"/serviceedit?id=" + rec.id)));
+			table.add(new DivExWrapper(new EditButtonDE(context.getPageRoot(), Config.getApplicationBase()+"/serviceedit?id=" + rec.id)));
 		}
 		
 		return contentview;
@@ -149,7 +149,7 @@ public class ServiceServlet extends ServletBase implements Servlet {
 				redirect(url);
 			}
 		};
-		view.add("Operation", new NewButtonDE(context.getDivExRoot(), "serviceedit"));
+		view.add("Operation", new NewButtonDE(context.getPageRoot(), "serviceedit"));
 		view.add("About", new HtmlView("Todo.."));		
 		return view;
 	}

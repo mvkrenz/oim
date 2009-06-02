@@ -106,9 +106,9 @@ public class ResourceServlet extends ServletBase implements Servlet {
 			RecordTableView table = new RecordTableView();
 			// TODO agopu: 10 is an arbitrary number -- perhaps we should make this a user preference? show/hide?
 			if (resources.size() > 10) {
-				contentview.add(new TogglerDE(context.getDivExRoot(), new ViewWrapperDE(context.getDivExRoot(), table), false));
+				contentview.add(new TogglerDE(context.getPageRoot(), new ViewWrapperDE(context.getPageRoot(), table), false));
 			} else {
-				contentview.add(new TogglerDE(context.getDivExRoot(), new ViewWrapperDE(context.getDivExRoot(), table), true));
+				contentview.add(new TogglerDE(context.getPageRoot(), new ViewWrapperDE(context.getPageRoot(), table), true));
 			}
 			table.addRow("Resource FQDN", rec.fqdn);
 
@@ -190,7 +190,7 @@ public class ResourceServlet extends ServletBase implements Servlet {
 				}
 			};
 
-			table.addRow("Downtime", new DivExWrapper(new EditDowntimeButtonDE(context.getDivExRoot(), 
+			table.addRow("Downtime", new DivExWrapper(new EditDowntimeButtonDE(context.getPageRoot(), 
 					Config.getApplicationBase()+"/resourcedowntimeedit?id=" + rec.id)));
 			
 			table.addRow("Active", rec.active);
@@ -208,7 +208,7 @@ public class ResourceServlet extends ServletBase implements Servlet {
 					redirect(url);
 				}
 			};
-			table.add(new DivExWrapper(new EditButtonDE(context.getDivExRoot(), 
+			table.add(new DivExWrapper(new EditButtonDE(context.getPageRoot(), 
 					Config.getApplicationBase()+"/resourceedit?resource_id=" + rec.id)));
 
 		}
@@ -346,7 +346,7 @@ public class ResourceServlet extends ServletBase implements Servlet {
 				redirect(url);
 			}
 		};
-		view.add("Operation", new NewButtonDE(context.getDivExRoot(), "resourceedit"));
+		view.add("Operation", new NewButtonDE(context.getPageRoot(), "resourceedit"));
 		view.add("About", new HtmlView("This page shows a list of resources that you have access to edit."));		
 		view.add("Legend", new HtmlView("<p>Contacts are flagged by their rank:</p><p><br></p><p><div class=\'contact_rank contact_Primary\'>Primary</div></p><p><div class=\'contact_rank contact_Secondary\'>Secondary</div></p><p><div class=\'contact_rank contact_Tertiary\'>Tertiary</div></p>"));		
 		return view;

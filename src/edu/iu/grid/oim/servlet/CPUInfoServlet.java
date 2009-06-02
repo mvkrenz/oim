@@ -98,7 +98,7 @@ public class CPUInfoServlet extends ServletBase implements Servlet {
 					redirect(url);
 				}
 			};
-			table.add(new DivExWrapper(new EditButtonDE(context.getDivExRoot(), Config.getApplicationBase()+"/cpuinfoedit?cpu_info_id=" + rec.id)));
+			table.add(new DivExWrapper(new EditButtonDE(context.getPageRoot(), Config.getApplicationBase()+"/cpuinfoedit?cpu_info_id=" + rec.id)));
 		}
 		
 		return contentview;
@@ -120,7 +120,7 @@ public class CPUInfoServlet extends ServletBase implements Servlet {
 				redirect(url);
 			}
 		};
-		view.add("Operation", new NewButtonDE(context.getDivExRoot(), "cpuinfoedit"));
+		view.add("Operation", new NewButtonDE(context.getPageRoot(), "cpuinfoedit"));
 		
 		return view;
 	}

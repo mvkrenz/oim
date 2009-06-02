@@ -88,7 +88,7 @@ public class AuthtypeServlet extends ServletBase implements Servlet {
 					redirect(url);
 				}
 			};
-			table.add(new DivExWrapper(new EditButtonDE(context.getDivExRoot(), Config.getApplicationBase()+"/authtypeedit?id=" + rec.id)));
+			table.add(new DivExWrapper(new EditButtonDE(context.getPageRoot(), Config.getApplicationBase()+"/authtypeedit?id=" + rec.id)));
 		}
 		
 		return contentview;
@@ -110,7 +110,7 @@ public class AuthtypeServlet extends ServletBase implements Servlet {
 				redirect(url);
 			}
 		};
-		view.add("Operation", new NewButtonDE(context.getDivExRoot(), "authtypeedit"));
+		view.add("Operation", new NewButtonDE(context.getPageRoot(), "authtypeedit"));
 		
 		return view;
 	}

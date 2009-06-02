@@ -31,7 +31,7 @@ public class CalculatorServlet extends HttpServlet {
 		out.write(".selected {background-color: #ccf;}");
 		out.write("</style>");
 		
-		CalculatorDE calc = new CalculatorDE(DivExRoot.getInstance(request));
+		CalculatorDE calc = new CalculatorDE(DivExRoot.getInstance(request.getSession()));
 		calc.render(out);
 	}
 

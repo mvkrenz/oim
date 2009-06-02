@@ -110,7 +110,7 @@ public class FacilityServlet extends ServletBase implements Servlet {
 					redirect(url);
 				}
 			};
-			table.add(new DivExWrapper(new EditButtonDE(context.getDivExRoot(), Config.getApplicationBase()+"/facilityedit?facility_id=" + rec.id)));
+			table.add(new DivExWrapper(new EditButtonDE(context.getPageRoot(), Config.getApplicationBase()+"/facilityedit?facility_id=" + rec.id)));
 		}
 		
 		return contentview;
@@ -132,7 +132,7 @@ public class FacilityServlet extends ServletBase implements Servlet {
 				redirect(url);
 			}
 		};
-		view.add("Operation", new NewButtonDE(context.getDivExRoot(), "facilityedit"));
+		view.add("Operation", new NewButtonDE(context.getPageRoot(), "facilityedit"));
 		view.add("About", new HtmlView("This page shows a list of facilities that all registered OIM users are able to edit. We ask that you please refrain from editing facilities that are not directly related to you unless there is a specific reason to do so! All changes are audited by GOC staff."));
 		return view;
 	}

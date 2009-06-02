@@ -87,7 +87,7 @@ public class ServiceGroupServlet extends ServletBase implements Servlet
 					redirect(url);
 				}
 			};
-			table.add(new DivExWrapper(new EditButtonDE(context.getDivExRoot(), Config.getApplicationBase()+"/servicegroupedit?id=" + rec.id)));
+			table.add(new DivExWrapper(new EditButtonDE(context.getPageRoot(), Config.getApplicationBase()+"/servicegroupedit?id=" + rec.id)));
 		}
 		
 		return contentview;
@@ -109,7 +109,7 @@ public class ServiceGroupServlet extends ServletBase implements Servlet
 				redirect(url);
 			}
 		};
-		view.add("Operation", new NewButtonDE(context.getDivExRoot(), "servicegroupedit"));
+		view.add("Operation", new NewButtonDE(context.getPageRoot(), "servicegroupedit"));
 		view.add("About", new HtmlView("This page shows a list of Service Groups that you have access to edit."));		
 		return view;
 	}

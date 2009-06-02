@@ -98,7 +98,7 @@ public class ActionServlet extends ServletBase implements Servlet {
 					redirect(url);
 				}
 			};
-			table.add(new DivExWrapper(new EditButtonDE(context.getDivExRoot(), Config.getApplicationBase()+"/actionedit?id=" + rec.id)));
+			table.add(new DivExWrapper(new EditButtonDE(context.getPageRoot(), Config.getApplicationBase()+"/actionedit?id=" + rec.id)));
 		}
 		
 		return contentview;
@@ -120,7 +120,7 @@ public class ActionServlet extends ServletBase implements Servlet {
 				redirect(url);
 			}
 		};
-		view.add("Operation", new NewButtonDE(context.getDivExRoot(), "actionedit"));
+		view.add("Operation", new NewButtonDE(context.getPageRoot(), "actionedit"));
 		
 		return view;
 	}

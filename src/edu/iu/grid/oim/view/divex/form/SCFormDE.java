@@ -51,7 +51,7 @@ public class SCFormDE extends FormDEBase
 	
 	public SCFormDE(Context _context, SCRecord rec, String origin_url) throws AuthorizationException, SQLException
 	{	
-		super(_context.getDivExRoot(), origin_url);
+		super(_context.getPageRoot(), origin_url);
 		context = _context;
 		auth = context.getAuthorization();
 		

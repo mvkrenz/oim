@@ -209,7 +209,7 @@ public class AuthorizationMatrixServlet extends ServletBase  {
 	{			
 		ContentView contentview = new ContentView();
 		contentview.add(new HtmlView("<h1>Authorization Matrix</h1>"));
-		FormDEBase form = new AuthMatrixFormDE(context.getDivExRoot(), "admin");
+		FormDEBase form = new AuthMatrixFormDE(context.getPageRoot(), "admin");
 		contentview.add(new DivExWrapper(form));
 		return contentview;
 	}

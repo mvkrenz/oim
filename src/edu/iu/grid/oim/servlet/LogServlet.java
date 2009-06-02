@@ -128,7 +128,10 @@ public class LogServlet extends ServletBase  {
 					view.add(new HtmlView("<h2>" + somemodel.getName() + " ("+rec.type+")</h2>"));
 					String dn_string_to_print = "(DN not available)";
 					if (rec.dn_id != null) {
-						dn_string_to_print = dmodel.get(rec.dn_id).dn_string;
+						DNRecord dnrec = dmodel.get(rec.dn_id);
+						if(dnrec != null) {
+							dn_string_to_print = dnrec.dn_string;
+						}
 					}
 					view.add(new HtmlView("<span>By "+dn_string_to_print+"<br/>Updated "+rec.timestamp.toString()+"</span>"));
 					view.add(createLogView(xpath, somemodel, log));

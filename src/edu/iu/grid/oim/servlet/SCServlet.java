@@ -83,9 +83,9 @@ public class SCServlet extends ServletBase implements Servlet {
 			RecordTableView table = new RecordTableView();
 			// TODO agopu: 10 is an arbitrary number -- perhaps we should make this a user preference? show/hide?
 			if (scs.size() > 10) {
-				contentview.add(new TogglerDE(context.getDivExRoot(), new ViewWrapperDE(context.getDivExRoot(), table),false));
+				contentview.add(new TogglerDE(context.getPageRoot(), new ViewWrapperDE(context.getPageRoot(), table),false));
 			} else {
-				contentview.add(new TogglerDE(context.getDivExRoot(), new ViewWrapperDE(context.getDivExRoot(), table),true));
+				contentview.add(new TogglerDE(context.getPageRoot(), new ViewWrapperDE(context.getPageRoot(), table),true));
 			}
 			//contentview.add(table);
 
@@ -144,7 +144,7 @@ public class SCServlet extends ServletBase implements Servlet {
 					redirect(url);
 				}
 			};
-			table.add(new DivExWrapper(new EditButtonDE(context.getDivExRoot(), Config.getApplicationBase()+"/scedit?sc_id=" + rec.id)));
+			table.add(new DivExWrapper(new EditButtonDE(context.getPageRoot(), Config.getApplicationBase()+"/scedit?sc_id=" + rec.id)));
 		}
 		
 		return contentview;
@@ -167,7 +167,7 @@ public class SCServlet extends ServletBase implements Servlet {
 			}
 		};
 
-		view.add("Operation", new NewButtonDE(context.getDivExRoot(), "scedit"));
+		view.add("Operation", new NewButtonDE(context.getPageRoot(), "scedit"));
 		view.add("About", new HtmlView("This page shows a list of Support Centers that you have access to edit."));		
 		view.add("Legend", new HtmlView("<p>Contacts are flagged by their rank:</p><p><br></p><p><div class=\'contact_rank contact_Primary\'>Primary</div></p><p><div class=\'contact_rank contact_Secondary\'>Secondary</div></p><p><div class=\'contact_rank contact_Tertiary\'>Tertiary</div></p>"));		
 		return view;

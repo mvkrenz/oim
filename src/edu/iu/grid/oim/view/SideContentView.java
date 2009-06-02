@@ -4,6 +4,7 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 
 import com.webif.divex.DivEx;
+import com.webif.divex.DivExRoot.DivExPage;
 
 //put each content under a side content header
 public class SideContentView implements IView {
@@ -14,7 +15,7 @@ public class SideContentView implements IView {
 		children.add(v);
 	}
 	
-	public void add(DivEx de) {
+	public void add(DivExPage de) {
 		add(new DivExWrapper(de));
 	}
 	

@@ -8,13 +8,15 @@ import javax.servlet.http.HttpServletRequest;
 import javax.sql.DataSource;
 import org.apache.log4j.Logger;
 import com.webif.divex.DivExRoot;
+import com.webif.divex.DivExRoot.DivExPage;
+
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
 
 public class Context {
     static Logger log = Logger.getLogger(Context.class);  
     
-	private DivExRoot divex_root;
+	private DivExPage divex_pageroot;
 	private Authorization auth = new Authorization();
 	private HttpServletRequest request;
 	private Connection oim_connection = null;
@@ -23,7 +25,8 @@ public class Context {
 	{	
 		request = _request;		
 		auth = new Authorization(request);
-		divex_root = DivExRoot.getInstance(request);
+		DivExRoot root = DivExRoot.getInstance(request.getSession());
+		divex_pageroot = root.initPage(request.getRequestURI() + request.getQueryString());
 	}
 
 	public static Context getGuestContext()
@@ -77,9 +80,9 @@ public class Context {
 	{
 		return auth;
 	}
-	public DivExRoot getDivExRoot()
+	public DivExPage getPageRoot()
 	{
-		return divex_root;
+		return divex_pageroot;
 	}
 	public HttpServletRequest getRequest()
 	{

@@ -122,7 +122,7 @@ public class MetricServlet extends ServletBase implements Servlet {
 					redirect(url);
 				}
 			};
-			table.add(new DivExWrapper(new EditButtonDE(context.getDivExRoot(), Config.getApplicationBase()+"/metricedit?id=" + rec.id)));
+			table.add(new DivExWrapper(new EditButtonDE(context.getPageRoot(), Config.getApplicationBase()+"/metricedit?id=" + rec.id)));
 		}
 		
 		return contentview;
@@ -143,7 +143,7 @@ public class MetricServlet extends ServletBase implements Servlet {
 				redirect(url);
 			}
 		};
-		view.add("Operation", new NewButtonDE(context.getDivExRoot(), "metricedit"));
+		view.add("Operation", new NewButtonDE(context.getPageRoot(), "metricedit"));
 		view.add("About", new HtmlView("Todo.."));		
 		return view;
 	}

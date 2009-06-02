@@ -4,6 +4,7 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 
 import com.webif.divex.DivEx;
+import com.webif.divex.DivExRoot.DivExPage;
 
 //simple view that has list of children
 public class GenericView implements IView {

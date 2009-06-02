@@ -30,7 +30,7 @@ public class DivexServlet extends HttpServlet {
 		String nodeid = request.getParameter("nodeid");	
 		
 		//get this session's divex root and find the target node
-		DivExRoot root = DivExRoot.getInstance(request);
+		DivExRoot root = DivExRoot.getInstance(request.getSession());
 		synchronized(root) {
 			DivEx div = root.findNode(nodeid);
 			if(div == null) {
@@ -39,7 +39,8 @@ public class DivexServlet extends HttpServlet {
 				PrintWriter writer = response.getWriter();
 				writer.print("alert('Lost session. Reloading page...'); window.location.reload();");			
 			} else {
-				div.doGet(root, request, response);
+				//dipatch divex event handler
+				div.doGet(request, response);
 			}
 		}
 	}

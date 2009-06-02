@@ -31,7 +31,7 @@ public class TradingGameServlet extends HttpServlet {
 		out.write(".selected {background-color: #ccf;}");
 		out.write("</style>");
 		
-		TradingGame calc = new TradingGame(DivExRoot.getInstance(request));
+		TradingGame calc = new TradingGame(DivExRoot.getInstance(request.getSession()));
 		calc.render(out);
 	}
 

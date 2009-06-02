@@ -47,7 +47,7 @@ public class OsgGridTypeFormDE extends FormDEBase
 	
 	public OsgGridTypeFormDE(Context _context, OsgGridTypeRecord rec, String origin_url) throws AuthorizationException, SQLException
 	{	
-		super(_context.getDivExRoot(), origin_url);
+		super(_context.getPageRoot(), origin_url);
 		context = _context;
 		auth = context.getAuthorization();
 		id = rec.id;

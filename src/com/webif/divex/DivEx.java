@@ -9,6 +9,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.StringEscapeUtils;
 
+import com.webif.divex.DivExRoot.DivExPage;
+
 public abstract class DivEx {    
 	private String nodeid;
 	private Boolean needupdate = false;
@@ -21,12 +23,14 @@ public abstract class DivEx {
 			_parent.add(this);
 		}
 	}
-	public DivExRoot getRoot()
+	
+	//simply travel through the hirarchy and find the DivExPage
+	public DivExPage getPageRoot()
 	{
-		if(parent == null) {
-			return (DivExRoot)this;
+		if(this instanceof DivExPage) {
+			return (DivExPage)this;
 		}
-		return parent.getRoot();
+		return parent.getPageRoot();
 	}
 	
 	protected ArrayList<DivEx> childnodes = new ArrayList<DivEx>();
@@ -45,12 +49,13 @@ public abstract class DivEx {
 	}
 	public void js(String _js)
 	{
-		getRoot().addJS(_js);
+		getPageRoot().addJS(_js);
 	}
 	public void redirect(String url) {
 		//if we emit redirect, we don't want to emit anything else.. just jump!
-		getRoot().setRedirect(url);
+		getPageRoot().setRedirect(url);
 	}
+	
 	
 	//set container(jquery selector) to null if you want to scroll the whole page.
 	public void scrollToShow(String container) {
@@ -124,7 +129,7 @@ public abstract class DivEx {
 		event_listeners.add(listener);
 	}
 		
-	public void doGet(DivExRoot root, HttpServletRequest request, HttpServletResponse response) throws IOException
+	public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException
 	{	
 		String action = request.getParameter("action");
 		
@@ -132,14 +137,6 @@ public abstract class DivEx {
 			PrintWriter writer = response.getWriter();
 			response.setContentType("text/html");
 			render(writer);
-/*
-			//additionally, output any javascript
-			writer.write("<script type=\"text/javascript\">");
-			writer.write("$(document).ready(function() {");
-			writer.print(root.outputUpdatecode());
-			writer.write("});");
-			writer.write("</script>");
-*/
 		} else if(action.compareTo("request") == 0) {
 			//it could be any content type - let handler decide
 			this.onRequest(request, response);
@@ -155,17 +152,18 @@ public abstract class DivEx {
 			notifyListener(e);
 			
 			//if redirect is set, we don't need to do any update
-			if(root.getRedirect() != null) {
-				writer.write("divex_redirect(\""+root.getRedirect()+"\")"); //use divex_rediret for jump bug
-				root.setRedirect(null);
+			DivExPage page = getPageRoot();
+			if(page.getRedirect() != null) {
+				writer.write("divex_redirect(\""+page.getRedirect()+"\")"); //use divex_rediret for jump bug
+				page.setRedirect(null);
 				return;
 			}
 
 			//emit all requested update code
-			writer.print(root.outputUpdatecode());
+			writer.print(page.outputUpdatecode());
 			
 			//emit javascript
-			root.flushJS(writer);
+			page.flushJS(writer);
 		}
 	}
 	protected void notifyListener(Event e)
@@ -192,4 +190,7 @@ public abstract class DivEx {
 	public void redraw() {
 		needupdate = true;
 	}
+	private String redirect_url;
+	public void setRedirect(String url) { redirect_url = url; }
+	public String getRedirect() { return redirect_url; }
 }

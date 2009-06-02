@@ -85,7 +85,7 @@ public class AdminServlet extends ServletBase  {
 		SideContentView view = new SideContentView();
 		GenericView operations = new GenericView();
 		
-		final ButtonDE clear_button = new ButtonDE(context.getDivExRoot(), "Clear All Cache");
+		final ButtonDE clear_button = new ButtonDE(context.getPageRoot(), "Clear All Cache");
 		clear_button.addEventListener(new EventListener() {
 			public void handleEvent(Event e) {
 				SmallTableModelBase.emptyAllCache();

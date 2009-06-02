@@ -104,7 +104,7 @@ public class ContactFormDE extends FormDEBase
 	
 	public ContactFormDE(Context _context, ContactRecord rec, String origin_url)
 	{	
-		super(_context.getDivExRoot(), origin_url);
+		super(_context.getPageRoot(), origin_url);
 		context = _context;
 		auth = context.getAuthorization();
 		id = rec.id;

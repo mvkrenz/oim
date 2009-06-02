@@ -128,7 +128,7 @@ public class ResourceDowntimeServlet extends ServletBase implements Servlet {
 					redirect(url);
 				}
 			};
-			table.add(new DivExWrapper(new EditButtonDE(context.getDivExRoot(), Config.getApplicationBase()+"/resourcedowntimeedit?id=" + rec.id)));
+			table.add(new DivExWrapper(new EditButtonDE(context.getPageRoot(), Config.getApplicationBase()+"/resourcedowntimeedit?id=" + rec.id)));
 			contentview.add(table);
 		}
 		

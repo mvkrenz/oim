@@ -93,7 +93,7 @@ public class OsgGridTypeServlet extends ServletBase implements Servlet {
 					redirect(url);
 				}
 			};
-			table.add(new DivExWrapper(new EditButtonDE(context.getDivExRoot(), Config.getApplicationBase()+"/osggridtypeedit?osg_grid_type_id=" + rec.id)));
+			table.add(new DivExWrapper(new EditButtonDE(context.getPageRoot(), Config.getApplicationBase()+"/osggridtypeedit?osg_grid_type_id=" + rec.id)));
 		}
 		return contentview;
 	}
@@ -115,7 +115,7 @@ public class OsgGridTypeServlet extends ServletBase implements Servlet {
 				redirect(url);
 			}
 		};
-		view.add("Operation", new NewButtonDE(context.getDivExRoot(), "osggridtypeedit"));
+		view.add("Operation", new NewButtonDE(context.getPageRoot(), "osggridtypeedit"));
 		
 		
 		
