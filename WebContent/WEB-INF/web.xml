@@ -355,6 +355,18 @@
 		<url-pattern>/calculator</url-pattern>
 	</servlet-mapping>
 
+	<servlet>
+		<description>
+		</description>
+		<display-name>TradingGameServlet</display-name>
+		<servlet-name>TradingGameServlet</servlet-name>
+		<servlet-class>com.webif.divex.sample.TradingGameServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>TradingGameServlet</servlet-name>
+		<url-pattern>/tradegame</url-pattern>
+	</servlet-mapping>
+	
 
 	<servlet-mapping>
 		<servlet-name>DivexServlet</servlet-name>

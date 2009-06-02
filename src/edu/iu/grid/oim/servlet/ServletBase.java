@@ -13,7 +13,10 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
 
+import com.webif.divex.DivExRoot;
+
 import edu.iu.grid.oim.lib.Authorization;
+import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
 import edu.iu.grid.oim.model.Context;
 import edu.iu.grid.oim.model.MenuItem;
 import edu.iu.grid.oim.view.MenuView;
@@ -30,7 +33,12 @@ public class ServletBase extends HttpServlet {
 
 	protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException
 	{
-		context = new Context(req);
+		try {
+			context = new Context(req);
+			
+		} catch (AuthorizationException e) {
+			throw new ServletException(e);
+		}
 		auth = context.getAuthorization();
 		
 		String method = req.getMethod();

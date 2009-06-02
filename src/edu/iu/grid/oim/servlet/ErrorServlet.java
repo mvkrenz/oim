@@ -7,6 +7,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import edu.iu.grid.oim.lib.Config;
+import edu.iu.grid.oim.model.Context;
 import edu.iu.grid.oim.view.ContentView;
 import edu.iu.grid.oim.view.HtmlView;
 import edu.iu.grid.oim.view.MenuView;
@@ -16,7 +17,7 @@ import edu.iu.grid.oim.view.SideContentView;
 /**
  * Servlet implementation class ErrorServlet
  */
-public class ErrorServlet extends ServletBase {
+public class ErrorServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
     
 	protected static String[] vars = {
@@ -36,7 +37,7 @@ public class ErrorServlet extends ServletBase {
 	{
 		//setContext(request);
 		
-		MenuView menuview = new MenuView(context, "_error_");
+		MenuView menuview = new MenuView(Context.getGuestContext(), "_error_");
 		ContentView contentview = createContentView(request);		
 		Page page = new Page(menuview, contentview, new SideContentView());
 		page.render(response.getWriter());	

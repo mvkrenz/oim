@@ -9,6 +9,7 @@ import javax.sql.DataSource;
 import org.apache.log4j.Logger;
 import com.webif.divex.DivExRoot;
 import edu.iu.grid.oim.lib.Authorization;
+import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
 
 public class Context {
     static Logger log = Logger.getLogger(Context.class);  
@@ -18,7 +19,7 @@ public class Context {
 	private HttpServletRequest request;
 	private Connection oim_connection = null;
 	
-	public Context(HttpServletRequest _request)
+	public Context(HttpServletRequest _request) throws AuthorizationException
 	{	
 		request = _request;		
 		auth = new Authorization(request);

@@ -6,28 +6,22 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import edu.iu.grid.oim.model.Context;
 import edu.iu.grid.oim.view.ContentView;
 import edu.iu.grid.oim.view.HtmlView;
 import edu.iu.grid.oim.view.MenuView;
 import edu.iu.grid.oim.view.Page;
 import edu.iu.grid.oim.view.SideContentView;
 
-/**
- * Servlet implementation class ErrorServlet
- */
-public class Error404Servlet extends ServletBase {
-
-
+public class Error404Servlet extends HttpServlet {
     public Error404Servlet() {
         super();
         // TODO Auto-generated constructor stub
     }
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
-	{
-		//setContext(request);
-		
-		MenuView menuview = new MenuView(context, "_error_");
+	{		
+		MenuView menuview = new MenuView(Context.getGuestContext(), "_error_");
 		ContentView contentview = createContentView(request);		
 		Page page = new Page(menuview, contentview, new SideContentView());
 		page.render(response.getWriter());	

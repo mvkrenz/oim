@@ -60,7 +60,7 @@ public class Authorization {
 	public Authorization() {}
 	
 	//pull user_dn from Apache's SSL_CLIENT_S_DN
-	public Authorization(HttpServletRequest request) 
+	public Authorization(HttpServletRequest request) throws AuthorizationException 
 	{		
 		guest_context = Context.getGuestContext();
 		
@@ -111,7 +111,7 @@ public class Authorization {
 			DNModel dnmodel = new DNModel(guest_context);
 			initAction(dnmodel.getByDNString(user_dn));
 		} catch (SQLException e) {
-			log.error(e);
+			throw new AuthorizationException("Authorization check failed due to " + e.getMessage());
 		}
 	}
 	
