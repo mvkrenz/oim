@@ -139,6 +139,9 @@ public class LogServlet extends ServletBase  {
 					view.add(new HtmlView("XML log Parse Error (" + somemodel.getName() + ") "+ e.toString()));
 				} catch (XPathExpressionException e) {
 					view.add(new HtmlView("XPath Expression Error (" + somemodel.getName() + ") "+ e.toString()));
+				} catch (NullPointerException e) {
+					//this happens if log xml contains invalid keys
+					view.add(new HtmlView(e.toString()));
 				}
 			}
 			
