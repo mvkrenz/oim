@@ -36,9 +36,14 @@ public class HomeServlet extends ServletBase  {
 		
 		MenuView menuview = new MenuView(context, "home");
 		ContentView contentview;
-		if(auth.getDNID() == null) {
+		if(auth.getUserDN() == null || auth.getUserCN() == null) {
+			//User didn't login with valid certificate
+			response.sendRedirect(Config.getApplicationBase() + "/needcert");
+		} else if(auth.getDNID() == null) {
+			//User's certificate doesn't exist in our DB
 			response.sendRedirect(Config.getApplicationBase() + "/register");
 		} else {
+			//all good.
 			contentview = createContentView();
 			Page page = new Page(menuview, contentview, new SideContentView());
 			page.render(response.getWriter());	

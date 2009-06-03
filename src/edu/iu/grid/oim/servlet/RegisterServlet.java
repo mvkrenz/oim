@@ -22,6 +22,7 @@ import com.webif.divex.form.TextFormElementDE;
 import com.webif.divex.form.validator.IFormElementValidator;
 import com.webif.divex.form.validator.UniqueValidator;
 
+import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Config;
 import edu.iu.grid.oim.model.MenuItem;
 import edu.iu.grid.oim.model.db.ContactModel;
@@ -50,8 +51,11 @@ public class RegisterServlet extends ServletBase  {
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{
-		//setContext(request);
-		// TODO agopu: need check to see if an already registered user stumbled on this page.
+		Authorization auth = context.getAuthorization();
+		if(auth.getDNID() != null || auth.getUserCN() == null || auth.getUserCN() == null) {
+			throw new ServletException("User does not meet criteria to access registration page.");
+		}
+		
 		MenuView menuview = new MenuView(context, "register");
 		ContentView contentview = createContentView();
 		Page page = new Page(menuview, contentview, new SideContentView());
@@ -63,7 +67,6 @@ public class RegisterServlet extends ServletBase  {
 		ContentView contentview = new ContentView();
 		
 		contentview.add(new HtmlView("<h1>OIM Registration</h1>"));
-		contentview.add(new HtmlView("<h3>Unregistered User DN!</h3>"));
 		
 		WizardDE wizard = new WizardDE(context.getPageRoot());
 		wizard.setPage(new GreetingPage(wizard));
@@ -99,6 +102,7 @@ public class RegisterServlet extends ServletBase  {
 			out.write("</div>");
 		}
 	}
+	
 	class GreetingPage extends DivEx implements IWizardPage
  	{
 		ButtonDE button;
@@ -116,7 +120,7 @@ public class RegisterServlet extends ServletBase  {
 		}
 		
 		public void render(PrintWriter out) {
-			out.write("<p>Welcome to the OSG Information Management (OIM) system. The DN ("+auth.getUserDN()+"), that is loaded into your web browser, is not registered on OIM. </p>");
+			out.write("<p>Welcome to the OSG Information Management (OIM) system. Your DN ("+auth.getUserDN()+"), that is loaded into your web browser, is not registered on OIM. </p>");
 			out.write("<p>To get access and begin using OIM, please register now by clicking the button below.</p>");		
 			button.render(out);
 		}
@@ -162,7 +166,8 @@ public class RegisterServlet extends ServletBase  {
 			email_check.addValidator(new CheckValidator(email));
 			
 			phone = new TextFormElementDE(this);
-			// TODO Need formatting help here -agopu
+			// TODO Need formatting help here -agopu  -- looks like the phone number used by OSG community is very diverse. I don't know how simple is simple enough
+			// validation in our case.. -- hayashis
 			phone.setLabel("Enter Your Phone Number");
 			phone.setRequired(true);
 		}
@@ -174,6 +179,8 @@ public class RegisterServlet extends ServletBase  {
 
 		@Override
 		protected Boolean doSubmit() {
+			Boolean ret = true;
+			
 			ContactModel model = new ContactModel(context);
 			DNModel dnmodel = new DNModel(context);
 			try {
@@ -195,6 +202,8 @@ public class RegisterServlet extends ServletBase  {
 						alert("The email address specified is already associated with a different DN. Please try different email address.");
 						email.setValue("");
 						email_check.setValue("");
+
+						context.close();
 						return false;
 					}
 				}
@@ -205,22 +214,24 @@ public class RegisterServlet extends ServletBase  {
 				dnrec.dn_string = auth.getUserDN();
 				dnmodel.insert(dnrec);
 				
-				//Make him OSG end user access
+				//Give him OSG end user access
 				DNAuthorizationTypeModel dnauthmodel = new DNAuthorizationTypeModel(context);
 				DNAuthorizationTypeRecord dnauthrec = new DNAuthorizationTypeRecord();
 				dnauthrec.dn_id = dnrec.id;
 				dnauthrec.authorization_type_id = 1; //OSG End User
 				dnauthmodel.insert(dnauthrec);
 				
-				//jump to profile page
+				//jump to profile page for more details
 				redirect(Config.getApplicationBase()+"/profileedit");
 				
 			} catch (SQLException e) {
 				alert(e.toString());
 				redirect(origin_url);
+				ret = false;
 			}
 			
-			return false;
+			context.close();
+			return ret;
 		}
 	}
 }
