@@ -131,7 +131,7 @@ public class ContactServlet extends ServletBase implements Servlet {
 			}
 
 			if(auth.allows("admin")) {
-				String dn_string = "";
+				String dn_string = null;
 				DNRecord dnrec = dnmodel.getByContactID(rec.id);
 				if(dnrec != null) {
 					dn_string = dnrec.dn_string;

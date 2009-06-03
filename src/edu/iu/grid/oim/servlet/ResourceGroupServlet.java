@@ -119,7 +119,7 @@ public class ResourceGroupServlet extends ServletBase implements Servlet {
 			String url;
 			public NewButtonDE(DivEx parent, String _url)
 			{
-				super(parent, "Add New Support Center");
+				super(parent, "Add New Resource Group");
 				url = _url;
 			}
 			protected void onEvent(Event e) {
