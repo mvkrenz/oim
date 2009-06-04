@@ -31,7 +31,7 @@ public class TradingGameServlet extends HttpServlet {
 		out.write(".selected {background-color: #ccf;}");
 		out.write("</style>");
 		
-		TradingGame calc = new TradingGame(DivExRoot.getInstance(request.getSession()));
+		TradingGame calc = new TradingGame(DivExRoot.initPageRoot(request));
 		calc.render(out);
 	}
 
@@ -103,12 +103,12 @@ public class TradingGameServlet extends HttpServlet {
 				renderTrader(out, "Vegitables", 3D);
 				renderTrader(out, "Plants", 5D);
 				
-				out.write("<h3>Indiana University Bookstore</h3>");			
+				out.write("<h3>IU Bookstore</h3>");			
 				renderTrader(out, "Text Book", 100D);
 				renderTrader(out, "Book", 15D);
 				
 				out.write("<h3>Downtown</h3>");
-				renderTrader(out, "Marble Brick", 30D);
+				renderTrader(out, "Bicycle", 300D);
 				renderTrader(out, "T-shirts", 10D);
 			}
 		}
@@ -193,7 +193,7 @@ public class TradingGameServlet extends HttpServlet {
 
 			public void render(PrintWriter out) {
 				out.write("<div id=\""+getNodeID()+"\">");
-				out.write("<h2>"+town.getName()+"</h2>");
+				out.write("<h2>You are at "+town.getName()+"</h2>");
 				town.render(out);
 				out.write("</div>");
 			}

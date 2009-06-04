@@ -19,7 +19,13 @@ public class DivExRoot extends DivEx
 	public DivExRoot() {
 		super(null); //null will indicate this is the DivExRoot
 	}
-
+	
+	static public DivExPage initPageRoot(HttpServletRequest request) {
+		DivExRoot root = DivExRoot.getInstance(request.getSession());
+		DivExPage pageroot = root.initPage(request.getServletPath());
+		return pageroot;
+	}
+	
 	//for each session, there is only one DivExRoot.
 	static public DivExRoot getInstance(HttpSession session)
 	{

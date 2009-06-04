@@ -50,6 +50,9 @@ function divex_replace( node, url)
 	//count how many requests are there
 	divex_replace_counter++;
 	
+	if(node.length == 0) {
+		alert("couldn't find the node to replace with - maybe it's not wrapped with div?");
+	}
 	var self = node;
 	// Request the remote document
 	jQuery.ajax({

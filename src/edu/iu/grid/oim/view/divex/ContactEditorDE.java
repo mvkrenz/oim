@@ -307,9 +307,11 @@ public class ContactEditorDE extends FormElementDEBase<HashMap<ContactEditorDE.R
 		Rank rank = DBRank2Enum(contact_rank_id);
 		
 		ArrayList<ContactDE> list = selected.get(rank);
-		list.add(new ContactDE(this, rec, rank));
-		validate();
-		redraw();
+		if(list != null) {
+			list.add(new ContactDE(this, rec, rank));
+			validate();
+			redraw();
+		}
 	}
 	
 	public HashMap<ContactRecord, Integer/*rank*/> getContactRecords()
