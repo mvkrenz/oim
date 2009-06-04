@@ -30,7 +30,7 @@ public class SendMail {
 		Properties props = new Properties();
 		props.put("mail.smtp.host", "localhost");
 		props.put("mail.smtp.port", "25");
-		props.put("mail.debug", true);
+		//props.put("mail.debug", true);
 		
 		Session mailSession = Session.getDefaultInstance(props);
 		Message simpleMessage = new MimeMessage(mailSession);
@@ -52,8 +52,8 @@ public class SendMail {
 	static public void sendErrorEmail(String content) throws MessagingException {
 		String from = "goc@opensciencegrid.org";
 		String to = "hayashis@indiana.edu";
-		String subject = "RSV Process Error";
-		String message = "RSV Process has detected an error\r\n" + content;
+		String subject = "OIM Error";
+		String message = "OIM has detected an error\r\n" + content;
 
 		SendMail sendMail = new SendMail(from, to, subject, message);
 		sendMail.send();

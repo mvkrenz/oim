@@ -98,7 +98,7 @@ public class Footprint
             //Basic Information
             SOAPElement arg4_7 = args.addChildElement( env.createName("projectID") );
             arg4_7.addAttribute( env.createName("type","xsi",""), "xsd:int" );
-            arg4_7.addTextNode("109");       
+            arg4_7.addTextNode("71");       
             SOAPElement arg4_9 = args.addChildElement( env.createName("submitter") );
             arg4_9.addAttribute( env.createName("type","xsi",""), "xsd:string" );
             arg4_9.addTextNode("OSG-GOC");
@@ -117,20 +117,27 @@ public class Footprint
 
             SOAPElement arg4_5 = args.addChildElement( env.createName("assignees") );
             arg4_5.addAttribute( env.createName("type","xsi",""), "SOAP-ENC:Array" );
-            arg4_5.addAttribute( env.createName("arrayType","SOAP-ENC",""), "xsd:string[1]" );//CHANGE [1] to [n] based on the number of items
-            SOAPElement arg4_5_1 = arg4_5.addChildElement( env.createName("item") );
-            arg4_5_1.addAttribute( env.createName("type","xsi",""), "xsd:string" );
-            arg4_5_1.addTextNode("hayashis");
+            arg4_5.addAttribute( env.createName("arrayType","SOAP-ENC",""), "xsd:string[2]" );//CHANGE [1] to [n] based on the number of items
+            
+	            SOAPElement arg4_5_1 = arg4_5.addChildElement( env.createName("item") );
+	            arg4_5_1.addAttribute( env.createName("type","xsi",""), "xsd:string" );
+	            arg4_5_1.addTextNode("kgross");
+	            
+	            SOAPElement arg4_5_2 = arg4_5.addChildElement( env.createName("item") );
+	            arg4_5_2.addAttribute( env.createName("type","xsi",""), "xsd:string" );
+	            arg4_5_2.addTextNode("echism");
             
             SOAPElement ccs = args.addChildElement( env.createName("permanentCCs") );
             ccs.addAttribute( env.createName("type","xsi",""), "SOAP-ENC:Array" );
             ccs.addAttribute( env.createName("arrayType","SOAP-ENC",""), "xsd:string[2]" );//CHANGE [1] to [n] based on the number of items
-            SOAPElement cc1 = ccs.addChildElement( env.createName("item") );
-            cc1.addAttribute( env.createName("type","xsi",""), "xsd:string" );
-            cc1.addTextNode("oim-dev@OPENSCIENCEGRID.ORG");
-            SOAPElement cc2 = ccs.addChildElement( env.createName("item") );
-            cc2.addAttribute( env.createName("type","xsi",""), "xsd:string" );
-            cc2.addTextNode("rquick@iu.edu");
+            
+	            SOAPElement cc1 = ccs.addChildElement( env.createName("item") );
+	            cc1.addAttribute( env.createName("type","xsi",""), "xsd:string" );
+	            cc1.addTextNode("oim-dev@OPENSCIENCEGRID.ORG");
+	            
+	            SOAPElement cc2 = ccs.addChildElement( env.createName("item") );
+	            cc2.addAttribute( env.createName("type","xsi",""), "xsd:string" );
+	            cc2.addTextNode("rquick@iu.edu");
             
             //project fields
             SOAPElement projfields = args.addChildElement( env.createName("projfields") );

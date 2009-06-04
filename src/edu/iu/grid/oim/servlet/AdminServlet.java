@@ -16,6 +16,7 @@ import com.webif.divex.DivExRoot;
 import com.webif.divex.Event;
 import com.webif.divex.EventListener;
 
+import edu.iu.grid.oim.lib.Footprint;
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
 import edu.iu.grid.oim.model.MenuItem;
 import edu.iu.grid.oim.model.db.SmallTableModelBase;
@@ -93,6 +94,19 @@ public class AdminServlet extends ServletBase  {
 			}
 		});
 		operations.add(clear_button);
+		
+		
+		final ButtonDE fptest_button = new ButtonDE(context.getPageRoot(), "Test FP Ticket");
+		fptest_button.addEventListener(new EventListener() {
+			public void handleEvent(Event e) {
+				Footprint ticket = new Footprint(context);
+				ticket.createNewResourceTicket("test_resource");
+				
+				fptest_button.alert("Done!");
+			}
+		});
+		operations.add(fptest_button);
+
 		
 		view.add("Operation", operations);
 		

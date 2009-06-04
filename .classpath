@@ -18,12 +18,8 @@
 	<classpathentry kind="lib" path="tomcat5-lib/naming-factory-dbcp.jar"/>
 	<classpathentry kind="lib" path="tomcat5-lib/naming-resources.jar"/>
 	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/resolver.jar"/>
-	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/serializer.jar"/>
-	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/xercesImpl.jar"/>
-	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/xercesSamples.jar"/>
-	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/xml-apis.jar"/>
 	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/geonames-1.0.jar"/>
 	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/jdom-1.0.jar"/>
-	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/mail.jar"/>
+	<classpathentry kind="lib" path="tomcat5-lib/mail.jar"/>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>
