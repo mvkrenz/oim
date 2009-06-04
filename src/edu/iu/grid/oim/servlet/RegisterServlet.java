@@ -133,6 +133,7 @@ public class RegisterServlet extends ServletBase  {
 	class EnterEmailPage extends FormDEBase implements IWizardPage
  	{
 		WizardDE wizard;
+		private TextFormElementDE name;
 		private TextFormElementDE email;
 		private TextFormElementDE email_check;
 		private TextFormElementDE phone;
@@ -140,6 +141,10 @@ public class RegisterServlet extends ServletBase  {
 		public EnterEmailPage(WizardDE _wizard) {
 			super(_wizard, origin_url);
 			wizard = _wizard;
+			
+			name = new TextFormElementDE(this);
+			name.setLabel("Enter Your Full Name");
+			name.setRequired(true);
 			
 			email = new TextFormElementDE(this);
 			email.setLabel("Enter Your Email");
@@ -189,6 +194,7 @@ public class RegisterServlet extends ServletBase  {
 				//Create new one if none is found
 				if(rec == null) {
 					rec = new ContactRecord();
+					rec.name = name.getValue();
 					rec.primary_email = email.getValue();
 					rec.primary_phone = phone.getValue();
 					rec.person = true;
