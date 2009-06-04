@@ -41,6 +41,8 @@ public class ServletBase extends HttpServlet {
 		}
 		auth = context.getAuthorization();
 		
+		log.info(req.getRequestURI() + "?" + req.getQueryString());
+		
 		String method = req.getMethod();
 		if(method.equals("GET")) {
 			doGet(req, resp);

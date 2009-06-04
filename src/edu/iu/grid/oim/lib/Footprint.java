@@ -166,7 +166,7 @@ public class Footprint
             
             SOAPElement arg4_2 = args.addChildElement( env.createName("status") );
             arg4_2.addAttribute( env.createName("type","xsi",""), "xsd:string" );
-            arg4_2.addTextNode("Open");
+            arg4_2.addTextNode("Engineering");
             msg.saveChanges();
 
             SOAPMessage reply = connection.call( msg, Config.getFootprintsUrl() );
