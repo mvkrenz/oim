@@ -51,7 +51,7 @@ function divex_replace( node, url)
 	divex_replace_counter++;
 	
 	if(node.length == 0) {
-		alert("couldn't find the node to replace with - maybe it's not wrapped with div?");
+		alert("couldn't find the divex node - maybe it's not wrapped with div?");
 	}
 	var self = node;
 	// Request the remote document
@@ -73,10 +73,8 @@ function divex_replace( node, url)
 function divex_runjs()
 {
 	if(divex_replace_counter == 0) {
-		//console.log('counter is 0. running jscallack');
 		divex_jscallback();
 	} else {
-		//console.log('waiting');
 		setTimeout(divex_runjs, 50);
 	}
 }

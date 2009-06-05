@@ -169,6 +169,9 @@ public class ResourceFormDE extends FormDEBase
 			for(VOResourceOwnershipRecord voresowner_rec : voresowner_model.getAllByResourceID(id)) {
 				owners.addOwner(voresowner_rec);
 			}
+		} else {
+			//add new one
+			owners.addOwner(new VOResourceOwnershipRecord());
 		}
 
 		new StaticDE(this, "<h2>Contact Information</h2>");

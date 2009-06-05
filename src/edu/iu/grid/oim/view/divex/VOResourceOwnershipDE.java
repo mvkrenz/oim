@@ -137,7 +137,7 @@ public class VOResourceOwnershipDE extends FormElementDEBase {
 	public void addOwner(VOResourceOwnershipRecord rec) { 
 		OwnershipEditor owner = new OwnershipEditor(this, rec, vo_recs);
 		redraw();
-		validate();
+		//validate();
 	}
 	
 	public VOResourceOwnershipDE(DivEx parent, ArrayList<VORecord> _vo_recs) {

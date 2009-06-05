@@ -48,13 +48,13 @@ public class ResourceWLCGDE extends FormElementDEBase {
 			myself = this;
 			
 			interop_bdii = new CheckBoxFormElementDE(this);
-			interop_bdii.setLabel("Should this resource part of WLCG Interop BDII?");
+			interop_bdii.setLabel("Should this resource be part of WLCG Interop BDII?");
 
 			interop_monitoring = new CheckBoxFormElementDE(this);
-			interop_monitoring.setLabel("Should this resource part of WLCG Interop Monitoring?");
+			interop_monitoring.setLabel("Should this resource be part of WLCG Interop Monitoring?");
 
 			interop_accounting = new CheckBoxFormElementDE(this);
-			interop_accounting.setLabel("Should this resource part of WLCG Interop Accounting?");
+			interop_accounting.setLabel("Should this resource be part of WLCG Interop Accounting?");
 
 			wlcg_accounting_name = new TextFormElementDE(this);
 			wlcg_accounting_name.setLabel("WLCG Accounting Name");
@@ -180,7 +180,6 @@ public class ResourceWLCGDE extends FormElementDEBase {
 		setWlcgRecord (_wrec);
 	}
 
-	@Override
 	protected void onEvent(Event e) {
 		// TODO Auto-generated method stub
 	}
@@ -195,7 +194,6 @@ public class ResourceWLCGDE extends FormElementDEBase {
 		}
 	}
 
-	@Override
 	public void render(PrintWriter out) {
 		out.print("<div id=\""+getNodeID()+"\">");
 		if (!hidden) {

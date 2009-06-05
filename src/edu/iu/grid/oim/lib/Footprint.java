@@ -121,7 +121,7 @@ public class Footprint
             
 	            SOAPElement arg4_5_1 = arg4_5.addChildElement( env.createName("item") );
 	            arg4_5_1.addAttribute( env.createName("type","xsi",""), "xsd:string" );
-	            arg4_5_1.addTextNode("kgross");
+	            arg4_5_1.addTextNode("kagross");
 	            
 	            SOAPElement arg4_5_2 = arg4_5.addChildElement( env.createName("item") );
 	            arg4_5_2.addAttribute( env.createName("type","xsi",""), "xsd:string" );

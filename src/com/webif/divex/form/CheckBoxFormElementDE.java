@@ -29,6 +29,7 @@ public class CheckBoxFormElementDE extends FormElementDEBase<Boolean> {
 			if(label != null) {
 				out.print(" <label>"+StringEscapeUtils.escapeHtml(label)+"</label>");
 			}
+			error.render(out);
 		}
 		out.print("</div>");
 	}
