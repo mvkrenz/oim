@@ -22,6 +22,7 @@ import edu.iu.grid.oim.lib.Config;
 import edu.iu.grid.oim.model.db.ContactRankModel;
 import edu.iu.grid.oim.model.db.ContactTypeModel;
 import edu.iu.grid.oim.model.db.ContactModel;
+import edu.iu.grid.oim.model.db.FacilityModel;
 import edu.iu.grid.oim.model.db.ResourceAliasModel;
 import edu.iu.grid.oim.model.db.ResourceContactModel;
 import edu.iu.grid.oim.model.db.ResourceDowntimeServiceModel;
@@ -29,12 +30,15 @@ import edu.iu.grid.oim.model.db.ResourceGroupModel;
 import edu.iu.grid.oim.model.db.ResourceModel;
 import edu.iu.grid.oim.model.db.ResourceServiceModel;
 import edu.iu.grid.oim.model.db.ResourceWLCGModel;
+import edu.iu.grid.oim.model.db.SCModel;
 import edu.iu.grid.oim.model.db.ServiceModel;
+import edu.iu.grid.oim.model.db.SiteModel;
 import edu.iu.grid.oim.model.db.VOModel;
 import edu.iu.grid.oim.model.db.VOResourceOwnershipModel;
 import edu.iu.grid.oim.model.db.record.ContactRankRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.ContactTypeRecord;
+import edu.iu.grid.oim.model.db.record.FacilityRecord;
 import edu.iu.grid.oim.model.db.record.ResourceAliasRecord;
 import edu.iu.grid.oim.model.db.record.ResourceContactRecord;
 import edu.iu.grid.oim.model.db.record.ResourceDowntimeServiceRecord;
@@ -42,7 +46,9 @@ import edu.iu.grid.oim.model.db.record.ResourceGroupRecord;
 import edu.iu.grid.oim.model.db.record.ResourceRecord;
 import edu.iu.grid.oim.model.db.record.ResourceServiceRecord;
 import edu.iu.grid.oim.model.db.record.ResourceWLCGRecord;
+import edu.iu.grid.oim.model.db.record.SCRecord;
 import edu.iu.grid.oim.model.db.record.ServiceRecord;
+import edu.iu.grid.oim.model.db.record.SiteRecord;
 import edu.iu.grid.oim.model.db.record.VOContactRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
 import edu.iu.grid.oim.model.db.record.VOResourceOwnershipRecord;
@@ -95,6 +101,10 @@ public class ResourceServlet extends ServletBase implements Servlet {
 
 		ContentView contentview = new ContentView();	
 		contentview.add(new HtmlView("<h1>Resource</h1>"));
+		
+		if(resources.size() == 0) {
+			contentview.add(new HtmlView("<p>You currently don't have any resources that list your contact in any of the contact types.</p>"));
+		}
 	
 		for(ResourceRecord rec : resources) {
 			
@@ -113,14 +123,36 @@ public class ResourceServlet extends ServletBase implements Servlet {
 			table.addRow("Resource FQDN", rec.fqdn);
 
 			//pull resource group
-			// Can we show hierarchy here? -agopu
 			ResourceGroupModel gmodel = new ResourceGroupModel(context);
 			ResourceGroupRecord resource_group_rec = gmodel.get(rec.resource_group_id);
 			String resource_group_name = null;
 			if(resource_group_rec != null) {
 				resource_group_name = resource_group_rec.name;
 			}
-			table.addRow("Resource Group Name", resource_group_name);
+			
+			//pull site
+			SiteModel smodel = new SiteModel(context);
+			SiteRecord srec = smodel.get(resource_group_rec.site_id);
+			
+			//pull facility
+			FacilityModel fmodel = new FacilityModel(context);
+			FacilityRecord frec = fmodel.get(srec.facility_id);
+			
+			//pull support center
+			SCModel scmodel = new SCModel(context);
+			SCRecord screc = scmodel.get(srec.sc_id);
+			
+			RecordTableView hierarchy_table = new RecordTableView("inner_table");
+			hierarchy_table.addHeaderRow("This Resource Group Belongs To");
+			hierarchy_table.addRow("Site", srec.name);
+			hierarchy_table.addRow("Facility", frec.name);
+			hierarchy_table.addRow("Support Center", screc.name);
+			GenericView hierarchy = new GenericView();
+			hierarchy.add(new HtmlView(StringEscapeUtils.escapeHtml(resource_group_name)));
+			hierarchy.add(hierarchy_table);
+			
+			table.addRow("Resource Group", hierarchy);
+			
 			table.addRow("Resource Description", rec.description);
 			if(rec.url != null && rec.url.length() != 0) {
 				table.addRow("Information URL", new HtmlView("<a target=\"_blank\" href=\""+rec.url+"\">"+rec.url+"</a>"));	

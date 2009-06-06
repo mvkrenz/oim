@@ -76,7 +76,7 @@ public class SCServlet extends ServletBase implements Servlet {
 
 		ContentView contentview = new ContentView();	
 		contentview.add(new HtmlView("<h1>Support Centers</h1>"));
-	
+		
 		for(SCRecord rec : scs) {
 			contentview.add(new HtmlView("<h2>"+StringEscapeUtils.escapeHtml(rec.name)+"</h2>"));
 

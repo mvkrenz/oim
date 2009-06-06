@@ -91,6 +91,10 @@ public class VOServlet extends ServletBase implements Servlet {
 		ContentView contentview = new ContentView();	
 		contentview.add(new HtmlView("<h1>Virtual Organization</h1>"));
 	
+		if(vos.size() == 0) {
+			contentview.add(new HtmlView("<p>You currently don't have any virtual organizations that list your contact in any of the contact types.</p>"));
+		}
+		
 		for(VORecord rec : vos) {
 			contentview.add(new HtmlView("<h2>"+StringEscapeUtils.escapeHtml(rec.name)+"</h2>"));
 			

@@ -20,7 +20,6 @@ public class RecordTableView extends TableView {
 		row.setClass("header");
 		addRow(row);
 		row.addCell(new HtmlView(StringEscapeUtils.escapeHtml(content)), 2);
-		
 	}
 	
 	public void addRow(String header, IView content) {
@@ -29,6 +28,7 @@ public class RecordTableView extends TableView {
 		row.addHeaderCell(new HtmlView(StringEscapeUtils.escapeHtml(header)));
 		row.addCell(content);		
 	}
+	
 	public void addRow(String header, String content)
 	{
 		content = StringEscapeUtils.escapeHtml(content);

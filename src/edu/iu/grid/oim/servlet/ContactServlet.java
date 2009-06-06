@@ -81,6 +81,10 @@ public class ContactServlet extends ServletBase implements Servlet {
 	{  
 		DNModel dnmodel = new DNModel(context);
 
+		if(contacts.size() == 0) {
+			contentview.add(new HtmlView("<p>You currently don't have any contacts that you are the submitter of.</p>"));
+		}
+		
 		for(ContactRecord rec : contacts) {
 			contentview.add(new HtmlView("<h2>"+StringEscapeUtils.escapeHtml(rec.name)+"</h2>"));
 

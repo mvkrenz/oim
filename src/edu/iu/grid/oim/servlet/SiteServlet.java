@@ -97,7 +97,7 @@ public class SiteServlet extends ServletBase implements Servlet {
 		});
 
 		ContentView contentview = new ContentView();	
-		contentview.add(new HtmlView("<h1>Administrativs Sites</h1>"));
+		contentview.add(new HtmlView("<h1>Administrative Sites</h1>"));
 	
 		for(SiteRecord rec : sites) {
 			contentview.add(new HtmlView("<h2>"+StringEscapeUtils.escapeHtml(rec.name)+"</h2>"));
