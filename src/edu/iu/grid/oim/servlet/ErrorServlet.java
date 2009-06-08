@@ -51,9 +51,11 @@ public class ErrorServlet extends HttpServlet {
 		
 		HashMap<String, String> message = new HashMap<String, String>();
 		
-		//request info
-		message.put("Request URI", request.getRequestURI());
-		message.put("Request Query", request.getQueryString());
+		//request info (this doesn't work because /error is invoked to display this page)
+		//message.put("Request URI", request.getRequestURI());
+		//message.put("Request Query", request.getQueryString());
+		
+		//user info
 		message.put("SSL_CLIENT_S_DN", (String)request.getAttribute("SSL_CLIENT_S_DN"));
 		message.put("SSL_CLIENT_I_DN_CN", (String)request.getAttribute("SSL_CLIENT_I_DN_CN"));
 		

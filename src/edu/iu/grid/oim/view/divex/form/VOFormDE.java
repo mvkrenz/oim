@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 
 import com.webif.divex.DivEx;
@@ -16,6 +17,7 @@ import com.webif.divex.EventListener;
 import com.webif.divex.form.FormDEBase;
 import com.webif.divex.StaticDE;
 import com.webif.divex.form.CheckBoxFormElementDE;
+import com.webif.divex.form.FormElementDEBase;
 import com.webif.divex.form.SelectFormElementDE;
 import com.webif.divex.form.TextAreaFormElementDE;
 import com.webif.divex.form.TextFormElementDE;
@@ -75,11 +77,6 @@ public class VOFormDE extends FormDEBase
 	private TextFormElementDE name;
 	private TextFormElementDE long_name;
 	private TextAreaFormElementDE description;
-	private TextFormElementDE primary_url;
-	private TextFormElementDE aup_url;
-	private TextFormElementDE membership_services_url;
-	private TextFormElementDE purpose_url;
-	private TextFormElementDE support_url;
 	private TextAreaFormElementDE app_description;
 	private TextAreaFormElementDE community;
 	private TextFormElementDE footprints_id;
@@ -92,6 +89,73 @@ public class VOFormDE extends FormDEBase
 	
 	private VOReport vorep_consolidator;
 	private VOReportNamesDE vo_report_name_div;
+	
+	class URLs extends DivEx
+	{
+		public URLs(DivEx _parent, VORecord rec) {
+			super(_parent);
+			
+			new StaticDE(this, "<h2>Relevant URLs</h2>");
+			primary_url = new TextFormElementDE(this);
+			primary_url.setLabel("Primary URL");
+			primary_url.setValue(rec.primary_url);
+			primary_url.addValidator(UrlValidator.getInstance());
+			primary_url.setRequired(true);
+			primary_url.setSampleValue("http://www-cdf.fnal.gov");
+
+			aup_url = new TextFormElementDE(this);
+			aup_url.setLabel("AUP URL");
+			aup_url.setValue(rec.aup_url);
+			aup_url.addValidator(UrlValidator.getInstance());
+			aup_url.setRequired(true);
+			aup_url.setSampleValue("http://www-cdf.fnal.gov");
+
+			membership_services_url = new TextFormElementDE(this);
+			membership_services_url.setLabel("Membership Services (VOMS) URL");
+			membership_services_url.setValue(rec.membership_services_url);
+			membership_services_url.addValidator(UrlValidator.getInstance());
+			membership_services_url.setRequired(true);
+			membership_services_url.setSampleValue("https://voms.fnal.gov:8443/voms/cdf/");
+
+			purpose_url = new TextFormElementDE(this);
+			purpose_url.setLabel("Purpose URL"); 
+			purpose_url.setValue(rec.purpose_url);
+			purpose_url.addValidator(UrlValidator.getInstance());
+			purpose_url.setRequired(true);
+			purpose_url.setSampleValue("http://www-cdf.fnal.gov");
+
+			support_url = new TextFormElementDE(this);
+			support_url.setLabel("Support URL"); 
+			support_url.setValue(rec.support_url);
+			support_url.addValidator(UrlValidator.getInstance());
+			support_url.setRequired(true);
+			support_url.setSampleValue("http://cdfcaf.fnal.gov");
+		}
+
+		public TextFormElementDE primary_url;
+		public TextFormElementDE aup_url;
+		public TextFormElementDE membership_services_url;
+		public TextFormElementDE purpose_url;
+		public TextFormElementDE support_url;
+		
+		protected void onEvent(Event e) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		@Override
+		public void render(PrintWriter out) {
+			out.write("<div id=\""+getNodeID()+"\">");
+			primary_url.render(out);
+			aup_url.render(out);
+			membership_services_url.render(out);
+			purpose_url.render(out);
+			support_url.render(out);
+			out.write("<br/></div>");
+		}
+	}
+	
+	private URLs urls;
 	
 	//contact types to edit
 	private int contact_types[] = {
@@ -111,13 +175,49 @@ public class VOFormDE extends FormDEBase
 		id = rec.id;
 		
 		new StaticDE(this, "<h2>Basic VO Information</h2>");
-		new StaticDE(this, "<p>Add/modify basic information about this VO</p>");
-
+		
+		//new StaticDE(this, "<h2>Sub-VO Mapping</h2>");
+		new StaticDE(this, "<p>Check below if this VO is a sub-VO of an existing VO. For example, FermilabMinos is a sub VO of the Fermilab VO.</p>");
+		child_vo = new CheckBoxFormElementDE(this);
+		child_vo.setLabel("This is a sub-VO");
+		//indent the parent VO stuff
+		new StaticDE(this, "<div class=\"indent\">");
 		//pull vos for unique validator
 		HashMap<Integer, String> vos = getVONames();
 		if(id != null) { //if doing update, remove my own name (I can use my own name)
 			vos.remove(id);
 		}
+		parent_vo = new SelectFormElementDE(this, vos);
+		parent_vo.setLabel("Select a Parent VO");
+		hideParentVOSelector(true);
+		child_vo.addEventListener(new EventListener() {
+			public void handleEvent(Event e) {	
+				if(((String)e.value).compareTo("true") == 0) {
+					hideParentVOSelector(false);
+				} else {
+					hideParentVOSelector(true);
+				}
+			}
+		});
+		if(id != null) {
+			VOModel model = new VOModel(context);
+			VORecord parent_vo_rec = model.getParentVO(id);
+			if(parent_vo_rec != null) {
+				parent_vo.setValue(parent_vo_rec.id);
+				child_vo.setValue(true);
+				hideParentVOSelector(false);				
+			}
+			// AG: Need to clean this up; especially for VOs that are not child VOs of a parent
+			// .. perhaps a yes/no first?
+		}
+		parent_vo.addEventListener(new EventListener () {
+			public void handleEvent(Event e) {
+				handleParentVOSelection(Integer.parseInt((String)e.value));
+			}
+		});
+		new StaticDE(this, "</div>");
+		
+		//new StaticDE(this, "<p>Add/modify basic information about this VO</p>");
 
 		// Name is not an editable field except for GOC staff
 		name = new TextFormElementDE(this);
@@ -140,6 +240,8 @@ public class VOFormDE extends FormDEBase
 		sc_id.setLabel("Select a Support Center that will support this VO");
 		sc_id.setValue(rec.sc_id);
 		sc_id.setRequired(true);
+		
+		urls = new URLs(this, rec);
 
 		new StaticDE(this, "<h3>Extended Descriptions</h3>");
 		description = new TextAreaFormElementDE(this);
@@ -160,6 +262,8 @@ public class VOFormDE extends FormDEBase
 		community.setRequired(true);
 		community.setSampleValue("The Collider Detector at Fermilab (CDF) experimental collaboration is committed to studying high energy particle collisions");
 
+		
+		
 		new StaticDE(this, "<h2>Field of Science</h2>");
 		new StaticDE(this, "<p>Select Field Of Science(s) applicable to this VO</p>");
 		ArrayList<Integer/*field_of_science_id*/> fslist = new ArrayList();
@@ -182,81 +286,6 @@ public class VOFormDE extends FormDEBase
 			}
 		}
 
-		new StaticDE(this, "<h2>Sub-VO Mapping</h2>");
-		new StaticDE(this, "<p>Check below if this VO is a sub-VO of an existing VO. For example, FermilabMinos is a sub VO of the Fermilab VO.</p>");
-		child_vo = new CheckBoxFormElementDE(this);
-		child_vo.setLabel("This is a sub-VO");
-
-		//indent the parent VO stuff
-		new StaticDE(this, "<div class=\"indent\">");
-		parent_vo = new SelectFormElementDE(this, vos);
-		parent_vo.setLabel("Select a Parent VO");
-		hideParentVOSelector(true);
-
-		child_vo.addEventListener(new EventListener() {
-			public void handleEvent(Event e) {	
-				if(((String)e.value).compareTo("true") == 0) {
-					hideParentVOSelector(false);
-				} else {
-					hideParentVOSelector(true);
-				}
-			}
-		});
-
-		if(id != null) {
-			VOModel model = new VOModel(context);
-			VORecord parent_vo_rec = model.getParentVO(id);
-			if(parent_vo_rec != null) {
-				parent_vo.setValue(parent_vo_rec.id);
-				child_vo.setValue(true);
-				hideParentVOSelector(false);				
-			}
-			// AG: Need to clean this up; especially for VOs that are not child VOs of a parent
-			// .. perhaps a yes/no first?
-			}
-			parent_vo.addEventListener(new EventListener () {
-				public void handleEvent(Event e) {
-					handleParentVOSelection(Integer.parseInt((String)e.value));
-				}
-			});
-		new StaticDE(this, "</div>");
-
-		new StaticDE(this, "<h2>Relevant URLs</h2>");
-		primary_url = new TextFormElementDE(this);
-		primary_url.setLabel("Primary URL");
-		primary_url.setValue(rec.primary_url);
-		primary_url.addValidator(UrlValidator.getInstance());
-		primary_url.setRequired(true);
-		primary_url.setSampleValue("http://www-cdf.fnal.gov");
-
-		aup_url = new TextFormElementDE(this);
-		aup_url.setLabel("AUP URL");
-		aup_url.setValue(rec.aup_url);
-		aup_url.addValidator(UrlValidator.getInstance());
-		aup_url.setRequired(true);
-		aup_url.setSampleValue("http://www-cdf.fnal.gov");
-
-		membership_services_url = new TextFormElementDE(this);
-		membership_services_url.setLabel("Membership Services (VOMS) URL");
-		membership_services_url.setValue(rec.membership_services_url);
-		membership_services_url.addValidator(UrlValidator.getInstance());
-		membership_services_url.setRequired(true);
-		membership_services_url.setSampleValue("https://voms.fnal.gov:8443/voms/cdf/");
-
-		purpose_url = new TextFormElementDE(this);
-		purpose_url.setLabel("Purpose URL"); 
-		purpose_url.setValue(rec.purpose_url);
-		purpose_url.addValidator(UrlValidator.getInstance());
-		purpose_url.setRequired(true);
-		purpose_url.setSampleValue("http://www-cdf.fnal.gov");
-
-		support_url = new TextFormElementDE(this);
-		support_url.setLabel("Support URL"); 
-		support_url.setValue(rec.support_url);
-		support_url.addValidator(UrlValidator.getInstance());
-		support_url.setRequired(true);
-		support_url.setSampleValue("http://cdfcaf.fnal.gov");
-	
 		new StaticDE(this, "<h2>Contact Information</h2>");
 		HashMap<Integer/*contact_type_id*/, ArrayList<VOContactRecord>> voclist_grouped = null;
 		if(id != null) {
@@ -320,20 +349,19 @@ public class VOFormDE extends FormDEBase
 
 		ArrayList<VOReportNameRecord> vorepname_records = vorepname_model.getAll();
 		vo_report_name_div = new VOReportNamesDE(this, vorepname_records, cmodel);
-
 		if(id != null) {
 			for(VOReportNameRecord vorepname_rec : vorepname_model.getAllByVOID(id)) {
-				
 				VOReportContactModel vorcmodel = new VOReportContactModel(context);
 				Collection<VOReportContactRecord> vorc_list = vorcmodel.getAllByVOReportNameID(vorepname_rec.id);
 				Collection<VOReportNameFqanRecord> vorepnamefqan_list = vorepnamefqan_model.getAllByVOReportNameID(vorepname_rec.id);
-				vo_report_name_div.addVOReportName(vorepname_rec,
-							vorepnamefqan_list, vorc_list);
+				vo_report_name_div.addVOReportName(vorepname_rec, vorepnamefqan_list, vorc_list);
 			}
-		}
-		else {
-			// TODO agopu need code here - Chris green's request for version 2.1
-			//new StaticDE(this, "<h3>NOTE: We are adding a default reporting names for this VO. You can modify it or add more.</h3>");		}
+		} else {
+			vo_report_name_div.addVOReportName(
+					new VOReportNameRecord(), 
+					new ArrayList<VOReportNameFqanRecord>(), 
+					new ArrayList<VOReportContactRecord>()
+			);		
 		}
 		if(auth.allows("admin")) {
 			new StaticDE(this, "<h2>Administrative Tasks</h2>");
@@ -414,31 +442,28 @@ public class VOFormDE extends FormDEBase
 		VOModel model = new VOModel (context);
 		try {
 			VORecord parent_vo_rec = model.get(parent_vo_id);
-			if ((primary_url.getValue() == null) || (primary_url.getValue().length() == 0)) {
-				primary_url.setValue(parent_vo_rec.primary_url);
-				primary_url.redraw();
+			
+			if ((urls.primary_url.getValue() == null) || (urls.primary_url.getValue().length() == 0)) {
+				urls.primary_url.setValue(parent_vo_rec.primary_url);
 			}
-			if ((aup_url.getValue() == null) || (aup_url.getValue().length() == 0)) {
-				aup_url.setValue(parent_vo_rec.aup_url);
-				aup_url.redraw();
+			if ((urls.aup_url.getValue() == null) || (urls.aup_url.getValue().length() == 0)) {
+				urls.aup_url.setValue(parent_vo_rec.aup_url);
 			}
-			if ((membership_services_url.getValue() == null) || (membership_services_url.getValue().length() == 0)) {
-				membership_services_url.setValue(parent_vo_rec.membership_services_url);
-				membership_services_url.redraw();
+			if ((urls.membership_services_url.getValue() == null) || (urls.membership_services_url.getValue().length() == 0)) {
+				urls.membership_services_url.setValue(parent_vo_rec.membership_services_url);
 			}
-			if ((purpose_url.getValue() == null) || (purpose_url.getValue().length() == 0)) {
-				purpose_url.setValue(parent_vo_rec.purpose_url);
-				purpose_url.redraw();
+			if ((urls.purpose_url.getValue() == null) || (urls.purpose_url.getValue().length() == 0)) {
+				urls.purpose_url.setValue(parent_vo_rec.purpose_url);
 			}
-			if ((support_url.getValue() == null) || (support_url.getValue().length() == 0)) {
-				support_url.setValue(parent_vo_rec.support_url);
-				support_url.redraw();
+			if ((urls.support_url.getValue() == null) || (urls.support_url.getValue().length() == 0)) {
+				urls.support_url.setValue(parent_vo_rec.support_url);
 			}
+			urls.redraw();
+			
 			if (sc_id.getValue() == null) {
 				sc_id.setValue(parent_vo_rec.sc_id);
 				sc_id.redraw();
 			}
-
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -453,11 +478,11 @@ public class VOFormDE extends FormDEBase
 		rec.name = name.getValue();
 		rec.long_name = long_name.getValue();
 		rec.description = description.getValue();
-		rec.primary_url = primary_url.getValue();
-		rec.aup_url = aup_url.getValue();
-		rec.membership_services_url = membership_services_url.getValue();
-		rec.purpose_url = purpose_url.getValue();
-		rec.support_url = support_url.getValue();
+		rec.primary_url = urls.primary_url.getValue();
+		rec.aup_url = urls.aup_url.getValue();
+		rec.membership_services_url = urls.membership_services_url.getValue();
+		rec.purpose_url = urls.purpose_url.getValue();
+		rec.support_url = urls.support_url.getValue();
 		rec.app_description = app_description.getValue();
 		rec.community = community.getValue();
 		rec.sc_id = sc_id.getValue();
