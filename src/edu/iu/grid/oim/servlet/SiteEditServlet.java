@@ -43,6 +43,9 @@ public class SiteEditServlet extends ServletBase implements Servlet {
 		SiteRecord rec;
 		String title;
 
+		ContentView contentview = new ContentView();
+		contentview.add(new HtmlView("<script src=\"http://maps.google.com/maps?file=api&v=2&key=ABQIAAAAaViYP1Cs7C4ER0zJ_sBRIRRu2NIac2hj277nZFXtw56NJteXUhTts0gjYSM0q73KHro_G_rWDJaPDw\" type=\"text/javascript\"></script>\""));
+
 		try {
 			//if site_id is provided then we are doing update, otherwise do new.
 			String site_id_str = request.getParameter("site_id");
@@ -59,18 +62,14 @@ public class SiteEditServlet extends ServletBase implements Servlet {
 				title = "New Site";	
 			}
 	
-		SiteFormDE form;
-		String origin_url = Config.getApplicationBase()+"/"+parent_page;
-			form = new SiteFormDE(context, rec, origin_url);
-		
-		//put the form in a view and display
-		ContentView contentview = new ContentView();
-		contentview.add(new HtmlView("<h1>"+title+"</h1>"));	
-		contentview.add(new DivExWrapper(form));
-		
-		Page page = new Page(new MenuView(context, parent_page), contentview, createSideView());
-		
-		page.render(response.getWriter());	
+			String origin_url = Config.getApplicationBase()+"/"+parent_page;
+			SiteFormDE form = new SiteFormDE(context, rec, origin_url);
+			contentview.add(new HtmlView("<h1>"+title+"</h1>"));	
+			contentview.add(new DivExWrapper(form));
+			
+			Page page = new Page(new MenuView(context, parent_page), contentview, createSideView());
+			
+			page.render(response.getWriter());	
 		} catch (SQLException e) {
 			throw new ServletException(e);
 		}

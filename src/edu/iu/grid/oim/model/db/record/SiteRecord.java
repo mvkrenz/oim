@@ -17,7 +17,7 @@ public class SiteRecord extends RecordBase
 	public String description;
 	public String address_line_1, address_line_2;
 	public String city, state, zipcode, country;
-	public String longitude, latitude; // Need to change this to float but it is text in the DB right now
+	public Double longitude, latitude; // Need to change this to float but it is text in the DB right now
 	public Integer sc_id; 
 	public Integer facility_id; 
 	public Integer submitter_dn_id; 

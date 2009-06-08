@@ -40,6 +40,13 @@
 	<servlet>
 		<description>
 		</description>
+		<display-name>SimulateErrorServlet</display-name>
+		<servlet-name>SimulateErrorServlet</servlet-name>
+		<servlet-class>edu.iu.grid.oim.servlet.SimulateErrorServlet</servlet-class>
+	</servlet>
+	<servlet>
+		<description>
+		</description>
 		<display-name>404Servlet</display-name>
 		<servlet-name>Error404Servlet</servlet-name>
 		<servlet-class>edu.iu.grid.oim.servlet.Error404Servlet</servlet-class>
@@ -430,10 +437,13 @@
 		<servlet-name>ResourceDowntimeEditServlet</servlet-name>
 		<url-pattern>/resourcedowntimeedit</url-pattern>
 	</servlet-mapping>
-
 	<servlet-mapping>
 		<servlet-name>SCServlet</servlet-name>
 		<url-pattern>/sc</url-pattern>
+	</servlet-mapping>
+	<servlet-mapping>
+		<servlet-name>SimulateErrorServlet</servlet-name>
+		<url-pattern>/simulateerror</url-pattern>
 	</servlet-mapping>
 	<servlet-mapping>
 		<servlet-name>SCEditServlet</servlet-name>

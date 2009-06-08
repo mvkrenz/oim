@@ -2,13 +2,16 @@ package edu.iu.grid.oim.servlet;
 
 import java.io.IOException;
 import java.util.Date;
-import java.util.Enumeration;
+import java.util.HashMap;
 
 import javax.mail.MessagingException;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang.StringUtils;
 
 import edu.iu.grid.oim.lib.Config;
 import edu.iu.grid.oim.lib.SendMail;
@@ -24,15 +27,7 @@ import edu.iu.grid.oim.view.SideContentView;
  */
 public class ErrorServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-    
-	//attributes to display on debug dump
-	protected static String[] vars = {
-        "javax.servlet.error.status_code",
-        "javax.servlet.error.exception_type",
-        "javax.servlet.error.message",
-        "javax.servlet.error.exception",
-        "javax.servlet.error.request_uri"
-    };
+
 
     public ErrorServlet() {
         super();
@@ -54,48 +49,69 @@ public class ErrorServlet extends HttpServlet {
 		contentview.add(new HtmlView("<h2>Oops!</h2>"));
 		contentview.add(new HtmlView("<p>Sorry, OIM has encountered a problem.</p>"));
 		
+		HashMap<String, String> message = new HashMap<String, String>();
+		
+		//request info
+		message.put("Request URI", request.getRequestURI());
+		message.put("Request Query", request.getQueryString());
+		message.put("SSL_CLIENT_S_DN", (String)request.getAttribute("SSL_CLIENT_S_DN"));
+		message.put("SSL_CLIENT_I_DN_CN", (String)request.getAttribute("SSL_CLIENT_I_DN_CN"));
+		
+		//exception info
+	    Throwable throwable = (Throwable) request.getAttribute("javax.servlet.error.exception");
+	    message.put("Exception", throwable.getMessage());
+		StringBuffer strace = new StringBuffer();
+	    for(StackTraceElement trace : throwable.getStackTrace()) {
+	    	strace.append(trace.getClassName() + "." + trace.getMethodName()+ "(" + trace.getFileName() + ":" + trace.getLineNumber() + ")\n");
+	    }
+	    message.put("Stack Trace", strace.toString());
+	    
+	    //other stuff
+	    Integer status_code = (Integer)request.getAttribute("javax.servlet.error.status_code");
+	    if(status_code != null) {
+	    	message.put("javax.servlet.error.status_code", status_code.toString());
+	    }
+	    message.put("javax.servlet.error.message", (String)request.getAttribute("javax.servlet.error.message"));
+	    message.put("javax.servlet.error.exception_type", (String)request.getAttribute("javax.servlet.error.exception_type"));
+
+		//create error report
+		StringBuffer buffer = new StringBuffer();
+		
+		//put error date
+    	Date current = new Date();
+    	message.put("Date", current.toString());
+    
+    	//create error report
+    	for (String key : message.keySet()) {
+    		buffer.append("[" + key + "]");
+    		buffer.append("\n");
+    		buffer.append(message.get(key));
+    		buffer.append("\n\n");
+    	}
+    	
 		if(Config.isDebug()) {
-			contentview.add(new HtmlView("<table>"));
-	        for (int i = 0; i < vars.length; i++) {
-	    		contentview.add(new HtmlView("<TR><TD>" + vars[i] + "</TD><TD>" +
-	                request.getAttribute(vars[i]) + 
-	                "</TD></TR>"));
-	        }
-	        contentview.add(new HtmlView("</table>"));
+			//display to browser
+			contentview.add(new HtmlView("<h3>Debug Dump</h3>"));
+			contentview.add(new HtmlView("<div class=\"indent\">"));
+			contentview.add(new HtmlView("<pre>"+StringEscapeUtils.escapeHtml(buffer.toString())+"</pre>"));
+			contentview.add(new HtmlView("</div>"));
 		} else {
-			//create error report
-			StringBuffer message = new StringBuffer();
-			
-			//put error date
-	    	Date current = new Date();
-	    	message.append("Date: ");
-	    	message.append(current);
-	    	message.append("\n\n");
-	    	
-	    	//dump request object
-	    	for (Enumeration e = request.getAttributeNames() ; e.hasMoreElements() ;) {
-	    		String key = (String)e.nextElement();
-	        	message.append(key);
-	        	message.append("\n");
-	        	message.append(request.getAttribute(key));
-	        	message.append("\n\n");
-	    	}
-	    	
-	    	try {
-	    		SendMail.sendErrorEmail(message.toString());
+			//send report to GOC via email
+		   	try {
+    			SendMail.sendErrorEmail(buffer.toString());
 				contentview.add(new HtmlView("<p>Detail of this issue has been sent to GOC and GOC will be processing this issue soon. We appologize for your inconvenience.</p>"));			
-	    	} catch (MessagingException e) {
+		   	} catch (MessagingException e) {
 				contentview.add(new HtmlView("<p>OIM has tried to send the error report to OIM development team, but the attemp has failed due to following reason.</p>"));			
 				contentview.add(new HtmlView("<div class=\"indent\">"));
 				contentview.add(new HtmlView("<p>"+e.toString()+"</p>"));
 				contentview.add(new HtmlView("</div>"));
-				contentview.add(new HtmlView("<p>Please open a ticket at GOC with following error report</p>"));
+				contentview.add(new HtmlView("<p>Please open a ticket at <a target=\"_blank\" href=\"https://ticket.grid.iu.edu/goc\">GOC</a> with following error detail</p>"));
+				
 				contentview.add(new HtmlView("<div class=\"indent\">"));
-				contentview.add(new HtmlView("<pre>"+message.toString()+"</pre>"));
+				contentview.add(new HtmlView("<pre>"+buffer.toString()+"</pre>"));
 				contentview.add(new HtmlView("</div>"));
 	    	}
-		}
-		
+	   	}
 		return contentview;
 	}
 }

@@ -16,6 +16,7 @@ import com.webif.divex.DivExRoot;
 import com.webif.divex.Event;
 import com.webif.divex.EventListener;
 
+import edu.iu.grid.oim.lib.Config;
 import edu.iu.grid.oim.lib.Footprint;
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
 import edu.iu.grid.oim.model.MenuItem;
@@ -107,6 +108,13 @@ public class AdminServlet extends ServletBase  {
 		});
 		operations.add(fptest_button);
 
+		final ButtonDE error_button = new ButtonDE(context.getPageRoot(), "Simulate Servlet Error");
+		error_button.addEventListener(new EventListener() {
+			public void handleEvent(Event e) {
+				error_button.redirect(Config.getApplicationBase() + "/simulateerror");
+			}
+		});
+		operations.add(error_button);
 		
 		view.add("Operation", operations);
 		

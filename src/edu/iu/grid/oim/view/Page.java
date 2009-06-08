@@ -4,7 +4,6 @@ import java.io.PrintWriter;
 
 public class Page implements IView {
 	private IView header;
-	private String header_addon;
 	private IView menu;
 	private IView content;
 	private IView footer;
@@ -13,7 +12,6 @@ public class Page implements IView {
 	public Page(IView _menu, IView _content, IView _side)
 	{
 		header = new HtmlFileView("header.txt");
-		header_addon = "";
 		footer = new HtmlFileView("footer.txt");
 		menu = _menu;
 		content = _content;
@@ -23,7 +21,6 @@ public class Page implements IView {
 	public void render(PrintWriter out)
 	{
 		header.render(out);
-		out.println(header_addon);
 		menu.render(out);
 		side.render(out);
 		content.render(out);		

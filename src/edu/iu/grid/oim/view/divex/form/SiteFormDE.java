@@ -40,7 +40,10 @@ import edu.iu.grid.oim.model.db.record.SiteRecord;
 import edu.iu.grid.oim.model.db.record.FacilityRecord;
 
 import edu.iu.grid.oim.view.divex.ContactEditorDE;
+import edu.iu.grid.oim.view.divex.LatLngSelectorDE;
 import edu.iu.grid.oim.view.divex.ContactEditorDE.Rank;
+
+import java.lang.Double;
 
 public class SiteFormDE extends FormDEBase 
 {
@@ -59,8 +62,7 @@ public class SiteFormDE extends FormDEBase
 	private TextFormElementDE state;
 	private TextFormElementDE zipcode;
 	private TextFormElementDE country;
-	private TextFormElementDE latitude;
-	private TextFormElementDE longitude;
+	private LatLngSelectorDE latlng;
 	private SelectFormElementDE sc_id;
 	private SelectFormElementDE facility_id;
 	private CheckBoxFormElementDE active;
@@ -141,7 +143,11 @@ public class SiteFormDE extends FormDEBase
 		country.setLabel("Country");
 		country.setValue(rec.country);
 		country.setRequired(true);
-
+		
+		latlng = new LatLngSelectorDE(this);
+		latlng.setLabel("Latitude / Longitude");
+		latlng.setValue(latlng.new LatLng(rec.latitude, rec.longitude));
+		
 		if(auth.allows("admin")) {
 			new StaticDE(this, "<h2>Administrative Tasks</h2>");
 		}
@@ -211,6 +217,9 @@ public class SiteFormDE extends FormDEBase
 			rec.state          = state.getValue();
 			rec.zipcode        = zipcode.getValue();
 			rec.country        = country.getValue();
+			
+			rec.latitude = latlng.getValue().latitude;
+			rec.longitude = latlng.getValue().longitude;
 			
 			rec.sc_id = sc_id.getValue();
 			rec.facility_id = facility_id.getValue();
