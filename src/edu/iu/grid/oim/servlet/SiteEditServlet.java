@@ -44,7 +44,7 @@ public class SiteEditServlet extends ServletBase implements Servlet {
 		String title;
 
 		ContentView contentview = new ContentView();
-		contentview.add(new HtmlView("<script src=\"http://maps.google.com/maps?file=api&v=2&key="+Config.getGMapAPIKey()+"\" type=\"text/javascript\"></script>\""));
+		contentview.add(new HtmlView("<script src=\"http://maps.google.com/maps?file=api&v=2&key="+Config.getGMapAPIKey()+"\" type=\"text/javascript\"></script>"));
 
 		try {
 			//if site_id is provided then we are doing update, otherwise do new.

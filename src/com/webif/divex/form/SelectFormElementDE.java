@@ -27,7 +27,6 @@ public class SelectFormElementDE extends FormElementDEBase<Integer>
 			if(label != null) {
 				out.write("<label>"+StringEscapeUtils.escapeHtml(label)+"</label><br/>");
 			}
-			Integer random = Math.abs(new Random().nextInt());
 			out.write("<select onchange='divex(\""+getNodeID()+"\", event, this.value);'>");
 			out.write("<option value=\"\">(Please Select)</option>");
 			

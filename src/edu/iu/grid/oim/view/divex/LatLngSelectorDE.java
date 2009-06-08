@@ -1,6 +1,7 @@
 package edu.iu.grid.oim.view.divex;
 
 import java.io.PrintWriter;
+import java.util.Random;
 
 import org.apache.commons.lang.StringEscapeUtils;
 
@@ -38,21 +39,26 @@ public class LatLngSelectorDE extends FormElementDEBase<LatLngSelectorDE.LatLng>
 			if(label != null) {
 				out.print("<label>"+StringEscapeUtils.escapeHtml(label)+"</label><br/>");
 			}
-			out.write("<div id=\"map_canvas_"+getNodeID()+"\" style=\"width: 500px; height: 300px\"></div>"); 
-			out.write("<script type=\"text/javascript\">\n");
-			out.write("$(document).ready(function() {");
-			    out.write("if (GBrowserIsCompatible()) {");
-			    out.write("    var map = new GMap2(document.getElementById(\"map_canvas_"+getNodeID()+"\"));");
-			    out.write("    map.setCenter(new GLatLng("+value.latitude+", "+value.longitude+"), 18);");
-			    out.write("    map.setUIToDefault();");
-			    out.write("    map.setMapType(G_HYBRID_MAP);");
-			    //out.write("    map.enableGoogleBar();");
-			    out.write("    var prompt = new GScreenOverlay(\"http://localhost:8080/oim/images/target.png\",new GScreenPoint(0.5, 0.5, 'fraction', 'fraction'), new GScreenPoint(-50, -50), new GScreenSize(100, 100, 'pixel', 'pixel'));");
-			    out.write("    map.addOverlay(prompt);");
-			    out.write("    GEvent.addListener(map, 'moveend', function() {divex('"+getNodeID()+"', null, map.getCenter().toUrlValue());});");
-			    out.write("}");
-			out.write("});");
-			out.write("</script>");
+			String random = Integer.toString(Math.abs(new Random().nextInt()));
+			out.write("<div id=\"map_canvas_"+getNodeID()+random+"\" style=\"width: 500px; height: 300px\"></div>"); 
+		
+			out.write("<script type=\"text/javascript\">");
+		    out.write("if (GBrowserIsCompatible()) {");
+		    //out.write("alert('setting up map');");
+		    out.write("    var map = new GMap2(document.getElementById(\"map_canvas_"+getNodeID()+random+"\"));");
+		    if(value.latitude == null || value.longitude == null) {
+		    	out.write("    map.setCenter(new GLatLng(0, 0), 1);");		    	
+		    } else {
+		    	out.write("    map.setCenter(new GLatLng("+value.latitude+", "+value.longitude+"), 16);");
+		    }
+		    out.write("    map.setUIToDefault();");
+		    out.write("    map.setMapType(G_HYBRID_MAP);");
+		    //out.write("    map.enableGoogleBar();");
+		    out.write("    var prompt = new GScreenOverlay(\"http://localhost:8080/oim/images/target.png\",new GScreenPoint(0.5, 0.5, 'fraction', 'fraction'), new GScreenPoint(-50, -50), new GScreenSize(100, 100, 'pixel', 'pixel'));");
+		    out.write("    map.addOverlay(prompt);");
+		    out.write("    GEvent.addListener(map, 'moveend', function() {divex('"+getNodeID()+"', null, map.getCenter().toUrlValue());});");
+		    out.write("}");
+		    out.write("</script>");
 		
 			if(isRequired()) {
 				out.write(" * Required");
