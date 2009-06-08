@@ -23,10 +23,12 @@ public class Config {
 
     private String appname;
 	static public String getApplicationName() { return config.appname; }
-	
-	
+
 	private Boolean debug;
 	static public Boolean isDebug() { return config.debug; }	
+
+	private String gmap_api_key;
+	static public String getGMapAPIKey() { return config.gmap_api_key; }
 	
 	//Footprints
 	private String footprints_uri;
@@ -63,7 +65,10 @@ public class Config {
 			
 			debug = ((String)xpath.evaluate("//Debug", config_xml)).compareTo("true") == 0;
 			is.reset();
-
+	
+			gmap_api_key = (String)xpath.evaluate("//GMapAPIKey", config_xml);
+			is.reset();
+			
 			footprints_uri = (String)xpath.evaluate("//Footprints/URI", config_xml);
 			is.reset();
 			
