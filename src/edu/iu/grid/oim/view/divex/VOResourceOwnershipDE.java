@@ -184,7 +184,7 @@ public class VOResourceOwnershipDE extends FormElementDEBase {
 			if(node instanceof OwnershipEditor) {
 				OwnershipEditor owner = (OwnershipEditor)node;
 				if(!owner.isValid()) {
-					valid = true;
+					valid = false;
 					return;
 				}
 				total += Double.parseDouble(owner.percent.getValue());
