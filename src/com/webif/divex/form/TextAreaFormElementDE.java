@@ -49,7 +49,7 @@ public class TextAreaFormElementDE extends FormElementDEBase<String>  {
 
 			out.write("var input = $(\"#"+getNodeID()+"_input"+random+"\");\n");
 
-			out.write("input.val(\""+current_value+"\");");
+			out.write("input.val(\""+StringEscapeUtils.escapeJavaScript(current_value)+"\");");
 			out.write("if(input.val() == \"\") {\n");
 			out.write(" input.addClass(\"sample\");\n");
 			out.write(" input.val(input.attr('sample'));\n");
