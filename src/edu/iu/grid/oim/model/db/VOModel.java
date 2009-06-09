@@ -101,7 +101,6 @@ public class VOModel extends SmallTableModelBase<VORecord>
 	public boolean canEdit(int vo_id)
 	{
 		if(auth.allows("admin")) return true;
-		if(!auth.allows("edit_my_vo")) return false;
 		try {
 			HashSet<Integer> ints = getEditableIDs();
 			if(ints.contains(vo_id)) return true;
