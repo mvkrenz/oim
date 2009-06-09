@@ -98,7 +98,7 @@ public class Footprint
             //Basic Information
             SOAPElement arg4_7 = args.addChildElement( env.createName("projectID") );
             arg4_7.addAttribute( env.createName("type","xsi",""), "xsd:int" );
-            arg4_7.addTextNode("71");       
+            arg4_7.addTextNode(Config.getFootprintsProjectID().toString());       
             SOAPElement arg4_9 = args.addChildElement( env.createName("submitter") );
             arg4_9.addAttribute( env.createName("type","xsi",""), "xsd:string" );
             arg4_9.addTextNode("OSG-GOC");

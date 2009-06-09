@@ -39,6 +39,8 @@ public class Config {
 	static public String getFootprintsUsername() { return config.footprints_username; }
 	private String footprints_password;
 	static public String getFootprintsPassword() { return config.footprints_password; }
+	private Integer footprints_projectid;
+	static public Integer getFootprintsProjectID() { return config.footprints_projectid; }
 
 	private String doe_cn;
 	static public String getDOECN() { return config.doe_cn; }
@@ -79,6 +81,9 @@ public class Config {
 			is.reset();
 
 			footprints_password = (String)xpath.evaluate("//Footprints/Password", config_xml);;
+			is.reset();
+
+			footprints_projectid = Integer.parseInt(((String)xpath.evaluate("//Footprints/ProjectID", config_xml)));
 			is.reset();
 			
 			ssl_truststore = (String)xpath.evaluate("//SSLTruststorePath", config_xml);;
