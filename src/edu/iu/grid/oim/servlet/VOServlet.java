@@ -61,10 +61,7 @@ public class VOServlet extends ServletBase implements Servlet {
     }
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
-	{	
-		//setContext(request);
-		auth.check("edit_my_vo");
-		
+	{		
 		try {	
 			//construct view
 			MenuView menuview = new MenuView(context, "vo");
