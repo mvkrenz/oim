@@ -16,6 +16,7 @@ import org.apache.log4j.Logger;
 import com.webif.divex.DivExRoot;
 
 import edu.iu.grid.oim.lib.Authorization;
+import edu.iu.grid.oim.lib.Config;
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
 import edu.iu.grid.oim.model.Context;
 import edu.iu.grid.oim.model.MenuItem;
@@ -35,19 +36,25 @@ public class ServletBase extends HttpServlet {
 	{
 		try {
 			context = new Context(req);
+			auth = context.getAuthorization();
+			log.info(req.getRequestURI() + "?" + req.getQueryString());
+			if(auth.getDNID() == null) {
+				String path = req.getServletPath();
+				if(path.equals("/home")) {
+					//homepage can be displayed without valid dn
+				} else if(!path.equals("/register")) {
+					resp.sendRedirect(Config.getApplicationBase()+"/register");
+					return;
+				}
+			}
 			
+			String method = req.getMethod();
+			if(method.equals("GET")) {
+				doGet(req, resp);
+			}
 		} catch (AuthorizationException e) {
 			throw new ServletException(e);
-		}
-		auth = context.getAuthorization();
-		
-		log.info(req.getRequestURI() + "?" + req.getQueryString());
-		
-		String method = req.getMethod();
-		if(method.equals("GET")) {
-			doGet(req, resp);
-		}
-		
+		}	
 		context.close();
 	}
 }
