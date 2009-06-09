@@ -1,12 +1,8 @@
 package edu.iu.grid.oim.servlet;
 
 import java.io.IOException;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Set;
 
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
@@ -18,13 +14,8 @@ import org.apache.log4j.Logger;
 
 import com.webif.divex.ButtonDE;
 import com.webif.divex.DivEx;
-import com.webif.divex.DivExRoot;
 import com.webif.divex.Event;
-
 import edu.iu.grid.oim.lib.Config;
-import edu.iu.grid.oim.model.db.CpuInfoModel;
-import edu.iu.grid.oim.model.db.record.CpuInfoRecord;
-
 import edu.iu.grid.oim.view.BreadCrumbView;
 import edu.iu.grid.oim.view.ContentView;
 import edu.iu.grid.oim.view.DivExWrapper;
@@ -34,18 +25,20 @@ import edu.iu.grid.oim.view.Page;
 import edu.iu.grid.oim.view.RecordTableView;
 import edu.iu.grid.oim.view.SideContentView;
 
-public class CPUInfoServlet extends ServletBase implements Servlet {
+import edu.iu.grid.oim.model.db.FieldOfScienceModel;
+import edu.iu.grid.oim.model.db.record.FieldOfScienceRecord;
+
+public class FieldOfScienceServlet extends ServletBase implements Servlet {
 	private static final long serialVersionUID = 1L;
-	static Logger log = Logger.getLogger(CPUInfoServlet.class);  
+	static Logger log = Logger.getLogger(FieldOfScienceServlet.class);  
 	
-    public CPUInfoServlet() {
+    public FieldOfScienceServlet() {
         // TODO Auto-generated constructor stub
     }
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{	
-		//setContext(request);
-		auth.check("edit_measurement"); 
+		auth.check("admin");
 		
 		try {
 
@@ -56,7 +49,7 @@ public class CPUInfoServlet extends ServletBase implements Servlet {
 			//setup crumbs
 			BreadCrumbView bread_crumb = new BreadCrumbView();
 			bread_crumb.addCrumb("Administration",  "admin");
-			bread_crumb.addCrumb("CPU Information",  null);
+			bread_crumb.addCrumb("Field of Science",  null);
 			contentview.setBreadCrumb(bread_crumb);
 			
 			Page page = new Page(menuview, contentview, createSideView());
@@ -70,21 +63,19 @@ public class CPUInfoServlet extends ServletBase implements Servlet {
 	protected ContentView createContentView() 
 		throws ServletException, SQLException
 	{
-		CpuInfoModel model = new CpuInfoModel(context);
-		Collection<CpuInfoRecord> cpus = model.getAll();
+		FieldOfScienceModel model = new FieldOfScienceModel(context);
+		Collection<FieldOfScienceRecord> recs = model.getAll();
 		
 		ContentView contentview = new ContentView();	
-		contentview.add(new HtmlView("<h1>CPU Info</h1>"));
+		contentview.add(new HtmlView("<h1>Field Of Science VOs can be associated with</h1>"));
 	
-		for(CpuInfoRecord rec : cpus) {
+		for(FieldOfScienceRecord rec : recs) {
 			contentview.add(new HtmlView("<h2>"+StringEscapeUtils.escapeHtml(rec.name)+"</h2>"));
 				
 			RecordTableView table = new RecordTableView();
 			contentview.add(table);
 
 		 	table.addRow("Name", rec.name);
-			table.addRow("Normalization Constant", rec.normalization_constant.toString());
-			table.addRow("Notes", rec.notes);
 	
 			class EditButtonDE extends ButtonDE
 			{
@@ -98,7 +89,7 @@ public class CPUInfoServlet extends ServletBase implements Servlet {
 					redirect(url);
 				}
 			};
-			table.add(new DivExWrapper(new EditButtonDE(context.getPageRoot(), Config.getApplicationBase()+"/cpuinfoedit?cpu_info_id=" + rec.id)));
+			table.add(new DivExWrapper(new EditButtonDE(context.getPageRoot(), Config.getApplicationBase()+"/fieldofscienceedit?id=" + rec.id)));
 		}
 		
 		return contentview;
@@ -113,14 +104,14 @@ public class CPUInfoServlet extends ServletBase implements Servlet {
 			String url;
 			public NewButtonDE(DivEx parent, String _url)
 			{
-				super(parent, "Add New CPU Info record");
+				super(parent, "Add New Field Of Science");
 				url = _url;
 			}
 			protected void onEvent(Event e) {
 				redirect(url);
 			}
 		};
-		view.add("Operation", new NewButtonDE(context.getPageRoot(), "cpuinfoedit"));
+		view.add("Operation", new NewButtonDE(context.getPageRoot(), "fieldofscienceedit"));
 		
 		return view;
 	}

@@ -2,21 +2,12 @@ package edu.iu.grid.oim.servlet;
 
 import java.io.IOException;
 import java.sql.SQLException;
-
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import org.apache.log4j.Logger;
-
-import com.webif.divex.DivExRoot;
-
-import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Config;
-import edu.iu.grid.oim.model.db.CpuInfoModel;
-import edu.iu.grid.oim.model.db.record.CpuInfoRecord;
-import edu.iu.grid.oim.view.divex.form.CpuInfoFormDE;
 
 import edu.iu.grid.oim.view.BreadCrumbView;
 import edu.iu.grid.oim.view.ContentView;
@@ -26,47 +17,47 @@ import edu.iu.grid.oim.view.MenuView;
 import edu.iu.grid.oim.view.Page;
 import edu.iu.grid.oim.view.SideContentView;
 
-public class CpuInfoEditServlet extends ServletBase implements Servlet {
-	private static final long serialVersionUID = 1L;
-	static Logger log = Logger.getLogger(CpuInfoEditServlet.class);  
-	private String current_page = "cpuinfo";	
+import edu.iu.grid.oim.model.db.FieldOfScienceModel;
+import edu.iu.grid.oim.model.db.record.FieldOfScienceRecord;
+import edu.iu.grid.oim.view.divex.form.FieldOfScienceFormDE;
 
-    public CpuInfoEditServlet() {
+public class FieldOfScienceEditServlet extends ServletBase implements Servlet {
+	private static final long serialVersionUID = 1L;
+	static Logger log = Logger.getLogger(FieldOfScienceEditServlet.class);  
+	private String current_page = "fieldofscience";	
+
+    public FieldOfScienceEditServlet() {
         super();
     }
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{
-		//setContext(request);
-		auth.check("edit_measurement"); 
+		auth.check("admin");
 		
-		CpuInfoRecord rec;
+		FieldOfScienceRecord rec;
 		String title;
 
-		//if cpu_info_id is provided then we are doing update, otherwise do new.
-		// AG: Do we need any request parameter-value checks?
-		String cpu_info_id_str = request.getParameter("cpu_info_id");
-		if(cpu_info_id_str != null) {
+		// TODO: Do we need any request parameter-value checks?
+		String id_str = request.getParameter("id");
+		if(id_str != null) {
 			//pull record to update
-			int cpu_info_id = Integer.parseInt(cpu_info_id_str);
-			CpuInfoModel model = new CpuInfoModel(context);
+			int id = Integer.parseInt(id_str);
+			FieldOfScienceModel model = new FieldOfScienceModel(context);
 			try {
-				CpuInfoRecord keyrec = new CpuInfoRecord();
-				keyrec.id =cpu_info_id;
-				rec = model.get(keyrec);
+				rec = model.get(id);
 			} catch (SQLException e) {
 				throw new ServletException(e);
 			}	
-			title = "Update CPU Information";
+			title = "Update Field Of Science";
 		} else {
-			rec = new CpuInfoRecord();
-			title = "New CPU Information record";	
+			rec = new FieldOfScienceRecord();
+			title = "New Field Of Science";	
 		}
 	
-		CpuInfoFormDE form;
+		FieldOfScienceFormDE form;
 		String origin_url = Config.getApplicationBase()+"/"+current_page;
 		try {
-			form = new CpuInfoFormDE(context, rec, origin_url);
+			form = new FieldOfScienceFormDE(context, rec, origin_url);
 		} catch (SQLException e) {
 			throw new ServletException(e);
 		}
@@ -78,12 +69,13 @@ public class CpuInfoEditServlet extends ServletBase implements Servlet {
 		
 		//setup crumbs
 		BreadCrumbView bread_crumb = new BreadCrumbView();
-		bread_crumb.addCrumb("CPU Information",  "cpuinfo");
+		bread_crumb.addCrumb("Administration",  "admin");
+		bread_crumb.addCrumb("Field Of Science",  "fieldofscience");
 		bread_crumb.addCrumb(rec.name,  null);
 
 		contentview.setBreadCrumb(bread_crumb);
 		
-		Page page = new Page(new MenuView(context, "cpuinfo"), contentview, createSideView());	
+		Page page = new Page(new MenuView(context, "admin"), contentview, createSideView());	
 		page.render(response.getWriter());	
 	}
 	

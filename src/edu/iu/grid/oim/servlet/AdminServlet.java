@@ -70,6 +70,7 @@ public class AdminServlet extends ServletBase  {
 			goc_task_list.add(new LinkView("servicegroup", "Service Groups"));
 			goc_task_list.add(new LinkView("service", "Services")); //service table, metric_service table
 			goc_task_list.add(new LinkView("metric", "RSV Metrics"));
+			goc_task_list.add(new LinkView("fieldofscience", "Fields of Science (associated with VOs)"));
 			contentview.add(goc_task_list);
 		}
 
@@ -86,6 +87,9 @@ public class AdminServlet extends ServletBase  {
 	{
 		SideContentView view = new SideContentView();
 		GenericView operations = new GenericView();
+		
+		view.add("Operation", operations);
+		if(!auth.allows("admin")) return view;
 		
 		final ButtonDE clear_button = new ButtonDE(context.getPageRoot(), "Clear All Cache");
 		clear_button.addEventListener(new EventListener() {
@@ -115,8 +119,6 @@ public class AdminServlet extends ServletBase  {
 			}
 		});
 		operations.add(error_button);
-		
-		view.add("Operation", operations);
 		
 		return view;
 	}

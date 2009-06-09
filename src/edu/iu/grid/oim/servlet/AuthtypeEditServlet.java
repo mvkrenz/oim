@@ -47,10 +47,10 @@ public class AuthtypeEditServlet extends ServletBase implements Servlet {
 			} catch (SQLException e) {
 				throw new ServletException(e);
 			}	
-			title = "Update Action";
+			title = "Update Auth Type";
 		} else {
 			rec = new AuthorizationTypeRecord();
-			title = "New Action";	
+			title = "New Auth Type";	
 		}
 	
 		AuthtypeFormDE form;

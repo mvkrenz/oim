@@ -81,7 +81,7 @@ public class CpuInfoFormDE extends FormDEBase
 
 		//Do insert / update to our DB
 		try {
-			auth.check("admin");
+			auth.check("edit_measurement");
 			
 			CpuInfoModel model = new CpuInfoModel(context);
 			if(rec.id == null) {

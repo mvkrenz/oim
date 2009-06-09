@@ -171,6 +171,20 @@
 	<servlet>
 		<description>
 		</description>
+		<display-name>FieldOfScienceServlet</display-name>
+		<servlet-name>FieldOfScienceServlet</servlet-name>
+		<servlet-class>edu.iu.grid.oim.servlet.FieldOfScienceServlet</servlet-class>
+	</servlet>
+	<servlet>
+		<description>
+		</description>
+		<display-name>FieldOfScienceEditServlet</display-name>
+		<servlet-name>FieldOfScienceEditServlet</servlet-name>
+		<servlet-class>edu.iu.grid.oim.servlet.FieldOfScienceEditServlet</servlet-class>
+	</servlet>
+	<servlet>
+		<description>
+		</description>
 		<display-name>ActionServlet</display-name>
 		<servlet-name>ActionServlet</servlet-name>
 		<servlet-class>edu.iu.grid.oim.servlet.ActionServlet</servlet-class>
@@ -539,7 +553,17 @@
 		<servlet-name>MetricEditServlet</servlet-name>
 		<url-pattern>/metricedit</url-pattern>
 	</servlet-mapping>
+	
+	<servlet-mapping>
+		<servlet-name>FieldOfScienceServlet</servlet-name>
+		<url-pattern>/fieldofscience</url-pattern>
+	</servlet-mapping>
 
+	<servlet-mapping>
+		<servlet-name>FieldOfScienceEditServlet</servlet-name>
+		<url-pattern>/fieldofscienceedit</url-pattern>
+	</servlet-mapping>
+	
 	<servlet-mapping>
 		<servlet-name>ServiceServlet</servlet-name>
 		<url-pattern>/service</url-pattern>

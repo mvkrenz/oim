@@ -60,11 +60,13 @@ public class MenuView implements IView {
 		if(auth.getDNID() != null) {
 			menu.add(new MenuItem("Profile", "profileedit"));
 		}
-		
 		if(auth.getDNID() != null) {
 			menu.add(new MenuItem("Log", "log"));
 		}
-		if(auth.allows("admin")) {
+		if (auth.allows("edit_measurement")) {
+			menu.add(new MenuItem("CPU Info", "cpuinfo"));	
+		}
+		if (auth.allows("admin")) {
 			menu.add(new MenuItem("Admin", "admin"));	
 		}
 		// Show Help to anyone
