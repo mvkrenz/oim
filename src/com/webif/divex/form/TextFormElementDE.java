@@ -18,12 +18,7 @@ public class TextFormElementDE extends FormElementDEBase<String> {
 	public TextFormElementDE(DivEx parent) {
 		super(parent);
 	}
-	/*
-	public void focus()
-	{
-		focus(getNodeID()+" input");
-	}
-	*/
+
 	public void render(PrintWriter out) {
 		out.print("<div ");
 		renderClass(out);
@@ -78,6 +73,7 @@ public class TextFormElementDE extends FormElementDEBase<String> {
 	
 	public void onEvent(Event e) {
 		value = ((String)e.value).trim();
+		modified(true);
 		validate();
 	}
 	

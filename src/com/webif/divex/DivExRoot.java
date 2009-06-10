@@ -54,7 +54,7 @@ public class DivExRoot extends DivEx
 				out.write("divex_jscallback = function() {");
 				out.write(js);
 				out.write("};");
-				out.write("setTimeout(divex_runjs, 0)");
+				out.write("setTimeout(divex_runjs, 0);");
 				js = "";
 			}
 		}

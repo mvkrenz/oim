@@ -51,6 +51,15 @@ public abstract class DivEx {
 	{
 		getPageRoot().addJS(_js);
 	}
+	//set the modified state of the current page
+	public void modified(Boolean b)
+	{
+		if(b) {
+			js("divex_setmodified(true);");
+		} else {
+			js("divex_setmodified(false);");
+		}
+	}
 	public void redirect(String url) {
 		//if we emit redirect, we don't want to emit anything else.. just jump!
 		getPageRoot().setRedirect(url);
@@ -151,8 +160,11 @@ public abstract class DivEx {
 			onEvent(e);
 			notifyListener(e);
 			
-			//if redirect is set, we don't need to do any update
 			DivExPage page = getPageRoot();
+			//emit javascript first..
+			page.flushJS(writer);
+			
+			//if redirect is set, we don't need to do any update
 			if(page.getRedirect() != null) {
 				writer.write("divex_redirect(\""+page.getRedirect()+"\")"); //use divex_rediret for jump bug
 				page.setRedirect(null);
@@ -161,9 +173,6 @@ public abstract class DivEx {
 
 			//emit all requested update code
 			writer.print(page.outputUpdatecode());
-			
-			//emit javascript
-			page.flushJS(writer);
 		}
 	}
 	protected void notifyListener(Event e)

@@ -62,6 +62,7 @@ public class SelectFormElementDE extends FormElementDEBase<Integer>
 		} catch (NumberFormatException e) {
 			value = null;
 		}
+		modified(true);
 		validate();
 	}
 }

@@ -49,6 +49,7 @@ public class CheckBoxFormElementDE extends FormElementDEBase<Boolean> {
 		} else {
 			value = false;
 		}
+		modified(true);
 		validate(); //I know checkbox almost never needs any validation, but just for consistency sake..
 	}
 }

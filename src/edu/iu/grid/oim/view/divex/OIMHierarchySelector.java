@@ -79,6 +79,7 @@ public class OIMHierarchySelector extends FormElementDEBase<Integer> {
 					item.addEventListener(new EventListener() {
 						public void handleEvent(Event e) {
 							select((Selectable)item);
+							modified(true);
 						}
 					});
 					selectables.add((Selectable)item);
@@ -126,6 +127,7 @@ public class OIMHierarchySelector extends FormElementDEBase<Integer> {
 					item.addEventListener(new EventListener() {
 						public void handleEvent(Event e) {
 							select((Selectable)item);
+							modified(true);
 						}
 					});
 					selectables.add((Selectable) item);
@@ -173,6 +175,7 @@ public class OIMHierarchySelector extends FormElementDEBase<Integer> {
 					item.addEventListener(new EventListener() {
 						public void handleEvent(Event e) {
 							select((Selectable)item);
+							modified(true);
 						}
 					});
 					selectables.add((Selectable) item);
@@ -221,6 +224,7 @@ public class OIMHierarchySelector extends FormElementDEBase<Integer> {
 					item.addEventListener(new EventListener() {
 						public void handleEvent(Event e) {
 							select((Selectable)item);
+							modified(true);
 						}
 					});
 					selectables.add((Selectable) item);
@@ -458,7 +462,6 @@ public class OIMHierarchySelector extends FormElementDEBase<Integer> {
 		} else {
 			value = null;
 		}
-		
 		validate();
 	}
 

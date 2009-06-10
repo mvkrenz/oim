@@ -105,9 +105,10 @@ public class VOFormDE extends FormDEBase
 			
 			new_fs = new TextFormElementDE(this);
 			new_fs.setLabel("Or, you can add a new field of science");
-			new_fs.setWidth(150);
+			new_fs.setWidth(230);
 			
 			add_fs = new ButtonDE(this, "Add");
+			add_fs.setStyle(ButtonDE.Style.ALINK);
 			add_fs.addEventListener(new EventListener() {
 				public void handleEvent(Event e) {
 					String name = new_fs.getValue();
@@ -200,13 +201,15 @@ public class VOFormDE extends FormDEBase
 			for(CheckBoxFormElementDE elem : sorted) {
 				elem.render(out);
 			}
+		
 			
-			out.write("<br/>");
-			
+			out.write("<table><tr><td>");
 			new_fs.render(out);
+			out.write("</td><td valign=\"bottom\">&nbsp;");
 			add_fs.render(out);
+			out.write("</td></tr></table>");
 
-			out.write("<br/><br/>");
+			out.write("<br/>");
 			out.write("</div>");
 		}	
 	}

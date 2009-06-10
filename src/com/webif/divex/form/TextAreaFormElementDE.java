@@ -21,6 +21,7 @@ public class TextAreaFormElementDE extends FormElementDEBase<String>  {
 	
 	public void onEvent(Event e) {
 		value = ((String)e.value).trim();
+		modified(true);
 		validate();
 	}
 	

@@ -28,6 +28,7 @@ abstract public class FormDEBase extends DivEx {
 		submitbutton.addEventListener(new EventListener() {
 			public void handleEvent(Event e) { submit(); }
 		});
+		submitbutton.addClass("divex_submit");
 		
 		cancelbutton = new ButtonDE(this, "Cancel");
 		cancelbutton.setStyle(ButtonDE.Style.ALINK);
@@ -41,6 +42,7 @@ abstract public class FormDEBase extends DivEx {
 		validate();
 		if(valid) {
 			if(doSubmit()) {
+				modified(false);
 				redirect(origin_url);	
 			}
 		} else {
