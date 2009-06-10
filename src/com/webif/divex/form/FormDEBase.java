@@ -33,7 +33,10 @@ abstract public class FormDEBase extends DivEx {
 		cancelbutton = new ButtonDE(this, "Cancel");
 		cancelbutton.setStyle(ButtonDE.Style.ALINK);
 		cancelbutton.addEventListener(new EventListener() {
-			public void handleEvent(Event e) { redirect(origin_url); }
+			public void handleEvent(Event e) { 
+				modified(false);
+				redirect(origin_url); 
+			}
 		});
 	}
 	

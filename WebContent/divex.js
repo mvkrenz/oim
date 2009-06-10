@@ -93,6 +93,17 @@ function divex_setmodified(b)
 {
 	divex_pagemodified = b;
 }
+function save_confirm() {
+	//alert('yo');
+	if(divex_pagemodified == true) {
+		if(confirm('Do you want to save the changes you made before you navigate away?')) {
+			$(".divex_submit").each(function() {
+				divex(this.id, null);
+			});
+		}
+	}
+}
+/*
 function addUnloadEvent(func) {
 	var oldOnunload = window.onunload;
 	if (typeof window.onunload != 'function') {
@@ -104,16 +115,17 @@ function addUnloadEvent(func) {
 	    }
 	}
 }
-function save_confirm() {
-	if(divex_pagemodified == true) {
-		if(confirm('Do you want to save the changes you made before you navigate away?')) {
-			$(".divex_submit").each(function() {
-				divex(this.id, null);
-			});
-		}
+addUnloadEvent(save_confirm);
+*/
+function load() {
+	if (navigator.userAgent.toLowerCase().indexOf("safari")!=-1) {
+		window.addEventListener("unload", save_confirm, false)
+	} else {
+		window.onunload=save_confirm;
 	}
 }
-addUnloadEvent(save_confirm);
+load();
+
 function divex_redirect(url)
 {
 	divex_redirect_url = url;
