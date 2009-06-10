@@ -53,7 +53,9 @@ public class RegisterServlet extends ServletBase  {
 	{
 		Authorization auth = context.getAuthorization();
 		if(auth.getDNID() != null || auth.getUserCN() == null || auth.getUserCN() == null) {
-			throw new ServletException("User does not meet criteria to access registration page.");
+			//user don't meet the requirement to register. send it to home
+			response.sendRedirect("/home");
+			return;
 		}
 		
 		MenuView menuview = new MenuView(context, "register");
