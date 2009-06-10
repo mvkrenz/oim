@@ -54,7 +54,7 @@ public class RegisterServlet extends ServletBase  {
 		Authorization auth = context.getAuthorization();
 		if(auth.getDNID() != null || auth.getUserCN() == null || auth.getUserCN() == null) {
 			//user don't meet the requirement to register. send it to home
-			response.sendRedirect("/home");
+			response.sendRedirect(Config.getApplicationBase()+ "/home");
 			return;
 		}
 		
