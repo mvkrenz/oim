@@ -97,7 +97,7 @@ public class OIMHierarchySelector extends FormElementDEBase<Integer> {
 			Collections.sort(items, new Comparator<FormElementDEBase<Integer>>(){
 				public int compare(FormElementDEBase<Integer> o1,
 						FormElementDEBase<Integer> o2) {
-					return o1.getLabel().compareTo(o2.getLabel());
+					return o1.getLabel().compareToIgnoreCase(o2.getLabel());
 				}
 			});
 		}
@@ -144,7 +144,7 @@ public class OIMHierarchySelector extends FormElementDEBase<Integer> {
 			Collections.sort(items, new Comparator<FormElementDEBase<Integer>>(){
 				public int compare(FormElementDEBase<Integer> o1,
 						FormElementDEBase<Integer> o2) {
-					return o1.getLabel().compareTo(o2.getLabel());
+					return o1.getLabel().compareToIgnoreCase(o2.getLabel());
 				}
 			});
 		}
@@ -191,7 +191,7 @@ public class OIMHierarchySelector extends FormElementDEBase<Integer> {
 			Collections.sort(items, new Comparator<FormElementDEBase<Integer>>(){
 				public int compare(FormElementDEBase<Integer> o1,
 						FormElementDEBase<Integer> o2) {
-					return o1.getLabel().compareTo(o2.getLabel());
+					return o1.getLabel().compareToIgnoreCase(o2.getLabel());
 				}
 			});
 		}
@@ -239,7 +239,7 @@ public class OIMHierarchySelector extends FormElementDEBase<Integer> {
 			Collections.sort(items, new Comparator<FormElementDEBase<Integer>>(){
 				public int compare(FormElementDEBase<Integer> o1,
 						FormElementDEBase<Integer> o2) {
-					return o1.getLabel().compareTo(o2.getLabel());
+					return o1.getLabel().compareToIgnoreCase(o2.getLabel());
 				}
 			});
 		}

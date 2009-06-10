@@ -300,3 +300,12 @@ a.mailto
 padding-left:20px;
 background:transparent url(../images/email.png) no-repeat 0px 0px;
 }
+div.listbox
+{
+background-color: #eee;
+height:300px;
+overflow:auto;
+margin: 5px;
+padding: 5px;
+}
+

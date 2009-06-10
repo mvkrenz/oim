@@ -6,11 +6,15 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.TreeSet;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 
+import com.webif.divex.ButtonDE;
 import com.webif.divex.DivEx;
 import com.webif.divex.Event;
 import com.webif.divex.EventListener;
@@ -83,12 +87,130 @@ public class VOFormDE extends FormDEBase
 	private SelectFormElementDE sc_id;
 	private CheckBoxFormElementDE active;
 	private CheckBoxFormElementDE disable;
-	private HashMap<Integer, CheckBoxFormElementDE> field_of_science;
 	private CheckBoxFormElementDE child_vo;
 	private SelectFormElementDE parent_vo;
 	
 	private VOReport vorep_consolidator;
 	private VOReportNamesDE vo_report_name_div;
+	
+	class FieldOfScience extends DivEx
+	{
+		ButtonDE add_fs;
+		TextFormElementDE new_fs; 
+		
+		public FieldOfScience(DivEx _parent, final VORecord rec) throws SQLException {
+			super(_parent);
+			
+			populateList(rec);
+			
+			new_fs = new TextFormElementDE(this);
+			new_fs.setLabel("Or, you can add a new field of science");
+			new_fs.setWidth(150);
+			
+			add_fs = new ButtonDE(this, "Add");
+			add_fs.addEventListener(new EventListener() {
+				public void handleEvent(Event e) {
+					String name = new_fs.getValue();
+					if(name == null || name.trim().length() == 0) {
+						alert("Please enter field of science to add");
+						return;
+					}
+					name = name.trim();
+					for(CheckBoxFormElementDE elem : field_of_science.values()) {
+						if(name.equals(elem.getLabel())) {
+							alert("'" + name + "' already exists in the list");
+							return;
+						}
+					}
+
+					try {
+						//add new field of science						
+						FieldOfScienceModel fsmodel = new FieldOfScienceModel(context);	
+						FieldOfScienceRecord newrec = new FieldOfScienceRecord();
+						newrec.name = name;
+						fsmodel.insert(newrec);
+
+						//repopulate the list
+						populateList(rec);
+						FieldOfScience.this.redraw();
+						
+						//select newly created fs
+						CheckBoxFormElementDE elem = findFieldOfScience(name);
+						elem.setValue(true);
+						
+						new_fs.setValue(null);
+					} catch (SQLException e1) {
+						log.error(e1);
+					}
+				}}
+			);
+		}
+		private void populateList(VORecord rec) throws SQLException
+		{
+			FieldOfScienceModel fsmodel = new FieldOfScienceModel(context);
+			field_of_science = new HashMap();
+			for(FieldOfScienceRecord fsrec : fsmodel.getAll()) {
+				CheckBoxFormElementDE elem = new CheckBoxFormElementDE(this);
+				field_of_science.put(fsrec.id, elem);
+				elem.setLabel(fsrec.name);
+			}
+			
+			if(rec.id != null) {
+				//select currently selected field of science
+				VOFieldOfScienceModel vofsmodel = new VOFieldOfScienceModel(context);
+				for(VOFieldOfScienceRecord fsrec : vofsmodel.getByVOID(rec.id)) {
+					CheckBoxFormElementDE check = field_of_science.get(fsrec.field_of_science_id);
+					check.setValue(true);
+				}
+			}
+		}
+		
+		private CheckBoxFormElementDE findFieldOfScience(String name)
+		{
+			for(CheckBoxFormElementDE elem : field_of_science.values()) {
+				if(elem.getLabel().equals(name)) {
+					return elem;
+				}
+			}
+			return null;
+		}
+		private HashMap<Integer, CheckBoxFormElementDE> field_of_science;
+		
+		protected void onEvent(Event e) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		public void render(PrintWriter out) {
+			out.write("<div id=\""+getNodeID()+"\">");
+			
+			out.write("<h2>Field of Science</h2>");
+	
+			
+			out.write("<p>Select Field Of Science(s) applicable to this VO</p>");
+			
+			//sort the field_of_science by name and render
+			TreeSet<CheckBoxFormElementDE> sorted = new TreeSet<CheckBoxFormElementDE>(new Comparator<CheckBoxFormElementDE>() {
+				public int compare(CheckBoxFormElementDE o1,
+						CheckBoxFormElementDE o2) {
+					return o1.getLabel().compareTo(o2.getLabel());
+				}
+			});
+			sorted.addAll(field_of_science.values());
+			for(CheckBoxFormElementDE elem : sorted) {
+				elem.render(out);
+			}
+			
+			out.write("<br/>");
+			
+			new_fs.render(out);
+			add_fs.render(out);
+
+			out.write("<br/><br/>");
+			out.write("</div>");
+		}	
+	}
+	private FieldOfScience field_of_science_de;
 	
 	class URLs extends DivEx
 	{
@@ -154,7 +276,6 @@ public class VOFormDE extends FormDEBase
 			out.write("<br/></div>");
 		}
 	}
-	
 	private URLs urls;
 	
 	//contact types to edit
@@ -261,30 +382,8 @@ public class VOFormDE extends FormDEBase
 		community.setValue(rec.community);
 		community.setRequired(true);
 		community.setSampleValue("The Collider Detector at Fermilab (CDF) experimental collaboration is committed to studying high energy particle collisions");
-
 		
-		
-		new StaticDE(this, "<h2>Field of Science</h2>");
-		new StaticDE(this, "<p>Select Field Of Science(s) applicable to this VO</p>");
-		ArrayList<Integer/*field_of_science_id*/> fslist = new ArrayList();
-		if(id != null) {
-			VOFieldOfScienceModel vofsmodel = new VOFieldOfScienceModel(context);
-			for(VOFieldOfScienceRecord fsrec : vofsmodel.getByVOID(id)) {
-				fslist.add(fsrec.field_of_science_id);
-			}
-		}
-		FieldOfScienceModel fsmodel = new FieldOfScienceModel(context);
-		field_of_science = new HashMap();
-		for(FieldOfScienceRecord fsrec : fsmodel.getAll()) {
-			CheckBoxFormElementDE elem = new CheckBoxFormElementDE(this);
-			field_of_science.put(fsrec.id, elem);
-			elem.setLabel(fsrec.name);
-			if(fslist != null) {
-				if(fslist.contains(fsrec.id)) {
-					elem.setValue(true);	
-				}
-			}
-		}
+		field_of_science_de = new FieldOfScience(this, rec);
 
 		new StaticDE(this, "<h2>Contact Information</h2>");
 		HashMap<Integer/*contact_type_id*/, ArrayList<VOContactRecord>> voclist_grouped = null;
@@ -493,8 +592,8 @@ public class VOFormDE extends FormDEBase
 		ArrayList<VOContactRecord> contacts = getContactRecordsFromEditor();
 		
 		ArrayList<Integer> field_of_science_ids = new ArrayList();
-		for(Integer id : field_of_science.keySet()) {
-			CheckBoxFormElementDE elem = field_of_science.get(id);
+		for(Integer id : field_of_science_de.field_of_science.keySet()) {
+			CheckBoxFormElementDE elem = field_of_science_de.field_of_science.get(id);
 			if(elem.getValue()) {
 				field_of_science_ids.add(id);
 			}

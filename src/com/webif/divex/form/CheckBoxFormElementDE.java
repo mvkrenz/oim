@@ -8,8 +8,6 @@ import com.webif.divex.Event;
 import org.apache.commons.lang.StringEscapeUtils;
 
 public class CheckBoxFormElementDE extends FormElementDEBase<Boolean> {
-
-	private String label;
 	
 	public CheckBoxFormElementDE(DivEx parent) {
 		super(parent);
@@ -34,8 +32,6 @@ public class CheckBoxFormElementDE extends FormElementDEBase<Boolean> {
 		out.print("</div>");
 	}
 
-	public void setLabel(String _label) { label = _label; }
-	
 	//override setValue to handle null case..
 	public void setValue(Boolean _value)	
 	{ 

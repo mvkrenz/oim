@@ -69,6 +69,7 @@ public class VOModel extends SmallTableModelBase<VORecord>
 	    }	    	
 	    return list;
 	}
+	/*
 	public Collection<VORecord> getAllEditableAlphabetized() throws SQLException
 	{	   
 		ArrayList<VORecord> list = (ArrayList<VORecord>) getAllEditable();
@@ -81,6 +82,7 @@ public class VOModel extends SmallTableModelBase<VORecord>
 		});
 	    return list;
 	}
+	*/
 	
 	//returns all record id that the user has access to
 	private HashSet<Integer> getEditableIDs() throws SQLException
