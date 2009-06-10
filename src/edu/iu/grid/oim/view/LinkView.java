@@ -13,7 +13,7 @@ public class LinkView implements IView {
 		title = _title;
 	}
 	public void render(PrintWriter out) {
-		out.write("<a href=\""+url+"\">"+StringEscapeUtils.escapeHtml(title)+"</a>");
+		out.write("<a target=\"_blank\" href=\""+url+"\">"+StringEscapeUtils.escapeHtml(title)+"</a>");
 	}
 
 }

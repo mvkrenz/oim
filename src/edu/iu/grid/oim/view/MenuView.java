@@ -69,7 +69,7 @@ public class MenuView implements IView {
 		if (auth.allows("admin")) {
 			menu.add(new MenuItem("Admin", "admin"));	
 		}
-		// Show Help to anyone
+		
 		menu.add(new MenuItem("Help", "help"));
 
 		current = _current;

@@ -99,6 +99,7 @@ public class Authorization {
 		        if(hostname.compareTo("HAYASHIS") == 0) {
 					log.debug("Server on localhost. Overriding the DN to Soichi's");
 					user_dn = "/DC=org/DC=doegrids/OU=People/CN=Soichi Hayashi 461343";		
+					//user_cn = null;
 		        } else if ((hostname.compareTo("lav-ag-desktop") == 0) || 
 		        	(hostname.compareTo("SATRIANI") == 0)){
 					log.debug("Server on localhost. Overriding the DN to Arvind's");

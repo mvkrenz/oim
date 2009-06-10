@@ -56,12 +56,19 @@ public class HomeServlet extends ServletBase  {
 		contentview.add(new HtmlView("<h1>OIM Home</h1>"));
 
 		// TODO agopu: need to clean this up with some divs etc. Nicer font, etc.
-		String welcome_string = "<p>Welcome to the OSG Information Management System. " + 
-			"In the menu along the top, you will find options for registering or updating information. " + 
-			"The Grid Operations Center has developed this system to grant members more efficiency and control over the information they register with us.</p>"+
-			"<p>If you are registering your personal information with us for the first time, you will need to wait for the OIM administrators to activate your membership before you are able to register or update Virtual Organization, Support Center or Resource information.</p>"+
-			"<p>For Standard Operating Procedures, Registration Instructions, and OIM Definitions for entering OIM data please see the Help Menu.</p>"; 
-		
+		String welcome_string = "<p>Welcome to the OSG Information Management System.</p>";
+
+		if(auth.isGuest()) {
+			welcome_string += "<p>Please provide a DOE certificate via your web browser in order to use this system.</p>";
+		} else {
+			welcome_string += "<p>In the menu along the top, you will find options for registering or updating information for various OSG entities.</p>";
+				//hayashis: this is not correct - as soon as anybody register their DN, they can create / edit stuff
+				//"<p>If you are registering your personal information with us for the first time, you will need to wait for the OIM administrators to activate your membership before you are able to register or update Virtual Organization, Support Center or Resource information.</p>"+
+
+				//hayashis: do we really need to say this?
+				//"<p>For Standard Operating Procedures, Registration Instructions, and OIM Definitions for entering OIM data please see the Help Menu.</p>"; 
+		}
+		welcome_string += "<p>Please see Help page for more information.";
 		contentview.add(new HtmlView(welcome_string));
 		
 		return contentview;
