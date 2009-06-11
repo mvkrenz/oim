@@ -41,10 +41,9 @@ function divex(id, event, value) {
 	});
 }
 
-//this is basically the same thing as jquery.load, but instead of replace the content 
+//this is basically the same thing as jquery.load, but instead of replacing the content 
 //of the div, it replace the whole div using replaceWith().
 var divex_replace_counter = 0;
-var divex_jscallback = null;
 function divex_replace( node, url) 
 {
 	//count how many requests are there
@@ -70,53 +69,47 @@ function divex_replace( node, url)
 	});
 	return this;
 }
+
+//I don't remember exactly why I did this, but I think this has to do with the strange Firefox bug where it get confused
+//when div is replaced with multiple select box - can't get it focused again.
+var divex_jscallback = null;
 function divex_runjs()
 {
 	if(divex_replace_counter == 0) {
 		divex_jscallback();
 	} else {
-		setTimeout(divex_runjs, 50);
+		//retry later..
+		setTimeout(divex_runjs, 100);
 	}
 }
+
+var divex_pagemodified = false;
+function divex_setmodified(b) { divex_pagemodified = b; }
 
 //Firefox 3.0.10 (and may be others) has a bug where windows.location based redirect directly
 //from the returned javascript causes the browser history to incorrectly enter entry and hitting
 //back button will make the browser skip previous page and render previous - previous page.
 //timeout will prevent this issue from happening.
 var divex_redirect_url = null;
+function divex_redirect(url)
+{
+	divex_redirect_url = url;
+	setTimeout(divex_doRedirect, 0); //immediately call the timer
+}
 function divex_doRedirect()
 {
-	window.location = divex_redirect_url;
-}
-var divex_pagemodified = false;
-function divex_setmodified(b)
-{
-	divex_pagemodified = b;
-}
-function save_confirm() {
-	//alert('yo');
 	if(divex_pagemodified == true) {
 		if(confirm('Do you want to save the changes you made before you navigate away?')) {
 			$(".divex_submit").each(function() {
 				divex(this.id, null);
 			});
+			//if submit fails, modified will remain false, if so, bail
+			if(divex_pagemodified == true) return;
 		}
 	}
+	window.location = divex_redirect_url;
 }
 /*
-function addUnloadEvent(func) {
-	var oldOnunload = window.onunload;
-	if (typeof window.onunload != 'function') {
-	    window.onunload = func;
-	} else {
-	    window.onunload = function() {
-	      oldOnunload();
-	      func();
-	    }
-	}
-}
-addUnloadEvent(save_confirm);
-*/
 function load() {
 	if (navigator.userAgent.toLowerCase().indexOf("safari")!=-1) {
 		window.addEventListener("unload", save_confirm, false)
@@ -125,9 +118,4 @@ function load() {
 	}
 }
 load();
-
-function divex_redirect(url)
-{
-	divex_redirect_url = url;
-	setTimeout(divex_doRedirect, 0); //immediately call the timer
-}
+*/

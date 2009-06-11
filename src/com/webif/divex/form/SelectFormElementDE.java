@@ -27,7 +27,8 @@ public class SelectFormElementDE extends FormElementDEBase<Integer>
 			if(label != null) {
 				out.write("<label>"+StringEscapeUtils.escapeHtml(label)+"</label><br/>");
 			}
-			out.write("<select onchange='divex(\""+getNodeID()+"\", event, this.value);'>");
+			int random = (int)(Math.random()*10000);
+			out.write("<select id='"+random+"' onchange='divex(\""+getNodeID()+"\", event, this.value);'>");
 			out.write("<option value=\"\">(Please Select)</option>");
 			
 			for(Integer v : keyvalues.keySet()) {
@@ -45,13 +46,6 @@ public class SelectFormElementDE extends FormElementDEBase<Integer>
 				out.write(" * Required");
 			}
 			error.render(out);
-			/*
-			out.write("<script type=\"text/javascript\">");
-			out.write("$(document).ready(function() {");
-			out.write("$('#"+getNodeID()+"_select').change(function() { alert(this.value); var event = new Object(); divex('"+getNodeID()+"', null, this.value); });");
-			out.write("});");
-			out.write("</script>");
-			*/
 		}
 		out.print("</div>");
 	}

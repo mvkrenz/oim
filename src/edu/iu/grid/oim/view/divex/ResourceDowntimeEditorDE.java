@@ -72,9 +72,12 @@ public class ResourceDowntimeEditorDE extends FormElementDEBase {
 
 		class DateDE extends FormElementDEBase<Date>
 		{
+			private static final String default_format = "M/d/yyyy";
+			
 			String minDate = null;
 			protected DateDE(DivEx parent) {
 				super(parent);
+				value = new Date();//today
 			}
 
 			public void setMinDate(Date d)
@@ -82,15 +85,14 @@ public class ResourceDowntimeEditorDE extends FormElementDEBase {
 				minDate = "new Date("+d.getTime()+")";
 			}
 			protected void onEvent(Event e) {
-				SimpleDateFormat format = new SimpleDateFormat("M/d/y");
+				SimpleDateFormat format = new SimpleDateFormat(default_format);
 				try {
 					value = format.parse((String)e.value);
-					validate();
 				} catch (ParseException e1) {
-					redraw();
-					error.set("Please specify a valid date such as 4/17/2009");
-					valid = false;
+					alert(e1.getMessage() + ". Please specify a valid date such as 4/17/2009");
 				}
+				modified(true);
+				redraw();
 			}
 
 			public void render(PrintWriter out) {
@@ -99,28 +101,15 @@ public class ResourceDowntimeEditorDE extends FormElementDEBase {
 					out.print("<label>"+StringEscapeUtils.escapeHtml(label)+"</label><br/>");
 				}
 				
-				String str = "";
-				if(value != null) {
-					Calendar cal = Calendar.getInstance();
-					cal.setTime(value);
-					str = cal.get(Calendar.MONTH)+1 + "/" + 
-						cal.get(Calendar.DAY_OF_MONTH) + "/" + 
-						cal.get(Calendar.YEAR);
-				}
+				SimpleDateFormat format = new SimpleDateFormat(default_format);
+				String str = format.format(value);
 				out.write("<input type=\"text\" class=\"datepicker\" value=\""+str+"\"/>");	
-				if(isRequired()) {
-					out.print(" * Required");
-				}
-				error.render(out);
 				
 				//setup the datepicker
 				out.write("<script type=\"text/javascript\">");
 				out.write("$(document).ready(function() { $(\"#"+getNodeID()+" .datepicker\").datepicker({" +
 						"onSelect: function(value) {divex('"+getNodeID()+"', null, value);},"+
-						"altFormat: 'm/d/yy'");
-				if(minDate != null) {
-					out.write(", minDate : " + minDate);
-				}
+						"altFormat: 'm/d/yyyy'");
 				out.write("});});");
 				out.write("</script>");
 
@@ -130,28 +119,42 @@ public class ResourceDowntimeEditorDE extends FormElementDEBase {
 		
 		class TimeDE extends FormElementDEBase<Date>
 		{
+			private static final String default_format = "h:mm a";
 			protected TimeDE(DivEx parent) {
 				super(parent);
 				
-				SimpleDateFormat format = new SimpleDateFormat("KK:mm aa");
+				SimpleDateFormat format = new SimpleDateFormat(default_format);
 				try {
-					value = format.parse("12:00 PM");
+					value = format.parse("0:0 AM");
 				} catch (ParseException e) {
 					//should not happen
 				}
 			}
 
 			protected void onEvent(Event e) {
-				SimpleDateFormat format = new SimpleDateFormat("KK:mm aa");
+				SimpleDateFormat format = new SimpleDateFormat(default_format);
+				String str = (String)e.value;
+				format.setLenient(true);
 				try {
-					String str = (String)e.value;
 					value = format.parse(str);
-					validate();
 				} catch (ParseException e1) {
-					redraw();
-					error.set("Please specify a valid time (example: 2:30 PM)");
-					valid = false;
+					//try alternative format
+					try {
+						//try without space between minute and am/pm sign
+						format = new SimpleDateFormat("h:mma");
+						value = format.parse(str);		
+					} catch(ParseException e2) {
+						try {
+							//try 24 hour format
+							format = new SimpleDateFormat("H:mm");
+							value = format.parse(str);
+						} catch(ParseException e3) {
+							alert(e3.getMessage() + ". Please enter a valid time (example: 2:30 PM)");
+						}
+					}
 				}
+				redraw();
+				modified(true);
 			}
 
 			public void render(PrintWriter out) {
@@ -160,28 +163,23 @@ public class ResourceDowntimeEditorDE extends FormElementDEBase {
 					out.print("<label>"+StringEscapeUtils.escapeHtml(label)+"</label><br/>");
 				}
 				
-				String str;
-				if(value != null) {
-					Calendar cal = Calendar.getInstance();
-					cal.setTime(value);
-					str = cal.get(Calendar.HOUR) + ":" + cal.get(Calendar.MINUTE) + " ";
-					if(cal.get(Calendar.AM_PM) == 0) {
-						str += "AM";
-					} else {
-						str += "PM";
-					}
-				} else {
-					str = "";
-				}
-				out.write("<input type=\"text\" onchange=\"divex('"+getNodeID()+"', event, this.value);\" value=\""+str+"\"/>");	
-				if(isRequired()) {
-					out.print(" * Required");
-				}
-				error.render(out);
+				SimpleDateFormat format = new SimpleDateFormat("h:mm a");
+				String str = format.format(value);
+				out.write("<input type=\"text\" class=\"timepickr\" onchange=\"divex('"+getNodeID()+"', event, this.value);\" value=\""+str+"\"/>");	
+				/*
+				//setup the timepickr
+				out.write("<script type=\"text/javascript\">");
+				out.write("$(document).ready(function() { $(\"#"+getNodeID()+" .timepickr\").timepickr({" +
+						"onSelect: function(value) {divex('"+getNodeID()+"', null, value);},"+
+						"convention: 12,"+
+						"updateLive: false");
+				out.write("});});");
+				out.write("</script>");
+				*/
 				out.write("</div>");
 			}
 		}
-		
+		/*
 		public void validate()
 		{
 			//first, validate individual elements
@@ -198,59 +196,61 @@ public class ResourceDowntimeEditorDE extends FormElementDEBase {
 				GregorianCalendar end = new GregorianCalendar();
 				end.set(Calendar.MILLISECOND, (int) end_date.getValue().getTime());
 				end.set(Calendar.HOUR, end_time.getValue().getHours());
-				end.set(Calendar.MINUTE, end_time.getValue().getMinutes());
-				/*
-				if(start.getTimeInMillis() >= end.getTimeInMillis()) {
-					error.set("End date/time value needs to be later than the start date/time. Also, earliest start date/time allowed is today 0:00 AM.");
-					valid = false;
-				}
-				*/				
+				end.set(Calendar.MINUTE, end_time.getValue().getMinutes());			
 			}
 		}
-		
-		protected DowntimeEditor(DivEx parent, ResourceDowntimeRecord rec, Authorization auth) throws SQLException {
+		*/
+		public DowntimeEditor(DivEx parent, ResourceDowntimeRecord rec, Authorization auth) throws SQLException {
 			super(parent);
 			downtime_id = rec.id;
 			
-			new StaticDE(this, "<h3>Start Time</h3>");
+			new StaticDE(this, "<h3>Duration (UTC)</h3>");
+			new StaticDE(this, "<table><tr><td>");
 			start_date = new DateDE(this);
-			start_date.setLabel("Date");
-			start_date.setRequired(true);
 			start_date.setMinDate(new Date());
 			if(rec.start_time != null) {
 				start_date.setValue(rec.start_time);
 			}
 			start_date.addEventListener(new EventListener() {
-				public void handleEvent(Event e) {validate();}});
+				public void handleEvent(Event e) {
+					DowntimeEditor.this.adjustEndTime();
+				}});
+
+			new StaticDE(this, "</td><td>");
 			
 			start_time = new TimeDE(this);
-			start_time.setLabel("Time (UTC)");
-			start_time.setRequired(true);
 			if(rec.start_time != null) {
 				start_time.setValue(rec.start_time);
 			}
 			start_time.addEventListener(new EventListener() {
-				public void handleEvent(Event e) {validate();}});
+				public void handleEvent(Event e) {
+					DowntimeEditor.this.adjustEndTime();
+				}});
 			
-			new StaticDE(this, "<h3>End Time</h3>");
+			new StaticDE(this, "</td><td>&nbsp;to&nbsp;</td><td>");
+			
 			end_date = new DateDE(this);
-			end_date.setLabel("Date");
-			end_date.setRequired(true);
 			end_date.setMinDate(new Date());
 			if(rec.end_time != null) {
 				end_date.setValue(rec.end_time);
 			}
 			end_date.addEventListener(new EventListener() {
-				public void handleEvent(Event e) {validate();}});
+				public void handleEvent(Event e) {
+					DowntimeEditor.this.adjustStartTime();
+				}});
+			
+			new StaticDE(this, "</td><td>");
 			
 			end_time = new TimeDE(this);
-			end_time.setLabel("Time (UTC)");
-			end_time.setRequired(true);
 			if(rec.end_time != null) {
 				end_time.setValue(rec.end_time);
 			}
 			end_time.addEventListener(new EventListener() {
-				public void handleEvent(Event e) {validate();}});
+				public void handleEvent(Event e) {
+					DowntimeEditor.this.adjustStartTime();
+				}});
+			
+			new StaticDE(this, "</td></tr></table>");
 			
 			new StaticDE(this, "<h3>Detail</h3>");
 			summary = new TextAreaFormElementDE(this);
@@ -292,9 +292,6 @@ public class ResourceDowntimeEditorDE extends FormElementDEBase {
 			}
 			
 			new StaticDE(this, "<h3>Affected Services</h3>");
-			//affected_services = new HashMap<ServiceEditor, CheckBoxFormElementDE>();
-			//ArrayList<ServiceEditor> ses = resource_services_de.getServiceEditors();
-			//for(ServiceEditor se : ses) {
 			ResourceServiceModel rsmodel = new ResourceServiceModel(context);
 			Collection<ResourceServiceRecord> rsrecs = rsmodel.getAllByResourceID(resource_id);
 			for(ResourceServiceRecord rsrec : rsrecs) {
@@ -307,6 +304,7 @@ public class ResourceDowntimeEditorDE extends FormElementDEBase {
 			remove_button.addEventListener(new EventListener() {
 				public void handleEvent(Event e) {
 					removeDowntime(DowntimeEditor.this);	
+					modified(true);
 				}
 			});
 		}
@@ -341,6 +339,7 @@ public class ResourceDowntimeEditorDE extends FormElementDEBase {
 				log.error(e);
 			}
 		}
+		
 		public void removeService(Integer service_id)
 		{
 			CheckBoxFormElementDE check = affected_services.get(service_id);
@@ -384,23 +383,54 @@ public class ResourceDowntimeEditorDE extends FormElementDEBase {
 			rec.id = downtime_id;
 			rec.resource_id = resource_id;
 			rec.downtime_summary = summary.getValue();
-			
-			Calendar cal = Calendar.getInstance();
-			cal.setTime(start_date.getValue());
-			cal.set(Calendar.HOUR, start_time.getValue().getHours());
-			cal.set(Calendar.MINUTE, start_time.getValue().getMinutes());
-			rec.start_time = new Timestamp(cal.getTimeInMillis());
-			
-			cal.setTime(end_date.getValue());
-			cal.set(Calendar.HOUR, end_time.getValue().getHours());
-			cal.set(Calendar.MINUTE, end_time.getValue().getMinutes());		
-			rec.end_time = new Timestamp(cal.getTimeInMillis());
-			
+			rec.start_time = getStartTime();
+			rec.end_time = getEndTime();
 			rec.downtime_class_id = class_id.getValue();
 			rec.downtime_severity_id = severity_id.getValue();
 			rec.dn_id = auth.getDNID();
 
 			return rec;
+		}
+		public void adjustStartTime()
+		{
+			Timestamp start = getStartTime();
+			Timestamp end = getEndTime();
+			if(start.compareTo(end) > 0) {
+				alert("You have selected the start time which is before the current end time. Adjusting start time..");
+				start_date.setValue(end_date.getValue());
+				start_date.redraw();
+				start_time.setValue(end_time.getValue());
+				start_time.redraw();
+			}
+		}
+		public void adjustEndTime()
+		{
+			Timestamp start = getStartTime();
+			Timestamp end = getEndTime();
+			if(start.compareTo(end) > 0) {
+				alert("You have selected the end time which is after the current start time. Adjusting end time..");
+				end_date.setValue(start_date.getValue());
+				end_date.redraw();
+				end_time.setValue(start_time.getValue());
+				end_time.redraw();
+			}
+		}
+		public Timestamp getStartTime() 
+		{
+			Calendar cal = Calendar.getInstance();
+			cal.setTime(start_date.getValue());
+			cal.set(Calendar.HOUR, start_time.getValue().getHours());
+			cal.set(Calendar.MINUTE, start_time.getValue().getMinutes());
+			return new Timestamp(cal.getTimeInMillis());		
+		}
+		
+		public Timestamp getEndTime()
+		{
+			Calendar cal = Calendar.getInstance();
+			cal.setTime(end_date.getValue());
+			cal.set(Calendar.HOUR, end_time.getValue().getHours());
+			cal.set(Calendar.MINUTE, end_time.getValue().getMinutes());		
+			return new Timestamp(cal.getTimeInMillis());
 		}
 		
 		public ArrayList<ResourceDowntimeServiceRecord> getAffectedServiceRecords()
@@ -458,6 +488,7 @@ public class ResourceDowntimeEditorDE extends FormElementDEBase {
 			public void handleEvent(Event e) {
 				try {
 					addDowntime(new ResourceDowntimeRecord());
+					modified(true);
 				} catch (SQLException e1) {
 					log.error(e1);
 				}

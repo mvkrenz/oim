@@ -93,19 +93,20 @@ vertical-align: top;
     padding-left: 10px;
     padding-right: 10px;
 }
-.menu a
+.menu span.link
 {
 	font-size: 12px;
 	font-weight: bold;
 	color: #888;
 	text-decoration: none;
+	cursor: pointer;
 }
-.menu a:hover
+.menu span.link:hover
 {
 	color: #6B7E09;
 	text-decoration: underline;
 }
-.menu span.selected a
+.menu span.selected
 {
     color: #fff;
 }

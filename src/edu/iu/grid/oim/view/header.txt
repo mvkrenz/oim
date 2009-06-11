@@ -21,6 +21,10 @@
 	<link href="__STATICBASE__/jquery/plugin/jquery.textareasizer.css" rel="stylesheet" type="text/css"/>
 	<script src="__STATICBASE__/jquery/plugin/jquery.textareasizer.js" type="text/javascript"></script>
 -->
+<!--	
+	<link href="__STATICBASE__/jquery/plugin/timepickr/jquery.timepickr.css" rel="stylesheet" type="text/css"/>
+	<script src="__STATICBASE__/jquery/plugin/timepickr/ui.timepickr.js" type="text/javascript"></script>
+-->	
 
 	<!--[if lt IE 8]>
 	<script src="__STATICBASE__/IE8.js" type="text/javascript"></script>

@@ -59,6 +59,8 @@ public class ResourceWLCGDE extends FormElementDEBase {
 			wlcg_accounting_name = new TextFormElementDE(this);
 			wlcg_accounting_name.setLabel("WLCG Accounting Name");
 			wlcg_accounting_name.setSampleValue("ABC Accounting");
+			wlcg_accounting_name.setRequired(true);
+			
 			hideWLCGAccountingName(true);
 
 			interop_accounting.addEventListener(new EventListener() {
@@ -75,22 +77,26 @@ public class ResourceWLCGDE extends FormElementDEBase {
 			ksi2k_minimum.setLabel("KSI2K Minimum");
 			ksi2k_minimum.addValidator(DoubleValidator.getInstance());
 			ksi2k_minimum.setSampleValue("100.0");
+			ksi2k_minimum.setRequired(true);
 
 			ksi2k_maximum = new TextFormElementDE(this);
 			ksi2k_maximum.setLabel("KSI2K Maximum");
 			ksi2k_maximum.addValidator(DoubleValidator.getInstance());
 			ksi2k_maximum.setSampleValue("500.0");
+			ksi2k_maximum.setRequired(true);
 
 			storage_capacity_minimum = new TextFormElementDE(this);
 			storage_capacity_minimum.setLabel("Storage Capacity Minimum (in TeraBytes)");
 			storage_capacity_minimum.addValidator(DoubleValidator.getInstance());
 			storage_capacity_minimum.setSampleValue("1.0");
+			storage_capacity_minimum.setRequired(true);
 
 			storage_capacity_maximum = new TextFormElementDE(this);
 			storage_capacity_maximum.setLabel("Storage Capacity Maximum (in TeraBytes)");
 			storage_capacity_maximum.addValidator(DoubleValidator.getInstance());
 			storage_capacity_maximum.setSampleValue("5.5");
-
+			storage_capacity_maximum.setRequired(true);
+			
 			ResourceWLCGModel wmodel = new ResourceWLCGModel(context);
 			if(wrec != null) {
 					//if WLCG record exist, populate the values

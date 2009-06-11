@@ -141,6 +141,8 @@ public abstract class DivEx {
 	public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException
 	{	
 		String action = request.getParameter("action");
+		String value = request.getParameter("value");
+		System.out.println(getClass().getName()+ " action=" + action + " nodeid=" + nodeid + " value=" + value);
 		
 		if(action.compareTo("load") == 0) {
 			PrintWriter writer = response.getWriter();
@@ -153,14 +155,13 @@ public abstract class DivEx {
 			//normal divex event
 			PrintWriter writer = response.getWriter();
 			response.setContentType("text/javascript");
-			String value = request.getParameter("value");
 			Event e = new Event(action, value);
-
+			DivExPage page = getPageRoot();
+			
 			//handle my event handler
 			onEvent(e);
 			notifyListener(e);
-			
-			DivExPage page = getPageRoot();
+
 			//emit javascript first..
 			page.flushJS(writer);
 			

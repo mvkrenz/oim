@@ -77,6 +77,7 @@ public class ResourceDowntimeEditServlet extends ServletBase implements Servlet 
 			
 			//put the form in a view and display
 			ContentView contentview = new ContentView();
+
 			contentview.add(new HtmlView("<h1>"+title+"</h1>"));	
 			contentview.add(new DivExWrapper(form));
 			

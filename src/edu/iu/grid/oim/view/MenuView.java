@@ -82,7 +82,8 @@ public class MenuView implements IView {
 	    	if(item.url.compareTo(current) == 0) {
 	    		cls = "selected";
 	    	}
-	    	out.println("<span class=\""+ cls +"\"><a href=\""+ Config.getApplicationBase() + "/" + item.url+"\">"+StringEscapeUtils.escapeHtml(item.name)+"</a></span>");
+	    	//out.println("<span class=\""+ cls +"\"><a href=\""+ Config.getApplicationBase() + "/" + item.url+"\">"+StringEscapeUtils.escapeHtml(item.name)+"</a></span>");
+	    	out.println("<span class=\"link "+ cls +"\" onclick=\"divex_redirect('"+ Config.getApplicationBase() + "/" + item.url+"');\">"+StringEscapeUtils.escapeHtml(item.name)+"</span>");
 	    }
 		out.println("</div>");
 		

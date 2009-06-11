@@ -144,6 +144,7 @@ public class ContactEditorDE extends FormElementDEBase<HashMap<ContactEditorDE.R
 			try {
 				ContactRecord person = pmodel.get(contact_id);
 				addSelected(person, Enum2DBRank(rank));
+				modified(true);
 			} catch (SQLException e1) {
 				alert("Unknown contact_id");
 			}
@@ -243,7 +244,10 @@ public class ContactEditorDE extends FormElementDEBase<HashMap<ContactEditorDE.R
 			removebutton = new ButtonDE(this, "images/delete.png");
 			removebutton.setStyle(ButtonDE.Style.IMAGE);
 			removebutton.addEventListener(new EventListener() {
-				public void handleEvent(Event e) { removeContact(myself, rank); }
+				public void handleEvent(Event e) { 
+					removeContact(myself, rank);
+					modified(true);
+				}
 			});
 			//setAttr("class", "inline contact round");
 		}
