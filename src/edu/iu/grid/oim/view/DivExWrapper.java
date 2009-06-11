@@ -20,7 +20,7 @@ public class DivExWrapper implements IView {
 		//ouput JS too
 		out.write("<script type=\"text/javascript\">");
 		DivExPage page = de.getPageRoot();
-		page.flushJS(out);
+		page.flushPostReplaceJS(out);
 		out.write("</script>");
 		
 		//divex frameworks sets this at the end of update request, but since we are doing the initial-draw,

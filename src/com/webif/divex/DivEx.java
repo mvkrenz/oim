@@ -45,20 +45,16 @@ public abstract class DivEx {
 	 
 	public void alert(String msg)
 	{
-		js("alert('"+StringEscapeUtils.escapeJavaScript(msg)+"');");
+		post_replace_js("alert('"+StringEscapeUtils.escapeJavaScript(msg)+"');");
 	}
-	public void js(String _js)
+	private void post_replace_js(String _js)
 	{
-		getPageRoot().addJS(_js);
+		getPageRoot().addPostReplaceJS(_js);
 	}
 	//set the modified state of the current page
 	public void modified(Boolean b)
 	{
-		if(b) {
-			js("divex_setmodified(true);");
-		} else {
-			js("divex_setmodified(false);");
-		}
+		getPageRoot().setModified(b);
 	}
 	public void redirect(String url) {
 		//if we emit redirect, we don't want to emit anything else.. just jump!
@@ -68,12 +64,12 @@ public abstract class DivEx {
 	
 	//set container(jquery selector) to null if you want to scroll the whole page.
 	public void scrollToShow(String container) {
-		js("var targetOffset = $('#"+nodeid+"').offset().top;");
+		post_replace_js("var targetOffset = $('#"+nodeid+"').offset().top;");
 		if(container == null) {
-			js("$('html,body').animate({scrollTop: targetOffset}, 500);");
+			post_replace_js("$('html,body').animate({scrollTop: targetOffset}, 500);");
 		} else {
-			js("targetOffset -= $('"+container+"').offset().top;");
-			js("$('"+container+"').scrollTop(targetOffset);");
+			post_replace_js("targetOffset -= $('"+container+"').offset().top;");
+			post_replace_js("$('"+container+"').scrollTop(targetOffset);");
 		}
 	}
 
@@ -161,19 +157,24 @@ public abstract class DivEx {
 			//handle my event handler
 			onEvent(e);
 			notifyListener(e);
-
-			//emit javascript first..
-			page.flushJS(writer);
+			
+			//output page modified flag - I need to do this immediately or divex_redirect call on other thread will be called first and the
+			//flag will not get update in time
+			if(page.isModified()) {
+				writer.write("divex_pagemodified = true;");
+			} else {
+				writer.write("divex_pagemodified = false;");
+			}
 			
 			//if redirect is set, we don't need to do any update
 			if(page.getRedirect() != null) {
-				writer.write("divex_redirect(\""+page.getRedirect()+"\")"); //use divex_rediret for jump bug
+				writer.write("divex_redirect(\""+page.getRedirect()+"\")");
 				page.setRedirect(null);
 				return;
 			}
 
-			//emit all requested update code
-			writer.print(page.outputUpdatecode());
+			writer.write(page.outputUpdatecode());
+			page.flushPostReplaceJS(writer);//needs to emit *after* divex_replace(s)
 		}
 	}
 	protected void notifyListener(Event e)

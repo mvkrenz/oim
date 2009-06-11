@@ -8,7 +8,7 @@ function divexClearProcessing() {
 function divex(id, event, value) {
 	//make sure there is only one request at the same time (prevent double clicking of submit button)
 	if(divex_processing_id == id) {
-		//console.log('previous request on same target still running - ignoring');
+		//previous request on same target still running - ignore;
 		return;
 	}
 	divex_processing_id = id;
@@ -70,8 +70,6 @@ function divex_replace( node, url)
 	return this;
 }
 
-//I don't remember exactly why I did this, but I think this has to do with the strange Firefox bug where it get confused
-//when div is replaced with multiple select box - can't get it focused again.
 var divex_jscallback = null;
 function divex_runjs()
 {
@@ -84,7 +82,6 @@ function divex_runjs()
 }
 
 var divex_pagemodified = false;
-function divex_setmodified(b) { divex_pagemodified = b; }
 
 //Firefox 3.0.10 (and may be others) has a bug where windows.location based redirect directly
 //from the returned javascript causes the browser history to incorrectly enter entry and hitting
@@ -99,23 +96,21 @@ function divex_redirect(url)
 function divex_doRedirect()
 {
 	if(divex_pagemodified == true) {
-		if(confirm('Do you want to save the changes you made before you navigate away?')) {
+		//var original_url = divex_redirect_url;
+		if(!confirm('You have unsaved changes. Do you want to discard and leave this page?')) {
+			/*
 			$(".divex_submit").each(function() {
 				divex(this.id, null);
 			});
 			//if submit fails, modified will remain false, if so, bail
 			if(divex_pagemodified == true) return;
+			//if submit succeed, it will try to jump to form submit target. keep it going to where we were going originally.
+			divex_redirect_url = original_url;
+			*/
+			return;
 		}
 	}
+	//alert(divex_pagemodified);
 	window.location = divex_redirect_url;
 }
-/*
-function load() {
-	if (navigator.userAgent.toLowerCase().indexOf("safari")!=-1) {
-		window.addEventListener("unload", save_confirm, false)
-	} else {
-		window.onunload=save_confirm;
-	}
-}
-load();
-*/
+

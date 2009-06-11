@@ -45,19 +45,34 @@ public class DivExRoot extends DivEx
 			// TODO Auto-generated constructor stub
 		}
 		
-		//flush all JS code - this is for a view container to emit DivEx related JS script
-	    private String js = "";
-	    public void addJS(String _js) { js += _js; }
-		public void flushJS(PrintWriter out)
+		//post_replace_js will be executed *after* all the replaces are completed
+		//we need to place alert(), prompt() javascript after or Firefox will lockup some controls such as select.
+		//some script may also fail due to the new content not yet available.
+	    private String post_replace_js = "";
+	    public void addPostReplaceJS(String _js) { post_replace_js += _js; }
+		public void flushPostReplaceJS(PrintWriter out)
 		{
-			if(js.length() != 0) {
+			if(post_replace_js.length() != 0) {
 				out.write("divex_jscallback = function() {");
-				out.write(js);
+				out.write(post_replace_js);
 				out.write("};");
 				out.write("setTimeout(divex_runjs, 0);");
-				js = "";
+				post_replace_js = "";
 			}
+			
+			/*
+			out.write(post_replace_js);
+			post_replace_js = "";
+			*/
 		}
+		
+		//set the page to be in "modified" state - used by form (and maybe other in the future)
+		//this control if the redirect should happen immediaterly or not
+		private Boolean modified = false;
+		public void setModified(Boolean b) {
+			modified = b;
+		}
+		public Boolean isModified() { return modified; }
 
 		@Override
 		protected void onEvent(Event e) {

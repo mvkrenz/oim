@@ -69,7 +69,8 @@ public class ResourceServicesDE extends FormElementDEBase {
 			}
 			
 			endpoint_override = new TextFormElementDE(this);
-			endpoint_override.setLabel("Service URI Override (default serviceUri in the fqdn[:default_service_port][/service] format. For eg., \"research.iu.edu:2812/gsiftp\")");
+			endpoint_override.setLabel("Service URI Override (default serviceUri in the fqdn[:default_service_port][/service] format.)");
+			endpoint_override.setSampleValue("research.iu.edu:2812/gsiftp");
 			if(rec != null) {
 				endpoint_override.setValue(rec.endpoint_override);
 			}
