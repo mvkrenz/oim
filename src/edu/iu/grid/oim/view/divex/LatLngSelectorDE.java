@@ -9,6 +9,8 @@ import com.webif.divex.DivEx;
 import com.webif.divex.Event;
 import com.webif.divex.form.FormElementDEBase;
 
+import edu.iu.grid.oim.lib.Config;
+
 public class LatLngSelectorDE extends FormElementDEBase<LatLngSelectorDE.LatLng> {
 	public class LatLng
 	{
@@ -54,7 +56,7 @@ public class LatLngSelectorDE extends FormElementDEBase<LatLngSelectorDE.LatLng>
 		    out.write("    map.setUIToDefault();");
 		    out.write("    map.setMapType(G_HYBRID_MAP);");
 		    //out.write("    map.enableGoogleBar();");
-		    out.write("    var prompt = new GScreenOverlay(\"http://localhost:8080/oim/images/target.png\",new GScreenPoint(0.5, 0.5, 'fraction', 'fraction'), new GScreenPoint(-50, -50), new GScreenSize(100, 100, 'pixel', 'pixel'));");
+		    out.write("    var prompt = new GScreenOverlay(\""+Config.getApplicationBase()+"/images/target.png\",new GScreenPoint(0.5, 0.5, 'fraction', 'fraction'), new GScreenPoint(-50, -50), new GScreenSize(100, 100, 'pixel', 'pixel'));");
 		    out.write("    map.addOverlay(prompt);");
 		    out.write("    GEvent.addListener(map, 'moveend', function() {divex('"+getNodeID()+"', null, map.getCenter().toUrlValue());});");
 		    out.write("}");
