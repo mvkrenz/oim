@@ -102,6 +102,26 @@ public class ContactFormDE extends FormDEBase
 		}
 	}
 	
+	public void showHidePersonalDetail()
+	{
+		Boolean hidden = !person.getValue();
+		address_line_1.setHidden(hidden);
+		address_line_2.setHidden(hidden);
+		city.setHidden(hidden);
+		state.setHidden(hidden);
+		zipcode.setHidden(hidden);
+		country.setHidden(hidden);
+		im.setHidden(hidden);
+		photo_url.setHidden(hidden);
+		ContactFormDE.this.redraw();
+		
+		Boolean required = person.getValue();
+		city.setRequired(required);
+		state.setRequired(required);
+		zipcode.setRequired(required);
+		country.setRequired(required);
+	}
+	
 	public ContactFormDE(Context _context, ContactRecord rec, String origin_url)
 	{	
 		super(_context.getPageRoot(), origin_url);
@@ -128,7 +148,7 @@ public class ContactFormDE extends FormDEBase
 		primary_phone = new TextFormElementDE(this);
 		primary_phone.setLabel("Primary Phone");
 		primary_phone.setValue(rec.primary_phone);
-		primary_phone.setRequired(true);
+		//primary_phone.setRequired(true);
 
 		primary_phone_ext = new TextFormElementDE(this);
 		primary_phone_ext.setLabel("Primary Phone Extension");
@@ -141,34 +161,6 @@ public class ContactFormDE extends FormDEBase
 		secondary_phone_ext = new TextFormElementDE(this);
 		secondary_phone_ext.setLabel("Secondary Phone Extension");
 		secondary_phone_ext.setValue(rec.secondary_phone_ext);
-		
-		address_line_1 = new TextFormElementDE(this);
-		address_line_1.setLabel("Street Address");
-		address_line_1.setValue(rec.address_line_1);
-
-		address_line_2 = new TextFormElementDE(this);
-		address_line_2.setLabel("Address Line 2");
-		address_line_2.setValue(rec.address_line_2);
-
-		city = new TextFormElementDE(this);
-		city.setLabel("City");
-		city.setValue(rec.city);
-		city.setRequired(true);
-
-		state = new TextFormElementDE(this);
-		state.setLabel("State");
-		state.setValue(rec.state);
-		state.setRequired(true);
-
-		zipcode = new TextFormElementDE(this);
-		zipcode.setLabel("Zipcode");
-		zipcode.setValue(rec.zipcode);
-		zipcode.setRequired(true);
-
-		country = new TextFormElementDE(this);
-		country.setLabel("Country");
-		country.setValue(rec.country);
-		country.setRequired(true);
 		
 		contact_preference = new TextAreaFormElementDE(this);
 		contact_preference.setLabel("Enter Additional Contact Preferences: For example, you as a site admin might prefer to be contacted by phone or by email.");
@@ -185,11 +177,42 @@ public class ContactFormDE extends FormDEBase
 		}
 		person.addEventListener(new EventListener() {
 			public void handleEvent(Event e) {
-				im.setHidden(!person.getValue());
-				im.redraw();
-				photo_url.setHidden(!person.getValue());
-				photo_url.redraw();
+				showHidePersonalDetail();
 			}});
+		
+		address_line_1 = new TextFormElementDE(this);
+		address_line_1.setLabel("Address Line 1");
+		address_line_1.setValue(rec.address_line_1);
+		address_line_1.addClass("indent");
+
+		address_line_2 = new TextFormElementDE(this);
+		address_line_2.setLabel("Address Line 2");
+		address_line_2.setValue(rec.address_line_2);
+		address_line_2.addClass("indent");
+
+		city = new TextFormElementDE(this);
+		city.setLabel("City");
+		city.setValue(rec.city);
+		city.setRequired(true);
+		city.addClass("indent");
+
+		state = new TextFormElementDE(this);
+		state.setLabel("State");
+		state.setValue(rec.state);
+		state.setRequired(true);
+		state.addClass("indent");
+
+		zipcode = new TextFormElementDE(this);
+		zipcode.setLabel("Zipcode");
+		zipcode.setValue(rec.zipcode);
+		zipcode.setRequired(true);
+		zipcode.addClass("indent");
+
+		country = new TextFormElementDE(this);
+		country.setLabel("Country");
+		country.setValue(rec.country);
+		country.setRequired(true);
+		country.addClass("indent");
 		
 		im = new TextFormElementDE(this);
 		im.setLabel("Instant Messaging Information");
@@ -208,8 +231,7 @@ public class ContactFormDE extends FormDEBase
 		}
 
 		if(rec.person == null || rec.person == false) {
-			im.setHidden(true);
-			photo_url.setHidden(true);
+			showHidePersonalDetail();
 		}
 		
 		active = new CheckBoxFormElementDE(this);

@@ -85,7 +85,7 @@ width: 100%;
 table.inner_table th, table.inner_table tr.header td
 {
 padding-left: 10px;
-width: 150px;
+width: 40%;
 }
 table.fqan_table
 {
