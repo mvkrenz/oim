@@ -10,10 +10,9 @@ import com.webif.divex.DivEx;
 public class TextAreaFormElementDE extends FormElementDEBase<String>  {
 	
 	private int width = 400;
-	public void setWidth(int _width)
-	{
-		width = _width;
-	}
+	public void setWidth(int _width) { width = _width; }
+	private int height = 100;
+	public void setHeight(int _height) { height = _height; }
 	
 	public TextAreaFormElementDE(DivEx parent) { 
 		super(parent);
@@ -42,7 +41,7 @@ public class TextAreaFormElementDE extends FormElementDEBase<String>  {
 				sample = "";
 			}
 			int random = (int)(Math.random()*10000);
-			out.print("<textarea id=\""+getNodeID()+"_input"+random+"\" style='width: "+width+"px;' onchange='divex(\""+getNodeID()+"\", event, this.value);' sample=\""+sample+"\">");
+			out.print("<textarea id=\""+getNodeID()+"_input"+random+"\" style='height: "+height+"px; width: "+width+"px;' onchange='divex(\""+getNodeID()+"\", event, this.value);' sample=\""+sample+"\">");
 			out.print(StringEscapeUtils.escapeHtml(current_value));
 			out.print("</textarea>");
 

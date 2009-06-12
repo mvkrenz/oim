@@ -259,6 +259,8 @@ public class ResourceDowntimeEditorDE extends FormElementDEBase {
 			if(rec.downtime_summary != null) {
 				summary.setValue(rec.downtime_summary);
 			}
+			summary.setWidth(600);
+			summary.setHeight(200);
 			
 			HashMap<Integer, String> class_kv = new HashMap();
 			DowntimeClassModel dcmodel = new DowntimeClassModel(context);
