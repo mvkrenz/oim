@@ -526,7 +526,7 @@ public class ResourceDowntimeEditorDE extends FormElementDEBase {
 		}
 		// Adding some clear text to make it look less odd. Is there a cleaner way to do this? -agopu
 		if (count == 0) {
-			new StaticDE(this, "<p>No existing downtimes for this resource - click the \"Add\" link below to schedule a maintenance schedule. </p> <p>Once you have entered downtimes you would like to schedule do not forget to click on the <strong>Submit</strong> button!</p>").render(out);
+			new StaticDE(this, "<p>No existing downtimes for this resource</p>").render(out);
 		}
 		add_button.render(out);
 		out.print("</div>");

@@ -39,13 +39,13 @@ public class VOReportNameFqanDE extends FormElementDEBase {
 
 			new StaticDE(this, "<h3>FQAN</h3>");
 			group_name = new TextFormElementDE(this);
-			group_name.setLabel("Enter the Group Name");
+			group_name.setLabel("Group Name");
 			group_name.setRequired(true);
 			group_name.setValue("FOO");
 			//group_name.addClass("inline");
 			
 			role = new TextFormElementDE(this);
-			role.setLabel("Enter a Role (if applicable)");
+			role.setLabel("Role");
 			role.setValue("BAR");
 			//role.addClass("inline");
 			
@@ -113,7 +113,7 @@ public class VOReportNameFqanDE extends FormElementDEBase {
 	
 	public VOReportNameFqanDE(DivEx parent) {
 		super(parent);
-		add_button = new ButtonDE(this, "Add New FQAN for this VO Report Name");
+		add_button = new ButtonDE(this, "Add New FQAN");
 		add_button.setStyle(ButtonDE.Style.ALINK);
 		add_button.addEventListener(new EventListener() {
 			public void handleEvent(Event e) {

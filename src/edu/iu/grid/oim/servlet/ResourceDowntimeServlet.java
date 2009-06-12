@@ -106,7 +106,7 @@ public class ResourceDowntimeServlet extends ServletBase implements Servlet {
 
 			contentview.add(new HtmlView("<h2>"+StringEscapeUtils.escapeHtml(name)+"</h2>"));
 	
-			RecordTableView table = new RecordTableView();
+			//RecordTableView table = new RecordTableView();
 			
 			//downtime
 			GenericView downtime_view = new GenericView();
@@ -116,9 +116,9 @@ public class ResourceDowntimeServlet extends ServletBase implements Servlet {
 				downtime_view.add(createDowntimeView(drec));
 			}
 			if (dt_records.isEmpty()) {
-				downtime_view.add(new HtmlView("No Existing Downtime Schedule"));
+				downtime_view.add(new HtmlView("No scheduled downtime"));
 			}
-			table.addRow(new HtmlView("Downtime"), downtime_view);
+			contentview.add(downtime_view);
 		
 			class EditButtonDE extends ButtonDE
 			{
@@ -132,8 +132,8 @@ public class ResourceDowntimeServlet extends ServletBase implements Servlet {
 					redirect(url);
 				}
 			};
-			table.add(new DivExWrapper(new EditButtonDE(context.getPageRoot(), Config.getApplicationBase()+"/resourcedowntimeedit?id=" + rec.id)));
-			contentview.add(table);
+			contentview.add(new DivExWrapper(new EditButtonDE(context.getPageRoot(), Config.getApplicationBase()+"/resourcedowntimeedit?id=" + rec.id)));
+			//contentview.add(table);
 		}
 		
 		return contentview;
@@ -142,8 +142,10 @@ public class ResourceDowntimeServlet extends ServletBase implements Servlet {
 	private IView createDowntimeView(ResourceDowntimeRecord rec) throws SQLException
 	{
 		GenericView view = new GenericView();
-		RecordTableView table = new RecordTableView("inner_table");
-		table.addHeaderRow("Downtime");
+		
+		view.add(new HtmlView("<div class=\"downtime\">"));
+		
+		RecordTableView table = new RecordTableView();
 		table.addRow("Summary", rec.downtime_summary);
 		table.addRow("Start Time", rec.start_time.toString() + " UTC");
 		table.addRow("End Time", rec.end_time.toString() + " UTC");
@@ -160,6 +162,8 @@ public class ResourceDowntimeServlet extends ServletBase implements Servlet {
 		table.addRow("DN", dnmodel.get(rec.dn_id).dn_string);
 		
 		view.add(table);
+		
+		view.add(new HtmlView("</div>"));
 		
 		return view;
 	}
