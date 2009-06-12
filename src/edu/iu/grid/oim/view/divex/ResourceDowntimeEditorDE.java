@@ -396,7 +396,7 @@ public class ResourceDowntimeEditorDE extends FormElementDEBase {
 			Timestamp start = getStartTime();
 			Timestamp end = getEndTime();
 			if(start.compareTo(end) > 0) {
-				alert("You have selected the start time which is before the current end time. Adjusting start time..");
+				//alert("You have selected the start time which is before the current end time. Adjusting start time..");
 				start_date.setValue(end_date.getValue());
 				start_date.redraw();
 				start_time.setValue(end_time.getValue());
@@ -408,7 +408,7 @@ public class ResourceDowntimeEditorDE extends FormElementDEBase {
 			Timestamp start = getStartTime();
 			Timestamp end = getEndTime();
 			if(start.compareTo(end) > 0) {
-				alert("You have selected the end time which is after the current start time. Adjusting end time..");
+				//alert("You have selected the end time which is after the current start time. Adjusting end time..");
 				end_date.setValue(start_date.getValue());
 				end_date.redraw();
 				end_time.setValue(start_time.getValue());
