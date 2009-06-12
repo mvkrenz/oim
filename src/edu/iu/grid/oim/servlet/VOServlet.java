@@ -167,13 +167,13 @@ public class VOServlet extends ServletBase implements Servlet {
 			for(VOReportNameRecord vorepname_record : vorepname_records) {
 				vorepname_view.add(createVOReportNameView(vorepname_record));
 			}
-			table.addRow("Reporting Names", vorepname_view);
+			table.addRow("Reports", vorepname_view);
 
 			if(auth.allows("admin_vo")) {
 				table.addRow("Footprints ID", rec.footprints_id);
 			}
 			table.addRow("Active", rec.active);
-			table.addRow("Deactivated", rec.disable);
+			table.addRow("Disable", rec.disable);
 						
 			class EditButtonDE extends ButtonDE
 			{

@@ -160,7 +160,7 @@ public class SiteFormDE extends FormDEBase
 		}
 		
 		disable = new CheckBoxFormElementDE(this);
-		disable.setLabel("Disabled");
+		disable.setLabel("Disable");
 		disable.setValue(rec.disable);
 		if(!auth.allows("admin")) {
 			disable.setHidden(true);
