@@ -166,66 +166,58 @@ public class ContactFormDE extends FormDEBase
 		contact_preference.setLabel("Enter Additional Contact Preferences: For example, you as a site admin might prefer to be contacted by phone or by email.");
 		contact_preference.setValue(rec.contact_preference);
 
-		if(!auth.allows("admin")) {
-			new StaticDE(this, "<h2>Personal Information</h2>");
-		}
+		new StaticDE(this, "<h2>Personal Information</h2>");
+		
 		person = new CheckBoxFormElementDE(this);
-		person.setLabel("This is a personal contact (not mailing list, etc...)");
+		person.setLabel("This is a personal contact (not mailing list, group contact, etc...)");
 		person.setValue(rec.person);
-		if(!auth.allows("admin")) {
-			person.setHidden(true);
-		}
 		person.addEventListener(new EventListener() {
 			public void handleEvent(Event e) {
 				showHidePersonalDetail();
 			}});
 		
-		address_line_1 = new TextFormElementDE(this);
-		address_line_1.setLabel("Address Line 1");
-		address_line_1.setValue(rec.address_line_1);
-		address_line_1.addClass("indent");
+		new StaticDE(this, "<div class=\"indent\">");
+		{
+			address_line_1 = new TextFormElementDE(this);
+			address_line_1.setLabel("Address Line 1");
+			address_line_1.setValue(rec.address_line_1);
+	
+			address_line_2 = new TextFormElementDE(this);
+			address_line_2.setLabel("Address Line 2");
+			address_line_2.setValue(rec.address_line_2);
+			
+			city = new TextFormElementDE(this);
+			city.setLabel("City");
+			city.setValue(rec.city);
+			city.setRequired(true);
+	
+			state = new TextFormElementDE(this);
+			state.setLabel("State");
+			state.setValue(rec.state);
+			state.setRequired(true);
+	
+			zipcode = new TextFormElementDE(this);
+			zipcode.setLabel("Zipcode");
+			zipcode.setValue(rec.zipcode);
+			zipcode.setRequired(true);
+	
+			country = new TextFormElementDE(this);
+			country.setLabel("Country");
+			country.setValue(rec.country);
+			country.setRequired(true);
+			
+			im = new TextFormElementDE(this);
+			im.setLabel("Instant Messaging Information");
+			im.setValue(rec.im);
+			im.setSampleValue("soichih@gtalk");
+			
+			photo_url = new PhotoDE(this);
+			photo_url.setLabel("Photo URL");
+			photo_url.setSampleValue("http://somewhere.com/myphoto.png");
+			photo_url.setValue(rec.photo_url);
+		}
+		new StaticDE(this, "</div>");
 
-		address_line_2 = new TextFormElementDE(this);
-		address_line_2.setLabel("Address Line 2");
-		address_line_2.setValue(rec.address_line_2);
-		address_line_2.addClass("indent");
-
-		city = new TextFormElementDE(this);
-		city.setLabel("City");
-		city.setValue(rec.city);
-		city.setRequired(true);
-		city.addClass("indent");
-
-		state = new TextFormElementDE(this);
-		state.setLabel("State");
-		state.setValue(rec.state);
-		state.setRequired(true);
-		state.addClass("indent");
-
-		zipcode = new TextFormElementDE(this);
-		zipcode.setLabel("Zipcode");
-		zipcode.setValue(rec.zipcode);
-		zipcode.setRequired(true);
-		zipcode.addClass("indent");
-
-		country = new TextFormElementDE(this);
-		country.setLabel("Country");
-		country.setValue(rec.country);
-		country.setRequired(true);
-		country.addClass("indent");
-		
-		im = new TextFormElementDE(this);
-		im.setLabel("Instant Messaging Information");
-		im.setValue(rec.im);
-		im.setSampleValue("soichih@gtalk");
-		im.addClass("indent");
-		
-		photo_url = new PhotoDE(this);
-		photo_url.setLabel("Photo URL");
-		photo_url.setSampleValue("http://somewhere.com/myphoto.png");
-		photo_url.setValue(rec.photo_url);
-		photo_url.addClass("indent");
-		
 		if(auth.allows("admin")) {
 			new StaticDE(this, "<h2>Administrative Tasks</h2>");
 		}

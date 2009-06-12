@@ -104,27 +104,32 @@ public class ContactServlet extends ServletBase implements Servlet {
 
 			table.addRow("Secondary Phone", rec.secondary_phone);
 			table.addRow("Secondary Phone Ext", rec.secondary_phone_ext);
-
-			table.addRow("Address Line 1", rec.address_line_1);
-			table.addRow("Address Line 2", rec.address_line_2);
-			table.addRow("City", rec.city);
-			table.addRow("State", rec.state);
-			table.addRow("ZIP Code", rec.zipcode);
-			table.addRow("Country", rec.country);
+			
+			if(rec.person == false) {
+				table.addRow("Personal Information", new HtmlView("(Not a personal contact)"));
+			} else {
+				RecordTableView personal_table = new RecordTableView("inner_table");
+				table.addRow("Personal Information", personal_table);
+	
+				personal_table.addRow("Address Line 1", rec.address_line_1);
+				personal_table.addRow("Address Line 2", rec.address_line_2);
+				personal_table.addRow("City", rec.city);
+				personal_table.addRow("State", rec.state);
+				personal_table.addRow("ZIP Code", rec.zipcode);
+				personal_table.addRow("Country", rec.country);
+				personal_table.addRow("Instant Messaging", rec.im);
+	
+				String img = rec.photo_url;
+				if(rec.photo_url == null || rec.photo_url.length() == 0) {
+					img = Config.getApplicationBase() + "/images/noavatar.gif";
+				} 
+				personal_table.addRow("Photo", new HtmlView("<img class=\"avatar\" src=\""+img+"\"/>"));
+				personal_table.addRow("Contact Preference", rec.contact_preference);	
+			}
 
 			table.addRow("Active", rec.active);
 			table.addRow("Disable", rec.disable);
-
-			table.addRow("Person", rec.person);
-			table.addRow("Instant Messaging", rec.im);
-
-			String img = rec.photo_url;
-			if(rec.photo_url == null || rec.photo_url.length() == 0) {
-				img = Config.getApplicationBase() + "/images/noavatar.gif";
-			} 
-			table.addRow("Photo", new HtmlView("<img class=\"avatar\" src=\""+img+"\"/>"));
-			table.addRow("Contact Preference", rec.contact_preference);	
-
+			
 			if(auth.allows("admin")) {
 				String submitter_dn = null;
 				if(rec.submitter_dn_id != null) {
