@@ -163,8 +163,9 @@ public class ContactFormDE extends FormDEBase
 		secondary_phone_ext.setValue(rec.secondary_phone_ext);
 		
 		contact_preference = new TextAreaFormElementDE(this);
-		contact_preference.setLabel("Enter Additional Contact Preferences: For example, you as a site admin might prefer to be contacted by phone or by email.");
+		contact_preference.setLabel("Enter Additional Contact Preferences");
 		contact_preference.setValue(rec.contact_preference);
+		contact_preference.setSampleValue("Please contact me via phone during the day.");
 
 		new StaticDE(this, "<h2>Personal Information</h2>");
 		

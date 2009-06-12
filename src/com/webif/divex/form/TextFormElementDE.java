@@ -57,8 +57,8 @@ public class TextFormElementDE extends FormElementDEBase<String> {
 				
 				out.write("input.blur(function() {");
 				out.write(" if(this.value == \"\") {");
-				out.write(" 	$(this).val($(this).attr('sample'));");
 				out.write("		$(this).addClass(\"sample\");");
+				out.write(" 	$(this).val($(this).attr('sample'));");
 				out.write(" }");
 				out.write("});");
 			out.write("</script>");
