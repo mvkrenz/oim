@@ -86,7 +86,13 @@ public class ContactServlet extends ServletBase implements Servlet {
 		}
 		
 		for(ContactRecord rec : contacts) {
-			contentview.add(new HtmlView("<h2>"+StringEscapeUtils.escapeHtml(rec.name)+"</h2>"));
+			String image;
+			if(rec.person == false) {
+				image = "<img align=\"top\" src=\""+Config.getApplicationBase()+"/images/group.png\"/> ";
+			} else {
+				image = "";//"<img src=\""+Config.getApplicationBase()+"/images/user.png\"/> ";			
+			}
+			contentview.add(new HtmlView("<h2>"+image+StringEscapeUtils.escapeHtml(rec.name)+"</h2>"));
 
 			RecordTableView table = new RecordTableView();
 			// TODO agopu: 10 is an arbitrary number -- perhaps we should make this a user preference? show/hide?
