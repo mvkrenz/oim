@@ -96,19 +96,11 @@ function divrep_redirect(url)
 function divrep_doRedirect()
 {
 	if(divrep_pagemodified == true) {
-		//var original_url = divrep_redirect_url;
+		/* -- this doesn't work on the production .. (works on localhost..why!?)
 		if(!confirm('You have unsaved changes. Do you want to discard and leave this page?')) {
-			/*
-			$(".divrep_submit").each(function() {
-				divrep(this.id, null);
-			});
-			//if submit fails, modified will remain false, if so, bail
-			if(divrep_pagemodified == true) return;
-			//if submit succeed, it will try to jump to form submit target. keep it going to where we were going originally.
-			divrep_redirect_url = original_url;
-			*/
 			return;
 		}
+		*/
 	}
 	//alert(divrep_pagemodified);
 	window.location = divrep_redirect_url;
