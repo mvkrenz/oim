@@ -46,9 +46,9 @@ table.auth_matrix tr.checklist
 {
 border-bottom: 1px solid #ddd;
 }
-table.auth_matrix tr.checklist input[type=checkbox]
+input[type='checkbox']
 {
-margin-top: 4px;
+	margin-top: 4px;
 }
 table.record_table
 {
