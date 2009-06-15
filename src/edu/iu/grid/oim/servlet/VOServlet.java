@@ -13,10 +13,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
-import com.webif.divex.ButtonDE;
-import com.webif.divex.DivEx;
-import com.webif.divex.Event;
-import com.webif.divex.TogglerDE;
+
+import com.webif.divrep.Button;
+import com.webif.divrep.DivRep;
+import com.webif.divrep.Event;
+import com.webif.divrep.Toggler;
+
 import edu.iu.grid.oim.lib.Config;
 import edu.iu.grid.oim.model.db.ContactRankModel;
 import edu.iu.grid.oim.model.db.ContactTypeModel;
@@ -41,7 +43,7 @@ import edu.iu.grid.oim.model.db.record.VOFieldOfScienceRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
 import edu.iu.grid.oim.model.db.record.VOReportContactRecord;
 import edu.iu.grid.oim.view.ContentView;
-import edu.iu.grid.oim.view.DivExWrapper;
+import edu.iu.grid.oim.view.DivRepWrapper;
 import edu.iu.grid.oim.view.GenericView;
 import edu.iu.grid.oim.view.HtmlView;
 import edu.iu.grid.oim.view.IView;
@@ -50,7 +52,7 @@ import edu.iu.grid.oim.view.Page;
 import edu.iu.grid.oim.view.RecordTableView;
 import edu.iu.grid.oim.view.SideContentView;
 import edu.iu.grid.oim.view.TableView.Row;
-import edu.iu.grid.oim.view.divex.ViewWrapperDE;
+import edu.iu.grid.oim.view.divrep.ViewWrapper;
 
 public class VOServlet extends ServletBase implements Servlet {
 	private static final long serialVersionUID = 1L;
@@ -100,9 +102,9 @@ public class VOServlet extends ServletBase implements Servlet {
 			RecordTableView table = new RecordTableView();
 			// TODO agopu: 10 is an arbitrary number -- perhaps we should make this a user preference? show/hide?
 			if (vos.size() > 10) {
-				contentview.add(new TogglerDE(context.getPageRoot(), new ViewWrapperDE(context.getPageRoot(), table), false));
+				contentview.add(new Toggler(context.getPageRoot(), new ViewWrapper(context.getPageRoot(), table), false));
 			} else {
-				contentview.add(new TogglerDE(context.getPageRoot(), new ViewWrapperDE(context.getPageRoot(), table), true));
+				contentview.add(new Toggler(context.getPageRoot(), new ViewWrapper(context.getPageRoot(), table), true));
 			}
 
 			//pull parent vo
@@ -175,10 +177,10 @@ public class VOServlet extends ServletBase implements Servlet {
 			table.addRow("Active", rec.active);
 			table.addRow("Disable", rec.disable);
 						
-			class EditButtonDE extends ButtonDE
+			class EditButtonDE extends Button
 			{
 				String url;
-				public EditButtonDE(DivEx parent, String _url)
+				public EditButtonDE(DivRep parent, String _url)
 				{
 					super(parent, "Edit");
 					url = _url;
@@ -187,7 +189,7 @@ public class VOServlet extends ServletBase implements Servlet {
 					redirect(url);
 				}
 			};
-			table.add(new DivExWrapper(new EditButtonDE(context.getPageRoot(), Config.getApplicationBase()+"/voedit?vo_id=" + rec.id)));
+			table.add(new DivRepWrapper(new EditButtonDE(context.getPageRoot(), Config.getApplicationBase()+"/voedit?vo_id=" + rec.id)));
 		}
 		
 		return contentview;
@@ -281,10 +283,10 @@ public class VOServlet extends ServletBase implements Servlet {
 	{
 		SideContentView view = new SideContentView();
 		
-		class NewButtonDE extends ButtonDE
+		class NewButtonDE extends Button
 		{
 			String url;
-			public NewButtonDE(DivEx parent, String _url)
+			public NewButtonDE(DivRep parent, String _url)
 			{
 				super(parent, "Add New Virtual Organization");
 				url = _url;

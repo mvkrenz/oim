@@ -3,7 +3,7 @@ function setAutocomplete(node)
 {
     node.each(function(i, dom) {
 
-    	$(dom).autocomplete("divex?action=request&nodeid=" + dom.parentNode.id, {
+    	$(dom).autocomplete("divrep?action=request&nodeid=" + dom.parentNode.id, {
 	        mustMatch: true,
 	        matchContains: true,
 	        width: 300,
@@ -18,6 +18,6 @@ function setAutocomplete(node)
     });
     
     node.result(function(event, data, formatted) {
-        divex(this.parentNode.id, "change", data[0]);
+        divrep(this.parentNode.id, "change", data[0]);
     });
 }

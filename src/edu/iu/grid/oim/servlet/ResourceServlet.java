@@ -13,10 +13,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
-import com.webif.divex.ButtonDE;
-import com.webif.divex.DivEx;
-import com.webif.divex.Event;
-import com.webif.divex.TogglerDE;
+
+import com.webif.divrep.Button;
+import com.webif.divrep.DivRep;
+import com.webif.divrep.Event;
+import com.webif.divrep.Toggler;
 
 import edu.iu.grid.oim.lib.Config;
 import edu.iu.grid.oim.model.db.ContactRankModel;
@@ -53,7 +54,7 @@ import edu.iu.grid.oim.model.db.record.VOContactRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
 import edu.iu.grid.oim.model.db.record.VOResourceOwnershipRecord;
 import edu.iu.grid.oim.view.ContentView;
-import edu.iu.grid.oim.view.DivExWrapper;
+import edu.iu.grid.oim.view.DivRepWrapper;
 import edu.iu.grid.oim.view.GenericView;
 import edu.iu.grid.oim.view.HtmlView;
 import edu.iu.grid.oim.view.IView;
@@ -61,7 +62,7 @@ import edu.iu.grid.oim.view.MenuView;
 import edu.iu.grid.oim.view.Page;
 import edu.iu.grid.oim.view.RecordTableView;
 import edu.iu.grid.oim.view.SideContentView;
-import edu.iu.grid.oim.view.divex.ViewWrapperDE;
+import edu.iu.grid.oim.view.divrep.ViewWrapper;
 
 public class ResourceServlet extends ServletBase implements Servlet {
 	private static final long serialVersionUID = 1L;
@@ -116,9 +117,9 @@ public class ResourceServlet extends ServletBase implements Servlet {
 			RecordTableView table = new RecordTableView();
 			// TODO agopu: 10 is an arbitrary number -- perhaps we should make this a user preference? show/hide?
 			if (resources.size() > 10) {
-				contentview.add(new TogglerDE(context.getPageRoot(), new ViewWrapperDE(context.getPageRoot(), table), false));
+				contentview.add(new Toggler(context.getPageRoot(), new ViewWrapper(context.getPageRoot(), table), false));
 			} else {
-				contentview.add(new TogglerDE(context.getPageRoot(), new ViewWrapperDE(context.getPageRoot(), table), true));
+				contentview.add(new Toggler(context.getPageRoot(), new ViewWrapper(context.getPageRoot(), table), true));
 			}
 			table.addRow("Resource FQDN", rec.fqdn);
 
@@ -208,10 +209,10 @@ public class ResourceServlet extends ServletBase implements Servlet {
 			ResourceWLCGRecord wrec = wmodel.get(rec.id);
 			table.addRow("WLCG Information", createWLCGView(wrec));
 
-			class EditDowntimeButtonDE extends ButtonDE
+			class EditDowntimeButtonDE extends Button
 			{
 				String url;
-				public EditDowntimeButtonDE(DivEx parent, String _url)
+				public EditDowntimeButtonDE(DivRep parent, String _url)
 				{
 					super(parent, "Add/Edit Downtime");
 					this.setStyle(Style.ALINK);
@@ -222,16 +223,16 @@ public class ResourceServlet extends ServletBase implements Servlet {
 				}
 			};
 
-			table.addRow("Downtime", new DivExWrapper(new EditDowntimeButtonDE(context.getPageRoot(), 
+			table.addRow("Downtime", new DivRepWrapper(new EditDowntimeButtonDE(context.getPageRoot(), 
 					Config.getApplicationBase()+"/resourcedowntimeedit?id=" + rec.id)));
 			
 			table.addRow("Active", rec.active);
 			table.addRow("Disable", rec.disable);
 
-			class EditButtonDE extends ButtonDE
+			class EditButtonDE extends Button
 			{
 				String url;
-				public EditButtonDE(DivEx parent, String _url)
+				public EditButtonDE(DivRep parent, String _url)
 				{
 					super(parent, "Edit");
 					url = _url;
@@ -240,7 +241,7 @@ public class ResourceServlet extends ServletBase implements Servlet {
 					redirect(url);
 				}
 			};
-			table.add(new DivExWrapper(new EditButtonDE(context.getPageRoot(), 
+			table.add(new DivRepWrapper(new EditButtonDE(context.getPageRoot(), 
 					Config.getApplicationBase()+"/resourceedit?resource_id=" + rec.id)));
 
 		}
@@ -366,10 +367,10 @@ public class ResourceServlet extends ServletBase implements Servlet {
 	{
 		SideContentView view = new SideContentView();
 		
-		class NewButtonDE extends ButtonDE
+		class NewButtonDE extends Button
 		{
 			String url;
-			public NewButtonDE(DivEx parent, String _url)
+			public NewButtonDE(DivRep parent, String _url)
 			{
 				super(parent, "Add New Resource");
 				url = _url;

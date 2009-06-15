@@ -3,8 +3,8 @@ package edu.iu.grid.oim.view;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 
-import com.webif.divex.DivEx;
-import com.webif.divex.DivExRoot.DivExPage;
+import com.webif.divrep.DivRep;
+import com.webif.divrep.DivRepRoot.divrepPage;
 
 //simple view that has list of children
 public class GenericView implements IView {
@@ -12,8 +12,8 @@ public class GenericView implements IView {
 	public void add(IView v) {
 		children.add(v);
 	}
-	public void add(DivEx div) {
-		children.add(new DivExWrapper(div));
+	public void add(DivRep div) {
+		children.add(new DivRepWrapper(div));
 	}
 	public void render(PrintWriter out) {
 		out.write("<div>");

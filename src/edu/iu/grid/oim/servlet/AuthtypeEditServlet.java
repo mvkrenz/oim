@@ -10,10 +10,10 @@ import org.apache.log4j.Logger;
 import edu.iu.grid.oim.lib.Config;
 import edu.iu.grid.oim.model.db.AuthorizationTypeModel;
 import edu.iu.grid.oim.model.db.record.AuthorizationTypeRecord;
-import edu.iu.grid.oim.view.divex.form.AuthtypeFormDE;
+import edu.iu.grid.oim.view.divrep.form.AuthtypeFormDE;
 import edu.iu.grid.oim.view.BreadCrumbView;
 import edu.iu.grid.oim.view.ContentView;
-import edu.iu.grid.oim.view.DivExWrapper;
+import edu.iu.grid.oim.view.DivRepWrapper;
 import edu.iu.grid.oim.view.HtmlView;
 import edu.iu.grid.oim.view.MenuView;
 import edu.iu.grid.oim.view.Page;
@@ -64,7 +64,7 @@ public class AuthtypeEditServlet extends ServletBase implements Servlet {
 		//put the form in a view and display
 		ContentView contentview = new ContentView();
 		contentview.add(new HtmlView("<h1>"+title+"</h1>"));	
-		contentview.add(new DivExWrapper(form));
+		contentview.add(new DivRepWrapper(form));
 		
 		//setup crumbs
 		BreadCrumbView bread_crumb = new BreadCrumbView();

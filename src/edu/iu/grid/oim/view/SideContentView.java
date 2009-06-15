@@ -3,8 +3,8 @@ package edu.iu.grid.oim.view;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 
-import com.webif.divex.DivEx;
-import com.webif.divex.DivExRoot.DivExPage;
+import com.webif.divrep.DivRep;
+import com.webif.divrep.DivRepRoot.divrepPage;
 
 //put each content under a side content header
 public class SideContentView implements IView {
@@ -15,8 +15,8 @@ public class SideContentView implements IView {
 		children.add(v);
 	}
 	
-	public void add(DivExPage de) {
-		add(new DivExWrapper(de));
+	public void add(divrepPage de) {
+		add(new DivRepWrapper(de));
 	}
 	
 	public void add(String html) {
@@ -29,8 +29,8 @@ public class SideContentView implements IView {
 		children.add(new HtmlView("</div>"));
 	}
 	
-	public void add(String title, DivEx de) {
-		add(title, new DivExWrapper(de));
+	public void add(String title, DivRep de) {
+		add(title, new DivRepWrapper(de));
 	}
 	
 	public void add(String title, String html) {

@@ -12,12 +12,12 @@ import edu.iu.grid.oim.model.db.VOModel;
 import edu.iu.grid.oim.model.db.record.VORecord;
 import edu.iu.grid.oim.view.BreadCrumbView;
 import edu.iu.grid.oim.view.ContentView;
-import edu.iu.grid.oim.view.DivExWrapper;
+import edu.iu.grid.oim.view.DivRepWrapper;
 import edu.iu.grid.oim.view.HtmlView;
 import edu.iu.grid.oim.view.MenuView;
 import edu.iu.grid.oim.view.Page;
 import edu.iu.grid.oim.view.SideContentView;
-import edu.iu.grid.oim.view.divex.form.VOFormDE;
+import edu.iu.grid.oim.view.divrep.form.VOFormDE;
 
 public class VOEditServlet extends ServletBase implements Servlet {
 	private static final long serialVersionUID = 1L;
@@ -70,7 +70,7 @@ public class VOEditServlet extends ServletBase implements Servlet {
 		//put the form in a view and display
 		ContentView contentview = new ContentView();
 		contentview.add(new HtmlView("<h1>"+title+"</h1>"));	
-		contentview.add(new DivExWrapper(form));
+		contentview.add(new DivRepWrapper(form));
 		
 		//setup crumbs
 		BreadCrumbView bread_crumb = new BreadCrumbView();

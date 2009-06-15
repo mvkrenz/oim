@@ -10,11 +10,11 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
 
-import com.webif.divex.ButtonDE;
-import com.webif.divex.DivEx;
-import com.webif.divex.DivExRoot;
-import com.webif.divex.Event;
-import com.webif.divex.EventListener;
+import com.webif.divrep.Button;
+import com.webif.divrep.DivRep;
+import com.webif.divrep.DivRepRoot;
+import com.webif.divrep.Event;
+import com.webif.divrep.EventListener;
 
 import edu.iu.grid.oim.lib.Config;
 import edu.iu.grid.oim.lib.Footprint;
@@ -58,26 +58,43 @@ public class AdminServlet extends ServletBase  {
 		
 		contentview.add(new HtmlView("<h1>OIM Administration</h1>"));
 		if(auth.allows("admin")) {
-			ListView auth_list = new ListView();
-			auth_list.add(new LinkView("action", "Actions"));
-			auth_list.add(new LinkView("authtype", "Authorization Types"));
-			auth_list.add(new LinkView("authmatrix", "Authorization-Action Matrix" ));
-			auth_list.add(new LinkView("user", "User-Authorization Level Mapping" ));
-			contentview.add(auth_list);
+			contentview.add(new HtmlView("<h3>Authentication / Authorization</h3>"));
+			contentview.add(new LinkView("action", "Actions"));
+			contentview.add(new HtmlView("<br/>"));
 			
-			ListView goc_task_list = new ListView();
-			goc_task_list.add(new LinkView("osggridtype", "OSG Grid Types"));
-			goc_task_list.add(new LinkView("servicegroup", "Service Groups"));
-			goc_task_list.add(new LinkView("service", "Services")); //service table, metric_service table
-			goc_task_list.add(new LinkView("metric", "RSV Metrics"));
-			goc_task_list.add(new LinkView("fieldofscience", "Fields of Science (associated with VOs)"));
-			contentview.add(goc_task_list);
+			contentview.add(new LinkView("authtype", "Authorization Types"));
+			contentview.add(new HtmlView("<br/>"));
+			
+			contentview.add(new LinkView("authmatrix", "Authorization-Action Matrix" ));
+			contentview.add(new HtmlView("<br/>"));
+			
+			contentview.add(new LinkView("user", "User-Authorization Level Mapping" ));
+			contentview.add(new HtmlView("<br/>"));
+			
+			contentview.add(new HtmlView("<br/>"));
+			contentview.add(new HtmlView("<h3>GOC Administration</h3>"));
+			contentview.add(new LinkView("osggridtype", "OSG Grid Types"));
+			contentview.add(new HtmlView("<br/>"));
+			
+			contentview.add(new LinkView("servicegroup", "Service Groups"));
+			contentview.add(new HtmlView("<br/>"));
+			
+			contentview.add(new LinkView("service", "Services")); //service table, metric_service table
+			contentview.add(new HtmlView("<br/>"));
+			
+			contentview.add(new LinkView("metric", "RSV Metrics"));
+			contentview.add(new HtmlView("<br/>"));
+			
+			contentview.add(new LinkView("fieldofscience", "Fields of Science (associated with VOs)"));
+			contentview.add(new HtmlView("<br/>"));
 		}
+		
 
 		if (auth.allows("admin") || auth.allows("edit_measurement")) {
-			ListView metrics_list = new ListView();
-			metrics_list.add(new LinkView("cpuinfo", "CPU Information"));
-			contentview.add(metrics_list);
+			contentview.add(new HtmlView("<br/>"));
+			contentview.add(new HtmlView("<h3>Measurement</h3>"));
+			contentview.add(new LinkView("cpuinfo", "CPU Information"));
+			contentview.add(new HtmlView("<br/>"));
 		}
 		
 		return contentview;
@@ -91,7 +108,7 @@ public class AdminServlet extends ServletBase  {
 		view.add("Operation", operations);
 		if(!auth.allows("admin")) return view;
 		
-		final ButtonDE clear_button = new ButtonDE(context.getPageRoot(), "Clear All Cache");
+		final Button clear_button = new Button(context.getPageRoot(), "Clear All Cache");
 		clear_button.addEventListener(new EventListener() {
 			public void handleEvent(Event e) {
 				SmallTableModelBase.emptyAllCache();
@@ -100,8 +117,8 @@ public class AdminServlet extends ServletBase  {
 		});
 		operations.add(clear_button);
 		
-		
-		final ButtonDE fptest_button = new ButtonDE(context.getPageRoot(), "Test FP Ticket");
+		/*
+		final Button fptest_button = new Button(context.getPageRoot(), "Test FP Ticket");
 		fptest_button.addEventListener(new EventListener() {
 			public void handleEvent(Event e) {
 				Footprint ticket = new Footprint(context);
@@ -112,14 +129,14 @@ public class AdminServlet extends ServletBase  {
 		});
 		operations.add(fptest_button);
 
-		final ButtonDE error_button = new ButtonDE(context.getPageRoot(), "Simulate Servlet Error");
+		final Button error_button = new Button(context.getPageRoot(), "Simulate Servlet Error");
 		error_button.addEventListener(new EventListener() {
 			public void handleEvent(Event e) {
 				error_button.redirect(Config.getApplicationBase() + "/simulateerror");
 			}
 		});
 		operations.add(error_button);
-		
+		*/
 		return view;
 	}
 

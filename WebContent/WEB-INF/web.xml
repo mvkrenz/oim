@@ -19,9 +19,9 @@
 	<servlet>
 		<description>
 		</description>
-		<display-name>DivexServlet</display-name>
-		<servlet-name>DivexServlet</servlet-name>
-		<servlet-class>com.webif.divex.DivexServlet</servlet-class>
+		<display-name>DivRepServlet</display-name>
+		<servlet-name>DivRepServlet</servlet-name>
+		<servlet-class>com.webif.divrep.DivRepServlet</servlet-class>
 	</servlet>
 	<servlet>
 		<description>
@@ -377,7 +377,7 @@
 		</description>
 		<display-name>CalculatorServlet</display-name>
 		<servlet-name>CalculatorServlet</servlet-name>
-		<servlet-class>com.webif.divex.sample.CalculatorServlet</servlet-class>
+		<servlet-class>com.webif.divrep.sample.CalculatorServlet</servlet-class>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>CalculatorServlet</servlet-name>
@@ -389,7 +389,7 @@
 		</description>
 		<display-name>TradingGameServlet</display-name>
 		<servlet-name>TradingGameServlet</servlet-name>
-		<servlet-class>com.webif.divex.sample.TradingGameServlet</servlet-class>
+		<servlet-class>com.webif.divrep.sample.TradingGameServlet</servlet-class>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>TradingGameServlet</servlet-name>
@@ -398,8 +398,8 @@
 	
 
 	<servlet-mapping>
-		<servlet-name>DivexServlet</servlet-name>
-		<url-pattern>/divex</url-pattern>
+		<servlet-name>DivRepServlet</servlet-name>
+		<url-pattern>/divrep</url-pattern>
 	</servlet-mapping>
 	<servlet-mapping>
 		<servlet-name>HomeServlet</servlet-name>

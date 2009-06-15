@@ -18,10 +18,10 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 
-import com.webif.divex.ButtonDE;
-import com.webif.divex.DivEx;
-import com.webif.divex.DivExRoot;
-import com.webif.divex.Event;
+import com.webif.divrep.Button;
+import com.webif.divrep.DivRep;
+import com.webif.divrep.DivRepRoot;
+import com.webif.divrep.Event;
 
 
 import edu.iu.grid.oim.lib.Config;
@@ -46,7 +46,7 @@ import edu.iu.grid.oim.model.db.record.SiteRecord;
 import edu.iu.grid.oim.model.db.record.ResourceRecord;
 
 import edu.iu.grid.oim.view.ContentView;
-import edu.iu.grid.oim.view.DivExWrapper;
+import edu.iu.grid.oim.view.DivRepWrapper;
 import edu.iu.grid.oim.view.GenericView;
 import edu.iu.grid.oim.view.HtmlView;
 import edu.iu.grid.oim.view.IView;
@@ -120,10 +120,10 @@ public class ResourceDowntimeServlet extends ServletBase implements Servlet {
 			}
 			contentview.add(downtime_view);
 		
-			class EditButtonDE extends ButtonDE
+			class EditButtonDE extends Button
 			{
 				String url;
-				public EditButtonDE(DivEx parent, String _url)
+				public EditButtonDE(DivRep parent, String _url)
 				{
 					super(parent, "Add/Edit Downtime");
 					url = _url;
@@ -132,7 +132,7 @@ public class ResourceDowntimeServlet extends ServletBase implements Servlet {
 					redirect(url);
 				}
 			};
-			contentview.add(new DivExWrapper(new EditButtonDE(context.getPageRoot(), Config.getApplicationBase()+"/resourcedowntimeedit?id=" + rec.id)));
+			contentview.add(new DivRepWrapper(new EditButtonDE(context.getPageRoot(), Config.getApplicationBase()+"/resourcedowntimeedit?id=" + rec.id)));
 			//contentview.add(table);
 		}
 		

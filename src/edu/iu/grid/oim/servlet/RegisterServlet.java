@@ -12,15 +12,15 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
 
-import com.webif.divex.ButtonDE;
-import com.webif.divex.DivEx;
-import com.webif.divex.DivExRoot;
-import com.webif.divex.Event;
-import com.webif.divex.EventListener;
-import com.webif.divex.form.FormDEBase;
-import com.webif.divex.form.TextFormElementDE;
-import com.webif.divex.form.validator.IFormElementValidator;
-import com.webif.divex.form.validator.UniqueValidator;
+import com.webif.divrep.Button;
+import com.webif.divrep.DivRep;
+import com.webif.divrep.DivRepRoot;
+import com.webif.divrep.Event;
+import com.webif.divrep.EventListener;
+import com.webif.divrep.form.FormBase;
+import com.webif.divrep.form.TextFormElement;
+import com.webif.divrep.form.validator.IFormElementValidator;
+import com.webif.divrep.form.validator.UniqueValidator;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Config;
@@ -32,7 +32,7 @@ import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.DNAuthorizationTypeRecord;
 import edu.iu.grid.oim.model.db.record.DNRecord;
 import edu.iu.grid.oim.view.ContentView;
-import edu.iu.grid.oim.view.DivExWrapper;
+import edu.iu.grid.oim.view.DivRepWrapper;
 import edu.iu.grid.oim.view.HtmlView;
 import edu.iu.grid.oim.view.MenuView;
 import edu.iu.grid.oim.view.Page;
@@ -72,7 +72,7 @@ public class RegisterServlet extends ServletBase  {
 		
 		WizardDE wizard = new WizardDE(context.getPageRoot());
 		wizard.setPage(new GreetingPage(wizard));
-		contentview.add(new DivExWrapper(wizard));
+		contentview.add(new DivRepWrapper(wizard));
 		
 		return contentview;
 	}
@@ -80,7 +80,7 @@ public class RegisterServlet extends ServletBase  {
 	interface IWizardPage {
 		public void render(PrintWriter out);	
 	}
-	class WizardDE extends DivEx
+	class WizardDE extends DivRep
 	{
 		IWizardPage currentpage = null;
 		protected void onEvent(Event e) {
@@ -88,7 +88,7 @@ public class RegisterServlet extends ServletBase  {
 			
 		}
 		
-		public WizardDE(DivEx _parent) {
+		public WizardDE(DivRep _parent) {
 			super(_parent);
 		}
 		public void setPage(IWizardPage page)
@@ -105,14 +105,14 @@ public class RegisterServlet extends ServletBase  {
 		}
 	}
 	
-	class GreetingPage extends DivEx implements IWizardPage
+	class GreetingPage extends DivRep implements IWizardPage
  	{
-		ButtonDE button;
+		Button button;
 		WizardDE wizard;
 		public GreetingPage(WizardDE _wizard) {
 			super(_wizard);
 			wizard = _wizard;
-			button = new ButtonDE(this, "Register");
+			button = new Button(this, "Register");
 			button.addEventListener(new EventListener() {
 
 				@Override
@@ -132,30 +132,30 @@ public class RegisterServlet extends ServletBase  {
 			
 		}
 	}
-	class EnterEmailPage extends FormDEBase implements IWizardPage
+	class EnterEmailPage extends FormBase implements IWizardPage
  	{
 		WizardDE wizard;
-		private TextFormElementDE name;
-		private TextFormElementDE email;
-		private TextFormElementDE email_check;
-		private TextFormElementDE phone;
+		private TextFormElement name;
+		private TextFormElement email;
+		private TextFormElement email_check;
+		private TextFormElement phone;
 		
 		public EnterEmailPage(WizardDE _wizard) {
 			super(_wizard, origin_url);
 			wizard = _wizard;
 			
-			name = new TextFormElementDE(this);
+			name = new TextFormElement(this);
 			name.setLabel("Enter Your Full Name");
 			name.setRequired(true);
 			
-			email = new TextFormElementDE(this);
+			email = new TextFormElement(this);
 			email.setLabel("Enter Your Email");
 			email.setRequired(true);
 			
 			class CheckValidator implements IFormElementValidator
 			{
-				TextFormElementDE other;
-				public CheckValidator(TextFormElementDE _other) {
+				TextFormElement other;
+				public CheckValidator(TextFormElement _other) {
 					other = _other;
 				}
 				public String getMessage() {
@@ -167,12 +167,12 @@ public class RegisterServlet extends ServletBase  {
 				}
 			}
 			
-			email_check = new TextFormElementDE(this);
+			email_check = new TextFormElement(this);
 			email_check.setLabel("Re-enter Your Email");
 			email_check.setRequired(true);
 			email_check.addValidator(new CheckValidator(email));
 			
-			phone = new TextFormElementDE(this);
+			phone = new TextFormElement(this);
 			// TODO Need formatting help here -agopu  -- looks like the phone number used by OSG community is very diverse. I don't know how simple is simple enough
 			// validation in our case.. -- hayashis
 			phone.setLabel("Enter Your Phone Number");

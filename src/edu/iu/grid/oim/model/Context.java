@@ -7,8 +7,9 @@ import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.sql.DataSource;
 import org.apache.log4j.Logger;
-import com.webif.divex.DivExRoot;
-import com.webif.divex.DivExRoot.DivExPage;
+
+import com.webif.divrep.DivRepRoot;
+import com.webif.divrep.DivRepRoot.divrepPage;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
@@ -16,7 +17,7 @@ import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
 public class Context {
     static Logger log = Logger.getLogger(Context.class);  
     
-	private DivExPage divex_pageroot;
+	private divrepPage divrep_pageroot;
 	private Authorization auth = new Authorization();
 	private HttpServletRequest request;
 	private Connection oim_connection = null;
@@ -25,8 +26,8 @@ public class Context {
 	{	
 		request = _request;		
 		auth = new Authorization(request);
-		DivExRoot root = DivExRoot.getInstance(request.getSession());
-		divex_pageroot = root.initPage(request.getRequestURI() + request.getQueryString());
+		DivRepRoot root = DivRepRoot.getInstance(request.getSession());
+		divrep_pageroot = root.initPage(request.getRequestURI() + request.getQueryString());
 	}
 
 	public static Context getGuestContext()
@@ -80,9 +81,9 @@ public class Context {
 	{
 		return auth;
 	}
-	public DivExPage getPageRoot()
+	public divrepPage getPageRoot()
 	{
-		return divex_pageroot;
+		return divrep_pageroot;
 	}
 	public HttpServletRequest getRequest()
 	{

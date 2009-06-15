@@ -14,10 +14,10 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 
-import com.webif.divex.ButtonDE;
-import com.webif.divex.DivEx;
-import com.webif.divex.DivExRoot;
-import com.webif.divex.Event;
+import com.webif.divrep.Button;
+import com.webif.divrep.DivRep;
+import com.webif.divrep.DivRepRoot;
+import com.webif.divrep.Event;
 
 import edu.iu.grid.oim.lib.Config;
 import edu.iu.grid.oim.model.db.OsgGridTypeModel;
@@ -25,7 +25,7 @@ import edu.iu.grid.oim.model.db.record.OsgGridTypeRecord;
 import edu.iu.grid.oim.model.db.record.RecordBase;
 import edu.iu.grid.oim.view.BreadCrumbView;
 import edu.iu.grid.oim.view.ContentView;
-import edu.iu.grid.oim.view.DivExWrapper;
+import edu.iu.grid.oim.view.DivRepWrapper;
 import edu.iu.grid.oim.view.HtmlView;
 import edu.iu.grid.oim.view.MenuView;
 import edu.iu.grid.oim.view.Page;
@@ -81,10 +81,10 @@ public class OsgGridTypeServlet extends ServletBase implements Servlet {
 			contentview.add(table);
 			table.addRow("Description", rec.description);
 			
-			class EditButtonDE extends ButtonDE
+			class EditButtonDE extends Button
 			{
 				String url;
-				public EditButtonDE(DivEx parent, String _url)
+				public EditButtonDE(DivRep parent, String _url)
 				{
 					super(parent, "Edit");
 					url = _url;
@@ -93,7 +93,7 @@ public class OsgGridTypeServlet extends ServletBase implements Servlet {
 					redirect(url);
 				}
 			};
-			table.add(new DivExWrapper(new EditButtonDE(context.getPageRoot(), Config.getApplicationBase()+"/osggridtypeedit?osg_grid_type_id=" + rec.id)));
+			table.add(new DivRepWrapper(new EditButtonDE(context.getPageRoot(), Config.getApplicationBase()+"/osggridtypeedit?osg_grid_type_id=" + rec.id)));
 		}
 		return contentview;
 	}
@@ -103,10 +103,10 @@ public class OsgGridTypeServlet extends ServletBase implements Servlet {
 	{
 		SideContentView view = new SideContentView();
 		
-		class NewButtonDE extends ButtonDE
+		class NewButtonDE extends Button
 		{
 			String url;
-			public NewButtonDE(DivEx parent, String _url)
+			public NewButtonDE(DivRep parent, String _url)
 			{
 				super(parent, "Add New OSG Grid Type");
 				url = _url;

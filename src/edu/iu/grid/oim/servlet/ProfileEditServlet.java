@@ -10,8 +10,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
 
-import com.webif.divex.DivExRoot;
-import com.webif.divex.StaticDE;
+import com.webif.divrep.DivRepRoot;
+import com.webif.divrep.Static;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Config;
@@ -20,10 +20,10 @@ import edu.iu.grid.oim.model.db.DNModel;
 import edu.iu.grid.oim.model.db.SCModel;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.SCRecord;
-import edu.iu.grid.oim.view.divex.form.ContactFormDE;
-import edu.iu.grid.oim.view.divex.form.SCFormDE;
+import edu.iu.grid.oim.view.divrep.form.ContactFormDE;
+import edu.iu.grid.oim.view.divrep.form.SCFormDE;
 import edu.iu.grid.oim.view.ContentView;
-import edu.iu.grid.oim.view.DivExWrapper;
+import edu.iu.grid.oim.view.DivRepWrapper;
 import edu.iu.grid.oim.view.HtmlView;
 import edu.iu.grid.oim.view.MenuView;
 import edu.iu.grid.oim.view.Page;
@@ -59,7 +59,7 @@ public class ProfileEditServlet extends ServletBase implements Servlet {
 				contentview.add(new HtmlView("<p>Your contact has not been activated yet; You can continue to make changes to it but beware that you will not be able to registration activities till the account is activated by GOC staff. Contact the OSG GOC if you have any questions.</p>"));
 			}
 			
-			contentview.add(new DivExWrapper(form));
+			contentview.add(new DivRepWrapper(form));
 			
 			Page page = new Page(new MenuView(context, "profileedit"), contentview, createSideView());
 			page.render(response.getWriter());	

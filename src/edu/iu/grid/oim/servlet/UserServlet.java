@@ -9,9 +9,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
-import com.webif.divex.ButtonDE;
-import com.webif.divex.DivEx;
-import com.webif.divex.Event;
+
+import com.webif.divrep.Button;
+import com.webif.divrep.DivRep;
+import com.webif.divrep.Event;
+
 import edu.iu.grid.oim.lib.Config;
 import edu.iu.grid.oim.model.db.AuthorizationTypeModel;
 import edu.iu.grid.oim.model.db.ContactModel;
@@ -22,7 +24,7 @@ import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.DNRecord;
 import edu.iu.grid.oim.view.BreadCrumbView;
 import edu.iu.grid.oim.view.ContentView;
-import edu.iu.grid.oim.view.DivExWrapper;
+import edu.iu.grid.oim.view.DivRepWrapper;
 import edu.iu.grid.oim.view.HtmlView;
 import edu.iu.grid.oim.view.MenuView;
 import edu.iu.grid.oim.view.Page;
@@ -91,10 +93,10 @@ public class UserServlet extends ServletBase implements Servlet {
 			}
 			table.addRow("Authorization Types", new HtmlView(auth_html));
 		 	
-			class EditButtonDE extends ButtonDE
+			class EditButtonDE extends Button
 			{
 				String url;
-				public EditButtonDE(DivEx parent, String _url)
+				public EditButtonDE(DivRep parent, String _url)
 				{
 					super(parent, "Edit");
 					url = _url;
@@ -103,7 +105,7 @@ public class UserServlet extends ServletBase implements Servlet {
 					redirect(url);
 				}
 			};
-			table.add(new DivExWrapper(new EditButtonDE(context.getPageRoot(), Config.getApplicationBase()+"/useredit?id=" + rec.id)));
+			table.add(new DivRepWrapper(new EditButtonDE(context.getPageRoot(), Config.getApplicationBase()+"/useredit?id=" + rec.id)));
 		}
 		
 		return contentview;

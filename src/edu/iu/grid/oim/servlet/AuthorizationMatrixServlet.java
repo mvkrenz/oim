@@ -15,13 +15,13 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 
-import com.webif.divex.ButtonDE;
-import com.webif.divex.DivEx;
-import com.webif.divex.DivExRoot;
-import com.webif.divex.Event;
-import com.webif.divex.form.CheckBoxFormElementDE;
-import com.webif.divex.form.FormDEBase;
-import com.webif.divex.form.FormElementDEBase;
+import com.webif.divrep.Button;
+import com.webif.divrep.DivRep;
+import com.webif.divrep.DivRepRoot;
+import com.webif.divrep.Event;
+import com.webif.divrep.form.CheckBoxFormElement;
+import com.webif.divrep.form.FormBase;
+import com.webif.divrep.form.FormElementBase;
 
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
 import edu.iu.grid.oim.model.Context;
@@ -36,7 +36,7 @@ import edu.iu.grid.oim.model.db.record.AuthorizationTypeRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
 import edu.iu.grid.oim.view.BreadCrumbView;
 import edu.iu.grid.oim.view.ContentView;
-import edu.iu.grid.oim.view.DivExWrapper;
+import edu.iu.grid.oim.view.DivRepWrapper;
 import edu.iu.grid.oim.view.HtmlView;
 import edu.iu.grid.oim.view.MenuView;
 import edu.iu.grid.oim.view.Page;
@@ -47,13 +47,13 @@ public class AuthorizationMatrixServlet extends ServletBase  {
 	private static final long serialVersionUID = 1L;
     static Logger log = Logger.getLogger(AuthorizationMatrixServlet.class);  
    
-	class AuthMatrix extends FormElementDEBase
+	class AuthMatrix extends FormElementBase
 	{		
 		ActionModel actionmodel;
 		AuthorizationTypeActionModel matrixmodel;
 		ArrayList<AuthorizationTypeRecord> authtypes;
 		
-		HashMap<Integer/*action_id*/, HashMap<Integer/*type_id*/, CheckBoxFormElementDE>> matrix = new HashMap();
+		HashMap<Integer/*action_id*/, HashMap<Integer/*type_id*/, CheckBoxFormElement>> matrix = new HashMap();
 		public void render(PrintWriter out) {
 			try {
 				out.print("<table class=\"auth_matrix\">");
@@ -78,7 +78,7 @@ public class AuthorizationMatrixServlet extends ServletBase  {
 					out.print("<tr class=\"checklist\"><td class=\"tooltip\" tooltip=\""+tooltip+"\">"
 							+StringEscapeUtils.escapeHtml(action.name)+"</td>");
 					for(AuthorizationTypeRecord type : authtypes) {
-						HashMap<Integer/*type_id*/, CheckBoxFormElementDE> clist = matrix.get(action.id);
+						HashMap<Integer/*type_id*/, CheckBoxFormElement> clist = matrix.get(action.id);
 						out.print("<td>");
 						clist.get(type.id).render(out);
 						out.print("</td>");
@@ -92,7 +92,7 @@ public class AuthorizationMatrixServlet extends ServletBase  {
 			}
 		}
 		
-		public AuthMatrix(DivEx parent, Context context) throws SQLException 
+		public AuthMatrix(DivRep parent, Context context) throws SQLException 
 		{
 			super(parent);
 			
@@ -103,11 +103,11 @@ public class AuthorizationMatrixServlet extends ServletBase  {
 			
 			//create checkboxes for each action for each authtype
 			for(ActionRecord action : actionmodel.getAll()) {
-				HashMap<Integer/*type_id*/, CheckBoxFormElementDE> as = new HashMap();
+				HashMap<Integer/*type_id*/, CheckBoxFormElement> as = new HashMap();
 				matrix.put(action.id, as);
 				Collection<Integer/*type_id*/> authorized = matrixmodel.getTypeByActionID(action.id);
 				for(AuthorizationTypeRecord type : authtypes) {
-					CheckBoxFormElementDE check = new CheckBoxFormElementDE(parent);
+					CheckBoxFormElement check = new CheckBoxFormElement(parent);
 					as.put(type.id, check);
 					if(authorized.contains(type.id)) {
 						check.setValue(true);
@@ -120,9 +120,9 @@ public class AuthorizationMatrixServlet extends ServletBase  {
 		{
 			ArrayList<AuthorizationTypeActionRecord> recs = new ArrayList();
 			for(Integer action_id : matrix.keySet()) {
-				HashMap<Integer/*type_id*/, CheckBoxFormElementDE> list = matrix.get(action_id);
+				HashMap<Integer/*type_id*/, CheckBoxFormElement> list = matrix.get(action_id);
 				for(Integer type_id : list.keySet()) {
-					CheckBoxFormElementDE check = list.get(type_id);
+					CheckBoxFormElement check = list.get(type_id);
 					if(check.getValue()) {
 						AuthorizationTypeActionRecord rec = new AuthorizationTypeActionRecord();
 						rec.action_id = action_id;
@@ -147,10 +147,10 @@ public class AuthorizationMatrixServlet extends ServletBase  {
 		}
 	}
 	
-    class AuthMatrixFormDE extends FormDEBase
+    class AuthMatrixFormDE extends FormBase
     {
         private AuthMatrix matrix;
-		public AuthMatrixFormDE(DivEx parent, String _origin_url) throws SQLException {
+		public AuthMatrixFormDE(DivRep parent, String _origin_url) throws SQLException {
 			super(parent, _origin_url);
 			
 			//pull action, auth_type, and matrix and construct matrix
@@ -209,8 +209,8 @@ public class AuthorizationMatrixServlet extends ServletBase  {
 	{			
 		ContentView contentview = new ContentView();
 		contentview.add(new HtmlView("<h1>Authorization Matrix</h1>"));
-		FormDEBase form = new AuthMatrixFormDE(context.getPageRoot(), "admin");
-		contentview.add(new DivExWrapper(form));
+		FormBase form = new AuthMatrixFormDE(context.getPageRoot(), "admin");
+		contentview.add(new DivRepWrapper(form));
 		return contentview;
 	}
 	

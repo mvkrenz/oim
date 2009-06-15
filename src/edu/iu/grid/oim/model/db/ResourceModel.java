@@ -144,7 +144,7 @@ public class ResourceModel extends SmallTableModelBase<ResourceRecord> {
 			ResourceWLCGRecord wrec,
 			ArrayList<ResourceServiceRecord> resource_services,
 			ArrayList<VOResourceOwnershipRecord> owners/*,
-			ArrayList<ResourceDowntimeEditorDE.DowntimeEditor> downtimes,
+			ArrayList<ResourceDowntimeEditor.DowntimeEditor> downtimes,
 			HashMap<DowntimeEditor, ArrayList<ResourceDowntimeServiceRecord>> downtime_services*/) throws Exception
 	{
 		Connection conn = null;

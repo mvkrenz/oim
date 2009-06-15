@@ -10,8 +10,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
 
-import com.webif.divex.DivEx;
-import com.webif.divex.form.FormDEBase;
+import com.webif.divrep.DivRep;
+import com.webif.divrep.form.FormBase;
 
 import edu.iu.grid.oim.lib.Config;
 import edu.iu.grid.oim.model.Context;
@@ -20,12 +20,12 @@ import edu.iu.grid.oim.model.db.record.ResourceRecord;
 import edu.iu.grid.oim.model.db.record.ResourceWLCGRecord;
 import edu.iu.grid.oim.view.BreadCrumbView;
 import edu.iu.grid.oim.view.ContentView;
-import edu.iu.grid.oim.view.DivExWrapper;
+import edu.iu.grid.oim.view.DivRepWrapper;
 import edu.iu.grid.oim.view.HtmlView;
 import edu.iu.grid.oim.view.MenuView;
 import edu.iu.grid.oim.view.Page;
 import edu.iu.grid.oim.view.SideContentView;
-import edu.iu.grid.oim.view.divex.form.ResourceFormDE;
+import edu.iu.grid.oim.view.divrep.form.ResourceFormDE;
 
 public class ResourceEditServlet extends ServletBase implements Servlet {
 	private static final long serialVersionUID = 1L;
@@ -64,7 +64,7 @@ public class ResourceEditServlet extends ServletBase implements Servlet {
 			title = "New Resource";	
 		}
 
-		FormDEBase form;
+		FormBase form;
 		String origin_url = Config.getApplicationBase()+"/"+parent_page;
 		try {
 			form = new ResourceFormDE(context, rec, origin_url);
@@ -75,7 +75,7 @@ public class ResourceEditServlet extends ServletBase implements Servlet {
 		//put the form in a view and display
 		ContentView contentview = new ContentView();
 		contentview.add(new HtmlView("<h1>"+title+"</h1>"));	
-		contentview.add(new DivExWrapper(form));
+		contentview.add(new DivRepWrapper(form));
 
 		//setup crumbs
 		BreadCrumbView bread_crumb = new BreadCrumbView();

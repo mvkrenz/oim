@@ -83,7 +83,7 @@ public class MenuView implements IView {
 	    		cls = "selected";
 	    	}
 	    	//out.println("<span class=\""+ cls +"\"><a href=\""+ Config.getApplicationBase() + "/" + item.url+"\">"+StringEscapeUtils.escapeHtml(item.name)+"</a></span>");
-	    	out.println("<span class=\"link "+ cls +"\" onclick=\"divex_redirect('"+ Config.getApplicationBase() + "/" + item.url+"');\">"+StringEscapeUtils.escapeHtml(item.name)+"</span>");
+	    	out.println("<span class=\"link "+ cls +"\" onclick=\"divrep_redirect('"+ Config.getApplicationBase() + "/" + item.url+"');\">"+StringEscapeUtils.escapeHtml(item.name)+"</span>");
 	    }
 		out.println("</div>");
 		
