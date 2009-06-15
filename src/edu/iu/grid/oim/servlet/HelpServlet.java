@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.log4j.Logger;
 
 import edu.iu.grid.oim.view.ContentView;
+import edu.iu.grid.oim.view.ExternalLinkView;
 import edu.iu.grid.oim.view.HtmlView;
 import edu.iu.grid.oim.view.LinkView;
 import edu.iu.grid.oim.view.ListView;
@@ -44,35 +45,35 @@ public class HelpServlet extends ServletBase  {
 
 		contentview.add(new HtmlView("<h3>Definitions</h3>"));
 		contentview.add(new HtmlView("<p>"));
-			contentview.add(new LinkView("https://twiki.grid.iu.edu/twiki/bin/view/Operations/OIMTermDefinition", "Basic OIM Definitions"));
+			contentview.add(new ExternalLinkView("https://twiki.grid.iu.edu/twiki/bin/view/Operations/OIMTermDefinition", "Basic OIM Definitions"));
 		contentview.add(new HtmlView("</p>"));
 
 		contentview.add(new HtmlView("<h3>New Registration Help</h3>"));
 		contentview.add(new HtmlView("<p>"));
-			contentview.add(new LinkView("https://twiki.grid.iu.edu/twiki/bin/view/Operations/OIMRegistrationInstructions#Resource_or_Service_Registration", "Resource/Service Registration"));
+			contentview.add(new ExternalLinkView("https://twiki.grid.iu.edu/twiki/bin/view/Operations/OIMRegistrationInstructions#Resource_or_Service_Registration", "Resource/Service Registration"));
 			contentview.add(new HtmlView("<br/>"));
-			contentview.add(new LinkView("https://twiki.grid.iu.edu/twiki/bin/view/Operations/OIMRegistrationInstructions#Support_Center_Registration", "Support Center (SC) Registration"));
+			contentview.add(new ExternalLinkView("https://twiki.grid.iu.edu/twiki/bin/view/Operations/OIMRegistrationInstructions#Support_Center_Registration", "Support Center (SC) Registration"));
 			contentview.add(new HtmlView("<br/>"));
-			contentview.add(new LinkView("https://twiki.grid.iu.edu/twiki/bin/view/Operations/OIMRegistrationInstructions#VO_Registration", "Virtual Organization (VO) Registration"));
+			contentview.add(new ExternalLinkView("https://twiki.grid.iu.edu/twiki/bin/view/Operations/OIMRegistrationInstructions#VO_Registration", "Virtual Organization (VO) Registration"));
 		contentview.add(new HtmlView("</p>"));
 			
 		contentview.add(new HtmlView("<h3>Resource/Service Maintenance</h3>"));
 		contentview.add(new HtmlView("<p>"));
-			contentview.add(new LinkView("https://twiki.grid.iu.edu/twiki/bin/view/Operations/OIMMaintTool#Adding_a_New_Maintenance_Window", "Schedule Resource Maintenance"));
+			contentview.add(new ExternalLinkView("https://twiki.grid.iu.edu/twiki/bin/view/Operations/OIMMaintTool#Adding_a_New_Maintenance_Window", "Schedule Resource Maintenance"));
 			contentview.add(new HtmlView("<br/>"));
-			contentview.add(new LinkView("https://twiki.grid.iu.edu/twiki/bin/view/Operations/OIMMaintTool#Modifying_a_Maintenance_Window", "Modify Existing Maintenance"));
+			contentview.add(new ExternalLinkView("https://twiki.grid.iu.edu/twiki/bin/view/Operations/OIMMaintTool#Modifying_a_Maintenance_Window", "Modify Existing Maintenance"));
 			contentview.add(new HtmlView("<br/>"));
-			contentview.add(new LinkView("https://twiki.grid.iu.edu/twiki/bin/view/Operations/OIMMaintTool#Deleting_a_Maintenance_Window", "Cancel Existing Maintenance"));
+			contentview.add(new ExternalLinkView("https://twiki.grid.iu.edu/twiki/bin/view/Operations/OIMMaintTool#Deleting_a_Maintenance_Window", "Cancel Existing Maintenance"));
 		contentview.add(new HtmlView("</p>"));
 		
 		
 		contentview.add(new HtmlView("<h3>Standard Operating Procedures</h3>"));
 		contentview.add(new HtmlView("<p>"));
-			contentview.add(new LinkView("https://twiki.grid.iu.edu/twiki/bin/view/Operations/OIMStandardOperatingProcedures#Resource_Registration_in_OIM", "Resources/Services"));
+			contentview.add(new ExternalLinkView("https://twiki.grid.iu.edu/twiki/bin/view/Operations/OIMStandardOperatingProcedures#Resource_Registration_in_OIM", "Resources/Services"));
 			contentview.add(new HtmlView("<br/>"));
-			contentview.add(new LinkView("https://twiki.grid.iu.edu/twiki/bin/view/Operations/OIMStandardOperatingProcedures#Support_Center_Registration_in_O", "Support Centers (SC)"));
+			contentview.add(new ExternalLinkView("https://twiki.grid.iu.edu/twiki/bin/view/Operations/OIMStandardOperatingProcedures#Support_Center_Registration_in_O", "Support Centers (SC)"));
 			contentview.add(new HtmlView("<br/>"));
-			contentview.add(new LinkView("https://twiki.grid.iu.edu/twiki/bin/view/Operations/OIMStandardOperatingProcedures#Virtual_Organization_Registratio", "Virtual Organizations (VO)"));
+			contentview.add(new ExternalLinkView("https://twiki.grid.iu.edu/twiki/bin/view/Operations/OIMStandardOperatingProcedures#Virtual_Organization_Registratio", "Virtual Organizations (VO)"));
 		contentview.add(new HtmlView("</p>"));
 		
 		

@@ -24,6 +24,7 @@ import edu.iu.grid.oim.model.db.SmallTableModelBase;
 import edu.iu.grid.oim.view.ContentView;
 import edu.iu.grid.oim.view.GenericView;
 import edu.iu.grid.oim.view.HtmlView;
+import edu.iu.grid.oim.view.InternalLinkView;
 import edu.iu.grid.oim.view.LinkView;
 import edu.iu.grid.oim.view.ListView;
 import edu.iu.grid.oim.view.MenuView;
@@ -59,33 +60,33 @@ public class AdminServlet extends ServletBase  {
 		contentview.add(new HtmlView("<h1>OIM Administration</h1>"));
 		if(auth.allows("admin")) {
 			contentview.add(new HtmlView("<h3>Authentication / Authorization</h3>"));
-			contentview.add(new LinkView("action", "Actions"));
+			contentview.add(new InternalLinkView("action", "Actions"));
 			contentview.add(new HtmlView("<br/>"));
 			
-			contentview.add(new LinkView("authtype", "Authorization Types"));
+			contentview.add(new InternalLinkView("authtype", "Authorization Types"));
 			contentview.add(new HtmlView("<br/>"));
 			
-			contentview.add(new LinkView("authmatrix", "Authorization-Action Matrix" ));
+			contentview.add(new InternalLinkView("authmatrix", "Authorization-Action Matrix" ));
 			contentview.add(new HtmlView("<br/>"));
 			
-			contentview.add(new LinkView("user", "User-Authorization Level Mapping" ));
+			contentview.add(new InternalLinkView("user", "User-Authorization Level Mapping" ));
 			contentview.add(new HtmlView("<br/>"));
 			
 			contentview.add(new HtmlView("<br/>"));
 			contentview.add(new HtmlView("<h3>GOC Administration</h3>"));
-			contentview.add(new LinkView("osggridtype", "OSG Grid Types"));
+			contentview.add(new InternalLinkView("osggridtype", "OSG Grid Types"));
 			contentview.add(new HtmlView("<br/>"));
 			
-			contentview.add(new LinkView("servicegroup", "Service Groups"));
+			contentview.add(new InternalLinkView("servicegroup", "Service Groups"));
 			contentview.add(new HtmlView("<br/>"));
 			
-			contentview.add(new LinkView("service", "Services")); //service table, metric_service table
+			contentview.add(new InternalLinkView("service", "Services")); //service table, metric_service table
 			contentview.add(new HtmlView("<br/>"));
 			
-			contentview.add(new LinkView("metric", "RSV Metrics"));
+			contentview.add(new InternalLinkView("metric", "RSV Metrics"));
 			contentview.add(new HtmlView("<br/>"));
 			
-			contentview.add(new LinkView("fieldofscience", "Fields of Science (associated with VOs)"));
+			contentview.add(new InternalLinkView("fieldofscience", "Fields of Science (associated with VOs)"));
 			contentview.add(new HtmlView("<br/>"));
 		}
 		
@@ -93,7 +94,7 @@ public class AdminServlet extends ServletBase  {
 		if (auth.allows("admin") || auth.allows("edit_measurement")) {
 			contentview.add(new HtmlView("<br/>"));
 			contentview.add(new HtmlView("<h3>Measurement</h3>"));
-			contentview.add(new LinkView("cpuinfo", "CPU Information"));
+			contentview.add(new InternalLinkView("cpuinfo", "CPU Information"));
 			contentview.add(new HtmlView("<br/>"));
 		}
 		

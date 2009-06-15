@@ -30,7 +30,9 @@ import edu.iu.grid.oim.model.db.ModelBase;
 import edu.iu.grid.oim.model.db.record.DNRecord;
 import edu.iu.grid.oim.model.db.record.LogRecord;
 import edu.iu.grid.oim.view.ContentView;
+import edu.iu.grid.oim.view.GenericView;
 import edu.iu.grid.oim.view.HtmlView;
+import edu.iu.grid.oim.view.InternalLinkView;
 import edu.iu.grid.oim.view.LinkView;
 import edu.iu.grid.oim.view.ListView;
 import edu.iu.grid.oim.view.MenuView;
@@ -271,16 +273,30 @@ public class LogServlet extends ServletBase  {
 	{
 		SideContentView view = new SideContentView();
 		
-		ListView list = new ListView();
-		list.add(new LinkView("log?type=all", "All"));
-		list.add(new LinkView("log?type=resource", "Resource"));
-		list.add(new LinkView("log?type=vo", "Virtual Organization" ));
-		list.add(new LinkView("log?type=sc", "Support Center"));
-		list.add(new LinkView("log?type=contact", "Contact"));		
+		GenericView list = new GenericView();
+		list.add(new InternalLinkView("log?type=all", "All"));
+		list.add(new HtmlView("<br/>"));
+
+		list.add(new InternalLinkView("log?type=resource", "Resource"));
+		list.add(new HtmlView("<br/>"));
+		
+		list.add(new InternalLinkView("log?type=vo", "Virtual Organization" ));
+		list.add(new HtmlView("<br/>"));
+		
+		list.add(new InternalLinkView("log?type=sc", "Support Center"));
+		list.add(new HtmlView("<br/>"));
+		
+		list.add(new InternalLinkView("log?type=contact", "Contact"));		
+		list.add(new HtmlView("<br/>"));
+		
 		if(auth.allows("admin")) {
-			list.add(new LinkView("log?type=site", "Site"));	
-			list.add(new LinkView("log?type=facility", "Facility"));	
+			list.add(new InternalLinkView("log?type=site", "Site"));	
+			list.add(new HtmlView("<br/>"));
+			
+			list.add(new InternalLinkView("log?type=facility", "Facility"));	
+			list.add(new HtmlView("<br/>"));
 		}
+		
 		view.add("Log Type", list);		
 		return view;
 	}

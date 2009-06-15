@@ -8,12 +8,18 @@ public class LinkView implements IView {
 	
 	private String url;
 	private String title;
-	public LinkView(String _url, String _title) {
+	private Boolean external;
+	public LinkView(String _url, String _title, Boolean _external) {
 		url = _url;
 		title = _title;
+		external = _external;
 	}
 	public void render(PrintWriter out) {
-		out.write("<a target=\"_blank\" href=\""+url+"\">"+StringEscapeUtils.escapeHtml(title)+"</a>");
+		if(external) {
+			out.write("<a target=\"_blank\" href=\""+url+"\">"+StringEscapeUtils.escapeHtml(title)+"</a>");	
+		} else {
+			out.write("<a href=\""+url+"\">"+StringEscapeUtils.escapeHtml(title)+"</a>");
+		}
 	}
 
 }
