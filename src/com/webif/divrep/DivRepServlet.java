@@ -23,6 +23,7 @@ public class DivRepServlet extends HttpServlet {
     
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
 	{	
+		/*
 		//simulate network latency
 		try {
 			Thread.sleep(300);
@@ -30,6 +31,7 @@ public class DivRepServlet extends HttpServlet {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		*/
 		
 		response.setHeader("Cache-Control","no-cache, must-revalidate");
 		
