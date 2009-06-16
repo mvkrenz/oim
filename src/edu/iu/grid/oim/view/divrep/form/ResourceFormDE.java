@@ -370,4 +370,13 @@ public class ResourceFormDE extends FormBase
 		}
 		return resources;
 	}
+	
+	public Boolean isValidResourceFQDN(String url)
+	{
+		if(fqdn.getValue().equals(url)) return true;
+		ArrayList<String> as = aliases.getAliases();
+		if(as.contains(url)) return true;
+		
+		return false;
+	}
 }

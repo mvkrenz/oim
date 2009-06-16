@@ -13,10 +13,13 @@ import com.webif.divrep.form.CheckBoxFormElement;
 import com.webif.divrep.form.FormElementBase;
 import com.webif.divrep.form.SelectFormElement;
 import com.webif.divrep.form.TextFormElement;
+import com.webif.divrep.form.validator.IFormElementValidator;
+import com.webif.divrep.form.validator.UrlValidator;
 
 import edu.iu.grid.oim.model.Context;
 import edu.iu.grid.oim.model.db.record.ResourceServiceRecord;
 import edu.iu.grid.oim.model.db.record.ServiceRecord;
+import edu.iu.grid.oim.view.divrep.form.ResourceFormDE;
 
 public class ResourceServices extends FormElementBase {
 
@@ -25,6 +28,8 @@ public class ResourceServices extends FormElementBase {
 	private Button add_button;
 	private Context context;
 	private ArrayList<ServiceRecord> service_recs;
+	
+	private ResourceFormDE parent;
 
 	class ServiceEditor extends FormElementBase
 	{
@@ -36,12 +41,11 @@ public class ResourceServices extends FormElementBase {
 		private TextFormElement server_list_regex;
 		
 		private Button remove_button;
-		private ServiceEditor myself;
+		private ResourceServices parent;
 		
-		protected ServiceEditor(DivRep parent, ResourceServiceRecord rec, ArrayList<ServiceRecord> service_recs) {
-			super(parent);
-			myself = this;
-			
+		protected ServiceEditor(ResourceServices _parent, ResourceServiceRecord rec, ArrayList<ServiceRecord> service_recs) {
+			super(_parent);
+			parent = _parent;
 			
 			try {
 				service = new ServiceGroupHierarchySelector(this, context, ServiceGroupHierarchySelector.Type.SERVICE);
@@ -69,11 +73,43 @@ public class ResourceServices extends FormElementBase {
 			}
 			
 			endpoint_override = new TextFormElement(this);
-			endpoint_override.setLabel("Service URI Override (default serviceUri in the fqdn[:default_service_port][/service] format.)");
-			endpoint_override.setSampleValue("research.iu.edu:2812/gsiftp");
+			endpoint_override.setLabel("Service URI Override (FQDN[:port])");
+			endpoint_override.setSampleValue("research.iu.edu:2812");
 			if(rec != null) {
 				endpoint_override.setValue(rec.endpoint_override);
 			}
+			endpoint_override.addValidator(new IFormElementValidator<String>() {
+				String message;
+				public String getMessage() {
+					return message;
+				}
+				public Boolean isValid(String value) {
+					//split the value into 2 segments
+					String[]parts = value.split(":");
+					if(parts.length != 1 && parts.length != 2) {
+						message = "Please enter override in the form such as \"resource123.iu.edu:2119\"";
+						return false;
+					}
+					
+					//validate the url
+					String url = parts[0];
+					if(!parent.isValidResourceFQDN(url)) {
+						message = "Please use FQDN of this resource, or one of FQDN aliases.";
+						return false;
+					}
+					
+					//validate port
+					if(parts.length == 2) {
+						try {
+							Integer port = Integer.parseInt(parts[1]);
+						} catch (NumberFormatException e) {
+							message = "The port number is invalid.";
+							return false;
+						}
+					}
+					
+					return true;
+				}});
 
 			// Hiding this for now. Only Brian B knows how to use it.
 			server_list_regex = new TextFormElement(this);
@@ -88,7 +124,7 @@ public class ResourceServices extends FormElementBase {
 			//remove_button.setConfirm(true, "Do you really want to remove this service?");
 			remove_button.addEventListener(new EventListener() {
 				public void handleEvent(Event e) {
-					removeService(myself);	
+					removeService(ServiceEditor.this);	
 				}
 			});
 		}
@@ -177,8 +213,9 @@ public class ResourceServices extends FormElementBase {
 		notifyListener(e);
 	}
 	
-	public ResourceServices(DivRep parent, Context _context, ArrayList<ServiceRecord> _service_recs) {
-		super(parent);
+	public ResourceServices(ResourceFormDE _parent, Context _context, ArrayList<ServiceRecord> _service_recs) {
+		super(_parent);
+		parent = _parent;
 		context = _context;
 		service_recs = _service_recs;
 		
@@ -216,6 +253,11 @@ public class ResourceServices extends FormElementBase {
 				valid = false;
 			}
 		}
+	}
+	
+	public Boolean isValidResourceFQDN(String url)
+	{
+		return parent.isValidResourceFQDN(url);
 	}
 
 	@Override

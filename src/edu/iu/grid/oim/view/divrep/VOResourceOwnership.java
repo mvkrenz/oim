@@ -190,11 +190,11 @@ public class VOResourceOwnership extends FormElementBase {
 				total += Double.parseDouble(owner.percent.getValue());
 			}
 		}
-		if(total == 100D) {
+		if(total <= 100D) {
 			error.clear();
 			valid = true;
 		} else {
-			error.set("Total percentage of ownership must be equal to 100% -- Current total is " + total + "%");
+			error.set("Total percentage of ownership must be less than or equal to 100% -- Current total is " + total + "%");
 			valid = false;
 		}
 	}
