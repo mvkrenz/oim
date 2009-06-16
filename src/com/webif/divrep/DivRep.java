@@ -149,7 +149,7 @@ public abstract class DivRep {
 			this.onRequest(request, response);
 		} else {
 			//normal divrep event
-			PrintWriter writer = response.getWriter();
+			PrintWriter out = response.getWriter();
 			response.setContentType("text/javascript");
 			Event e = new Event(action, value);
 			divrepPage page = getPageRoot();
@@ -158,23 +158,24 @@ public abstract class DivRep {
 			onEvent(e);
 			notifyListener(e);
 			
+			
 			//output page modified flag - I need to do this immediately or divrep_redirect call on other thread will be called first and the
 			//flag will not get update in time
 			if(page.isModified()) {
-				writer.write("divrep_pagemodified = true;");
+				out.write("divrep_modified(true);");
 			} else {
-				writer.write("divrep_pagemodified = false;");
+				out.write("divrep_modified(false);");			
 			}
 			
 			//if redirect is set, we don't need to do any update
 			if(page.getRedirect() != null) {
-				writer.write("divrep_redirect(\""+page.getRedirect()+"\")");
-				page.setRedirect(null);
+				out.write("divrep_redirect(\""+getRedirect()+"\");");
+				setRedirect(null);
 				return;
 			}
 
-			writer.write(page.outputUpdatecode());
-			page.flushPostReplaceJS(writer);//needs to emit *after* divrep_replace(s)
+			out.write(page.outputUpdatecode());
+			page.flushPostReplaceJS(out);//needs to emit *after* divrep_replace(s)
 		}
 	}
 	protected void notifyListener(Event e)
@@ -201,7 +202,14 @@ public abstract class DivRep {
 	public void redraw() {
 		needupdate = true;
 	}
-	private String redirect_url;
-	public void setRedirect(String url) { redirect_url = url; }
-	public String getRedirect() { return redirect_url; }
+
+	public void setRedirect(String url) 
+	{ 
+		getPageRoot().setRedirect(url); 
+	}
+	public String getRedirect() 
+	{ 
+		return getPageRoot().getRedirect();
+	}
+	
 }

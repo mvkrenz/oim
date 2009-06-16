@@ -56,7 +56,7 @@ public class DivRepRoot extends DivRep
 				out.write("divrep_jscallback = function() {");
 				out.write(post_replace_js);
 				out.write("};");
-				out.write("setTimeout(divrep_runjs, 0);");
+				out.write("setTimeout(divrep_runjs, 50);");
 				post_replace_js = "";
 			}
 			
@@ -85,6 +85,10 @@ public class DivRepRoot extends DivRep
 			// TODO Auto-generated method stub
 			
 		}   
+		
+		private String redirect_url;
+		public void setRedirect(String url) { redirect_url = url; }
+		public String getRedirect() { return redirect_url; }
 	}
 	
 	//DivRepRoot contains the list of divrepPage that is the root for each pages

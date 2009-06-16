@@ -6,11 +6,22 @@ function divrepClearProcessing() {
 }
 
 function divrep(id, event, value) {
+
 	//make sure there is only one request at the same time (prevent double clicking of submit button)
 	if(divrep_processing_id == id) {
 		//previous request on same target still running - ignore;
 		return;
 	}
+	
+	//weird thing about the browser's event handling is that, although javascript is single threaded,
+	//for some reason browser start running event handler while another handler is still executing.
+	//we need to make sure that this doesn't happen.
+	if(divrep_processing_id != null) {
+		//wait until the previous processing ends
+		setTimeout(function() { divrep(id, event, value);}, 100);
+		return;
+	}
+	
 	divrep_processing_id = id;
 	
 	//stop bubble
@@ -23,6 +34,7 @@ function divrep(id, event, value) {
 		event.type = "unknown";
 	}
 	
+	console.log("calling jQuery.ajax for " + id);
 	jQuery.ajax({
 		url: "divrep",
 		async: false,
@@ -39,6 +51,7 @@ function divrep(id, event, value) {
 		   divrepClearProcessing();
 	    }
 	});
+	console.log("end jQuery.ajax for " + id);
 }
 
 //this is basically the same thing as jquery.load, but instead of replacing the content 
@@ -81,8 +94,6 @@ function divrep_runjs()
 	}
 }
 
-var divrep_pagemodified = false;
-
 //Firefox 3.0.10 (and may be others) has a bug where windows.location based redirect directly
 //from the returned javascript causes the browser history to incorrectly enter entry and hitting
 //back button will make the browser skip previous page and render previous - previous page.
@@ -93,16 +104,25 @@ function divrep_redirect(url)
 	divrep_redirect_url = url;
 	setTimeout(divrep_doRedirect, 0); //immediately call the timer
 }
+function divrep_modified(mod)
+{
+	if(mod) {
+		window.onbeforeunload = divrep_confirm_close;
+	} else {
+		window.onbeforeunload = null;
+	}
+}
+function divrep_confirm_close()
+{
+    return "You have not submitted the changes you made on this form.";
+}
 function divrep_doRedirect()
 {
-	if(divrep_pagemodified == true) {
-		/* -- this doesn't work on the production .. (works on localhost..why!?)
-		if(!confirm('You have unsaved changes. Do you want to discard and leave this page?')) {
-			return;
-		}
-		*/
+	try {
+		window.location.href = divrep_redirect_url;
+	} catch(error) {
+		//IE7 blows up if user cancel the onbeforeunload confirmation invoked by window redirect
+		//this block silences IE7
 	}
-	//alert(divrep_pagemodified);
-	window.location = divrep_redirect_url;
 }
 

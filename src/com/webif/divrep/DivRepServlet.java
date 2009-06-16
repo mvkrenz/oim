@@ -23,7 +23,14 @@ public class DivRepServlet extends HttpServlet {
     
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
 	{	
-		//prevent ie6 cacheing of loaded content
+		//simulate network latency
+		try {
+			Thread.sleep(300);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 		response.setHeader("Cache-Control","no-cache, must-revalidate");
 		
 		//find the target node and process action
@@ -31,7 +38,7 @@ public class DivRepServlet extends HttpServlet {
 		
 		//get this session's divrep root and find the target node
 		DivRepRoot root = DivRepRoot.getInstance(request.getSession());
-		synchronized(root) {
+		//synchronized(root) {
 			DivRep div = root.findNode(nodeid);
 			if(div == null) {
 				//ooops.. maybe we lost something here?
@@ -42,7 +49,7 @@ public class DivRepServlet extends HttpServlet {
 				//dipatch divrep event handler
 				div.doGet(request, response);
 			}
-		}
+		//}
 	}
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
