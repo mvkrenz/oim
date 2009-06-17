@@ -109,7 +109,7 @@ public class ContactEditor extends FormElementBase<HashMap<ContactEditor.Rank, A
 			rank = _rank;
 		}
 		
-		public String getMessage() {
+		public String getErrorMessage() {
 			return "Please specify at least " + min + " contact(s).";
 		}
 

@@ -9,7 +9,7 @@ public class EmailValidator implements IFormElementValidator<String>
 		return org.apache.commons.validator.EmailValidator.getInstance().isValid(value);
 	}
 	
-	public String getMessage()
+	public String getErrorMessage()
 	{
 		return "Please specify a valid email address.";
 	}

@@ -15,7 +15,7 @@ public class UniqueValidator<T> implements IFormElementValidator<T>
 		return !(prohibited.contains(value));
 	}
 	
-	public String getMessage()
+	public String getErrorMessage()
 	{
 		return "This value is already used. Please enter different value.";
 	}

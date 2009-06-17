@@ -80,7 +80,7 @@ public class ResourceServices extends FormElementBase {
 			}
 			endpoint_override.addValidator(new IFormElementValidator<String>() {
 				String message;
-				public String getMessage() {
+				public String getErrorMessage() {
 					return message;
 				}
 				public Boolean isValid(String value) {

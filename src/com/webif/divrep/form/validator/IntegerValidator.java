@@ -14,7 +14,7 @@ public class IntegerValidator implements IFormElementValidator<String>
 		}
 	}
 	
-	public String getMessage()
+	public String getErrorMessage()
 	{
 		return "Please specify a integer value (1, 4, 10, etc..)";
 	}

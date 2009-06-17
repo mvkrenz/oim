@@ -6,5 +6,5 @@ public interface IFormElementValidator<T> {
 	public Boolean isValid(T value);
 
 	//return default error string such as "This must be a valid URL."
-	public String getMessage();
+	public String getErrorMessage();
 }

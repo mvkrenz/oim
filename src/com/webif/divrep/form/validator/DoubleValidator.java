@@ -14,7 +14,7 @@ public class DoubleValidator implements IFormElementValidator<String>
 		}
 	}
 	
-	public String getMessage()
+	public String getErrorMessage()
 	{
 		return "Please specify a floating point value (2.343, 5, etc..)";
 	}

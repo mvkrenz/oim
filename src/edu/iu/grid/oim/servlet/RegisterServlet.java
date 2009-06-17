@@ -158,7 +158,7 @@ public class RegisterServlet extends ServletBase  {
 				public CheckValidator(TextFormElement _other) {
 					other = _other;
 				}
-				public String getMessage() {
+				public String getErrorMessage() {
 					return "Email address doesn't match.";
 				}
 				public Boolean isValid(Object value) {

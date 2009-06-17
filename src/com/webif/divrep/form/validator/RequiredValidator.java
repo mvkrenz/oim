@@ -10,7 +10,7 @@ public class RequiredValidator implements IFormElementValidator<String>
 		return true;
 	}
 	
-	public String getMessage()
+	public String getErrorMessage()
 	{
 		return "Cannot be an empty value";
 	}

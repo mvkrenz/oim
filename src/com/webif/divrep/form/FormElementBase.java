@@ -110,7 +110,7 @@ abstract public class FormElementBase<ValueType> extends DivRep {
 		for(IFormElementValidator<ValueType> validator : validators) {
 			if(!validator.isValid(value)) {
 				//bad..
-				error.set(validator.getMessage());
+				error.set(validator.getErrorMessage());
 				valid = false;
 				return;
 			}

@@ -34,7 +34,7 @@ function divrep(id, event, value) {
 		event.type = "unknown";
 	}
 	
-	console.log("calling jQuery.ajax for " + id);
+	//console.log("calling jQuery.ajax for " + id);
 	jQuery.ajax({
 		url: "divrep",
 		async: false,
@@ -51,7 +51,7 @@ function divrep(id, event, value) {
 		   divrepClearProcessing();
 	    }
 	});
-	console.log("end jQuery.ajax for " + id);
+	//console.log("end jQuery.ajax for " + id);
 }
 
 //this is basically the same thing as jquery.load, but instead of replacing the content 

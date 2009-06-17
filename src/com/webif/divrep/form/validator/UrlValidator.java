@@ -12,7 +12,7 @@ public class UrlValidator implements IFormElementValidator<String>
 		return (urlvalidator.isValid(value));
 	}
 	
-	public String getMessage()
+	public String getErrorMessage()
 	{
 		return "Please specify a valid http or https URL. For example: http://www.grid.iu.edu/systems";
 	}
