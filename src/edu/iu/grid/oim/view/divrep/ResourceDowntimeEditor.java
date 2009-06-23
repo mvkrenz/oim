@@ -116,6 +116,7 @@ public class ResourceDowntimeEditor extends FormElement {
 						"onSelect: function(value) {divrep('"+getNodeID()+"', null, value);},"+
 						"dateFormat: '"+default_jquery_format+"',"+
 						"beforeShow: function() {$(this).attr('disabled', 'disabled');},"+
+						"onClose: function() {$(this).attr('disabled', '');},"+
 						"changeYear: true,"+
 						"changeMonth: true"
 						);
@@ -149,17 +150,17 @@ public class ResourceDowntimeEditor extends FormElement {
 				hours.put(10, "10 AM");
 				hours.put(11, "11 AM");
 				hours.put(12, "12 (Noon)");
-				hours.put(13, "1 PM (13:)");
-				hours.put(14, "2 PM (14:)");
-				hours.put(15, "3 PM (15:)");
-				hours.put(16, "4 PM (16:)");
-				hours.put(17, "5 PM (17:)");
-				hours.put(18, "6 PM (18:)");
-				hours.put(19, "7 PM (19:)");
-				hours.put(20, "8 PM (20:)");
-				hours.put(21, "9 PM (21:)");
-				hours.put(22, "10 PM (22:)");
-				hours.put(23, "11 PM (23:)");
+				hours.put(13, "1 PM (13)");
+				hours.put(14, "2 PM (14)");
+				hours.put(15, "3 PM (15)");
+				hours.put(16, "4 PM (16)");
+				hours.put(17, "5 PM (17)");
+				hours.put(18, "6 PM (18)");
+				hours.put(19, "7 PM (19)");
+				hours.put(20, "8 PM (20)");
+				hours.put(21, "9 PM (21)");
+				hours.put(22, "10 PM (22)");
+				hours.put(23, "11 PM (23)");
 				hour = new Select(this, hours);
 				hour.addEventListener(new EventListener() {
 					public void handleEvent(Event e) {
@@ -171,7 +172,7 @@ public class ResourceDowntimeEditor extends FormElement {
 				
 				TreeMap<Integer, String> mins = new TreeMap<Integer, String>();	
 				for(int m = 0; m < 60; m+=5) {
-					mins.put(m, String.valueOf(m));
+					mins.put(m, ":" + m);
 				}
 				min = new Select(this, mins);
 				min.addEventListener(new EventListener() {
@@ -194,7 +195,7 @@ public class ResourceDowntimeEditor extends FormElement {
 				
 				out.write("<table id=\""+getNodeID()+"\"><tr><td>");
 				hour.render(out);
-				out.write("</td><td>:</td><td>");
+				out.write("</td><td>");
 				min.render(out);
 				
 				error.render(out);
