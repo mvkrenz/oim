@@ -383,6 +383,7 @@ public class ResourceDowntimeEditor extends FormElement {
 
 			for(DivRep child : childnodes) {
 				if(child == remove_button) continue;
+				if(child == error) continue;
 				if(child instanceof FormElement) {
 					FormElement elem = (FormElement)child;
 					if(!elem.isHidden()) {
@@ -395,7 +396,8 @@ public class ResourceDowntimeEditor extends FormElement {
 					child.render(out);
 				}
 			}
-		
+			error.render(out);
+			
 			out.write("</div>");
 		}
 
@@ -469,8 +471,23 @@ public class ResourceDowntimeEditor extends FormElement {
 				if(start.compareTo(end) > 0) {
 					valid = false;
 					error.set("Start Time is after the end time. Please correct.");
+					return;
+				}
+				
+				int service_count = 0;
+				for(Integer service_id : affected_services.keySet()) {
+					CheckBoxFormElement checkbox = affected_services.get(service_id);
+					if(checkbox.getValue()) {
+						++service_count;
+					}
+				}
+				if(service_count == 0) {
+					valid = false;
+					error.set("Please select at least one affected service.");
+					return;
 				}
 			}
+			
 		}
 	}
 
