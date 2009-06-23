@@ -7,7 +7,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.log4j.Logger;
-import edu.iu.grid.oim.lib.Config;
+import edu.iu.grid.oim.lib.StaticConfig;
 
 import edu.iu.grid.oim.view.BreadCrumbView;
 import edu.iu.grid.oim.view.ContentView;
@@ -55,7 +55,7 @@ public class FieldOfScienceEditServlet extends ServletBase implements Servlet {
 		}
 	
 		FieldOfScienceFormDE form;
-		String origin_url = Config.getApplicationBase()+"/"+current_page;
+		String origin_url = StaticConfig.getApplicationBase()+"/"+current_page;
 		try {
 			form = new FieldOfScienceFormDE(context, rec, origin_url);
 		} catch (SQLException e) {

@@ -8,16 +8,16 @@ import java.util.HashMap;
 
 import org.apache.commons.lang.StringEscapeUtils;
 
-import com.webif.divrep.Button;
+import com.webif.divrep.common.Button;
 import com.webif.divrep.DivRep;
 import com.webif.divrep.Event;
 import com.webif.divrep.EventListener;
-import com.webif.divrep.Static;
-import com.webif.divrep.form.CheckBoxFormElement;
-import com.webif.divrep.form.FormElementBase;
-import com.webif.divrep.form.SelectFormElement;
-import com.webif.divrep.form.TextFormElement;
-import com.webif.divrep.form.validator.UniqueValidator;
+import com.webif.divrep.common.Static;
+import com.webif.divrep.common.CheckBoxFormElement;
+import com.webif.divrep.common.FormElement;
+import com.webif.divrep.common.Select;
+import com.webif.divrep.common.Text;
+import com.webif.divrep.validator.UniqueValidator;
 
 import edu.iu.grid.oim.view.divrep.VOReportNames.VOReportNameEditor;
 
@@ -37,7 +37,7 @@ import edu.iu.grid.oim.model.db.record.VOReportContactRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
 
 
-public class VOReportNames extends FormElementBase {
+public class VOReportNames extends FormElement {
 
 	//ArrayList<VOReportNameEditor> vo_report_names = new ArrayList<VOReportNameEditor>();
 	ArrayList<Integer> vo_report_id_taken = new ArrayList<Integer>();
@@ -45,12 +45,12 @@ public class VOReportNames extends FormElementBase {
 	private ArrayList<VOReportNameRecord> vorepname_records;
 	private Button add_button;
 	
-	class VOReportNameEditor extends FormElementBase
+	class VOReportNameEditor extends FormElement
 	{
 		//VO Report Name Details
 		private Integer id;
 		private Integer vo_id;
-		private TextFormElement vo_report_name;
+		private Text vo_report_name;
 		private VOReportNameFqan vo_report_name_fqan;
 		private ContactEditor vorc_editor ; // = new ContactEditor;
 
@@ -70,7 +70,7 @@ public class VOReportNames extends FormElementBase {
 
 			new Static(this, "<h4>Report Name</h4>");
 
-			vo_report_name = new TextFormElement(this);
+			vo_report_name = new Text(this);
 			//vo_report_name.setLabel("");
 			vo_report_name.setRequired(true);
 			vo_report_name.setValue(vorepname_record.name);
@@ -143,8 +143,8 @@ public class VOReportNames extends FormElementBase {
 			for(DivRep child : childnodes) {
 				if(child == remove_button) continue;
 				
-				if(child instanceof FormElementBase) {
-					FormElementBase elem = (FormElementBase)child;
+				if(child instanceof FormElement) {
+					FormElement elem = (FormElement)child;
 					if(!elem.isHidden()) {
 						out.print("<div class=\"form_element\">");
 						child.render(out);

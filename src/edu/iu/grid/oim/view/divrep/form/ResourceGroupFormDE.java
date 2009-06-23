@@ -3,19 +3,20 @@ package edu.iu.grid.oim.view.divrep.form;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.TreeMap;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 
 import com.webif.divrep.DivRep;
-import com.webif.divrep.Static;
-import com.webif.divrep.form.CheckBoxFormElement;
-import com.webif.divrep.form.FormBase;
-import com.webif.divrep.form.SelectFormElement;
-import com.webif.divrep.form.TextAreaFormElement;
-import com.webif.divrep.form.TextFormElement;
-import com.webif.divrep.form.validator.UniqueValidator;
-import com.webif.divrep.form.validator.UrlValidator;
+import com.webif.divrep.common.Static;
+import com.webif.divrep.common.CheckBoxFormElement;
+import com.webif.divrep.common.FormBase;
+import com.webif.divrep.common.Select;
+import com.webif.divrep.common.TextArea;
+import com.webif.divrep.common.Text;
+import com.webif.divrep.validator.UniqueValidator;
+import com.webif.divrep.validator.UrlValidator;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
@@ -52,10 +53,10 @@ public class ResourceGroupFormDE extends FormBase
 	protected Authorization auth;
 	private Integer id;
 	
-	private TextFormElement name;
-	private TextAreaFormElement description;
+	private Text name;
+	private TextArea description;
 	private OIMHierarchySelector site_id;
-	private SelectFormElement osg_grid_type_id;
+	private Select osg_grid_type_id;
 	private CheckBoxFormElement active;
 	private CheckBoxFormElement disable;
 	
@@ -77,7 +78,7 @@ public class ResourceGroupFormDE extends FormBase
 			resource_groups.remove(id);
 		}
 		
-		name = new TextFormElement(this);
+		name = new Text(this);
 		name.setLabel("Name");
 		name.setValue(rec.name);
 		name.addValidator(new UniqueValidator<String>(resource_groups.values()));
@@ -89,18 +90,18 @@ public class ResourceGroupFormDE extends FormBase
 		site_id.setRequired(true);
 		
 		OsgGridTypeModel omodel = new OsgGridTypeModel(context);
-		HashMap<Integer, String> gridtype_kv = new HashMap();
+		TreeMap<Integer, String> gridtype_kv = new TreeMap();
 		for(OsgGridTypeRecord site_rec : omodel.getAll()) {
 			gridtype_kv.put(site_rec.id, site_rec.name);
 		}
-		osg_grid_type_id = new SelectFormElement(this, gridtype_kv);
+		osg_grid_type_id = new Select(this, gridtype_kv);
 		osg_grid_type_id.setLabel("OSG Grid Type");
 		osg_grid_type_id.setRequired(true);
 		if(id != null) {
 			osg_grid_type_id.setValue(rec.osg_grid_type_id);
 		}
 
-		description = new TextAreaFormElement(this);
+		description = new TextArea(this);
 		description.setLabel("Description");
 		description.setValue(rec.description);
 		description.setRequired(true);

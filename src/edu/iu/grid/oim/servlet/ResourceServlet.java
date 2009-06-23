@@ -14,12 +14,12 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 
-import com.webif.divrep.Button;
+import com.webif.divrep.common.Button;
 import com.webif.divrep.DivRep;
 import com.webif.divrep.Event;
-import com.webif.divrep.Toggler;
+import com.webif.divrep.common.Toggler;
 
-import edu.iu.grid.oim.lib.Config;
+import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.model.db.ContactRankModel;
 import edu.iu.grid.oim.model.db.ContactTypeModel;
 import edu.iu.grid.oim.model.db.ContactModel;
@@ -224,7 +224,7 @@ public class ResourceServlet extends ServletBase implements Servlet {
 			};
 
 			table.addRow("Downtime", new DivRepWrapper(new EditDowntimeButtonDE(context.getPageRoot(), 
-					Config.getApplicationBase()+"/resourcedowntimeedit?id=" + rec.id)));
+					StaticConfig.getApplicationBase()+"/resourcedowntimeedit?id=" + rec.id)));
 			
 			table.addRow("Active", rec.active);
 			table.addRow("Disable", rec.disable);
@@ -242,7 +242,7 @@ public class ResourceServlet extends ServletBase implements Servlet {
 				}
 			};
 			table.add(new DivRepWrapper(new EditButtonDE(context.getPageRoot(), 
-					Config.getApplicationBase()+"/resourceedit?resource_id=" + rec.id)));
+					StaticConfig.getApplicationBase()+"/resourceedit?resource_id=" + rec.id)));
 
 		}
 		

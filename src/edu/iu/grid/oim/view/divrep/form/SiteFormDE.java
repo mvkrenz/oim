@@ -7,6 +7,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.TreeMap;
 
 import org.apache.log4j.Logger;
 import org.geonames.Toponym;
@@ -16,14 +17,14 @@ import org.geonames.WebService;
 
 import com.webif.divrep.DivRep;
 import com.webif.divrep.Event;
-import com.webif.divrep.Static;
-import com.webif.divrep.form.CheckBoxFormElement;
-import com.webif.divrep.form.FormBase;
-import com.webif.divrep.form.SelectFormElement;
-import com.webif.divrep.form.TextAreaFormElement;
-import com.webif.divrep.form.TextFormElement;
-import com.webif.divrep.form.validator.UniqueValidator;
-import com.webif.divrep.form.validator.UrlValidator;
+import com.webif.divrep.common.Static;
+import com.webif.divrep.common.CheckBoxFormElement;
+import com.webif.divrep.common.FormBase;
+import com.webif.divrep.common.Select;
+import com.webif.divrep.common.TextArea;
+import com.webif.divrep.common.Text;
+import com.webif.divrep.validator.UniqueValidator;
+import com.webif.divrep.validator.UrlValidator;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
@@ -53,18 +54,18 @@ public class SiteFormDE extends FormBase
 	protected Authorization auth;
 	private Integer id;
 	
-	private TextFormElement name;
-	private TextFormElement long_name;
-	private TextAreaFormElement description;
-	private TextFormElement address_line_1;
-	private TextFormElement address_line_2;
-	private TextFormElement city;
-	private TextFormElement state;
-	private TextFormElement zipcode;
-	private TextFormElement country;
+	private Text name;
+	private Text long_name;
+	private TextArea description;
+	private Text address_line_1;
+	private Text address_line_2;
+	private Text city;
+	private Text state;
+	private Text zipcode;
+	private Text country;
 	private LatLngSelector latlng;
-	private SelectFormElement sc_id;
-	private SelectFormElement facility_id;
+	private Select sc_id;
+	private Select facility_id;
 	private CheckBoxFormElement active;
 	private CheckBoxFormElement disable;
 	
@@ -79,67 +80,67 @@ public class SiteFormDE extends FormBase
 		new Static(this, "<p>Add/modify basic information about this site.<br>NOTE: A site represents a department or a sub-organization within a an instituition (like BNL, Fermilab, etc.) or a university, referred to as facility.</p>");
 
 		//pull sites for unique validator
-		HashMap<Integer, String> sites = getSites();
+		TreeMap<Integer, String> sites = getSites();
 		if(id != null) {
 			//if doing update, remove my own name (I can use my own name)
 			sites.remove(id);
 		}
 
-		facility_id = new SelectFormElement(this, getFacilities());
+		facility_id = new Select(this, getFacilities());
 		facility_id.setLabel("Select the facility this site is part of");
 		facility_id.setValue(rec.facility_id);
 		facility_id.setRequired(true);
 
-		name = new TextFormElement(this);
+		name = new Text(this);
 		name.setLabel("Enter this Site's short Name");
 		name.setValue(rec.name);
 		name.addValidator(new UniqueValidator<String>(sites.values()));
 		name.setRequired(true);
 		
-		long_name = new TextFormElement(this);
+		long_name = new Text(this);
 		long_name.setLabel("Enter Longer Name, if applicable");
 		long_name.setValue(rec.long_name);
 		long_name.setRequired(false);
 				
-		description = new TextAreaFormElement(this);
+		description = new TextArea(this);
 		description.setLabel("Enter Site Description");
 		description.setValue(rec.description);
 		description.setRequired(false);
 
-		sc_id = new SelectFormElement(this, getSCs());
+		sc_id = new Select(this, getSCs());
 		sc_id.setLabel("Select Support Center for this Site");
 		sc_id.setValue(rec.sc_id);
 		sc_id.setRequired(true);
 
 		new Static(this, "<h2>Geographical Address Information</h2>");
-		address_line_1 = new TextFormElement(this);
+		address_line_1 = new Text(this);
 		address_line_1.setLabel("Street Address");
 		address_line_1.setValue(rec.address_line_1);
 		address_line_1.setRequired(false);
 
-		address_line_2 = new TextFormElement(this);
+		address_line_2 = new Text(this);
 		address_line_2.setLabel("Address Line 2");
 		address_line_2.setValue(rec.address_line_2);
 		address_line_2.setRequired(false);
 
-		city = new TextFormElement(this);
+		city = new Text(this);
 		city.setLabel("City");
 		city.setValue(rec.city);
 		city.setRequired(true);//on DB, this is non-nullable
 
 		// Need to make this dropdown? probably not.
-		state = new TextFormElement(this);
+		state = new Text(this);
 		state.setLabel("State");
 		state.setValue(rec.state);
 		state.setRequired(true);
 
-		zipcode = new TextFormElement(this);
+		zipcode = new Text(this);
 		zipcode.setLabel("Zipcode");
 		zipcode.setValue(rec.zipcode);
 		zipcode.setRequired(true);
 
 		// Need to make this drop down. -agopu
-		country = new TextFormElement(this);
+		country = new Text(this);
 		country.setLabel("Country");
 		country.setValue(rec.country);
 		country.setRequired(true);
@@ -167,30 +168,30 @@ public class SiteFormDE extends FormBase
 		}
 	}
 	
-	private HashMap<Integer, String> getSites() throws AuthorizationException, SQLException
+	private TreeMap<Integer, String> getSites() throws AuthorizationException, SQLException
 	{
 		SiteModel model = new SiteModel(context);
-		HashMap<Integer, String> keyvalues = new HashMap<Integer, String>();
+		TreeMap<Integer, String> keyvalues = new TreeMap<Integer, String>();
 		for(SiteRecord rec : model.getAll()) {
 			keyvalues.put(rec.id, rec.name);
 		}
 		return keyvalues;
 	}
 	
-	private HashMap<Integer, String> getSCs() throws AuthorizationException, SQLException
+	private TreeMap<Integer, String> getSCs() throws AuthorizationException, SQLException
 	{
 		SCModel model = new SCModel(context);
-		HashMap<Integer, String> keyvalues = new HashMap<Integer, String>();
+		TreeMap<Integer, String> keyvalues = new TreeMap<Integer, String>();
 		for(SCRecord rec : model.getAll()) {
 			keyvalues.put(rec.id, rec.name);
 		}
 		return keyvalues;
 	}
 
-	private HashMap<Integer, String> getFacilities() throws AuthorizationException, SQLException
+	private TreeMap<Integer, String> getFacilities() throws AuthorizationException, SQLException
 	{
 		FacilityModel model = new FacilityModel(context);
-		HashMap<Integer, String> keyvalues = new HashMap<Integer, String>();
+		TreeMap<Integer, String> keyvalues = new TreeMap<Integer, String>();
 		for(FacilityRecord rec : model.getAll()) {
 			keyvalues.put(rec.id, rec.name);
 		}

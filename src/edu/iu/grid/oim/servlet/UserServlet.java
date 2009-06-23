@@ -10,11 +10,11 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 
-import com.webif.divrep.Button;
+import com.webif.divrep.common.Button;
 import com.webif.divrep.DivRep;
 import com.webif.divrep.Event;
 
-import edu.iu.grid.oim.lib.Config;
+import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.model.db.AuthorizationTypeModel;
 import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.DNAuthorizationTypeModel;
@@ -52,7 +52,7 @@ public class UserServlet extends ServletBase implements Servlet {
 			//setup crumbs
 			BreadCrumbView bread_crumb = new BreadCrumbView();
 			bread_crumb.addCrumb("Administration",  "admin");
-			bread_crumb.addCrumb("User",  null);
+			bread_crumb.addCrumb("Users",  null);
 			contentview.setBreadCrumb(bread_crumb);
 			
 			Page page = new Page(menuview, contentview, createSideView());
@@ -105,7 +105,7 @@ public class UserServlet extends ServletBase implements Servlet {
 					redirect(url);
 				}
 			};
-			table.add(new DivRepWrapper(new EditButtonDE(context.getPageRoot(), Config.getApplicationBase()+"/useredit?id=" + rec.id)));
+			table.add(new DivRepWrapper(new EditButtonDE(context.getPageRoot(), StaticConfig.getApplicationBase()+"/useredit?id=" + rec.id)));
 		}
 		
 		return contentview;

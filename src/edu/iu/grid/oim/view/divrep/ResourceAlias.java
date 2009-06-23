@@ -4,26 +4,26 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import com.webif.divrep.Button;
+import com.webif.divrep.common.Button;
 import com.webif.divrep.DivRep;
 import com.webif.divrep.Event;
 import com.webif.divrep.EventListener;
-import com.webif.divrep.form.FormElementBase;
-import com.webif.divrep.form.TextFormElement;
+import com.webif.divrep.common.FormElement;
+import com.webif.divrep.common.Text;
 
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.ResourceAliasRecord;
 import edu.iu.grid.oim.view.divrep.ContactEditor.ContactDE;
 import edu.iu.grid.oim.view.divrep.ContactEditor.Rank;
 
-public class ResourceAlias extends FormElementBase {
+public class ResourceAlias extends FormElement {
 
 	//ArrayList<AliasEditor> aliases = new ArrayList<AliasEditor>();
 	private Button add_button;
 
-	class AliasEditor extends FormElementBase
+	class AliasEditor extends FormElement
 	{
-		private TextFormElement text;
+		private Text text;
 		private Button remove_button;
 		private AliasEditor myself;
 		
@@ -31,7 +31,7 @@ public class ResourceAlias extends FormElementBase {
 			super(parent);
 			myself = this;
 			
-			text = new TextFormElement(this);
+			text = new Text(this);
 			text.addClass("inline");
 			
 			remove_button = new Button(this, "images/delete.png");

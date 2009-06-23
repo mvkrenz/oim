@@ -11,10 +11,10 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.log4j.Logger;
 
 import com.webif.divrep.DivRepRoot;
-import com.webif.divrep.Static;
+import com.webif.divrep.common.Static;
 
 import edu.iu.grid.oim.lib.Authorization;
-import edu.iu.grid.oim.lib.Config;
+import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.DNModel;
 import edu.iu.grid.oim.model.db.SCModel;
@@ -47,7 +47,7 @@ public class ProfileEditServlet extends ServletBase implements Servlet {
 		try {
 			rec = auth.getContact();
 				
-			String origin_url = Config.getApplicationBase()+"/"+parent_page;
+			String origin_url = StaticConfig.getApplicationBase()+"/"+parent_page;
 			ContactFormDE form = new ContactFormDE(context, rec, origin_url);
 			
 			//put the form in a view and display

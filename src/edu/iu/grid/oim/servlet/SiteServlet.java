@@ -18,12 +18,12 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 
-import com.webif.divrep.Button;
+import com.webif.divrep.common.Button;
 import com.webif.divrep.DivRep;
 import com.webif.divrep.DivRepRoot;
 import com.webif.divrep.Event;
 
-import edu.iu.grid.oim.lib.Config;
+import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
 import edu.iu.grid.oim.model.db.ContactRankModel;
 import edu.iu.grid.oim.model.db.ContactTypeModel;
@@ -132,7 +132,7 @@ public class SiteServlet extends ServletBase implements Servlet {
 					redirect(url);
 				}
 			};
-			table.add(new DivRepWrapper(new EditButtonDE(context.getPageRoot(), Config.getApplicationBase()+"/siteedit?site_id=" + rec.id)));
+			table.add(new DivRepWrapper(new EditButtonDE(context.getPageRoot(), StaticConfig.getApplicationBase()+"/siteedit?site_id=" + rec.id)));
 		}
 		
 		return contentview;

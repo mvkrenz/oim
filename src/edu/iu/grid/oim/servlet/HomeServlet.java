@@ -12,7 +12,7 @@ import org.apache.log4j.Logger;
 
 import com.webif.divrep.DivRepRoot;
 
-import edu.iu.grid.oim.lib.Config;
+import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.model.MenuItem;
 import edu.iu.grid.oim.view.ContentView;
 import edu.iu.grid.oim.view.HtmlView;
@@ -39,7 +39,7 @@ public class HomeServlet extends ServletBase  {
 		/*
 		if(auth.getUserDN() == null || auth.getUserCN() == null) {
 			//User didn't login with valid certificate
-			response.sendRedirect(Config.getApplicationBase() + "/needcert");
+			response.sendRedirect(StaticConfig.getApplicationBase() + "/needcert");
 		} else {
 					//all good.
 		 */

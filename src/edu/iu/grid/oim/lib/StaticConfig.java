@@ -10,10 +10,10 @@ import javax.xml.xpath.XPathFactory;
 import org.apache.log4j.Logger;
 import org.xml.sax.InputSource;
 
-public class Config {
+public class StaticConfig {
 	static public String getVersion() { return "2.1"; } //version shouldn't be configurable
 	
-	static Logger log = Logger.getLogger(Config.class);  
+	static Logger log = Logger.getLogger(StaticConfig.class);  
     
     private String appbase;
 	static public String getApplicationBase() { return config.appbase; }
@@ -49,7 +49,7 @@ public class Config {
 	static public String getSSLTrustStorePath() { return config.ssl_truststore; }
     
 	//why private? - don't allow client instantiation (use static getters)
-	private Config() 
+	private StaticConfig() 
 	{
 		try {
 			XPath xpath = XPathFactory.newInstance().newXPath();
@@ -101,6 +101,6 @@ public class Config {
 	}
 	
 	//singleton
-	static private Config config = new Config();
+	static private StaticConfig config = new StaticConfig();
 
 }

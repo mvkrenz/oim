@@ -2,6 +2,8 @@ package edu.iu.grid.oim.model;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.TimeZone;
+
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
@@ -9,7 +11,7 @@ import javax.sql.DataSource;
 import org.apache.log4j.Logger;
 
 import com.webif.divrep.DivRepRoot;
-import com.webif.divrep.DivRepRoot.divrepPage;
+import com.webif.divrep.DivRepRoot.DivRepPage;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
@@ -17,7 +19,7 @@ import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
 public class Context {
     static Logger log = Logger.getLogger(Context.class);  
     
-	private divrepPage divrep_pageroot;
+	private DivRepPage divrep_pageroot;
 	private Authorization auth = new Authorization();
 	private HttpServletRequest request;
 	private Connection oim_connection = null;
@@ -70,6 +72,8 @@ public class Context {
 			log.info("Requesting new OIM db connection: " + oim_connection.toString() + " for " + auth.getUserDN());
 			initContext.close();
 			
+			TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
+			
 			return oim_connection;
 		} catch (NamingException e) {
 			log.error(e);
@@ -81,7 +85,7 @@ public class Context {
 	{
 		return auth;
 	}
-	public divrepPage getPageRoot()
+	public DivRepPage getPageRoot()
 	{
 		return divrep_pageroot;
 	}

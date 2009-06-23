@@ -9,17 +9,17 @@ import org.apache.log4j.Logger;
 import com.webif.divrep.DivRep;
 import com.webif.divrep.Event;
 import com.webif.divrep.EventListener;
-import com.webif.divrep.form.FormElementBase;
+import com.webif.divrep.common.FormElement;
 
 import edu.iu.grid.oim.lib.Authorization;
-import edu.iu.grid.oim.lib.Config;
+import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.model.Context;
 import edu.iu.grid.oim.model.db.ServiceGroupModel;
 import edu.iu.grid.oim.model.db.ServiceModel;
 import edu.iu.grid.oim.model.db.record.ServiceGroupRecord;
 import edu.iu.grid.oim.model.db.record.ServiceRecord;
 
-public class ServiceGroupHierarchySelector extends FormElementBase<Integer> {
+public class ServiceGroupHierarchySelector extends FormElement<Integer> {
     static Logger log = Logger.getLogger(ServiceGroupHierarchySelector.class);  
 	
     private Context context;
@@ -32,7 +32,7 @@ public class ServiceGroupHierarchySelector extends FormElementBase<Integer> {
 	ArrayList<Selectable> selectables = new ArrayList();
 	
 	abstract class ExpandableSelector extends DivRep {
-		HashMap<Integer/*id*/, FormElementBase> items = new HashMap();
+		HashMap<Integer/*id*/, FormElement> items = new HashMap();
 		ExpandableSelector mine;	
 		
 		public ExpandableSelector(DivRep _parent) throws SQLException {
@@ -45,11 +45,11 @@ public class ServiceGroupHierarchySelector extends FormElementBase<Integer> {
 		}
 
 		public void render(PrintWriter out) {
-			for(FormElementBase expandable : items.values()) {
+			for(FormElement expandable : items.values()) {
 				expandable.render(out);
 			}
 		}
-		public FormElementBase getItem(Integer id) 
+		public FormElement getItem(Integer id) 
 		{
 			return items.get(id);
 		}
@@ -61,7 +61,7 @@ public class ServiceGroupHierarchySelector extends FormElementBase<Integer> {
 			super(_parent);
 			ServiceGroupModel model = new ServiceGroupModel(context);
 			for(ServiceGroupRecord rec : model.getAll()) {				
-				final FormElementBase<Integer> item;
+				final FormElement<Integer> item;
 				if(type == Type.SERVICE_GROUP) {
 					item = new Selectable<Integer>(this);
 					item.addEventListener(new EventListener() {
@@ -103,7 +103,7 @@ public class ServiceGroupHierarchySelector extends FormElementBase<Integer> {
 			super(_parent);
 			ServiceModel model = new ServiceModel(context);
 			for(ServiceRecord rec : model.getByServiceGroupID(service_group_id)) {	
-				final FormElementBase<Integer> item;
+				final FormElement<Integer> item;
 				if(type == Type.SERVICE) {
 					item = new Selectable<Integer>(this);
 					item.addEventListener(new EventListener() {
@@ -169,7 +169,7 @@ public class ServiceGroupHierarchySelector extends FormElementBase<Integer> {
 				}
 				
 				//expand one by one
-				FormElementBase elem = null;
+				FormElement elem = null;
 				Expandable<Integer> item = null;
 				if(service_group_id != null) {
 					elem = service_group_selector.getItem(service_group_id);
@@ -202,7 +202,7 @@ public class ServiceGroupHierarchySelector extends FormElementBase<Integer> {
 	}
 	
 	//selectable item
-	class Selectable<T> extends FormElementBase<T> {
+	class Selectable<T> extends FormElement<T> {
 		protected Selectable(DivRep parent) {
 			super(parent);
 			// TODO Auto-generated constructor stub
@@ -227,7 +227,7 @@ public class ServiceGroupHierarchySelector extends FormElementBase<Integer> {
 	}
 	
 	//expandable item
-	class Expandable<T> extends FormElementBase<T> {
+	class Expandable<T> extends FormElement<T> {
 		private Boolean expanded = false;
 		public void setExpand(Boolean b) { expanded = b; }
 		public Boolean isExpanded() { return expanded; }
@@ -247,7 +247,7 @@ public class ServiceGroupHierarchySelector extends FormElementBase<Integer> {
 			out.write("<div onclick=\"divrep(this.id, event)\" id=\""+getNodeID()+"\">");
 	
 			if(expanded) {
-				out.write("<img align=\"top\" src=\""+Config.getStaticBase()+"/images/minusbox.gif\"/>" + label);
+				out.write("<img align=\"top\" src=\""+StaticConfig.getStaticBase()+"/images/minusbox.gif\"/>" + label);
 				out.write("<div class=\"indent\">");
 				if(child != null) {
 					child.render(out);
@@ -256,7 +256,7 @@ public class ServiceGroupHierarchySelector extends FormElementBase<Integer> {
 				}
 				out.write("</div>");
 			} else {
-				out.write("<img align=\"top\" src=\""+Config.getStaticBase()+"/images/plusbox.gif\"/>" + label);				
+				out.write("<img align=\"top\" src=\""+StaticConfig.getStaticBase()+"/images/plusbox.gif\"/>" + label);				
 			}
 			out.write("</div>");
 		}

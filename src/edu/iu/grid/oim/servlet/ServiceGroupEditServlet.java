@@ -13,7 +13,7 @@ import org.apache.log4j.Logger;
 import com.webif.divrep.DivRepRoot;
 
 import edu.iu.grid.oim.lib.Authorization;
-import edu.iu.grid.oim.lib.Config;
+import edu.iu.grid.oim.lib.StaticConfig;
 
 import edu.iu.grid.oim.model.db.ServiceGroupModel;
 import edu.iu.grid.oim.model.db.SiteModel;
@@ -63,7 +63,7 @@ public class ServiceGroupEditServlet extends ServletBase implements Servlet {
 				title = "New Service Group";	
 			}
 
-			ServiceGroupFormDE form = new ServiceGroupFormDE(context, rec, Config.getApplicationBase()+"/"+parent_page);
+			ServiceGroupFormDE form = new ServiceGroupFormDE(context, rec, StaticConfig.getApplicationBase()+"/"+parent_page);
 			
 			//put the form in a view and display
 			ContentView contentview = new ContentView();

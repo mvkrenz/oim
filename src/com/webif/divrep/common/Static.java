@@ -1,6 +1,8 @@
-package com.webif.divrep;
+package com.webif.divrep.common;
 
 import java.io.PrintWriter;
+import com.webif.divrep.DivRep;
+import com.webif.divrep.Event;
 
 public class Static extends DivRep {
 	String html;

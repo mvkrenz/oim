@@ -12,7 +12,7 @@ import org.apache.log4j.Logger;
 
 import com.webif.divrep.DivRepRoot;
 
-import edu.iu.grid.oim.lib.Config;
+import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.model.db.ServiceModel;
 import edu.iu.grid.oim.model.db.record.ServiceRecord;
 import edu.iu.grid.oim.view.BreadCrumbView;
@@ -60,7 +60,7 @@ public class ServiceEditServlet extends ServletBase implements Servlet {
 		}
 	
 		ServiceFormDE form;
-		String origin_url = Config.getApplicationBase()+"/"+parent_page;
+		String origin_url = StaticConfig.getApplicationBase()+"/"+parent_page;
 		try {
 			form = new ServiceFormDE(context, rec, origin_url);
 		} catch (SQLException e) {

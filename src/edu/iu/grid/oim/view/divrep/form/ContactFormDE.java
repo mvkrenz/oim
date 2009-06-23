@@ -3,22 +3,24 @@ package edu.iu.grid.oim.view.divrep.form;
 import java.io.PrintWriter;
 import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.TreeMap;
+
 import org.apache.log4j.Logger;
 import com.webif.divrep.DivRep;
 import com.webif.divrep.Event;
 import com.webif.divrep.EventListener;
-import com.webif.divrep.Static;
-import com.webif.divrep.form.CheckBoxFormElement;
-import com.webif.divrep.form.FormBase;
-import com.webif.divrep.form.FormElementBase;
-import com.webif.divrep.form.SelectFormElement;
-import com.webif.divrep.form.TextAreaFormElement;
-import com.webif.divrep.form.TextFormElement;
-import com.webif.divrep.form.validator.EmailValidator;
-import com.webif.divrep.form.validator.UrlValidator;
+import com.webif.divrep.common.Static;
+import com.webif.divrep.common.CheckBoxFormElement;
+import com.webif.divrep.common.FormBase;
+import com.webif.divrep.common.FormElement;
+import com.webif.divrep.common.Select;
+import com.webif.divrep.common.TextArea;
+import com.webif.divrep.common.Text;
+import com.webif.divrep.validator.EmailValidator;
+import com.webif.divrep.validator.UrlValidator;
 
 import edu.iu.grid.oim.lib.Authorization;
-import edu.iu.grid.oim.lib.Config;
+import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.model.Context;
 import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.DNModel;
@@ -33,25 +35,25 @@ public class ContactFormDE extends FormBase
     private Authorization auth;
 	private Integer id;
 	
-	private TextFormElement name;
-	private TextFormElement primary_email, secondary_email;
-	private TextFormElement primary_phone, secondary_phone;
-	private TextFormElement primary_phone_ext, secondary_phone_ext;
-	private TextFormElement address_line_1, address_line_2;
-	private TextFormElement city, state, zipcode, country;
+	private Text name;
+	private Text primary_email, secondary_email;
+	private Text primary_phone, secondary_phone;
+	private Text primary_phone_ext, secondary_phone_ext;
+	private Text address_line_1, address_line_2;
+	private Text city, state, zipcode, country;
 	private CheckBoxFormElement active;
 	private CheckBoxFormElement disable;
-	private TextFormElement im;
+	private Text im;
 	private PhotoDE photo_url;
 	private CheckBoxFormElement person;
-	private TextAreaFormElement contact_preference;
-	private SelectFormElement submitter_dn;
+	private TextArea contact_preference;
+	private Select submitter_dn;
 	
-	class PhotoDE extends FormElementBase<String>
+	class PhotoDE extends FormElement<String>
 	{
 		public PhotoDE(DivRep _parent) {
 			super(_parent);
-			url = new TextFormElement(this);
+			url = new Text(this);
 			url.addEventListener(new EventListener() {
 				public void handleEvent(Event e) {
 					PhotoDE.this.redraw();
@@ -59,7 +61,7 @@ public class ContactFormDE extends FormBase
 			url.addValidator(UrlValidator.getInstance());
 		}
 
-		private TextFormElement url;
+		private Text url;
 
 		@Override
 		protected void onEvent(Event e) {
@@ -88,7 +90,7 @@ public class ContactFormDE extends FormBase
 		public void render(PrintWriter out) {
 			String img = url.getValue();
 			if(img == null || img.length() == 0) {
-				img = Config.getApplicationBase() + "/images/noavatar.gif";
+				img = StaticConfig.getApplicationBase() + "/images/noavatar.gif";
 			}
 			
 			out.print("<div ");
@@ -129,40 +131,40 @@ public class ContactFormDE extends FormBase
 		auth = context.getAuthorization();
 		id = rec.id;
 
-		name = new TextFormElement(this);
+		name = new Text(this);
 		name.setLabel("Full Name");
 		name.setValue(rec.name);
 		name.setRequired(true);
 		
-		primary_email = new TextFormElement(this);
+		primary_email = new Text(this);
 		primary_email.setLabel("Primary Email");
 		primary_email.setValue(rec.primary_email);
 		primary_email.setRequired(true);
 		primary_email.addValidator(new EmailValidator());
 		
-		secondary_email = new TextFormElement(this);
+		secondary_email = new Text(this);
 		secondary_email.setLabel("Secondary Email");
 		secondary_email.setValue(rec.secondary_email);
 		secondary_email.addValidator(new EmailValidator());
 
-		primary_phone = new TextFormElement(this);
+		primary_phone = new Text(this);
 		primary_phone.setLabel("Primary Phone");
 		primary_phone.setValue(rec.primary_phone);
 		//primary_phone.setRequired(true);
 
-		primary_phone_ext = new TextFormElement(this);
+		primary_phone_ext = new Text(this);
 		primary_phone_ext.setLabel("Primary Phone Extension");
 		primary_phone_ext.setValue(rec.primary_phone_ext);
 
-		secondary_phone = new TextFormElement(this);
+		secondary_phone = new Text(this);
 		secondary_phone.setLabel("Secondary Phone");
 		secondary_phone.setValue(rec.secondary_phone);
 
-		secondary_phone_ext = new TextFormElement(this);
+		secondary_phone_ext = new Text(this);
 		secondary_phone_ext.setLabel("Secondary Phone Extension");
 		secondary_phone_ext.setValue(rec.secondary_phone_ext);
 		
-		contact_preference = new TextAreaFormElement(this);
+		contact_preference = new TextArea(this);
 		contact_preference.setLabel("Enter Additional Contact Preferences");
 		contact_preference.setValue(rec.contact_preference);
 		contact_preference.setSampleValue("Please contact me via phone during the day.");
@@ -179,35 +181,35 @@ public class ContactFormDE extends FormBase
 		
 		new Static(this, "<div class=\"indent\">");
 		{
-			address_line_1 = new TextFormElement(this);
+			address_line_1 = new Text(this);
 			address_line_1.setLabel("Address Line 1");
 			address_line_1.setValue(rec.address_line_1);
 	
-			address_line_2 = new TextFormElement(this);
+			address_line_2 = new Text(this);
 			address_line_2.setLabel("Address Line 2");
 			address_line_2.setValue(rec.address_line_2);
 			
-			city = new TextFormElement(this);
+			city = new Text(this);
 			city.setLabel("City");
 			city.setValue(rec.city);
 			city.setRequired(true);
 	
-			state = new TextFormElement(this);
+			state = new Text(this);
 			state.setLabel("State");
 			state.setValue(rec.state);
 			state.setRequired(true);
 	
-			zipcode = new TextFormElement(this);
+			zipcode = new Text(this);
 			zipcode.setLabel("Zipcode");
 			zipcode.setValue(rec.zipcode);
 			zipcode.setRequired(true);
 	
-			country = new TextFormElement(this);
+			country = new Text(this);
 			country.setLabel("Country");
 			country.setValue(rec.country);
 			country.setRequired(true);
 			
-			im = new TextFormElement(this);
+			im = new Text(this);
 			im.setLabel("Instant Messaging Information");
 			im.setValue(rec.im);
 			im.setSampleValue("soichih@gtalk");
@@ -242,7 +244,7 @@ public class ContactFormDE extends FormBase
 		}
 		
 		//create DN selector
-		HashMap<Integer, String> dns = new HashMap();
+		TreeMap<Integer, String> dns = new TreeMap();
 		try {
 			DNModel dnmodel = new DNModel(context);;
 			for(DNRecord dnrec : dnmodel.getAll()) {
@@ -251,7 +253,7 @@ public class ContactFormDE extends FormBase
 		} catch (SQLException e) {
 			log.error(e);
 		}
-		submitter_dn = new SelectFormElement(this, dns);
+		submitter_dn = new Select(this, dns);
 		submitter_dn.setLabel("Submitter DN");
 		submitter_dn.setValue(rec.submitter_dn_id);
 		if(!auth.allows("admin")) {

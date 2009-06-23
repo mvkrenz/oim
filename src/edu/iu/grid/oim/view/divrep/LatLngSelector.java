@@ -7,11 +7,11 @@ import org.apache.commons.lang.StringEscapeUtils;
 
 import com.webif.divrep.DivRep;
 import com.webif.divrep.Event;
-import com.webif.divrep.form.FormElementBase;
+import com.webif.divrep.common.FormElement;
 
-import edu.iu.grid.oim.lib.Config;
+import edu.iu.grid.oim.lib.StaticConfig;
 
-public class LatLngSelector extends FormElementBase<LatLngSelector.LatLng> {
+public class LatLngSelector extends FormElement<LatLngSelector.LatLng> {
 	public class LatLng
 	{
 		public LatLng(Double lat, Double lng) {
@@ -56,7 +56,7 @@ public class LatLngSelector extends FormElementBase<LatLngSelector.LatLng> {
 		    out.write("    map.setUIToDefault();");
 		    out.write("    map.setMapType(G_HYBRID_MAP);");
 		    //out.write("    map.enableGoogleBar();");
-		    out.write("    var prompt = new GScreenOverlay(\""+Config.getApplicationBase()+"/images/target.png\",new GScreenPoint(0.5, 0.5, 'fraction', 'fraction'), new GScreenPoint(-50, -50), new GScreenSize(100, 100, 'pixel', 'pixel'));");
+		    out.write("    var prompt = new GScreenOverlay(\""+StaticConfig.getApplicationBase()+"/images/target.png\",new GScreenPoint(0.5, 0.5, 'fraction', 'fraction'), new GScreenPoint(-50, -50), new GScreenSize(100, 100, 'pixel', 'pixel'));");
 		    out.write("    map.addOverlay(prompt);");
 		    out.write("    GEvent.addListener(map, 'moveend', function() {divrep('"+getNodeID()+"', null, map.getCenter().toUrlValue());});");
 		    out.write("}");

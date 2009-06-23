@@ -4,7 +4,8 @@ package edu.iu.grid.oim.view.divrep.form;
 import java.sql.SQLException;
 import org.apache.log4j.Logger;
 import com.webif.divrep.Event;
-import com.webif.divrep.form.FormBase;
+import com.webif.divrep.common.FormBase;
+
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
 import edu.iu.grid.oim.model.Context;

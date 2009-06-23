@@ -18,13 +18,13 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 
-import com.webif.divrep.Button;
+import com.webif.divrep.common.Button;
 import com.webif.divrep.DivRep;
 import com.webif.divrep.DivRepRoot;
 import com.webif.divrep.Event;
 
 
-import edu.iu.grid.oim.lib.Config;
+import edu.iu.grid.oim.lib.StaticConfig;
 
 import edu.iu.grid.oim.model.db.DNModel;
 import edu.iu.grid.oim.model.db.DowntimeClassModel;
@@ -132,7 +132,7 @@ public class ResourceDowntimeServlet extends ServletBase implements Servlet {
 					redirect(url);
 				}
 			};
-			contentview.add(new DivRepWrapper(new EditButtonDE(context.getPageRoot(), Config.getApplicationBase()+"/resourcedowntimeedit?id=" + rec.id)));
+			contentview.add(new DivRepWrapper(new EditButtonDE(context.getPageRoot(), StaticConfig.getApplicationBase()+"/resourcedowntimeedit?id=" + rec.id)));
 			//contentview.add(table);
 		}
 		

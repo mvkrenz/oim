@@ -90,7 +90,7 @@ public class Authorization {
 			InetAddress addr;
 			try {
 				//override user_cn
-		        user_cn = Config.getDOECN();
+		        user_cn = StaticConfig.getDOECN();
 		        
 		        //override with fake dn
 				addr = InetAddress.getLocalHost();
@@ -120,7 +120,7 @@ public class Authorization {
 		log.info("Authenticated User DN: "+user_dn);
 		log.info("SSL_CLIENT_I_DN_CN: " + user_cn);
 		
-		//if(!user_cn.equals(Config.getDOECN())) {
+		//if(!user_cn.equals(StaticConfig.getDOECN())) {
 		if(user_cn == null) {
 			log.warn("SSL_CLIENT_I_DN_CN is not set. Logging in as guest.");
 		} else {

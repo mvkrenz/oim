@@ -1,4 +1,4 @@
-package com.webif.divrep.form;
+package com.webif.divrep.common;
 
 import java.io.PrintWriter;
 
@@ -7,7 +7,7 @@ import com.webif.divrep.Event;
 
 import org.apache.commons.lang.StringEscapeUtils;
 
-public class CheckBoxFormElement extends FormElementBase<Boolean> {
+public class CheckBoxFormElement extends FormElement<Boolean> {
 	
 	public CheckBoxFormElement(DivRep parent) {
 		super(parent);

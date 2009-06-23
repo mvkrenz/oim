@@ -1,8 +1,7 @@
-package com.webif.divrep.form;
+package com.webif.divrep.common;
 
 import java.io.PrintWriter;
 
-import com.webif.divrep.Button;
 import com.webif.divrep.DivRep;
 import com.webif.divrep.Event;
 import com.webif.divrep.EventListener;
@@ -62,8 +61,8 @@ abstract public class FormBase extends DivRep {
 		
 		//validate *all* elements
 		for(DivRep child : childnodes) {
-			if(child instanceof FormElementBase) { 
-				FormElementBase element = (FormElementBase)child;
+			if(child instanceof FormElement) { 
+				FormElement element = (FormElement)child;
 				if(element != null && !element.isHidden()) {
 					if(!element.isValid()) {
 						valid = false;
@@ -85,7 +84,7 @@ abstract public class FormBase extends DivRep {
 			//we display submit / cancel button at the end
 			if(child == submitbutton || child == cancelbutton) continue;
 			
-			if(child instanceof FormElementBase) {
+			if(child instanceof FormElement) {
 				out.print("<div class=\"form_element\">");
 				child.render(out);
 				out.print("</div>");

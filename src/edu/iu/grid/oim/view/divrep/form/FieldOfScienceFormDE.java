@@ -4,9 +4,9 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import org.apache.log4j.Logger;
 import com.webif.divrep.Event;
-import com.webif.divrep.form.FormBase;
-import com.webif.divrep.form.TextFormElement;
-import com.webif.divrep.form.validator.UniqueValidator;
+import com.webif.divrep.common.FormBase;
+import com.webif.divrep.common.Text;
+import com.webif.divrep.validator.UniqueValidator;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
@@ -23,7 +23,7 @@ public class FieldOfScienceFormDE extends FormBase
     private Authorization auth;
 	private Integer id;
 	
-	private TextFormElement name;
+	private Text name;
 	
 	public FieldOfScienceFormDE(Context _context, FieldOfScienceRecord rec, String origin_url) throws AuthorizationException, SQLException
 	{	
@@ -38,7 +38,7 @@ public class FieldOfScienceFormDE extends FormBase
 			//if doing update, remove my own name (I can use my own name)
 			fields.remove(id);
 		}
-		name = new TextFormElement(this);
+		name = new Text(this);
 		name.setLabel("Name");
 		name.setValue(rec.name);
 		name.addValidator(new UniqueValidator<String>(fields.values()));

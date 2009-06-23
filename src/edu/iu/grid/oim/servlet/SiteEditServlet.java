@@ -13,7 +13,7 @@ import org.apache.log4j.Logger;
 import com.webif.divrep.DivRepRoot;
 
 import edu.iu.grid.oim.lib.Authorization;
-import edu.iu.grid.oim.lib.Config;
+import edu.iu.grid.oim.lib.StaticConfig;
 
 import edu.iu.grid.oim.model.db.SiteModel;
 import edu.iu.grid.oim.model.db.record.SiteRecord;
@@ -44,7 +44,7 @@ public class SiteEditServlet extends ServletBase implements Servlet {
 		String title;
 
 		ContentView contentview = new ContentView();
-		contentview.add(new HtmlView("<script src=\"http://maps.google.com/maps?file=api&v=2&key="+Config.getGMapAPIKey()+"\" type=\"text/javascript\"></script>"));
+		contentview.add(new HtmlView("<script src=\"http://maps.google.com/maps?file=api&v=2&key="+StaticConfig.getGMapAPIKey()+"\" type=\"text/javascript\"></script>"));
 
 		try {
 			//if site_id is provided then we are doing update, otherwise do new.
@@ -62,7 +62,7 @@ public class SiteEditServlet extends ServletBase implements Servlet {
 				title = "New Site";	
 			}
 	
-			String origin_url = Config.getApplicationBase()+"/"+parent_page;
+			String origin_url = StaticConfig.getApplicationBase()+"/"+parent_page;
 			SiteFormDE form = new SiteFormDE(context, rec, origin_url);
 			contentview.add(new HtmlView("<h1>"+title+"</h1>"));	
 			contentview.add(new DivRepWrapper(form));

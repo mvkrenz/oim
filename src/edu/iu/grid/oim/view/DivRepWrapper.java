@@ -3,7 +3,7 @@ package edu.iu.grid.oim.view;
 import java.io.PrintWriter;
 
 import com.webif.divrep.DivRep;
-import com.webif.divrep.DivRepRoot.divrepPage;
+import com.webif.divrep.DivRepRoot.DivRepPage;
 
 //use this to make DivRep object behaves like a GenericView
 public class DivRepWrapper implements IView {
@@ -19,7 +19,7 @@ public class DivRepWrapper implements IView {
 		
 		//ouput JS too
 		out.write("<script type=\"text/javascript\">");
-		divrepPage page = de.getPageRoot();
+		DivRepPage page = de.getPageRoot();
 		page.flushPostReplaceJS(out);
 		out.write("</script>");
 		

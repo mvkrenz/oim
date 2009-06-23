@@ -3,31 +3,32 @@ package edu.iu.grid.oim.view.divrep;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.TreeMap;
 
-import com.webif.divrep.Button;
+import com.webif.divrep.common.Button;
 import com.webif.divrep.DivRep;
 import com.webif.divrep.Event;
 import com.webif.divrep.EventListener;
-import com.webif.divrep.form.FormElementBase;
-import com.webif.divrep.form.SelectFormElement;
-import com.webif.divrep.form.TextFormElement;
-import com.webif.divrep.form.validator.DoubleValidator;
-import com.webif.divrep.form.validator.IFormElementValidator;
+import com.webif.divrep.common.FormElement;
+import com.webif.divrep.common.Select;
+import com.webif.divrep.common.Text;
+import com.webif.divrep.validator.DoubleValidator;
+import com.webif.divrep.validator.IFormElementValidator;
 
 import edu.iu.grid.oim.model.db.record.ResourceServiceRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
 import edu.iu.grid.oim.model.db.record.VOResourceOwnershipRecord;
 import edu.iu.grid.oim.view.divrep.ResourceServices.ServiceEditor;
 
-public class VOResourceOwnership extends FormElementBase {
+public class VOResourceOwnership extends FormElement {
 	ArrayList<Integer> owner_id_taken = new ArrayList<Integer>();
 	private Button add_button;
 	private ArrayList<VORecord> vo_recs;
 
-	class OwnershipEditor extends FormElementBase
+	class OwnershipEditor extends FormElement
 	{
-		private SelectFormElement vo;
-		private TextFormElement percent;
+		private Select vo;
+		private Text percent;
 		private Button remove_button;
 		private OwnershipEditor myself;
 		
@@ -35,17 +36,17 @@ public class VOResourceOwnership extends FormElementBase {
 			super(parent);
 			myself = this;
 		
-			HashMap<Integer, String> kv = new HashMap();
+			TreeMap<Integer, String> kv = new TreeMap();
 			for(VORecord vo_rec : vo_recs) {
 				kv.put(vo_rec.id, vo_rec.name);
 			}
-			vo = new SelectFormElement(this, kv);
+			vo = new Select(this, kv);
 			vo.setLabel("Select a VO Owner");
 			vo.setRequired(true);
 			if (rec.vo_id != null) {
 				vo.setValue(rec.vo_id);
 			}
-			percent = new TextFormElement(this);
+			percent = new Text(this);
 			percent.setLabel("Percentage of Ownership");
 			percent.setRequired(true);
 			percent.addValidator(new DoubleValidator());
@@ -111,8 +112,8 @@ public class VOResourceOwnership extends FormElementBase {
 			for(DivRep child : childnodes) {
 				if(child == remove_button) continue;
 				
-				if(child instanceof FormElementBase) {
-					FormElementBase elem = (FormElementBase)child;
+				if(child instanceof FormElement) {
+					FormElement elem = (FormElement)child;
 					if(!elem.isHidden()) {
 						out.print("<div class=\"form_element\">");
 						child.render(out);

@@ -10,12 +10,12 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 
-import com.webif.divrep.Button;
+import com.webif.divrep.common.Button;
 import com.webif.divrep.DivRep;
 import com.webif.divrep.DivRepRoot;
 import com.webif.divrep.Event;
 
-import edu.iu.grid.oim.lib.Config;
+import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.model.db.MetricModel;
 import edu.iu.grid.oim.model.db.MetricServiceModel;
 import edu.iu.grid.oim.model.db.ResourceDowntimeModel;
@@ -108,7 +108,7 @@ public class ServiceServlet extends ServletBase implements Servlet {
 					redirect(url);
 				}
 			};
-			table.add(new DivRepWrapper(new EditButtonDE(context.getPageRoot(), Config.getApplicationBase()+"/serviceedit?id=" + rec.id)));
+			table.add(new DivRepWrapper(new EditButtonDE(context.getPageRoot(), StaticConfig.getApplicationBase()+"/serviceedit?id=" + rec.id)));
 		}
 		
 		return contentview;

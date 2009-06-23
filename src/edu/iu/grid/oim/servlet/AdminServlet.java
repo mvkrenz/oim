@@ -10,13 +10,13 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
 
-import com.webif.divrep.Button;
+import com.webif.divrep.common.Button;
 import com.webif.divrep.DivRep;
 import com.webif.divrep.DivRepRoot;
 import com.webif.divrep.Event;
 import com.webif.divrep.EventListener;
 
-import edu.iu.grid.oim.lib.Config;
+import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.lib.Footprint;
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
 import edu.iu.grid.oim.model.MenuItem;
@@ -66,10 +66,10 @@ public class AdminServlet extends ServletBase  {
 			contentview.add(new InternalLinkView("authtype", "Authorization Types"));
 			contentview.add(new HtmlView("<br/>"));
 			
-			contentview.add(new InternalLinkView("authmatrix", "Authorization-Action Matrix" ));
+			contentview.add(new InternalLinkView("authmatrix", "Authorization Matrix" ));
 			contentview.add(new HtmlView("<br/>"));
 			
-			contentview.add(new InternalLinkView("user", "User-Authorization Level Mapping" ));
+			contentview.add(new InternalLinkView("user", "Users" ));
 			contentview.add(new HtmlView("<br/>"));
 			
 			contentview.add(new HtmlView("<br/>"));
@@ -88,9 +88,11 @@ public class AdminServlet extends ServletBase  {
 			
 			contentview.add(new InternalLinkView("fieldofscience", "Fields of Science (associated with VOs)"));
 			contentview.add(new HtmlView("<br/>"));
+			
+			contentview.add(new InternalLinkView("adminannualreview", "Annual Review Controller"));
+			contentview.add(new HtmlView("<br/>"));
 		}
 		
-
 		if (auth.allows("admin") || auth.allows("edit_measurement")) {
 			contentview.add(new HtmlView("<br/>"));
 			contentview.add(new HtmlView("<h3>Measurement</h3>"));
@@ -133,7 +135,7 @@ public class AdminServlet extends ServletBase  {
 		final Button error_button = new Button(context.getPageRoot(), "Simulate Servlet Error");
 		error_button.addEventListener(new EventListener() {
 			public void handleEvent(Event e) {
-				error_button.redirect(Config.getApplicationBase() + "/simulateerror");
+				error_button.redirect(StaticConfig.getApplicationBase() + "/simulateerror");
 			}
 		});
 		operations.add(error_button);

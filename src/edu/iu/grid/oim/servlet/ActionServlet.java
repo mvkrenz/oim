@@ -16,12 +16,12 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 
-import com.webif.divrep.Button;
+import com.webif.divrep.common.Button;
 import com.webif.divrep.DivRep;
 import com.webif.divrep.DivRepRoot;
 import com.webif.divrep.Event;
 
-import edu.iu.grid.oim.lib.Config;
+import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.model.db.ActionModel;
 import edu.iu.grid.oim.model.db.CpuInfoModel;
 import edu.iu.grid.oim.model.db.record.ActionRecord;
@@ -49,9 +49,8 @@ public class ActionServlet extends ServletBase implements Servlet {
 		auth.check("admin");
 		
 		try {
-
 			//construct view
-			MenuView menuview = new MenuView(context, "admin");;
+			MenuView menuview = new MenuView(context, "admin");
 			ContentView contentview = createContentView();
 			
 			//setup crumbs
@@ -98,7 +97,7 @@ public class ActionServlet extends ServletBase implements Servlet {
 					redirect(url);
 				}
 			};
-			table.add(new DivRepWrapper(new EditButtonDE(context.getPageRoot(), Config.getApplicationBase()+"/actionedit?id=" + rec.id)));
+			table.add(new DivRepWrapper(new EditButtonDE(context.getPageRoot(), StaticConfig.getApplicationBase()+"/actionedit?id=" + rec.id)));
 		}
 		
 		return contentview;

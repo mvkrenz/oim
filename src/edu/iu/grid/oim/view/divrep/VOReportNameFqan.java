@@ -4,30 +4,30 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import com.webif.divrep.Button;
+import com.webif.divrep.common.Button;
 import com.webif.divrep.DivRep;
 import com.webif.divrep.Event;
 import com.webif.divrep.EventListener;
-import com.webif.divrep.Static;
-import com.webif.divrep.form.CheckBoxFormElement;
-import com.webif.divrep.form.FormElementBase;
-import com.webif.divrep.form.SelectFormElement;
-import com.webif.divrep.form.TextFormElement;
+import com.webif.divrep.common.Static;
+import com.webif.divrep.common.CheckBoxFormElement;
+import com.webif.divrep.common.FormElement;
+import com.webif.divrep.common.Select;
+import com.webif.divrep.common.Text;
 
 import edu.iu.grid.oim.model.db.record.VOReportNameRecord;
 import edu.iu.grid.oim.model.db.record.VOReportNameFqanRecord;
 import edu.iu.grid.oim.view.divrep.VOReportNames.VOReportNameEditor;
 
-public class VOReportNameFqan extends FormElementBase {
+public class VOReportNameFqan extends FormElement {
 
 	//ArrayList<VOReportNameFqanEditor> vo_report_name_fqans = new ArrayList<VOReportNameFqanEditor>();
 	private Button add_button;
 
-	class VOReportNameFqanEditor extends FormElementBase
+	class VOReportNameFqanEditor extends FormElement
 	{
 		private Integer vo_report_name_id;
-		private TextFormElement group_name;
-		private TextFormElement role;
+		private Text group_name;
+		private Text role;
 		private Button remove_button;
 		private VOReportNameFqanEditor myself;
 		
@@ -38,13 +38,13 @@ public class VOReportNameFqan extends FormElementBase {
 			vo_report_name_id  = vorepnamefqan_record.vo_report_name_id;
 
 			new Static(this, "<h3>FQAN</h3>");
-			group_name = new TextFormElement(this);
+			group_name = new Text(this);
 			group_name.setLabel("Group Name");
 			group_name.setRequired(true);
 			group_name.setValue("FOO");
 			//group_name.addClass("inline");
 			
-			role = new TextFormElement(this);
+			role = new Text(this);
 			role.setLabel("Role");
 			role.setValue("BAR");
 			//role.addClass("inline");

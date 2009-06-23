@@ -9,7 +9,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.StringEscapeUtils;
 
-import com.webif.divrep.DivRepRoot.divrepPage;
+import com.webif.divrep.DivRepRoot.DivRepPage;
 
 public abstract class DivRep {    
 	private String nodeid;
@@ -24,11 +24,11 @@ public abstract class DivRep {
 		}
 	}
 	
-	//simply travel through the hirarchy and find the divrepPage
-	public divrepPage getPageRoot()
+	//simply travel through the hirarchy and find the DivRepPage
+	public DivRepPage getPageRoot()
 	{
-		if(this instanceof divrepPage) {
-			return (divrepPage)this;
+		if(this instanceof DivRepPage) {
+			return (DivRepPage)this;
 		}
 		return parent.getPageRoot();
 	}
@@ -152,7 +152,7 @@ public abstract class DivRep {
 			PrintWriter out = response.getWriter();
 			response.setContentType("text/javascript");
 			Event e = new Event(action, value);
-			divrepPage page = getPageRoot();
+			DivRepPage page = getPageRoot();
 			
 			//handle my event handler
 			onEvent(e);

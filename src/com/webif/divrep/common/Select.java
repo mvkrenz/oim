@@ -1,22 +1,28 @@
-package com.webif.divrep.form;
+package com.webif.divrep.common;
 
 import java.io.PrintWriter;
+import java.util.AbstractMap;
 import java.util.HashMap;
 import java.util.Random;
+import java.util.TreeMap;
 
 import org.apache.commons.lang.StringEscapeUtils;
 
 import com.webif.divrep.DivRep;
 import com.webif.divrep.Event;
 
-public class SelectFormElement extends FormElementBase<Integer>
+public class Select extends FormElement<Integer>
 {		
-	HashMap<Integer, String> keyvalues;
+	TreeMap<Integer, String> keyvalues;
 	
-	public SelectFormElement(DivRep parent, HashMap<Integer, String> _keyvalues) {
+	public Select(DivRep parent, TreeMap<Integer, String> _keyvalues) {
 		super(parent);
 		keyvalues = _keyvalues;
 	}
+	
+	//show (Please Select) item with null value
+	private Boolean hasnull = true;
+	public void setHasNull(Boolean b) { hasnull = b; }
 	
 	public void render(PrintWriter out) 
 	{
@@ -29,8 +35,9 @@ public class SelectFormElement extends FormElementBase<Integer>
 			}
 			int random = (int)(Math.random()*10000);
 			out.write("<select id='"+random+"' onchange='divrep(\""+getNodeID()+"\", event, this.value);'>");
-			out.write("<option value=\"\">(Please Select)</option>");
-			
+			if(hasnull) {
+				out.write("<option value=\"\">(Please Select)</option>");
+			}
 			for(Integer v : keyvalues.keySet()) {
 				String name = keyvalues.get(v);
 				String selected = "";

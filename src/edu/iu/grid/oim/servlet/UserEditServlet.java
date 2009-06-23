@@ -13,7 +13,7 @@ import org.apache.log4j.Logger;
 import com.webif.divrep.DivRepRoot;
 
 import edu.iu.grid.oim.lib.Authorization;
-import edu.iu.grid.oim.lib.Config;
+import edu.iu.grid.oim.lib.StaticConfig;
 
 import edu.iu.grid.oim.model.db.DNModel;
 import edu.iu.grid.oim.model.db.SiteModel;
@@ -61,7 +61,7 @@ public class UserEditServlet extends ServletBase implements Servlet {
 				title = "New User";	
 			}
 		
-			UserFormDE form = new UserFormDE(context, rec, Config.getApplicationBase()+"/"+current_page);
+			UserFormDE form = new UserFormDE(context, rec, StaticConfig.getApplicationBase()+"/"+current_page);
 			
 			//put the form in a view and display
 			ContentView contentview = new ContentView();
@@ -71,7 +71,7 @@ public class UserEditServlet extends ServletBase implements Servlet {
 			//setup crumbs
 			BreadCrumbView bread_crumb = new BreadCrumbView();
 			bread_crumb.addCrumb("Administration",  "admin");
-			bread_crumb.addCrumb("User",  "user");
+			bread_crumb.addCrumb("Users",  "user");
 			bread_crumb.addCrumb(rec.dn_string, null);
 			contentview.setBreadCrumb(bread_crumb);
 			

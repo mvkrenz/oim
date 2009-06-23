@@ -13,7 +13,7 @@ import org.apache.log4j.Logger;
 import com.webif.divrep.DivRepRoot;
 
 import edu.iu.grid.oim.lib.Authorization;
-import edu.iu.grid.oim.lib.Config;
+import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.model.db.SCModel;
 import edu.iu.grid.oim.model.db.record.SCRecord;
 import edu.iu.grid.oim.view.divrep.form.SCFormDE;
@@ -66,7 +66,7 @@ public class SCEditServlet extends ServletBase implements Servlet {
 		}
 	
 		SCFormDE form;
-		String origin_url = Config.getApplicationBase()+"/"+parent_page;
+		String origin_url = StaticConfig.getApplicationBase()+"/"+parent_page;
 		try {
 			form = new SCFormDE(context, rec, origin_url);
 		} catch (SQLException e) {

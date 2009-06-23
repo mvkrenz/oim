@@ -26,7 +26,7 @@ public class Footprint
 		
 		//using program listed here > http://blogs.sun.com/andreas/entry/no_more_unable_to_find
 		//to create the trusted keystore
-		System.setProperty("javax.net.ssl.trustStore", Config.getSSLTrustStorePath());
+		System.setProperty("javax.net.ssl.trustStore", StaticConfig.getSSLTrustStorePath());
 		
         //Init SOAP
 		try {
@@ -57,16 +57,16 @@ public class Footprint
 		
 		try
         {
-            SOAPElement invoke = body.addChildElement( env.createName("MRWebServices__createIssue_goc", "namesp1",Config.getFootprintsUri()) );
+            SOAPElement invoke = body.addChildElement( env.createName("MRWebServices__createIssue_goc", "namesp1",StaticConfig.getFootprintsUri()) );
             
             // root parameters user/pass/extra/args
             SOAPElement username = invoke.addChildElement( env.createName("user") );
             username.addAttribute( env.createName("type","xsi",""), "xsd:string" );
-            username.addTextNode(Config.getFootprintsUsername());
+            username.addTextNode(StaticConfig.getFootprintsUsername());
             
             SOAPElement password = invoke.addChildElement( env.createName("password") );
             password.addAttribute( env.createName("type","xsi",""), "xsd:string" );
-            password.addTextNode(Config.getFootprintsPassword());
+            password.addTextNode(StaticConfig.getFootprintsPassword());
             
             SOAPElement extra_info = invoke.addChildElement( env.createName("extrainfo") );
             extra_info.addAttribute( env.createName("type","xsi",""), "xsd:string" );
@@ -98,7 +98,7 @@ public class Footprint
             //Basic Information
             SOAPElement arg4_7 = args.addChildElement( env.createName("projectID") );
             arg4_7.addAttribute( env.createName("type","xsi",""), "xsd:int" );
-            arg4_7.addTextNode(Config.getFootprintsProjectID().toString());       
+            arg4_7.addTextNode(StaticConfig.getFootprintsProjectID().toString());       
             SOAPElement arg4_9 = args.addChildElement( env.createName("submitter") );
             arg4_9.addAttribute( env.createName("type","xsi",""), "xsd:string" );
             arg4_9.addTextNode("OSG-GOC");
@@ -169,7 +169,7 @@ public class Footprint
             arg4_2.addTextNode("Engineering");
             msg.saveChanges();
 
-            SOAPMessage reply = connection.call( msg, Config.getFootprintsUrl() );
+            SOAPMessage reply = connection.call( msg, StaticConfig.getFootprintsUrl() );
             connection.close();
 
             SOAPBody replybody = reply.getSOAPPart().getEnvelope().getBody();

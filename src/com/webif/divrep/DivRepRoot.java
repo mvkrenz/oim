@@ -20,9 +20,9 @@ public class DivRepRoot extends DivRep
 		super(null); //null will indicate this is the DivRepRoot
 	}
 	
-	static public divrepPage initPageRoot(HttpServletRequest request) {
+	static public DivRepPage initPageRoot(HttpServletRequest request) {
 		DivRepRoot root = DivRepRoot.getInstance(request.getSession());
-		divrepPage pageroot = root.initPage(request.getServletPath());
+		DivRepPage pageroot = root.initPage(request.getServletPath());
 		return pageroot;
 	}
 	
@@ -37,10 +37,10 @@ public class DivRepRoot extends DivRep
     	return root;
 	}
 	
-	public class divrepPage extends DivRep
+	public class DivRepPage extends DivRep
 	{
 
-		public divrepPage(DivRep _parent) {
+		public DivRepPage(DivRep _parent) {
 			super(_parent);
 			// TODO Auto-generated constructor stub
 		}
@@ -91,20 +91,20 @@ public class DivRepRoot extends DivRep
 		public String getRedirect() { return redirect_url; }
 	}
 	
-	//DivRepRoot contains the list of divrepPage that is the root for each pages
-	HashMap<String, divrepPage> pages = new HashMap<String, divrepPage>();
-	public divrepPage initPage(String url)
+	//DivRepRoot contains the list of DivRepPage that is the root for each pages
+	HashMap<String, DivRepPage> pages = new HashMap<String, DivRepPage>();
+	public DivRepPage initPage(String url)
 	{
 		//clear old page (if exist)
 		if(pages.containsKey(url)) {
-			divrepPage oldpage = pages.get(url);
+			DivRepPage oldpage = pages.get(url);
 			//remove references
 			pages.remove(url);
 			this.remove(oldpage);
 		}
 		
 		//insert new page and return
-		divrepPage page = new divrepPage(this);
+		DivRepPage page = new DivRepPage(this);
 		pages.put(url, page);
 		return page;
 	}

@@ -7,7 +7,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.log4j.Logger;
-import edu.iu.grid.oim.lib.Config;
+import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.model.db.AuthorizationTypeModel;
 import edu.iu.grid.oim.model.db.record.AuthorizationTypeRecord;
 import edu.iu.grid.oim.view.divrep.form.AuthtypeFormDE;
@@ -54,7 +54,7 @@ public class AuthtypeEditServlet extends ServletBase implements Servlet {
 		}
 	
 		AuthtypeFormDE form;
-		String origin_url = Config.getApplicationBase()+"/"+current_page;
+		String origin_url = StaticConfig.getApplicationBase()+"/"+current_page;
 		try {
 			form = new AuthtypeFormDE(context, rec, origin_url);
 		} catch (SQLException e) {

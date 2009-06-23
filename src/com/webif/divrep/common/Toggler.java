@@ -1,11 +1,14 @@
-package com.webif.divrep;
+package com.webif.divrep.common;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
 
 import org.apache.commons.lang.StringEscapeUtils;
 
-import com.webif.divrep.Button.Style;
+import com.webif.divrep.DivRep;
+import com.webif.divrep.Event;
+import com.webif.divrep.EventListener;
+import com.webif.divrep.common.Button.Style;
 
 public class Toggler extends DivRep {
 	Button show_button;

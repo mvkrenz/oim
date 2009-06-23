@@ -11,14 +11,14 @@ import org.apache.log4j.Logger;
 import com.webif.divrep.DivRep;
 import com.webif.divrep.Event;
 import com.webif.divrep.EventListener;
-import com.webif.divrep.Static;
-import com.webif.divrep.form.CheckBoxFormElement;
-import com.webif.divrep.form.FormBase;
-import com.webif.divrep.form.TextAreaFormElement;
-import com.webif.divrep.form.TextFormElement;
-import com.webif.divrep.form.validator.DoubleValidator;
-import com.webif.divrep.form.validator.UniqueValidator;
-import com.webif.divrep.form.validator.UrlValidator;
+import com.webif.divrep.common.Static;
+import com.webif.divrep.common.CheckBoxFormElement;
+import com.webif.divrep.common.FormBase;
+import com.webif.divrep.common.TextArea;
+import com.webif.divrep.common.Text;
+import com.webif.divrep.validator.DoubleValidator;
+import com.webif.divrep.validator.UniqueValidator;
+import com.webif.divrep.validator.UrlValidator;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.FileReader;
@@ -61,10 +61,10 @@ public class ResourceFormDE extends FormBase
 	protected Authorization auth;
 	private Integer id;
 	
-	private TextFormElement name;
-	private TextAreaFormElement description;
-	private TextFormElement fqdn;
-	private TextFormElement url;
+	private Text name;
+	private TextArea description;
+	private Text fqdn;
+	private Text url;
 	
 	private CheckBoxFormElement active;
 	private CheckBoxFormElement disable;
@@ -104,14 +104,14 @@ public class ResourceFormDE extends FormBase
 			resources.remove(id);
 		}
 		
-		name = new TextFormElement(this);
+		name = new Text(this);
 		name.setLabel("Name");
 		name.setValue(rec.name);
 		name.addValidator(new UniqueValidator<String>(resources.values()));
 		name.setRequired(true);
 		name.setSampleValue("Indiana_Sample_CE");
 		
-		fqdn = new TextFormElement(this);
+		fqdn = new Text(this);
 		fqdn.setLabel("Fully Qualified Domain Name (FQDN) of this resource");
 		fqdn.setValue(rec.fqdn);
 		fqdn.addValidator(new UniqueValidator<String>(resources.values()));
@@ -125,13 +125,13 @@ public class ResourceFormDE extends FormBase
 			resource_group_id.setValue(rec.resource_group_id);
 		}
 
-		description = new TextAreaFormElement(this);
+		description = new TextArea(this);
 		description.setLabel("Short Description");
 		description.setValue(rec.description);
 		description.setRequired(true);
 		description.setSampleValue("This is a hidden gatekeeper accessible from the FermiGrid site only. It reports to Gratia and RSV directly but offsite jobs can only get to it via the FermiGrid job gateway fermigridosg1");
 				
-		url = new TextFormElement(this);
+		url = new Text(this);
 		url.setLabel("Information URL");
 		url.setValue(rec.url);
 		url.addValidator(UrlValidator.getInstance());

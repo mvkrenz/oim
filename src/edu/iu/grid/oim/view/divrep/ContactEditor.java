@@ -14,12 +14,12 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
-import com.webif.divrep.Button;
+import com.webif.divrep.common.Button;
 import com.webif.divrep.DivRep;
 import com.webif.divrep.Event;
 import com.webif.divrep.EventListener;
-import com.webif.divrep.form.FormElementBase;
-import com.webif.divrep.form.validator.IFormElementValidator;
+import com.webif.divrep.common.FormElement;
+import com.webif.divrep.validator.IFormElementValidator;
 
 import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
@@ -27,7 +27,7 @@ import edu.iu.grid.oim.model.db.record.RecordBase;
 import edu.iu.grid.oim.servlet.ServletBase;
 
 //this requires modified version of jquery autocomplete plugin, and client side code to make the input area to be autocomplete
-public class ContactEditor extends FormElementBase<HashMap<ContactEditor.Rank, ArrayList<ContactEditor.ContactDE>>> {
+public class ContactEditor extends FormElement<HashMap<ContactEditor.Rank, ArrayList<ContactEditor.ContactDE>>> {
 	static Logger log = Logger.getLogger(ContactEditor.class);
 	
 	public enum Rank {PRIMARY, SECONDARY, TERTIARY };
@@ -120,7 +120,7 @@ public class ContactEditor extends FormElementBase<HashMap<ContactEditor.Rank, A
 	}
 	
 	//autocomplete area to add new contact
-	class NewContactDE extends FormElementBase
+	class NewContactDE extends FormElement
 	{
 		private ContactModel pmodel;
 		private Rank rank;
@@ -229,7 +229,7 @@ public class ContactEditor extends FormElementBase<HashMap<ContactEditor.Rank, A
 		}
 	}
 	
-	class ContactDE extends FormElementBase
+	class ContactDE extends FormElement
 	{
 		public ContactRecord person;
 		private Button removebutton;

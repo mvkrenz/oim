@@ -1,4 +1,4 @@
-package com.webif.divrep.form.validator;
+package com.webif.divrep.validator;
 
 public class DoubleValidator implements IFormElementValidator<String>
 {

@@ -15,13 +15,13 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 
-import com.webif.divrep.Button;
+import com.webif.divrep.common.Button;
 import com.webif.divrep.DivRep;
 import com.webif.divrep.DivRepRoot;
 import com.webif.divrep.Event;
-import com.webif.divrep.form.CheckBoxFormElement;
-import com.webif.divrep.form.FormBase;
-import com.webif.divrep.form.FormElementBase;
+import com.webif.divrep.common.CheckBoxFormElement;
+import com.webif.divrep.common.FormBase;
+import com.webif.divrep.common.FormElement;
 
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
 import edu.iu.grid.oim.model.Context;
@@ -47,7 +47,7 @@ public class AuthorizationMatrixServlet extends ServletBase  {
 	private static final long serialVersionUID = 1L;
     static Logger log = Logger.getLogger(AuthorizationMatrixServlet.class);  
    
-	class AuthMatrix extends FormElementBase
+	class AuthMatrix extends FormElement
 	{		
 		ActionModel actionmodel;
 		AuthorizationTypeActionModel matrixmodel;

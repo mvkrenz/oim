@@ -57,13 +57,13 @@ function divrep(id, event, value) {
 //this is basically the same thing as jquery.load, but instead of replacing the content 
 //of the div, it replace the whole div using replaceWith().
 var divrep_replace_counter = 0;
-function divrep_replace( node, url) 
+function divrep_replace(node, url) 
 {
 	//count how many requests are there
 	divrep_replace_counter++;
 	
 	if(node.length == 0) {
-		alert("couldn't find the divrep node - maybe it's not wrapped with div?");
+		alert("couldn't find the divrep node - maybe it's not wrapped with div?\n" + url);
 	}
 	var self = node;
 	// Request the remote document

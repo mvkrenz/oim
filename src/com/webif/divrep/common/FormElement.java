@@ -1,4 +1,4 @@
-package com.webif.divrep.form;
+package com.webif.divrep.common;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -7,9 +7,9 @@ import org.apache.commons.lang.StringEscapeUtils;
 
 import com.webif.divrep.DivRep;
 import com.webif.divrep.Event;
-import com.webif.divrep.form.validator.IFormElementValidator;
+import com.webif.divrep.validator.IFormElementValidator;
 
-abstract public class FormElementBase<ValueType> extends DivRep {
+abstract public class FormElement<ValueType> extends DivRep {
 	
 	//class used to render the parent div element (you can use it to render it in non-div-ish way like inline)
 	//the derived element has to use this in order for it to actually take effect (of course)
@@ -26,7 +26,7 @@ abstract public class FormElementBase<ValueType> extends DivRep {
 		out.write("\"");
 	}
 	
-	protected FormElementBase(DivRep parent) {
+	protected FormElement(DivRep parent) {
 		super(parent);
 	}
 	
@@ -75,8 +75,8 @@ abstract public class FormElementBase<ValueType> extends DivRep {
 		//validate *all* child elements first
 		boolean children_valid = true;
 		for(DivRep child : childnodes) {
-			if(child instanceof FormElementBase) { 
-				FormElementBase element = (FormElementBase)child;
+			if(child instanceof FormElement) { 
+				FormElement element = (FormElement)child;
 				if(element != null && !element.isHidden()) {
 					if(!element.isValid()) {
 						children_valid = false;

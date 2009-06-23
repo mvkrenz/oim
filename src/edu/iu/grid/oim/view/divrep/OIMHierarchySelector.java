@@ -14,10 +14,10 @@ import org.apache.log4j.Logger;
 import com.webif.divrep.DivRep;
 import com.webif.divrep.Event;
 import com.webif.divrep.EventListener;
-import com.webif.divrep.form.FormElementBase;
+import com.webif.divrep.common.FormElement;
 
 import edu.iu.grid.oim.lib.Authorization;
-import edu.iu.grid.oim.lib.Config;
+import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.model.Context;
 import edu.iu.grid.oim.model.db.FacilityModel;
 import edu.iu.grid.oim.model.db.ResourceGroupModel;
@@ -28,7 +28,7 @@ import edu.iu.grid.oim.model.db.record.ResourceGroupRecord;
 import edu.iu.grid.oim.model.db.record.ResourceRecord;
 import edu.iu.grid.oim.model.db.record.SiteRecord;
 
-public class OIMHierarchySelector extends FormElementBase<Integer> {
+public class OIMHierarchySelector extends FormElement<Integer> {
     static Logger log = Logger.getLogger(OIMHierarchySelector.class);  
 	
     private Context context;
@@ -41,8 +41,8 @@ public class OIMHierarchySelector extends FormElementBase<Integer> {
 	ArrayList<Selectable> selectables = new ArrayList();
 	
 	abstract class ExpandableSelector extends DivRep {
-		//HashMap<Integer/*id*/, FormElementBase> items = new HashMap();
-		ArrayList<FormElementBase<Integer>> items = new ArrayList<FormElementBase<Integer>>();
+		//HashMap<Integer/*id*/, FormElement> items = new HashMap();
+		ArrayList<FormElement<Integer>> items = new ArrayList<FormElement<Integer>>();
 		ExpandableSelector mine;	
 		
 		public ExpandableSelector(DivRep _parent) throws SQLException {
@@ -55,13 +55,13 @@ public class OIMHierarchySelector extends FormElementBase<Integer> {
 		}
 
 		public void render(PrintWriter out) {			
-			for(FormElementBase<Integer> item : items) {
+			for(FormElement<Integer> item : items) {
 				item.render(out);
 			}
 		}
-		public FormElementBase searchItem(Integer id) 
+		public FormElement searchItem(Integer id) 
 		{
-			for(FormElementBase<Integer> item : items) {
+			for(FormElement<Integer> item : items) {
 				if(item.getValue().equals(id)) return item;
 			}
 			return null;
@@ -74,7 +74,7 @@ public class OIMHierarchySelector extends FormElementBase<Integer> {
 			super(_parent);
 			FacilityModel model = new FacilityModel(context);
 			for(FacilityRecord rec : model.getAll()) {				
-				final FormElementBase<Integer> item;
+				final FormElement<Integer> item;
 				if(type == Type.FACILITY) {
 					item = new Selectable<Integer>(this);
 					item.addEventListener(new EventListener() {
@@ -96,9 +96,9 @@ public class OIMHierarchySelector extends FormElementBase<Integer> {
 				item.setValue(rec.id);
 				items.add(item);
 			}
-			Collections.sort(items, new Comparator<FormElementBase<Integer>>(){
-				public int compare(FormElementBase<Integer> o1,
-						FormElementBase<Integer> o2) {
+			Collections.sort(items, new Comparator<FormElement<Integer>>(){
+				public int compare(FormElement<Integer> o1,
+						FormElement<Integer> o2) {
 					return o1.getLabel().compareToIgnoreCase(o2.getLabel());
 				}
 			});
@@ -122,7 +122,7 @@ public class OIMHierarchySelector extends FormElementBase<Integer> {
 			super(_parent);
 			SiteModel model = new SiteModel(context);
 			for(SiteRecord rec : model.getByFacilityID(facility_id)) {	
-				final FormElementBase<Integer> item;
+				final FormElement<Integer> item;
 				if(type == Type.SITE) {
 					item = new Selectable<Integer>(this);
 					item.addEventListener(new EventListener() {
@@ -144,9 +144,9 @@ public class OIMHierarchySelector extends FormElementBase<Integer> {
 				item.setValue(rec.id);
 				items.add(item);
 			}
-			Collections.sort(items, new Comparator<FormElementBase<Integer>>(){
-				public int compare(FormElementBase<Integer> o1,
-						FormElementBase<Integer> o2) {
+			Collections.sort(items, new Comparator<FormElement<Integer>>(){
+				public int compare(FormElement<Integer> o1,
+						FormElement<Integer> o2) {
 					return o1.getLabel().compareToIgnoreCase(o2.getLabel());
 				}
 			});
@@ -170,7 +170,7 @@ public class OIMHierarchySelector extends FormElementBase<Integer> {
 			super(_parent);
 			ResourceGroupModel model = new ResourceGroupModel(context);
 			for(ResourceGroupRecord rec : model.getBySiteID(site_id)) {			
-				final FormElementBase<Integer> item;
+				final FormElement<Integer> item;
 				if(type == Type.RESOURCE_GROUP) {
 					item = new Selectable<Integer>(this);
 					item.addEventListener(new EventListener() {
@@ -192,9 +192,9 @@ public class OIMHierarchySelector extends FormElementBase<Integer> {
 				item.setValue(rec.id);
 				items.add(item);
 			}
-			Collections.sort(items, new Comparator<FormElementBase<Integer>>(){
-				public int compare(FormElementBase<Integer> o1,
-						FormElementBase<Integer> o2) {
+			Collections.sort(items, new Comparator<FormElement<Integer>>(){
+				public int compare(FormElement<Integer> o1,
+						FormElement<Integer> o2) {
 					return o1.getLabel().compareToIgnoreCase(o2.getLabel());
 				}
 			});
@@ -219,7 +219,7 @@ public class OIMHierarchySelector extends FormElementBase<Integer> {
 			super(_parent);
 			ResourceModel model = new ResourceModel(context);
 			for(ResourceRecord rec : model.getByGroupID(rg_id)) {
-				final FormElementBase<Integer> item;
+				final FormElement<Integer> item;
 				if(type == Type.RESOURCE) {
 					item = new Selectable<Integer>(this);
 					item.addEventListener(new EventListener() {
@@ -241,9 +241,9 @@ public class OIMHierarchySelector extends FormElementBase<Integer> {
 				item.setValue(rec.id);
 				items.add(item);
 			}
-			Collections.sort(items, new Comparator<FormElementBase<Integer>>(){
-				public int compare(FormElementBase<Integer> o1,
-						FormElementBase<Integer> o2) {
+			Collections.sort(items, new Comparator<FormElement<Integer>>(){
+				public int compare(FormElement<Integer> o1,
+						FormElement<Integer> o2) {
 					return o1.getLabel().compareToIgnoreCase(o2.getLabel());
 				}
 			});
@@ -306,7 +306,7 @@ public class OIMHierarchySelector extends FormElementBase<Integer> {
 				}
 				
 				//expand one by one
-				FormElementBase elem = null;
+				FormElement elem = null;
 				Expandable<Integer> item = null;
 				if(facility_id != null) {
 					elem = facility_selector.searchItem(facility_id);
@@ -360,7 +360,7 @@ public class OIMHierarchySelector extends FormElementBase<Integer> {
 	}
 	
 	//selectable item
-	class Selectable<T> extends FormElementBase<T> {
+	class Selectable<T> extends FormElement<T> {
 		protected Selectable(DivRep parent) {
 			super(parent);
 			// TODO Auto-generated constructor stub
@@ -385,7 +385,7 @@ public class OIMHierarchySelector extends FormElementBase<Integer> {
 	}
 	
 	//expandable item
-	class Expandable<T> extends FormElementBase<T> {
+	class Expandable<T> extends FormElement<T> {
 		private Boolean expanded = false;
 		public void setExpand(Boolean b) { expanded = b; }
 		public Boolean isExpanded() { return expanded; }
@@ -405,7 +405,7 @@ public class OIMHierarchySelector extends FormElementBase<Integer> {
 			out.write("<div onclick=\"divrep(this.id, event)\" id=\""+getNodeID()+"\">");
 	
 			if(expanded) {
-				out.write("<img align=\"top\" src=\""+Config.getStaticBase()+"/images/minusbox.gif\"/>" + label);
+				out.write("<img align=\"top\" src=\""+StaticConfig.getStaticBase()+"/images/minusbox.gif\"/>" + label);
 				out.write("<div class=\"indent\">");
 				if(child != null) {
 					child.render(out);
@@ -414,7 +414,7 @@ public class OIMHierarchySelector extends FormElementBase<Integer> {
 				}
 				out.write("</div>");
 			} else {
-				out.write("<img align=\"top\" src=\""+Config.getStaticBase()+"/images/plusbox.gif\"/>" + label);				
+				out.write("<img align=\"top\" src=\""+StaticConfig.getStaticBase()+"/images/plusbox.gif\"/>" + label);				
 			}
 			out.write("</div>");
 		}

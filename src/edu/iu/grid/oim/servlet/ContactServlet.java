@@ -14,12 +14,12 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 
-import com.webif.divrep.Button;
+import com.webif.divrep.common.Button;
 import com.webif.divrep.DivRep;
 import com.webif.divrep.Event;
-import com.webif.divrep.Toggler;
+import com.webif.divrep.common.Toggler;
 
-import edu.iu.grid.oim.lib.Config;
+import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.DNModel;
 import edu.iu.grid.oim.model.db.record.DNRecord;
@@ -90,9 +90,9 @@ public class ContactServlet extends ServletBase implements Servlet {
 		for(ContactRecord rec : contacts) {
 			String image;
 			if(rec.person == false) {
-				image = "<img align=\"top\" src=\""+Config.getApplicationBase()+"/images/group.png\"/> ";
+				image = "<img align=\"top\" src=\""+StaticConfig.getApplicationBase()+"/images/group.png\"/> ";
 			} else {
-				image = "";//"<img src=\""+Config.getApplicationBase()+"/images/user.png\"/> ";			
+				image = "";//"<img src=\""+StaticConfig.getApplicationBase()+"/images/user.png\"/> ";			
 			}
 			contentview.add(new HtmlView("<h2>"+image+StringEscapeUtils.escapeHtml(rec.name)+"</h2>"));
 
@@ -129,7 +129,7 @@ public class ContactServlet extends ServletBase implements Servlet {
 	
 				String img = rec.photo_url;
 				if(rec.photo_url == null || rec.photo_url.length() == 0) {
-					img = Config.getApplicationBase() + "/images/noavatar.gif";
+					img = StaticConfig.getApplicationBase() + "/images/noavatar.gif";
 				} 
 				personal_table.addRow("Photo", new HtmlView("<img class=\"avatar\" src=\""+img+"\"/>"));
 				personal_table.addRow("Contact Preference", rec.contact_preference);	
@@ -168,7 +168,7 @@ public class ContactServlet extends ServletBase implements Servlet {
 					redirect(url);
 				}
 			};
-			table.add(new DivRepWrapper(new EditButtonDE(context.getPageRoot(), Config.getApplicationBase()+"/contactedit?id=" + rec.id)));
+			table.add(new DivRepWrapper(new EditButtonDE(context.getPageRoot(), StaticConfig.getApplicationBase()+"/contactedit?id=" + rec.id)));
 		}
 		return contentview;
 	}	

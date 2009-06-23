@@ -5,23 +5,23 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import com.webif.divrep.Button;
+import com.webif.divrep.common.Button;
 import com.webif.divrep.DivRep;
 import com.webif.divrep.Event;
 import com.webif.divrep.EventListener;
-import com.webif.divrep.form.CheckBoxFormElement;
-import com.webif.divrep.form.FormElementBase;
-import com.webif.divrep.form.SelectFormElement;
-import com.webif.divrep.form.TextFormElement;
-import com.webif.divrep.form.validator.IFormElementValidator;
-import com.webif.divrep.form.validator.UrlValidator;
+import com.webif.divrep.common.CheckBoxFormElement;
+import com.webif.divrep.common.FormElement;
+import com.webif.divrep.common.Select;
+import com.webif.divrep.common.Text;
+import com.webif.divrep.validator.IFormElementValidator;
+import com.webif.divrep.validator.UrlValidator;
 
 import edu.iu.grid.oim.model.Context;
 import edu.iu.grid.oim.model.db.record.ResourceServiceRecord;
 import edu.iu.grid.oim.model.db.record.ServiceRecord;
 import edu.iu.grid.oim.view.divrep.form.ResourceFormDE;
 
-public class ResourceServices extends FormElementBase {
+public class ResourceServices extends FormElement {
 
 	ArrayList<ServiceEditor> services = new ArrayList<ServiceEditor>();
 	ArrayList<Integer> service_id_taken = new ArrayList<Integer>();
@@ -31,14 +31,14 @@ public class ResourceServices extends FormElementBase {
 	
 	private ResourceFormDE parent;
 
-	class ServiceEditor extends FormElementBase
+	class ServiceEditor extends FormElement
 	{
 		//service details
 		private ServiceGroupHierarchySelector service;
-		private TextFormElement endpoint_override;
+		private Text endpoint_override;
 		private CheckBoxFormElement hidden;
 		private CheckBoxFormElement central;
-		private TextFormElement server_list_regex;
+		private Text server_list_regex;
 		
 		private Button remove_button;
 		private ResourceServices parent;
@@ -72,7 +72,7 @@ public class ResourceServices extends FormElementBase {
 				central.setValue(rec.central);
 			}
 			
-			endpoint_override = new TextFormElement(this);
+			endpoint_override = new Text(this);
 			endpoint_override.setLabel("Service URI Override (FQDN[:port])");
 			endpoint_override.setSampleValue("research.iu.edu:2812");
 			if(rec != null) {
@@ -112,7 +112,7 @@ public class ResourceServices extends FormElementBase {
 				}});
 
 			// Hiding this for now. Only Brian B knows how to use it.
-			server_list_regex = new TextFormElement(this);
+			server_list_regex = new Text(this);
 			server_list_regex.setLabel("Server List RegEx");
 			if(rec != null && rec.server_list_regex != null) {
 				server_list_regex.setValue(rec.server_list_regex.toString());
@@ -154,8 +154,8 @@ public class ResourceServices extends FormElementBase {
 			for(DivRep child : childnodes) {
 				if(child == remove_button) continue;
 				
-				if(child instanceof FormElementBase) {
-					FormElementBase elem = (FormElementBase)child;
+				if(child instanceof FormElement) {
+					FormElement elem = (FormElement)child;
 					if(!elem.isHidden()) {
 						out.print("<div class=\"form_element\">");
 						child.render(out);

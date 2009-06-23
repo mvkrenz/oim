@@ -3,15 +3,16 @@ package edu.iu.grid.oim.view.divrep;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.TreeMap;
 
-import com.webif.divrep.Button;
+import com.webif.divrep.common.Button;
 import com.webif.divrep.DivRep;
 import com.webif.divrep.Event;
 import com.webif.divrep.EventListener;
-import com.webif.divrep.form.CheckBoxFormElement;
-import com.webif.divrep.form.FormElementBase;
-import com.webif.divrep.form.SelectFormElement;
-import com.webif.divrep.form.TextFormElement;
+import com.webif.divrep.common.CheckBoxFormElement;
+import com.webif.divrep.common.FormElement;
+import com.webif.divrep.common.Select;
+import com.webif.divrep.common.Text;
 
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.MetricServiceRecord;
@@ -19,15 +20,15 @@ import edu.iu.grid.oim.model.db.record.ResourceAliasRecord;
 import edu.iu.grid.oim.view.divrep.ContactEditor.ContactDE;
 import edu.iu.grid.oim.view.divrep.ContactEditor.Rank;
 
-public class MetricService extends FormElementBase {
+public class MetricService extends FormElement {
 
 	//ArrayList<AliasEditor> aliases = new ArrayList<AliasEditor>();
 	private Button add_button;
-	HashMap<Integer, String> metric_kv;
+	TreeMap<Integer, String> metric_kv;
 	
-	class MetricEditor extends FormElementBase
+	class MetricEditor extends FormElement
 	{
-		private SelectFormElement metric;
+		private Select metric;
 		private CheckBoxFormElement critical;
 		private Button remove_button;
 		private MetricEditor myself;
@@ -36,7 +37,7 @@ public class MetricService extends FormElementBase {
 			super(parent);
 			myself = this;
 			
-			metric = new SelectFormElement(this, metric_kv);
+			metric = new Select(this, metric_kv);
 			metric.setLabel("Metric Name");
 			
 			critical = new CheckBoxFormElement(this);
@@ -101,7 +102,7 @@ public class MetricService extends FormElementBase {
 		redraw();
 	}
 	
-	public MetricService(DivRep parent, HashMap<Integer, String> _metric_kv) {
+	public MetricService(DivRep parent, TreeMap<Integer, String> _metric_kv) {
 		super(parent);
 		metric_kv = _metric_kv;
 		

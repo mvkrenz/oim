@@ -4,12 +4,12 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import org.apache.log4j.Logger;
-import com.webif.divrep.Static;
-import com.webif.divrep.form.CheckBoxFormElement;
-import com.webif.divrep.form.FormBase;
-import com.webif.divrep.form.TextAreaFormElement;
-import com.webif.divrep.form.TextFormElement;
-import com.webif.divrep.form.validator.UniqueValidator;
+import com.webif.divrep.common.Static;
+import com.webif.divrep.common.CheckBoxFormElement;
+import com.webif.divrep.common.FormBase;
+import com.webif.divrep.common.TextArea;
+import com.webif.divrep.common.Text;
+import com.webif.divrep.validator.UniqueValidator;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
@@ -32,11 +32,11 @@ public class SCFormDE extends FormBase
 	protected Authorization auth;
 	private Integer id;
 	
-	private TextFormElement name;
-	private TextFormElement long_name;
-	private TextAreaFormElement description;
-	private TextAreaFormElement community;
-	private TextFormElement footprints_id;
+	private Text name;
+	private Text long_name;
+	private TextArea description;
+	private TextArea community;
+	private Text footprints_id;
 	private CheckBoxFormElement active;
 	private CheckBoxFormElement disable;
 	
@@ -66,26 +66,26 @@ public class SCFormDE extends FormBase
 			//if doing update, remove my own name (I can use my own name)
 			scs.remove(id);
 		}
-		name = new TextFormElement(this);
+		name = new Text(this);
 		name.setLabel("Name");
 		name.setValue(rec.name);
 		name.addValidator(new UniqueValidator<String>(scs.values()));
 		name.setRequired(true);
 		name.setSampleValue("GOC");
 		
-		long_name = new TextFormElement(this);
+		long_name = new Text(this);
 		long_name.setLabel("Enter a Long Name for this SC");
 		long_name.setValue(rec.long_name);
 		long_name.setRequired(true);
 		long_name.setSampleValue("OpenScienceGrid Operations Center");
 				
-		description = new TextAreaFormElement(this);
+		description = new TextArea(this);
 		description.setLabel("Enter a Description");
 		description.setValue(rec.description);
 		description.setRequired(true);
 
 		// TODO agopu Is this really necessary in both VO and SC?
-		community = new TextAreaFormElement(this);
+		community = new TextArea(this);
 		community.setLabel("Enter the Community this SC supports");
 		community.setValue(rec.community);
 		community.setRequired(true);
@@ -121,7 +121,7 @@ public class SCFormDE extends FormBase
 		if(auth.allows("admin")) {
 			new Static(this, "<h2>Administrative Tasks</h2>");
 		}
-		footprints_id = new TextFormElement(this);
+		footprints_id = new Text(this);
 		footprints_id.setLabel("Footprints ID");
 		footprints_id.setValue(rec.footprints_id);
 		footprints_id.setRequired(true);

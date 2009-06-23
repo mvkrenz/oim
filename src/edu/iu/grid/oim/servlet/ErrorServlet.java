@@ -13,7 +13,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 
-import edu.iu.grid.oim.lib.Config;
+import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.lib.SendMail;
 import edu.iu.grid.oim.model.Context;
 import edu.iu.grid.oim.view.ContentView;
@@ -91,7 +91,7 @@ public class ErrorServlet extends HttpServlet {
     		buffer.append("\n\n");
     	}
     	
-		if(Config.isDebug()) {
+		if(StaticConfig.isDebug()) {
 			//display to browser
 			contentview.add(new HtmlView("<h3>Debug Dump</h3>"));
 			contentview.add(new HtmlView("<div class=\"indent\">"));

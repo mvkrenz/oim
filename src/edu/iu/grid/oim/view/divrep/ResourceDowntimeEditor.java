@@ -9,22 +9,23 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.HashMap;
+import java.util.TreeMap;
+
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
-import com.webif.divrep.Button;
+import com.webif.divrep.common.Button;
 import com.webif.divrep.DivRep;
 import com.webif.divrep.Event;
 import com.webif.divrep.EventListener;
-import com.webif.divrep.Static;
-import com.webif.divrep.form.CheckBoxFormElement;
-import com.webif.divrep.form.FormElementBase;
-import com.webif.divrep.form.SelectFormElement;
-import com.webif.divrep.form.TextAreaFormElement;
-import com.webif.divrep.form.validator.IFormElementValidator;
+import com.webif.divrep.common.Static;
+import com.webif.divrep.common.CheckBoxFormElement;
+import com.webif.divrep.common.FormElement;
+import com.webif.divrep.common.Select;
+import com.webif.divrep.common.TextArea;
 
 import edu.iu.grid.oim.lib.Authorization;
+import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.model.Context;
 import edu.iu.grid.oim.model.ResourceDowntime;
 import edu.iu.grid.oim.model.db.DowntimeClassModel;
@@ -33,6 +34,7 @@ import edu.iu.grid.oim.model.db.ResourceDowntimeModel;
 import edu.iu.grid.oim.model.db.ResourceDowntimeServiceModel;
 import edu.iu.grid.oim.model.db.ResourceServiceModel;
 import edu.iu.grid.oim.model.db.ServiceModel;
+import edu.iu.grid.oim.model.db.ConfigModel.Config;
 import edu.iu.grid.oim.model.db.record.DowntimeClassRecord;
 import edu.iu.grid.oim.model.db.record.DowntimeSeverityRecord;
 import edu.iu.grid.oim.model.db.record.ResourceDowntimeRecord;
@@ -40,7 +42,7 @@ import edu.iu.grid.oim.model.db.record.ResourceDowntimeServiceRecord;
 import edu.iu.grid.oim.model.db.record.ResourceServiceRecord;
 import edu.iu.grid.oim.model.db.record.ServiceRecord;
 
-public class ResourceDowntimeEditor extends FormElementBase {
+public class ResourceDowntimeEditor extends FormElement {
     static Logger log = Logger.getLogger(ResourceDowntimeEditor.class); 
 
     private Context context;
@@ -50,10 +52,10 @@ public class ResourceDowntimeEditor extends FormElementBase {
 	private Authorization auth;
 	private int resource_id;
 	
-	public class DowntimeEditor extends FormElementBase
+	public class DowntimeEditor extends FormElement
 	{
 		//service details
-		private TextAreaFormElement summary;
+		private TextArea summary;
 		
 		private Integer downtime_id;
 		
@@ -63,16 +65,19 @@ public class ResourceDowntimeEditor extends FormElementBase {
 		private DateDE end_date;
 		private TimeDE end_time;
 		
-		private SelectFormElement class_id;
-		private SelectFormElement severity_id;
+		private Select class_id;
+		private Select severity_id;
 			
-		private HashMap<Integer/*service_id*/, CheckBoxFormElement> affected_services = new HashMap();
+		private HashMap<Integer/*service_id*/, CheckBoxFormElement> affected_services = new HashMap<Integer, CheckBoxFormElement>();
 		
 		private Button remove_button;
 
-		class DateDE extends FormElementBase<Date>
+		class DateDE extends FormElement<Date>
 		{
 			private static final String default_format = "M/d/yyyy";
+
+			//http://docs.jquery.com/UI/Datepicker/formatDate
+			private static final String default_jquery_format = "m/d/yy";
 			
 			String minDate = null;
 			protected DateDE(DivRep parent) {
@@ -109,97 +114,113 @@ public class ResourceDowntimeEditor extends FormElementBase {
 				out.write("<script type=\"text/javascript\">");
 				out.write("$(document).ready(function() { $(\"#"+getNodeID()+" .datepicker\").datepicker({" +
 						"onSelect: function(value) {divrep('"+getNodeID()+"', null, value);},"+
-						"altFormat: 'm/d/yyyy'");
+						"dateFormat: '"+default_jquery_format+"',"+
+						"beforeShow: function() {$(this).attr('disabled', 'disabled');},"+
+						"changeYear: true,"+
+						"changeMonth: true"
+						);
 				out.write("});});");
 				out.write("</script>");
-
+				
+				error.render(out);
 				out.write("</div>");
 			}
 		}
-		
-		class TimeDE extends FormElementBase<Date>
+		class TimeDE extends FormElement<Integer>
 		{
-			private static final String default_format = "h:mm a";
+
+			Select hour;
+			Select min;
+			
 			protected TimeDE(DivRep parent) {
 				super(parent);
 				
-				SimpleDateFormat format = new SimpleDateFormat(default_format);
-				try {
-					value = format.parse("0:0 AM");
-				} catch (ParseException e) {
-					//should not happen
+				TreeMap<Integer, String> hours = new TreeMap<Integer, String>();
+				hours.put(0, "0 AM");
+				hours.put(1, "1 AM");
+				hours.put(2, "2 AM");
+				hours.put(3, "3 AM");
+				hours.put(4, "4 AM");
+				hours.put(5, "5 AM");
+				hours.put(6, "6 AM");
+				hours.put(7, "7 AM");
+				hours.put(8, "8 AM");
+				hours.put(9, "9 AM");
+				hours.put(10, "10 AM");
+				hours.put(11, "11 AM");
+				hours.put(12, "12 (Noon)");
+				hours.put(13, "1 PM (13:)");
+				hours.put(14, "2 PM (14:)");
+				hours.put(15, "3 PM (15:)");
+				hours.put(16, "4 PM (16:)");
+				hours.put(17, "5 PM (17:)");
+				hours.put(18, "6 PM (18:)");
+				hours.put(19, "7 PM (19:)");
+				hours.put(20, "8 PM (20:)");
+				hours.put(21, "9 PM (21:)");
+				hours.put(22, "10 PM (22:)");
+				hours.put(23, "11 PM (23:)");
+				hour = new Select(this, hours);
+				hour.addEventListener(new EventListener() {
+					public void handleEvent(Event e) {
+						Integer h = Integer.valueOf((String)e.value);
+						int current_min = value%60;
+						value = h*60 + current_min;
+					}});
+				hour.setHasNull(false);
+				
+				TreeMap<Integer, String> mins = new TreeMap<Integer, String>();	
+				for(int m = 0; m < 60; m+=5) {
+					mins.put(m, String.valueOf(m));
 				}
-			}
+				min = new Select(this, mins);
+				min.addEventListener(new EventListener() {
+					public void handleEvent(Event e) {
+						Integer m = Integer.valueOf((String)e.value);
+						int current_hour = value/60;
+						value = current_hour*60 + m;
+					}});
+				min.setHasNull(false);
 
-			protected void onEvent(Event e) {
-				SimpleDateFormat format = new SimpleDateFormat(default_format);
-				String str = (String)e.value;
-				format.setLenient(true);
-				try {
-					value = format.parse(str);
-				} catch (ParseException e1) {
-					//try alternative format
-					try {
-						//try without space between minute and am/pm sign
-						format = new SimpleDateFormat("h:mma");
-						value = format.parse(str);		
-					} catch(ParseException e2) {
-						try {
-							//try 24 hour format
-							format = new SimpleDateFormat("H:mm");
-							value = format.parse(str);
-						} catch(ParseException e3) {
-							alert(e3.getMessage() + ". Please enter a valid time (example: 2:30 PM)");
-						}
-					}
-				}
-				redraw();
-				modified(true);
+				Date current = new Date();
+				setValue(new Timestamp(current.getTime()));
 			}
 
 			public void render(PrintWriter out) {
-				out.write("<div id=\""+getNodeID()+"\">");
-				if(label != null) {
-					out.print("<label>"+StringEscapeUtils.escapeHtml(label)+"</label><br/>");
-				}
+				int value_hour = (int)value/60;
+				int value_min = (int)value%60;
+				hour.setValue(value_hour);
+				min.setValue(value_min);
 				
-				SimpleDateFormat format = new SimpleDateFormat("h:mm a");
-				String str = format.format(value);
-				out.write("<input type=\"text\" class=\"timepickr\" onchange=\"divrep('"+getNodeID()+"', event, this.value);\" value=\""+str+"\"/>");	
-				/*
-				//setup the timepickr
-				out.write("<script type=\"text/javascript\">");
-				out.write("$(document).ready(function() { $(\"#"+getNodeID()+" .timepickr\").timepickr({" +
-						"onSelect: function(value) {divrep('"+getNodeID()+"', null, value);},"+
-						"convention: 12,"+
-						"updateLive: false");
-				out.write("});});");
-				out.write("</script>");
-				*/
-				out.write("</div>");
+				out.write("<table id=\""+getNodeID()+"\"><tr><td>");
+				hour.render(out);
+				out.write("</td><td>:</td><td>");
+				min.render(out);
+				
+				error.render(out);
+				out.write("</td></tr></table>");
+			}
+
+			public void setValue(Timestamp time) {
+				long sec = time.getTime()/1000;
+				int sec_inday = (int)(sec % (3600*24));
+				value = sec_inday/60;
+			}
+			public Integer getHour()
+			{
+				return value/60;
+			}
+			public Integer getMin()
+			{
+				return value%60;
+			}
+		
+			protected void onEvent(Event e) {
+				// TODO Auto-generated method stub
+				
 			}
 		}
-		/*
-		public void validate()
-		{
-			//first, validate individual elements
-			super.validate();
-			
-			//check the date range
-			if(start_date.getValue() != null && end_date.getValue() != null) {
-				//check the data range
-				GregorianCalendar start = new GregorianCalendar();
-				start.set(Calendar.MILLISECOND, (int) start_date.getValue().getTime());
-				start.set(Calendar.HOUR, start_time.getValue().getHours());
-				start.set(Calendar.MINUTE, start_time.getValue().getMinutes());
-				
-				GregorianCalendar end = new GregorianCalendar();
-				end.set(Calendar.MILLISECOND, (int) end_date.getValue().getTime());
-				end.set(Calendar.HOUR, end_time.getValue().getHours());
-				end.set(Calendar.MINUTE, end_time.getValue().getMinutes());			
-			}
-		}
-		*/
+		
 		public DowntimeEditor(DivRep parent, ResourceDowntimeRecord rec, Authorization auth) throws SQLException {
 			super(parent);
 			downtime_id = rec.id;
@@ -211,11 +232,13 @@ public class ResourceDowntimeEditor extends FormElementBase {
 			if(rec.start_time != null) {
 				start_date.setValue(rec.start_time);
 			}
+			
 			start_date.addEventListener(new EventListener() {
 				public void handleEvent(Event e) {
-					DowntimeEditor.this.adjustEndTime();
+					//DowntimeEditor.this.adjustEndTime();
+					DowntimeEditor.this.validate();
 				}});
-
+			
 			new Static(this, "</td><td>");
 			
 			start_time = new TimeDE(this);
@@ -224,9 +247,9 @@ public class ResourceDowntimeEditor extends FormElementBase {
 			}
 			start_time.addEventListener(new EventListener() {
 				public void handleEvent(Event e) {
-					DowntimeEditor.this.adjustEndTime();
+					//DowntimeEditor.this.adjustEndTime();
+					DowntimeEditor.this.validate();
 				}});
-			
 			new Static(this, "</td><td>&nbsp;to&nbsp;</td><td>");
 			
 			end_date = new DateDE(this);
@@ -236,9 +259,9 @@ public class ResourceDowntimeEditor extends FormElementBase {
 			}
 			end_date.addEventListener(new EventListener() {
 				public void handleEvent(Event e) {
-					DowntimeEditor.this.adjustStartTime();
+					//DowntimeEditor.this.adjustStartTime();
+					DowntimeEditor.this.validate();
 				}});
-			
 			new Static(this, "</td><td>");
 			
 			end_time = new TimeDE(this);
@@ -247,13 +270,13 @@ public class ResourceDowntimeEditor extends FormElementBase {
 			}
 			end_time.addEventListener(new EventListener() {
 				public void handleEvent(Event e) {
-					DowntimeEditor.this.adjustStartTime();
+					//DowntimeEditor.this.adjustStartTime();
+					DowntimeEditor.this.validate();
 				}});
-			
 			new Static(this, "</td></tr></table>");
 			
 			new Static(this, "<h3>Detail</h3>");
-			summary = new TextAreaFormElement(this);
+			summary = new TextArea(this);
 			summary.setLabel("Downtime Summary");
 			summary.setRequired(true);
 			if(rec.downtime_summary != null) {
@@ -262,12 +285,12 @@ public class ResourceDowntimeEditor extends FormElementBase {
 			summary.setWidth(600);
 			summary.setHeight(200);
 			
-			HashMap<Integer, String> class_kv = new HashMap();
+			TreeMap<Integer, String> class_kv = new TreeMap<Integer, String>();
 			DowntimeClassModel dcmodel = new DowntimeClassModel(context);
 			for(DowntimeClassRecord dcrec : dcmodel.getAll()) {
 				class_kv.put(dcrec.id, dcrec.name);
 			}
-			class_id = new SelectFormElement(this, class_kv);
+			class_id = new Select(this, class_kv);
 			class_id.setLabel("Class");
 			class_id.setRequired(true);
 			if(rec.downtime_class_id != null) {
@@ -277,13 +300,12 @@ public class ResourceDowntimeEditor extends FormElementBase {
 				if (class_kv != null) class_id.setValue(1);
 			}
 			
-			
-			HashMap<Integer, String> severity_kv = new HashMap();
+			TreeMap<Integer, String> severity_kv = new TreeMap<Integer, String>();
 			DowntimeSeverityModel smodel = new DowntimeSeverityModel(context);
 			for(DowntimeSeverityRecord dcrec : smodel.getAll()) {
 				severity_kv.put(dcrec.id, dcrec.name);
 			}
-			severity_id = new SelectFormElement(this, severity_kv);
+			severity_id = new Select(this, severity_kv);
 			severity_id.setLabel("Severity");
 			severity_id.setRequired(true);
 			if(rec.downtime_severity_id != null) {
@@ -302,7 +324,6 @@ public class ResourceDowntimeEditor extends FormElementBase {
 			
 			remove_button = new Button(this, "images/delete.png");
 			remove_button.setStyle(Button.Style.IMAGE);
-			//remove_button.setConfirm(true, "Do you really want to remove this downtime schedule?");
 			remove_button.addEventListener(new EventListener() {
 				public void handleEvent(Event e) {
 					removeDowntime(DowntimeEditor.this);	
@@ -312,8 +333,7 @@ public class ResourceDowntimeEditor extends FormElementBase {
 		}
 		
 		public void addService(Integer service_id)
-		{
-			
+		{	
 			final ServiceModel servicemodel = new ServiceModel(context);
 			ResourceDowntimeServiceModel rdsmodel = new ResourceDowntimeServiceModel(context);
 
@@ -362,8 +382,8 @@ public class ResourceDowntimeEditor extends FormElementBase {
 
 			for(DivRep child : childnodes) {
 				if(child == remove_button) continue;
-				if(child instanceof FormElementBase) {
-					FormElementBase elem = (FormElementBase)child;
+				if(child instanceof FormElement) {
+					FormElement elem = (FormElement)child;
 					if(!elem.isHidden()) {
 						out.print("<div class=\"form_element\">");
 						child.render(out);
@@ -393,51 +413,31 @@ public class ResourceDowntimeEditor extends FormElementBase {
 
 			return rec;
 		}
-		public void adjustStartTime()
-		{
-			Timestamp start = getStartTime();
-			Timestamp end = getEndTime();
-			if(start.compareTo(end) > 0) {
-				//alert("You have selected the start time which is before the current end time. Adjusting start time..");
-				start_date.setValue(end_date.getValue());
-				start_date.redraw();
-				start_time.setValue(end_time.getValue());
-				start_time.redraw();
-			}
-		}
-		public void adjustEndTime()
-		{
-			Timestamp start = getStartTime();
-			Timestamp end = getEndTime();
-			if(start.compareTo(end) > 0) {
-				//alert("You have selected the end time which is after the current start time. Adjusting end time..");
-				end_date.setValue(start_date.getValue());
-				end_date.redraw();
-				end_time.setValue(start_time.getValue());
-				end_time.redraw();
-			}
-		}
+
 		public Timestamp getStartTime() 
 		{
-			Calendar cal = Calendar.getInstance();
-			cal.setTime(start_date.getValue());
-			cal.set(Calendar.HOUR, start_time.getValue().getHours());
-			cal.set(Calendar.MINUTE, start_time.getValue().getMinutes());
-			return new Timestamp(cal.getTimeInMillis());		
-		}
+			return convertToTimestamp(start_date.getValue(), start_time.getHour(), start_time.getMin());
+		}		
 		
 		public Timestamp getEndTime()
 		{
+			return convertToTimestamp(end_date.getValue(), end_time.getHour(), end_time.getMin());
+		}
+		
+		private Timestamp convertToTimestamp(Date date, int hour, int min)
+		{
+			//Calendar cal = (Calendar)Calendar.getInstance().clone();
 			Calendar cal = Calendar.getInstance();
-			cal.setTime(end_date.getValue());
-			cal.set(Calendar.HOUR, end_time.getValue().getHours());
-			cal.set(Calendar.MINUTE, end_time.getValue().getMinutes());		
-			return new Timestamp(cal.getTimeInMillis());
+			cal.clear();
+			cal.setTime(date);
+			cal.set(Calendar.HOUR_OF_DAY, hour);
+			cal.set(Calendar.MINUTE, min);
+			return new Timestamp(cal.getTimeInMillis());				
 		}
 		
 		public ArrayList<ResourceDowntimeServiceRecord> getAffectedServiceRecords()
 		{
-			ArrayList<ResourceDowntimeServiceRecord> list = new ArrayList();
+			ArrayList<ResourceDowntimeServiceRecord> list = new ArrayList<ResourceDowntimeServiceRecord>();
 			for(Integer service_id : affected_services.keySet()) {
 				CheckBoxFormElement checkbox = affected_services.get(service_id);
 				if(checkbox.getValue()) {
@@ -458,8 +458,22 @@ public class ResourceDowntimeEditor extends FormElementBase {
 			downtime.services = getAffectedServiceRecords();
 			return downtime;
 		}
+
+		public void validate()
+		{
+			super.validate();
+			if(valid == true) {
+				Timestamp start = getStartTime();
+				Timestamp end = getEndTime();
+				if(start.compareTo(end) > 0) {
+					valid = false;
+					error.set("Start Time is after the end time. Please correct.");
+				}
+			}
+		}
 	}
 
+	
 	public void removeDowntime(DowntimeEditor downtime)
 	{
 		remove(downtime);

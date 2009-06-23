@@ -7,7 +7,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.log4j.Logger;
-import edu.iu.grid.oim.lib.Config;
+import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.model.db.VOModel;
 import edu.iu.grid.oim.model.db.record.VORecord;
 import edu.iu.grid.oim.view.BreadCrumbView;
@@ -60,7 +60,7 @@ public class VOEditServlet extends ServletBase implements Servlet {
 		}
 	
 		VOFormDE form;
-		String origin_url = Config.getApplicationBase()+"/"+parent_page;
+		String origin_url = StaticConfig.getApplicationBase()+"/"+parent_page;
 		try {
 			form = new VOFormDE(context, rec, origin_url);
 		} catch (SQLException e) {

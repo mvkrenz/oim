@@ -10,13 +10,13 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
 
-import com.webif.divrep.Button;
+import com.webif.divrep.common.Button;
 import com.webif.divrep.DivRepRoot;
 import com.webif.divrep.Event;
 import com.webif.divrep.EventListener;
 
 import edu.iu.grid.oim.lib.Authorization;
-import edu.iu.grid.oim.lib.Config;
+import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.model.db.ResourceDowntimeModel;
 import edu.iu.grid.oim.model.db.ResourceModel;
 import edu.iu.grid.oim.model.db.record.ResourceDowntimeRecord;
@@ -71,7 +71,7 @@ public class ResourceDowntimeEditServlet extends ServletBase implements Servlet 
 			throw new ServletException("You are not authorized to add a new resource");
 		}
 	
-		String origin_url = Config.getApplicationBase()+"/"+parent_page;
+		String origin_url = StaticConfig.getApplicationBase()+"/"+parent_page;
 		try {
 			form = new ResourceDowntimeFormDE(context, origin_url, resource_id);
 			

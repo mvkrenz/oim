@@ -13,7 +13,7 @@ import org.apache.log4j.Logger;
 import com.webif.divrep.DivRepRoot;
 
 import edu.iu.grid.oim.lib.Authorization;
-import edu.iu.grid.oim.lib.Config;
+import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.SCModel;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
@@ -68,7 +68,7 @@ public class ContactEditServlet extends ServletBase implements Servlet {
 			title = "New Contact";	
 		}
 
-		String origin_url = Config.getApplicationBase()+"/"+parent_page;
+		String origin_url = StaticConfig.getApplicationBase()+"/"+parent_page;
 		ContactFormDE form = new ContactFormDE(context, rec, origin_url);
 		
 		//put the form in a view and display

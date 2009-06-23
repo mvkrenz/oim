@@ -8,14 +8,14 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.webif.divrep.Button;
+import com.webif.divrep.common.Button;
 import com.webif.divrep.DivRep;
 import com.webif.divrep.DivRepRoot;
 import com.webif.divrep.Event;
 import com.webif.divrep.EventListener;
-import com.webif.divrep.Static;
-import com.webif.divrep.DivRepRoot.divrepPage;
-import com.webif.divrep.form.TextFormElement;
+import com.webif.divrep.common.Static;
+import com.webif.divrep.DivRepRoot.DivRepPage;
+import com.webif.divrep.common.Text;
 
 public class CalculatorServlet extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
@@ -30,7 +30,7 @@ public class CalculatorServlet extends HttpServlet {
 		out.write(".logic {background-color: #ccf; padding: 5px; margin: 5px;  border: 1px solid black;}");
 		out.write("</style>");
 
-		divrepPage pageroot = DivRepRoot.initPageRoot(request);
+		DivRepPage pageroot = DivRepRoot.initPageRoot(request);
 		CalculatorDE calc = new CalculatorDE(pageroot);
 		calc.render(out);
 	}
@@ -81,7 +81,7 @@ public class CalculatorServlet extends HttpServlet {
 		
 		class Constant extends CalcNode
 		{
-			TextFormElement constant = new TextFormElement(this);
+			Text constant = new Text(this);
 			public Constant(DivRep _parent) {
 				super(_parent);
 				constant.addEventListener(new EventListener() {
@@ -289,7 +289,7 @@ public class CalculatorServlet extends HttpServlet {
 		}
 		public void render(PrintWriter out) {
 			out.write("<div id=\""+getNodeID()+"\">");
-			out.write("<h1>Visual Calculator</h1>");
+			out.write("<h1>Calculator</h1>");
 			root.render(out);
 			result.render(out);
 			out.write("</div>");

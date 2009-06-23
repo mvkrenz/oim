@@ -2,14 +2,16 @@ package edu.iu.grid.oim.view.divrep.form;
 
 import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.TreeMap;
+
 import org.apache.log4j.Logger;
 import com.webif.divrep.Event;
-import com.webif.divrep.Static;
-import com.webif.divrep.form.FormBase;
-import com.webif.divrep.form.SelectFormElement;
-import com.webif.divrep.form.TextFormElement;
-import com.webif.divrep.form.validator.IntegerValidator;
-import com.webif.divrep.form.validator.UniqueValidator;
+import com.webif.divrep.common.Static;
+import com.webif.divrep.common.FormBase;
+import com.webif.divrep.common.Select;
+import com.webif.divrep.common.Text;
+import com.webif.divrep.validator.IntegerValidator;
+import com.webif.divrep.validator.UniqueValidator;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
@@ -32,10 +34,10 @@ public class ServiceFormDE extends FormBase
 	protected Authorization auth;
 	private Integer id;
 	
-	private TextFormElement name;
-	private TextFormElement description;
-	private TextFormElement port;
-	private SelectFormElement service_group_id;
+	private Text name;
+	private Text description;
+	private Text port;
+	private Select service_group_id;
 	private MetricService metric_service;
 	
 	public ServiceFormDE(Context _context, ServiceRecord rec, String origin_url) throws AuthorizationException, SQLException
@@ -52,37 +54,37 @@ public class ServiceFormDE extends FormBase
 			//if doing update, remove my own name (I can use my own name)
 			service_names.remove(id);
 		}
-		name = new TextFormElement(this);
+		name = new Text(this);
 		name.setLabel("Name");
 		name.setValue(rec.name);
 		name.addValidator(new UniqueValidator<String>(service_names.values()));
 		name.setRequired(true);
 		
-		description = new TextFormElement(this);
+		description = new Text(this);
 		description.setLabel("Description");
 		description.setValue(rec.description);
 		description.setRequired(true);
 		
-		port = new TextFormElement(this);
+		port = new Text(this);
 		port.setLabel("Port");
 		port.addValidator(new IntegerValidator());
 		if(rec.port != null) {
 			port.setValue(rec.port.toString());
 		}
 		
-		HashMap<Integer, String> kv = new HashMap<Integer, String>();
+		TreeMap<Integer, String> kv = new TreeMap<Integer, String>();
 		ServiceGroupModel sgmodel = new ServiceGroupModel(context);
 		for(ServiceGroupRecord sgrec : sgmodel.getAll()) {
 			kv.put(sgrec.id, sgrec.name);
 		}
-		service_group_id = new SelectFormElement(this, kv);
+		service_group_id = new Select(this, kv);
 		service_group_id.setLabel("Service Group");
 		service_group_id.setValue(rec.service_group_id);
 		service_group_id.setRequired(true);
 		
 		new Static(this, "<h3>RSV Metrics</h3>");
 		MetricModel mmodel = new MetricModel(context);
-		HashMap<Integer, String> metric_kv = new HashMap<Integer, String>();
+		TreeMap<Integer, String> metric_kv = new TreeMap<Integer, String>();
 		for(MetricRecord mrec : mmodel.getAll()) {
 			metric_kv.put(mrec.id, mrec.common_name);
 		}

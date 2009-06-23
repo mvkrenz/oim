@@ -8,14 +8,14 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 
 import com.webif.divrep.DivRep;
-import com.webif.divrep.Static;
-import com.webif.divrep.form.CheckBoxFormElement;
-import com.webif.divrep.form.FormBase;
-import com.webif.divrep.form.SelectFormElement;
-import com.webif.divrep.form.TextAreaFormElement;
-import com.webif.divrep.form.TextFormElement;
-import com.webif.divrep.form.validator.UniqueValidator;
-import com.webif.divrep.form.validator.UrlValidator;
+import com.webif.divrep.common.Static;
+import com.webif.divrep.common.CheckBoxFormElement;
+import com.webif.divrep.common.FormBase;
+import com.webif.divrep.common.Select;
+import com.webif.divrep.common.TextArea;
+import com.webif.divrep.common.Text;
+import com.webif.divrep.validator.UniqueValidator;
+import com.webif.divrep.validator.UrlValidator;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
@@ -54,8 +54,8 @@ public class ServiceGroupFormDE extends FormBase
 	protected Authorization auth;
 	private Integer id;
 	
-	private TextFormElement name;
-	private TextAreaFormElement description;
+	private Text name;
+	private TextArea description;
 	
 	public ServiceGroupFormDE(Context _context, ServiceGroupRecord rec, String origin_url) throws AuthorizationException, SQLException
 	{	
@@ -74,13 +74,13 @@ public class ServiceGroupFormDE extends FormBase
 			resource_groups.remove(id);
 		}
 		
-		name = new TextFormElement(this);
+		name = new Text(this);
 		name.setLabel("Name");
 		name.setValue(rec.name);
 		name.addValidator(new UniqueValidator<String>(resource_groups.values()));
 		name.setRequired(true);
 		
-		description = new TextAreaFormElement(this);
+		description = new TextArea(this);
 		description.setLabel("Description");
 		description.setValue(rec.description);
 		description.setRequired(true);

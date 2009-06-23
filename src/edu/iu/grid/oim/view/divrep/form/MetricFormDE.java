@@ -11,15 +11,15 @@ import org.apache.log4j.Logger;
 
 import com.webif.divrep.DivRep;
 import com.webif.divrep.Event;
-import com.webif.divrep.Static;
-import com.webif.divrep.form.CheckBoxFormElement;
-import com.webif.divrep.form.FormBase;
-import com.webif.divrep.form.SelectFormElement;
-import com.webif.divrep.form.TextAreaFormElement;
-import com.webif.divrep.form.TextFormElement;
-import com.webif.divrep.form.validator.IntegerValidator;
-import com.webif.divrep.form.validator.UniqueValidator;
-import com.webif.divrep.form.validator.UrlValidator;
+import com.webif.divrep.common.Static;
+import com.webif.divrep.common.CheckBoxFormElement;
+import com.webif.divrep.common.FormBase;
+import com.webif.divrep.common.Select;
+import com.webif.divrep.common.TextArea;
+import com.webif.divrep.common.Text;
+import com.webif.divrep.validator.IntegerValidator;
+import com.webif.divrep.validator.UniqueValidator;
+import com.webif.divrep.validator.UrlValidator;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
@@ -45,14 +45,14 @@ public class MetricFormDE extends FormBase
     private Authorization auth;
 	private Integer id;
 	
-	private TextFormElement name;
-	private TextFormElement common_name;
-	private TextFormElement abbrev;
-	private TextAreaFormElement description;
-	private TextFormElement time_interval;
-	private TextFormElement fresh_for;
-	private TextFormElement help_url;
-	private TextFormElement wlcg_metric_type;
+	private Text name;
+	private Text common_name;
+	private Text abbrev;
+	private TextArea description;
+	private Text time_interval;
+	private Text fresh_for;
+	private Text help_url;
+	private Text wlcg_metric_type;
 	
 	
 	public MetricFormDE(Context _context, MetricRecord rec, String origin_url) throws AuthorizationException, SQLException
@@ -68,7 +68,7 @@ public class MetricFormDE extends FormBase
 			//if doing update, remove my own name (I can use my own name)
 			metric_names.remove(id);
 		}
-		name = new TextFormElement(this);
+		name = new Text(this);
 		name.setLabel("Name");
 		if(id != null) {
 		}
@@ -76,14 +76,14 @@ public class MetricFormDE extends FormBase
 		name.addValidator(new UniqueValidator<String>(metric_names.values()));
 		name.setRequired(true);
 		
-		common_name = new TextFormElement(this);
+		common_name = new Text(this);
 		common_name.setLabel("Common Name");
 		if(id != null) {
 			common_name.setValue(rec.common_name);
 		}
 		common_name.setRequired(true);
 		
-		abbrev = new TextFormElement(this);
+		abbrev = new Text(this);
 		abbrev.setLabel("Abbreviation");
 		if(id != null) {
 			abbrev.setValue(rec.abbrev);
@@ -91,14 +91,14 @@ public class MetricFormDE extends FormBase
 		abbrev.setValue(rec.abbrev);
 		abbrev.setRequired(true);
 		
-		description = new TextAreaFormElement(this);
+		description = new TextArea(this);
 		description.setLabel("Description");
 		if(id != null) {
 			description.setValue(rec.description);
 		}
 		description.setRequired(true);
 		
-		time_interval = new TextFormElement(this);
+		time_interval = new Text(this);
 		time_interval.setLabel("Time Interval");
 		if(id != null) {
 			time_interval.setValue(rec.time_interval.toString());
@@ -106,7 +106,7 @@ public class MetricFormDE extends FormBase
 		time_interval.setRequired(true);
 		time_interval.addValidator(new IntegerValidator());
 
-		fresh_for = new TextFormElement(this);
+		fresh_for = new Text(this);
 		fresh_for.setLabel("Fresh For");
 		if(id != null) {
 			fresh_for.setValue(rec.fresh_for.toString());
@@ -114,14 +114,14 @@ public class MetricFormDE extends FormBase
 		fresh_for.setRequired(true);
 		fresh_for.addValidator(new IntegerValidator());
 		
-		help_url = new TextFormElement(this);
+		help_url = new Text(this);
 		help_url.setLabel("Help URL");
 		help_url.addValidator(UrlValidator.getInstance());
 		if(id != null) {
 			help_url.setValue(rec.help_url);
 		}
 		
-		wlcg_metric_type = new TextFormElement(this);
+		wlcg_metric_type = new Text(this);
 		wlcg_metric_type.setLabel("WLCG Metric Type");
 		if(id != null) {
 			wlcg_metric_type.setValue(rec.wlcg_metric_type.toString());

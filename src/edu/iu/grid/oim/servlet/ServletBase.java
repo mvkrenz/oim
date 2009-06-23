@@ -16,7 +16,7 @@ import org.apache.log4j.Logger;
 import com.webif.divrep.DivRepRoot;
 
 import edu.iu.grid.oim.lib.Authorization;
-import edu.iu.grid.oim.lib.Config;
+import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
 import edu.iu.grid.oim.model.Context;
 import edu.iu.grid.oim.model.MenuItem;
@@ -43,7 +43,7 @@ public class ServletBase extends HttpServlet {
 				if(path.equals("/home") || path.equals("/help")) {
 					//certain pages can be displayed without DN (TODO - need a better way to do this)
 				} else if(!path.equals("/register")) {
-					resp.sendRedirect(Config.getApplicationBase()+"/register");
+					resp.sendRedirect(StaticConfig.getApplicationBase()+"/register");
 					return;
 				}
 			}

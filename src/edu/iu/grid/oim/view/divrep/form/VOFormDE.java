@@ -9,24 +9,25 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.TreeMap;
 import java.util.TreeSet;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 
-import com.webif.divrep.Button;
+import com.webif.divrep.common.Button;
 import com.webif.divrep.DivRep;
 import com.webif.divrep.Event;
 import com.webif.divrep.EventListener;
-import com.webif.divrep.Static;
-import com.webif.divrep.form.CheckBoxFormElement;
-import com.webif.divrep.form.FormBase;
-import com.webif.divrep.form.FormElementBase;
-import com.webif.divrep.form.SelectFormElement;
-import com.webif.divrep.form.TextAreaFormElement;
-import com.webif.divrep.form.TextFormElement;
-import com.webif.divrep.form.validator.UniqueValidator;
-import com.webif.divrep.form.validator.UrlValidator;
+import com.webif.divrep.common.Static;
+import com.webif.divrep.common.CheckBoxFormElement;
+import com.webif.divrep.common.FormBase;
+import com.webif.divrep.common.FormElement;
+import com.webif.divrep.common.Select;
+import com.webif.divrep.common.TextArea;
+import com.webif.divrep.common.Text;
+import com.webif.divrep.validator.UniqueValidator;
+import com.webif.divrep.validator.UrlValidator;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
@@ -78,17 +79,17 @@ public class VOFormDE extends FormBase
 	private Authorization auth;
 	private Integer id;
 	
-	private TextFormElement name;
-	private TextFormElement long_name;
-	private TextAreaFormElement description;
-	private TextAreaFormElement app_description;
-	private TextAreaFormElement community;
-	private TextFormElement footprints_id;
-	private SelectFormElement sc_id;
+	private Text name;
+	private Text long_name;
+	private TextArea description;
+	private TextArea app_description;
+	private TextArea community;
+	private Text footprints_id;
+	private Select sc_id;
 	private CheckBoxFormElement active;
 	private CheckBoxFormElement disable;
 	private CheckBoxFormElement child_vo;
-	private SelectFormElement parent_vo;
+	private Select parent_vo;
 	
 	private VOReport vorep_consolidator;
 	private VOReportNames vo_report_name_div;
@@ -96,14 +97,14 @@ public class VOFormDE extends FormBase
 	class FieldOfScience extends DivRep
 	{
 		Button add_fs;
-		TextFormElement new_fs; 
+		Text new_fs; 
 		
 		public FieldOfScience(DivRep _parent, final VORecord rec) throws SQLException {
 			super(_parent);
 			
 			populateList(rec);
 			
-			new_fs = new TextFormElement(this);
+			new_fs = new Text(this);
 			new_fs.setLabel("Or, you can add a new field of science");
 			new_fs.setWidth(230);
 			
@@ -221,35 +222,35 @@ public class VOFormDE extends FormBase
 			super(_parent);
 			
 			new Static(this, "<h2>Relevant URLs</h2>");
-			primary_url = new TextFormElement(this);
+			primary_url = new Text(this);
 			primary_url.setLabel("Primary URL");
 			primary_url.setValue(rec.primary_url);
 			primary_url.addValidator(UrlValidator.getInstance());
 			primary_url.setRequired(true);
 			primary_url.setSampleValue("http://www-cdf.fnal.gov");
 
-			aup_url = new TextFormElement(this);
+			aup_url = new Text(this);
 			aup_url.setLabel("AUP URL");
 			aup_url.setValue(rec.aup_url);
 			aup_url.addValidator(UrlValidator.getInstance());
 			aup_url.setRequired(true);
 			aup_url.setSampleValue("http://www-cdf.fnal.gov");
 
-			membership_services_url = new TextFormElement(this);
+			membership_services_url = new Text(this);
 			membership_services_url.setLabel("Membership Services (VOMS) URL");
 			membership_services_url.setValue(rec.membership_services_url);
 			membership_services_url.addValidator(UrlValidator.getInstance());
 			membership_services_url.setRequired(true);
 			membership_services_url.setSampleValue("https://voms.fnal.gov:8443/voms/cdf/");
 
-			purpose_url = new TextFormElement(this);
+			purpose_url = new Text(this);
 			purpose_url.setLabel("Purpose URL"); 
 			purpose_url.setValue(rec.purpose_url);
 			purpose_url.addValidator(UrlValidator.getInstance());
 			purpose_url.setRequired(true);
 			purpose_url.setSampleValue("http://www-cdf.fnal.gov");
 
-			support_url = new TextFormElement(this);
+			support_url = new Text(this);
 			support_url.setLabel("Support URL"); 
 			support_url.setValue(rec.support_url);
 			support_url.addValidator(UrlValidator.getInstance());
@@ -257,11 +258,11 @@ public class VOFormDE extends FormBase
 			support_url.setSampleValue("http://cdfcaf.fnal.gov");
 		}
 
-		public TextFormElement primary_url;
-		public TextFormElement aup_url;
-		public TextFormElement membership_services_url;
-		public TextFormElement purpose_url;
-		public TextFormElement support_url;
+		public Text primary_url;
+		public Text aup_url;
+		public Text membership_services_url;
+		public Text purpose_url;
+		public Text support_url;
 		
 		protected void onEvent(Event e) {
 			// TODO Auto-generated method stub
@@ -307,11 +308,11 @@ public class VOFormDE extends FormBase
 		//indent the parent VO stuff
 		new Static(this, "<div class=\"indent\">");
 		//pull vos for unique validator
-		HashMap<Integer, String> vos = getVONames();
+		TreeMap<Integer, String> vos = getVONames();
 		if(id != null) { //if doing update, remove my own name (I can use my own name)
 			vos.remove(id);
 		}
-		parent_vo = new SelectFormElement(this, vos);
+		parent_vo = new Select(this, vos);
 		parent_vo.setLabel("Select a Parent VO");
 		hideParentVOSelector(true);
 		child_vo.addEventListener(new EventListener() {
@@ -344,7 +345,7 @@ public class VOFormDE extends FormBase
 		//new Static(this, "<p>Add/modify basic information about this VO</p>");
 
 		// Name is not an editable field except for GOC staff
-		name = new TextFormElement(this);
+		name = new Text(this);
 		name.setLabel("Name");
 		name.setValue(rec.name);
 		name.addValidator(new UniqueValidator<String>(vos.values()));
@@ -354,13 +355,13 @@ public class VOFormDE extends FormBase
 			name.setDisabled(true);
 		}
 
-		long_name = new TextFormElement(this);
+		long_name = new Text(this);
 		long_name.setLabel("Enter the Long Name for this VO");
 		long_name.setValue(rec.long_name);
 		long_name.setRequired(true); // TODO: agopu should this be required?
 		long_name.setSampleValue("Collider Detector at Fermilab");
 
-		sc_id = new SelectFormElement(this, getSCNames());
+		sc_id = new Select(this, getSCNames());
 		sc_id.setLabel("Select a Support Center that will support this VO");
 		sc_id.setValue(rec.sc_id);
 		sc_id.setRequired(true);
@@ -368,19 +369,19 @@ public class VOFormDE extends FormBase
 		urls = new URLs(this, rec);
 
 		new Static(this, "<h3>Extended Descriptions</h3>");
-		description = new TextAreaFormElement(this);
+		description = new TextArea(this);
 		description.setLabel("Enter a Description for this VO");
 		description.setValue(rec.description);
 		description.setRequired(true);
 		description.setSampleValue("Collider Detector at Fermilab");
 
-		app_description = new TextAreaFormElement(this);
+		app_description = new TextArea(this);
 		app_description.setLabel("Enter an Application Description");
 		app_description.setValue(rec.app_description);
 		app_description.setRequired(true);
 		app_description.setSampleValue("CDF Analysis jobs will be run");
 
-		community = new TextAreaFormElement(this);
+		community = new TextArea(this);
 		community.setLabel("Describe the Community this VO serves");
 		community.setValue(rec.community);
 		community.setRequired(true);
@@ -468,7 +469,7 @@ public class VOFormDE extends FormBase
 		if(auth.allows("admin")) {
 			new Static(this, "<h2>Administrative Tasks</h2>");
 		}
-		footprints_id = new TextFormElement(this);
+		footprints_id = new Text(this);
 		footprints_id.setLabel("Footprints ID");
 		footprints_id.setValue(rec.footprints_id);
 		footprints_id.setRequired(true);
@@ -519,21 +520,21 @@ public class VOFormDE extends FormBase
 		return editor;
 	}
 	
-	private HashMap<Integer, String> getSCNames() throws AuthorizationException, SQLException
+	private TreeMap<Integer, String> getSCNames() throws AuthorizationException, SQLException
 	{
 		SCModel model = new SCModel(context);
-		HashMap<Integer, String> keyvalues = new HashMap<Integer, String>();
+		TreeMap<Integer, String> keyvalues = new TreeMap<Integer, String>();
 		for(SCRecord rec : model.getAll()) {
 			keyvalues.put(rec.id, rec.name);
 		}
 		return keyvalues;
 	}
 	
-	private HashMap<Integer, String> getVONames() throws AuthorizationException, SQLException
+	private TreeMap<Integer, String> getVONames() throws AuthorizationException, SQLException
 	{
 		//pull all VOs
 		VOModel model = new VOModel(context);
-		HashMap<Integer, String> keyvalues = new HashMap<Integer, String>();
+		TreeMap<Integer, String> keyvalues = new TreeMap<Integer, String>();
 		for(VORecord rec : model.getAll()) {
 			keyvalues.put(rec.id, rec.name);
 		}

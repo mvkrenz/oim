@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import org.apache.commons.lang.StringEscapeUtils;
 
 import edu.iu.grid.oim.lib.Authorization;
-import edu.iu.grid.oim.lib.Config;
+import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.model.Context;
 import edu.iu.grid.oim.model.MenuItem;
 import edu.iu.grid.oim.servlet.ServletBase;
@@ -82,8 +82,8 @@ public class MenuView implements IView {
 	    	if(item.url.compareTo(current) == 0) {
 	    		cls = "selected";
 	    	}
-	    	//out.println("<span class=\""+ cls +"\"><a href=\""+ Config.getApplicationBase() + "/" + item.url+"\">"+StringEscapeUtils.escapeHtml(item.name)+"</a></span>");
-	    	String url = Config.getApplicationBase() + "/" + item.url;
+	    	//out.println("<span class=\""+ cls +"\"><a href=\""+ StaticConfig.getApplicationBase() + "/" + item.url+"\">"+StringEscapeUtils.escapeHtml(item.name)+"</a></span>");
+	    	String url = StaticConfig.getApplicationBase() + "/" + item.url;
 	    	out.println("<span class=\"link "+ cls +"\" onclick=\"divrep_redirect('"+url+"');\">"+StringEscapeUtils.escapeHtml(item.name)+"</span>");
 	    }
 		out.println("</div>");

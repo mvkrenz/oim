@@ -13,7 +13,7 @@ import org.apache.log4j.Logger;
 import com.webif.divrep.DivRepRoot;
 
 import edu.iu.grid.oim.lib.Authorization;
-import edu.iu.grid.oim.lib.Config;
+import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.model.db.MetricModel;
 import edu.iu.grid.oim.model.db.OsgGridTypeModel;
 import edu.iu.grid.oim.model.db.record.MetricRecord;
@@ -64,7 +64,7 @@ public class MetricEditServlet extends ServletBase implements Servlet {
 		}
 	
 		MetricFormDE form;
-		String origin_url = Config.getApplicationBase()+"/"+parent_page;
+		String origin_url = StaticConfig.getApplicationBase()+"/"+parent_page;
 		try {
 			form = new MetricFormDE(context, rec, origin_url);
 		} catch (SQLException e) {

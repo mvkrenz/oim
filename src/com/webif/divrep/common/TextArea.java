@@ -1,4 +1,4 @@
-package com.webif.divrep.form;
+package com.webif.divrep.common;
 
 import java.io.PrintWriter;
 
@@ -7,14 +7,14 @@ import org.apache.commons.lang.StringEscapeUtils;
 import com.webif.divrep.DivRep;
 import com.webif.divrep.Event;
 
-public class TextAreaFormElement extends FormElementBase<String>  {
+public class TextArea extends FormElement<String>  {
 	
 	private int width = 400;
 	public void setWidth(int _width) { width = _width; }
 	private int height = 100;
 	public void setHeight(int _height) { height = _height; }
 	
-	public TextAreaFormElement(DivRep parent) { 
+	public TextArea(DivRep parent) { 
 		super(parent);
 	}
 	

@@ -3,7 +3,7 @@ package edu.iu.grid.oim.view;
 import java.io.InputStream;
 import java.io.PrintWriter;
 
-import edu.iu.grid.oim.lib.Config;
+import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.lib.FileReader;
 
 public class HtmlFileView implements IView {
@@ -18,9 +18,9 @@ public class HtmlFileView implements IView {
 	public void loadContent(InputStream is)
 	{
 		content = FileReader.loadContent(is);
-		content = content.replaceAll("__STATICBASE__", Config.getStaticBase());
-		content = content.replaceAll("__APPNAME__", Config.getApplicationName());
-		content = content.replaceAll("__VERSION__", Config.getVersion());
+		content = content.replaceAll("__STATICBASE__", StaticConfig.getStaticBase());
+		content = content.replaceAll("__APPNAME__", StaticConfig.getApplicationName());
+		content = content.replaceAll("__VERSION__", StaticConfig.getVersion());
 	}
 	public void render(PrintWriter out) {
 		out.print(content);

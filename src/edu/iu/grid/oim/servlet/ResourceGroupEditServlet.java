@@ -13,7 +13,7 @@ import org.apache.log4j.Logger;
 import com.webif.divrep.DivRepRoot;
 
 import edu.iu.grid.oim.lib.Authorization;
-import edu.iu.grid.oim.lib.Config;
+import edu.iu.grid.oim.lib.StaticConfig;
 
 import edu.iu.grid.oim.model.db.ResourceGroupModel;
 import edu.iu.grid.oim.model.db.SiteModel;
@@ -63,7 +63,7 @@ public class ResourceGroupEditServlet extends ServletBase implements Servlet {
 				title = "New Resource Group";	
 			}
 
-			ResourceGroupFormDE form = new ResourceGroupFormDE(context, rec, Config.getApplicationBase()+"/"+parent_page);
+			ResourceGroupFormDE form = new ResourceGroupFormDE(context, rec, StaticConfig.getApplicationBase()+"/"+parent_page);
 			
 			//put the form in a view and display
 			ContentView contentview = new ContentView();

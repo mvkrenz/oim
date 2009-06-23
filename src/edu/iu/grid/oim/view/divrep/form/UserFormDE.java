@@ -11,14 +11,14 @@ import org.apache.log4j.Logger;
 
 import com.webif.divrep.DivRep;
 import com.webif.divrep.Event;
-import com.webif.divrep.Static;
-import com.webif.divrep.form.CheckBoxFormElement;
-import com.webif.divrep.form.FormBase;
-import com.webif.divrep.form.SelectFormElement;
-import com.webif.divrep.form.TextAreaFormElement;
-import com.webif.divrep.form.TextFormElement;
-import com.webif.divrep.form.validator.UniqueValidator;
-import com.webif.divrep.form.validator.UrlValidator;
+import com.webif.divrep.common.Static;
+import com.webif.divrep.common.CheckBoxFormElement;
+import com.webif.divrep.common.FormBase;
+import com.webif.divrep.common.Select;
+import com.webif.divrep.common.TextArea;
+import com.webif.divrep.common.Text;
+import com.webif.divrep.validator.UniqueValidator;
+import com.webif.divrep.validator.UrlValidator;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
@@ -48,7 +48,7 @@ public class UserFormDE extends FormBase
 	private Authorization auth;
 	private Integer id;
 	
-	private TextFormElement dn_string;
+	private Text dn_string;
 	private ContactEditor contact;
 	private HashMap<Integer/*auth_type*/, CheckBoxFormElement> auth_types = new HashMap();
 	
@@ -59,7 +59,7 @@ public class UserFormDE extends FormBase
 		auth = context.getAuthorization();
 		id = rec.id;
 
-		dn_string = new TextFormElement(this);
+		dn_string = new Text(this);
 		dn_string.setLabel("DN String");
 		dn_string.setValue(rec.dn_string);
 		dn_string.setRequired(true);

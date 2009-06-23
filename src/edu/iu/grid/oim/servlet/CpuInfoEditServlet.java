@@ -13,7 +13,7 @@ import org.apache.log4j.Logger;
 import com.webif.divrep.DivRepRoot;
 
 import edu.iu.grid.oim.lib.Authorization;
-import edu.iu.grid.oim.lib.Config;
+import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.model.db.CpuInfoModel;
 import edu.iu.grid.oim.model.db.record.CpuInfoRecord;
 import edu.iu.grid.oim.view.divrep.form.CpuInfoFormDE;
@@ -64,7 +64,7 @@ public class CpuInfoEditServlet extends ServletBase implements Servlet {
 		}
 	
 		CpuInfoFormDE form;
-		String origin_url = Config.getApplicationBase()+"/"+current_page;
+		String origin_url = StaticConfig.getApplicationBase()+"/"+current_page;
 		try {
 			form = new CpuInfoFormDE(context, rec, origin_url);
 		} catch (SQLException e) {

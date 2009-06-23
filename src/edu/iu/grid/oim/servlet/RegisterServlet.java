@@ -12,18 +12,18 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
 
-import com.webif.divrep.Button;
+import com.webif.divrep.common.Button;
 import com.webif.divrep.DivRep;
 import com.webif.divrep.DivRepRoot;
 import com.webif.divrep.Event;
 import com.webif.divrep.EventListener;
-import com.webif.divrep.form.FormBase;
-import com.webif.divrep.form.TextFormElement;
-import com.webif.divrep.form.validator.IFormElementValidator;
-import com.webif.divrep.form.validator.UniqueValidator;
+import com.webif.divrep.common.FormBase;
+import com.webif.divrep.common.Text;
+import com.webif.divrep.validator.IFormElementValidator;
+import com.webif.divrep.validator.UniqueValidator;
 
 import edu.iu.grid.oim.lib.Authorization;
-import edu.iu.grid.oim.lib.Config;
+import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.model.MenuItem;
 import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.DNAuthorizationTypeModel;
@@ -42,7 +42,7 @@ import edu.iu.grid.oim.view.SideContentView;
 public class RegisterServlet extends ServletBase  {
 	private static final long serialVersionUID = 1L;
     static Logger log = Logger.getLogger(RegisterServlet.class);  
-    private String origin_url = Config.getApplicationBase() + "/home";
+    private String origin_url = StaticConfig.getApplicationBase() + "/home";
     
     public RegisterServlet() {
         super();
@@ -54,7 +54,7 @@ public class RegisterServlet extends ServletBase  {
 		Authorization auth = context.getAuthorization();
 		if(auth.getDNID() != null || auth.getUserCN() == null || auth.getUserCN() == null) {
 			//user don't meet the requirement to register. send it to home
-			response.sendRedirect(Config.getApplicationBase()+ "/home");
+			response.sendRedirect(StaticConfig.getApplicationBase()+ "/home");
 			return;
 		}
 		
@@ -135,27 +135,27 @@ public class RegisterServlet extends ServletBase  {
 	class EnterEmailPage extends FormBase implements IWizardPage
  	{
 		WizardDE wizard;
-		private TextFormElement name;
-		private TextFormElement email;
-		private TextFormElement email_check;
-		private TextFormElement phone;
+		private Text name;
+		private Text email;
+		private Text email_check;
+		private Text phone;
 		
 		public EnterEmailPage(WizardDE _wizard) {
 			super(_wizard, origin_url);
 			wizard = _wizard;
 			
-			name = new TextFormElement(this);
+			name = new Text(this);
 			name.setLabel("Enter Your Full Name");
 			name.setRequired(true);
 			
-			email = new TextFormElement(this);
+			email = new Text(this);
 			email.setLabel("Enter Your Email");
 			email.setRequired(true);
 			
 			class CheckValidator implements IFormElementValidator
 			{
-				TextFormElement other;
-				public CheckValidator(TextFormElement _other) {
+				Text other;
+				public CheckValidator(Text _other) {
 					other = _other;
 				}
 				public String getErrorMessage() {
@@ -167,12 +167,12 @@ public class RegisterServlet extends ServletBase  {
 				}
 			}
 			
-			email_check = new TextFormElement(this);
+			email_check = new Text(this);
 			email_check.setLabel("Re-enter Your Email");
 			email_check.setRequired(true);
 			email_check.addValidator(new CheckValidator(email));
 			
-			phone = new TextFormElement(this);
+			phone = new Text(this);
 			// TODO Need formatting help here -agopu  -- looks like the phone number used by OSG community is very diverse. I don't know how simple is simple enough
 			// validation in our case.. -- hayashis
 			phone.setLabel("Enter Your Phone Number");
@@ -230,7 +230,7 @@ public class RegisterServlet extends ServletBase  {
 				dnauthmodel.insert(dnauthrec);
 				
 				//jump to profile page for more details
-				redirect(Config.getApplicationBase()+"/profileedit");
+				redirect(StaticConfig.getApplicationBase()+"/profileedit");
 				
 			} catch (SQLException e) {
 				alert(e.toString());
