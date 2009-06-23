@@ -101,6 +101,9 @@ public class ResourceDowntimeServlet extends ServletBase implements Servlet {
 		}
 		
 		for(ResourceRecord rec : resources) {
+
+			if (!rec.isActive()) 
+				continue;
 			
 			String name = rec.name;
 
