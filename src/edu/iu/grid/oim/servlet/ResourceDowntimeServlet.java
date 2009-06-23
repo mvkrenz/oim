@@ -70,7 +70,7 @@ public class ResourceDowntimeServlet extends ServletBase implements Servlet {
 		
 		//pull list of all vos
 
-		try {		
+		try {
 			//construct view
 			MenuView menuview =new MenuView(context, "resourcedowntime");
 			ContentView contentview = createContentView();
@@ -86,7 +86,7 @@ public class ResourceDowntimeServlet extends ServletBase implements Servlet {
 		throws ServletException, SQLException
 	{
 		ResourceModel model = new ResourceModel(context);
-		ArrayList<ResourceRecord> resources = model.getAllEditable();
+		ArrayList<ResourceRecord> resources = model.getAllActiveNotDisabedEditable();
 		Collections.sort(resources, new Comparator<ResourceRecord> () {
 			public int compare(ResourceRecord a, ResourceRecord b) {
 				return a.getName().compareToIgnoreCase(b.getName());
@@ -102,9 +102,6 @@ public class ResourceDowntimeServlet extends ServletBase implements Servlet {
 		
 		for(ResourceRecord rec : resources) {
 
-			if (!rec.isActive()) 
-				continue;
-			
 			String name = rec.name;
 
 			contentview.add(new HtmlView("<h2>"+StringEscapeUtils.escapeHtml(name)+"</h2>"));

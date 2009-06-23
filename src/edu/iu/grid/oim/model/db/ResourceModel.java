@@ -72,6 +72,18 @@ public class ResourceModel extends SmallTableModelBase<ResourceRecord> {
 	    return list;
 	}
 
+	public ArrayList<ResourceRecord> getAllActiveNotDisabedEditable() throws SQLException
+	{	   
+		ArrayList<ResourceRecord> list = new ArrayList<ResourceRecord> ();
+    	//only select record that is active, not disabled, editable
+	    for(ResourceRecord rec : getAllEditable()) {
+	    	if ((rec.active)  && (!rec.disable)){
+	    		list.add(rec);
+	    	}
+	    }	    	
+	    return list;
+	}
+
 	public Boolean hasLogAccess(XPath xpath, Document doc) throws XPathExpressionException
 	{
 		Integer id = Integer.parseInt((String)xpath.evaluate("//Keys/Key[Name='id']/Value", doc, XPathConstants.STRING));

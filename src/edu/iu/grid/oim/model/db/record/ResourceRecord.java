@@ -27,7 +27,4 @@ public class ResourceRecord extends RecordBase {
 	public String getName() {
 		return name;
 	}
-	public boolean isActive () {
-		return ((active) && (!disable));
-	}
 }
