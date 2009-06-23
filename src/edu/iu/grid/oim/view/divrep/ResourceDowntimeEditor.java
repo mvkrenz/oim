@@ -212,7 +212,7 @@ public class ResourceDowntimeEditor extends FormElement {
 				//adjust it to 5 minutes increment (since we don't allow selecting sub 5 minutes)
 				mins = (mins / 5) * 5;
 
-				value = mins + hours * 60;
+				value = (mins%60) + hours * 60;
 			}
 			public Integer getHour()
 			{

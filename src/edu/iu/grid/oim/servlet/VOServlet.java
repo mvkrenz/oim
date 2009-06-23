@@ -297,7 +297,8 @@ public class VOServlet extends ServletBase implements Servlet {
 		};
 		view.add("Operation", new NewButtonDE(context.getPageRoot(), "voedit"));
 		view.add("About", new HtmlView("This page shows a list of Virtual Organization that you have access to edit."));		
-		view.add("Legend", new HtmlView("<p>Contacts are flagged by their rank:</p><p><br></p><p><div class=\'contact_rank contact_Primary\'>Primary</div></p><p><div class=\'contact_rank contact_Secondary\'>Secondary</div></p><p><div class=\'contact_rank contact_Tertiary\'>Tertiary</div></p>"));		
+		view.addContactLegend();
+		
 		return view;
 	}
 }
