@@ -190,6 +190,7 @@ public class ResourceDowntimeEditor extends FormElement {
 			public void render(PrintWriter out) {
 				int value_hour = (int)value/60;
 				int value_min = (int)value%60;
+				
 				hour.setValue(value_hour);
 				min.setValue(value_min);
 				
@@ -205,7 +206,13 @@ public class ResourceDowntimeEditor extends FormElement {
 			public void setValue(Timestamp time) {
 				long sec = time.getTime()/1000;
 				int sec_inday = (int)(sec % (3600*24));
-				value = sec_inday/60;
+				int mins = sec_inday / 60;
+				int hours = mins / 60;
+				
+				//adjust it to 5 minutes increment (since we don't allow selecting sub 5 minutes)
+				mins = (mins / 5) * 5;
+
+				value = mins + hours * 60;
 			}
 			public Integer getHour()
 			{
@@ -431,10 +438,10 @@ public class ResourceDowntimeEditor extends FormElement {
 		{
 			//Calendar cal = (Calendar)Calendar.getInstance().clone();
 			Calendar cal = Calendar.getInstance();
-			cal.clear();
 			cal.setTime(date);
 			cal.set(Calendar.HOUR_OF_DAY, hour);
 			cal.set(Calendar.MINUTE, min);
+			cal.set(Calendar.SECOND, 0);
 			return new Timestamp(cal.getTimeInMillis());				
 		}
 		
@@ -448,7 +455,7 @@ public class ResourceDowntimeEditor extends FormElement {
 					rec.resource_downtime_id = downtime_id;
 					rec.service_id = service_id;
 					list.add(rec);
-				}	
+				}
 			}
 			
 			return list;
