@@ -1,6 +1,6 @@
 -- MySQL dump 10.11
 --
--- Host: localhost    Database: oimnew
+-- Host: localhost    Database: oim2
 -- ------------------------------------------------------
 -- Server version	5.0.51a-log
 
@@ -16,12 +16,12 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
--- Current Database: `oimnew`
+-- Current Database: `oim2`
 --
 
-CREATE DATABASE IF NOT EXISTS `oimnew` /*!40100 DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci */;
+CREATE DATABASE IF NOT EXISTS `oim2` /*!40100 DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci */;
 
-USE `oimnew`;
+USE `oim2`;
 
 --
 -- Table structure for table `View_VoReportNamesFqans`
