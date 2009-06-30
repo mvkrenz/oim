@@ -62,13 +62,16 @@
         <antcall target="build"/>
     </target>
   <target name="war" depends="build">
-    <copy file="etc/config.xml" tofile="build/classes/config.xml"/>
-    <copy file="etc/log4j.properties" tofile="build/classes/log4j.properties"/>
-    <war destfile="build/oim.war" webxml="WebContent/WEB-INF/web.xml" update="true">
+    <copy file="etc/config.xml" tofile="build/classes/config.xml" overwrite="true"/>
+    <copy file="etc/log4j.properties" tofile="build/classes/log4j.properties" overwrite="true"/>
+    <war destfile="build/oim.war" webxml="WebContent/WEB-INF/web.xml">
         <classes dir="build/classes"/>
         <fileset dir="WebContent">
             <exclude name="WEB-INF/web.xml"/>
         </fileset>
     </war>
   </target>
+    <target name="deploy" depends="war">
+        <copy file="build/oim.war" tofile="/usr/share/tomcat5/webapps/oim.war" overwrite="true"/>
+    </target>
 </project>
