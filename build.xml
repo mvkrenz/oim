@@ -1,10 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!-- WARNING: Eclipse auto-generated file.
-              Any modifications will be overwritten.
-              To include a user specific buildfile here, simply create one in the same
-              directory with the processing instruction <?eclipse.ant.import?>
-              as the first entry and export the buildfile again. -->
-<project basedir="." default="build" name="oim">
+<project basedir="." default="war" name="oim">
     <property environment="env"/>
     <property name="ECLIPSE_HOME" value="../../../app/eclipse"/>
     <property name="debuglevel" value="source,lines,vars"/>
@@ -66,4 +61,14 @@
         <property name="build.compiler" value="org.eclipse.jdt.core.JDTCompilerAdapter"/>
         <antcall target="build"/>
     </target>
+  <target name="war" depends="build">
+    <copy file="etc/config.xml" tofile="build/classes/config.xml"/>
+    <copy file="etc/log4j.properties" tofile="build/classes/log4j.properties"/>
+    <war destfile="build/oim.war" webxml="WebContent/WEB-INF/web.xml" update="true">
+        <classes dir="build/classes"/>
+        <fileset dir="WebContent">
+            <exclude name="WEB-INF/web.xml"/>
+        </fileset>
+    </war>
+  </target>
 </project>
