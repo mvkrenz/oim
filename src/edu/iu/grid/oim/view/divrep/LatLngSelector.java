@@ -6,12 +6,12 @@ import java.util.Random;
 import org.apache.commons.lang.StringEscapeUtils;
 
 import com.webif.divrep.DivRep;
-import com.webif.divrep.Event;
-import com.webif.divrep.common.FormElement;
+import com.webif.divrep.DivRepEvent;
+import com.webif.divrep.common.DivRepFormElement;
 
 import edu.iu.grid.oim.lib.StaticConfig;
 
-public class LatLngSelector extends FormElement<LatLngSelector.LatLng> {
+public class LatLngSelector extends DivRepFormElement<LatLngSelector.LatLng> {
 	public class LatLng
 	{
 		public LatLng(Double lat, Double lng) {
@@ -26,7 +26,7 @@ public class LatLngSelector extends FormElement<LatLngSelector.LatLng> {
 		super(parent);
 	}
 
-	protected void onEvent(Event e) {
+	protected void onEvent(DivRepEvent e) {
 		String newval = (String)e.value;
 		String coords[] = newval.split(",");
 		value.latitude = Double.parseDouble(coords[0]);

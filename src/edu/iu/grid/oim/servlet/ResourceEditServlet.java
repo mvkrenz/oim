@@ -11,7 +11,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.log4j.Logger;
 
 import com.webif.divrep.DivRep;
-import com.webif.divrep.common.FormBase;
+import com.webif.divrep.common.DivRepForm;
 
 import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.model.Context;
@@ -64,7 +64,7 @@ public class ResourceEditServlet extends ServletBase implements Servlet {
 			title = "New Resource";	
 		}
 
-		FormBase form;
+		DivRepForm form;
 		String origin_url = StaticConfig.getApplicationBase()+"/"+parent_page;
 		try {
 			form = new ResourceFormDE(context, rec, origin_url);

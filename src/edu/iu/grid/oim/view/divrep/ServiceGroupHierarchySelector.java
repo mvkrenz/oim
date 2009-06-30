@@ -7,9 +7,9 @@ import java.util.HashMap;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 import com.webif.divrep.DivRep;
-import com.webif.divrep.Event;
-import com.webif.divrep.EventListener;
-import com.webif.divrep.common.FormElement;
+import com.webif.divrep.DivRepEvent;
+import com.webif.divrep.DivRepEventListener;
+import com.webif.divrep.common.DivRepFormElement;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.StaticConfig;
@@ -19,7 +19,7 @@ import edu.iu.grid.oim.model.db.ServiceModel;
 import edu.iu.grid.oim.model.db.record.ServiceGroupRecord;
 import edu.iu.grid.oim.model.db.record.ServiceRecord;
 
-public class ServiceGroupHierarchySelector extends FormElement<Integer> {
+public class ServiceGroupHierarchySelector extends DivRepFormElement<Integer> {
     static Logger log = Logger.getLogger(ServiceGroupHierarchySelector.class);  
 	
     private Context context;
@@ -32,7 +32,7 @@ public class ServiceGroupHierarchySelector extends FormElement<Integer> {
 	ArrayList<Selectable> selectables = new ArrayList();
 	
 	abstract class ExpandableSelector extends DivRep {
-		HashMap<Integer/*id*/, FormElement> items = new HashMap();
+		HashMap<Integer/*id*/, DivRepFormElement> items = new HashMap();
 		ExpandableSelector mine;	
 		
 		public ExpandableSelector(DivRep _parent) throws SQLException {
@@ -40,16 +40,16 @@ public class ServiceGroupHierarchySelector extends FormElement<Integer> {
 			mine = this;
 		}
 
-		protected void onEvent(Event e) {
+		protected void onEvent(DivRepEvent e) {
 			//no event to handle
 		}
 
 		public void render(PrintWriter out) {
-			for(FormElement expandable : items.values()) {
+			for(DivRepFormElement expandable : items.values()) {
 				expandable.render(out);
 			}
 		}
-		public FormElement getItem(Integer id) 
+		public DivRepFormElement getItem(Integer id) 
 		{
 			return items.get(id);
 		}
@@ -61,11 +61,11 @@ public class ServiceGroupHierarchySelector extends FormElement<Integer> {
 			super(_parent);
 			ServiceGroupModel model = new ServiceGroupModel(context);
 			for(ServiceGroupRecord rec : model.getAll()) {				
-				final FormElement<Integer> item;
+				final DivRepFormElement<Integer> item;
 				if(type == Type.SERVICE_GROUP) {
 					item = new Selectable<Integer>(this);
-					item.addEventListener(new EventListener() {
-						public void handleEvent(Event e) {
+					item.addEventListener(new DivRepEventListener() {
+						public void handleEvent(DivRepEvent e) {
 							select((Selectable)item);
 							modified(true);
 						}
@@ -73,8 +73,8 @@ public class ServiceGroupHierarchySelector extends FormElement<Integer> {
 					selectables.add((Selectable)item);
 				} else {
 					item = new Expandable<Integer>(this);
-					item.addEventListener(new EventListener() {
-						public void handleEvent(Event e) {
+					item.addEventListener(new DivRepEventListener() {
+						public void handleEvent(DivRepEvent e) {
 							loadChild((Expandable)item);
 						}
 					});
@@ -103,11 +103,11 @@ public class ServiceGroupHierarchySelector extends FormElement<Integer> {
 			super(_parent);
 			ServiceModel model = new ServiceModel(context);
 			for(ServiceRecord rec : model.getByServiceGroupID(service_group_id)) {	
-				final FormElement<Integer> item;
+				final DivRepFormElement<Integer> item;
 				if(type == Type.SERVICE) {
 					item = new Selectable<Integer>(this);
-					item.addEventListener(new EventListener() {
-						public void handleEvent(Event e) {
+					item.addEventListener(new DivRepEventListener() {
+						public void handleEvent(DivRepEvent e) {
 							select((Selectable)item);
 							modified(true);
 						}
@@ -115,8 +115,8 @@ public class ServiceGroupHierarchySelector extends FormElement<Integer> {
 					selectables.add((Selectable) item);
 				} else {
 					item = new Expandable<Integer>(this);
-					item.addEventListener(new EventListener() {
-						public void handleEvent(Event e) {
+					item.addEventListener(new DivRepEventListener() {
+						public void handleEvent(DivRepEvent e) {
 							loadChild((Expandable)item);
 						}
 					});
@@ -169,7 +169,7 @@ public class ServiceGroupHierarchySelector extends FormElement<Integer> {
 				}
 				
 				//expand one by one
-				FormElement elem = null;
+				DivRepFormElement elem = null;
 				Expandable<Integer> item = null;
 				if(service_group_id != null) {
 					elem = service_group_selector.getItem(service_group_id);
@@ -202,7 +202,7 @@ public class ServiceGroupHierarchySelector extends FormElement<Integer> {
 	}
 	
 	//selectable item
-	class Selectable<T> extends FormElement<T> {
+	class Selectable<T> extends DivRepFormElement<T> {
 		protected Selectable(DivRep parent) {
 			super(parent);
 			// TODO Auto-generated constructor stub
@@ -212,7 +212,7 @@ public class ServiceGroupHierarchySelector extends FormElement<Integer> {
 		public void setSelected(Boolean b) { selected = b; }
 		public Boolean isSelected() { return selected; }
 
-		protected void onEvent(Event e) {	
+		protected void onEvent(DivRepEvent e) {	
 		}
 
 		public void render(PrintWriter out) {
@@ -227,7 +227,7 @@ public class ServiceGroupHierarchySelector extends FormElement<Integer> {
 	}
 	
 	//expandable item
-	class Expandable<T> extends FormElement<T> {
+	class Expandable<T> extends DivRepFormElement<T> {
 		private Boolean expanded = false;
 		public void setExpand(Boolean b) { expanded = b; }
 		public Boolean isExpanded() { return expanded; }
@@ -260,13 +260,13 @@ public class ServiceGroupHierarchySelector extends FormElement<Integer> {
 			}
 			out.write("</div>");
 		}
-		protected void onEvent(Event e) {
+		protected void onEvent(DivRepEvent e) {
 			expanded = !expanded;
 			redraw();			
 		}
 	}
 
-	protected void onEvent(Event e) {		
+	protected void onEvent(DivRepEvent e) {		
 	}
 
 	public void render(PrintWriter out) {

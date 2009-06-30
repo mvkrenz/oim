@@ -8,8 +8,8 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.webif.divrep.common.FormBase;
-import com.webif.divrep.common.Text;
+import com.webif.divrep.common.DivRepForm;
+import com.webif.divrep.common.DivRepTextBox;
 import com.webif.divrep.DivRep;
 import com.webif.divrep.DivRepRoot;
 import com.webif.divrep.DivRepRoot.DivRepPage;
@@ -19,45 +19,49 @@ public class FormServlet extends HttpServlet {
 	{	
 		PrintWriter out = response.getWriter();
 		out.write("<html><head>");
+		
+		//Load DivRep Stuff
 		out.write("<script type=\"text/javascript\" src=\"divrep.js\"></script>");
-		out.write("<script type=\"text/javascript\" src=\"http://jqueryjs.googlecode.com/files/jquery-1.3.2.min.js\"></script>");
 		out.write("<link href=\"css/divrep.sample.css\" rel=\"stylesheet\" type=\"text/css\"/>");
-		out.write("</head><body><div id=\"content\">");
+
+		//Load jQuery
+		out.write("<script type=\"text/javascript\" src=\"http://jqueryjs.googlecode.com/files/jquery-1.3.2.min.js\"></script>");
 		
+		out.write("</head><body><div id=\"content\">");		
+		out.write("<h1>Sample Form</h1>");
+		
+		//Create DivRep form
 		DivRepPage pageroot = DivRepRoot.initPageRoot(request);
-		out.write("<h1>Enter Your Information</h1>");
-		
 		Form form = new Form(pageroot);
 		form.render(out);
 		
 		out.write("</div></body></html>");
 	}
 
-	class Form extends FormBase
+	//Define our DivRep form
+	class Form extends DivRepForm
 	{
-		Text name;
-		Text tel;
+		DivRepTextBox name;
+		DivRepTextBox tel;
 		
 		public Form(DivRep _parent) {
-			//second argument is the return address of this form after user hit submit (sucessfully) or cancel
-			super(_parent, "http://iu.edu");
+			//Second argument is the return address of this form after user hit submit (sucessfully) or cancel
+			super(_parent, "http://www.iu.edu");
 			
-			name = new Text(this);
+			name = new DivRepTextBox(this);
 			name.setLabel("Full Name");
-			name.setSampleValue("John Doe");
 			name.setRequired(true);
 			
-			tel = new Text(this);
+			tel = new DivRepTextBox(this);
 			tel.setLabel("Telephone Number");
-			tel.setSampleValue("812-123-1234");
 		}
+		
+		//When user clicks submit and if the form passes validations, this function will be called
 		protected Boolean doSubmit() {
-			//do sometihng with the value
-			
+			//Do sometihng with the value
 			alert("Thank you, " + name.getValue());
 			
-			//return false if something goes wrong at submission.
-			//The page will stay on the form.
+			//return false to stay on the form
 			return false;
 		}
 		

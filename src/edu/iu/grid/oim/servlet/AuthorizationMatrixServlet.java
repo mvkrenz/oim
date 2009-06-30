@@ -15,13 +15,13 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 
-import com.webif.divrep.common.Button;
+import com.webif.divrep.common.DivRepButton;
 import com.webif.divrep.DivRep;
 import com.webif.divrep.DivRepRoot;
-import com.webif.divrep.Event;
+import com.webif.divrep.DivRepEvent;
 import com.webif.divrep.common.CheckBoxFormElement;
-import com.webif.divrep.common.FormBase;
-import com.webif.divrep.common.FormElement;
+import com.webif.divrep.common.DivRepForm;
+import com.webif.divrep.common.DivRepFormElement;
 
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
 import edu.iu.grid.oim.model.Context;
@@ -47,7 +47,7 @@ public class AuthorizationMatrixServlet extends ServletBase  {
 	private static final long serialVersionUID = 1L;
     static Logger log = Logger.getLogger(AuthorizationMatrixServlet.class);  
    
-	class AuthMatrix extends FormElement
+	class AuthMatrix extends DivRepFormElement
 	{		
 		ActionModel actionmodel;
 		AuthorizationTypeActionModel matrixmodel;
@@ -141,13 +141,13 @@ public class AuthorizationMatrixServlet extends ServletBase  {
 		}
 
 		@Override
-		protected void onEvent(Event e) {
+		protected void onEvent(DivRepEvent e) {
 			// TODO Auto-generated method stub
 			
 		}
 	}
 	
-    class AuthMatrixFormDE extends FormBase
+    class AuthMatrixFormDE extends DivRepForm
     {
         private AuthMatrix matrix;
 		public AuthMatrixFormDE(DivRep parent, String _origin_url) throws SQLException {
@@ -209,7 +209,7 @@ public class AuthorizationMatrixServlet extends ServletBase  {
 	{			
 		ContentView contentview = new ContentView();
 		contentview.add(new HtmlView("<h1>Authorization Matrix</h1>"));
-		FormBase form = new AuthMatrixFormDE(context.getPageRoot(), "admin");
+		DivRepForm form = new AuthMatrixFormDE(context.getPageRoot(), "admin");
 		contentview.add(new DivRepWrapper(form));
 		return contentview;
 	}

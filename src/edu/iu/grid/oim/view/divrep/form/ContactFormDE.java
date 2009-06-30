@@ -7,17 +7,17 @@ import java.util.TreeMap;
 
 import org.apache.log4j.Logger;
 import com.webif.divrep.DivRep;
-import com.webif.divrep.Event;
-import com.webif.divrep.EventListener;
-import com.webif.divrep.common.Static;
+import com.webif.divrep.DivRepEvent;
+import com.webif.divrep.DivRepEventListener;
+import com.webif.divrep.common.DivRepStaticContent;
 import com.webif.divrep.common.CheckBoxFormElement;
-import com.webif.divrep.common.FormBase;
-import com.webif.divrep.common.FormElement;
-import com.webif.divrep.common.Select;
-import com.webif.divrep.common.TextArea;
-import com.webif.divrep.common.Text;
-import com.webif.divrep.validator.EmailValidator;
-import com.webif.divrep.validator.UrlValidator;
+import com.webif.divrep.common.DivRepForm;
+import com.webif.divrep.common.DivRepFormElement;
+import com.webif.divrep.common.DivRepSelectBox;
+import com.webif.divrep.common.DivRepTextArea;
+import com.webif.divrep.common.DivRepTextBox;
+import com.webif.divrep.validator.DivRepEmailValidator;
+import com.webif.divrep.validator.DivRepUrlValidator;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.StaticConfig;
@@ -27,7 +27,7 @@ import edu.iu.grid.oim.model.db.DNModel;
 import edu.iu.grid.oim.model.db.record.DNRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 
-public class ContactFormDE extends FormBase 
+public class ContactFormDE extends DivRepForm 
 {
     static Logger log = Logger.getLogger(ContactFormDE.class); 
    
@@ -35,36 +35,36 @@ public class ContactFormDE extends FormBase
     private Authorization auth;
 	private Integer id;
 	
-	private Text name;
-	private Text primary_email, secondary_email;
-	private Text primary_phone, secondary_phone;
-	private Text primary_phone_ext, secondary_phone_ext;
-	private Text address_line_1, address_line_2;
-	private Text city, state, zipcode, country;
+	private DivRepTextBox name;
+	private DivRepTextBox primary_email, secondary_email;
+	private DivRepTextBox primary_phone, secondary_phone;
+	private DivRepTextBox primary_phone_ext, secondary_phone_ext;
+	private DivRepTextBox address_line_1, address_line_2;
+	private DivRepTextBox city, state, zipcode, country;
 	private CheckBoxFormElement active;
 	private CheckBoxFormElement disable;
-	private Text im;
+	private DivRepTextBox im;
 	private PhotoDE photo_url;
 	private CheckBoxFormElement person;
-	private TextArea contact_preference;
-	private Select submitter_dn;
+	private DivRepTextArea contact_preference;
+	private DivRepSelectBox submitter_dn;
 	
-	class PhotoDE extends FormElement<String>
+	class PhotoDE extends DivRepFormElement<String>
 	{
 		public PhotoDE(DivRep _parent) {
 			super(_parent);
-			url = new Text(this);
-			url.addEventListener(new EventListener() {
-				public void handleEvent(Event e) {
+			url = new DivRepTextBox(this);
+			url.addEventListener(new DivRepEventListener() {
+				public void handleEvent(DivRepEvent e) {
 					PhotoDE.this.redraw();
 				}});
-			url.addValidator(UrlValidator.getInstance());
+			url.addValidator(DivRepUrlValidator.getInstance());
 		}
 
-		private Text url;
+		private DivRepTextBox url;
 
 		@Override
-		protected void onEvent(Event e) {
+		protected void onEvent(DivRepEvent e) {
 			// TODO Auto-generated method stub
 			
 		}
@@ -131,85 +131,85 @@ public class ContactFormDE extends FormBase
 		auth = context.getAuthorization();
 		id = rec.id;
 
-		name = new Text(this);
+		name = new DivRepTextBox(this);
 		name.setLabel("Full Name");
 		name.setValue(rec.name);
 		name.setRequired(true);
 		
-		primary_email = new Text(this);
+		primary_email = new DivRepTextBox(this);
 		primary_email.setLabel("Primary Email");
 		primary_email.setValue(rec.primary_email);
 		primary_email.setRequired(true);
-		primary_email.addValidator(new EmailValidator());
+		primary_email.addValidator(new DivRepEmailValidator());
 		
-		secondary_email = new Text(this);
+		secondary_email = new DivRepTextBox(this);
 		secondary_email.setLabel("Secondary Email");
 		secondary_email.setValue(rec.secondary_email);
-		secondary_email.addValidator(new EmailValidator());
+		secondary_email.addValidator(new DivRepEmailValidator());
 
-		primary_phone = new Text(this);
+		primary_phone = new DivRepTextBox(this);
 		primary_phone.setLabel("Primary Phone");
 		primary_phone.setValue(rec.primary_phone);
 		//primary_phone.setRequired(true);
 
-		primary_phone_ext = new Text(this);
+		primary_phone_ext = new DivRepTextBox(this);
 		primary_phone_ext.setLabel("Primary Phone Extension");
 		primary_phone_ext.setValue(rec.primary_phone_ext);
 
-		secondary_phone = new Text(this);
+		secondary_phone = new DivRepTextBox(this);
 		secondary_phone.setLabel("Secondary Phone");
 		secondary_phone.setValue(rec.secondary_phone);
 
-		secondary_phone_ext = new Text(this);
+		secondary_phone_ext = new DivRepTextBox(this);
 		secondary_phone_ext.setLabel("Secondary Phone Extension");
 		secondary_phone_ext.setValue(rec.secondary_phone_ext);
 		
-		contact_preference = new TextArea(this);
+		contact_preference = new DivRepTextArea(this);
 		contact_preference.setLabel("Enter Additional Contact Preferences");
 		contact_preference.setValue(rec.contact_preference);
 		contact_preference.setSampleValue("Please contact me via phone during the day.");
 
-		new Static(this, "<h2>Personal Information</h2>");
+		new DivRepStaticContent(this, "<h2>Personal Information</h2>");
 		
 		person = new CheckBoxFormElement(this);
 		person.setLabel("This is a personal contact (not mailing list, group contact, etc...)");
 		person.setValue(rec.person);
-		person.addEventListener(new EventListener() {
-			public void handleEvent(Event e) {
+		person.addEventListener(new DivRepEventListener() {
+			public void handleEvent(DivRepEvent e) {
 				showHidePersonalDetail();
 			}});
 		
-		new Static(this, "<div class=\"indent\">");
+		new DivRepStaticContent(this, "<div class=\"indent\">");
 		{
-			address_line_1 = new Text(this);
+			address_line_1 = new DivRepTextBox(this);
 			address_line_1.setLabel("Address Line 1");
 			address_line_1.setValue(rec.address_line_1);
 	
-			address_line_2 = new Text(this);
+			address_line_2 = new DivRepTextBox(this);
 			address_line_2.setLabel("Address Line 2");
 			address_line_2.setValue(rec.address_line_2);
 			
-			city = new Text(this);
+			city = new DivRepTextBox(this);
 			city.setLabel("City");
 			city.setValue(rec.city);
 			city.setRequired(true);
 	
-			state = new Text(this);
+			state = new DivRepTextBox(this);
 			state.setLabel("State");
 			state.setValue(rec.state);
 			state.setRequired(true);
 	
-			zipcode = new Text(this);
+			zipcode = new DivRepTextBox(this);
 			zipcode.setLabel("Zipcode");
 			zipcode.setValue(rec.zipcode);
 			zipcode.setRequired(true);
 	
-			country = new Text(this);
+			country = new DivRepTextBox(this);
 			country.setLabel("Country");
 			country.setValue(rec.country);
 			country.setRequired(true);
 			
-			im = new Text(this);
+			im = new DivRepTextBox(this);
 			im.setLabel("Instant Messaging Information");
 			im.setValue(rec.im);
 			im.setSampleValue("soichih@gtalk");
@@ -219,10 +219,10 @@ public class ContactFormDE extends FormBase
 			photo_url.setSampleValue("http://somewhere.com/myphoto.png");
 			photo_url.setValue(rec.photo_url);
 		}
-		new Static(this, "</div>");
+		new DivRepStaticContent(this, "</div>");
 
 		if(auth.allows("admin")) {
-			new Static(this, "<h2>Administrative Tasks</h2>");
+			new DivRepStaticContent(this, "<h2>Administrative Tasks</h2>");
 		}
 
 		if(rec.person == null || rec.person == false) {
@@ -253,7 +253,7 @@ public class ContactFormDE extends FormBase
 		} catch (SQLException e) {
 			log.error(e);
 		}
-		submitter_dn = new Select(this, dns);
+		submitter_dn = new DivRepSelectBox(this, dns);
 		submitter_dn.setLabel("Submitter DN");
 		submitter_dn.setValue(rec.submitter_dn_id);
 		if(!auth.allows("admin")) {

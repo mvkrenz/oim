@@ -10,15 +10,15 @@ import java.util.HashMap;
 import org.apache.log4j.Logger;
 
 import com.webif.divrep.DivRep;
-import com.webif.divrep.Event;
-import com.webif.divrep.common.Static;
+import com.webif.divrep.DivRepEvent;
+import com.webif.divrep.common.DivRepStaticContent;
 import com.webif.divrep.common.CheckBoxFormElement;
-import com.webif.divrep.common.FormBase;
-import com.webif.divrep.common.Select;
-import com.webif.divrep.common.TextArea;
-import com.webif.divrep.common.Text;
-import com.webif.divrep.validator.UniqueValidator;
-import com.webif.divrep.validator.UrlValidator;
+import com.webif.divrep.common.DivRepForm;
+import com.webif.divrep.common.DivRepSelectBox;
+import com.webif.divrep.common.DivRepTextArea;
+import com.webif.divrep.common.DivRepTextBox;
+import com.webif.divrep.validator.DivRepUniqueValidator;
+import com.webif.divrep.validator.DivRepUrlValidator;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
@@ -40,7 +40,7 @@ import edu.iu.grid.oim.model.db.record.SCRecord;
 import edu.iu.grid.oim.model.db.record.OsgGridTypeRecord;
 import edu.iu.grid.oim.view.divrep.ContactEditor;
 
-public class UserFormDE extends FormBase 
+public class UserFormDE extends DivRepForm 
 {
     static Logger log = Logger.getLogger(UserFormDE.class); 
     
@@ -48,7 +48,7 @@ public class UserFormDE extends FormBase
 	private Authorization auth;
 	private Integer id;
 	
-	private Text dn_string;
+	private DivRepTextBox dn_string;
 	private ContactEditor contact;
 	private HashMap<Integer/*auth_type*/, CheckBoxFormElement> auth_types = new HashMap();
 	
@@ -59,12 +59,12 @@ public class UserFormDE extends FormBase
 		auth = context.getAuthorization();
 		id = rec.id;
 
-		dn_string = new Text(this);
+		dn_string = new DivRepTextBox(this);
 		dn_string.setLabel("DN String");
 		dn_string.setValue(rec.dn_string);
 		dn_string.setRequired(true);
 
-		new Static(this, "<h3>Contact Person Name</h3>");
+		new DivRepStaticContent(this, "<h3>Contact Person Name</h3>");
 		contact = new ContactEditor(this, new ContactModel(context), false, false);
 		contact.setShowRank(false);
 		contact.setMinContacts(ContactEditor.Rank.PRIMARY, 1);
@@ -72,7 +72,7 @@ public class UserFormDE extends FormBase
 		ContactRecord crec = cmodel.get(rec.contact_id);
 		contact.addSelected(crec, 1);//1 = is for primary (I know.. the api is not consistent with setMinContact() above)
 		
-		new Static(this, "<h3>Authorization Types</h3>");
+		new DivRepStaticContent(this, "<h3>Authorization Types</h3>");
 		AuthorizationTypeModel atmodel = new AuthorizationTypeModel(context);
 		DNAuthorizationTypeModel dnatmodel = new DNAuthorizationTypeModel(context);
 		for(AuthorizationTypeRecord atrec : atmodel.getAll()) {
@@ -133,7 +133,7 @@ public class UserFormDE extends FormBase
 	}
 
 	@Override
-	protected void onEvent(Event e) {
+	protected void onEvent(DivRepEvent e) {
 		// TODO Auto-generated method stub
 		
 	}

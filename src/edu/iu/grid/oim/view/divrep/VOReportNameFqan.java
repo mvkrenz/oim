@@ -4,31 +4,31 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import com.webif.divrep.common.Button;
+import com.webif.divrep.common.DivRepButton;
 import com.webif.divrep.DivRep;
-import com.webif.divrep.Event;
-import com.webif.divrep.EventListener;
-import com.webif.divrep.common.Static;
+import com.webif.divrep.DivRepEvent;
+import com.webif.divrep.DivRepEventListener;
+import com.webif.divrep.common.DivRepStaticContent;
 import com.webif.divrep.common.CheckBoxFormElement;
-import com.webif.divrep.common.FormElement;
-import com.webif.divrep.common.Select;
-import com.webif.divrep.common.Text;
+import com.webif.divrep.common.DivRepFormElement;
+import com.webif.divrep.common.DivRepSelectBox;
+import com.webif.divrep.common.DivRepTextBox;
 
 import edu.iu.grid.oim.model.db.record.VOReportNameRecord;
 import edu.iu.grid.oim.model.db.record.VOReportNameFqanRecord;
 import edu.iu.grid.oim.view.divrep.VOReportNames.VOReportNameEditor;
 
-public class VOReportNameFqan extends FormElement {
+public class VOReportNameFqan extends DivRepFormElement {
 
 	//ArrayList<VOReportNameFqanEditor> vo_report_name_fqans = new ArrayList<VOReportNameFqanEditor>();
-	private Button add_button;
+	private DivRepButton add_button;
 
-	class VOReportNameFqanEditor extends FormElement
+	class VOReportNameFqanEditor extends DivRepFormElement
 	{
 		private Integer vo_report_name_id;
-		private Text group_name;
-		private Text role;
-		private Button remove_button;
+		private DivRepTextBox group_name;
+		private DivRepTextBox role;
+		private DivRepButton remove_button;
 		private VOReportNameFqanEditor myself;
 		
 		protected VOReportNameFqanEditor(DivRep parent, VOReportNameFqanRecord vorepnamefqan_record) {
@@ -37,22 +37,22 @@ public class VOReportNameFqan extends FormElement {
 
 			vo_report_name_id  = vorepnamefqan_record.vo_report_name_id;
 
-			new Static(this, "<h3>FQAN</h3>");
-			group_name = new Text(this);
+			new DivRepStaticContent(this, "<h3>FQAN</h3>");
+			group_name = new DivRepTextBox(this);
 			group_name.setLabel("Group Name");
 			group_name.setRequired(true);
 			group_name.setValue("FOO");
 			//group_name.addClass("inline");
 			
-			role = new Text(this);
+			role = new DivRepTextBox(this);
 			role.setLabel("Role");
 			role.setValue("BAR");
 			//role.addClass("inline");
 			
-			remove_button = new Button(this, "images/delete.png");
-			remove_button.setStyle(Button.Style.IMAGE);
-			remove_button.addEventListener(new EventListener() {
-				public void handleEvent(Event e) {
+			remove_button = new DivRepButton(this, "images/delete.png");
+			remove_button.setStyle(DivRepButton.Style.IMAGE);
+			remove_button.addEventListener(new DivRepEventListener() {
+				public void handleEvent(DivRepEvent e) {
 					// Need to print warning about removing related FQANs and contacts or remove this?
 					removeVOReportNameFqan(myself);
 				}
@@ -81,7 +81,7 @@ public class VOReportNameFqan extends FormElement {
 		}
 
 		@Override
-		protected void onEvent(Event e) {
+		protected void onEvent(DivRepEvent e) {
 			// TODO Auto-generated method stub
 		}
 
@@ -113,10 +113,10 @@ public class VOReportNameFqan extends FormElement {
 	
 	public VOReportNameFqan(DivRep parent) {
 		super(parent);
-		add_button = new Button(this, "Add New FQAN");
-		add_button.setStyle(Button.Style.ALINK);
-		add_button.addEventListener(new EventListener() {
-			public void handleEvent(Event e) {
+		add_button = new DivRepButton(this, "Add New FQAN");
+		add_button.setStyle(DivRepButton.Style.ALINK);
+		add_button.addEventListener(new DivRepEventListener() {
+			public void handleEvent(DivRepEvent e) {
 				addVOReportNameFqan(new VOReportNameFqanRecord());
 			}
 		});
@@ -135,7 +135,7 @@ public class VOReportNameFqan extends FormElement {
 		return records;
 	}
 	
-	protected void onEvent(Event e) {
+	protected void onEvent(DivRepEvent e) {
 		// TODO Auto-generated method stub
 	}
 

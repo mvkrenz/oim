@@ -5,31 +5,31 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.TreeMap;
 
-import com.webif.divrep.common.Button;
+import com.webif.divrep.common.DivRepButton;
 import com.webif.divrep.DivRep;
-import com.webif.divrep.Event;
-import com.webif.divrep.EventListener;
-import com.webif.divrep.common.FormElement;
-import com.webif.divrep.common.Select;
-import com.webif.divrep.common.Text;
-import com.webif.divrep.validator.DoubleValidator;
-import com.webif.divrep.validator.IFormElementValidator;
+import com.webif.divrep.DivRepEvent;
+import com.webif.divrep.DivRepEventListener;
+import com.webif.divrep.common.DivRepFormElement;
+import com.webif.divrep.common.DivRepSelectBox;
+import com.webif.divrep.common.DivRepTextBox;
+import com.webif.divrep.validator.DivRepDoubleValidator;
+import com.webif.divrep.validator.DivRepIValidator;
 
 import edu.iu.grid.oim.model.db.record.ResourceServiceRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
 import edu.iu.grid.oim.model.db.record.VOResourceOwnershipRecord;
 import edu.iu.grid.oim.view.divrep.ResourceServices.ServiceEditor;
 
-public class VOResourceOwnership extends FormElement {
+public class VOResourceOwnership extends DivRepFormElement {
 	ArrayList<Integer> owner_id_taken = new ArrayList<Integer>();
-	private Button add_button;
+	private DivRepButton add_button;
 	private ArrayList<VORecord> vo_recs;
 
-	class OwnershipEditor extends FormElement
+	class OwnershipEditor extends DivRepFormElement
 	{
-		private Select vo;
-		private Text percent;
-		private Button remove_button;
+		private DivRepSelectBox vo;
+		private DivRepTextBox percent;
+		private DivRepButton remove_button;
 		private OwnershipEditor myself;
 		
 		protected OwnershipEditor(DivRep parent, VOResourceOwnershipRecord rec, ArrayList<VORecord> vo_recs) {
@@ -40,18 +40,18 @@ public class VOResourceOwnership extends FormElement {
 			for(VORecord vo_rec : vo_recs) {
 				kv.put(vo_rec.id, vo_rec.name);
 			}
-			vo = new Select(this, kv);
-			vo.setLabel("Select a VO Owner");
+			vo = new DivRepSelectBox(this, kv);
+			vo.setLabel("DivRepSelectBox a VO Owner");
 			vo.setRequired(true);
 			if (rec.vo_id != null) {
 				vo.setValue(rec.vo_id);
 			}
-			percent = new Text(this);
+			percent = new DivRepTextBox(this);
 			percent.setLabel("Percentage of Ownership");
 			percent.setRequired(true);
-			percent.addValidator(new DoubleValidator());
-			percent.addEventListener(new EventListener() {
-				public void handleEvent(Event e) {
+			percent.addValidator(new DivRepDoubleValidator());
+			percent.addEventListener(new DivRepEventListener() {
+				public void handleEvent(DivRepEvent e) {
 					VOResourceOwnership.this.validate();
 					
 				}});
@@ -61,18 +61,18 @@ public class VOResourceOwnership extends FormElement {
 				percent.setValue(rec.percent.toString());
 			}
 			
-			remove_button = new Button(this, "images/delete.png");
-			remove_button.setStyle(Button.Style.IMAGE);
+			remove_button = new DivRepButton(this, "images/delete.png");
+			remove_button.setStyle(DivRepButton.Style.IMAGE);
 			//remove_button.setConfirm(true, "Do you really want to remove this owner record?");
-			remove_button.addEventListener(new EventListener() {
-				public void handleEvent(Event e) {
+			remove_button.addEventListener(new DivRepEventListener() {
+				public void handleEvent(DivRepEvent e) {
 					removeOwner(myself);	
 				}
 			});
 
 		}
 
-		public void addVOEventListener(EventListener listener) {
+		public void addVOEventListener(DivRepEventListener listener) {
 			vo.addEventListener(listener);
 		}
 
@@ -97,7 +97,7 @@ public class VOResourceOwnership extends FormElement {
 			return rec;
 		}
 
-		protected void onEvent(Event e) {
+		protected void onEvent(DivRepEvent e) {
 			// TODO Auto-generated method stub
 			
 		}
@@ -112,8 +112,8 @@ public class VOResourceOwnership extends FormElement {
 			for(DivRep child : childnodes) {
 				if(child == remove_button) continue;
 				
-				if(child instanceof FormElement) {
-					FormElement elem = (FormElement)child;
+				if(child instanceof DivRepFormElement) {
+					DivRepFormElement elem = (DivRepFormElement)child;
 					if(!elem.isHidden()) {
 						out.print("<div class=\"form_element\">");
 						child.render(out);
@@ -145,10 +145,10 @@ public class VOResourceOwnership extends FormElement {
 		super(parent);
 		vo_recs = _vo_recs;
 		
-		add_button = new Button(this, "Add New Owner");
-		add_button.setStyle(Button.Style.ALINK);
-		add_button.addEventListener(new EventListener() {
-			public void handleEvent(Event e) {
+		add_button = new DivRepButton(this, "Add New Owner");
+		add_button.setStyle(DivRepButton.Style.ALINK);
+		add_button.addEventListener(new DivRepEventListener() {
+			public void handleEvent(DivRepEvent e) {
 				addOwner(new VOResourceOwnershipRecord());
 			}
 		});	
@@ -170,7 +170,7 @@ public class VOResourceOwnership extends FormElement {
 		return records;
 	}
 
-	protected void onEvent(Event e) {
+	protected void onEvent(DivRepEvent e) {
 		// TODO Auto-generated method stub
 
 	}

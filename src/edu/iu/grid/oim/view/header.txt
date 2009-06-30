@@ -5,6 +5,7 @@
 	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
 
 	<title>__APPNAME__</title>
+	<link href="__STATICBASE__/images/potato.png" rel="icon" type="image/png">
 
 	<link href="__STATICBASE__/css/oim.css" rel="stylesheet" type="text/css" />	
 	<link href="__STATICBASE__/css/emerald/default.css" rel="stylesheet" type="text/css" />

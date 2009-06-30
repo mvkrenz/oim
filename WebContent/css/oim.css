@@ -172,12 +172,12 @@ padding: 2px;
 margin-right: 4px;
 font-weight: bold;
 }
+
 div.contact img
 {
 position: relative;
 top: -1px;
 }
-
 
 .contact_editor
 {
@@ -230,7 +230,6 @@ padding-bottom: 5px;
 -webkit-border-bottom-left-radius: 4px;
 -webkit-border-bottom-right-radius: 4px;
 }
-
 
 div.hidden
 {

@@ -9,14 +9,14 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 
 import com.webif.divrep.DivRep;
-import com.webif.divrep.common.Static;
+import com.webif.divrep.common.DivRepStaticContent;
 import com.webif.divrep.common.CheckBoxFormElement;
-import com.webif.divrep.common.FormBase;
-import com.webif.divrep.common.Select;
-import com.webif.divrep.common.TextArea;
-import com.webif.divrep.common.Text;
-import com.webif.divrep.validator.UniqueValidator;
-import com.webif.divrep.validator.UrlValidator;
+import com.webif.divrep.common.DivRepForm;
+import com.webif.divrep.common.DivRepSelectBox;
+import com.webif.divrep.common.DivRepTextArea;
+import com.webif.divrep.common.DivRepTextBox;
+import com.webif.divrep.validator.DivRepUniqueValidator;
+import com.webif.divrep.validator.DivRepUrlValidator;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
@@ -45,7 +45,7 @@ import edu.iu.grid.oim.view.divrep.OIMHierarchySelector;
 import edu.iu.grid.oim.view.divrep.ResourceAlias;
 import edu.iu.grid.oim.view.divrep.ResourceServices;
 
-public class ResourceGroupFormDE extends FormBase 
+public class ResourceGroupFormDE extends DivRepForm 
 {
     static Logger log = Logger.getLogger(ResourceGroupFormDE.class); 
     private Context context;
@@ -53,10 +53,10 @@ public class ResourceGroupFormDE extends FormBase
 	protected Authorization auth;
 	private Integer id;
 	
-	private Text name;
-	private TextArea description;
+	private DivRepTextBox name;
+	private DivRepTextArea description;
 	private OIMHierarchySelector site_id;
-	private Select osg_grid_type_id;
+	private DivRepSelectBox osg_grid_type_id;
 	private CheckBoxFormElement active;
 	private CheckBoxFormElement disable;
 	
@@ -68,8 +68,8 @@ public class ResourceGroupFormDE extends FormBase
 		
 		id = rec.id;
 		
-		new Static(this, "<h2>Resource Group Information</h2>");
-		new Static(this, "<p>A resource group is a logical grouping of CEs, SEs, etc. that make up one unit. Resource groups are referred to as \"sites\" by many people on the OSG. </p>");
+		new DivRepStaticContent(this, "<h2>Resource Group Information</h2>");
+		new DivRepStaticContent(this, "<p>A resource group is a logical grouping of CEs, SEs, etc. that make up one unit. Resource groups are referred to as \"sites\" by many people on the OSG. </p>");
 		
 		//pull vos for unique validator
 		HashMap<Integer, String> resource_groups = getResourceGroups();
@@ -78,10 +78,10 @@ public class ResourceGroupFormDE extends FormBase
 			resource_groups.remove(id);
 		}
 		
-		name = new Text(this);
+		name = new DivRepTextBox(this);
 		name.setLabel("Name");
 		name.setValue(rec.name);
-		name.addValidator(new UniqueValidator<String>(resource_groups.values()));
+		name.addValidator(new DivRepUniqueValidator<String>(resource_groups.values()));
 		name.setRequired(true);
 		
 		site_id = new OIMHierarchySelector(this, context, OIMHierarchySelector.Type.SITE);
@@ -94,20 +94,20 @@ public class ResourceGroupFormDE extends FormBase
 		for(OsgGridTypeRecord site_rec : omodel.getAll()) {
 			gridtype_kv.put(site_rec.id, site_rec.name);
 		}
-		osg_grid_type_id = new Select(this, gridtype_kv);
+		osg_grid_type_id = new DivRepSelectBox(this, gridtype_kv);
 		osg_grid_type_id.setLabel("OSG Grid Type");
 		osg_grid_type_id.setRequired(true);
 		if(id != null) {
 			osg_grid_type_id.setValue(rec.osg_grid_type_id);
 		}
 
-		description = new TextArea(this);
+		description = new DivRepTextArea(this);
 		description.setLabel("Description");
 		description.setValue(rec.description);
 		description.setRequired(true);
 
 		if(auth.allows("admin")) {
-			new Static(this, "<h2>Administrative Tasks</h2>");
+			new DivRepStaticContent(this, "<h2>Administrative Tasks</h2>");
 		}
 
 		active = new CheckBoxFormElement(this);
@@ -127,7 +127,7 @@ public class ResourceGroupFormDE extends FormBase
 	
 	private ContactEditor createContactEditor(HashMap<Integer, ArrayList<ResourceContactRecord>> voclist, ContactTypeRecord ctrec) throws SQLException
 	{
-		new Static(this, "<h3>" + StringEscapeUtils.escapeHtml(ctrec.name) + "</h3>");
+		new DivRepStaticContent(this, "<h3>" + StringEscapeUtils.escapeHtml(ctrec.name) + "</h3>");
 		ContactModel pmodel = new ContactModel(context);		
 		ContactEditor editor = new ContactEditor(this, pmodel, ctrec.allow_secondary, ctrec.allow_tertiary);
 		

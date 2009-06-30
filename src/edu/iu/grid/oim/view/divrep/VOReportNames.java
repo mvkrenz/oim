@@ -8,16 +8,16 @@ import java.util.HashMap;
 
 import org.apache.commons.lang.StringEscapeUtils;
 
-import com.webif.divrep.common.Button;
+import com.webif.divrep.common.DivRepButton;
 import com.webif.divrep.DivRep;
-import com.webif.divrep.Event;
-import com.webif.divrep.EventListener;
-import com.webif.divrep.common.Static;
+import com.webif.divrep.DivRepEvent;
+import com.webif.divrep.DivRepEventListener;
+import com.webif.divrep.common.DivRepStaticContent;
 import com.webif.divrep.common.CheckBoxFormElement;
-import com.webif.divrep.common.FormElement;
-import com.webif.divrep.common.Select;
-import com.webif.divrep.common.Text;
-import com.webif.divrep.validator.UniqueValidator;
+import com.webif.divrep.common.DivRepFormElement;
+import com.webif.divrep.common.DivRepSelectBox;
+import com.webif.divrep.common.DivRepTextBox;
+import com.webif.divrep.validator.DivRepUniqueValidator;
 
 import edu.iu.grid.oim.view.divrep.VOReportNames.VOReportNameEditor;
 
@@ -37,24 +37,24 @@ import edu.iu.grid.oim.model.db.record.VOReportContactRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
 
 
-public class VOReportNames extends FormElement {
+public class VOReportNames extends DivRepFormElement {
 
 	//ArrayList<VOReportNameEditor> vo_report_names = new ArrayList<VOReportNameEditor>();
 	ArrayList<Integer> vo_report_id_taken = new ArrayList<Integer>();
 	private ContactModel cmodel;
 	private ArrayList<VOReportNameRecord> vorepname_records;
-	private Button add_button;
+	private DivRepButton add_button;
 	
-	class VOReportNameEditor extends FormElement
+	class VOReportNameEditor extends DivRepFormElement
 	{
 		//VO Report Name Details
 		private Integer id;
 		private Integer vo_id;
-		private Text vo_report_name;
+		private DivRepTextBox vo_report_name;
 		private VOReportNameFqan vo_report_name_fqan;
 		private ContactEditor vorc_editor ; // = new ContactEditor;
 
-		private Button remove_button;
+		private DivRepButton remove_button;
 		private VOReportNameEditor myself;
 
 		protected VOReportNameEditor(DivRep parent, 
@@ -68,14 +68,14 @@ public class VOReportNames extends FormElement {
 			id    = vorepname_record.id;
 			vo_id = vorepname_record.vo_id;
 
-			new Static(this, "<h4>Report Name</h4>");
+			new DivRepStaticContent(this, "<h4>Report Name</h4>");
 
-			vo_report_name = new Text(this);
+			vo_report_name = new DivRepTextBox(this);
 			//vo_report_name.setLabel("");
 			vo_report_name.setRequired(true);
 			vo_report_name.setValue(vorepname_record.name);
 
-			new Static(this, "<h4>FQANs</h4>");
+			new DivRepStaticContent(this, "<h4>FQANs</h4>");
 			vo_report_name_fqan = new VOReportNameFqan (this);
 
 			if (vorepnamefqan_list != null) { 
@@ -83,7 +83,7 @@ public class VOReportNames extends FormElement {
 					vo_report_name_fqan.addVOReportNameFqan (fqan_record);
 				}
 			}
-			new Static(this, "<h4>Subscribers (type to search)</h4>");
+			new DivRepStaticContent(this, "<h4>Subscribers (type to search)</h4>");
 			vorc_editor = new ContactEditor (this, cmodel, false, false);
 			vorc_editor.setShowRank(false);
 			vorc_editor.setMinContacts(ContactEditor.Rank.PRIMARY, 0);
@@ -103,11 +103,11 @@ public class VOReportNames extends FormElement {
 				}
 			}
 
-			remove_button = new Button(this, "images/delete.png");
-			remove_button.setStyle(Button.Style.IMAGE);
+			remove_button = new DivRepButton(this, "images/delete.png");
+			remove_button.setStyle(DivRepButton.Style.IMAGE);
 			//remove_button.setConfirm(true, "Do you really want to remove this VO Report Name?");
-			remove_button.addEventListener(new EventListener() {
-				public void handleEvent(Event e) {
+			remove_button.addEventListener(new DivRepEventListener() {
+				public void handleEvent(DivRepEvent e) {
 					removeVOReportName(myself);	
 				}
 			});
@@ -129,7 +129,7 @@ public class VOReportNames extends FormElement {
 			return Integer.getInteger(vo_report_name.getValue());
 		}
 		
-		protected void onEvent(Event e) {
+		protected void onEvent(DivRepEvent e) {
 			// TODO Auto-generated method stub
 		}
 
@@ -143,8 +143,8 @@ public class VOReportNames extends FormElement {
 			for(DivRep child : childnodes) {
 				if(child == remove_button) continue;
 				
-				if(child instanceof FormElement) {
-					FormElement elem = (FormElement)child;
+				if(child instanceof DivRepFormElement) {
+					DivRepFormElement elem = (DivRepFormElement)child;
 					if(!elem.isHidden()) {
 						out.print("<div class=\"form_element\">");
 						child.render(out);
@@ -192,10 +192,10 @@ public class VOReportNames extends FormElement {
 		vorepname_records = _vorepname_records;
 		cmodel = _cmodel;
 		
-		add_button = new Button(this, "Add New Report Name");
-		add_button.setStyle(Button.Style.ALINK);
-		add_button.addEventListener(new EventListener() {
-			public void handleEvent(Event e) {
+		add_button = new DivRepButton(this, "Add New Report Name");
+		add_button.setStyle(DivRepButton.Style.ALINK);
+		add_button.addEventListener(new DivRepEventListener() {
+			public void handleEvent(DivRepEvent e) {
 				addVOReportName(new VOReportNameRecord(),null,null);
 			}
 			
@@ -217,7 +217,7 @@ public class VOReportNames extends FormElement {
 		}
 	}
 	*/
-	protected void onEvent(Event e) {
+	protected void onEvent(DivRepEvent e) {
 		// TODO Auto-generated method stub
 	}
 

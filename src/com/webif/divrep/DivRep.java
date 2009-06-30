@@ -73,7 +73,7 @@ public abstract class DivRep {
 		}
 	}
 
-	private ArrayList<EventListener> event_listeners = new ArrayList<EventListener>();
+	private ArrayList<DivRepEventListener> event_listeners = new ArrayList<DivRepEventListener>();
 	
 	public String getNodeID() { return nodeid; }
 
@@ -129,7 +129,7 @@ public abstract class DivRep {
 	}
 	
 	abstract public void render(PrintWriter out);
-	public void addEventListener(EventListener listener)
+	public void addEventListener(DivRepEventListener listener)
 	{
 		event_listeners.add(listener);
 	}
@@ -151,7 +151,7 @@ public abstract class DivRep {
 			//normal divrep event
 			PrintWriter out = response.getWriter();
 			response.setContentType("text/javascript");
-			Event e = new Event(action, value);
+			DivRepEvent e = new DivRepEvent(action, value);
 			DivRepPage page = getPageRoot();
 			
 			//handle my event handler
@@ -178,10 +178,10 @@ public abstract class DivRep {
 			page.flushPostReplaceJS(out);//needs to emit *after* divrep_replace(s)
 		}
 	}
-	protected void notifyListener(Event e)
+	protected void notifyListener(DivRepEvent e)
 	{
 		//notify event listener
-		for(EventListener listener : event_listeners) {
+		for(DivRepEventListener listener : event_listeners) {
 			listener.handleEvent(e);
 		}
 	}
@@ -190,7 +190,7 @@ public abstract class DivRep {
 	//the internal state of the target div, and framework will call outputUpdatecode()
 	//to emit re-load request which will then re-render the divs that are changed.
 	//Override this to handle local events (for remote events, use listener)
-	abstract protected void onEvent(Event e);
+	abstract protected void onEvent(DivRepEvent e);
 	
 	//request are things like outputting XML or JSON back to browser without changing
 	//any internal state. it's like load but it doesn't return html necessary. it could

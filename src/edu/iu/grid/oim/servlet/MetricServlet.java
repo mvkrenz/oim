@@ -16,10 +16,10 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 
-import com.webif.divrep.common.Button;
+import com.webif.divrep.common.DivRepButton;
 import com.webif.divrep.DivRep;
 import com.webif.divrep.DivRepRoot;
-import com.webif.divrep.Event;
+import com.webif.divrep.DivRepEvent;
 
 import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
@@ -110,7 +110,7 @@ public class MetricServlet extends ServletBase implements Servlet {
 			table.addRow("Help URL", rec.help_url);
 			table.addRow("WLCG Metric Type", rec.wlcg_metric_type);
 		 	
-			class EditButtonDE extends Button
+			class EditButtonDE extends DivRepButton
 			{
 				String url;
 				public EditButtonDE(DivRep parent, String _url)
@@ -118,7 +118,7 @@ public class MetricServlet extends ServletBase implements Servlet {
 					super(parent, "Edit");
 					url = _url;
 				}
-				protected void onEvent(Event e) {
+				protected void onEvent(DivRepEvent e) {
 					redirect(url);
 				}
 			};
@@ -131,7 +131,7 @@ public class MetricServlet extends ServletBase implements Servlet {
 	private SideContentView createSideView()
 	{
 		SideContentView view = new SideContentView();
-		class NewButtonDE extends Button
+		class NewButtonDE extends DivRepButton
 		{
 			String url;
 			public NewButtonDE(DivRep parent, String _url)
@@ -139,7 +139,7 @@ public class MetricServlet extends ServletBase implements Servlet {
 				super(parent, "Add New Metric");
 				url = _url;
 			}
-			protected void onEvent(Event e) {
+			protected void onEvent(DivRepEvent e) {
 				redirect(url);
 			}
 		};

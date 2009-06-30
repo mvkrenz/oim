@@ -10,11 +10,11 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
 
-import com.webif.divrep.common.Button;
+import com.webif.divrep.common.DivRepButton;
 import com.webif.divrep.DivRep;
 import com.webif.divrep.DivRepRoot;
-import com.webif.divrep.Event;
-import com.webif.divrep.EventListener;
+import com.webif.divrep.DivRepEvent;
+import com.webif.divrep.DivRepEventListener;
 
 import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.lib.Footprint;
@@ -111,9 +111,9 @@ public class AdminServlet extends ServletBase  {
 		view.add("Operation", operations);
 		if(!auth.allows("admin")) return view;
 		
-		final Button clear_button = new Button(context.getPageRoot(), "Clear All Cache");
-		clear_button.addEventListener(new EventListener() {
-			public void handleEvent(Event e) {
+		final DivRepButton clear_button = new DivRepButton(context.getPageRoot(), "Clear All Cache");
+		clear_button.addEventListener(new DivRepEventListener() {
+			public void handleEvent(DivRepEvent e) {
 				SmallTableModelBase.emptyAllCache();
 				clear_button.alert("Done!");
 			}
@@ -121,9 +121,9 @@ public class AdminServlet extends ServletBase  {
 		operations.add(clear_button);
 		
 		/*
-		final Button fptest_button = new Button(context.getPageRoot(), "Test FP Ticket");
-		fptest_button.addEventListener(new EventListener() {
-			public void handleEvent(Event e) {
+		final DivRepButton fptest_button = new DivRepButton(context.getPageRoot(), "Test FP Ticket");
+		fptest_button.addEventListener(new DivRepEventListener() {
+			public void handleEvent(DivRepEvent e) {
 				Footprint ticket = new Footprint(context);
 				ticket.createNewResourceTicket("test_resource");
 				
@@ -132,9 +132,9 @@ public class AdminServlet extends ServletBase  {
 		});
 		operations.add(fptest_button);
 
-		final Button error_button = new Button(context.getPageRoot(), "Simulate Servlet Error");
-		error_button.addEventListener(new EventListener() {
-			public void handleEvent(Event e) {
+		final DivRepButton error_button = new DivRepButton(context.getPageRoot(), "Simulate Servlet Error");
+		error_button.addEventListener(new DivRepEventListener() {
+			public void handleEvent(DivRepEvent e) {
 				error_button.redirect(StaticConfig.getApplicationBase() + "/simulateerror");
 			}
 		});

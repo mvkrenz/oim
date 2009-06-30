@@ -14,12 +14,12 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
-import com.webif.divrep.common.Button;
+import com.webif.divrep.common.DivRepButton;
 import com.webif.divrep.DivRep;
-import com.webif.divrep.Event;
-import com.webif.divrep.EventListener;
-import com.webif.divrep.common.FormElement;
-import com.webif.divrep.validator.IFormElementValidator;
+import com.webif.divrep.DivRepEvent;
+import com.webif.divrep.DivRepEventListener;
+import com.webif.divrep.common.DivRepFormElement;
+import com.webif.divrep.validator.DivRepIValidator;
 
 import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
@@ -27,7 +27,7 @@ import edu.iu.grid.oim.model.db.record.RecordBase;
 import edu.iu.grid.oim.servlet.ServletBase;
 
 //this requires modified version of jquery autocomplete plugin, and client side code to make the input area to be autocomplete
-public class ContactEditor extends FormElement<HashMap<ContactEditor.Rank, ArrayList<ContactEditor.ContactDE>>> {
+public class ContactEditor extends DivRepFormElement<HashMap<ContactEditor.Rank, ArrayList<ContactEditor.ContactDE>>> {
 	static Logger log = Logger.getLogger(ContactEditor.class);
 	
 	public enum Rank {PRIMARY, SECONDARY, TERTIARY };
@@ -99,7 +99,7 @@ public class ContactEditor extends FormElement<HashMap<ContactEditor.Rank, Array
 		//depricated
 	}
 	
-	class MinValidator implements IFormElementValidator<HashMap<ContactEditor.Rank, ArrayList<ContactDE>>>
+	class MinValidator implements DivRepIValidator<HashMap<ContactEditor.Rank, ArrayList<ContactDE>>>
 	{
 		private int min;
 		private Rank rank;
@@ -120,7 +120,7 @@ public class ContactEditor extends FormElement<HashMap<ContactEditor.Rank, Array
 	}
 	
 	//autocomplete area to add new contact
-	class NewContactDE extends FormElement
+	class NewContactDE extends DivRepFormElement
 	{
 		private ContactModel pmodel;
 		private Rank rank;
@@ -138,7 +138,7 @@ public class ContactEditor extends FormElement<HashMap<ContactEditor.Rank, Array
 			out.print("</div>");
 		}
 		
-		protected void onEvent(Event e) {
+		protected void onEvent(DivRepEvent e) {
 
 			int contact_id = Integer.parseInt((String)e.value);
 			try {
@@ -229,10 +229,10 @@ public class ContactEditor extends FormElement<HashMap<ContactEditor.Rank, Array
 		}
 	}
 	
-	class ContactDE extends FormElement
+	class ContactDE extends DivRepFormElement
 	{
 		public ContactRecord person;
-		private Button removebutton;
+		private DivRepButton removebutton;
 		private ContactDE myself;
 		private Rank rank;
 		
@@ -241,10 +241,10 @@ public class ContactEditor extends FormElement<HashMap<ContactEditor.Rank, Array
 			person = _person;
 			rank = _rank;
 			myself = this;
-			removebutton = new Button(this, "images/delete.png");
-			removebutton.setStyle(Button.Style.IMAGE);
-			removebutton.addEventListener(new EventListener() {
-				public void handleEvent(Event e) { 
+			removebutton = new DivRepButton(this, "images/delete.png");
+			removebutton.setStyle(DivRepButton.Style.IMAGE);
+			removebutton.addEventListener(new DivRepEventListener() {
+				public void handleEvent(DivRepEvent e) { 
 					removeContact(myself, rank);
 					modified(true);
 				}
@@ -266,7 +266,7 @@ public class ContactEditor extends FormElement<HashMap<ContactEditor.Rank, Array
 			out.print("</div>");
 		}
 		@Override
-		protected void onEvent(Event e) {
+		protected void onEvent(DivRepEvent e) {
 			// TODO Auto-generated method stub
 			
 		}
@@ -393,7 +393,7 @@ public class ContactEditor extends FormElement<HashMap<ContactEditor.Rank, Array
 	}
 
 	@Override
-	protected void onEvent(Event e) {
+	protected void onEvent(DivRepEvent e) {
 		// TODO Auto-generated method stub	
 	}
 }

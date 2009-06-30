@@ -12,9 +12,9 @@ import java.util.Map;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 import com.webif.divrep.DivRep;
-import com.webif.divrep.Event;
-import com.webif.divrep.EventListener;
-import com.webif.divrep.common.FormElement;
+import com.webif.divrep.DivRepEvent;
+import com.webif.divrep.DivRepEventListener;
+import com.webif.divrep.common.DivRepFormElement;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.StaticConfig;
@@ -28,7 +28,7 @@ import edu.iu.grid.oim.model.db.record.ResourceGroupRecord;
 import edu.iu.grid.oim.model.db.record.ResourceRecord;
 import edu.iu.grid.oim.model.db.record.SiteRecord;
 
-public class OIMHierarchySelector extends FormElement<Integer> {
+public class OIMHierarchySelector extends DivRepFormElement<Integer> {
     static Logger log = Logger.getLogger(OIMHierarchySelector.class);  
 	
     private Context context;
@@ -41,8 +41,8 @@ public class OIMHierarchySelector extends FormElement<Integer> {
 	ArrayList<Selectable> selectables = new ArrayList();
 	
 	abstract class ExpandableSelector extends DivRep {
-		//HashMap<Integer/*id*/, FormElement> items = new HashMap();
-		ArrayList<FormElement<Integer>> items = new ArrayList<FormElement<Integer>>();
+		//HashMap<Integer/*id*/, DivRepFormElement> items = new HashMap();
+		ArrayList<DivRepFormElement<Integer>> items = new ArrayList<DivRepFormElement<Integer>>();
 		ExpandableSelector mine;	
 		
 		public ExpandableSelector(DivRep _parent) throws SQLException {
@@ -50,18 +50,18 @@ public class OIMHierarchySelector extends FormElement<Integer> {
 			mine = this;
 		}
 
-		protected void onEvent(Event e) {
+		protected void onEvent(DivRepEvent e) {
 			//no event to handle
 		}
 
 		public void render(PrintWriter out) {			
-			for(FormElement<Integer> item : items) {
+			for(DivRepFormElement<Integer> item : items) {
 				item.render(out);
 			}
 		}
-		public FormElement searchItem(Integer id) 
+		public DivRepFormElement searchItem(Integer id) 
 		{
-			for(FormElement<Integer> item : items) {
+			for(DivRepFormElement<Integer> item : items) {
 				if(item.getValue().equals(id)) return item;
 			}
 			return null;
@@ -74,11 +74,11 @@ public class OIMHierarchySelector extends FormElement<Integer> {
 			super(_parent);
 			FacilityModel model = new FacilityModel(context);
 			for(FacilityRecord rec : model.getAll()) {				
-				final FormElement<Integer> item;
+				final DivRepFormElement<Integer> item;
 				if(type == Type.FACILITY) {
 					item = new Selectable<Integer>(this);
-					item.addEventListener(new EventListener() {
-						public void handleEvent(Event e) {
+					item.addEventListener(new DivRepEventListener() {
+						public void handleEvent(DivRepEvent e) {
 							select((Selectable)item);
 							modified(true);
 						}
@@ -86,8 +86,8 @@ public class OIMHierarchySelector extends FormElement<Integer> {
 					selectables.add((Selectable)item);
 				} else {
 					item = new Expandable<Integer>(this);
-					item.addEventListener(new EventListener() {
-						public void handleEvent(Event e) {
+					item.addEventListener(new DivRepEventListener() {
+						public void handleEvent(DivRepEvent e) {
 							loadChild((Expandable)item);
 						}
 					});
@@ -96,9 +96,9 @@ public class OIMHierarchySelector extends FormElement<Integer> {
 				item.setValue(rec.id);
 				items.add(item);
 			}
-			Collections.sort(items, new Comparator<FormElement<Integer>>(){
-				public int compare(FormElement<Integer> o1,
-						FormElement<Integer> o2) {
+			Collections.sort(items, new Comparator<DivRepFormElement<Integer>>(){
+				public int compare(DivRepFormElement<Integer> o1,
+						DivRepFormElement<Integer> o2) {
 					return o1.getLabel().compareToIgnoreCase(o2.getLabel());
 				}
 			});
@@ -122,11 +122,11 @@ public class OIMHierarchySelector extends FormElement<Integer> {
 			super(_parent);
 			SiteModel model = new SiteModel(context);
 			for(SiteRecord rec : model.getByFacilityID(facility_id)) {	
-				final FormElement<Integer> item;
+				final DivRepFormElement<Integer> item;
 				if(type == Type.SITE) {
 					item = new Selectable<Integer>(this);
-					item.addEventListener(new EventListener() {
-						public void handleEvent(Event e) {
+					item.addEventListener(new DivRepEventListener() {
+						public void handleEvent(DivRepEvent e) {
 							select((Selectable)item);
 							modified(true);
 						}
@@ -134,8 +134,8 @@ public class OIMHierarchySelector extends FormElement<Integer> {
 					selectables.add((Selectable) item);
 				} else {
 					item = new Expandable<Integer>(this);
-					item.addEventListener(new EventListener() {
-						public void handleEvent(Event e) {
+					item.addEventListener(new DivRepEventListener() {
+						public void handleEvent(DivRepEvent e) {
 							loadChild((Expandable)item);
 						}
 					});
@@ -144,9 +144,9 @@ public class OIMHierarchySelector extends FormElement<Integer> {
 				item.setValue(rec.id);
 				items.add(item);
 			}
-			Collections.sort(items, new Comparator<FormElement<Integer>>(){
-				public int compare(FormElement<Integer> o1,
-						FormElement<Integer> o2) {
+			Collections.sort(items, new Comparator<DivRepFormElement<Integer>>(){
+				public int compare(DivRepFormElement<Integer> o1,
+						DivRepFormElement<Integer> o2) {
 					return o1.getLabel().compareToIgnoreCase(o2.getLabel());
 				}
 			});
@@ -170,11 +170,11 @@ public class OIMHierarchySelector extends FormElement<Integer> {
 			super(_parent);
 			ResourceGroupModel model = new ResourceGroupModel(context);
 			for(ResourceGroupRecord rec : model.getBySiteID(site_id)) {			
-				final FormElement<Integer> item;
+				final DivRepFormElement<Integer> item;
 				if(type == Type.RESOURCE_GROUP) {
 					item = new Selectable<Integer>(this);
-					item.addEventListener(new EventListener() {
-						public void handleEvent(Event e) {
+					item.addEventListener(new DivRepEventListener() {
+						public void handleEvent(DivRepEvent e) {
 							select((Selectable)item);
 							modified(true);
 						}
@@ -182,8 +182,8 @@ public class OIMHierarchySelector extends FormElement<Integer> {
 					selectables.add((Selectable) item);
 				} else {
 					item = new Expandable<Integer>(this);
-					item.addEventListener(new EventListener() {
-						public void handleEvent(Event e) {
+					item.addEventListener(new DivRepEventListener() {
+						public void handleEvent(DivRepEvent e) {
 							loadChild((Expandable)item);
 						}
 					});
@@ -192,9 +192,9 @@ public class OIMHierarchySelector extends FormElement<Integer> {
 				item.setValue(rec.id);
 				items.add(item);
 			}
-			Collections.sort(items, new Comparator<FormElement<Integer>>(){
-				public int compare(FormElement<Integer> o1,
-						FormElement<Integer> o2) {
+			Collections.sort(items, new Comparator<DivRepFormElement<Integer>>(){
+				public int compare(DivRepFormElement<Integer> o1,
+						DivRepFormElement<Integer> o2) {
 					return o1.getLabel().compareToIgnoreCase(o2.getLabel());
 				}
 			});
@@ -219,11 +219,11 @@ public class OIMHierarchySelector extends FormElement<Integer> {
 			super(_parent);
 			ResourceModel model = new ResourceModel(context);
 			for(ResourceRecord rec : model.getByGroupID(rg_id)) {
-				final FormElement<Integer> item;
+				final DivRepFormElement<Integer> item;
 				if(type == Type.RESOURCE) {
 					item = new Selectable<Integer>(this);
-					item.addEventListener(new EventListener() {
-						public void handleEvent(Event e) {
+					item.addEventListener(new DivRepEventListener() {
+						public void handleEvent(DivRepEvent e) {
 							select((Selectable)item);
 							modified(true);
 						}
@@ -231,8 +231,8 @@ public class OIMHierarchySelector extends FormElement<Integer> {
 					selectables.add((Selectable) item);
 				} else {
 					item = new Expandable<Integer>(this);
-					item.addEventListener(new EventListener() {
-						public void handleEvent(Event e) {
+					item.addEventListener(new DivRepEventListener() {
+						public void handleEvent(DivRepEvent e) {
 							loadChild((Expandable)item);
 						}
 					});
@@ -241,9 +241,9 @@ public class OIMHierarchySelector extends FormElement<Integer> {
 				item.setValue(rec.id);
 				items.add(item);
 			}
-			Collections.sort(items, new Comparator<FormElement<Integer>>(){
-				public int compare(FormElement<Integer> o1,
-						FormElement<Integer> o2) {
+			Collections.sort(items, new Comparator<DivRepFormElement<Integer>>(){
+				public int compare(DivRepFormElement<Integer> o1,
+						DivRepFormElement<Integer> o2) {
 					return o1.getLabel().compareToIgnoreCase(o2.getLabel());
 				}
 			});
@@ -306,7 +306,7 @@ public class OIMHierarchySelector extends FormElement<Integer> {
 				}
 				
 				//expand one by one
-				FormElement elem = null;
+				DivRepFormElement elem = null;
 				Expandable<Integer> item = null;
 				if(facility_id != null) {
 					elem = facility_selector.searchItem(facility_id);
@@ -360,7 +360,7 @@ public class OIMHierarchySelector extends FormElement<Integer> {
 	}
 	
 	//selectable item
-	class Selectable<T> extends FormElement<T> {
+	class Selectable<T> extends DivRepFormElement<T> {
 		protected Selectable(DivRep parent) {
 			super(parent);
 			// TODO Auto-generated constructor stub
@@ -370,7 +370,7 @@ public class OIMHierarchySelector extends FormElement<Integer> {
 		public void setSelected(Boolean b) { selected = b; }
 		public Boolean isSelected() { return selected; }
 
-		protected void onEvent(Event e) {	
+		protected void onEvent(DivRepEvent e) {	
 		}
 
 		public void render(PrintWriter out) {
@@ -385,7 +385,7 @@ public class OIMHierarchySelector extends FormElement<Integer> {
 	}
 	
 	//expandable item
-	class Expandable<T> extends FormElement<T> {
+	class Expandable<T> extends DivRepFormElement<T> {
 		private Boolean expanded = false;
 		public void setExpand(Boolean b) { expanded = b; }
 		public Boolean isExpanded() { return expanded; }
@@ -418,13 +418,13 @@ public class OIMHierarchySelector extends FormElement<Integer> {
 			}
 			out.write("</div>");
 		}
-		protected void onEvent(Event e) {
+		protected void onEvent(DivRepEvent e) {
 			expanded = !expanded;
 			redraw();			
 		}
 	}
 
-	protected void onEvent(Event e) {		
+	protected void onEvent(DivRepEvent e) {		
 	}
 
 	public void render(PrintWriter out) {

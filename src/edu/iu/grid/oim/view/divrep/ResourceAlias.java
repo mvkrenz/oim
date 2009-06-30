@@ -4,40 +4,40 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import com.webif.divrep.common.Button;
+import com.webif.divrep.common.DivRepButton;
 import com.webif.divrep.DivRep;
-import com.webif.divrep.Event;
-import com.webif.divrep.EventListener;
-import com.webif.divrep.common.FormElement;
-import com.webif.divrep.common.Text;
+import com.webif.divrep.DivRepEvent;
+import com.webif.divrep.DivRepEventListener;
+import com.webif.divrep.common.DivRepFormElement;
+import com.webif.divrep.common.DivRepTextBox;
 
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.ResourceAliasRecord;
 import edu.iu.grid.oim.view.divrep.ContactEditor.ContactDE;
 import edu.iu.grid.oim.view.divrep.ContactEditor.Rank;
 
-public class ResourceAlias extends FormElement {
+public class ResourceAlias extends DivRepFormElement {
 
 	//ArrayList<AliasEditor> aliases = new ArrayList<AliasEditor>();
-	private Button add_button;
+	private DivRepButton add_button;
 
-	class AliasEditor extends FormElement
+	class AliasEditor extends DivRepFormElement
 	{
-		private Text text;
-		private Button remove_button;
+		private DivRepTextBox text;
+		private DivRepButton remove_button;
 		private AliasEditor myself;
 		
 		protected AliasEditor(DivRep parent) {
 			super(parent);
 			myself = this;
 			
-			text = new Text(this);
+			text = new DivRepTextBox(this);
 			text.addClass("inline");
 			
-			remove_button = new Button(this, "images/delete.png");
-			remove_button.setStyle(Button.Style.IMAGE);
-			remove_button.addEventListener(new EventListener() {
-				public void handleEvent(Event e) {
+			remove_button = new DivRepButton(this, "images/delete.png");
+			remove_button.setStyle(DivRepButton.Style.IMAGE);
+			remove_button.addEventListener(new DivRepEventListener() {
+				public void handleEvent(DivRepEvent e) {
 					removeAlias(myself);	
 				}
 			});
@@ -52,7 +52,7 @@ public class ResourceAlias extends FormElement {
 
 
 		@Override
-		protected void onEvent(Event e) {
+		protected void onEvent(DivRepEvent e) {
 			// TODO Auto-generated method stub
 			
 		}
@@ -81,10 +81,10 @@ public class ResourceAlias extends FormElement {
 	
 	public ResourceAlias(DivRep parent) {
 		super(parent);
-		add_button = new Button(this, "Add New Alias");
-		add_button.setStyle(Button.Style.ALINK);
-		add_button.addEventListener(new EventListener() {
-			public void handleEvent(Event e) {
+		add_button = new DivRepButton(this, "Add New Alias");
+		add_button.setStyle(DivRepButton.Style.ALINK);
+		add_button.addEventListener(new DivRepEventListener() {
+			public void handleEvent(DivRepEvent e) {
 				addAlias("");
 			}
 			
@@ -107,7 +107,7 @@ public class ResourceAlias extends FormElement {
 		return records;
 	}
 
-	protected void onEvent(Event e) {
+	protected void onEvent(DivRepEvent e) {
 		// TODO Auto-generated method stub
 
 	}

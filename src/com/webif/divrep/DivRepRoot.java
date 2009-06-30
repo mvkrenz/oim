@@ -75,7 +75,7 @@ public class DivRepRoot extends DivRep
 		public Boolean isModified() { return modified; }
 
 		@Override
-		protected void onEvent(Event e) {
+		protected void onEvent(DivRepEvent e) {
 			// TODO Auto-generated method stub
 			
 		}
@@ -109,7 +109,7 @@ public class DivRepRoot extends DivRep
 		return page;
 	}
 
-	protected void onEvent(Event e) {
+	protected void onEvent(DivRepEvent e) {
 		//root doesn't handle any event
 	}
 

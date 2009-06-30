@@ -6,10 +6,10 @@ import java.util.ArrayList;
 import org.apache.commons.lang.StringEscapeUtils;
 
 import com.webif.divrep.DivRep;
-import com.webif.divrep.Event;
-import com.webif.divrep.validator.IFormElementValidator;
+import com.webif.divrep.DivRepEvent;
+import com.webif.divrep.validator.DivRepIValidator;
 
-abstract public class FormElement<ValueType> extends DivRep {
+abstract public class DivRepFormElement<ValueType> extends DivRep {
 	
 	//class used to render the parent div element (you can use it to render it in non-div-ish way like inline)
 	//the derived element has to use this in order for it to actually take effect (of course)
@@ -26,13 +26,13 @@ abstract public class FormElement<ValueType> extends DivRep {
 		out.write("\"");
 	}
 	
-	protected FormElement(DivRep parent) {
+	protected DivRepFormElement(DivRep parent) {
 		super(parent);
 	}
 	
 	//validation suite
-	protected ArrayList<IFormElementValidator<ValueType>> validators = new ArrayList<IFormElementValidator<ValueType>>();
-	public void addValidator(IFormElementValidator<ValueType> _validator) { validators.add(_validator); }
+	protected ArrayList<DivRepIValidator<ValueType>> validators = new ArrayList<DivRepIValidator<ValueType>>();
+	public void addValidator(DivRepIValidator<ValueType> _validator) { validators.add(_validator); }
 	protected ErrorDE error = new ErrorDE(this);
 	protected class ErrorDE extends DivRep
 	{
@@ -44,7 +44,7 @@ abstract public class FormElement<ValueType> extends DivRep {
 		public void set(String _error) { error = _error; }
 		public void clear() { error = null; }
 		public String get() { return error; }
-		protected void onEvent(Event e) {
+		protected void onEvent(DivRepEvent e) {
 			// TODO Auto-generated method stub
 			
 		}
@@ -75,8 +75,8 @@ abstract public class FormElement<ValueType> extends DivRep {
 		//validate *all* child elements first
 		boolean children_valid = true;
 		for(DivRep child : childnodes) {
-			if(child instanceof FormElement) { 
-				FormElement element = (FormElement)child;
+			if(child instanceof DivRepFormElement) { 
+				DivRepFormElement element = (DivRepFormElement)child;
 				if(element != null && !element.isHidden()) {
 					if(!element.isValid()) {
 						children_valid = false;
@@ -94,7 +94,7 @@ abstract public class FormElement<ValueType> extends DivRep {
 		error.set(null);
 		valid = true;
 		
-		//if required, run RequiredValidator
+		//if required, run DivRepRequiredValidator
 		if(value == null || value.toString().trim().length() == 0) {
 			if(isRequired()) {
 				error.set("This is a required field. Please specify a value.");
@@ -107,7 +107,7 @@ abstract public class FormElement<ValueType> extends DivRep {
 		}
 		
 		//then run the optional validation
-		for(IFormElementValidator<ValueType> validator : validators) {
+		for(DivRepIValidator<ValueType> validator : validators) {
 			if(!validator.isValid(value)) {
 				//bad..
 				error.set(validator.getErrorMessage());

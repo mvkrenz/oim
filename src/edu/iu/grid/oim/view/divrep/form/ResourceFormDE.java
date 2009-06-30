@@ -9,16 +9,16 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 
 import com.webif.divrep.DivRep;
-import com.webif.divrep.Event;
-import com.webif.divrep.EventListener;
-import com.webif.divrep.common.Static;
+import com.webif.divrep.DivRepEvent;
+import com.webif.divrep.DivRepEventListener;
+import com.webif.divrep.common.DivRepStaticContent;
 import com.webif.divrep.common.CheckBoxFormElement;
-import com.webif.divrep.common.FormBase;
-import com.webif.divrep.common.TextArea;
-import com.webif.divrep.common.Text;
-import com.webif.divrep.validator.DoubleValidator;
-import com.webif.divrep.validator.UniqueValidator;
-import com.webif.divrep.validator.UrlValidator;
+import com.webif.divrep.common.DivRepForm;
+import com.webif.divrep.common.DivRepTextArea;
+import com.webif.divrep.common.DivRepTextBox;
+import com.webif.divrep.validator.DivRepDoubleValidator;
+import com.webif.divrep.validator.DivRepUniqueValidator;
+import com.webif.divrep.validator.DivRepUrlValidator;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.FileReader;
@@ -52,7 +52,7 @@ import edu.iu.grid.oim.view.divrep.ResourceServices;
 import edu.iu.grid.oim.view.divrep.ResourceWLCG;
 import edu.iu.grid.oim.view.divrep.VOResourceOwnership;
 
-public class ResourceFormDE extends FormBase 
+public class ResourceFormDE extends DivRepForm 
 {
     static Logger log = Logger.getLogger(ResourceFormDE.class); 
    
@@ -61,10 +61,10 @@ public class ResourceFormDE extends FormBase
 	protected Authorization auth;
 	private Integer id;
 	
-	private Text name;
-	private TextArea description;
-	private Text fqdn;
-	private Text url;
+	private DivRepTextBox name;
+	private DivRepTextArea description;
+	private DivRepTextBox fqdn;
+	private DivRepTextBox url;
 	
 	private CheckBoxFormElement active;
 	private CheckBoxFormElement disable;
@@ -94,8 +94,8 @@ public class ResourceFormDE extends FormBase
 		
 		id = rec.id;
 		
-		new Static(this, "<h2>Basic Resource Information</h2>");
-		new Static(this, "<p>Add/modify basic information about this resource.</p>");
+		new DivRepStaticContent(this, "<h2>Basic Resource Information</h2>");
+		new DivRepStaticContent(this, "<p>Add/modify basic information about this resource.</p>");
 		
 		//pull vos for unique validator
 		HashMap<Integer, String> resources = getResources();
@@ -104,42 +104,42 @@ public class ResourceFormDE extends FormBase
 			resources.remove(id);
 		}
 		
-		name = new Text(this);
+		name = new DivRepTextBox(this);
 		name.setLabel("Name");
 		name.setValue(rec.name);
-		name.addValidator(new UniqueValidator<String>(resources.values()));
+		name.addValidator(new DivRepUniqueValidator<String>(resources.values()));
 		name.setRequired(true);
 		name.setSampleValue("Indiana_Sample_CE");
 		
-		fqdn = new Text(this);
+		fqdn = new DivRepTextBox(this);
 		fqdn.setLabel("Fully Qualified Domain Name (FQDN) of this resource");
 		fqdn.setValue(rec.fqdn);
-		fqdn.addValidator(new UniqueValidator<String>(resources.values()));
+		fqdn.addValidator(new DivRepUniqueValidator<String>(resources.values()));
 		fqdn.setRequired(true);
 		fqdn.setSampleValue("gate01.sample.edu");
 
 		resource_group_id = new OIMHierarchySelector(this, context, OIMHierarchySelector.Type.RESOURCE_GROUP);
-		resource_group_id.setLabel("Select Your Facility (Instituition), Site (Department), and Resource Group");
+		resource_group_id.setLabel("DivRepSelectBox Your Facility (Instituition), Site (Department), and Resource Group");
 		resource_group_id.setRequired(true);
 		if(id != null) {
 			resource_group_id.setValue(rec.resource_group_id);
 		}
 
-		description = new TextArea(this);
+		description = new DivRepTextArea(this);
 		description.setLabel("Short Description");
 		description.setValue(rec.description);
 		description.setRequired(true);
 		description.setSampleValue("This is a hidden gatekeeper accessible from the FermiGrid site only. It reports to Gratia and RSV directly but offsite jobs can only get to it via the FermiGrid job gateway fermigridosg1");
 				
-		url = new Text(this);
+		url = new DivRepTextBox(this);
 		url.setLabel("Information URL");
 		url.setValue(rec.url);
-		url.addValidator(UrlValidator.getInstance());
+		url.addValidator(DivRepUrlValidator.getInstance());
 		url.setRequired(true);
 		url.setSampleValue("http://sample.edu/information");
 		
-		new Static(this, "<h3>Resource FQDN Aliases (If Applicable)</h3>");
-		new Static(this, "<p>If you used a DNS alias as their main gatekeeper or SE head node FQDN (as defined above), then you can add real host name(s) here as reverse alias(es).</p>");
+		new DivRepStaticContent(this, "<h3>Resource FQDN Aliases (If Applicable)</h3>");
+		new DivRepStaticContent(this, "<p>If you used a DNS alias as their main gatekeeper or SE head node FQDN (as defined above), then you can add real host name(s) here as reverse alias(es).</p>");
 		aliases = new ResourceAlias (this);
 		ResourceAliasModel ramodel = new ResourceAliasModel(context);
 		if(id != null) {
@@ -148,8 +148,8 @@ public class ResourceFormDE extends FormBase
 			}
 		}
 		
-		new Static(this, "<h2>Resource Services</h2>");
-		new Static(this, "<p>Add, remove, modify services associated with your resource. For example, a CE or an SRM.</p>");
+		new DivRepStaticContent(this, "<h2>Resource Services</h2>");
+		new DivRepStaticContent(this, "<p>Add, remove, modify services associated with your resource. For example, a CE or an SRM.</p>");
 		ServiceModel smodel = new ServiceModel(context);
 		resource_services = new ResourceServices(this, context, smodel.getAll());
 		ResourceServiceModel rsmodel = new ResourceServiceModel(context);
@@ -160,8 +160,8 @@ public class ResourceFormDE extends FormBase
 		}
 
 		// Resource ownership stuff
-		new Static(this, "<h2>VO Owners</h2>");
-		new Static(this, "<p>Add/modify VO ownership of this resource.</p>");
+		new DivRepStaticContent(this, "<h2>VO Owners</h2>");
+		new DivRepStaticContent(this, "<p>Add/modify VO ownership of this resource.</p>");
 		VOModel vo_model = new VOModel(context);
 		owners = new VOResourceOwnership(this, vo_model.getAll());
 		VOResourceOwnershipModel voresowner_model = new VOResourceOwnershipModel(context);
@@ -174,8 +174,8 @@ public class ResourceFormDE extends FormBase
 			owners.addOwner(new VOResourceOwnershipRecord());
 		}
 
-		new Static(this, "<h2>Contact Information</h2>");
-		new Static(this, "<p>Add, remove, modify various types of contacts associated with your resource. These contacts have the authorization to modify this resource. Each contact entry field shows you a list of contacts as you type a name.</p>");
+		new DivRepStaticContent(this, "<h2>Contact Information</h2>");
+		new DivRepStaticContent(this, "<p>Add, remove, modify various types of contacts associated with your resource. These contacts have the authorization to modify this resource. Each contact entry field shows you a list of contacts as you type a name.</p>");
 		HashMap<Integer/*contact_type_id*/, ArrayList<ResourceContactRecord>> voclist_grouped = null;
 		if(id != null) {
 			ResourceContactModel vocmodel = new ResourceContactModel(context);
@@ -204,8 +204,8 @@ public class ResourceFormDE extends FormBase
 			contact_editors.put(contact_type_id, editor);
 		}
 		
-		new Static(this, "<h2>WLCG Interoperability Information (If Applicable)</h2>");
-		new Static(this, "<p>Enable this section if your resource is part of the WLCG interoperability agreement. " + 
+		new DivRepStaticContent(this, "<h2>WLCG Interoperability Information (If Applicable)</h2>");
+		new DivRepStaticContent(this, "<p>Enable this section if your resource is part of the WLCG interoperability agreement. " + 
 					"You can then provide more interoperability details for this resource, including KSI2K Limits " + 
 					" and storage capacity min/max values. If you are not sure about any of these values, " + 
 					" ask your Owner VO(s)!</p>");
@@ -214,12 +214,12 @@ public class ResourceFormDE extends FormBase
 		wlcg.setLabel("This is a WLCG resource");
 
 		//indent the whole WCLG things
-		new Static(this, "<div class=\"indent\">");
+		new DivRepStaticContent(this, "<div class=\"indent\">");
 		wlcg_section = new ResourceWLCG (this, context, null);
 		hideWLCGElement(true);
 
-		wlcg.addEventListener(new EventListener() {
-			public void handleEvent(Event e) {	
+		wlcg.addEventListener(new DivRepEventListener() {
+			public void handleEvent(DivRepEvent e) {	
 				if(((String)e.value).compareTo("true") == 0) {
 					hideWLCGElement(false);
 				} else {
@@ -237,10 +237,10 @@ public class ResourceFormDE extends FormBase
 				hideWLCGElement(false);				
 			}
 		}
-		new Static(this, "</div>");
+		new DivRepStaticContent(this, "</div>");
 
 		if(auth.allows("admin")) {
-			new Static(this, "<h2>Administrative Tasks</h2>");
+			new DivRepStaticContent(this, "<h2>Administrative Tasks</h2>");
 		}
 		active = new CheckBoxFormElement(this);
 		active.setLabel("Active");
@@ -265,7 +265,7 @@ public class ResourceFormDE extends FormBase
 	
 	private ContactEditor createContactEditor(HashMap<Integer, ArrayList<ResourceContactRecord>> voclist, ContactTypeRecord ctrec) throws SQLException
 	{
-		new Static(this, "<h3>" + StringEscapeUtils.escapeHtml(ctrec.name) + "</h3>");
+		new DivRepStaticContent(this, "<h3>" + StringEscapeUtils.escapeHtml(ctrec.name) + "</h3>");
 		ContactModel pmodel = new ContactModel(context);		
 		ContactEditor editor = new ContactEditor(this, pmodel, ctrec.allow_secondary, ctrec.allow_tertiary);
 		

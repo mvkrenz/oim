@@ -5,20 +5,20 @@ import java.io.PrintWriter;
 import org.apache.commons.lang.StringEscapeUtils;
 
 import com.webif.divrep.DivRep;
-import com.webif.divrep.Event;
+import com.webif.divrep.DivRepEvent;
 
-public class TextArea extends FormElement<String>  {
+public class DivRepTextArea extends DivRepFormElement<String>  {
 	
 	private int width = 400;
 	public void setWidth(int _width) { width = _width; }
 	private int height = 100;
 	public void setHeight(int _height) { height = _height; }
 	
-	public TextArea(DivRep parent) { 
+	public DivRepTextArea(DivRep parent) { 
 		super(parent);
 	}
 	
-	public void onEvent(Event e) {
+	public void onEvent(DivRepEvent e) {
 		value = ((String)e.value).trim();
 		modified(true);
 		validate();

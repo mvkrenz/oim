@@ -18,10 +18,10 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 
-import com.webif.divrep.common.Button;
+import com.webif.divrep.common.DivRepButton;
 import com.webif.divrep.DivRep;
 import com.webif.divrep.DivRepRoot;
-import com.webif.divrep.Event;
+import com.webif.divrep.DivRepEvent;
 
 
 import edu.iu.grid.oim.lib.StaticConfig;
@@ -120,7 +120,7 @@ public class ResourceDowntimeServlet extends ServletBase implements Servlet {
 			}
 			contentview.add(downtime_view);
 		
-			class EditButtonDE extends Button
+			class EditButtonDE extends DivRepButton
 			{
 				String url;
 				public EditButtonDE(DivRep parent, String _url)
@@ -128,7 +128,7 @@ public class ResourceDowntimeServlet extends ServletBase implements Servlet {
 					super(parent, "Add/Edit Downtime");
 					url = _url;
 				}
-				protected void onEvent(Event e) {
+				protected void onEvent(DivRepEvent e) {
 					redirect(url);
 				}
 			};

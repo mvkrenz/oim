@@ -3,13 +3,13 @@ package edu.iu.grid.oim.view.divrep.form;
 import java.sql.SQLException;
 import java.util.HashMap;
 import org.apache.log4j.Logger;
-import com.webif.divrep.Event;
-import com.webif.divrep.common.FormBase;
-import com.webif.divrep.common.TextArea;
-import com.webif.divrep.common.Text;
-import com.webif.divrep.validator.DoubleValidator;
-import com.webif.divrep.validator.IntegerValidator;
-import com.webif.divrep.validator.UniqueValidator;
+import com.webif.divrep.DivRepEvent;
+import com.webif.divrep.common.DivRepForm;
+import com.webif.divrep.common.DivRepTextArea;
+import com.webif.divrep.common.DivRepTextBox;
+import com.webif.divrep.validator.DivRepDoubleValidator;
+import com.webif.divrep.validator.DivRepIntegerValidator;
+import com.webif.divrep.validator.DivRepUniqueValidator;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
@@ -17,7 +17,7 @@ import edu.iu.grid.oim.model.Context;
 import edu.iu.grid.oim.model.db.CpuInfoModel;
 import edu.iu.grid.oim.model.db.record.CpuInfoRecord;
 
-public class CpuInfoFormDE extends FormBase 
+public class CpuInfoFormDE extends DivRepForm 
 {
     static Logger log = Logger.getLogger(CpuInfoFormDE.class); 
     
@@ -25,9 +25,9 @@ public class CpuInfoFormDE extends FormBase
     private Authorization auth;
 	private Integer id;
 	
-	private Text name;
-	private Text normalization_constant;
-	private TextArea notes;
+	private DivRepTextBox name;
+	private DivRepTextBox normalization_constant;
+	private DivRepTextArea notes;
 	
 	public CpuInfoFormDE(Context _context, CpuInfoRecord rec, String origin_url) throws AuthorizationException, SQLException
 	{	
@@ -42,19 +42,19 @@ public class CpuInfoFormDE extends FormBase
 			//if doing update, remove my own name (I can use my own name)
 			cpu_infos.remove(id);
 		}
-		name = new Text(this);
+		name = new DivRepTextBox(this);
 		name.setLabel("Name");
 		name.setValue(rec.name);
-		name.addValidator(new UniqueValidator<String>(cpu_infos.values()));
+		name.addValidator(new DivRepUniqueValidator<String>(cpu_infos.values()));
 		name.setRequired(true);
 		
-		normalization_constant = new Text(this);
+		normalization_constant = new DivRepTextBox(this);
 		normalization_constant.setLabel ("Normalization Constant"); 
 		normalization_constant.setValue(String.valueOf(rec.normalization_constant));
-		normalization_constant.addValidator(new DoubleValidator());
+		normalization_constant.addValidator(new DivRepDoubleValidator());
 		normalization_constant.setRequired(true);
 		
-		notes = new TextArea(this);
+		notes = new DivRepTextArea(this);
 		notes.setLabel("Notes");
 		notes.setValue(rec.notes);
 		notes.setRequired(false);
@@ -100,7 +100,7 @@ public class CpuInfoFormDE extends FormBase
 	}
 
 	@Override
-	protected void onEvent(Event e) {
+	protected void onEvent(DivRepEvent e) {
 		// TODO Auto-generated method stub
 		
 	}

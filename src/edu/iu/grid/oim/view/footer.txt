@@ -1,7 +1,8 @@
 <br clear="all"/>
 <div id="footer">
 <p style="float: right">Version __VERSION__</p>
-<img src="images/potato.png" align="left"/><p>&nbsp;Copyright (C) 2009 Indiana University - Developed for Open Science Grid</p>
+<p><a href="https://myosg.grid.iu.edu">MyOSG</a> | <a href="https://ticket.grid.iu.edu/goc">GOCTicket</a> | OIM | <a href="https://twiki.grid.iu.edu">TWiki</a> | Report bugs at <a href="http://code.google.com/p/osggoc/issues/entry">GOC Bug Tracker</a></p>
+<p><img src="__STATICBASE__/images/potato.png" align="left"/>&nbsp;Copyright (C) 2009 Indiana University - Developed for Open Science Grid</p>
 </div>
 <script type="text/javascript">
 var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");

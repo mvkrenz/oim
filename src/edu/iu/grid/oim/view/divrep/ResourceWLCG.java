@@ -6,15 +6,15 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import com.sun.jndi.dns.ResourceRecord;
-import com.webif.divrep.common.Button;
+import com.webif.divrep.common.DivRepButton;
 import com.webif.divrep.DivRep;
-import com.webif.divrep.Event;
-import com.webif.divrep.EventListener;
+import com.webif.divrep.DivRepEvent;
+import com.webif.divrep.DivRepEventListener;
 import com.webif.divrep.common.CheckBoxFormElement;
-import com.webif.divrep.common.FormElement;
-import com.webif.divrep.common.Select;
-import com.webif.divrep.common.Text;
-import com.webif.divrep.validator.DoubleValidator;
+import com.webif.divrep.common.DivRepFormElement;
+import com.webif.divrep.common.DivRepSelectBox;
+import com.webif.divrep.common.DivRepTextBox;
+import com.webif.divrep.validator.DivRepDoubleValidator;
 
 import edu.iu.grid.oim.model.Context;
 import edu.iu.grid.oim.model.db.ResourceWLCGModel;
@@ -23,23 +23,23 @@ import edu.iu.grid.oim.model.db.record.ResourceWLCGRecord;
 import edu.iu.grid.oim.model.db.record.ServiceRecord;
 import edu.iu.grid.oim.view.divrep.ResourceAlias.AliasEditor;
 
-public class ResourceWLCG extends FormElement {
+public class ResourceWLCG extends DivRepFormElement {
 
 	private Context context;
 	private WLCGEditor editor;
-	private Button add_button;
+	private DivRepButton add_button;
 
-	class WLCGEditor extends FormElement
+	class WLCGEditor extends DivRepFormElement
 	{
 		//WLCG Interop details
 		private CheckBoxFormElement interop_bdii;
 		private CheckBoxFormElement interop_monitoring;
 		private CheckBoxFormElement interop_accounting;
-		private Text wlcg_accounting_name;
-		private Text ksi2k_minimum;
-		private Text ksi2k_maximum;
-		private Text storage_capacity_minimum;
-		private Text storage_capacity_maximum;
+		private DivRepTextBox wlcg_accounting_name;
+		private DivRepTextBox ksi2k_minimum;
+		private DivRepTextBox ksi2k_maximum;
+		private DivRepTextBox storage_capacity_minimum;
+		private DivRepTextBox storage_capacity_maximum;
 
 		private WLCGEditor myself;
 		
@@ -56,15 +56,15 @@ public class ResourceWLCG extends FormElement {
 			interop_accounting = new CheckBoxFormElement(this);
 			interop_accounting.setLabel("Should this resource be part of WLCG Interop Accounting?");
 
-			wlcg_accounting_name = new Text(this);
+			wlcg_accounting_name = new DivRepTextBox(this);
 			wlcg_accounting_name.setLabel("WLCG Accounting Name");
 			wlcg_accounting_name.setSampleValue("ABC Accounting");
 			wlcg_accounting_name.setRequired(true);
 			
 			hideWLCGAccountingName(true);
 
-			interop_accounting.addEventListener(new EventListener() {
-				public void handleEvent(Event e) {	
+			interop_accounting.addEventListener(new DivRepEventListener() {
+				public void handleEvent(DivRepEvent e) {	
 					if(((String)e.value).compareTo("true") == 0) {
 						hideWLCGAccountingName(false);
 					} else {
@@ -73,27 +73,27 @@ public class ResourceWLCG extends FormElement {
 				}
 			});
 			
-			ksi2k_minimum = new Text(this);
+			ksi2k_minimum = new DivRepTextBox(this);
 			ksi2k_minimum.setLabel("KSI2K Minimum");
-			ksi2k_minimum.addValidator(DoubleValidator.getInstance());
+			ksi2k_minimum.addValidator(DivRepDoubleValidator.getInstance());
 			ksi2k_minimum.setSampleValue("100.0");
 			ksi2k_minimum.setRequired(true);
 
-			ksi2k_maximum = new Text(this);
+			ksi2k_maximum = new DivRepTextBox(this);
 			ksi2k_maximum.setLabel("KSI2K Maximum");
-			ksi2k_maximum.addValidator(DoubleValidator.getInstance());
+			ksi2k_maximum.addValidator(DivRepDoubleValidator.getInstance());
 			ksi2k_maximum.setSampleValue("500.0");
 			ksi2k_maximum.setRequired(true);
 
-			storage_capacity_minimum = new Text(this);
+			storage_capacity_minimum = new DivRepTextBox(this);
 			storage_capacity_minimum.setLabel("Storage Capacity Minimum (in TeraBytes)");
-			storage_capacity_minimum.addValidator(DoubleValidator.getInstance());
+			storage_capacity_minimum.addValidator(DivRepDoubleValidator.getInstance());
 			storage_capacity_minimum.setSampleValue("1.0");
 			storage_capacity_minimum.setRequired(true);
 
-			storage_capacity_maximum = new Text(this);
+			storage_capacity_maximum = new DivRepTextBox(this);
 			storage_capacity_maximum.setLabel("Storage Capacity Maximum (in TeraBytes)");
-			storage_capacity_maximum.addValidator(DoubleValidator.getInstance());
+			storage_capacity_maximum.addValidator(DivRepDoubleValidator.getInstance());
 			storage_capacity_maximum.setSampleValue("5.5");
 			storage_capacity_maximum.setRequired(true);
 			
@@ -131,7 +131,7 @@ public class ResourceWLCG extends FormElement {
 			wlcg_accounting_name.setRequired(!b);
 		}
 
-		protected void onEvent(Event e) {
+		protected void onEvent(DivRepEvent e) {
 			// TODO Auto-generated method stub
 		}
 
@@ -140,8 +140,8 @@ public class ResourceWLCG extends FormElement {
 			
 			for(DivRep child : childnodes) {
 				
-				if(child instanceof FormElement) {
-					FormElement elem = (FormElement)child;
+				if(child instanceof DivRepFormElement) {
+					DivRepFormElement elem = (DivRepFormElement)child;
 					if(!elem.isHidden()) {
 						out.print("<div class=\"form_element\">");
 						child.render(out);
@@ -186,7 +186,7 @@ public class ResourceWLCG extends FormElement {
 		setWlcgRecord (_wrec);
 	}
 
-	protected void onEvent(Event e) {
+	protected void onEvent(DivRepEvent e) {
 		// TODO Auto-generated method stub
 	}
 	

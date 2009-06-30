@@ -3,11 +3,11 @@ package com.webif.divrep.common;
 import java.io.PrintWriter;
 
 import com.webif.divrep.DivRep;
-import com.webif.divrep.Event;
+import com.webif.divrep.DivRepEvent;
 
 import org.apache.commons.lang.StringEscapeUtils;
 
-public class CheckBoxFormElement extends FormElement<Boolean> {
+public class CheckBoxFormElement extends DivRepFormElement<Boolean> {
 	
 	public CheckBoxFormElement(DivRep parent) {
 		super(parent);
@@ -43,7 +43,7 @@ public class CheckBoxFormElement extends FormElement<Boolean> {
 		value = _value; 
 	}
 	
-	public void onEvent(Event e) {
+	public void onEvent(DivRepEvent e) {
 		if(((String)e.value).compareTo("true") == 0) {
 			value = true;
 		} else {

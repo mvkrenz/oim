@@ -2,12 +2,12 @@ package com.webif.divrep.common;
 
 import java.io.PrintWriter;
 import com.webif.divrep.DivRep;
-import com.webif.divrep.Event;
+import com.webif.divrep.DivRepEvent;
 
-public class Static extends DivRep {
+public class DivRepStaticContent extends DivRep {
 	String html;
 	
-	public Static(DivRep parent, String _html) {
+	public DivRepStaticContent(DivRep parent, String _html) {
 		super(parent);
 		html = _html;
 	}
@@ -19,7 +19,7 @@ public class Static extends DivRep {
 		html = _html;
 	}
 
-	protected void onEvent(Event e) {
+	protected void onEvent(DivRepEvent e) {
 		//static doesn't handle any event
 	}
 }

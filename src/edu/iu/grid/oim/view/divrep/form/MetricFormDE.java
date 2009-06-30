@@ -10,16 +10,16 @@ import java.util.HashMap;
 import org.apache.log4j.Logger;
 
 import com.webif.divrep.DivRep;
-import com.webif.divrep.Event;
-import com.webif.divrep.common.Static;
+import com.webif.divrep.DivRepEvent;
+import com.webif.divrep.common.DivRepStaticContent;
 import com.webif.divrep.common.CheckBoxFormElement;
-import com.webif.divrep.common.FormBase;
-import com.webif.divrep.common.Select;
-import com.webif.divrep.common.TextArea;
-import com.webif.divrep.common.Text;
-import com.webif.divrep.validator.IntegerValidator;
-import com.webif.divrep.validator.UniqueValidator;
-import com.webif.divrep.validator.UrlValidator;
+import com.webif.divrep.common.DivRepForm;
+import com.webif.divrep.common.DivRepSelectBox;
+import com.webif.divrep.common.DivRepTextArea;
+import com.webif.divrep.common.DivRepTextBox;
+import com.webif.divrep.validator.DivRepIntegerValidator;
+import com.webif.divrep.validator.DivRepUniqueValidator;
+import com.webif.divrep.validator.DivRepUrlValidator;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
@@ -37,7 +37,7 @@ import edu.iu.grid.oim.model.db.record.SCRecord;
 import edu.iu.grid.oim.model.db.record.OsgGridTypeRecord;
 import edu.iu.grid.oim.view.divrep.ContactEditor;
 
-public class MetricFormDE extends FormBase 
+public class MetricFormDE extends DivRepForm 
 {
     static Logger log = Logger.getLogger(MetricFormDE.class); 
     
@@ -45,14 +45,14 @@ public class MetricFormDE extends FormBase
     private Authorization auth;
 	private Integer id;
 	
-	private Text name;
-	private Text common_name;
-	private Text abbrev;
-	private TextArea description;
-	private Text time_interval;
-	private Text fresh_for;
-	private Text help_url;
-	private Text wlcg_metric_type;
+	private DivRepTextBox name;
+	private DivRepTextBox common_name;
+	private DivRepTextBox abbrev;
+	private DivRepTextArea description;
+	private DivRepTextBox time_interval;
+	private DivRepTextBox fresh_for;
+	private DivRepTextBox help_url;
+	private DivRepTextBox wlcg_metric_type;
 	
 	
 	public MetricFormDE(Context _context, MetricRecord rec, String origin_url) throws AuthorizationException, SQLException
@@ -68,22 +68,22 @@ public class MetricFormDE extends FormBase
 			//if doing update, remove my own name (I can use my own name)
 			metric_names.remove(id);
 		}
-		name = new Text(this);
+		name = new DivRepTextBox(this);
 		name.setLabel("Name");
 		if(id != null) {
 		}
 		name.setValue(rec.name);
-		name.addValidator(new UniqueValidator<String>(metric_names.values()));
+		name.addValidator(new DivRepUniqueValidator<String>(metric_names.values()));
 		name.setRequired(true);
 		
-		common_name = new Text(this);
+		common_name = new DivRepTextBox(this);
 		common_name.setLabel("Common Name");
 		if(id != null) {
 			common_name.setValue(rec.common_name);
 		}
 		common_name.setRequired(true);
 		
-		abbrev = new Text(this);
+		abbrev = new DivRepTextBox(this);
 		abbrev.setLabel("Abbreviation");
 		if(id != null) {
 			abbrev.setValue(rec.abbrev);
@@ -91,37 +91,37 @@ public class MetricFormDE extends FormBase
 		abbrev.setValue(rec.abbrev);
 		abbrev.setRequired(true);
 		
-		description = new TextArea(this);
+		description = new DivRepTextArea(this);
 		description.setLabel("Description");
 		if(id != null) {
 			description.setValue(rec.description);
 		}
 		description.setRequired(true);
 		
-		time_interval = new Text(this);
+		time_interval = new DivRepTextBox(this);
 		time_interval.setLabel("Time Interval");
 		if(id != null) {
 			time_interval.setValue(rec.time_interval.toString());
 		}
 		time_interval.setRequired(true);
-		time_interval.addValidator(new IntegerValidator());
+		time_interval.addValidator(new DivRepIntegerValidator());
 
-		fresh_for = new Text(this);
+		fresh_for = new DivRepTextBox(this);
 		fresh_for.setLabel("Fresh For");
 		if(id != null) {
 			fresh_for.setValue(rec.fresh_for.toString());
 		}
 		fresh_for.setRequired(true);
-		fresh_for.addValidator(new IntegerValidator());
+		fresh_for.addValidator(new DivRepIntegerValidator());
 		
-		help_url = new Text(this);
+		help_url = new DivRepTextBox(this);
 		help_url.setLabel("Help URL");
-		help_url.addValidator(UrlValidator.getInstance());
+		help_url.addValidator(DivRepUrlValidator.getInstance());
 		if(id != null) {
 			help_url.setValue(rec.help_url);
 		}
 		
-		wlcg_metric_type = new Text(this);
+		wlcg_metric_type = new DivRepTextBox(this);
 		wlcg_metric_type.setLabel("WLCG Metric Type");
 		if(id != null) {
 			wlcg_metric_type.setValue(rec.wlcg_metric_type.toString());
@@ -172,7 +172,7 @@ public class MetricFormDE extends FormBase
 	}
 
 	@Override
-	protected void onEvent(Event e) {
+	protected void onEvent(DivRepEvent e) {
 		// TODO Auto-generated method stub
 		
 	}

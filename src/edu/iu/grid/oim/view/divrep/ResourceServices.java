@@ -5,42 +5,42 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import com.webif.divrep.common.Button;
+import com.webif.divrep.common.DivRepButton;
 import com.webif.divrep.DivRep;
-import com.webif.divrep.Event;
-import com.webif.divrep.EventListener;
+import com.webif.divrep.DivRepEvent;
+import com.webif.divrep.DivRepEventListener;
 import com.webif.divrep.common.CheckBoxFormElement;
-import com.webif.divrep.common.FormElement;
-import com.webif.divrep.common.Select;
-import com.webif.divrep.common.Text;
-import com.webif.divrep.validator.IFormElementValidator;
-import com.webif.divrep.validator.UrlValidator;
+import com.webif.divrep.common.DivRepFormElement;
+import com.webif.divrep.common.DivRepSelectBox;
+import com.webif.divrep.common.DivRepTextBox;
+import com.webif.divrep.validator.DivRepIValidator;
+import com.webif.divrep.validator.DivRepUrlValidator;
 
 import edu.iu.grid.oim.model.Context;
 import edu.iu.grid.oim.model.db.record.ResourceServiceRecord;
 import edu.iu.grid.oim.model.db.record.ServiceRecord;
 import edu.iu.grid.oim.view.divrep.form.ResourceFormDE;
 
-public class ResourceServices extends FormElement {
+public class ResourceServices extends DivRepFormElement {
 
 	ArrayList<ServiceEditor> services = new ArrayList<ServiceEditor>();
 	ArrayList<Integer> service_id_taken = new ArrayList<Integer>();
-	private Button add_button;
+	private DivRepButton add_button;
 	private Context context;
 	private ArrayList<ServiceRecord> service_recs;
 	
 	private ResourceFormDE parent;
 
-	class ServiceEditor extends FormElement
+	class ServiceEditor extends DivRepFormElement
 	{
 		//service details
 		private ServiceGroupHierarchySelector service;
-		private Text endpoint_override;
+		private DivRepTextBox endpoint_override;
 		private CheckBoxFormElement hidden;
 		private CheckBoxFormElement central;
-		private Text server_list_regex;
+		private DivRepTextBox server_list_regex;
 		
-		private Button remove_button;
+		private DivRepButton remove_button;
 		private ResourceServices parent;
 		
 		protected ServiceEditor(ResourceServices _parent, ResourceServiceRecord rec, ArrayList<ServiceRecord> service_recs) {
@@ -53,7 +53,7 @@ public class ResourceServices extends FormElement {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
-			service.setLabel("Select a service group, then a service");
+			service.setLabel("DivRepSelectBox a service group, then a service");
 			service.setRequired(true);
 			if(rec != null) {
 				service.setValue(rec.service_id);
@@ -72,13 +72,13 @@ public class ResourceServices extends FormElement {
 				central.setValue(rec.central);
 			}
 			
-			endpoint_override = new Text(this);
+			endpoint_override = new DivRepTextBox(this);
 			endpoint_override.setLabel("Service URI Override (FQDN[:port])");
 			endpoint_override.setSampleValue("research.iu.edu:2812");
 			if(rec != null) {
 				endpoint_override.setValue(rec.endpoint_override);
 			}
-			endpoint_override.addValidator(new IFormElementValidator<String>() {
+			endpoint_override.addValidator(new DivRepIValidator<String>() {
 				String message;
 				public String getErrorMessage() {
 					return message;
@@ -112,24 +112,24 @@ public class ResourceServices extends FormElement {
 				}});
 
 			// Hiding this for now. Only Brian B knows how to use it.
-			server_list_regex = new Text(this);
+			server_list_regex = new DivRepTextBox(this);
 			server_list_regex.setLabel("Server List RegEx");
 			if(rec != null && rec.server_list_regex != null) {
 				server_list_regex.setValue(rec.server_list_regex.toString());
 			}
 			server_list_regex.setHidden(true);
 			
-			remove_button = new Button(this, "images/delete.png");
-			remove_button.setStyle(Button.Style.IMAGE);
+			remove_button = new DivRepButton(this, "images/delete.png");
+			remove_button.setStyle(DivRepButton.Style.IMAGE);
 			//remove_button.setConfirm(true, "Do you really want to remove this service?");
-			remove_button.addEventListener(new EventListener() {
-				public void handleEvent(Event e) {
+			remove_button.addEventListener(new DivRepEventListener() {
+				public void handleEvent(DivRepEvent e) {
 					removeService(ServiceEditor.this);	
 				}
 			});
 		}
 
-		public void addServiceEventListener(EventListener listener) {
+		public void addServiceEventListener(DivRepEventListener listener) {
 			service.addEventListener(listener);
 		}
 		
@@ -140,7 +140,7 @@ public class ResourceServices extends FormElement {
 			return service.getValue();
 		}
 		
-		protected void onEvent(Event e) {
+		protected void onEvent(DivRepEvent e) {
 			// TODO Auto-generated method stub
 		}
 
@@ -154,8 +154,8 @@ public class ResourceServices extends FormElement {
 			for(DivRep child : childnodes) {
 				if(child == remove_button) continue;
 				
-				if(child instanceof FormElement) {
-					FormElement elem = (FormElement)child;
+				if(child instanceof DivRepFormElement) {
+					DivRepFormElement elem = (DivRepFormElement)child;
 					if(!elem.isHidden()) {
 						out.print("<div class=\"form_element\">");
 						child.render(out);
@@ -195,7 +195,7 @@ public class ResourceServices extends FormElement {
 		redraw();
 		
 		//notify any listener of our action
-		Event e = new Event(null, null);
+		DivRepEvent e = new DivRepEvent(null, null);
 		e.action = "remove";
 		e.value = service;
 		notifyListener(e);
@@ -207,7 +207,7 @@ public class ResourceServices extends FormElement {
 		redraw();
 		
 		//notify any listener of our action
-		Event e = new Event(null, null);
+		DivRepEvent e = new DivRepEvent(null, null);
 		e.action = "add";
 		e.value = service;
 		notifyListener(e);
@@ -219,10 +219,10 @@ public class ResourceServices extends FormElement {
 		context = _context;
 		service_recs = _service_recs;
 		
-		add_button = new Button(this, "Add New Service");
-		add_button.setStyle(Button.Style.ALINK);
-		add_button.addEventListener(new EventListener() {
-			public void handleEvent(Event e) {
+		add_button = new DivRepButton(this, "Add New Service");
+		add_button.setStyle(DivRepButton.Style.ALINK);
+		add_button.addEventListener(new DivRepEventListener() {
+			public void handleEvent(DivRepEvent e) {
 				addService(new ResourceServiceRecord());
 			}
 		});
@@ -238,7 +238,7 @@ public class ResourceServices extends FormElement {
 	}
 
 	@Override
-	protected void onEvent(Event e) {
+	protected void onEvent(DivRepEvent e) {
 		// TODO Auto-generated method stub
 
 	}

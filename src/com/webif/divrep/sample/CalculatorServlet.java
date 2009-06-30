@@ -8,14 +8,14 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.webif.divrep.common.Button;
+import com.webif.divrep.common.DivRepButton;
 import com.webif.divrep.DivRep;
 import com.webif.divrep.DivRepRoot;
-import com.webif.divrep.Event;
-import com.webif.divrep.EventListener;
-import com.webif.divrep.common.Static;
+import com.webif.divrep.DivRepEvent;
+import com.webif.divrep.DivRepEventListener;
+import com.webif.divrep.common.DivRepStaticContent;
 import com.webif.divrep.DivRepRoot.DivRepPage;
-import com.webif.divrep.common.Text;
+import com.webif.divrep.common.DivRepTextBox;
 
 public class CalculatorServlet extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
@@ -47,7 +47,7 @@ public class CalculatorServlet extends HttpServlet {
 			}
 
 			@Override
-			protected void onEvent(Event e) {
+			protected void onEvent(DivRepEvent e) {
 				// TODO Auto-generated method stub
 				
 			}
@@ -73,7 +73,7 @@ public class CalculatorServlet extends HttpServlet {
 				// TODO Auto-generated constructor stub
 			}
 
-			protected void onEvent(Event e) {
+			protected void onEvent(DivRepEvent e) {
 			}
 		
 			abstract public Double calculate() throws Exception;
@@ -81,11 +81,11 @@ public class CalculatorServlet extends HttpServlet {
 		
 		class Constant extends CalcNode
 		{
-			Text constant = new Text(this);
+			DivRepTextBox constant = new DivRepTextBox(this);
 			public Constant(DivRep _parent) {
 				super(_parent);
-				constant.addEventListener(new EventListener() {
-					public void handleEvent(Event e) {
+				constant.addEventListener(new DivRepEventListener() {
+					public void handleEvent(DivRepEvent e) {
 						result.redraw();
 						
 					}});
@@ -98,7 +98,7 @@ public class CalculatorServlet extends HttpServlet {
 				out.write("</div>");
 			}
 
-			protected void onEvent(Event e) {
+			protected void onEvent(DivRepEvent e) {
 				super.onEvent(e);
 			}
 			public Double calculate() throws Exception { return Double.parseDouble(constant.getValue()); }
@@ -108,13 +108,13 @@ public class CalculatorServlet extends HttpServlet {
 		{
 			CalcNode instance;
 
-			Button clearbutton;
+			DivRepButton clearbutton;
 			
-			Button becomepluslogic;
-			Button becomeminuslogic;
-			Button becomemultiplylogic;
-			Button becomedividelogic;
-			Button becomeconstant;
+			DivRepButton becomepluslogic;
+			DivRepButton becomeminuslogic;
+			DivRepButton becomemultiplylogic;
+			DivRepButton becomedividelogic;
+			DivRepButton becomeconstant;
 			
 			public StemCellNode(DivRep _parent) {
 				super(_parent);
@@ -122,44 +122,44 @@ public class CalculatorServlet extends HttpServlet {
 				instance = null;
 				
 				//selector components
-				becomepluslogic = new Button(this, "+");
-				becomepluslogic.addEventListener(new EventListener() {
-					public void handleEvent(Event e) {
+				becomepluslogic = new DivRepButton(this, "+");
+				becomepluslogic.addEventListener(new DivRepEventListener() {
+					public void handleEvent(DivRepEvent e) {
 						instance = new LogicAddition(StemCellNode.this);
 						StemCellNode.this.redraw();
 					}});
 				
-				becomeminuslogic = new Button(this, "-");
-				becomeminuslogic.addEventListener(new EventListener() {
-					public void handleEvent(Event e) {
+				becomeminuslogic = new DivRepButton(this, "-");
+				becomeminuslogic.addEventListener(new DivRepEventListener() {
+					public void handleEvent(DivRepEvent e) {
 						instance = new LogicSubtraction(StemCellNode.this);
 						StemCellNode.this.redraw();
 					}});
 				
-				becomemultiplylogic = new Button(this, "x");
-				becomemultiplylogic.addEventListener(new EventListener() {
-					public void handleEvent(Event e) {
+				becomemultiplylogic = new DivRepButton(this, "x");
+				becomemultiplylogic.addEventListener(new DivRepEventListener() {
+					public void handleEvent(DivRepEvent e) {
 						instance = new LogicMultiplication(StemCellNode.this);
 						StemCellNode.this.redraw();
 					}});
 				
-				becomedividelogic = new Button(this, "/");
-				becomedividelogic.addEventListener(new EventListener() {
-					public void handleEvent(Event e) {
+				becomedividelogic = new DivRepButton(this, "/");
+				becomedividelogic.addEventListener(new DivRepEventListener() {
+					public void handleEvent(DivRepEvent e) {
 						instance = new LogicDivision(StemCellNode.this);
 						StemCellNode.this.redraw();
 					}});
 				
-				becomeconstant = new Button(this, "123");
-				becomeconstant.addEventListener(new EventListener() {
-					public void handleEvent(Event e) {
+				becomeconstant = new DivRepButton(this, "123");
+				becomeconstant.addEventListener(new DivRepEventListener() {
+					public void handleEvent(DivRepEvent e) {
 						instance = new Constant(StemCellNode.this);
 						StemCellNode.this.redraw();
 					}});
 				
-				clearbutton = new Button(this, "Remove");
-				clearbutton.addEventListener(new EventListener() {
-					public void handleEvent(Event e) {
+				clearbutton = new DivRepButton(this, "Remove");
+				clearbutton.addEventListener(new DivRepEventListener() {
+					public void handleEvent(DivRepEvent e) {
 						instance = null;
 						StemCellNode.this.redraw();
 						result.redraw();
@@ -284,7 +284,7 @@ public class CalculatorServlet extends HttpServlet {
 			root = new StemCellNode(this);
 			result = new Result(this);
 		}	
-		protected void onEvent(Event e) {
+		protected void onEvent(DivRepEvent e) {
 			// TODO Auto-generated method stub
 		}
 		public void render(PrintWriter out) {

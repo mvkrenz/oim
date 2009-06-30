@@ -8,14 +8,14 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 
 import com.webif.divrep.DivRep;
-import com.webif.divrep.common.Static;
+import com.webif.divrep.common.DivRepStaticContent;
 import com.webif.divrep.common.CheckBoxFormElement;
-import com.webif.divrep.common.FormBase;
-import com.webif.divrep.common.Select;
-import com.webif.divrep.common.TextArea;
-import com.webif.divrep.common.Text;
-import com.webif.divrep.validator.UniqueValidator;
-import com.webif.divrep.validator.UrlValidator;
+import com.webif.divrep.common.DivRepForm;
+import com.webif.divrep.common.DivRepSelectBox;
+import com.webif.divrep.common.DivRepTextArea;
+import com.webif.divrep.common.DivRepTextBox;
+import com.webif.divrep.validator.DivRepUniqueValidator;
+import com.webif.divrep.validator.DivRepUrlValidator;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
@@ -46,7 +46,7 @@ import edu.iu.grid.oim.view.divrep.OIMHierarchySelector;
 import edu.iu.grid.oim.view.divrep.ResourceAlias;
 import edu.iu.grid.oim.view.divrep.ResourceServices;
 
-public class ServiceGroupFormDE extends FormBase 
+public class ServiceGroupFormDE extends DivRepForm 
 {
     static Logger log = Logger.getLogger(ServiceGroupFormDE.class); 
     private Context context;
@@ -54,8 +54,8 @@ public class ServiceGroupFormDE extends FormBase
 	protected Authorization auth;
 	private Integer id;
 	
-	private Text name;
-	private TextArea description;
+	private DivRepTextBox name;
+	private DivRepTextArea description;
 	
 	public ServiceGroupFormDE(Context _context, ServiceGroupRecord rec, String origin_url) throws AuthorizationException, SQLException
 	{	
@@ -65,7 +65,7 @@ public class ServiceGroupFormDE extends FormBase
 		
 		id = rec.id;
 		
-		new Static(this, "<h2>Details</h2>");
+		new DivRepStaticContent(this, "<h2>Details</h2>");
 		
 		//pull vos for unique validator
 		HashMap<Integer, String> resource_groups = getResourceGroups();
@@ -74,13 +74,13 @@ public class ServiceGroupFormDE extends FormBase
 			resource_groups.remove(id);
 		}
 		
-		name = new Text(this);
+		name = new DivRepTextBox(this);
 		name.setLabel("Name");
 		name.setValue(rec.name);
-		name.addValidator(new UniqueValidator<String>(resource_groups.values()));
+		name.addValidator(new DivRepUniqueValidator<String>(resource_groups.values()));
 		name.setRequired(true);
 		
-		description = new TextArea(this);
+		description = new DivRepTextArea(this);
 		description.setLabel("Description");
 		description.setValue(rec.description);
 		description.setRequired(true);

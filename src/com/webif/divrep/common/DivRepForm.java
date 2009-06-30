@@ -3,36 +3,36 @@ package com.webif.divrep.common;
 import java.io.PrintWriter;
 
 import com.webif.divrep.DivRep;
-import com.webif.divrep.Event;
-import com.webif.divrep.EventListener;
+import com.webif.divrep.DivRepEvent;
+import com.webif.divrep.DivRepEventListener;
 
-abstract public class FormBase extends DivRep {
+abstract public class DivRepForm extends DivRep {
 	
 	//URL to go after cancel or submit button is selected
 	private String origin_url;
 	
-	public Button submitbutton;
-	public Button cancelbutton;
+	public DivRepButton submitbutton;
+	public DivRepButton cancelbutton;
 	
 	//private String error;
 	private Boolean valid;
 	
-	public FormBase(DivRep parent, String _origin_url)
+	public DivRepForm(DivRep parent, String _origin_url)
 	{
 		super(parent);
 		
 		origin_url = _origin_url;
 		
-		submitbutton = new Button(this, "Submit");
-		submitbutton.addEventListener(new EventListener() {
-			public void handleEvent(Event e) { submit(); }
+		submitbutton = new DivRepButton(this, "Submit");
+		submitbutton.addEventListener(new DivRepEventListener() {
+			public void handleEvent(DivRepEvent e) { submit(); }
 		});
 		submitbutton.addClass("divrep_submit");
 		
-		cancelbutton = new Button(this, "Cancel");
-		cancelbutton.setStyle(Button.Style.ALINK);
-		cancelbutton.addEventListener(new EventListener() {
-			public void handleEvent(Event e) { 
+		cancelbutton = new DivRepButton(this, "Cancel");
+		cancelbutton.setStyle(DivRepButton.Style.ALINK);
+		cancelbutton.addEventListener(new DivRepEventListener() {
+			public void handleEvent(DivRepEvent e) { 
 				modified(false);
 				redirect(origin_url); 
 			}
@@ -61,8 +61,8 @@ abstract public class FormBase extends DivRep {
 		
 		//validate *all* elements
 		for(DivRep child : childnodes) {
-			if(child instanceof FormElement) { 
-				FormElement element = (FormElement)child;
+			if(child instanceof DivRepFormElement) { 
+				DivRepFormElement element = (DivRepFormElement)child;
 				if(element != null && !element.isHidden()) {
 					if(!element.isValid()) {
 						valid = false;
@@ -72,7 +72,7 @@ abstract public class FormBase extends DivRep {
 		}
 	}
 	
-	protected void onEvent(Event e) {
+	protected void onEvent(DivRepEvent e) {
 		// TODO Auto-generated method stub
 		
 	}
@@ -84,7 +84,7 @@ abstract public class FormBase extends DivRep {
 			//we display submit / cancel button at the end
 			if(child == submitbutton || child == cancelbutton) continue;
 			
-			if(child instanceof FormElement) {
+			if(child instanceof DivRepFormElement) {
 				out.print("<div class=\"form_element\">");
 				child.render(out);
 				out.print("</div>");

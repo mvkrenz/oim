@@ -1,9 +1,9 @@
 package com.webif.divrep.validator;
 
-public class EmailValidator implements IFormElementValidator<String>
+public class DivRepEmailValidator implements DivRepIValidator<String>
 {
-	static private EmailValidator singleton = new EmailValidator();
-	static public EmailValidator getInstance() { return singleton; }
+	static private DivRepEmailValidator singleton = new DivRepEmailValidator();
+	static public DivRepEmailValidator getInstance() { return singleton; }
 	
 	public Boolean isValid(String value) {
 		return org.apache.commons.validator.EmailValidator.getInstance().isValid(value);

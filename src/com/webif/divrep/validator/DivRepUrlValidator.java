@@ -1,9 +1,9 @@
 package com.webif.divrep.validator;
 
-public class UrlValidator implements IFormElementValidator<String>
+public class DivRepUrlValidator implements DivRepIValidator<String>
 {
-	static private UrlValidator singleton = new UrlValidator();
-	static public UrlValidator getInstance() { return singleton; }
+	static private DivRepUrlValidator singleton = new DivRepUrlValidator();
+	static public DivRepUrlValidator getInstance() { return singleton; }
 	
 	static String[] schemes = {"http","https"};
 	static private org.apache.commons.validator.UrlValidator urlvalidator = new org.apache.commons.validator.UrlValidator(schemes);

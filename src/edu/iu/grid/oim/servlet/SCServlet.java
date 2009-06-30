@@ -14,10 +14,10 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 
-import com.webif.divrep.common.Button;
+import com.webif.divrep.common.DivRepButton;
 import com.webif.divrep.DivRep;
-import com.webif.divrep.Event;
-import com.webif.divrep.common.Toggler;
+import com.webif.divrep.DivRepEvent;
+import com.webif.divrep.common.DivRepToggler;
 
 import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.model.db.ContactRankModel;
@@ -85,9 +85,9 @@ public class SCServlet extends ServletBase implements Servlet {
 			RecordTableView table = new RecordTableView();
 			// TODO agopu: 10 is an arbitrary number -- perhaps we should make this a user preference? show/hide?
 			if (scs.size() > 10) {
-				contentview.add(new Toggler(context.getPageRoot(), new ViewWrapper(context.getPageRoot(), table),false));
+				contentview.add(new DivRepToggler(context.getPageRoot(), new ViewWrapper(context.getPageRoot(), table),false));
 			} else {
-				contentview.add(new Toggler(context.getPageRoot(), new ViewWrapper(context.getPageRoot(), table),true));
+				contentview.add(new DivRepToggler(context.getPageRoot(), new ViewWrapper(context.getPageRoot(), table),true));
 			}
 			//contentview.add(table);
 
@@ -134,7 +134,7 @@ public class SCServlet extends ServletBase implements Servlet {
 			table.addRow("Active", rec.active);
 			table.addRow("Disable", rec.disable);
 		
-			class EditButtonDE extends Button
+			class EditButtonDE extends DivRepButton
 			{
 				String url;
 				public EditButtonDE(DivRep parent, String _url)
@@ -142,7 +142,7 @@ public class SCServlet extends ServletBase implements Servlet {
 					super(parent, "Edit");
 					url = _url;
 				}
-				protected void onEvent(Event e) {
+				protected void onEvent(DivRepEvent e) {
 					redirect(url);
 				}
 			};
@@ -156,7 +156,7 @@ public class SCServlet extends ServletBase implements Servlet {
 	{
 		SideContentView view = new SideContentView();
 		
-		class NewButtonDE extends Button
+		class NewButtonDE extends DivRepButton
 		{
 			String url;
 			public NewButtonDE(DivRep parent, String _url)
@@ -164,7 +164,7 @@ public class SCServlet extends ServletBase implements Servlet {
 				super(parent, "Add New Support Center");
 				url = _url;
 			}
-			protected void onEvent(Event e) {
+			protected void onEvent(DivRepEvent e) {
 				redirect(url);
 			}
 		};

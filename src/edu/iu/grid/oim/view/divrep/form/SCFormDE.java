@@ -4,12 +4,12 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import org.apache.log4j.Logger;
-import com.webif.divrep.common.Static;
+import com.webif.divrep.common.DivRepStaticContent;
 import com.webif.divrep.common.CheckBoxFormElement;
-import com.webif.divrep.common.FormBase;
-import com.webif.divrep.common.TextArea;
-import com.webif.divrep.common.Text;
-import com.webif.divrep.validator.UniqueValidator;
+import com.webif.divrep.common.DivRepForm;
+import com.webif.divrep.common.DivRepTextArea;
+import com.webif.divrep.common.DivRepTextBox;
+import com.webif.divrep.validator.DivRepUniqueValidator;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
@@ -24,7 +24,7 @@ import edu.iu.grid.oim.model.db.record.SCRecord;
 import edu.iu.grid.oim.model.db.record.SCContactRecord;
 import edu.iu.grid.oim.view.divrep.ContactEditor;
 
-public class SCFormDE extends FormBase 
+public class SCFormDE extends DivRepForm 
 {
     static Logger log = Logger.getLogger(SCFormDE.class); 
     private Context context;
@@ -32,11 +32,11 @@ public class SCFormDE extends FormBase
 	protected Authorization auth;
 	private Integer id;
 	
-	private Text name;
-	private Text long_name;
-	private TextArea description;
-	private TextArea community;
-	private Text footprints_id;
+	private DivRepTextBox name;
+	private DivRepTextBox long_name;
+	private DivRepTextArea description;
+	private DivRepTextArea community;
+	private DivRepTextBox footprints_id;
 	private CheckBoxFormElement active;
 	private CheckBoxFormElement disable;
 	
@@ -58,7 +58,7 @@ public class SCFormDE extends FormBase
 		
 		id = rec.id;
 		
-		new Static(this, "<h2>Details</h2>");
+		new DivRepStaticContent(this, "<h2>Details</h2>");
 		
 		//pull SCs for unique validator
 		HashMap<Integer, String> scs = getSCs();
@@ -66,31 +66,31 @@ public class SCFormDE extends FormBase
 			//if doing update, remove my own name (I can use my own name)
 			scs.remove(id);
 		}
-		name = new Text(this);
+		name = new DivRepTextBox(this);
 		name.setLabel("Name");
 		name.setValue(rec.name);
-		name.addValidator(new UniqueValidator<String>(scs.values()));
+		name.addValidator(new DivRepUniqueValidator<String>(scs.values()));
 		name.setRequired(true);
 		name.setSampleValue("GOC");
 		
-		long_name = new Text(this);
+		long_name = new DivRepTextBox(this);
 		long_name.setLabel("Enter a Long Name for this SC");
 		long_name.setValue(rec.long_name);
 		long_name.setRequired(true);
 		long_name.setSampleValue("OpenScienceGrid Operations Center");
 				
-		description = new TextArea(this);
+		description = new DivRepTextArea(this);
 		description.setLabel("Enter a Description");
 		description.setValue(rec.description);
 		description.setRequired(true);
 
 		// TODO agopu Is this really necessary in both VO and SC?
-		community = new TextArea(this);
+		community = new DivRepTextArea(this);
 		community.setLabel("Enter the Community this SC supports");
 		community.setValue(rec.community);
 		community.setRequired(true);
 
-		new Static(this, "<h2>Contact Information</h2>");
+		new DivRepStaticContent(this, "<h2>Contact Information</h2>");
 		HashMap<Integer/*contact_type_id*/, ArrayList<SCContactRecord>> scclist_grouped = null;
 		if(id != null) {
 			SCContactModel sccmodel = new SCContactModel(context);
@@ -119,9 +119,9 @@ public class SCFormDE extends FormBase
 			contact_editors.put(contact_type_id, editor);
 		}
 		if(auth.allows("admin")) {
-			new Static(this, "<h2>Administrative Tasks</h2>");
+			new DivRepStaticContent(this, "<h2>Administrative Tasks</h2>");
 		}
-		footprints_id = new Text(this);
+		footprints_id = new DivRepTextBox(this);
 		footprints_id.setLabel("Footprints ID");
 		footprints_id.setValue(rec.footprints_id);
 		footprints_id.setRequired(true);
@@ -146,7 +146,7 @@ public class SCFormDE extends FormBase
 	
 	private ContactEditor createContactEditor(HashMap<Integer, ArrayList<SCContactRecord>> scclist, ContactTypeRecord ctrec) throws SQLException
 	{
-		new Static(this, "<h3>" + ctrec.name + "</h3>");
+		new DivRepStaticContent(this, "<h3>" + ctrec.name + "</h3>");
 		ContactModel pmodel = new ContactModel(context);		
 		ContactEditor editor = new ContactEditor(this, pmodel, ctrec.allow_secondary, ctrec.allow_tertiary);
 		

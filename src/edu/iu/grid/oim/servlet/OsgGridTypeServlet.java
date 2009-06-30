@@ -14,10 +14,10 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 
-import com.webif.divrep.common.Button;
+import com.webif.divrep.common.DivRepButton;
 import com.webif.divrep.DivRep;
 import com.webif.divrep.DivRepRoot;
-import com.webif.divrep.Event;
+import com.webif.divrep.DivRepEvent;
 
 import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.model.db.OsgGridTypeModel;
@@ -81,7 +81,7 @@ public class OsgGridTypeServlet extends ServletBase implements Servlet {
 			contentview.add(table);
 			table.addRow("Description", rec.description);
 			
-			class EditButtonDE extends Button
+			class EditButtonDE extends DivRepButton
 			{
 				String url;
 				public EditButtonDE(DivRep parent, String _url)
@@ -89,7 +89,7 @@ public class OsgGridTypeServlet extends ServletBase implements Servlet {
 					super(parent, "Edit");
 					url = _url;
 				}
-				protected void onEvent(Event e) {
+				protected void onEvent(DivRepEvent e) {
 					redirect(url);
 				}
 			};
@@ -103,7 +103,7 @@ public class OsgGridTypeServlet extends ServletBase implements Servlet {
 	{
 		SideContentView view = new SideContentView();
 		
-		class NewButtonDE extends Button
+		class NewButtonDE extends DivRepButton
 		{
 			String url;
 			public NewButtonDE(DivRep parent, String _url)
@@ -111,7 +111,7 @@ public class OsgGridTypeServlet extends ServletBase implements Servlet {
 				super(parent, "Add New OSG Grid Type");
 				url = _url;
 			}
-			protected void onEvent(Event e) {
+			protected void onEvent(DivRepEvent e) {
 				redirect(url);
 			}
 		};

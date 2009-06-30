@@ -16,15 +16,15 @@ import org.geonames.ToponymSearchResult;
 import org.geonames.WebService;
 
 import com.webif.divrep.DivRep;
-import com.webif.divrep.Event;
-import com.webif.divrep.common.Static;
+import com.webif.divrep.DivRepEvent;
+import com.webif.divrep.common.DivRepStaticContent;
 import com.webif.divrep.common.CheckBoxFormElement;
-import com.webif.divrep.common.FormBase;
-import com.webif.divrep.common.Select;
-import com.webif.divrep.common.TextArea;
-import com.webif.divrep.common.Text;
-import com.webif.divrep.validator.UniqueValidator;
-import com.webif.divrep.validator.UrlValidator;
+import com.webif.divrep.common.DivRepForm;
+import com.webif.divrep.common.DivRepSelectBox;
+import com.webif.divrep.common.DivRepTextArea;
+import com.webif.divrep.common.DivRepTextBox;
+import com.webif.divrep.validator.DivRepUniqueValidator;
+import com.webif.divrep.validator.DivRepUrlValidator;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
@@ -46,7 +46,7 @@ import edu.iu.grid.oim.view.divrep.ContactEditor.Rank;
 
 import java.lang.Double;
 
-public class SiteFormDE extends FormBase 
+public class SiteFormDE extends DivRepForm 
 {
     static Logger log = Logger.getLogger(SiteFormDE.class); 
     
@@ -54,18 +54,18 @@ public class SiteFormDE extends FormBase
 	protected Authorization auth;
 	private Integer id;
 	
-	private Text name;
-	private Text long_name;
-	private TextArea description;
-	private Text address_line_1;
-	private Text address_line_2;
-	private Text city;
-	private Text state;
-	private Text zipcode;
-	private Text country;
+	private DivRepTextBox name;
+	private DivRepTextBox long_name;
+	private DivRepTextArea description;
+	private DivRepTextBox address_line_1;
+	private DivRepTextBox address_line_2;
+	private DivRepTextBox city;
+	private DivRepTextBox state;
+	private DivRepTextBox zipcode;
+	private DivRepTextBox country;
 	private LatLngSelector latlng;
-	private Select sc_id;
-	private Select facility_id;
+	private DivRepSelectBox sc_id;
+	private DivRepSelectBox facility_id;
 	private CheckBoxFormElement active;
 	private CheckBoxFormElement disable;
 	
@@ -76,8 +76,8 @@ public class SiteFormDE extends FormBase
 		auth = context.getAuthorization();
 		id = rec.id;
 		
-		new Static(this, "<h2>Site Information</h2>");
-		new Static(this, "<p>Add/modify basic information about this site.<br>NOTE: A site represents a department or a sub-organization within a an instituition (like BNL, Fermilab, etc.) or a university, referred to as facility.</p>");
+		new DivRepStaticContent(this, "<h2>Site Information</h2>");
+		new DivRepStaticContent(this, "<p>Add/modify basic information about this site.<br>NOTE: A site represents a department or a sub-organization within a an instituition (like BNL, Fermilab, etc.) or a university, referred to as facility.</p>");
 
 		//pull sites for unique validator
 		TreeMap<Integer, String> sites = getSites();
@@ -86,61 +86,61 @@ public class SiteFormDE extends FormBase
 			sites.remove(id);
 		}
 
-		facility_id = new Select(this, getFacilities());
-		facility_id.setLabel("Select the facility this site is part of");
+		facility_id = new DivRepSelectBox(this, getFacilities());
+		facility_id.setLabel("DivRepSelectBox the facility this site is part of");
 		facility_id.setValue(rec.facility_id);
 		facility_id.setRequired(true);
 
-		name = new Text(this);
+		name = new DivRepTextBox(this);
 		name.setLabel("Enter this Site's short Name");
 		name.setValue(rec.name);
-		name.addValidator(new UniqueValidator<String>(sites.values()));
+		name.addValidator(new DivRepUniqueValidator<String>(sites.values()));
 		name.setRequired(true);
 		
-		long_name = new Text(this);
+		long_name = new DivRepTextBox(this);
 		long_name.setLabel("Enter Longer Name, if applicable");
 		long_name.setValue(rec.long_name);
 		long_name.setRequired(false);
 				
-		description = new TextArea(this);
+		description = new DivRepTextArea(this);
 		description.setLabel("Enter Site Description");
 		description.setValue(rec.description);
 		description.setRequired(false);
 
-		sc_id = new Select(this, getSCs());
-		sc_id.setLabel("Select Support Center for this Site");
+		sc_id = new DivRepSelectBox(this, getSCs());
+		sc_id.setLabel("DivRepSelectBox Support Center for this Site");
 		sc_id.setValue(rec.sc_id);
 		sc_id.setRequired(true);
 
-		new Static(this, "<h2>Geographical Address Information</h2>");
-		address_line_1 = new Text(this);
+		new DivRepStaticContent(this, "<h2>Geographical Address Information</h2>");
+		address_line_1 = new DivRepTextBox(this);
 		address_line_1.setLabel("Street Address");
 		address_line_1.setValue(rec.address_line_1);
 		address_line_1.setRequired(false);
 
-		address_line_2 = new Text(this);
+		address_line_2 = new DivRepTextBox(this);
 		address_line_2.setLabel("Address Line 2");
 		address_line_2.setValue(rec.address_line_2);
 		address_line_2.setRequired(false);
 
-		city = new Text(this);
+		city = new DivRepTextBox(this);
 		city.setLabel("City");
 		city.setValue(rec.city);
 		city.setRequired(true);//on DB, this is non-nullable
 
 		// Need to make this dropdown? probably not.
-		state = new Text(this);
+		state = new DivRepTextBox(this);
 		state.setLabel("State");
 		state.setValue(rec.state);
 		state.setRequired(true);
 
-		zipcode = new Text(this);
+		zipcode = new DivRepTextBox(this);
 		zipcode.setLabel("Zipcode");
 		zipcode.setValue(rec.zipcode);
 		zipcode.setRequired(true);
 
 		// Need to make this drop down. -agopu
-		country = new Text(this);
+		country = new DivRepTextBox(this);
 		country.setLabel("Country");
 		country.setValue(rec.country);
 		country.setRequired(true);
@@ -150,7 +150,7 @@ public class SiteFormDE extends FormBase
 		latlng.setValue(latlng.new LatLng(rec.latitude, rec.longitude));
 		
 		if(auth.allows("admin")) {
-			new Static(this, "<h2>Administrative Tasks</h2>");
+			new DivRepStaticContent(this, "<h2>Administrative Tasks</h2>");
 		}
 
 		active = new CheckBoxFormElement(this);

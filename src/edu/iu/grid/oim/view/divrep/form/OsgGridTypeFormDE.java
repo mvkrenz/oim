@@ -10,15 +10,15 @@ import java.util.HashMap;
 import org.apache.log4j.Logger;
 
 import com.webif.divrep.DivRep;
-import com.webif.divrep.Event;
-import com.webif.divrep.common.Static;
+import com.webif.divrep.DivRepEvent;
+import com.webif.divrep.common.DivRepStaticContent;
 import com.webif.divrep.common.CheckBoxFormElement;
-import com.webif.divrep.common.FormBase;
-import com.webif.divrep.common.Select;
-import com.webif.divrep.common.TextArea;
-import com.webif.divrep.common.Text;
-import com.webif.divrep.validator.UniqueValidator;
-import com.webif.divrep.validator.UrlValidator;
+import com.webif.divrep.common.DivRepForm;
+import com.webif.divrep.common.DivRepSelectBox;
+import com.webif.divrep.common.DivRepTextArea;
+import com.webif.divrep.common.DivRepTextBox;
+import com.webif.divrep.validator.DivRepUniqueValidator;
+import com.webif.divrep.validator.DivRepUrlValidator;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
@@ -34,7 +34,7 @@ import edu.iu.grid.oim.model.db.record.SCRecord;
 import edu.iu.grid.oim.model.db.record.OsgGridTypeRecord;
 import edu.iu.grid.oim.view.divrep.ContactEditor;
 
-public class OsgGridTypeFormDE extends FormBase 
+public class OsgGridTypeFormDE extends DivRepForm 
 {
     static Logger log = Logger.getLogger(OsgGridTypeFormDE.class); 
     
@@ -42,8 +42,8 @@ public class OsgGridTypeFormDE extends FormBase
     private Authorization auth;
 	private Integer id;
 	
-	private Text name;
-	private TextArea description;
+	private DivRepTextBox name;
+	private DivRepTextArea description;
 	
 	public OsgGridTypeFormDE(Context _context, OsgGridTypeRecord rec, String origin_url) throws AuthorizationException, SQLException
 	{	
@@ -58,13 +58,13 @@ public class OsgGridTypeFormDE extends FormBase
 			//if doing update, remove my own name (I can use my own name)
 			osg_grid_types.remove(id);
 		}
-		name = new Text(this);
+		name = new DivRepTextBox(this);
 		name.setLabel("Name");
 		name.setValue(rec.name);
-		name.addValidator(new UniqueValidator<String>(osg_grid_types.values()));
+		name.addValidator(new DivRepUniqueValidator<String>(osg_grid_types.values()));
 		name.setRequired(true);
 		
-		description = new TextArea(this);
+		description = new DivRepTextArea(this);
 		description.setLabel("Description");
 		description.setValue(rec.description);
 		description.setRequired(true);
@@ -112,7 +112,7 @@ public class OsgGridTypeFormDE extends FormBase
 	}
 
 	@Override
-	protected void onEvent(Event e) {
+	protected void onEvent(DivRepEvent e) {
 		// TODO Auto-generated method stub
 		
 	}

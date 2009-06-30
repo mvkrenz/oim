@@ -3,7 +3,7 @@ package edu.iu.grid.oim.view.divrep;
 import java.io.PrintWriter;
 
 import com.webif.divrep.DivRep;
-import com.webif.divrep.Event;
+import com.webif.divrep.DivRepEvent;
 
 import edu.iu.grid.oim.view.IView;
 
@@ -15,7 +15,7 @@ public class ViewWrapper extends DivRep {
 		content = _content;
 	}
 
-	protected void onEvent(Event e) {
+	protected void onEvent(DivRepEvent e) {
 		// TODO Auto-generated method stub
 
 	}

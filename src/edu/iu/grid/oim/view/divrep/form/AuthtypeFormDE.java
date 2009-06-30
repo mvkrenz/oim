@@ -3,10 +3,10 @@ package edu.iu.grid.oim.view.divrep.form;
 import java.sql.SQLException;
 import java.util.HashMap;
 import org.apache.log4j.Logger;
-import com.webif.divrep.Event;
-import com.webif.divrep.common.FormBase;
-import com.webif.divrep.common.Text;
-import com.webif.divrep.validator.UniqueValidator;
+import com.webif.divrep.DivRepEvent;
+import com.webif.divrep.common.DivRepForm;
+import com.webif.divrep.common.DivRepTextBox;
+import com.webif.divrep.validator.DivRepUniqueValidator;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
@@ -14,7 +14,7 @@ import edu.iu.grid.oim.model.Context;
 import edu.iu.grid.oim.model.db.AuthorizationTypeModel;
 import edu.iu.grid.oim.model.db.record.AuthorizationTypeRecord;
 
-public class AuthtypeFormDE extends FormBase 
+public class AuthtypeFormDE extends DivRepForm 
 {
     static Logger log = Logger.getLogger(AuthtypeFormDE.class); 
     
@@ -22,7 +22,7 @@ public class AuthtypeFormDE extends FormBase
     private Authorization auth;
 	private Integer id;
 	
-	private Text name;
+	private DivRepTextBox name;
 	
 	public AuthtypeFormDE(Context _context, AuthorizationTypeRecord rec, String origin_url) throws AuthorizationException, SQLException
 	{	
@@ -37,10 +37,10 @@ public class AuthtypeFormDE extends FormBase
 			//if doing update, remove my own name (I can use my own name)
 			auth_types.remove(id);
 		}
-		name = new Text(this);
+		name = new DivRepTextBox(this);
 		name.setLabel("Name");
 		name.setValue(rec.name);
-		name.addValidator(new UniqueValidator<String>(auth_types.values()));
+		name.addValidator(new DivRepUniqueValidator<String>(auth_types.values()));
 		name.setRequired(true);
 	}
 	
@@ -82,7 +82,7 @@ public class AuthtypeFormDE extends FormBase
 	}
 
 	@Override
-	protected void onEvent(Event e) {
+	protected void onEvent(DivRepEvent e) {
 		// TODO Auto-generated method stub
 		
 	}

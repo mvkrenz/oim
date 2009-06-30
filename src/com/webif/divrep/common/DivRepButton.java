@@ -6,9 +6,9 @@ import java.util.ArrayList;
 import org.apache.commons.lang.StringEscapeUtils;
 
 import com.webif.divrep.DivRep;
-import com.webif.divrep.Event;
+import com.webif.divrep.DivRepEvent;
 
-public class Button extends DivRep {
+public class DivRepButton extends DivRep {
 	String title;
 	
 	private ArrayList<String> classes = new ArrayList<String>();
@@ -36,7 +36,7 @@ public class Button extends DivRep {
 	}
 	
 	//if the button style is IMAGE, _title will be used as URL
-	public Button(DivRep parent, String _title) {
+	public DivRepButton(DivRep parent, String _title) {
 		super(parent);
 		title = _title;
 	}
@@ -72,6 +72,6 @@ public class Button extends DivRep {
 
 	//user should override this to intercept click event.
 	//or use event listener
-	protected void onEvent(Event e) {}
+	protected void onEvent(DivRepEvent e) {}
 
 }

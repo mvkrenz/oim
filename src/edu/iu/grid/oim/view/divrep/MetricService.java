@@ -5,14 +5,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.TreeMap;
 
-import com.webif.divrep.common.Button;
+import com.webif.divrep.common.DivRepButton;
 import com.webif.divrep.DivRep;
-import com.webif.divrep.Event;
-import com.webif.divrep.EventListener;
+import com.webif.divrep.DivRepEvent;
+import com.webif.divrep.DivRepEventListener;
 import com.webif.divrep.common.CheckBoxFormElement;
-import com.webif.divrep.common.FormElement;
-import com.webif.divrep.common.Select;
-import com.webif.divrep.common.Text;
+import com.webif.divrep.common.DivRepFormElement;
+import com.webif.divrep.common.DivRepSelectBox;
+import com.webif.divrep.common.DivRepTextBox;
 
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.MetricServiceRecord;
@@ -20,33 +20,33 @@ import edu.iu.grid.oim.model.db.record.ResourceAliasRecord;
 import edu.iu.grid.oim.view.divrep.ContactEditor.ContactDE;
 import edu.iu.grid.oim.view.divrep.ContactEditor.Rank;
 
-public class MetricService extends FormElement {
+public class MetricService extends DivRepFormElement {
 
 	//ArrayList<AliasEditor> aliases = new ArrayList<AliasEditor>();
-	private Button add_button;
+	private DivRepButton add_button;
 	TreeMap<Integer, String> metric_kv;
 	
-	class MetricEditor extends FormElement
+	class MetricEditor extends DivRepFormElement
 	{
-		private Select metric;
+		private DivRepSelectBox metric;
 		private CheckBoxFormElement critical;
-		private Button remove_button;
+		private DivRepButton remove_button;
 		private MetricEditor myself;
 		
 		protected MetricEditor(DivRep parent) {
 			super(parent);
 			myself = this;
 			
-			metric = new Select(this, metric_kv);
+			metric = new DivRepSelectBox(this, metric_kv);
 			metric.setLabel("Metric Name");
 			
 			critical = new CheckBoxFormElement(this);
 			critical.setLabel("This is a critical metric for this service");
 			
-			remove_button = new Button(this, "images/delete.png");
-			remove_button.setStyle(Button.Style.IMAGE);
-			remove_button.addEventListener(new EventListener() {
-				public void handleEvent(Event e) {
+			remove_button = new DivRepButton(this, "images/delete.png");
+			remove_button.setStyle(DivRepButton.Style.IMAGE);
+			remove_button.addEventListener(new DivRepEventListener() {
+				public void handleEvent(DivRepEvent e) {
 					removeMetric(myself);	
 				}
 			});
@@ -72,7 +72,7 @@ public class MetricService extends FormElement {
 			return rec;
 		}
 
-		protected void onEvent(Event e) {
+		protected void onEvent(DivRepEvent e) {
 			// TODO Auto-generated method stub
 		}
 
@@ -106,10 +106,10 @@ public class MetricService extends FormElement {
 		super(parent);
 		metric_kv = _metric_kv;
 		
-		add_button = new Button(this, "Add New RSV Metric");
-		add_button.setStyle(Button.Style.ALINK);
-		add_button.addEventListener(new EventListener() {
-			public void handleEvent(Event e) {
+		add_button = new DivRepButton(this, "Add New RSV Metric");
+		add_button.setStyle(DivRepButton.Style.ALINK);
+		add_button.addEventListener(new DivRepEventListener() {
+			public void handleEvent(DivRepEvent e) {
 				addMetric(new MetricServiceRecord());
 			}	
 		});
@@ -127,7 +127,7 @@ public class MetricService extends FormElement {
 		return recs;
 	}
 
-	protected void onEvent(Event e) {
+	protected void onEvent(DivRepEvent e) {
 		// TODO Auto-generated method stub
 
 	}

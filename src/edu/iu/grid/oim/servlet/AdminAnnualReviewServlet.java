@@ -9,12 +9,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.log4j.Logger;
 
-import com.webif.divrep.common.Button;
+import com.webif.divrep.common.DivRepButton;
 import com.webif.divrep.DivRepRoot;
-import com.webif.divrep.Event;
-import com.webif.divrep.EventListener;
+import com.webif.divrep.DivRepEvent;
+import com.webif.divrep.DivRepEventListener;
 import com.webif.divrep.DivRepRoot.DivRepPage;
-import com.webif.divrep.common.Text;
+import com.webif.divrep.common.DivRepTextBox;
 
 import edu.iu.grid.oim.model.db.ActionModel;
 import edu.iu.grid.oim.model.db.ConfigModel;
@@ -75,15 +75,15 @@ public class AdminAnnualReviewServlet extends ServletBase implements Servlet {
 			contentview.add(new HtmlView("<p>Annual review process is currently closed.</p>"));
 			contentview.add(new HtmlView("<div class=\"indent\">"));
 			
-			final Text name = new Text(page);
+			final DivRepTextBox name = new DivRepTextBox(page);
 			name.setLabel("New Review Name");
 			name.setSampleValue("Annual OIM review of 2009");
 			name.setRequired(true);
 			contentview.add(name);
 			
-			final Button openbutton = new Button(page, "Open Annual Review");
-			openbutton.addEventListener(new EventListener() {
-				public void handleEvent(Event e) {
+			final DivRepButton openbutton = new DivRepButton(page, "Open Annual Review");
+			openbutton.addEventListener(new DivRepEventListener() {
+				public void handleEvent(DivRepEvent e) {
 					if(name.isValid()) {
 						try {
 							config.set(Config.ANNUAL_REVIEW_OPEN, name.getValue());
@@ -104,9 +104,9 @@ public class AdminAnnualReviewServlet extends ServletBase implements Servlet {
 			contentview.add(new HtmlView("<h2>Annual Review Process</h2>"));
 			contentview.add(new HtmlView("<p><b>" + review_open + "</b> is currently open</p>"));	
 			
-			final Button closebutton = new Button(page, "Close Annual Review");
-			closebutton.addEventListener(new EventListener() {
-				public void handleEvent(Event e) {
+			final DivRepButton closebutton = new DivRepButton(page, "Close Annual Review");
+			closebutton.addEventListener(new DivRepEventListener() {
+				public void handleEvent(DivRepEvent e) {
 					try {
 						config.set(Config.ANNUAL_REVIEW_OPEN, null);
 						closebutton.modified(false);

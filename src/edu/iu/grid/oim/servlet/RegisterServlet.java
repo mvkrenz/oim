@@ -12,15 +12,15 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
 
-import com.webif.divrep.common.Button;
+import com.webif.divrep.common.DivRepButton;
 import com.webif.divrep.DivRep;
 import com.webif.divrep.DivRepRoot;
-import com.webif.divrep.Event;
-import com.webif.divrep.EventListener;
-import com.webif.divrep.common.FormBase;
-import com.webif.divrep.common.Text;
-import com.webif.divrep.validator.IFormElementValidator;
-import com.webif.divrep.validator.UniqueValidator;
+import com.webif.divrep.DivRepEvent;
+import com.webif.divrep.DivRepEventListener;
+import com.webif.divrep.common.DivRepForm;
+import com.webif.divrep.common.DivRepTextBox;
+import com.webif.divrep.validator.DivRepIValidator;
+import com.webif.divrep.validator.DivRepUniqueValidator;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.StaticConfig;
@@ -83,7 +83,7 @@ public class RegisterServlet extends ServletBase  {
 	class WizardDE extends DivRep
 	{
 		IWizardPage currentpage = null;
-		protected void onEvent(Event e) {
+		protected void onEvent(DivRepEvent e) {
 			// TODO Auto-generated method stub
 			
 		}
@@ -107,16 +107,16 @@ public class RegisterServlet extends ServletBase  {
 	
 	class GreetingPage extends DivRep implements IWizardPage
  	{
-		Button button;
+		DivRepButton button;
 		WizardDE wizard;
 		public GreetingPage(WizardDE _wizard) {
 			super(_wizard);
 			wizard = _wizard;
-			button = new Button(this, "Register");
-			button.addEventListener(new EventListener() {
+			button = new DivRepButton(this, "Register");
+			button.addEventListener(new DivRepEventListener() {
 
 				@Override
-				public void handleEvent(Event e) {
+				public void handleEvent(DivRepEvent e) {
 					wizard.setPage(new EnterEmailPage(wizard));
 				}});
 		}
@@ -127,35 +127,35 @@ public class RegisterServlet extends ServletBase  {
 			button.render(out);
 		}
 
-		protected void onEvent(Event e) {
+		protected void onEvent(DivRepEvent e) {
 			// TODO Auto-generated method stub
 			
 		}
 	}
-	class EnterEmailPage extends FormBase implements IWizardPage
+	class EnterEmailPage extends DivRepForm implements IWizardPage
  	{
 		WizardDE wizard;
-		private Text name;
-		private Text email;
-		private Text email_check;
-		private Text phone;
+		private DivRepTextBox name;
+		private DivRepTextBox email;
+		private DivRepTextBox email_check;
+		private DivRepTextBox phone;
 		
 		public EnterEmailPage(WizardDE _wizard) {
 			super(_wizard, origin_url);
 			wizard = _wizard;
 			
-			name = new Text(this);
+			name = new DivRepTextBox(this);
 			name.setLabel("Enter Your Full Name");
 			name.setRequired(true);
 			
-			email = new Text(this);
+			email = new DivRepTextBox(this);
 			email.setLabel("Enter Your Email");
 			email.setRequired(true);
 			
-			class CheckValidator implements IFormElementValidator
+			class CheckValidator implements DivRepIValidator
 			{
-				Text other;
-				public CheckValidator(Text _other) {
+				DivRepTextBox other;
+				public CheckValidator(DivRepTextBox _other) {
 					other = _other;
 				}
 				public String getErrorMessage() {
@@ -167,19 +167,19 @@ public class RegisterServlet extends ServletBase  {
 				}
 			}
 			
-			email_check = new Text(this);
+			email_check = new DivRepTextBox(this);
 			email_check.setLabel("Re-enter Your Email");
 			email_check.setRequired(true);
 			email_check.addValidator(new CheckValidator(email));
 			
-			phone = new Text(this);
+			phone = new DivRepTextBox(this);
 			// TODO Need formatting help here -agopu  -- looks like the phone number used by OSG community is very diverse. I don't know how simple is simple enough
 			// validation in our case.. -- hayashis
 			phone.setLabel("Enter Your Phone Number");
 			phone.setRequired(true);
 		}
 
-		protected void onEvent(Event e) {
+		protected void onEvent(DivRepEvent e) {
 			// TODO Auto-generated method stub
 			
 		}

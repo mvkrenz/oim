@@ -9,18 +9,18 @@ import java.util.TreeMap;
 import org.apache.commons.lang.StringEscapeUtils;
 
 import com.webif.divrep.DivRep;
-import com.webif.divrep.Event;
+import com.webif.divrep.DivRepEvent;
 
-public class Select extends FormElement<Integer>
+public class DivRepSelectBox extends DivRepFormElement<Integer>
 {		
 	TreeMap<Integer, String> keyvalues;
 	
-	public Select(DivRep parent, TreeMap<Integer, String> _keyvalues) {
+	public DivRepSelectBox(DivRep parent, TreeMap<Integer, String> _keyvalues) {
 		super(parent);
 		keyvalues = _keyvalues;
 	}
 	
-	//show (Please Select) item with null value
+	//show (Please DivRepSelectBox) item with null value
 	private Boolean hasnull = true;
 	public void setHasNull(Boolean b) { hasnull = b; }
 	
@@ -36,7 +36,7 @@ public class Select extends FormElement<Integer>
 			int random = (int)(Math.random()*10000);
 			out.write("<select id='"+random+"' onchange='divrep(\""+getNodeID()+"\", event, this.value);'>");
 			if(hasnull) {
-				out.write("<option value=\"\">(Please Select)</option>");
+				out.write("<option value=\"\">(Please DivRepSelectBox)</option>");
 			}
 			for(Integer v : keyvalues.keySet()) {
 				String name = keyvalues.get(v);
@@ -57,7 +57,7 @@ public class Select extends FormElement<Integer>
 		out.print("</div>");
 	}
 	
-	public void onEvent(Event event) {
+	public void onEvent(DivRepEvent event) {
 		try {
 			value = Integer.parseInt((String)event.value);
 		} catch (NumberFormatException e) {

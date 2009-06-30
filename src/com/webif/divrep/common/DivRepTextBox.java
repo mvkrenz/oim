@@ -5,9 +5,9 @@ import java.io.PrintWriter;
 import org.apache.commons.lang.StringEscapeUtils;
 
 import com.webif.divrep.DivRep;
-import com.webif.divrep.Event;
+import com.webif.divrep.DivRepEvent;
 
-public class Text extends FormElement<String> {
+public class DivRepTextBox extends DivRepFormElement<String> {
 	
 	private int width = 400;
 	public void setWidth(int _width)
@@ -15,7 +15,7 @@ public class Text extends FormElement<String> {
 		width = _width;
 	}
 	
-	public Text(DivRep parent) {
+	public DivRepTextBox(DivRep parent) {
 		super(parent);
 	}
 
@@ -71,7 +71,7 @@ public class Text extends FormElement<String> {
 		out.write("</div>");
 	}
 	
-	public void onEvent(Event e) {
+	public void onEvent(DivRepEvent e) {
 		value = ((String)e.value).trim();
 		modified(true);
 		validate();

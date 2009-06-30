@@ -14,15 +14,15 @@ import java.util.TreeMap;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
-import com.webif.divrep.common.Button;
+import com.webif.divrep.common.DivRepButton;
 import com.webif.divrep.DivRep;
-import com.webif.divrep.Event;
-import com.webif.divrep.EventListener;
-import com.webif.divrep.common.Static;
+import com.webif.divrep.DivRepEvent;
+import com.webif.divrep.DivRepEventListener;
+import com.webif.divrep.common.DivRepStaticContent;
 import com.webif.divrep.common.CheckBoxFormElement;
-import com.webif.divrep.common.FormElement;
-import com.webif.divrep.common.Select;
-import com.webif.divrep.common.TextArea;
+import com.webif.divrep.common.DivRepFormElement;
+import com.webif.divrep.common.DivRepSelectBox;
+import com.webif.divrep.common.DivRepTextArea;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.StaticConfig;
@@ -42,20 +42,20 @@ import edu.iu.grid.oim.model.db.record.ResourceDowntimeServiceRecord;
 import edu.iu.grid.oim.model.db.record.ResourceServiceRecord;
 import edu.iu.grid.oim.model.db.record.ServiceRecord;
 
-public class ResourceDowntimeEditor extends FormElement {
+public class ResourceDowntimeEditor extends DivRepFormElement {
     static Logger log = Logger.getLogger(ResourceDowntimeEditor.class); 
 
     private Context context;
     
-	private Button add_button;
+	private DivRepButton add_button;
 	private ArrayList<ResourceDowntimeRecord> downtime_recs;
 	private Authorization auth;
 	private int resource_id;
 	
-	public class DowntimeEditor extends FormElement
+	public class DowntimeEditor extends DivRepFormElement
 	{
 		//service details
-		private TextArea summary;
+		private DivRepTextArea summary;
 		
 		private Integer downtime_id;
 		
@@ -65,14 +65,14 @@ public class ResourceDowntimeEditor extends FormElement {
 		private DateDE end_date;
 		private TimeDE end_time;
 		
-		private Select class_id;
-		private Select severity_id;
+		private DivRepSelectBox class_id;
+		private DivRepSelectBox severity_id;
 			
 		private HashMap<Integer/*service_id*/, CheckBoxFormElement> affected_services = new HashMap<Integer, CheckBoxFormElement>();
 		
-		private Button remove_button;
+		private DivRepButton remove_button;
 
-		class DateDE extends FormElement<Date>
+		class DateDE extends DivRepFormElement<Date>
 		{
 			private static final String default_format = "M/d/yyyy";
 
@@ -89,7 +89,7 @@ public class ResourceDowntimeEditor extends FormElement {
 			{
 				minDate = "new Date("+d.getTime()+")";
 			}
-			protected void onEvent(Event e) {
+			protected void onEvent(DivRepEvent e) {
 				SimpleDateFormat format = new SimpleDateFormat(default_format);
 				try {
 					value = format.parse((String)e.value);
@@ -127,11 +127,11 @@ public class ResourceDowntimeEditor extends FormElement {
 				out.write("</div>");
 			}
 		}
-		class TimeDE extends FormElement<Integer>
+		class TimeDE extends DivRepFormElement<Integer>
 		{
 
-			Select hour;
-			Select min;
+			DivRepSelectBox hour;
+			DivRepSelectBox min;
 			
 			protected TimeDE(DivRep parent) {
 				super(parent);
@@ -161,9 +161,9 @@ public class ResourceDowntimeEditor extends FormElement {
 				hours.put(21, "9 PM (21)");
 				hours.put(22, "10 PM (22)");
 				hours.put(23, "11 PM (23)");
-				hour = new Select(this, hours);
-				hour.addEventListener(new EventListener() {
-					public void handleEvent(Event e) {
+				hour = new DivRepSelectBox(this, hours);
+				hour.addEventListener(new DivRepEventListener() {
+					public void handleEvent(DivRepEvent e) {
 						Integer h = Integer.valueOf((String)e.value);
 						int current_min = value%60;
 						value = h*60 + current_min;
@@ -174,9 +174,9 @@ public class ResourceDowntimeEditor extends FormElement {
 				for(int m = 0; m < 60; m+=5) {
 					mins.put(m, ":" + m);
 				}
-				min = new Select(this, mins);
-				min.addEventListener(new EventListener() {
-					public void handleEvent(Event e) {
+				min = new DivRepSelectBox(this, mins);
+				min.addEventListener(new DivRepEventListener() {
+					public void handleEvent(DivRepEvent e) {
 						Integer m = Integer.valueOf((String)e.value);
 						int current_hour = value/60;
 						value = current_hour*60 + m;
@@ -223,7 +223,7 @@ public class ResourceDowntimeEditor extends FormElement {
 				return value%60;
 			}
 		
-			protected void onEvent(Event e) {
+			protected void onEvent(DivRepEvent e) {
 				// TODO Auto-generated method stub
 				
 			}
@@ -233,58 +233,58 @@ public class ResourceDowntimeEditor extends FormElement {
 			super(parent);
 			downtime_id = rec.id;
 			
-			new Static(this, "<h3>Duration (UTC)</h3>");
-			new Static(this, "<table><tr><td>");
+			new DivRepStaticContent(this, "<h3>Duration (UTC)</h3>");
+			new DivRepStaticContent(this, "<table><tr><td>");
 			start_date = new DateDE(this);
 			start_date.setMinDate(new Date());
 			if(rec.start_time != null) {
 				start_date.setValue(rec.start_time);
 			}
 			
-			start_date.addEventListener(new EventListener() {
-				public void handleEvent(Event e) {
+			start_date.addEventListener(new DivRepEventListener() {
+				public void handleEvent(DivRepEvent e) {
 					//DowntimeEditor.this.adjustEndTime();
 					DowntimeEditor.this.validate();
 				}});
 			
-			new Static(this, "</td><td>");
+			new DivRepStaticContent(this, "</td><td>");
 			
 			start_time = new TimeDE(this);
 			if(rec.start_time != null) {
 				start_time.setValue(rec.start_time);
 			}
-			start_time.addEventListener(new EventListener() {
-				public void handleEvent(Event e) {
+			start_time.addEventListener(new DivRepEventListener() {
+				public void handleEvent(DivRepEvent e) {
 					//DowntimeEditor.this.adjustEndTime();
 					DowntimeEditor.this.validate();
 				}});
-			new Static(this, "</td><td>&nbsp;to&nbsp;</td><td>");
+			new DivRepStaticContent(this, "</td><td>&nbsp;to&nbsp;</td><td>");
 			
 			end_date = new DateDE(this);
 			end_date.setMinDate(new Date());
 			if(rec.end_time != null) {
 				end_date.setValue(rec.end_time);
 			}
-			end_date.addEventListener(new EventListener() {
-				public void handleEvent(Event e) {
+			end_date.addEventListener(new DivRepEventListener() {
+				public void handleEvent(DivRepEvent e) {
 					//DowntimeEditor.this.adjustStartTime();
 					DowntimeEditor.this.validate();
 				}});
-			new Static(this, "</td><td>");
+			new DivRepStaticContent(this, "</td><td>");
 			
 			end_time = new TimeDE(this);
 			if(rec.end_time != null) {
 				end_time.setValue(rec.end_time);
 			}
-			end_time.addEventListener(new EventListener() {
-				public void handleEvent(Event e) {
+			end_time.addEventListener(new DivRepEventListener() {
+				public void handleEvent(DivRepEvent e) {
 					//DowntimeEditor.this.adjustStartTime();
 					DowntimeEditor.this.validate();
 				}});
-			new Static(this, "</td></tr></table>");
+			new DivRepStaticContent(this, "</td></tr></table>");
 			
-			new Static(this, "<h3>Detail</h3>");
-			summary = new TextArea(this);
+			new DivRepStaticContent(this, "<h3>Detail</h3>");
+			summary = new DivRepTextArea(this);
 			summary.setLabel("Downtime Summary");
 			summary.setRequired(true);
 			if(rec.downtime_summary != null) {
@@ -298,13 +298,13 @@ public class ResourceDowntimeEditor extends FormElement {
 			for(DowntimeClassRecord dcrec : dcmodel.getAll()) {
 				class_kv.put(dcrec.id, dcrec.name);
 			}
-			class_id = new Select(this, class_kv);
+			class_id = new DivRepSelectBox(this, class_kv);
 			class_id.setLabel("Class");
 			class_id.setRequired(true);
 			if(rec.downtime_class_id != null) {
 				class_id.setValue(rec.downtime_class_id);
 			}
-			else {// Select first element as default, we could set this to any of the choices
+			else {// DivRepSelectBox first element as default, we could set this to any of the choices
 				if (class_kv != null) class_id.setValue(1);
 			}
 			
@@ -313,27 +313,27 @@ public class ResourceDowntimeEditor extends FormElement {
 			for(DowntimeSeverityRecord dcrec : smodel.getAll()) {
 				severity_kv.put(dcrec.id, dcrec.name);
 			}
-			severity_id = new Select(this, severity_kv);
+			severity_id = new DivRepSelectBox(this, severity_kv);
 			severity_id.setLabel("Severity");
 			severity_id.setRequired(true);
 			if(rec.downtime_severity_id != null) {
 				severity_id.setValue(rec.downtime_severity_id);
 			}
-			else { // Select first element as default, we could set this to any of the choices
+			else { // DivRepSelectBox first element as default, we could set this to any of the choices
 				if (severity_kv != null) severity_id.setValue(1);
 			}
 			
-			new Static(this, "<h3>Affected Services</h3>");
+			new DivRepStaticContent(this, "<h3>Affected Services</h3>");
 			ResourceServiceModel rsmodel = new ResourceServiceModel(context);
 			Collection<ResourceServiceRecord> rsrecs = rsmodel.getAllByResourceID(resource_id);
 			for(ResourceServiceRecord rsrec : rsrecs) {
 				addService(rsrec.service_id);
 			}
 			
-			remove_button = new Button(this, "images/delete.png");
-			remove_button.setStyle(Button.Style.IMAGE);
-			remove_button.addEventListener(new EventListener() {
-				public void handleEvent(Event e) {
+			remove_button = new DivRepButton(this, "images/delete.png");
+			remove_button.setStyle(DivRepButton.Style.IMAGE);
+			remove_button.addEventListener(new DivRepEventListener() {
+				public void handleEvent(DivRepEvent e) {
 					removeDowntime(DowntimeEditor.this);	
 					modified(true);
 				}
@@ -378,7 +378,7 @@ public class ResourceDowntimeEditor extends FormElement {
 			redraw();
 		}
 		
-		protected void onEvent(Event e) {
+		protected void onEvent(DivRepEvent e) {
 			// TODO Auto-generated method stub
 		}
 
@@ -391,8 +391,8 @@ public class ResourceDowntimeEditor extends FormElement {
 			for(DivRep child : childnodes) {
 				if(child == remove_button) continue;
 				if(child == error) continue;
-				if(child instanceof FormElement) {
-					FormElement elem = (FormElement)child;
+				if(child instanceof DivRepFormElement) {
+					DivRepFormElement elem = (DivRepFormElement)child;
 					if(!elem.isHidden()) {
 						out.print("<div class=\"form_element\">");
 						child.render(out);
@@ -472,30 +472,29 @@ public class ResourceDowntimeEditor extends FormElement {
 		public void validate()
 		{
 			super.validate();
-			if(valid == true) {
-				Timestamp start = getStartTime();
-				Timestamp end = getEndTime();
-				if(start.compareTo(end) > 0) {
-					valid = false;
-					error.set("Start Time is after the end time. Please correct.");
-					return;
-				}
-				
-				int service_count = 0;
-				for(Integer service_id : affected_services.keySet()) {
-					CheckBoxFormElement checkbox = affected_services.get(service_id);
-					if(checkbox.getValue()) {
-						++service_count;
-					}
-				}
-				if(service_count == 0) {
-					valid = false;
-					error.set("Please select at least one affected service.");
-					return;
-				}
+
+			Timestamp start = getStartTime();
+			Timestamp end = getEndTime();
+			if(start.compareTo(end) > 0) {
+				valid = false;
+				error.set("Start Time is after the end time. Please correct.");
+				return;
 			}
 			
+			int service_count = 0;
+			for(Integer service_id : affected_services.keySet()) {
+				CheckBoxFormElement checkbox = affected_services.get(service_id);
+				if(checkbox.getValue()) {
+					++service_count;
+				}
+			}
+			if(service_count == 0) {
+				valid = false;
+				error.set("Please select at least one affected service.");
+				return;
+			}
 		}
+
 	}
 
 	
@@ -523,10 +522,10 @@ public class ResourceDowntimeEditor extends FormElement {
 			addDowntime(drec);
 		}
 		
-		add_button = new Button(this, "Add New Downtime");
-		add_button.setStyle(Button.Style.ALINK);
-		add_button.addEventListener(new EventListener() {
-			public void handleEvent(Event e) {
+		add_button = new DivRepButton(this, "Add New Downtime");
+		add_button.setStyle(DivRepButton.Style.ALINK);
+		add_button.addEventListener(new DivRepEventListener() {
+			public void handleEvent(DivRepEvent e) {
 				try {
 					addDowntime(new ResourceDowntimeRecord());
 					modified(true);
@@ -549,7 +548,7 @@ public class ResourceDowntimeEditor extends FormElement {
 		return downtimes;
 	}
 	
-	protected void onEvent(Event e) {
+	protected void onEvent(DivRepEvent e) {
 		// TODO Auto-generated method stub
 
 	}
@@ -567,7 +566,7 @@ public class ResourceDowntimeEditor extends FormElement {
 		}
 		// Adding some clear text to make it look less odd. Is there a cleaner way to do this? -agopu
 		if (count == 0) {
-			new Static(this, "<p>No existing downtimes for this resource</p>").render(out);
+			new DivRepStaticContent(this, "<p>No existing downtimes for this resource</p>").render(out);
 		}
 		add_button.render(out);
 		out.print("</div>");

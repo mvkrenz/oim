@@ -1,9 +1,9 @@
 package com.webif.divrep.validator;
 
-public class IntegerValidator implements IFormElementValidator<String>
+public class DivRepIntegerValidator implements DivRepIValidator<String>
 {
-	static private IntegerValidator singleton = new IntegerValidator();
-	static public IntegerValidator getInstance() { return singleton; }
+	static private DivRepIntegerValidator singleton = new DivRepIntegerValidator();
+	static public DivRepIntegerValidator getInstance() { return singleton; }
 
 	public Boolean isValid(String value) {
 		try {

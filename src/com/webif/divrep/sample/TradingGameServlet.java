@@ -9,11 +9,11 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.webif.divrep.common.Button;
+import com.webif.divrep.common.DivRepButton;
 import com.webif.divrep.DivRep;
 import com.webif.divrep.DivRepRoot;
-import com.webif.divrep.Event;
-import com.webif.divrep.EventListener;
+import com.webif.divrep.DivRepEvent;
+import com.webif.divrep.DivRepEventListener;
 
 public class TradingGameServlet extends HttpServlet {
 	
@@ -45,9 +45,9 @@ public class TradingGameServlet extends HttpServlet {
 			abstract public void render(PrintWriter out);
 			protected void renderLocation(PrintWriter out, final Town newtown, final Double day_cost)
 			{
-				Button button = new Button(main, "Go to "+newtown.getName()+" (Cost: "+day_cost+" day)");
-				button.addEventListener(new EventListener() {
-					public void handleEvent(Event e) {
+				DivRepButton button = new DivRepButton(main, "Go to "+newtown.getName()+" (Cost: "+day_cost+" day)");
+				button.addEventListener(new DivRepEventListener() {
+					public void handleEvent(DivRepEvent e) {
 						town = newtown;
 						day += day_cost;
 						redrawall();
@@ -60,9 +60,9 @@ public class TradingGameServlet extends HttpServlet {
 				out.write("<p>");
 				out.write(item+" (Cost: $"+cost+")");
 				
-				Button buy = new Button(main, "Buy 1");
-				buy.addEventListener(new EventListener() {
-					public void handleEvent(Event e) {
+				DivRepButton buy = new DivRepButton(main, "Buy 1");
+				buy.addEventListener(new DivRepEventListener() {
+					public void handleEvent(DivRepEvent e) {
 						if(money < cost) {
 							alert("You don't have enough money!");
 						} else {
@@ -72,9 +72,9 @@ public class TradingGameServlet extends HttpServlet {
 				);
 				buy.render(out);
 				
-				Button sale = new Button(main, "Sale 1");
-				sale.addEventListener(new EventListener() {
-					public void handleEvent(Event e) {
+				DivRepButton sale = new DivRepButton(main, "Sale 1");
+				sale.addEventListener(new DivRepEventListener() {
+					public void handleEvent(DivRepEvent e) {
 						Integer count = bag.get(item);
 						if(count == null || count < 1) {	
 							alert("You don't have this item to sell");
@@ -104,7 +104,7 @@ public class TradingGameServlet extends HttpServlet {
 				renderTrader(out, "Plants", 5D);
 				
 				out.write("<h3>IU Bookstore</h3>");			
-				renderTrader(out, "Text Book", 100D);
+				renderTrader(out, "DivRepTextBox Book", 100D);
 				renderTrader(out, "Book", 15D);
 				
 				out.write("<h3>Downtown</h3>");
@@ -144,7 +144,7 @@ public class TradingGameServlet extends HttpServlet {
 				renderTrader(out, "Vegitables", 5D);
 								
 				out.write("<h3>Downtown</h3>");
-				renderTrader(out, "Text Book", 70D);
+				renderTrader(out, "DivRepTextBox Book", 70D);
 				renderTrader(out, "Book", 12D);
 				renderTrader(out, "Marble Brick", 50D);
 			}
@@ -158,7 +158,7 @@ public class TradingGameServlet extends HttpServlet {
 			}
 
 			@Override
-			protected void onEvent(Event e) {
+			protected void onEvent(DivRepEvent e) {
 				// TODO Auto-generated method stub
 			}
 
@@ -186,7 +186,7 @@ public class TradingGameServlet extends HttpServlet {
 				// TODO Auto-generated constructor stub
 			}
 
-			protected void onEvent(Event e) {
+			protected void onEvent(DivRepEvent e) {
 				// TODO Auto-generated method stub
 				
 			}
@@ -216,7 +216,7 @@ public class TradingGameServlet extends HttpServlet {
 		}
 
 		@Override
-		protected void onEvent(Event e) {
+		protected void onEvent(DivRepEvent e) {
 			// TODO Auto-generated method stub
 			
 		}

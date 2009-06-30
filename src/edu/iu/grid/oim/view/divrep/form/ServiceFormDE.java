@@ -5,13 +5,13 @@ import java.util.HashMap;
 import java.util.TreeMap;
 
 import org.apache.log4j.Logger;
-import com.webif.divrep.Event;
-import com.webif.divrep.common.Static;
-import com.webif.divrep.common.FormBase;
-import com.webif.divrep.common.Select;
-import com.webif.divrep.common.Text;
-import com.webif.divrep.validator.IntegerValidator;
-import com.webif.divrep.validator.UniqueValidator;
+import com.webif.divrep.DivRepEvent;
+import com.webif.divrep.common.DivRepStaticContent;
+import com.webif.divrep.common.DivRepForm;
+import com.webif.divrep.common.DivRepSelectBox;
+import com.webif.divrep.common.DivRepTextBox;
+import com.webif.divrep.validator.DivRepIntegerValidator;
+import com.webif.divrep.validator.DivRepUniqueValidator;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
@@ -26,7 +26,7 @@ import edu.iu.grid.oim.model.db.record.ServiceGroupRecord;
 import edu.iu.grid.oim.model.db.record.ServiceRecord;
 import edu.iu.grid.oim.view.divrep.MetricService;
 
-public class ServiceFormDE extends FormBase 
+public class ServiceFormDE extends DivRepForm 
 {
     static Logger log = Logger.getLogger(ServiceFormDE.class); 
     private Context context;
@@ -34,10 +34,10 @@ public class ServiceFormDE extends FormBase
 	protected Authorization auth;
 	private Integer id;
 	
-	private Text name;
-	private Text description;
-	private Text port;
-	private Select service_group_id;
+	private DivRepTextBox name;
+	private DivRepTextBox description;
+	private DivRepTextBox port;
+	private DivRepSelectBox service_group_id;
 	private MetricService metric_service;
 	
 	public ServiceFormDE(Context _context, ServiceRecord rec, String origin_url) throws AuthorizationException, SQLException
@@ -54,20 +54,20 @@ public class ServiceFormDE extends FormBase
 			//if doing update, remove my own name (I can use my own name)
 			service_names.remove(id);
 		}
-		name = new Text(this);
+		name = new DivRepTextBox(this);
 		name.setLabel("Name");
 		name.setValue(rec.name);
-		name.addValidator(new UniqueValidator<String>(service_names.values()));
+		name.addValidator(new DivRepUniqueValidator<String>(service_names.values()));
 		name.setRequired(true);
 		
-		description = new Text(this);
+		description = new DivRepTextBox(this);
 		description.setLabel("Description");
 		description.setValue(rec.description);
 		description.setRequired(true);
 		
-		port = new Text(this);
+		port = new DivRepTextBox(this);
 		port.setLabel("Port");
-		port.addValidator(new IntegerValidator());
+		port.addValidator(new DivRepIntegerValidator());
 		if(rec.port != null) {
 			port.setValue(rec.port.toString());
 		}
@@ -77,12 +77,12 @@ public class ServiceFormDE extends FormBase
 		for(ServiceGroupRecord sgrec : sgmodel.getAll()) {
 			kv.put(sgrec.id, sgrec.name);
 		}
-		service_group_id = new Select(this, kv);
+		service_group_id = new DivRepSelectBox(this, kv);
 		service_group_id.setLabel("Service Group");
 		service_group_id.setValue(rec.service_group_id);
 		service_group_id.setRequired(true);
 		
-		new Static(this, "<h3>RSV Metrics</h3>");
+		new DivRepStaticContent(this, "<h3>RSV Metrics</h3>");
 		MetricModel mmodel = new MetricModel(context);
 		TreeMap<Integer, String> metric_kv = new TreeMap<Integer, String>();
 		for(MetricRecord mrec : mmodel.getAll()) {
@@ -140,7 +140,7 @@ public class ServiceFormDE extends FormBase
 	}
 
 	@Override
-	protected void onEvent(Event e) {
+	protected void onEvent(DivRepEvent e) {
 		// TODO Auto-generated method stub
 		
 	}

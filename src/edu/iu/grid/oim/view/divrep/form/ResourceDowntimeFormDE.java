@@ -3,8 +3,8 @@ package edu.iu.grid.oim.view.divrep.form;
 
 import java.sql.SQLException;
 import org.apache.log4j.Logger;
-import com.webif.divrep.Event;
-import com.webif.divrep.common.FormBase;
+import com.webif.divrep.DivRepEvent;
+import com.webif.divrep.common.DivRepForm;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
@@ -12,7 +12,7 @@ import edu.iu.grid.oim.model.Context;
 import edu.iu.grid.oim.model.db.ResourceDowntimeModel;
 import edu.iu.grid.oim.view.divrep.ResourceDowntimeEditor;
 
-public class ResourceDowntimeFormDE extends FormBase 
+public class ResourceDowntimeFormDE extends DivRepForm 
 {
     static Logger log = Logger.getLogger(ResourceDowntimeFormDE.class); 
     
@@ -47,7 +47,7 @@ public class ResourceDowntimeFormDE extends FormBase
 	}
 
 	@Override
-	protected void onEvent(Event e) {
+	protected void onEvent(DivRepEvent e) {
 		// TODO Auto-generated method stub
 		
 	}

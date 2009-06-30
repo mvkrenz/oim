@@ -9,15 +9,15 @@ import java.util.Collection;
 import java.util.HashMap;
 import org.apache.log4j.Logger;
 import com.webif.divrep.DivRep;
-import com.webif.divrep.Event;
-import com.webif.divrep.common.Static;
+import com.webif.divrep.DivRepEvent;
+import com.webif.divrep.common.DivRepStaticContent;
 import com.webif.divrep.common.CheckBoxFormElement;
-import com.webif.divrep.common.FormBase;
-import com.webif.divrep.common.Select;
-import com.webif.divrep.common.TextArea;
-import com.webif.divrep.common.Text;
-import com.webif.divrep.validator.UniqueValidator;
-import com.webif.divrep.validator.UrlValidator;
+import com.webif.divrep.common.DivRepForm;
+import com.webif.divrep.common.DivRepSelectBox;
+import com.webif.divrep.common.DivRepTextArea;
+import com.webif.divrep.common.DivRepTextBox;
+import com.webif.divrep.validator.DivRepUniqueValidator;
+import com.webif.divrep.validator.DivRepUrlValidator;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
@@ -28,7 +28,7 @@ import edu.iu.grid.oim.model.db.record.FacilityRecord;
 import edu.iu.grid.oim.view.divrep.ContactEditor;
 import edu.iu.grid.oim.view.divrep.ContactEditor.Rank;
 
-public class FacilityFormDE extends FormBase 
+public class FacilityFormDE extends DivRepForm 
 {
     static Logger log = Logger.getLogger(FacilityFormDE.class); 
    
@@ -36,8 +36,8 @@ public class FacilityFormDE extends FormBase
     private Authorization auth;
 	private Integer id;
 	
-	private Text name;
-	private TextArea description;
+	private DivRepTextBox name;
+	private DivRepTextArea description;
 	private CheckBoxFormElement active;
 	private CheckBoxFormElement disable;
 	
@@ -55,22 +55,22 @@ public class FacilityFormDE extends FormBase
 			sites.remove(id);
 		}
 
-		new Static(this, "<h2>Facility Information</h2>");
-		new Static(this, "<p>Add/modify basic information about this facility.<br>NOTE: A facility represents an instituition (like BNL, Fermilab, etc.) or a university.</p>");
-		name = new Text(this);
+		new DivRepStaticContent(this, "<h2>Facility Information</h2>");
+		new DivRepStaticContent(this, "<p>Add/modify basic information about this facility.<br>NOTE: A facility represents an instituition (like BNL, Fermilab, etc.) or a university.</p>");
+		name = new DivRepTextBox(this);
 		name.setLabel("Facility Name");
 		name.setValue(rec.name);
-		name.addValidator(new UniqueValidator<String>(sites.values()));
+		name.addValidator(new DivRepUniqueValidator<String>(sites.values()));
 		name.setRequired(true);
 		
-		description = new TextArea(this);
+		description = new DivRepTextArea(this);
 		description.setLabel("Short Description");
 		description.setValue(rec.description);
 		description.setRequired(false);
 	
 		if(auth.allows("admin")) {
-			new Static(this, "<h2>Administrative Tasks</h2>");
-			new Static(this, "<p>NOTE: These fields are editable only by GOC administrative staff.</p>");
+			new DivRepStaticContent(this, "<h2>Administrative Tasks</h2>");
+			new DivRepStaticContent(this, "<p>NOTE: These fields are editable only by GOC administrative staff.</p>");
 		}
 		active = new CheckBoxFormElement(this);
 		active.setLabel("Active");
