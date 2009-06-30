@@ -1,27 +1,19 @@
 package edu.iu.grid.oim.view.divrep;
 
 import java.io.PrintWriter;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
 
-import com.sun.jndi.dns.ResourceRecord;
 import com.webif.divrep.common.DivRepButton;
 import com.webif.divrep.DivRep;
 import com.webif.divrep.DivRepEvent;
 import com.webif.divrep.DivRepEventListener;
 import com.webif.divrep.common.CheckBoxFormElement;
 import com.webif.divrep.common.DivRepFormElement;
-import com.webif.divrep.common.DivRepSelectBox;
 import com.webif.divrep.common.DivRepTextBox;
 import com.webif.divrep.validator.DivRepDoubleValidator;
 
 import edu.iu.grid.oim.model.Context;
 import edu.iu.grid.oim.model.db.ResourceWLCGModel;
-import edu.iu.grid.oim.model.db.record.ResourceServiceRecord;
 import edu.iu.grid.oim.model.db.record.ResourceWLCGRecord;
-import edu.iu.grid.oim.model.db.record.ServiceRecord;
-import edu.iu.grid.oim.view.divrep.ResourceAlias.AliasEditor;
 
 public class ResourceWLCG extends DivRepFormElement {
 
