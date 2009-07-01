@@ -19,9 +19,9 @@
 -- Current Database: `oim2`
 --
 
-CREATE DATABASE IF NOT EXISTS `oim2` /*!40100 DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci */;
+CREATE DATABASE IF NOT EXISTS `oim` /*!40100 DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci */;
 
-USE `oim2`;
+USE `oim`;
 
 --
 -- Table structure for table `View_VoReportNamesFqans`
@@ -394,12 +394,12 @@ SET character_set_client = @saved_cs_client;
 --
 
 DROP TABLE IF EXISTS `contact`;
-CREATE TABLE `contact` (
+CREATE TABLE  `contact` (
   `id` int(11) NOT NULL auto_increment,
   `name` varchar(512) collate utf8_unicode_ci default NULL,
   `primary_email` varchar(128) collate utf8_unicode_ci NOT NULL default 'foo@bar.com_CHANGE_THIS',
   `secondary_email` varchar(128) collate utf8_unicode_ci default NULL,
-  `primary_phone` varchar(32) collate utf8_unicode_ci NOT NULL default '1-234-567-8900_CHANGE_THIS',
+  `primary_phone` varchar(32) collate utf8_unicode_ci default '1-234-567-8900_CHANGE_THIS',
   `primary_phone_ext` varchar(32) collate utf8_unicode_ci default '1-234-567-8900_CHANGE_THIS',
   `secondary_phone` varchar(32) collate utf8_unicode_ci default NULL,
   `secondary_phone_ext` varchar(32) collate utf8_unicode_ci default NULL,
@@ -416,10 +416,11 @@ CREATE TABLE `contact` (
   `contact_preference` text collate utf8_unicode_ci COMMENT 'this field can be used to store snippets about person like if they want you to avoid calling them, etc.',
   `im` varchar(128) collate utf8_unicode_ci default NULL,
   `photo_url` varchar(256) collate utf8_unicode_ci default NULL,
+  `sms_address` varchar(45) collate utf8_unicode_ci NOT NULL,
   PRIMARY KEY  (`id`),
   KEY `dn_person` (`submitter_dn_id`),
   CONSTRAINT `dn_person` FOREIGN KEY (`submitter_dn_id`) REFERENCES `dn` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=529 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='<strong><u>Person</u></strong>: Information about any person';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='<strong><u>Person</u></strong>: Information about any person';
 
 --
 -- Table structure for table `resource`
