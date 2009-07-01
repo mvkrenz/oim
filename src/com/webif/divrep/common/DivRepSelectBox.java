@@ -20,7 +20,7 @@ public class DivRepSelectBox extends DivRepFormElement<Integer>
 		keyvalues = _keyvalues;
 	}
 	
-	//show (Please DivRepSelectBox) item with null value
+	//show (Please Select) item with null value
 	private Boolean hasnull = true;
 	public void setHasNull(Boolean b) { hasnull = b; }
 	
@@ -36,7 +36,7 @@ public class DivRepSelectBox extends DivRepFormElement<Integer>
 			int random = (int)(Math.random()*10000);
 			out.write("<select id='"+random+"' onchange='divrep(\""+getNodeID()+"\", event, this.value);'>");
 			if(hasnull) {
-				out.write("<option value=\"\">(Please DivRepSelectBox)</option>");
+				out.write("<option value=\"\">(Please Select)</option>");
 			}
 			for(Integer v : keyvalues.keySet()) {
 				String name = keyvalues.get(v);

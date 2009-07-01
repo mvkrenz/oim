@@ -39,6 +39,7 @@ public class ContactFormDE extends DivRepForm
 	private DivRepTextBox primary_email, secondary_email;
 	private DivRepTextBox primary_phone, secondary_phone;
 	private DivRepTextBox primary_phone_ext, secondary_phone_ext;
+	private DivRepTextBox sms_address;
 	private DivRepTextBox address_line_1, address_line_2;
 	private DivRepTextBox city, state, zipcode, country;
 	private CheckBoxFormElement active;
@@ -164,6 +165,12 @@ public class ContactFormDE extends DivRepForm
 		secondary_phone_ext.setLabel("Secondary Phone Extension");
 		secondary_phone_ext.setValue(rec.secondary_phone_ext);
 		
+		sms_address = new DivRepTextBox(this);
+		sms_address.setLabel("SMS Address");
+		sms_address.setValue(rec.sms_address);
+		sms_address.setSampleValue("8127771234@txt.att.net");
+		sms_address.addValidator(DivRepEmailValidator.getInstance());
+		
 		contact_preference = new DivRepTextArea(this);
 		contact_preference.setLabel("Enter Additional Contact Preferences");
 		contact_preference.setValue(rec.contact_preference);
@@ -274,6 +281,7 @@ public class ContactFormDE extends DivRepForm
 		rec.secondary_phone = secondary_phone.getValue();
 		rec.primary_phone_ext = primary_phone_ext.getValue();
 		rec.secondary_phone_ext = secondary_phone_ext.getValue();
+		rec.sms_address = sms_address.getValue();
 		rec.address_line_1 = address_line_1.getValue();
 		rec.address_line_2 = address_line_2.getValue();
 		rec.city = city.getValue();

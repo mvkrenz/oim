@@ -113,6 +113,8 @@ public class ContactServlet extends ServletBase implements Servlet {
 			table.addRow("Secondary Phone", rec.secondary_phone);
 			table.addRow("Secondary Phone Ext", rec.secondary_phone_ext);
 			
+			table.addRow("SMS Address", rec.sms_address);
+			
 			if(rec.person == false) {
 				table.addRow("Personal Information", new HtmlView("(Not a personal contact)"));
 			} else {

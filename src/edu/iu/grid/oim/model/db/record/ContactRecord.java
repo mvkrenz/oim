@@ -28,6 +28,7 @@ public class ContactRecord extends RecordBase {
 	public String photo_url;
 	public Integer submitter_dn_id;
 	public String contact_preference;
+	public String sms_address;
 	
 	//load from existing record
 	public ContactRecord(ResultSet rs) throws SQLException {

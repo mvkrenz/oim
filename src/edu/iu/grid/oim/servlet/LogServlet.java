@@ -1,7 +1,8 @@
 package edu.iu.grid.oim.servlet;
 
 import java.io.IOException;
-import java.io.StringBufferInputStream;
+import java.io.InputStreamReader;
+import java.io.StringReader;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.sql.SQLException;
@@ -119,7 +120,7 @@ public class LogServlet extends ServletBase  {
 				
 				try {
 					//Parse the log XML stored in the record
-					Document log = builder.parse(new StringBufferInputStream(rec.xml));
+					Document log = builder.parse(rec.xml);
 				
 					//check the access
 					if(!somemodel.hasLogAccess(xpath, log)) {
