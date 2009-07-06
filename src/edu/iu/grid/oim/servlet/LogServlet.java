@@ -1,9 +1,7 @@
 package edu.iu.grid.oim.servlet;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.StringBufferInputStream;
-import java.io.StringReader;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.sql.SQLException;
@@ -35,8 +33,6 @@ import edu.iu.grid.oim.view.ContentView;
 import edu.iu.grid.oim.view.GenericView;
 import edu.iu.grid.oim.view.HtmlView;
 import edu.iu.grid.oim.view.InternalLinkView;
-import edu.iu.grid.oim.view.LinkView;
-import edu.iu.grid.oim.view.ListView;
 import edu.iu.grid.oim.view.MenuView;
 import edu.iu.grid.oim.view.Page;
 import edu.iu.grid.oim.view.IView;
@@ -121,7 +117,9 @@ public class LogServlet extends ServletBase  {
 				Constructor cons = modelClass.getConstructor(new Class[]{Context.class});
 				ModelBase somemodel = (ModelBase) cons.newInstance(context);	
 				try {
-					Document log = builder.parse(new StringBufferInputStream(rec.xml));
+					byte[] bArray = rec.xml.getBytes();
+					ByteArrayInputStream bais = new ByteArrayInputStream(bArray);
+					Document log = builder.parse(bais);
 				
 					//check the access
 					if(!somemodel.hasLogAccess(xpath, log)) {
