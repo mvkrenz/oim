@@ -399,6 +399,30 @@
 	<servlet>
 		<description>
 		</description>
+		<display-name>PuzzleGameServlet</display-name>
+		<servlet-name>PuzzleGameServlet</servlet-name>
+		<servlet-class>com.webif.divrep.sample.PuzzleGameServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>PuzzleGameServlet</servlet-name>
+		<url-pattern>/puzzle</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<description>
+		</description>
+		<display-name>TreeServlet</display-name>
+		<servlet-name>TreeServlet</servlet-name>
+		<servlet-class>com.webif.divrep.sample.TreeServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>TreeServlet</servlet-name>
+		<url-pattern>/tree</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<description>
+		</description>
 		<display-name>TradingGameServlet</display-name>
 		<servlet-name>TradingGameServlet</servlet-name>
 		<servlet-class>com.webif.divrep.sample.TradingGameServlet</servlet-class>

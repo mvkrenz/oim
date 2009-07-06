@@ -38,9 +38,11 @@ public class DivRepButton extends DivRep {
 	//if the button style is IMAGE, _title will be used as URL
 	public DivRepButton(DivRep parent, String _title) {
 		super(parent);
+		setTitle(_title);
+	}
+	public void setTitle(String _title) {
 		title = _title;
 	}
-	
 	public void render(PrintWriter out) {
 		//TODO implement click once feature - disabling button just doesn't work well
 

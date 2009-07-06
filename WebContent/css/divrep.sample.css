@@ -42,3 +42,12 @@ padding-left:25px;
 -webkit-border-bottom-left-radius: 4px;
 -webkit-border-bottom-right-radius: 4px;
 }
+
+img
+{
+border: 0px;
+}
+.indent
+{
+	margin-left: 40px;
+}

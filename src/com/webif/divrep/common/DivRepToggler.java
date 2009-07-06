@@ -37,6 +37,16 @@ public class DivRepToggler extends DivRep {
 				me.redraw();
 			}});
 	}
+	
+	//let client customize the button
+	public DivRepButton getShowButton()
+	{
+		return show_button;
+	}
+	public DivRepButton getHideButton()
+	{
+		return hide_button;
+	}
 		
 	public DivRepToggler(DivRep parent, DivRep _content) {
 		super(parent);

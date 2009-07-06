@@ -2,6 +2,7 @@ package edu.iu.grid.oim.servlet;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.StringBufferInputStream;
 import java.io.StringReader;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -103,8 +104,11 @@ public class LogServlet extends ServletBase  {
     	
 		try {
 	    	XPath xpath = XPathFactory.newInstance().newXPath();
-	    	DocumentBuilder builder;
-			builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+	    	DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+	    	factory.setNamespaceAware(false);
+	    	factory.setValidating(false);
+	    	DocumentBuilder builder = factory.newDocumentBuilder();
+
 			DNModel dmodel = new DNModel(context);
 			
 			//pull log entries that matches the log type
@@ -112,15 +116,12 @@ public class LogServlet extends ServletBase  {
 			Collection<LogRecord> recs = lmodel.getLatest(filter);
 			builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
 			for(LogRecord rec : recs) {
-
 				//instantiate the model specified on the log (with Authorization as parameter)
 				Class modelClass = Class.forName(rec.model);
 				Constructor cons = modelClass.getConstructor(new Class[]{Context.class});
-				ModelBase somemodel = (ModelBase) cons.newInstance(context);
-				
+				ModelBase somemodel = (ModelBase) cons.newInstance(context);	
 				try {
-					//Parse the log XML stored in the record
-					Document log = builder.parse(rec.xml);
+					Document log = builder.parse(new StringBufferInputStream(rec.xml));
 				
 					//check the access
 					if(!somemodel.hasLogAccess(xpath, log)) {
