@@ -88,6 +88,7 @@ public class Authorization {
 			user_cn = user_cn_tmp;
 		}
 		
+		log.info("getLocalName() = " + request.getLocalName());
 		if(request.getLocalName().equals("localhost")) {
 			islocal = true;
 			log.info("localuser... auth.isLocal() will be true");
