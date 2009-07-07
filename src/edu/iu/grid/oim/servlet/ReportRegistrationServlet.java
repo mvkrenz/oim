@@ -79,17 +79,17 @@ public class ReportRegistrationServlet extends ServletBase implements Servlet {
 			//construct view
 			MenuView menuview = new MenuView(context, "admin");
 			ContentView contentview = createContentView();
-			
-			//setup crumbs
-			BreadCrumbView bread_crumb = new BreadCrumbView();
-			bread_crumb.addCrumb("Administration",  "admin");
-			bread_crumb.addCrumb("Registration Report",  null);
-			contentview.setBreadCrumb(bread_crumb);
-			
+		
 			PrintWriter out = response.getWriter();
 			if(request.getParameter("plain") != null) {
 				contentview.render(out);
 			} else {
+				//set crumbs
+				BreadCrumbView bread_crumb = new BreadCrumbView();
+				bread_crumb.addCrumb("Administration",  "admin");
+				bread_crumb.addCrumb("Registration Report",  null);
+				contentview.setBreadCrumb(bread_crumb);
+				
 				Page page = new Page(menuview, contentview, createSideView());
 				page.render(out);			
 			}
