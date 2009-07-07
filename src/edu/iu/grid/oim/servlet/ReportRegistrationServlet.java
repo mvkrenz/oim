@@ -66,7 +66,9 @@ public class ReportRegistrationServlet extends ServletBase implements Servlet {
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{	
-		auth.check("admin");
+		if(!auth.isLocal()) {
+			auth.check("admin");
+		}
 		
 		try {
 			String days_str = request.getParameter("days");
