@@ -30,6 +30,7 @@ public class Authorization {
 	private String user_cn = null;
 	private Integer dn_id = null;
     private Integer contact_id = null;
+    private Boolean islocal = false;
     
     private HashSet<String> actions = new HashSet<String>();
     
@@ -53,6 +54,8 @@ public class Authorization {
     	ContactModel model = new ContactModel(guest_context);
     	return model.get(contact_id);
     }
+    //true if the client is accessing from localhost
+    public Boolean isLocal() { return islocal; }
     
 	public void check(String action) throws AuthorizationException
 	{
@@ -85,8 +88,12 @@ public class Authorization {
 			user_cn = user_cn_tmp;
 		}
 		
+		if(request.getLocalName().equals("localhost")) {
+			islocal = true;
+		}
+		
 		//debug - for development
-		if(request.getLocalName().compareTo("localhost") == 0) {
+		if(islocal) {
 			InetAddress addr;
 			try {
 				//override user_cn
