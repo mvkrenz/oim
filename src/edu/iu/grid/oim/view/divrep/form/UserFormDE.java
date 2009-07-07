@@ -21,6 +21,7 @@ import com.webif.divrep.validator.DivRepUniqueValidator;
 import com.webif.divrep.validator.DivRepUrlValidator;
 
 import edu.iu.grid.oim.lib.Authorization;
+import edu.iu.grid.oim.lib.Footprint;
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
 import edu.iu.grid.oim.model.Context;
 import edu.iu.grid.oim.model.db.AuthorizationTypeModel;
@@ -120,6 +121,8 @@ public class UserFormDE extends DivRepForm
 			DNModel model = new DNModel(context);
 			if(rec.id == null) {
 				model.insertDetail(rec, auths);
+				//create footprint ticket
+				Footprint fp = new Footprint(context);
 			} else {
 				model.updateDetail(rec, auths);
 			}

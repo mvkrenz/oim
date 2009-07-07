@@ -27,6 +27,7 @@ import com.webif.divrep.validator.DivRepUniqueValidator;
 import com.webif.divrep.validator.DivRepUrlValidator;
 
 import edu.iu.grid.oim.lib.Authorization;
+import edu.iu.grid.oim.lib.Footprint;
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
 
 import edu.iu.grid.oim.model.Context;
@@ -231,6 +232,9 @@ public class SiteFormDE extends DivRepForm
 			SiteModel model = new SiteModel(context);
 			if(rec.id == null) {
 				model.insert(rec);
+				
+				//create footprint ticket
+				Footprint fp = new Footprint(context);
 			} else {
 				model.update(model.get(rec), rec);
 			}

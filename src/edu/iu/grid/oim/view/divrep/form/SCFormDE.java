@@ -12,6 +12,7 @@ import com.webif.divrep.common.DivRepTextBox;
 import com.webif.divrep.validator.DivRepUniqueValidator;
 
 import edu.iu.grid.oim.lib.Authorization;
+import edu.iu.grid.oim.lib.Footprint;
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
 import edu.iu.grid.oim.model.Context;
 import edu.iu.grid.oim.model.db.ContactTypeModel;
@@ -198,6 +199,9 @@ public class SCFormDE extends DivRepForm
 		try {
 			if(rec.id == null) {
 				model.insertDetail(rec, contacts);
+				//create footprint ticket
+				Footprint fp = new Footprint(context);
+				fp.createNewSCTicket(rec.name);
 			} else {
 				model.updateDetail(rec, contacts);
 			}

@@ -30,6 +30,7 @@ import com.webif.divrep.validator.DivRepUniqueValidator;
 import com.webif.divrep.validator.DivRepUrlValidator;
 
 import edu.iu.grid.oim.lib.Authorization;
+import edu.iu.grid.oim.lib.Footprint;
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
 
 import edu.iu.grid.oim.model.Context;
@@ -612,6 +613,11 @@ public class VOFormDE extends DivRepForm
 						parent_vo.getValue(), 
 						field_of_science_ids,
 						vo_report_name_div.getVOReports());
+				
+				//create footprint ticket
+				Footprint fp = new Footprint(context);
+				fp.createNewVOTicket(rec.name);
+				
 			} else {
 				model.updateDetail(rec, 
 						contacts, 
