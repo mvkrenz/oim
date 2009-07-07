@@ -40,7 +40,7 @@ public class ServletBase extends HttpServlet {
 			log.info(req.getRequestURI() + "?" + req.getQueryString());
 			if(auth.getDNID() == null) {
 				String path = req.getServletPath();
-				if(path.equals("/home") || path.equals("/help")) {
+				if(auth.isLocal() || path.equals("/home") || path.equals("/help")) {
 					//certain pages can be displayed without DN (TODO - need a better way to do this)
 				} else if(!path.equals("/register")) {
 					resp.sendRedirect(StaticConfig.getApplicationBase()+"/register");

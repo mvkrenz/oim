@@ -66,10 +66,7 @@ public class ReportRegistrationServlet extends ServletBase implements Servlet {
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{	
-		//allow local access for goc@ emailing via cron
-		if(!auth.isLocal()) {
-			auth.check("admin");
-		}
+		auth.check("admin");
 		
 		try {
 			String days_str = request.getParameter("days");
