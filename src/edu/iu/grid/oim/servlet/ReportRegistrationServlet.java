@@ -2,6 +2,7 @@ package edu.iu.grid.oim.servlet;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -65,7 +66,10 @@ public class ReportRegistrationServlet extends ServletBase implements Servlet {
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{	
-		auth.check("admin");
+		//allow local access for goc@ emailing via cron
+		if(!auth.isLocal()) {
+			auth.check("admin");
+		}
 		
 		try {
 			String days_str = request.getParameter("days");
@@ -83,8 +87,13 @@ public class ReportRegistrationServlet extends ServletBase implements Servlet {
 			bread_crumb.addCrumb("Registration Report",  null);
 			contentview.setBreadCrumb(bread_crumb);
 			
-			Page page = new Page(menuview, contentview, createSideView());
-			page.render(response.getWriter());				
+			PrintWriter out = response.getWriter();
+			if(request.getParameter("plain") != null) {
+				contentview.render(out);
+			} else {
+				Page page = new Page(menuview, contentview, createSideView());
+				page.render(out);			
+			}
 		} catch (SQLException e) {
 			log.error(e);
 			throw new ServletException(e);
