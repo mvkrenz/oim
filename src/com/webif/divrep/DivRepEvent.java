@@ -1,9 +1,9 @@
 package com.webif.divrep;
 
-public class DivRepEvent {
+public class DivRepEvent<T> {
 	public String action;
-	public Object value;
-	public DivRepEvent(String _action, Object _value) {
+	public T value;
+	public DivRepEvent(String _action, T _value) {
 		action = _action;
 		value = _value;
 	}

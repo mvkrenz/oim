@@ -242,7 +242,7 @@ public class ResourceServlet extends ServletBase implements Servlet {
 				}
 			};
 			table.add(new DivRepWrapper(new EditButtonDE(context.getPageRoot(), 
-					StaticConfig.getApplicationBase()+"/resourceedit?resource_id=" + rec.id)));
+					StaticConfig.getApplicationBase()+"/resourceedit?id=" + rec.id)));
 
 		}
 		

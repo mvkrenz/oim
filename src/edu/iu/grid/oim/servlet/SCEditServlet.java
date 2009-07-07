@@ -43,7 +43,7 @@ public class SCEditServlet extends ServletBase implements Servlet {
 		String title;
 
 		//if sc_id is provided then we are doing update, otherwise do new.
-		String sc_id_str = request.getParameter("sc_id");
+		String sc_id_str = request.getParameter("id");
 		if(sc_id_str != null) {
 			//check authorization
 			int sc_id = Integer.parseInt(sc_id_str);

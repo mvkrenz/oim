@@ -19,9 +19,7 @@ import edu.iu.grid.oim.model.db.record.LogRecord;
 public class LogModel extends ModelBase {
     static Logger log = Logger.getLogger(LogModel.class); 
     public static String NULL_TOKEN = "##null##";
-    
-	//public enum Type {ALL, RESOURCE, VO, SC, CONTACT, SITE, FACILITY};
-    
+        
     public LogModel(Context context) 
     {
     	super(context, "log");
@@ -32,13 +30,13 @@ public class LogModel extends ModelBase {
 		return new LogRecord();
 	}
     
-    public Collection<LogRecord> getLatest(String model) throws SQLException
+    public Collection<LogRecord> getLatest(String model, Integer days) throws SQLException
     {
     	//no auth check -- client needs to figure out if the log is accessible to the user or not
     	
     	ArrayList<LogRecord> recs = new ArrayList<LogRecord>();
 
-    	String sql = "SELECT * FROM log WHERE timestamp > curtime() - 86400 * 7 AND model LIKE ? ORDER BY timestamp DESC";
+    	String sql = "SELECT * FROM log WHERE timestampdiff(DAY, timestamp,localtimestamp) < "+days+" AND model LIKE ? ORDER BY timestamp DESC";
     	Connection conn = connectOIM();
 		PreparedStatement stmt = conn.prepareStatement(sql); 
 		stmt.setString(1, model);

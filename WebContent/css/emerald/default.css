@@ -143,6 +143,10 @@ vertical-align: top;
 	margin-bottom: 3px;
 	font-size: 11px;
 }
+a h3
+{
+	text-decoration: underline;
+}
 #content h4,#content h5,#content h6
 {
 margin-bottom: 3px;

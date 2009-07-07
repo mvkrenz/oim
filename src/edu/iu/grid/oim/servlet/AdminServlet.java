@@ -91,6 +91,11 @@ public class AdminServlet extends ServletBase  {
 			
 			contentview.add(new InternalLinkView("adminannualreview", "Annual Review Controller"));
 			contentview.add(new HtmlView("<br/>"));
+			
+			contentview.add(new HtmlView("<br/>"));
+			contentview.add(new HtmlView("<h3>Reports</h3>"));
+			contentview.add(new InternalLinkView("reportregistration", "Registration"));
+			contentview.add(new HtmlView("<br/>"));
 		}
 		
 		if (auth.allows("admin") || auth.allows("edit_measurement")) {

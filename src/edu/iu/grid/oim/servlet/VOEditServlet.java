@@ -36,7 +36,7 @@ public class VOEditServlet extends ServletBase implements Servlet {
 		String title;
 
 		//if vo_id is provided then we are doing update, otherwise do new.
-		String vo_id_str = request.getParameter("vo_id");
+		String vo_id_str = request.getParameter("id");
 		if(vo_id_str != null) {
 			
 			//check authorization

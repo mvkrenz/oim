@@ -74,6 +74,17 @@ public abstract class DivRep {
 	}
 
 	private ArrayList<DivRepEventListener> event_listeners = new ArrayList<DivRepEventListener>();
+	public void addEventListener(DivRepEventListener listener)
+	{
+		event_listeners.add(listener);
+	}
+	protected void notifyListener(DivRepEvent e)
+	{
+		//notify event listener
+		for(DivRepEventListener listener : event_listeners) {
+			listener.handleEvent(e);
+		}
+	}
 	
 	public String getNodeID() { return nodeid; }
 
@@ -129,10 +140,6 @@ public abstract class DivRep {
 	}
 	
 	abstract public void render(PrintWriter out);
-	public void addEventListener(DivRepEventListener listener)
-	{
-		event_listeners.add(listener);
-	}
 		
 	public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException
 	{	
@@ -176,13 +183,6 @@ public abstract class DivRep {
 
 			out.write(page.outputUpdatecode());
 			page.flushPostReplaceJS(out);//needs to emit *after* divrep_replace(s)
-		}
-	}
-	protected void notifyListener(DivRepEvent e)
-	{
-		//notify event listener
-		for(DivRepEventListener listener : event_listeners) {
-			listener.handleEvent(e);
 		}
 	}
 	

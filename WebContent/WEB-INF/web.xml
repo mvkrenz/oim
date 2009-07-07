@@ -653,6 +653,21 @@
 		<servlet-name>AdminAnnualReviewServlet</servlet-name>
 		<url-pattern>/adminannualreview</url-pattern>
 	</servlet-mapping>
+		
+	<servlet>
+		<description>
+		</description>
+		<display-name>ReportRegistrationServlet</display-name>
+		<servlet-name>ReportRegistrationServlet</servlet-name>
+		<servlet-class>edu.iu.grid.oim.servlet.ReportRegistrationServlet</servlet-class>
+	</servlet>	
+	
+	<servlet-mapping>
+		<servlet-name>ReportRegistrationServlet</servlet-name>
+		<url-pattern>/reportregistration</url-pattern>
+	</servlet-mapping>
+	
+	
 
 	<welcome-file-list>
 		<welcome-file>index.jsp</welcome-file>

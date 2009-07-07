@@ -109,7 +109,7 @@ public class LogServlet extends ServletBase  {
 			
 			//pull log entries that matches the log type
 			LogModel lmodel = new LogModel(context);
-			Collection<LogRecord> recs = lmodel.getLatest(filter);
+			Collection<LogRecord> recs = lmodel.getLatest(filter, 7);
 			builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
 			for(LogRecord rec : recs) {
 				//instantiate the model specified on the log (with Authorization as parameter)

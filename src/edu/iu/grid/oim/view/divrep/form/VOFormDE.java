@@ -190,7 +190,7 @@ public class VOFormDE extends DivRepForm
 			out.write("<h2>Field of Science</h2>");
 	
 			
-			out.write("<p>DivRepSelectBox Field Of Science(s) applicable to this VO</p>");
+			out.write("<p>Select Field Of Science(s) applicable to this VO</p>");
 			
 			//sort the field_of_science by name and render
 			TreeSet<CheckBoxFormElement> sorted = new TreeSet<CheckBoxFormElement>(new Comparator<CheckBoxFormElement>() {

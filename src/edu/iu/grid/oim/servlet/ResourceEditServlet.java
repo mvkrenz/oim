@@ -43,7 +43,7 @@ public class ResourceEditServlet extends ServletBase implements Servlet {
 		ResourceRecord rec;
 		String title;
 
-		String resource_id_str = request.getParameter("resource_id");
+		String resource_id_str = request.getParameter("id");
 		if(resource_id_str != null) {
 			//pull record to update
 			int resource_id = Integer.parseInt(resource_id_str);
