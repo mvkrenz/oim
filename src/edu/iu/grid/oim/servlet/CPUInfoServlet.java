@@ -50,14 +50,8 @@ public class CPUInfoServlet extends ServletBase implements Servlet {
 		try {
 
 			//construct view
-			MenuView menuview = new MenuView(context, "admin");;
+			MenuView menuview = new MenuView(context, "cpuinfo");;
 			ContentView contentview = createContentView();
-			
-			//setup crumbs
-			BreadCrumbView bread_crumb = new BreadCrumbView();
-			bread_crumb.addCrumb("Administration",  "admin");
-			bread_crumb.addCrumb("CPU Information",  null);
-			contentview.setBreadCrumb(bread_crumb);
 			
 			Page page = new Page(menuview, contentview, createSideView());
 			page.render(response.getWriter());				
@@ -74,7 +68,7 @@ public class CPUInfoServlet extends ServletBase implements Servlet {
 		Collection<CpuInfoRecord> cpus = model.getAll();
 		
 		ContentView contentview = new ContentView();	
-		contentview.add(new HtmlView("<h1>CPU Info</h1>"));
+		contentview.add(new HtmlView("<h1>CPU Information</h1>"));
 	
 		for(CpuInfoRecord rec : cpus) {
 			contentview.add(new HtmlView("<h2>"+StringEscapeUtils.escapeHtml(rec.name)+"</h2>"));

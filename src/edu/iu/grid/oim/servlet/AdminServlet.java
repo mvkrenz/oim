@@ -97,13 +97,14 @@ public class AdminServlet extends ServletBase  {
 			contentview.add(new InternalLinkView("reportregistration", "Registration"));
 			contentview.add(new HtmlView("<br/>"));
 		}
-		
+		/*
 		if (auth.allows("admin") || auth.allows("edit_measurement")) {
 			contentview.add(new HtmlView("<br/>"));
 			contentview.add(new HtmlView("<h3>Measurement</h3>"));
 			contentview.add(new InternalLinkView("cpuinfo", "CPU Information"));
 			contentview.add(new HtmlView("<br/>"));
 		}
+		*/
 		
 		return contentview;
 	}
