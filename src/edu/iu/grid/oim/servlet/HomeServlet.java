@@ -123,7 +123,7 @@ public class HomeServlet extends ServletBase  {
 
 		public void render(PrintWriter out) {
 			out.write("<div id=\""+getNodeID()+"\">");
-			out.write("<h3>Confirmation</h3>");
+			out.write("<h3>Content Confirmation</h3>");
 			Date when = new Date();
 			when.setTime(when.getTime()-1000*3600*24*365);
 			if(crec.confirmed.before(when)) {
