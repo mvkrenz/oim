@@ -42,7 +42,7 @@ public class ContactFormDE extends DivRepForm
 	private DivRepTextBox sms_address;
 	private DivRepTextBox address_line_1, address_line_2;
 	private DivRepTextBox city, state, zipcode, country;
-	private CheckBoxFormElement active;
+	//sprivate CheckBoxFormElement active;
 	private CheckBoxFormElement disable;
 	private DivRepTextBox im;
 	private PhotoDE photo_url;
@@ -235,14 +235,14 @@ public class ContactFormDE extends DivRepForm
 		if(rec.person == null || rec.person == false) {
 			showHidePersonalDetail();
 		}
-		
+		/*
 		active = new CheckBoxFormElement(this);
 		active.setLabel("Active");
 		active.setValue(rec.active);
 		if(!auth.allows("admin")) {
 			active.setHidden(true);
 		}
-		
+		*/
 		disable = new CheckBoxFormElement(this);
 		disable.setLabel("Disable");
 		disable.setValue(rec.disable);
@@ -288,7 +288,7 @@ public class ContactFormDE extends DivRepForm
 		rec.state = state.getValue();
 		rec.zipcode = zipcode.getValue();
 		rec.country = country.getValue();
-		rec.active = active.getValue();
+		//rec.active = active.getValue();
 		rec.disable = disable.getValue();
 		rec.person = person.getValue();
 		rec.im = im.getValue();

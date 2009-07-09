@@ -70,7 +70,7 @@ abstract public class DivRepFormElement<ValueType> extends DivRep {
 	//elements
 	public void validate()
 	{
-		error.redraw();
+		boolean original = valid;
 		
 		//validate *all* child elements first
 		boolean children_valid = true;
@@ -85,35 +85,34 @@ abstract public class DivRepFormElement<ValueType> extends DivRep {
 				}
 			}
 		}
-		if(!children_valid) {
-			//error.set("Child element is invalid.");
-			valid = false;
-			return;
-		}
 		
-		error.set(null);
-		valid = true;
-		
-		//if required, run DivRepRequiredValidator
-		if(value == null || value.toString().trim().length() == 0) {
-			if(isRequired()) {
-				error.set("This is a required field. Please specify a value.");
-				valid = false;
-				return;
+		if(children_valid) {
+			//if child is valid, then let's validate myself..
+			error.set(null);
+			valid = true;
+			
+			if(value == null || value.toString().trim().length() == 0) {
+				if(isRequired()) {
+					error.set("This is a required field. Please specify a value.");
+					valid = false;
+				} 
 			} else {
-				//the field is not-required and it's empty - no futher validation necessary
-				return;
+				//then run the optional validation
+				for(DivRepIValidator<ValueType> validator : validators) {
+					if(!validator.isValid(value)) {
+						//bad..
+						error.set(validator.getErrorMessage());
+						valid = false;
+						break;
+					}
+				}
 			}
+		} else {
+			valid = false;
 		}
 		
-		//then run the optional validation
-		for(DivRepIValidator<ValueType> validator : validators) {
-			if(!validator.isValid(value)) {
-				//bad..
-				error.set(validator.getErrorMessage());
-				valid = false;
-				return;
-			}
+		if(original != valid) {
+			error.redraw();
 		}
 	}
 	

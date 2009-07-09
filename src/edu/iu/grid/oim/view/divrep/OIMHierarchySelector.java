@@ -378,7 +378,7 @@ public class OIMHierarchySelector extends DivRepFormElement<Integer> {
 			if(selected) {
 				selected_class="selected";
 			}
-			out.write("<div class=\""+selected_class+"\" onclick=\"divrep(this.id, event)\" id=\""+getNodeID()+"\">");
+			out.write("<div class=\""+selected_class+"\" onclick=\"$('#"+OIMHierarchySelector.this.getNodeID()+" .selected').removeClass('selected'); $(this).addClass('selected');divrep(this.id, event)\" id=\""+getNodeID()+"\">");
 			out.write(label);
 			out.write("</div>");
 		}
@@ -402,9 +402,9 @@ public class OIMHierarchySelector extends DivRepFormElement<Integer> {
 			super(_parent);
 		}
 		public void render(PrintWriter out) {
-			out.write("<div onclick=\"divrep(this.id, event)\" id=\""+getNodeID()+"\">");
-	
+
 			if(expanded) {
+				out.write("<div onclick=\"$(this).children('.indent').hide();divrep(this.id, event)\" id=\""+getNodeID()+"\">");
 				out.write("<img align=\"top\" src=\""+StaticConfig.getStaticBase()+"/images/minusbox.gif\"/>" + label);
 				out.write("<div class=\"indent\">");
 				if(child != null) {
@@ -414,7 +414,9 @@ public class OIMHierarchySelector extends DivRepFormElement<Integer> {
 				}
 				out.write("</div>");
 			} else {
-				out.write("<img align=\"top\" src=\""+StaticConfig.getStaticBase()+"/images/plusbox.gif\"/>" + label);				
+				out.write("<div onclick=\"$(this).children('.loading').show();divrep(this.id, event)\" id=\""+getNodeID()+"\">");
+				out.write("<img align=\"top\" src=\""+StaticConfig.getStaticBase()+"/images/plusbox.gif\"/>" + label);
+				out.write("<div class=\"loading hidden indent\">Loading ...</div>");
 			}
 			out.write("</div>");
 		}
@@ -451,14 +453,11 @@ public class OIMHierarchySelector extends DivRepFormElement<Integer> {
 		for(Selectable s : selectables) {
 			if(s.isSelected()) {
 				s.setSelected(false);
-				s.redraw();
 			}
 		}
-		
 		if(sel != null) {
 			//select new selection
 			sel.setSelected(true);
-			sel.redraw();
 			value = sel.getValue();
 		} else {
 			value = null;

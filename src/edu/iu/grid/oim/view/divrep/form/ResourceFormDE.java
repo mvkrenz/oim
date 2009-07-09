@@ -119,7 +119,7 @@ public class ResourceFormDE extends DivRepForm
 		fqdn.setSampleValue("gate01.sample.edu");
 
 		resource_group_id = new OIMHierarchySelector(this, context, OIMHierarchySelector.Type.RESOURCE_GROUP);
-		resource_group_id.setLabel("DivRepSelectBox Your Facility (Instituition), Site (Department), and Resource Group");
+		resource_group_id.setLabel("Select Your Facility (Instituition), Site (Department), and Resource Group");
 		resource_group_id.setRequired(true);
 		if(id != null) {
 			resource_group_id.setValue(rec.resource_group_id);

@@ -6,10 +6,21 @@ function divrepClearProcessing() {
 }
 
 function divrep(id, event, value) {
-
+	//stop bubble - needs to happen before ignore / queueing events to prevent
+	//event such as double clicking to bubble up
+	if(!event) var event = window.event;//IE
+	if(event) {
+		event.cancelBubble = true;//IE
+		if(event.stopPropagation) event.stopPropagation();//Standard
+	} else {
+		event = new Object();
+		event.type = "unknown";
+	}
+	
 	//make sure there is only one request at the same time (prevent double clicking of submit button)
 	if(divrep_processing_id == id) {
 		//previous request on same target still running - ignore;
+		//console.log('event ignore on ' + id);
 		return;
 	}
 	
@@ -18,26 +29,16 @@ function divrep(id, event, value) {
 	//we need to make sure that this doesn't happen.
 	if(divrep_processing_id != null) {
 		//wait until the previous processing ends
+		//console.log('queusing event on ' + id);
 		setTimeout(function() { divrep(id, event, value);}, 100);
 		return;
 	}
 	
 	divrep_processing_id = id;
 	
-	//stop bubble
-	if(!event) var event = window.event;//IE
-	if(event) {
-		event.cancelBubble = true;//IE
-		if (event.stopPropagation) event.stopPropagation();//Standard
-	} else {
-		event = new Object();
-		event.type = "unknown";
-	}
-	
-	//console.log("calling jQuery.ajax for " + id);
 	jQuery.ajax({
 		url: "divrep",
-		async: false,
+		async: true,//now running in async mode to not hose up browser..
 		data: { nodeid: id,
 			action: event.type,
 			value : value },
@@ -51,7 +52,6 @@ function divrep(id, event, value) {
 		   divrepClearProcessing();
 	    }
 	});
-	//console.log("end jQuery.ajax for " + id);
 }
 
 //this is basically the same thing as jquery.load, but instead of replacing the content 
@@ -98,11 +98,26 @@ function divrep_runjs()
 //from the returned javascript causes the browser history to incorrectly enter entry and hitting
 //back button will make the browser skip previous page and render previous - previous page.
 //timeout will prevent this issue from happening.
+//we now alow divrep event to be processed asynchlonously, so the only chance we got to 
+//prevent user from navigating away without saving is to let the event that is kicked off by 
+//onblur to finish processing the update. This still doesn't catch if someone edit the text box
+//and imediatly close the tab without causing onblur.. but I think it's okay because user should
+//know what they are doing - we have to catch the case where user edit something, browser around in 
+//the page and forget that she has changed something.
 var divrep_redirect_url = null;
 function divrep_redirect(url)
 {
 	divrep_redirect_url = url;
-	setTimeout(divrep_doRedirect, 0); //immediately call the timer
+	setTimeout(divrep_redirect_wait, 0);
+}
+function divrep_redirect_wait()
+{
+	//wait for all divrep processing completes
+	if(divrep_processing_id != null) {
+		setTimeout(divrep_redirect_wait, 100);
+	} else {
+		divrep_doRedirect();
+	}
 }
 function divrep_modified(mod)
 {

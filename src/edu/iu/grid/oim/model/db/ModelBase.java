@@ -18,7 +18,6 @@ public abstract class ModelBase<T extends RecordBase> {
     
     protected Context context;
 	protected Authorization auth;
-	
     protected String table_name;
     
 	protected ModelBase(Context _context, String _table_name)

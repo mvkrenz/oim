@@ -137,7 +137,7 @@ public class ContactServlet extends ServletBase implements Servlet {
 				personal_table.addRow("Contact Preference", rec.contact_preference);	
 			}
 
-			table.addRow("Active", rec.active);
+			//table.addRow("Active", rec.active);
 			table.addRow("Disable", rec.disable);
 			
 			if(auth.allows("admin")) {

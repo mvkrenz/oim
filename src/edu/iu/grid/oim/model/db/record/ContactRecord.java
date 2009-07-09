@@ -2,6 +2,7 @@ package edu.iu.grid.oim.model.db.record;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 
 import edu.iu.grid.oim.lib.Authorization;
@@ -12,7 +13,7 @@ import edu.iu.grid.oim.model.db.DNModel;
 import edu.iu.grid.oim.model.db.ResourceModel;
 import edu.iu.grid.oim.model.db.SCModel;
 
-public class ContactRecord extends RecordBase {
+public class ContactRecord extends RecordBase implements Cloneable  {
 
 	@Key public Integer id;
 	public String name;
@@ -21,7 +22,6 @@ public class ContactRecord extends RecordBase {
 	public String primary_phone_ext, secondary_phone_ext;
 	public String address_line_1, address_line_2;
 	public String city, state, zipcode, country;
-	public Boolean active;
 	public Boolean disable;
 	public Boolean person;
 	public String im;
@@ -29,6 +29,7 @@ public class ContactRecord extends RecordBase {
 	public Integer submitter_dn_id;
 	public String contact_preference;
 	public String sms_address;
+	public Timestamp confirmed;
 	
 	//load from existing record
 	public ContactRecord(ResultSet rs) throws SQLException {

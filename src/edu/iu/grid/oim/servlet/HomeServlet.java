@@ -1,7 +1,11 @@
 package edu.iu.grid.oim.servlet;
 
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Date;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -10,11 +14,20 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
 
+import com.webif.divrep.DivRep;
+import com.webif.divrep.DivRepEvent;
+import com.webif.divrep.DivRepEventListener;
 import com.webif.divrep.DivRepRoot;
+import com.webif.divrep.common.DivRepButton;
 
 import edu.iu.grid.oim.lib.StaticConfig;
+import edu.iu.grid.oim.model.Context;
 import edu.iu.grid.oim.model.MenuItem;
+import edu.iu.grid.oim.model.db.ContactModel;
+import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.view.ContentView;
+import edu.iu.grid.oim.view.DivRepWrapper;
+import edu.iu.grid.oim.view.GenericView;
 import edu.iu.grid.oim.view.HtmlView;
 import edu.iu.grid.oim.view.MenuView;
 import edu.iu.grid.oim.view.Page;
@@ -32,21 +45,11 @@ public class HomeServlet extends ServletBase  {
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{
-		//setContext(request);
-		
 		MenuView menuview = new MenuView(context, "home");
 		ContentView contentview;
-		/*
-		if(auth.getUserDN() == null || auth.getUserCN() == null) {
-			//User didn't login with valid certificate
-			response.sendRedirect(StaticConfig.getApplicationBase() + "/needcert");
-		} else {
-					//all good.
-		 */
-			contentview = createContentView();
-			Page page = new Page(menuview, contentview, new SideContentView());
-			page.render(response.getWriter());	
-		//}
+		contentview = createContentView();
+		Page page = new Page(menuview, contentview, createSideView());
+		page.render(response.getWriter());
 	}
 	
 	protected ContentView createContentView()
@@ -57,20 +60,80 @@ public class HomeServlet extends ServletBase  {
 
 		// TODO agopu: need to clean this up with some divs etc. Nicer font, etc.
 		String welcome_string = "<p>Welcome to the OSG Information Management System.</p>";
-
 		if(auth.isGuest()) {
 			welcome_string += "<p>Please provide a DOE certificate via your web browser in order to use this system.</p>";
 		} else {
 			welcome_string += "<p>In the menu along the top, you will find options for registering or updating information for various OSG entities.</p>";
-				//hayashis: this is not correct - as soon as anybody register their DN, they can create / edit stuff
-				//"<p>If you are registering your personal information with us for the first time, you will need to wait for the OIM administrators to activate your membership before you are able to register or update Virtual Organization, Support Center or Resource information.</p>"+
-
-				//hayashis: do we really need to say this?
-				//"<p>For Standard Operating Procedures, Registration Instructions, and OIM Definitions for entering OIM data please see the Help Menu.</p>"; 
 		}
-		welcome_string += "<p>Please see Help page for more information.";
+		welcome_string += "<p>Please see Help page for more information.</p>";
 		contentview.add(new HtmlView(welcome_string));
-		
+	
+		//add confirmation button
+		if(!auth.isGuest()) {
+			try {
+				contentview.add(new DivRepWrapper(new Confirmation(auth.getContactID(), context)));
+			} catch (SQLException e) {
+				log.error(e);
+			}				
+		}
+
 		return contentview;
+	}
+	
+	private SideContentView createSideView()
+	{
+		SideContentView view = new SideContentView();	
+		return view;
+	}
+	
+	class Confirmation extends DivRep
+	{
+		DivRepButton confirm;
+		final ContactRecord crec;
+		final ContactModel cmodel;
+		final Context context;
+		
+		public Confirmation(Integer contact_id, Context _context) throws SQLException {
+			super(_context.getPageRoot());
+			
+	    	cmodel = new ContactModel(_context);
+	    	crec = (ContactRecord) cmodel.get(contact_id).clone();	    	
+	    	context = _context;
+				
+			confirm = new DivRepButton(this, "Confirm");
+			confirm.addEventListener(new DivRepEventListener() {
+				public void handleEvent(DivRepEvent e) {
+					alert("Thank you!");
+					Date d = new Date();
+					crec.confirmed = new Timestamp(d.getTime());
+					try {
+						cmodel.update(cmodel.get(crec.id), crec);
+						Confirmation.this.context.close();
+						Confirmation.this.redraw();
+					} catch (SQLException e1) {
+						log.error(e1);
+					}
+				}});
+		}
+
+		protected void onEvent(DivRepEvent e) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		public void render(PrintWriter out) {
+			out.write("<div id=\""+getNodeID()+"\">");
+			out.write("<h3>Confirmation</h3>");
+			Date when = new Date();
+			when.setTime(when.getTime()-1000*3600*24*365);
+			if(crec.confirmed.before(when)) {
+				out.write("<p class=\"elementerror\">You have not recently confirmed that your information in OIM is current</p>");
+			}
+			out.write("<p>The Last time you have confirmed is "+crec.confirmed.toString()+"</p>");
+			out.write("<p>Please go through all pages and make sure that all the information you see is accurate.</p>");
+			out.write("<p>Then please click following button.</p>");
+			confirm.render(out);
+			out.write("</div>");
+		}	
 	}
 }

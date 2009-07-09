@@ -16,7 +16,7 @@ import org.apache.log4j.Logger;
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.servlet.ServletBase;
 
-public abstract class RecordBase implements Comparable<RecordBase> {
+public abstract class RecordBase implements Comparable<RecordBase>, Cloneable {
 
 	@Retention(RetentionPolicy.RUNTIME)
 	public @interface Key {}
@@ -28,6 +28,7 @@ public abstract class RecordBase implements Comparable<RecordBase> {
 	{		
 		set(rs);
 	}
+	
 	public void set(ResultSet rs) throws SQLException
 	{
     	try {
@@ -35,6 +36,7 @@ public abstract class RecordBase implements Comparable<RecordBase> {
 			for(Field fld : fields) {
 				String name = fld.getName();
 				Class type = fld.getType();
+			
 		        if(type == String.class) {
 					fld.set(this, rs.getString(name));
 		        } else if(type == Integer.class) {
@@ -185,12 +187,12 @@ public abstract class RecordBase implements Comparable<RecordBase> {
 		ArrayList<String> lables = new ArrayList();
 		return lables;
 	}
-	/*
-	//override this to do custom conversion
-	public String toString(Field field, Authorization auth)
-	{
-		if(field == null) return null;
-		return field.toString();
-	}
-	*/
+    public Object clone() {
+        try {
+            return super.clone();
+        }
+        catch (CloneNotSupportedException e) {
+            throw new InternalError(e.toString());
+        }
+    }
 }

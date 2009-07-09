@@ -201,7 +201,7 @@ public class RegisterServlet extends ServletBase  {
 					rec.primary_phone = phone.getValue();
 					rec.person = true;
 					// Setting to false by default
-					rec.active = false;
+					//rec.active = false;
 					rec.disable = false;
 					model.insert(rec);
 				} else {

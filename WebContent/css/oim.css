@@ -218,6 +218,12 @@ p
 {
 padding-bottom: 5px;
 }
+.loading
+{
+background-image:url(../images/loading.gif);
+background-repeat:no-repeat;
+padding-left: 18px;
+}
 
 .round, h2
 {

@@ -23,15 +23,17 @@ public class DivRepServlet extends HttpServlet {
     
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
 	{	
-		/*
-		//simulate network latency
-		try {
-			Thread.sleep(300);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		
+		//simulate network latency for localhost
+		if(request.getLocalName().equals("localhost")) {
+			try {
+				Thread.sleep(600);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		}
-		*/
+		
 		
 		response.setHeader("Cache-Control","no-cache, must-revalidate");
 		
