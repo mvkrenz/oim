@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashSet;
 
 import javax.xml.xpath.XPath;
@@ -16,6 +17,7 @@ import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 
 import edu.iu.grid.oim.lib.Authorization;
+import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.model.Context;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.DNRecord;
@@ -80,6 +82,20 @@ public class ContactModel extends SmallTableModelBase<ContactRecord> {
 			}
 		}
 		return null;
+	}
+	
+	public ArrayList<ContactRecord> getConfirmationExpiredPersonalContacts() throws SQLException
+	{
+		Date when = new Date();
+		when.setTime(when.getTime()-1000*3600*24*StaticConfig.getConfirmationExpiration());
+		ArrayList<ContactRecord> list = new ArrayList<ContactRecord>();
+		
+		for(ContactRecord it : getAll()) {
+			if(it.person && it.confirmed.before(when)) {	
+				list.add(it);
+			}
+		}
+		return list;	
 	}
 	
 	public ArrayList<ContactRecord> getAllEditable() throws SQLException

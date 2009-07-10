@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
@@ -29,6 +30,9 @@ public class StaticConfig {
 
 	private String gmap_api_key;
 	static public String getGMapAPIKey() { return config.gmap_api_key; }
+	
+	private int confirmation_expiration;
+	static public int getConfirmationExpiration() { return config.confirmation_expiration; }
 	
 	//Footprints
 	private String footprints_uri;
@@ -91,7 +95,11 @@ public class StaticConfig {
 			
 			doe_cn = (String)xpath.evaluate("//DOECN", config_xml);;
 			is.reset();
-
+			
+			Double d = (Double)xpath.evaluate("//ConfirmationExpiration", config_xml, XPathConstants.NUMBER);
+			confirmation_expiration = d.intValue();
+			is.reset();
+			
 		} catch (XPathExpressionException e) {
 			log.error(e);
 		} catch (IOException e) {

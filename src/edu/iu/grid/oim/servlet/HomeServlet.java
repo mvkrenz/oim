@@ -125,7 +125,7 @@ public class HomeServlet extends ServletBase  {
 			out.write("<div id=\""+getNodeID()+"\">");
 			out.write("<h3>Content Confirmation</h3>");
 			Date when = new Date();
-			when.setTime(when.getTime()-1000*3600*24*365);
+			when.setTime(when.getTime()-1000*3600*24*StaticConfig.getConfirmationExpiration());
 			if(crec.confirmed.before(when)) {
 				out.write("<p class=\"elementerror\">You have not recently confirmed that your information in OIM is current</p>");
 			}
