@@ -130,8 +130,8 @@ public class HomeServlet extends ServletBase  {
 				out.write("<p class=\"elementerror\">You have not recently confirmed that your information in OIM is current</p>");
 			}
 			out.write("<p>The Last time you have confirmed is "+crec.confirmed.toString()+"</p>");
-			out.write("<p>Please go through all pages and make sure that all the information you see is accurate.</p>");
-			out.write("<p>Then please click following button.</p>");
+			out.write("<p>Please go to the profile page located in the top menu and make sure that all the information you see is accurate.</p>");
+			out.write("<p>Then, please click following button to confirm the information.</p>");
 			confirm.render(out);
 			out.write("</div>");
 		}	
