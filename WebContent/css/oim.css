@@ -140,14 +140,9 @@ padding: 3px;
 {
 padding-bottom: 3px;
 }
-
 .form span
 {
 font-weight: bold;
-}
-.form .form_element
-{
-margin-bottom: 10px;
 }
 .service_editor, .downtime_editor, .vo_report_name_editor, .metric_service_editor, .vo_report_name_fqan, .owner_editor
 {
@@ -218,14 +213,8 @@ p
 {
 padding-bottom: 5px;
 }
-.loading
-{
-background-image:url(../images/loading.gif);
-background-repeat:no-repeat;
-padding-left: 18px;
-}
 
-.round, h2
+h2
 {
 -moz-border-radius-topleft: 4px;
 -moz-border-radius-topright: 4px;
@@ -236,15 +225,6 @@ padding-left: 18px;
 -webkit-border-bottom-left-radius: 4px;
 -webkit-border-bottom-right-radius: 4px;
 }
-
-div.hidden
-{
-display: none;
-}
-div.inline
-{
-display: inline;
-}
 div.selected
 {
 background-color: #ccc;
@@ -253,10 +233,6 @@ background-color: #ccc;
 {
 float:right;
 text-align:right;
-}
-.indent
-{
-margin-left: 16px;
 }
 .gray
 {
@@ -332,6 +308,9 @@ div.downtime
     border-top: #aaa solid 1px;
     border-bottom: #aaa solid 1px;
     padding: 10px;
-
+}
+img
+{
+border: 0px;
 }
 

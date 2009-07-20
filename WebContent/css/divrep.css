@@ -1,26 +1,11 @@
-input.sample { color: #ccc;}
+input.divrep_sample { color: #ccc;}
 .divrep_processing {color: gray;}
-body {
-	font-family: "trebuchet ms", sans-serif;
-	font-size: 11pt;
-	background-color: #666;
-}
-#content
-{
-	padding: 20px;
-	margin: 20px;
-	background-color: white;
-}
-.form_element
+
+.divrep_form_element
 {
 	padding-bottom: 5px;
 }
-.form_element label
-{
-	font-weight: bold;
-}
-
-.form_element .elementerror
+.divrep_form_element .divrep_elementerror
 {
 background-color: red;
 color: white;
@@ -30,8 +15,7 @@ margin: 2px;
 padding: 5px;
 padding-left:25px;
 }
-
-.round
+.divrep_round
 {
 -moz-border-radius-topleft: 4px;
 -moz-border-radius-topright: 4px;
@@ -42,12 +26,25 @@ padding-left:25px;
 -webkit-border-bottom-left-radius: 4px;
 -webkit-border-bottom-right-radius: 4px;
 }
-
-img
+.divrep_indent
 {
-border: 0px;
+margin-left: 40px;
 }
-.indent
+.divrep_hidden
 {
-	margin-left: 40px;
+display: none;
+}
+.divrep_loading
+{
+background-image:url(divrep/loading.gif);
+background-repeat:no-repeat;
+padding-left: 20px;
+}
+.divrep_underline
+{
+text-decoration: underline;
+}
+.divrep_inline
+{
+display: inline;
 }
