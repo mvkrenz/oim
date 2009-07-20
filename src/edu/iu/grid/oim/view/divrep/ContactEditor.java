@@ -132,7 +132,7 @@ public class ContactEditor extends DivRepFormElement<HashMap<ContactEditor.Rank,
 		}
 		
 		public void render(PrintWriter out) {
-			out.print("<div class=\"inline\" id=\""+getNodeID()+"\">");
+			out.print("<div class=\"divrep_inline\" id=\""+getNodeID()+"\">");
 			out.print("<input type='text' class='autocomplete'/>");
 			out.print("<script type='text/javascript'>$(document).ready(function() {setAutocomplete($('#"+getNodeID()+" input.autocomplete'));});</script>");
 			out.print("</div>");
@@ -249,7 +249,6 @@ public class ContactEditor extends DivRepFormElement<HashMap<ContactEditor.Rank,
 					modified(true);
 				}
 			});
-			//setAttr("class", "inline contact round");
 		}
 		public void render(PrintWriter out)
 		{

@@ -48,3 +48,7 @@ text-decoration: underline;
 {
 display: inline;
 }
+.divrep_link
+{
+text-decoration: underline; 
+}

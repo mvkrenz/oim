@@ -26,7 +26,7 @@ public class DivRepToggler extends DivRep {
 		//set generic show/hide buttons
 		show_html = "Show Detail";
 		hide_html = "Hide Detail";
-		loading_html = "<p class=\"loading\">Loading...</p>";
+		loading_html = "<p class=\"divrep_loading\">Loading...</p>";
 	}
 	
 	public void setShow(Boolean _show)
@@ -62,23 +62,23 @@ public class DivRepToggler extends DivRep {
 			
 			//show button (hidden)
 			out.write("<div id=\""+getNodeID()+"_show\" onclick=\"$('#"+content.getNodeID()+"').show();$('#"+getNodeID()+"_hide').show();$(this).hide();\" class=\"divrep_hidden\">");
-			out.write(show_html);
+			out.write("<span class=\"divrep_link\">"+show_html+"</span>");
 			out.write("</div>");
 			
 			//hide button
 			out.write("<div id=\""+getNodeID()+"_hide\" onclick=\"$('#"+content.getNodeID()+"').hide();$(this).hide();$('#"+getNodeID()+"_show').show();\">");
-			out.write(hide_html);
+			out.write("<span class=\"divrep_link\">"+hide_html+"</span>");
 			out.write("</div>");
 			
 			content.render(out);
 		} else {
 			//content initially not loaded
 			out.write("<div id=\""+getNodeID()+"\" onclick=\"$('#"+getNodeID()+"_loading').show();divrep('"+getNodeID()+"', event)\">");
-			out.write(show_html);
+			out.write("<span class=\"divrep_link\">"+show_html+"</span>");
 			
 			//loading
 			out.write("<div id=\""+getNodeID()+"_loading\" class=\"divrep_hidden\">");
-			out.write(loading_html);
+			out.write("<p>"+loading_html+"</p>");
 			out.write("</div>");
 		}
 		out.write("</div>");

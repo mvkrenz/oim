@@ -32,7 +32,7 @@ public class ResourceAlias extends DivRepFormElement {
 			myself = this;
 			
 			text = new DivRepTextBox(this);
-			text.addClass("inline");
+			text.addClass("divrep_inline");
 			
 			remove_button = new DivRepButton(this, "images/delete.png");
 			remove_button.setStyle(DivRepButton.Style.IMAGE);
