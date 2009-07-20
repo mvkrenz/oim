@@ -101,11 +101,13 @@ public class VOServlet extends ServletBase implements Servlet {
 			
 			RecordTableView table = new RecordTableView();
 			// TODO agopu: 10 is an arbitrary number -- perhaps we should make this a user preference? show/hide?
+			DivRepToggler toggler = new DivRepToggler(context.getPageRoot(), new ViewWrapper(context.getPageRoot(), table));
 			if (vos.size() > 10) {
-				contentview.add(new DivRepToggler(context.getPageRoot(), new ViewWrapper(context.getPageRoot(), table), false));
+				toggler.setShow(false);
 			} else {
-				contentview.add(new DivRepToggler(context.getPageRoot(), new ViewWrapper(context.getPageRoot(), table), true));
+				toggler.setShow(true);
 			}
+			contentview.add(toggler);
 
 			//pull parent vo
 			VORecord parent_vo_rec = model.getParentVO(rec.id);

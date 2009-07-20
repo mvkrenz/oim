@@ -16,6 +16,8 @@ import com.webif.divrep.common.DivRepButton;
 import com.webif.divrep.common.DivRepStaticContent;
 import com.webif.divrep.common.DivRepToggler;
 
+import edu.iu.grid.oim.lib.StaticConfig;
+
 public class TreeServlet extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{	
@@ -24,7 +26,7 @@ public class TreeServlet extends HttpServlet {
 		
 		//Load DivRep Stuff
 		out.write("<script type=\"text/javascript\" src=\"divrep.js\"></script>");
-		out.write("<link href=\"css/divrep.sample.css\" rel=\"stylesheet\" type=\"text/css\"/>");
+		out.write("<link href=\"css/divrep.css\" rel=\"stylesheet\" type=\"text/css\"/>");
 
 		//Load jQuery
 		out.write("<script type=\"text/javascript\" src=\"http://jqueryjs.googlecode.com/files/jquery-1.3.2.min.js\"></script>");
@@ -47,14 +49,8 @@ public class TreeServlet extends HttpServlet {
 			super(_parent);
 			Child child = new Child(this);
 			root = new DivRepToggler(this, child);
-			
-			DivRepButton show_button = root.getShowButton();
-			show_button.setStyle(DivRepButton.Style.IMAGE);
-			show_button.setTitle("images/folder-close.gif");
-
-			DivRepButton hide_button = root.getHideButton();
-			hide_button.setStyle(DivRepButton.Style.IMAGE);
-			hide_button.setTitle("images/folder-open.gif");
+			root.setShowHtml("<a img src=\""+StaticConfig.getApplicationBase()+"/images/divrep/folder-close.gif\"/>");
+			root.setHideHtml("<a img src=\""+StaticConfig.getApplicationBase()+"/images/divrep/folder-open.gif\"/>");
 		}
 
 		@Override

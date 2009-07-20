@@ -86,7 +86,7 @@ public class VOReportNameFqan extends DivRepFormElement {
 		}
 
 		public void render(PrintWriter out) {
-			out.write("<div id=\""+getNodeID()+"\" class=\"vo_report_name_fqan round\">");
+			out.write("<div id=\""+getNodeID()+"\" class=\"vo_report_name_fqan divrep_round\">");
 			
 			out.write("<span class=\"right\">");
 			remove_button.render(out);

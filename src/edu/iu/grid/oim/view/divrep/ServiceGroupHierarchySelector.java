@@ -277,7 +277,7 @@ public class ServiceGroupHierarchySelector extends DivRepFormElement<Integer> {
 			} else {
 				out.write("<div onclick=\"$(this).children('.loading').show();divrep(this.id, event)\" id=\""+getNodeID()+"\">");
 				out.write("<img align=\"top\" src=\""+StaticConfig.getStaticBase()+"/images/plusbox.gif\"/>" + label);
-				out.write("<div class=\"loading hidden indent\">Loading ...</div>");
+				out.write("<div class=\"divrep_loading divrep_hidden divrep_indent\">Loading ...</div>");
 			}
 			out.write("</div>");
 		}

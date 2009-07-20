@@ -51,7 +51,7 @@ abstract public class DivRepFormElement<ValueType> extends DivRep {
 		public void render(PrintWriter out) {
 			out.write("<div class=\"inline\" id=\""+getNodeID()+"\">");
 			if(error != null) {
-				out.write("<p class='elementerror round'>"+StringEscapeUtils.escapeHtml(error)+"</p>");
+				out.write("<p class='divrep_elementerror divrep_round'>"+StringEscapeUtils.escapeHtml(error)+"</p>");
 			}
 			out.write("</div>");
 		}

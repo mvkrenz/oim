@@ -85,7 +85,7 @@ abstract public class DivRepForm extends DivRep {
 			if(child == submitbutton || child == cancelbutton) continue;
 			
 			if(child instanceof DivRepFormElement) {
-				out.print("<div class=\"form_element\">");
+				out.print("<div class=\"divrep_form_element\">");
 				child.render(out);
 				out.print("</div>");
 			

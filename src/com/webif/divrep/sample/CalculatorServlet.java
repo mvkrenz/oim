@@ -23,12 +23,7 @@ public class CalculatorServlet extends HttpServlet {
 		PrintWriter out = response.getWriter();
 		out.write("<script type=\"text/javascript\" src=\"divrep.js\"></script>");
 		out.write("<script type=\"text/javascript\" src=\"http://jqueryjs.googlecode.com/files/jquery-1.3.2.min.js\"></script>");
-		
-		out.write("<style>");
-		out.write(".calc_node { border: 1px solid black; padding: 5px; margin: 5px; background-color: white;}");
-		out.write(".divrep_processing {color: gray;}");
-		out.write(".logic {background-color: #ccf; padding: 5px; margin: 5px;  border: 1px solid black;}");
-		out.write("</style>");
+		out.write("<link href=\"css/divrep.css\" rel=\"stylesheet\" type=\"text/css\"/>");
 
 		DivRepPage pageroot = DivRepRoot.initPageRoot(request);
 		CalculatorDE calc = new CalculatorDE(pageroot);

@@ -127,7 +127,7 @@ public class HomeServlet extends ServletBase  {
 			Date when = new Date();
 			when.setTime(when.getTime()-1000*3600*24*StaticConfig.getConfirmationExpiration());
 			if(crec.confirmed.before(when)) {
-				out.write("<p class=\"elementerror\">You have not recently confirmed that your information in OIM is current</p>");
+				out.write("<p class=\"divrep_elementerror\">You have not recently confirmed that your information in OIM is current</p>");
 			}
 			out.write("<p>The last time you confirmed your information in OIM was "+crec.confirmed.toString()+"</p>");
 			out.write("<p>Please go to the profile page located in the top menu and make sure that all the information you see is accurate.</p>");

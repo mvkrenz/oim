@@ -21,7 +21,9 @@ public class ViewWrapper extends DivRep {
 	}
 
 	public void render(PrintWriter out) {
+		out.write("<div id=\""+getNodeID()+"\">");
 		content.render(out);
+		out.write("</div>");
 	}
 
 }

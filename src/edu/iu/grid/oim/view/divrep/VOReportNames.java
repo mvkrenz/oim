@@ -146,7 +146,7 @@ public class VOReportNames extends DivRepFormElement {
 				if(child instanceof DivRepFormElement) {
 					DivRepFormElement elem = (DivRepFormElement)child;
 					if(!elem.isHidden()) {
-						out.print("<div class=\"form_element\">");
+						out.print("<div class=\"divrep_form_element\">");
 						child.render(out);
 						out.print("</div>");
 					}

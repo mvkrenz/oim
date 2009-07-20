@@ -22,11 +22,9 @@ public class TradingGameServlet extends HttpServlet {
 		PrintWriter out = response.getWriter();
 		out.write("<script type=\"text/javascript\" src=\"divrep.js\"></script>");
 		out.write("<script type=\"text/javascript\" src=\"http://jqueryjs.googlecode.com/files/jquery-1.3.2.min.js\"></script>");
-		out.write("<link rel=\"stylesheet\" href=\"divrep.css\" type=\"text/css\">");
+		out.write("<link href=\"css/divrep.css\" rel=\"stylesheet\" type=\"text/css\"/>");
 		
 		out.write("<style>");
-		out.write(".calc_node { border: 1px solid black; padding: 5px; margin: 5px; background-color: white;}");
-		out.write(".divrep_processing {color: gray;}");
 		out.write(".selector {float: right; background-color: #ccc;}");
 		out.write(".selected {background-color: #ccf;}");
 		out.write("</style>");

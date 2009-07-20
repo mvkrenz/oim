@@ -1,0 +1,21 @@
+
+*
+{
+	margin: 0em;
+	padding: 0em;
+}
+
+body
+{
+	font-family: "trebuchet ms", sans-serif;
+	color: #555555;
+	font-size: 11pt;
+	padding: 10px;
+}
+
+a img
+{
+border: none;
+vertical-align: middle;
+}
+

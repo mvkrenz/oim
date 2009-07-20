@@ -108,17 +108,6 @@ public abstract class DivRep {
 		return code;
 	}
 	
-	/*
-	protected void flushJS(PrintWriter out)
-	{
-		out.write(js);
-		js = "";
-		for(DivRep d : childnodes) {
-			d.flushJS(out);
-		}
-	}
-	*/
-	
 	//recursively set mine and my children's needupdate flag
 	public void setNeedupdate(Boolean b)
 	{

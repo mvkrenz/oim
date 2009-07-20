@@ -88,7 +88,7 @@ public class SiteFormDE extends DivRepForm
 		}
 
 		facility_id = new DivRepSelectBox(this, getFacilities());
-		facility_id.setLabel("DivRepSelectBox the facility this site is part of");
+		facility_id.setLabel("Select the facility this site is part of");
 		facility_id.setValue(rec.facility_id);
 		facility_id.setRequired(true);
 
@@ -109,7 +109,7 @@ public class SiteFormDE extends DivRepForm
 		description.setRequired(false);
 
 		sc_id = new DivRepSelectBox(this, getSCs());
-		sc_id.setLabel("DivRepSelectBox Support Center for this Site");
+		sc_id.setLabel("Select Support Center for this Site");
 		sc_id.setValue(rec.sc_id);
 		sc_id.setRequired(true);
 

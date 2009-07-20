@@ -314,7 +314,7 @@ public class VOFormDE extends DivRepForm
 			vos.remove(id);
 		}
 		parent_vo = new DivRepSelectBox(this, vos);
-		parent_vo.setLabel("DivRepSelectBox a Parent VO");
+		parent_vo.setLabel("Select a Parent VO");
 		hideParentVOSelector(true);
 		child_vo.addEventListener(new DivRepEventListener() {
 			public void handleEvent(DivRepEvent e) {	
@@ -363,7 +363,7 @@ public class VOFormDE extends DivRepForm
 		long_name.setSampleValue("Collider Detector at Fermilab");
 
 		sc_id = new DivRepSelectBox(this, getSCNames());
-		sc_id.setLabel("DivRepSelectBox a Support Center that will support this VO");
+		sc_id.setLabel("Select a Support Center that will support this VO");
 		sc_id.setValue(rec.sc_id);
 		sc_id.setRequired(true);
 		

@@ -8,9 +8,12 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.webif.divrep.common.DivRepButton;
 import com.webif.divrep.common.DivRepForm;
 import com.webif.divrep.common.DivRepTextBox;
 import com.webif.divrep.DivRep;
+import com.webif.divrep.DivRepEvent;
+import com.webif.divrep.DivRepEventListener;
 import com.webif.divrep.DivRepRoot;
 import com.webif.divrep.DivRepRoot.DivRepPage;
 
@@ -22,7 +25,8 @@ public class FormServlet extends HttpServlet {
 		
 		//Load DivRep Stuff
 		out.write("<script type=\"text/javascript\" src=\"divrep.js\"></script>");
-		out.write("<link href=\"css/divrep.sample.css\" rel=\"stylesheet\" type=\"text/css\"/>");
+		out.write("<link href=\"css/divrep.css\" rel=\"stylesheet\" type=\"text/css\"/>");
+		out.write("<link href=\"css/divrep.samples.css\" rel=\"stylesheet\" type=\"text/css\"/>");
 
 		//Load jQuery
 		out.write("<script type=\"text/javascript\" src=\"http://jqueryjs.googlecode.com/files/jquery-1.3.2.min.js\"></script>");
@@ -43,6 +47,7 @@ public class FormServlet extends HttpServlet {
 	{
 		DivRepTextBox name;
 		DivRepTextBox tel;
+		//SomeDivRep extra;
 		
 		public Form(DivRep _parent) {
 			//Second argument is the return address of this form after user hit submit (sucessfully) or cancel
@@ -54,6 +59,8 @@ public class FormServlet extends HttpServlet {
 			
 			tel = new DivRepTextBox(this);
 			tel.setLabel("Telephone Number");
+			
+			//extra = new SomeDivRep(this);
 		}
 		
 		//When user clicks submit and if the form passes validations, this function will be called
@@ -64,6 +71,5 @@ public class FormServlet extends HttpServlet {
 			//return false to stay on the form
 			return false;
 		}
-		
 	}
 }

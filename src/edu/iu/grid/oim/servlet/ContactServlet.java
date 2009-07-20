@@ -98,12 +98,14 @@ public class ContactServlet extends ServletBase implements Servlet {
 
 			RecordTableView table = new RecordTableView();
 			// TODO agopu: 10 is an arbitrary number -- perhaps we should make this a user preference? show/hide?
+			DivRepToggler toggler = new DivRepToggler(context.getPageRoot(), new ViewWrapper(context.getPageRoot(), table));
 			if (contacts.size() > 10) {
-				contentview.add(new DivRepToggler(context.getPageRoot(), new ViewWrapper(context.getPageRoot(), table),false));
+				toggler.setShow(false);
 			} else {
-				contentview.add(new DivRepToggler(context.getPageRoot(), new ViewWrapper(context.getPageRoot(), table),true));
+				toggler.setShow(true);
 			}
-
+			contentview.add(toggler);
+			
 			table.addRow("Primary Email", new HtmlView("<a class=\"mailto\" href=\"mailto:"+rec.primary_email+"\">"+StringEscapeUtils.escapeHtml(rec.primary_email)+"</a>"));
 			table.addRow("Secondary Email", rec.secondary_email);
 

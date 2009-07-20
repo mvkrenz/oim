@@ -41,7 +41,7 @@ public class VOResourceOwnership extends DivRepFormElement {
 				kv.put(vo_rec.id, vo_rec.name);
 			}
 			vo = new DivRepSelectBox(this, kv);
-			vo.setLabel("DivRepSelectBox a VO Owner");
+			vo.setLabel("Select a VO Owner");
 			vo.setRequired(true);
 			if (rec.vo_id != null) {
 				vo.setValue(rec.vo_id);
@@ -115,7 +115,7 @@ public class VOResourceOwnership extends DivRepFormElement {
 				if(child instanceof DivRepFormElement) {
 					DivRepFormElement elem = (DivRepFormElement)child;
 					if(!elem.isHidden()) {
-						out.print("<div class=\"form_element\">");
+						out.print("<div class=\"divrep_form_element\">");
 						child.render(out);
 						out.print("</div>");
 					}

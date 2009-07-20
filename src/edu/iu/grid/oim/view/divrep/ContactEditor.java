@@ -253,7 +253,7 @@ public class ContactEditor extends DivRepFormElement<HashMap<ContactEditor.Rank,
 		}
 		public void render(PrintWriter out)
 		{
-			out.print("<div class=\"inline contact round\" id=\""+getNodeID()+"\">");
+			out.print("<div class=\"divrep_inline contact divrep_round\" id=\""+getNodeID()+"\">");
 			if(person.name == null) {
 				out.print("(No Name)");
 			} else {

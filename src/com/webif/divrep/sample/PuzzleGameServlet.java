@@ -24,7 +24,7 @@ public class PuzzleGameServlet extends HttpServlet {
 		
 		//Load DivRep Stuff
 		out.write("<script type=\"text/javascript\" src=\"divrep.js\"></script>");
-		out.write("<link href=\"css/divrep.sample.css\" rel=\"stylesheet\" type=\"text/css\"/>");
+		out.write("<link href=\"css/divrep.css\" rel=\"stylesheet\" type=\"text/css\"/>");
 
 		//Load jQuery
 		out.write("<script type=\"text/javascript\" src=\"http://jqueryjs.googlecode.com/files/jquery-1.3.2.min.js\"></script>");
