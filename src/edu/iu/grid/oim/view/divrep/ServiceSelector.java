@@ -54,7 +54,7 @@ public class ServiceSelector extends DivRepSelectBox {
 				for(ServiceRecord rgrec : srecs) {
 					services.put(rgrec.id, rgrec.name);
 				}
-				addGroup(sgrec.name, services);
+				addGroup("(Service Group) " + sgrec.name, services);
 			}
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block

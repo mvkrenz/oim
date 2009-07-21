@@ -40,17 +40,17 @@ public class SiteSelector extends DivRepSelectBox {
 		super(parent);
 		context = _context;
 		
+		FacilityModel fmodel = new FacilityModel(context);
 		SiteModel smodel = new SiteModel(context);
-		ResourceGroupModel rgmodel = new ResourceGroupModel(context);
 		try {
-			ArrayList<SiteRecord> srecs = smodel.getAll();
-			for(SiteRecord srec : srecs) {
-				ArrayList<ResourceGroupRecord> rgrecs = rgmodel.getBySiteID(srec.id);
-				TreeMap<Integer, String> rgs = new TreeMap<Integer, String>();
-				for(ResourceGroupRecord rgrec : rgrecs) {
-					rgs.put(rgrec.id, rgrec.name);
+			ArrayList<FacilityRecord> frecs = fmodel.getAll();
+			for(FacilityRecord frec : frecs) {
+				ArrayList<SiteRecord> srecs = smodel.getByFacilityID(frec.id);
+				TreeMap<Integer, String> sites = new TreeMap<Integer, String>();
+				for(SiteRecord srec : srecs) {
+					sites.put(srec.id, srec.name);
 				}
-				addGroup(srec.name, rgs);
+				addGroup("(Facility) " + frec.name, sites);
 			}
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block

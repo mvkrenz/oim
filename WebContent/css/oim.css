@@ -317,3 +317,11 @@ border: 0px;
 {
 color:#996611;
 }
+optgroup option
+{
+margin-left: 20px;
+}
+optgroup
+{
+font-style: normal;	
+}

@@ -34,7 +34,6 @@ public class DivRepServlet extends HttpServlet {
 			}
 		}
 		
-		
 		response.setHeader("Cache-Control","no-cache, must-revalidate");
 		
 		//find the target node and process action
