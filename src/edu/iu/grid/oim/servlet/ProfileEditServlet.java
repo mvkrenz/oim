@@ -1,7 +1,10 @@
 package edu.iu.grid.oim.servlet;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.util.Date;
 
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
@@ -10,16 +13,22 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
 
+import com.webif.divrep.DivRep;
+import com.webif.divrep.DivRepEvent;
+import com.webif.divrep.DivRepEventListener;
 import com.webif.divrep.DivRepRoot;
+import com.webif.divrep.common.DivRepButton;
 import com.webif.divrep.common.DivRepStaticContent;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.StaticConfig;
+import edu.iu.grid.oim.model.Context;
 import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.DNModel;
 import edu.iu.grid.oim.model.db.SCModel;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.SCRecord;
+import edu.iu.grid.oim.servlet.HomeServlet.Confirmation;
 import edu.iu.grid.oim.view.divrep.form.ContactFormDE;
 import edu.iu.grid.oim.view.divrep.form.SCFormDE;
 import edu.iu.grid.oim.view.ContentView;
@@ -40,9 +49,7 @@ public class ProfileEditServlet extends ServletBase implements Servlet {
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{
-		//setContext(request);
-		//no auth check for profile
-		
+
 		ContactRecord rec;
 		try {
 			rec = auth.getContact();
@@ -54,13 +61,6 @@ public class ProfileEditServlet extends ServletBase implements Servlet {
 			ContentView contentview = new ContentView();
 			contentview.add(new HtmlView("<h1>Edit Your User Profile</h1>"));	
 			
-			/*
-			if (rec.active == false) {
-				contentview.add(new HtmlView("<h4>Inactive User Account Warning:</h4>"));
-				contentview.add(new HtmlView("<p>Your contact has not been activated yet; You can continue to make changes to it but beware that you will not be able to do registration activities till the account is activated by GOC staff. Contact the OSG GOC if you have any questions.</p>"));
-			}
-			*/
-			
 			contentview.add(new DivRepWrapper(form));
 			
 			Page page = new Page(new MenuView(context, "profileedit"), contentview, createSideView());
@@ -71,10 +71,60 @@ public class ProfileEditServlet extends ServletBase implements Servlet {
 		}
 	}
 	
-	private SideContentView createSideView()
+	private SideContentView createSideView() throws SQLException
 	{
 		SideContentView view = new SideContentView();
-		view.add("TODO", new HtmlView("Whatever"));
+		view.add(new DivRepWrapper(new Confirmation(auth.getContactID(), context)));
 		return view;
+	}
+	
+	class Confirmation extends DivRep
+	{
+		DivRepButton confirm;
+		final ContactRecord crec;
+		final ContactModel cmodel;
+		final Context context;
+		
+		public Confirmation(Integer contact_id, Context _context) throws SQLException {
+			super(_context.getPageRoot());
+			
+	    	cmodel = new ContactModel(_context);
+	    	crec = (ContactRecord) cmodel.get(contact_id).clone();	    	
+	    	context = _context;
+				
+			confirm = new DivRepButton(this, "Confirm");
+			confirm.addEventListener(new DivRepEventListener() {
+				public void handleEvent(DivRepEvent e) {
+					alert("Thank you!");
+					Date d = new Date();
+					crec.confirmed = new Timestamp(d.getTime());
+					try {
+						cmodel.update(cmodel.get(crec.id), crec);
+						Confirmation.this.context.close();
+						Confirmation.this.redraw();
+					} catch (SQLException e1) {
+						log.error(e1);
+					}
+				}});
+		}
+
+		protected void onEvent(DivRepEvent e) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		public void render(PrintWriter out) {
+			out.write("<div id=\""+getNodeID()+"\">");
+			out.write("<h3>Content Confirmation</h3>");
+			Date when = new Date();
+			when.setTime(when.getTime()-1000*3600*24*StaticConfig.getConfirmationExpiration());
+			out.write("<p>Last confirmation: "+crec.confirmed.toString()+"</p>");
+			if(crec.confirmed.before(when)) {
+				out.write("<p class=\"divrep_round divrep_elementerror\">You have not recently confirmed that your profile information is accurate</p>");
+			}
+			out.write("<p>If the information you see is accurate, please click following button for confirmation.</p>");
+			confirm.render(out);
+			out.write("</div>");
+		}	
 	}
 }

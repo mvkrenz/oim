@@ -197,18 +197,6 @@ width: 400px;
 height: 80px;
 }
 
-p.elementerror
-{
-background-color: red;
-color: white;
-	
-background-image:url(../images/error.png);
-background-position: 5px 5px;
-background-repeat:no-repeat;
-margin: 2px;
-padding: 5px;
-padding-left:25px;
-}
 p
 {
 padding-bottom: 5px;

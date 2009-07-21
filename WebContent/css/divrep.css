@@ -5,7 +5,7 @@ input.divrep_sample { color: #ccc;}
 {
 	padding-bottom: 5px;
 }
-.divrep_form_element .divrep_elementerror
+.divrep_elementerror
 {
 background-color: red;
 color: white;
@@ -14,6 +14,8 @@ background-repeat:no-repeat;
 margin: 2px;
 padding: 5px;
 padding-left:25px;
+background-image:url(../images/error.png);
+
 }
 .divrep_round
 {

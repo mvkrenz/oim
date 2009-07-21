@@ -88,7 +88,6 @@ public class HomeServlet extends ServletBase  {
 	
 	class Confirmation extends DivRep
 	{
-		DivRepButton confirm;
 		final ContactRecord crec;
 		final ContactModel cmodel;
 		final Context context;
@@ -99,21 +98,6 @@ public class HomeServlet extends ServletBase  {
 	    	cmodel = new ContactModel(_context);
 	    	crec = (ContactRecord) cmodel.get(contact_id).clone();	    	
 	    	context = _context;
-				
-			confirm = new DivRepButton(this, "Confirm");
-			confirm.addEventListener(new DivRepEventListener() {
-				public void handleEvent(DivRepEvent e) {
-					alert("Thank you!");
-					Date d = new Date();
-					crec.confirmed = new Timestamp(d.getTime());
-					try {
-						cmodel.update(cmodel.get(crec.id), crec);
-						Confirmation.this.context.close();
-						Confirmation.this.redraw();
-					} catch (SQLException e1) {
-						log.error(e1);
-					}
-				}});
 		}
 
 		protected void onEvent(DivRepEvent e) {
@@ -122,18 +106,21 @@ public class HomeServlet extends ServletBase  {
 		}
 
 		public void render(PrintWriter out) {
-			out.write("<div id=\""+getNodeID()+"\">");
-			out.write("<h3>Content Confirmation</h3>");
+
 			Date when = new Date();
 			when.setTime(when.getTime()-1000*3600*24*StaticConfig.getConfirmationExpiration());
 			if(crec.confirmed.before(when)) {
-				out.write("<p class=\"divrep_elementerror\">You have not recently confirmed that your information in OIM is current</p>");
+				out.write("<div id=\""+getNodeID()+"\">");
+				out.write("<h3>Content Confirmation</h3>");
+			
+				out.write("<p class=\"divrep_round divrep_elementerror\">You have not recently confirmed that your information in OIM is current</p>");
+		
+				out.write("<p>The last time you confirmed your profile information was "+crec.confirmed.toString()+"</p>");
+				out.write("<p>Please go to the ");
+				out.write("<a href=\""+StaticConfig.getApplicationBase()+"/profileedit"+"\">profile</a>");
+				out.write(" page to check your profile information</p>");
+				out.write("</div>");
 			}
-			out.write("<p>The last time you confirmed your information in OIM was "+crec.confirmed.toString()+"</p>");
-			out.write("<p>Please go to the profile page located in the top menu and make sure that all the information you see is accurate.</p>");
-			out.write("<p>Then, please click following button to confirm the information.</p>");
-			confirm.render(out);
-			out.write("</div>");
 		}	
 	}
 }
