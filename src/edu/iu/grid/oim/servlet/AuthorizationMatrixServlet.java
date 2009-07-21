@@ -19,7 +19,7 @@ import com.webif.divrep.common.DivRepButton;
 import com.webif.divrep.DivRep;
 import com.webif.divrep.DivRepRoot;
 import com.webif.divrep.DivRepEvent;
-import com.webif.divrep.common.CheckBoxFormElement;
+import com.webif.divrep.common.DivRepCheckBox;
 import com.webif.divrep.common.DivRepForm;
 import com.webif.divrep.common.DivRepFormElement;
 
@@ -53,7 +53,7 @@ public class AuthorizationMatrixServlet extends ServletBase  {
 		AuthorizationTypeActionModel matrixmodel;
 		ArrayList<AuthorizationTypeRecord> authtypes;
 		
-		HashMap<Integer/*action_id*/, HashMap<Integer/*type_id*/, CheckBoxFormElement>> matrix = new HashMap();
+		HashMap<Integer/*action_id*/, HashMap<Integer/*type_id*/, DivRepCheckBox>> matrix = new HashMap();
 		public void render(PrintWriter out) {
 			try {
 				out.print("<table class=\"auth_matrix\">");
@@ -78,7 +78,7 @@ public class AuthorizationMatrixServlet extends ServletBase  {
 					out.print("<tr class=\"checklist\"><td class=\"tooltip\" tooltip=\""+tooltip+"\">"
 							+StringEscapeUtils.escapeHtml(action.name)+"</td>");
 					for(AuthorizationTypeRecord type : authtypes) {
-						HashMap<Integer/*type_id*/, CheckBoxFormElement> clist = matrix.get(action.id);
+						HashMap<Integer/*type_id*/, DivRepCheckBox> clist = matrix.get(action.id);
 						out.print("<td>");
 						clist.get(type.id).render(out);
 						out.print("</td>");
@@ -103,11 +103,11 @@ public class AuthorizationMatrixServlet extends ServletBase  {
 			
 			//create checkboxes for each action for each authtype
 			for(ActionRecord action : actionmodel.getAll()) {
-				HashMap<Integer/*type_id*/, CheckBoxFormElement> as = new HashMap();
+				HashMap<Integer/*type_id*/, DivRepCheckBox> as = new HashMap();
 				matrix.put(action.id, as);
 				Collection<Integer/*type_id*/> authorized = matrixmodel.getTypeByActionID(action.id);
 				for(AuthorizationTypeRecord type : authtypes) {
-					CheckBoxFormElement check = new CheckBoxFormElement(parent);
+					DivRepCheckBox check = new DivRepCheckBox(parent);
 					as.put(type.id, check);
 					if(authorized.contains(type.id)) {
 						check.setValue(true);
@@ -120,9 +120,9 @@ public class AuthorizationMatrixServlet extends ServletBase  {
 		{
 			ArrayList<AuthorizationTypeActionRecord> recs = new ArrayList();
 			for(Integer action_id : matrix.keySet()) {
-				HashMap<Integer/*type_id*/, CheckBoxFormElement> list = matrix.get(action_id);
+				HashMap<Integer/*type_id*/, DivRepCheckBox> list = matrix.get(action_id);
 				for(Integer type_id : list.keySet()) {
-					CheckBoxFormElement check = list.get(type_id);
+					DivRepCheckBox check = list.get(type_id);
 					if(check.getValue()) {
 						AuthorizationTypeActionRecord rec = new AuthorizationTypeActionRecord();
 						rec.action_id = action_id;

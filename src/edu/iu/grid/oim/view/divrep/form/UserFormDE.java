@@ -12,7 +12,7 @@ import org.apache.log4j.Logger;
 import com.webif.divrep.DivRep;
 import com.webif.divrep.DivRepEvent;
 import com.webif.divrep.common.DivRepStaticContent;
-import com.webif.divrep.common.CheckBoxFormElement;
+import com.webif.divrep.common.DivRepCheckBox;
 import com.webif.divrep.common.DivRepForm;
 import com.webif.divrep.common.DivRepSelectBox;
 import com.webif.divrep.common.DivRepTextArea;
@@ -51,7 +51,7 @@ public class UserFormDE extends DivRepForm
 	
 	private DivRepTextBox dn_string;
 	private ContactEditor contact;
-	private HashMap<Integer/*auth_type*/, CheckBoxFormElement> auth_types = new HashMap();
+	private HashMap<Integer/*auth_type*/, DivRepCheckBox> auth_types = new HashMap();
 	
 	public UserFormDE(Context _context, DNRecord rec, String origin_url) throws AuthorizationException, SQLException
 	{	
@@ -77,7 +77,7 @@ public class UserFormDE extends DivRepForm
 		AuthorizationTypeModel atmodel = new AuthorizationTypeModel(context);
 		DNAuthorizationTypeModel dnatmodel = new DNAuthorizationTypeModel(context);
 		for(AuthorizationTypeRecord atrec : atmodel.getAll()) {
-			CheckBoxFormElement elem = new CheckBoxFormElement(this);
+			DivRepCheckBox elem = new DivRepCheckBox(this);
 			elem.setLabel(atrec.name);
 			auth_types.put(atrec.id, elem);
 		}
@@ -108,7 +108,7 @@ public class UserFormDE extends DivRepForm
 
 		ArrayList<Integer/*auth_type*/> auths = new ArrayList();
 		for(Integer auth_type : auth_types.keySet()) {
-			CheckBoxFormElement elem = auth_types.get(auth_type);
+			DivRepCheckBox elem = auth_types.get(auth_type);
 			if(elem.getValue()) {
 				auths.add(auth_type);
 			}

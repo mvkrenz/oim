@@ -18,7 +18,7 @@ import org.geonames.WebService;
 import com.webif.divrep.DivRep;
 import com.webif.divrep.DivRepEvent;
 import com.webif.divrep.common.DivRepStaticContent;
-import com.webif.divrep.common.CheckBoxFormElement;
+import com.webif.divrep.common.DivRepCheckBox;
 import com.webif.divrep.common.DivRepForm;
 import com.webif.divrep.common.DivRepSelectBox;
 import com.webif.divrep.common.DivRepTextArea;
@@ -67,8 +67,8 @@ public class SiteFormDE extends DivRepForm
 	private LatLngSelector latlng;
 	private DivRepSelectBox sc_id;
 	private DivRepSelectBox facility_id;
-	private CheckBoxFormElement active;
-	private CheckBoxFormElement disable;
+	private DivRepCheckBox active;
+	private DivRepCheckBox disable;
 	
 	public SiteFormDE(Context _context, SiteRecord rec, String origin_url) throws AuthorizationException, SQLException
 	{	
@@ -154,14 +154,14 @@ public class SiteFormDE extends DivRepForm
 			new DivRepStaticContent(this, "<h2>Administrative Tasks</h2>");
 		}
 
-		active = new CheckBoxFormElement(this);
+		active = new DivRepCheckBox(this);
 		active.setLabel("Active");
 		active.setValue(rec.active);
 		if(!auth.allows("admin")) {
 			active.setHidden(true);
 		}
 		
-		disable = new CheckBoxFormElement(this);
+		disable = new DivRepCheckBox(this);
 		disable.setLabel("Disable");
 		disable.setValue(rec.disable);
 		if(!auth.allows("admin")) {

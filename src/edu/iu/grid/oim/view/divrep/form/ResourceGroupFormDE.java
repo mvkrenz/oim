@@ -10,7 +10,7 @@ import org.apache.log4j.Logger;
 
 import com.webif.divrep.DivRep;
 import com.webif.divrep.common.DivRepStaticContent;
-import com.webif.divrep.common.CheckBoxFormElement;
+import com.webif.divrep.common.DivRepCheckBox;
 import com.webif.divrep.common.DivRepForm;
 import com.webif.divrep.common.DivRepSelectBox;
 import com.webif.divrep.common.DivRepTextArea;
@@ -41,9 +41,9 @@ import edu.iu.grid.oim.model.db.record.ResourceRecord;
 import edu.iu.grid.oim.model.db.record.ResourceServiceRecord;
 import edu.iu.grid.oim.model.db.record.SiteRecord;
 import edu.iu.grid.oim.view.divrep.ContactEditor;
-import edu.iu.grid.oim.view.divrep.OIMHierarchySelector;
 import edu.iu.grid.oim.view.divrep.ResourceAlias;
 import edu.iu.grid.oim.view.divrep.ResourceServices;
+import edu.iu.grid.oim.view.divrep.SiteSelector;
 
 public class ResourceGroupFormDE extends DivRepForm 
 {
@@ -55,10 +55,10 @@ public class ResourceGroupFormDE extends DivRepForm
 	
 	private DivRepTextBox name;
 	private DivRepTextArea description;
-	private OIMHierarchySelector site_id;
+	private SiteSelector site_id;
 	private DivRepSelectBox osg_grid_type_id;
-	private CheckBoxFormElement active;
-	private CheckBoxFormElement disable;
+	private DivRepCheckBox active;
+	private DivRepCheckBox disable;
 	
 	public ResourceGroupFormDE(Context _context, ResourceGroupRecord rec, String origin_url) throws AuthorizationException, SQLException
 	{	
@@ -84,7 +84,7 @@ public class ResourceGroupFormDE extends DivRepForm
 		name.addValidator(new DivRepUniqueValidator<String>(resource_groups.values()));
 		name.setRequired(true);
 		
-		site_id = new OIMHierarchySelector(this, context, OIMHierarchySelector.Type.SITE);
+		site_id = new SiteSelector(this, context);
 		site_id.setLabel("Site");
 		site_id.setValue(rec.site_id);
 		site_id.setRequired(true);
@@ -110,14 +110,14 @@ public class ResourceGroupFormDE extends DivRepForm
 			new DivRepStaticContent(this, "<h2>Administrative Tasks</h2>");
 		}
 
-		active = new CheckBoxFormElement(this);
+		active = new DivRepCheckBox(this);
 		active.setLabel("Active");
 		active.setValue(rec.active);
 		if(!auth.allows("admin")) {
 			active.setHidden(true);
 		}
 		
-		disable = new CheckBoxFormElement(this);
+		disable = new DivRepCheckBox(this);
 		disable.setLabel("Disable");
 		disable.setValue(rec.disable);
 		if(!auth.allows("admin")) {

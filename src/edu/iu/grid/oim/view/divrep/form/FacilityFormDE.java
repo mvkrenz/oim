@@ -11,7 +11,7 @@ import org.apache.log4j.Logger;
 import com.webif.divrep.DivRep;
 import com.webif.divrep.DivRepEvent;
 import com.webif.divrep.common.DivRepStaticContent;
-import com.webif.divrep.common.CheckBoxFormElement;
+import com.webif.divrep.common.DivRepCheckBox;
 import com.webif.divrep.common.DivRepForm;
 import com.webif.divrep.common.DivRepSelectBox;
 import com.webif.divrep.common.DivRepTextArea;
@@ -39,8 +39,8 @@ public class FacilityFormDE extends DivRepForm
 	
 	private DivRepTextBox name;
 	private DivRepTextArea description;
-	private CheckBoxFormElement active;
-	private CheckBoxFormElement disable;
+	private DivRepCheckBox active;
+	private DivRepCheckBox disable;
 	
 	public FacilityFormDE(Context _context, FacilityRecord rec, String origin_url) throws AuthorizationException, SQLException
 	{	
@@ -73,14 +73,14 @@ public class FacilityFormDE extends DivRepForm
 			new DivRepStaticContent(this, "<h2>Administrative Tasks</h2>");
 			new DivRepStaticContent(this, "<p>NOTE: These fields are editable only by GOC administrative staff.</p>");
 		}
-		active = new CheckBoxFormElement(this);
+		active = new DivRepCheckBox(this);
 		active.setLabel("Active");
 		active.setValue(rec.active);
 		if(!auth.allows("admin")) {
 			active.setHidden(true);
 		}
 		
-		disable = new CheckBoxFormElement(this);
+		disable = new DivRepCheckBox(this);
 		disable.setLabel("Disable");
 		disable.setValue(rec.disable);
 		if(!auth.allows("admin")) {

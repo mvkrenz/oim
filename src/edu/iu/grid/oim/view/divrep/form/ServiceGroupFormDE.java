@@ -9,7 +9,7 @@ import org.apache.log4j.Logger;
 
 import com.webif.divrep.DivRep;
 import com.webif.divrep.common.DivRepStaticContent;
-import com.webif.divrep.common.CheckBoxFormElement;
+import com.webif.divrep.common.DivRepCheckBox;
 import com.webif.divrep.common.DivRepForm;
 import com.webif.divrep.common.DivRepSelectBox;
 import com.webif.divrep.common.DivRepTextArea;
@@ -42,7 +42,6 @@ import edu.iu.grid.oim.model.db.record.ResourceServiceRecord;
 import edu.iu.grid.oim.model.db.record.ServiceGroupRecord;
 import edu.iu.grid.oim.model.db.record.SiteRecord;
 import edu.iu.grid.oim.view.divrep.ContactEditor;
-import edu.iu.grid.oim.view.divrep.OIMHierarchySelector;
 import edu.iu.grid.oim.view.divrep.ResourceAlias;
 import edu.iu.grid.oim.view.divrep.ResourceServices;
 

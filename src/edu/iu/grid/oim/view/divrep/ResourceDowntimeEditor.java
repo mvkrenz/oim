@@ -19,7 +19,7 @@ import com.webif.divrep.DivRep;
 import com.webif.divrep.DivRepEvent;
 import com.webif.divrep.DivRepEventListener;
 import com.webif.divrep.common.DivRepStaticContent;
-import com.webif.divrep.common.CheckBoxFormElement;
+import com.webif.divrep.common.DivRepCheckBox;
 import com.webif.divrep.common.DivRepFormElement;
 import com.webif.divrep.common.DivRepSelectBox;
 import com.webif.divrep.common.DivRepTextArea;
@@ -68,7 +68,7 @@ public class ResourceDowntimeEditor extends DivRepFormElement {
 		private DivRepSelectBox class_id;
 		private DivRepSelectBox severity_id;
 			
-		private HashMap<Integer/*service_id*/, CheckBoxFormElement> affected_services = new HashMap<Integer, CheckBoxFormElement>();
+		private HashMap<Integer/*service_id*/, DivRepCheckBox> affected_services = new HashMap<Integer, DivRepCheckBox>();
 		
 		private DivRepButton remove_button;
 
@@ -346,7 +346,7 @@ public class ResourceDowntimeEditor extends DivRepFormElement {
 			ResourceDowntimeServiceModel rdsmodel = new ResourceDowntimeServiceModel(context);
 
 			try {
-				final CheckBoxFormElement elem = new CheckBoxFormElement(this);
+				final DivRepCheckBox elem = new DivRepCheckBox(this);
 				if(service_id != null) {
 					ServiceRecord srec = servicemodel.get(service_id);
 					elem.setLabel(srec.name);
@@ -372,7 +372,7 @@ public class ResourceDowntimeEditor extends DivRepFormElement {
 		
 		public void removeService(Integer service_id)
 		{
-			CheckBoxFormElement check = affected_services.get(service_id);
+			DivRepCheckBox check = affected_services.get(service_id);
 			affected_services.remove(service_id);
 			remove(check);
 			redraw();
@@ -449,7 +449,7 @@ public class ResourceDowntimeEditor extends DivRepFormElement {
 		{
 			ArrayList<ResourceDowntimeServiceRecord> list = new ArrayList<ResourceDowntimeServiceRecord>();
 			for(Integer service_id : affected_services.keySet()) {
-				CheckBoxFormElement checkbox = affected_services.get(service_id);
+				DivRepCheckBox checkbox = affected_services.get(service_id);
 				if(checkbox.getValue()) {
 					ResourceDowntimeServiceRecord rec = new ResourceDowntimeServiceRecord();
 					rec.resource_downtime_id = downtime_id;
@@ -483,7 +483,7 @@ public class ResourceDowntimeEditor extends DivRepFormElement {
 			
 			int service_count = 0;
 			for(Integer service_id : affected_services.keySet()) {
-				CheckBoxFormElement checkbox = affected_services.get(service_id);
+				DivRepCheckBox checkbox = affected_services.get(service_id);
 				if(checkbox.getValue()) {
 					++service_count;
 				}

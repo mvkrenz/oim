@@ -9,7 +9,7 @@ import com.webif.divrep.common.DivRepButton;
 import com.webif.divrep.DivRep;
 import com.webif.divrep.DivRepEvent;
 import com.webif.divrep.DivRepEventListener;
-import com.webif.divrep.common.CheckBoxFormElement;
+import com.webif.divrep.common.DivRepCheckBox;
 import com.webif.divrep.common.DivRepFormElement;
 import com.webif.divrep.common.DivRepSelectBox;
 import com.webif.divrep.common.DivRepTextBox;
@@ -34,10 +34,10 @@ public class ResourceServices extends DivRepFormElement {
 	class ServiceEditor extends DivRepFormElement
 	{
 		//service details
-		private ServiceGroupHierarchySelector service;
+		private ServiceSelector service;
 		private DivRepTextBox endpoint_override;
-		private CheckBoxFormElement hidden;
-		private CheckBoxFormElement central;
+		private DivRepCheckBox hidden;
+		private DivRepCheckBox central;
 		private DivRepTextBox server_list_regex;
 		
 		private DivRepButton remove_button;
@@ -47,26 +47,21 @@ public class ResourceServices extends DivRepFormElement {
 			super(_parent);
 			parent = _parent;
 			
-			try {
-				service = new ServiceGroupHierarchySelector(this, context, ServiceGroupHierarchySelector.Type.SERVICE);
-			} catch (SQLException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-			service.setLabel("Select a service group, then a service");
+			service = new ServiceSelector(this, context);
+			service.setLabel("Service");
 			service.setRequired(true);
 			if(rec != null) {
 				service.setValue(rec.service_id);
 			}
 
 			// TODO These lines look a bit ugly -- needs clean up -agopu
-			hidden = new CheckBoxFormElement(this);
+			hidden = new DivRepCheckBox(this);
 			hidden.setLabel("Is this a Hidden Service? (for eg., an internal gatekeeper inaccessible to the outside world; If you are not sure, leave it unchecked)");
 			if(rec != null) {
 				hidden.setValue(rec.hidden);
 			}
 			
-			central = new CheckBoxFormElement(this);
+			central = new DivRepCheckBox(this);
 			central.setLabel("Is this a Centralized Service? (for eg., an infrastructure service like a BDII or an accounting server? If you are not sure, leave it unchecked)");
 			if(rec != null) {
 				central.setValue(rec.central);

@@ -1,6 +1,5 @@
 package edu.iu.grid.oim.view.divrep.form;
 
-import java.io.InputStream;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -8,20 +7,17 @@ import java.util.HashMap;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 
-import com.webif.divrep.DivRep;
 import com.webif.divrep.DivRepEvent;
 import com.webif.divrep.DivRepEventListener;
 import com.webif.divrep.common.DivRepStaticContent;
-import com.webif.divrep.common.CheckBoxFormElement;
+import com.webif.divrep.common.DivRepCheckBox;
 import com.webif.divrep.common.DivRepForm;
 import com.webif.divrep.common.DivRepTextArea;
 import com.webif.divrep.common.DivRepTextBox;
-import com.webif.divrep.validator.DivRepDoubleValidator;
 import com.webif.divrep.validator.DivRepUniqueValidator;
 import com.webif.divrep.validator.DivRepUrlValidator;
 
 import edu.iu.grid.oim.lib.Authorization;
-import edu.iu.grid.oim.lib.FileReader;
 import edu.iu.grid.oim.lib.Footprint;
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
 import edu.iu.grid.oim.model.Context;
@@ -29,7 +25,6 @@ import edu.iu.grid.oim.model.db.ContactTypeModel;
 import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.ResourceAliasModel;
 import edu.iu.grid.oim.model.db.ResourceContactModel;
-import edu.iu.grid.oim.model.db.ResourceDowntimeModel;
 import edu.iu.grid.oim.model.db.ResourceServiceModel;
 import edu.iu.grid.oim.model.db.ResourceWLCGModel;
 import edu.iu.grid.oim.model.db.ServiceModel;
@@ -40,14 +35,13 @@ import edu.iu.grid.oim.model.db.record.ContactTypeRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.ResourceAliasRecord;
 import edu.iu.grid.oim.model.db.record.ResourceContactRecord;
-import edu.iu.grid.oim.model.db.record.ResourceDowntimeRecord;
 import edu.iu.grid.oim.model.db.record.ResourceRecord;
 import edu.iu.grid.oim.model.db.record.ResourceServiceRecord;
 import edu.iu.grid.oim.model.db.record.ResourceWLCGRecord;
 import edu.iu.grid.oim.model.db.record.VOResourceOwnershipRecord;
 import edu.iu.grid.oim.view.divrep.ContactEditor;
-import edu.iu.grid.oim.view.divrep.OIMHierarchySelector;
 import edu.iu.grid.oim.view.divrep.ResourceAlias;
+import edu.iu.grid.oim.view.divrep.ResourceGroupSelector;
 import edu.iu.grid.oim.view.divrep.ResourceServices;
 import edu.iu.grid.oim.view.divrep.ResourceWLCG;
 import edu.iu.grid.oim.view.divrep.VOResourceOwnership;
@@ -66,14 +60,14 @@ public class ResourceFormDE extends DivRepForm
 	private DivRepTextBox fqdn;
 	private DivRepTextBox url;
 	
-	private CheckBoxFormElement active;
-	private CheckBoxFormElement disable;
-	private OIMHierarchySelector resource_group_id;
+	private DivRepCheckBox active;
+	private DivRepCheckBox disable;
+	private ResourceGroupSelector resource_group_id;
 	private ResourceAlias aliases;
 	private ResourceServices resource_services;
 	private VOResourceOwnership owners;
 
-	private CheckBoxFormElement wlcg;
+	private DivRepCheckBox wlcg;
 	private ResourceWLCG wlcg_section;
 	
 	//contact types to edit
@@ -118,8 +112,8 @@ public class ResourceFormDE extends DivRepForm
 		fqdn.setRequired(true);
 		fqdn.setSampleValue("gate01.sample.edu");
 
-		resource_group_id = new OIMHierarchySelector(this, context, OIMHierarchySelector.Type.RESOURCE_GROUP);
-		resource_group_id.setLabel("Select Your Facility (Instituition), Site (Department), and Resource Group");
+		resource_group_id = new ResourceGroupSelector(this, context);
+		resource_group_id.setLabel("Resource Group");
 		resource_group_id.setRequired(true);
 		if(id != null) {
 			resource_group_id.setValue(rec.resource_group_id);
@@ -210,7 +204,7 @@ public class ResourceFormDE extends DivRepForm
 					" and storage capacity min/max values. If you are not sure about any of these values, " + 
 					" ask your Owner VO(s)!</p>");
 
-		wlcg = new CheckBoxFormElement(this);
+		wlcg = new DivRepCheckBox(this);
 		wlcg.setLabel("This is a WLCG resource");
 
 		//indent the whole WCLG things
@@ -242,14 +236,14 @@ public class ResourceFormDE extends DivRepForm
 		if(auth.allows("admin")) {
 			new DivRepStaticContent(this, "<h2>Administrative Tasks</h2>");
 		}
-		active = new CheckBoxFormElement(this);
+		active = new DivRepCheckBox(this);
 		active.setLabel("Active");
 		active.setValue(rec.active);
 		if(!auth.allows("admin")) {
 			active.setHidden(true);
 		}
 		
-		disable = new CheckBoxFormElement(this);
+		disable = new DivRepCheckBox(this);
 		disable.setLabel("Disable");
 		disable.setValue(rec.disable);
 		if(!auth.allows("admin")) {

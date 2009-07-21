@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import org.apache.log4j.Logger;
 import com.webif.divrep.common.DivRepStaticContent;
-import com.webif.divrep.common.CheckBoxFormElement;
+import com.webif.divrep.common.DivRepCheckBox;
 import com.webif.divrep.common.DivRepForm;
 import com.webif.divrep.common.DivRepTextArea;
 import com.webif.divrep.common.DivRepTextBox;
@@ -38,8 +38,8 @@ public class SCFormDE extends DivRepForm
 	private DivRepTextArea description;
 	private DivRepTextArea community;
 	private DivRepTextBox footprints_id;
-	private CheckBoxFormElement active;
-	private CheckBoxFormElement disable;
+	private DivRepCheckBox active;
+	private DivRepCheckBox disable;
 	
 	//contact types to edit
 	private int contact_types[] = {
@@ -130,14 +130,14 @@ public class SCFormDE extends DivRepForm
 			footprints_id.setHidden(true);
 		}
 
-		active = new CheckBoxFormElement(this);
+		active = new DivRepCheckBox(this);
 		active.setLabel("Active");
 		active.setValue(rec.active);
 		if(!auth.allows("admin")) {
 			active.setHidden(true);
 		}
 		
-		disable = new CheckBoxFormElement(this);
+		disable = new DivRepCheckBox(this);
 		disable.setLabel("Disable");
 		disable.setValue(rec.disable);
 		if(!auth.allows("admin")) {

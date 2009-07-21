@@ -6,7 +6,7 @@ import com.webif.divrep.common.DivRepButton;
 import com.webif.divrep.DivRep;
 import com.webif.divrep.DivRepEvent;
 import com.webif.divrep.DivRepEventListener;
-import com.webif.divrep.common.CheckBoxFormElement;
+import com.webif.divrep.common.DivRepCheckBox;
 import com.webif.divrep.common.DivRepFormElement;
 import com.webif.divrep.common.DivRepTextBox;
 import com.webif.divrep.validator.DivRepDoubleValidator;
@@ -24,9 +24,9 @@ public class ResourceWLCG extends DivRepFormElement {
 	class WLCGEditor extends DivRepFormElement
 	{
 		//WLCG Interop details
-		private CheckBoxFormElement interop_bdii;
-		private CheckBoxFormElement interop_monitoring;
-		private CheckBoxFormElement interop_accounting;
+		private DivRepCheckBox interop_bdii;
+		private DivRepCheckBox interop_monitoring;
+		private DivRepCheckBox interop_accounting;
 		private DivRepTextBox wlcg_accounting_name;
 		private DivRepTextBox ksi2k_minimum;
 		private DivRepTextBox ksi2k_maximum;
@@ -39,13 +39,13 @@ public class ResourceWLCG extends DivRepFormElement {
 			super(parent);
 			myself = this;
 			
-			interop_bdii = new CheckBoxFormElement(this);
+			interop_bdii = new DivRepCheckBox(this);
 			interop_bdii.setLabel("Should this resource be part of WLCG Interop BDII?");
 
-			interop_monitoring = new CheckBoxFormElement(this);
+			interop_monitoring = new DivRepCheckBox(this);
 			interop_monitoring.setLabel("Should this resource be part of WLCG Interop Monitoring?");
 
-			interop_accounting = new CheckBoxFormElement(this);
+			interop_accounting = new DivRepCheckBox(this);
 			interop_accounting.setLabel("Should this resource be part of WLCG Interop Accounting?");
 
 			wlcg_accounting_name = new DivRepTextBox(this);

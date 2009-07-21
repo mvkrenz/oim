@@ -10,7 +10,7 @@ import com.webif.divrep.DivRep;
 import com.webif.divrep.DivRepEvent;
 import com.webif.divrep.DivRepEventListener;
 import com.webif.divrep.common.DivRepStaticContent;
-import com.webif.divrep.common.CheckBoxFormElement;
+import com.webif.divrep.common.DivRepCheckBox;
 import com.webif.divrep.common.DivRepForm;
 import com.webif.divrep.common.DivRepFormElement;
 import com.webif.divrep.common.DivRepSelectBox;
@@ -42,11 +42,11 @@ public class ContactFormDE extends DivRepForm
 	private DivRepTextBox sms_address;
 	private DivRepTextBox address_line_1, address_line_2;
 	private DivRepTextBox city, state, zipcode, country;
-	//sprivate CheckBoxFormElement active;
-	private CheckBoxFormElement disable;
+	//sprivate DivRepCheckBox active;
+	private DivRepCheckBox disable;
 	private DivRepTextBox im;
 	private PhotoDE photo_url;
-	private CheckBoxFormElement person;
+	private DivRepCheckBox person;
 	private DivRepTextArea contact_preference;
 	private DivRepSelectBox submitter_dn;
 	
@@ -178,7 +178,7 @@ public class ContactFormDE extends DivRepForm
 
 		new DivRepStaticContent(this, "<h2>Personal Information</h2>");
 		
-		person = new CheckBoxFormElement(this);
+		person = new DivRepCheckBox(this);
 		person.setLabel("This is a personal contact (not mailing list, group contact, etc...)");
 		person.setValue(rec.person);
 		person.addEventListener(new DivRepEventListener() {
@@ -236,14 +236,14 @@ public class ContactFormDE extends DivRepForm
 			showHidePersonalDetail();
 		}
 		/*
-		active = new CheckBoxFormElement(this);
+		active = new DivRepCheckBox(this);
 		active.setLabel("Active");
 		active.setValue(rec.active);
 		if(!auth.allows("admin")) {
 			active.setHidden(true);
 		}
 		*/
-		disable = new CheckBoxFormElement(this);
+		disable = new DivRepCheckBox(this);
 		disable.setLabel("Disable");
 		disable.setValue(rec.disable);
 		if(!auth.allows("admin")) {

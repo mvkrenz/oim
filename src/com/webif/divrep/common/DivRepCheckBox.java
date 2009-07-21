@@ -7,9 +7,9 @@ import com.webif.divrep.DivRepEvent;
 
 import org.apache.commons.lang.StringEscapeUtils;
 
-public class CheckBoxFormElement extends DivRepFormElement<Boolean> {
+public class DivRepCheckBox extends DivRepFormElement<Boolean> {
 	
-	public CheckBoxFormElement(DivRep parent) {
+	public DivRepCheckBox(DivRep parent) {
 		super(parent);
 		value = false;
 	}

@@ -40,6 +40,18 @@ background-image:url(divrep/loading.gif);
 background-repeat:no-repeat;
 padding-left: 20px;
 }
+.divrep_folderopen
+{
+background-image:url(divrep/folder-open.gif);
+background-repeat:no-repeat;
+padding-left: 20px;
+}
+.divrep_folderopen
+{
+background-image:url(divrep/folder-close.gif);
+background-repeat:no-repeat;
+padding-left: 20px;
+}
 .divrep_underline
 {
 text-decoration: underline;

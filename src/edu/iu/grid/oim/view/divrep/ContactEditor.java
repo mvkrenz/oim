@@ -9,8 +9,6 @@ import java.util.HashMap;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
@@ -23,8 +21,6 @@ import com.webif.divrep.validator.DivRepIValidator;
 
 import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
-import edu.iu.grid.oim.model.db.record.RecordBase;
-import edu.iu.grid.oim.servlet.ServletBase;
 
 //this requires modified version of jquery autocomplete plugin, and client side code to make the input area to be autocomplete
 public class ContactEditor extends DivRepFormElement<HashMap<ContactEditor.Rank, ArrayList<ContactEditor.ContactDE>>> {

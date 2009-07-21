@@ -9,7 +9,7 @@ import com.webif.divrep.common.DivRepButton;
 import com.webif.divrep.DivRep;
 import com.webif.divrep.DivRepEvent;
 import com.webif.divrep.DivRepEventListener;
-import com.webif.divrep.common.CheckBoxFormElement;
+import com.webif.divrep.common.DivRepCheckBox;
 import com.webif.divrep.common.DivRepFormElement;
 import com.webif.divrep.common.DivRepSelectBox;
 import com.webif.divrep.common.DivRepTextBox;
@@ -29,7 +29,7 @@ public class MetricService extends DivRepFormElement {
 	class MetricEditor extends DivRepFormElement
 	{
 		private DivRepSelectBox metric;
-		private CheckBoxFormElement critical;
+		private DivRepCheckBox critical;
 		private DivRepButton remove_button;
 		private MetricEditor myself;
 		
@@ -40,7 +40,7 @@ public class MetricService extends DivRepFormElement {
 			metric = new DivRepSelectBox(this, metric_kv);
 			metric.setLabel("Metric Name");
 			
-			critical = new CheckBoxFormElement(this);
+			critical = new DivRepCheckBox(this);
 			critical.setLabel("This is a critical metric for this service");
 			
 			remove_button = new DivRepButton(this, "images/delete.png");

@@ -22,10 +22,29 @@ public class DivRepToggler extends DivRep {
 	public DivRepToggler(DivRep parent, DivRep _content) {
 		super(parent);
 		content = _content;
-		
+		init();
+	}
+	/*
+	public DivRepToggler(DivRep parent)
+	{
+		super(parent);
+		content = new DivRepStaticContent(this, "Please set content");
+		init();
+	}
+	*/
+	public void setContent(DivRep _content)
+	{
+		content = _content;
+	}
+	public DivRep getContent()
+	{
+		return content;
+	}
+	
+	private void init() {
 		//set generic show/hide buttons
-		show_html = "Show Detail";
-		hide_html = "Hide Detail";
+		show_html = "<span class=\"divrep_link\">Show Detail</span>";
+		hide_html = "<span class=\"divrep_link\">Hide Detail</span>";
 		loading_html = "<p class=\"divrep_loading\">Loading...</p>";
 	}
 	
@@ -45,15 +64,7 @@ public class DivRepToggler extends DivRep {
 	{
 		loading_html = html;
 	}
-	
-	//show (no content)
-	// - clicks
-	// - load content
-	//hide (content)
-	// - clicks (immidiately hide)
-	//show (no content)
-	// - clicks (immidiately show)
-	
+		
 	public void render(PrintWriter out) 
 	{
 		if(show) {
@@ -62,19 +73,19 @@ public class DivRepToggler extends DivRep {
 			
 			//show button (hidden)
 			out.write("<div id=\""+getNodeID()+"_show\" onclick=\"$('#"+content.getNodeID()+"').show();$('#"+getNodeID()+"_hide').show();$(this).hide();\" class=\"divrep_hidden\">");
-			out.write("<span class=\"divrep_link\">"+show_html+"</span>");
+			out.write(show_html);
 			out.write("</div>");
 			
 			//hide button
 			out.write("<div id=\""+getNodeID()+"_hide\" onclick=\"$('#"+content.getNodeID()+"').hide();$(this).hide();$('#"+getNodeID()+"_show').show();\">");
-			out.write("<span class=\"divrep_link\">"+hide_html+"</span>");
+			out.write(hide_html);
 			out.write("</div>");
 			
 			content.render(out);
 		} else {
 			//content initially not loaded
 			out.write("<div id=\""+getNodeID()+"\" onclick=\"$('#"+getNodeID()+"_loading').show();divrep('"+getNodeID()+"', event)\">");
-			out.write("<span class=\"divrep_link\">"+show_html+"</span>");
+			out.write(show_html);
 			
 			//loading
 			out.write("<div id=\""+getNodeID()+"_loading\" class=\"divrep_hidden\">");

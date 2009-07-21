@@ -20,7 +20,7 @@ import com.webif.divrep.DivRep;
 import com.webif.divrep.DivRepEvent;
 import com.webif.divrep.DivRepEventListener;
 import com.webif.divrep.common.DivRepStaticContent;
-import com.webif.divrep.common.CheckBoxFormElement;
+import com.webif.divrep.common.DivRepCheckBox;
 import com.webif.divrep.common.DivRepForm;
 import com.webif.divrep.common.DivRepFormElement;
 import com.webif.divrep.common.DivRepSelectBox;
@@ -87,9 +87,9 @@ public class VOFormDE extends DivRepForm
 	private DivRepTextArea community;
 	private DivRepTextBox footprints_id;
 	private DivRepSelectBox sc_id;
-	private CheckBoxFormElement active;
-	private CheckBoxFormElement disable;
-	private CheckBoxFormElement child_vo;
+	private DivRepCheckBox active;
+	private DivRepCheckBox disable;
+	private DivRepCheckBox child_vo;
 	private DivRepSelectBox parent_vo;
 	
 	private VOReport vorep_consolidator;
@@ -119,7 +119,7 @@ public class VOFormDE extends DivRepForm
 						return;
 					}
 					name = name.trim();
-					for(CheckBoxFormElement elem : field_of_science.values()) {
+					for(DivRepCheckBox elem : field_of_science.values()) {
 						if(name.equals(elem.getLabel())) {
 							alert("'" + name + "' already exists in the list");
 							return;
@@ -138,7 +138,7 @@ public class VOFormDE extends DivRepForm
 						FieldOfScience.this.redraw();
 						
 						//select newly created fs
-						CheckBoxFormElement elem = findFieldOfScience(name);
+						DivRepCheckBox elem = findFieldOfScience(name);
 						elem.setValue(true);
 						
 						new_fs.setValue(null);
@@ -153,7 +153,7 @@ public class VOFormDE extends DivRepForm
 			FieldOfScienceModel fsmodel = new FieldOfScienceModel(context);
 			field_of_science = new HashMap();
 			for(FieldOfScienceRecord fsrec : fsmodel.getAll()) {
-				CheckBoxFormElement elem = new CheckBoxFormElement(this);
+				DivRepCheckBox elem = new DivRepCheckBox(this);
 				field_of_science.put(fsrec.id, elem);
 				elem.setLabel(fsrec.name);
 			}
@@ -162,22 +162,22 @@ public class VOFormDE extends DivRepForm
 				//select currently selected field of science
 				VOFieldOfScienceModel vofsmodel = new VOFieldOfScienceModel(context);
 				for(VOFieldOfScienceRecord fsrec : vofsmodel.getByVOID(rec.id)) {
-					CheckBoxFormElement check = field_of_science.get(fsrec.field_of_science_id);
+					DivRepCheckBox check = field_of_science.get(fsrec.field_of_science_id);
 					check.setValue(true);
 				}
 			}
 		}
 		
-		private CheckBoxFormElement findFieldOfScience(String name)
+		private DivRepCheckBox findFieldOfScience(String name)
 		{
-			for(CheckBoxFormElement elem : field_of_science.values()) {
+			for(DivRepCheckBox elem : field_of_science.values()) {
 				if(elem.getLabel().equals(name)) {
 					return elem;
 				}
 			}
 			return null;
 		}
-		private HashMap<Integer, CheckBoxFormElement> field_of_science;
+		private HashMap<Integer, DivRepCheckBox> field_of_science;
 		
 		protected void onEvent(DivRepEvent e) {
 			// TODO Auto-generated method stub
@@ -193,14 +193,14 @@ public class VOFormDE extends DivRepForm
 			out.write("<p>Select Field Of Science(s) applicable to this VO</p>");
 			
 			//sort the field_of_science by name and render
-			TreeSet<CheckBoxFormElement> sorted = new TreeSet<CheckBoxFormElement>(new Comparator<CheckBoxFormElement>() {
-				public int compare(CheckBoxFormElement o1,
-						CheckBoxFormElement o2) {
+			TreeSet<DivRepCheckBox> sorted = new TreeSet<DivRepCheckBox>(new Comparator<DivRepCheckBox>() {
+				public int compare(DivRepCheckBox o1,
+						DivRepCheckBox o2) {
 					return o1.getLabel().compareTo(o2.getLabel());
 				}
 			});
 			sorted.addAll(field_of_science.values());
-			for(CheckBoxFormElement elem : sorted) {
+			for(DivRepCheckBox elem : sorted) {
 				elem.render(out);
 			}
 		
@@ -304,7 +304,7 @@ public class VOFormDE extends DivRepForm
 		
 		//new DivRepStaticContent(this, "<h2>Sub-VO Mapping</h2>");
 		new DivRepStaticContent(this, "<p>Check below if this VO is a sub-VO of an existing VO. For example, FermilabMinos is a sub VO of the Fermilab VO.</p>");
-		child_vo = new CheckBoxFormElement(this);
+		child_vo = new DivRepCheckBox(this);
 		child_vo.setLabel("This is a sub-VO");
 		//indent the parent VO stuff
 		new DivRepStaticContent(this, "<div class=\"indent\">");
@@ -478,14 +478,14 @@ public class VOFormDE extends DivRepForm
 			footprints_id.setHidden(true);
 		}
 
-		active = new CheckBoxFormElement(this);
+		active = new DivRepCheckBox(this);
 		active.setLabel("Active");
 		active.setValue(rec.active);
 		if(!auth.allows("admin")) {
 			active.setHidden(true);
 		}
 		
-		disable = new CheckBoxFormElement(this);
+		disable = new DivRepCheckBox(this);
 		disable.setLabel("Disable");
 		disable.setValue(rec.disable);
 		if(!auth.allows("admin")) {
@@ -598,7 +598,7 @@ public class VOFormDE extends DivRepForm
 		
 		ArrayList<Integer> field_of_science_ids = new ArrayList();
 		for(Integer id : field_of_science_de.field_of_science.keySet()) {
-			CheckBoxFormElement elem = field_of_science_de.field_of_science.get(id);
+			DivRepCheckBox elem = field_of_science_de.field_of_science.get(id);
 			if(elem.getValue()) {
 				field_of_science_ids.add(id);
 			}
