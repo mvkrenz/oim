@@ -4,7 +4,7 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 
 import com.webif.divrep.DivRep;
-import com.webif.divrep.DivRepRoot.DivRepPage;
+import com.webif.divrep.DivRepPage;
 
 //simple view that has list of children
 public class GenericView implements IView {

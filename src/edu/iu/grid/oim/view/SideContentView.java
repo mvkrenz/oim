@@ -4,7 +4,7 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 
 import com.webif.divrep.DivRep;
-import com.webif.divrep.DivRepRoot.DivRepPage;
+import com.webif.divrep.DivRepPage;
 
 //put each content under a side content header
 public class SideContentView implements IView {

@@ -51,20 +51,20 @@ public class DivRepTextArea extends DivRepFormElement<String>  {
 
 			out.write("input.val(\""+StringEscapeUtils.escapeJavaScript(current_value)+"\");");
 			out.write("if(input.val() == \"\") {\n");
-			out.write(" input.addClass(\"sample\");\n");
+			out.write(" input.addClass(\"divrep_sample\");\n");
 			out.write(" input.val(input.attr('sample'));\n");
 			out.write("}\n");
 			
 			out.write("input.focus(function() {");
-			out.write("	if($(this).hasClass(\"sample\")) {");
+			out.write("	if($(this).hasClass(\"divrep_sample\")) {");
 			out.write(" 	this.value = \"\";");
-			out.write("		$(this).removeClass(\"sample\");");
+			out.write("		$(this).removeClass(\"divrep_sample\");");
 			out.write(" }");
 			out.write("});");
 			
 			out.write("input.blur(function() {");
 			out.write(" if(this.value == \"\") {");
-			out.write("		$(this).addClass(\"sample\");");
+			out.write("		$(this).addClass(\"divrep_sample\");");
 			out.write(" 	$(this).val($(this).attr('sample'));");
 
 			out.write(" }");

@@ -12,7 +12,7 @@ import com.webif.divrep.DivRep;
 import com.webif.divrep.DivRepEvent;
 import com.webif.divrep.DivRepEventListener;
 import com.webif.divrep.DivRepRoot;
-import com.webif.divrep.DivRepRoot.DivRepPage;
+import com.webif.divrep.DivRepPage;
 import com.webif.divrep.common.DivRepButton;
 
 //http://lh6.ggpht.com/_uLPl8oMHccE/Si8ZFSCZL1I/AAAAAAAAEsM/2EGwNFX_yLM/s800/P1120510.JPG

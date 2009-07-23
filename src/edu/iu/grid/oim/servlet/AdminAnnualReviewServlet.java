@@ -13,7 +13,7 @@ import com.webif.divrep.common.DivRepButton;
 import com.webif.divrep.DivRepRoot;
 import com.webif.divrep.DivRepEvent;
 import com.webif.divrep.DivRepEventListener;
-import com.webif.divrep.DivRepRoot.DivRepPage;
+import com.webif.divrep.DivRepPage;
 import com.webif.divrep.common.DivRepTextBox;
 
 import edu.iu.grid.oim.model.db.ActionModel;

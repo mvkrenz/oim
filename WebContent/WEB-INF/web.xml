@@ -694,6 +694,19 @@
 		<url-pattern>/common</url-pattern>
 	</servlet-mapping>	
 
+	<servlet>
+		<description>
+		</description>
+		<display-name>HelloWorldServlet</display-name>
+		<servlet-name>HelloWorldServlet</servlet-name>
+		<servlet-class>com.webif.divrep.sample.HelloWorldServlet</servlet-class>
+	</servlet>	
+	
+	<servlet-mapping>
+		<servlet-name>HelloWorldServlet</servlet-name>
+		<url-pattern>/helloworld</url-pattern>
+	</servlet-mapping>
+
 	<welcome-file-list>
 		<welcome-file>index.jsp</welcome-file>
 	</welcome-file-list>

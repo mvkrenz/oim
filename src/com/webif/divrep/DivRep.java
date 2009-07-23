@@ -9,7 +9,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.StringEscapeUtils;
 
-import com.webif.divrep.DivRepRoot.DivRepPage;
+import com.webif.divrep.DivRepRoot;
+import com.webif.divrep.DivRepPage;
 
 public abstract class DivRep {    
 	private String nodeid;

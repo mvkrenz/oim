@@ -11,9 +11,7 @@ import javax.servlet.http.HttpServletResponse;
 import com.webif.divrep.DivRep;
 import com.webif.divrep.DivRepEvent;
 import com.webif.divrep.DivRepRoot;
-import com.webif.divrep.DivRepRoot.DivRepPage;
-import com.webif.divrep.common.DivRepButton;
-import com.webif.divrep.common.DivRepStaticContent;
+import com.webif.divrep.DivRepPage;
 import com.webif.divrep.common.DivRepToggler;
 
 import edu.iu.grid.oim.lib.StaticConfig;

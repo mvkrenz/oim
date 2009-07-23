@@ -14,7 +14,7 @@ import com.webif.divrep.DivRepRoot;
 import com.webif.divrep.DivRepEvent;
 import com.webif.divrep.DivRepEventListener;
 import com.webif.divrep.common.DivRepStaticContent;
-import com.webif.divrep.DivRepRoot.DivRepPage;
+import com.webif.divrep.DivRepPage;
 import com.webif.divrep.common.DivRepTextBox;
 
 public class CalculatorServlet extends HttpServlet {

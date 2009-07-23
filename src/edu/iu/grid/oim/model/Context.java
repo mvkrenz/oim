@@ -11,7 +11,7 @@ import javax.sql.DataSource;
 import org.apache.log4j.Logger;
 
 import com.webif.divrep.DivRepRoot;
-import com.webif.divrep.DivRepRoot.DivRepPage;
+import com.webif.divrep.DivRepPage;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;

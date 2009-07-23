@@ -7,10 +7,11 @@
 
 body
 {
-	font-family: "trebuchet ms", sans-serif;
+	font-family: "trebuchet ms";
 	color: #555555;
 	font-size: 11pt;
 	padding: 10px;
+	margin: 5px;
 }
 
 a img

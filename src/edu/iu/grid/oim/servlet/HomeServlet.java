@@ -69,7 +69,7 @@ public class HomeServlet extends ServletBase  {
 		contentview.add(new HtmlView(welcome_string));
 	
 		//add confirmation button
-		if(!auth.isGuest()) {
+		if(auth.isOIMUser()) {
 			try {
 				contentview.add(new DivRepWrapper(new Confirmation(auth.getContactID(), context)));
 			} catch (SQLException e) {

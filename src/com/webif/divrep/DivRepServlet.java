@@ -23,7 +23,7 @@ public class DivRepServlet extends HttpServlet {
     
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException
 	{	
-		
+		/*
 		//simulate network latency for localhost
 		if(request.getLocalName().equals("localhost")) {
 			try {
@@ -33,7 +33,7 @@ public class DivRepServlet extends HttpServlet {
 				e.printStackTrace();
 			}
 		}
-		
+		*/
 		response.setHeader("Cache-Control","no-cache, must-revalidate");
 		
 		//find the target node and process action

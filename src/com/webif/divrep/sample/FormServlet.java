@@ -2,11 +2,13 @@ package com.webif.divrep.sample;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.text.ParseException;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.swing.text.MaskFormatter;
 
 import com.webif.divrep.common.DivRepButton;
 import com.webif.divrep.common.DivRepForm;
@@ -15,7 +17,7 @@ import com.webif.divrep.DivRep;
 import com.webif.divrep.DivRepEvent;
 import com.webif.divrep.DivRepEventListener;
 import com.webif.divrep.DivRepRoot;
-import com.webif.divrep.DivRepRoot.DivRepPage;
+import com.webif.divrep.DivRepPage;
 
 public class FormServlet extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
@@ -55,12 +57,13 @@ public class FormServlet extends HttpServlet {
 			
 			name = new DivRepTextBox(this);
 			name.setLabel("Full Name");
+			name.setSampleValue("Soichi Hayashi");
 			name.setRequired(true);
 			
 			tel = new DivRepTextBox(this);
 			tel.setLabel("Telephone Number");
-			
-			//extra = new SomeDivRep(this);
+			tel.setSampleValue("222-333-4444");
+			tel.addEventListener(new TelephoneNumberFormatterEventListener());
 		}
 		
 		//When user clicks submit and if the form passes validations, this function will be called
@@ -71,5 +74,45 @@ public class FormServlet extends HttpServlet {
 			//return false to stay on the form
 			return false;
 		}
+		
+		class TelephoneNumberFormatterEventListener extends DivRepEventListener {
+			public void handleEvent(DivRepEvent e) {
+				String value = (String)e.value;
+		        int length = value.length();
+		        
+		        //remove non digit
+		        StringBuffer buffer = new StringBuffer(length);
+		        for(int i = 0; i < length; i++) {
+		            char ch = value.charAt(i);
+		            if (Character.isDigit(ch)) {
+		                buffer.append(ch);
+		            }
+		        }
+		        value = buffer.toString();
+		        //truncate at 9 digit (or 10 if starts with 1)
+	        	if(value.length() > 0 && value.charAt(0) != '1') {
+	        		if(value.length() > 11) {
+	        			value = value.substring(1, 10);
+	        		}
+	        	} else {
+	        		if(value.length() > 10) {
+	        			value = value.substring(0, 9);
+	        		}
+		        }
+	        	if(value.length() == 10) {
+	        		value = "+1(" + value.substring(0,3) + ")" + value.substring(3,6) + "-" + value.substring(6);
+	        	} else {
+	        		tel.alert("Invalid telephone number");
+	        		value = "";
+	        	}
+		   
+				tel.setValue(value);
+				tel.redraw();
+			}
+			
+		}
 	}
+	
+
 }
+
