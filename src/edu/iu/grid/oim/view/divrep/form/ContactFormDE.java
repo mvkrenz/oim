@@ -2,6 +2,7 @@ package edu.iu.grid.oim.view.divrep.form;
 
 import java.io.PrintWriter;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.TreeMap;
 
@@ -49,6 +50,7 @@ public class ContactFormDE extends DivRepForm
 	private DivRepCheckBox person;
 	private DivRepTextArea contact_preference;
 	private DivRepSelectBox submitter_dn;
+	private Timestamp confirmed;
 	
 	class PhotoDE extends DivRepFormElement<String>
 	{
@@ -266,6 +268,9 @@ public class ContactFormDE extends DivRepForm
 		if(!auth.allows("admin")) {
 			submitter_dn.setHidden(true);
 		}
+		
+		//confirmed field is not editable (maybe let GOC to edit?)
+		confirmed = rec.confirmed;
 	}
 
 	protected Boolean doSubmit() 
@@ -288,13 +293,13 @@ public class ContactFormDE extends DivRepForm
 		rec.state = state.getValue();
 		rec.zipcode = zipcode.getValue();
 		rec.country = country.getValue();
-		//rec.active = active.getValue();
 		rec.disable = disable.getValue();
 		rec.person = person.getValue();
 		rec.im = im.getValue();
 		rec.photo_url = photo_url.getValue();
 		rec.contact_preference = contact_preference.getValue();
 		rec.submitter_dn_id = submitter_dn.getValue();
+		rec.confirmed = confirmed;
 		
 		ContactModel model = new ContactModel(context);
 		try {
