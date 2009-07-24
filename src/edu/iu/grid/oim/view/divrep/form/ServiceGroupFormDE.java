@@ -7,15 +7,15 @@ import java.util.HashMap;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 
-import com.webif.divrep.DivRep;
-import com.webif.divrep.common.DivRepStaticContent;
-import com.webif.divrep.common.DivRepCheckBox;
-import com.webif.divrep.common.DivRepForm;
-import com.webif.divrep.common.DivRepSelectBox;
-import com.webif.divrep.common.DivRepTextArea;
-import com.webif.divrep.common.DivRepTextBox;
-import com.webif.divrep.validator.DivRepUniqueValidator;
-import com.webif.divrep.validator.DivRepUrlValidator;
+import com.divrep.DivRep;
+import com.divrep.common.DivRepCheckBox;
+import com.divrep.common.DivRepForm;
+import com.divrep.common.DivRepSelectBox;
+import com.divrep.common.DivRepStaticContent;
+import com.divrep.common.DivRepTextArea;
+import com.divrep.common.DivRepTextBox;
+import com.divrep.validator.DivRepUniqueValidator;
+import com.divrep.validator.DivRepUrlValidator;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;

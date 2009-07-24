@@ -14,10 +14,10 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 
-import com.webif.divrep.common.DivRepButton;
-import com.webif.divrep.DivRep;
-import com.webif.divrep.DivRepEvent;
-import com.webif.divrep.common.DivRepToggler;
+import com.divrep.DivRep;
+import com.divrep.DivRepEvent;
+import com.divrep.common.DivRepButton;
+import com.divrep.common.DivRepToggler;
 
 import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.model.db.ContactModel;

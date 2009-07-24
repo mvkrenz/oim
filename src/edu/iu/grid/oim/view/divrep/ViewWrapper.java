@@ -2,8 +2,8 @@ package edu.iu.grid.oim.view.divrep;
 
 import java.io.PrintWriter;
 
-import com.webif.divrep.DivRep;
-import com.webif.divrep.DivRepEvent;
+import com.divrep.DivRep;
+import com.divrep.DivRepEvent;
 
 import edu.iu.grid.oim.view.IView;
 

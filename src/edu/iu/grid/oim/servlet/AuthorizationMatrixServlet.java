@@ -15,13 +15,13 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 
-import com.webif.divrep.common.DivRepButton;
-import com.webif.divrep.DivRep;
-import com.webif.divrep.DivRepRoot;
-import com.webif.divrep.DivRepEvent;
-import com.webif.divrep.common.DivRepCheckBox;
-import com.webif.divrep.common.DivRepForm;
-import com.webif.divrep.common.DivRepFormElement;
+import com.divrep.DivRep;
+import com.divrep.DivRepEvent;
+import com.divrep.DivRepRoot;
+import com.divrep.common.DivRepButton;
+import com.divrep.common.DivRepCheckBox;
+import com.divrep.common.DivRepForm;
+import com.divrep.common.DivRepFormElement;
 
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
 import edu.iu.grid.oim.model.Context;

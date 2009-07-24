@@ -2,14 +2,14 @@ package edu.iu.grid.oim.view.divrep;
 
 import java.io.PrintWriter;
 
-import com.webif.divrep.common.DivRepButton;
-import com.webif.divrep.DivRep;
-import com.webif.divrep.DivRepEvent;
-import com.webif.divrep.DivRepEventListener;
-import com.webif.divrep.common.DivRepCheckBox;
-import com.webif.divrep.common.DivRepFormElement;
-import com.webif.divrep.common.DivRepTextBox;
-import com.webif.divrep.validator.DivRepDoubleValidator;
+import com.divrep.DivRep;
+import com.divrep.DivRepEvent;
+import com.divrep.DivRepEventListener;
+import com.divrep.common.DivRepButton;
+import com.divrep.common.DivRepCheckBox;
+import com.divrep.common.DivRepFormElement;
+import com.divrep.common.DivRepTextBox;
+import com.divrep.validator.DivRepDoubleValidator;
 
 import edu.iu.grid.oim.model.Context;
 import edu.iu.grid.oim.model.db.ResourceWLCGModel;

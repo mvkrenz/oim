@@ -5,15 +5,15 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.TreeMap;
 
-import com.webif.divrep.common.DivRepButton;
-import com.webif.divrep.DivRep;
-import com.webif.divrep.DivRepEvent;
-import com.webif.divrep.DivRepEventListener;
-import com.webif.divrep.common.DivRepFormElement;
-import com.webif.divrep.common.DivRepSelectBox;
-import com.webif.divrep.common.DivRepTextBox;
-import com.webif.divrep.validator.DivRepDoubleValidator;
-import com.webif.divrep.validator.DivRepIValidator;
+import com.divrep.DivRep;
+import com.divrep.DivRepEvent;
+import com.divrep.DivRepEventListener;
+import com.divrep.common.DivRepButton;
+import com.divrep.common.DivRepFormElement;
+import com.divrep.common.DivRepSelectBox;
+import com.divrep.common.DivRepTextBox;
+import com.divrep.validator.DivRepDoubleValidator;
+import com.divrep.validator.DivRepIValidator;
 
 import edu.iu.grid.oim.model.db.record.ResourceServiceRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;

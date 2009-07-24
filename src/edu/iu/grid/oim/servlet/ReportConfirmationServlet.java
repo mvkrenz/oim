@@ -28,12 +28,12 @@ import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
-import com.webif.divrep.common.DivRepButton;
-import com.webif.divrep.common.DivRepSelectBox;
-import com.webif.divrep.DivRep;
-import com.webif.divrep.DivRepEventListener;
-import com.webif.divrep.DivRepRoot;
-import com.webif.divrep.DivRepEvent;
+import com.divrep.DivRep;
+import com.divrep.DivRepEvent;
+import com.divrep.DivRepEventListener;
+import com.divrep.DivRepRoot;
+import com.divrep.common.DivRepButton;
+import com.divrep.common.DivRepSelectBox;
 
 import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.model.db.ActionModel;

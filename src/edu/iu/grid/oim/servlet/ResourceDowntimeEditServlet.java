@@ -10,10 +10,10 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
 
-import com.webif.divrep.common.DivRepButton;
-import com.webif.divrep.DivRepRoot;
-import com.webif.divrep.DivRepEvent;
-import com.webif.divrep.DivRepEventListener;
+import com.divrep.DivRepEvent;
+import com.divrep.DivRepEventListener;
+import com.divrep.DivRepRoot;
+import com.divrep.common.DivRepButton;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.StaticConfig;

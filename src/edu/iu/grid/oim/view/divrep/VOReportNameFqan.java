@@ -4,15 +4,15 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import com.webif.divrep.common.DivRepButton;
-import com.webif.divrep.DivRep;
-import com.webif.divrep.DivRepEvent;
-import com.webif.divrep.DivRepEventListener;
-import com.webif.divrep.common.DivRepStaticContent;
-import com.webif.divrep.common.DivRepCheckBox;
-import com.webif.divrep.common.DivRepFormElement;
-import com.webif.divrep.common.DivRepSelectBox;
-import com.webif.divrep.common.DivRepTextBox;
+import com.divrep.DivRep;
+import com.divrep.DivRepEvent;
+import com.divrep.DivRepEventListener;
+import com.divrep.common.DivRepButton;
+import com.divrep.common.DivRepCheckBox;
+import com.divrep.common.DivRepFormElement;
+import com.divrep.common.DivRepSelectBox;
+import com.divrep.common.DivRepStaticContent;
+import com.divrep.common.DivRepTextBox;
 
 import edu.iu.grid.oim.model.db.record.VOReportNameRecord;
 import edu.iu.grid.oim.model.db.record.VOReportNameFqanRecord;

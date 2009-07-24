@@ -5,13 +5,14 @@ import java.util.HashMap;
 import java.util.TreeMap;
 
 import org.apache.log4j.Logger;
-import com.webif.divrep.DivRepEvent;
-import com.webif.divrep.common.DivRepStaticContent;
-import com.webif.divrep.common.DivRepForm;
-import com.webif.divrep.common.DivRepSelectBox;
-import com.webif.divrep.common.DivRepTextBox;
-import com.webif.divrep.validator.DivRepIntegerValidator;
-import com.webif.divrep.validator.DivRepUniqueValidator;
+
+import com.divrep.DivRepEvent;
+import com.divrep.common.DivRepForm;
+import com.divrep.common.DivRepSelectBox;
+import com.divrep.common.DivRepStaticContent;
+import com.divrep.common.DivRepTextBox;
+import com.divrep.validator.DivRepIntegerValidator;
+import com.divrep.validator.DivRepUniqueValidator;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Authorization.AuthorizationException;

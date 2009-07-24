@@ -9,12 +9,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.log4j.Logger;
 
-import com.webif.divrep.common.DivRepButton;
-import com.webif.divrep.DivRepRoot;
-import com.webif.divrep.DivRepEvent;
-import com.webif.divrep.DivRepEventListener;
-import com.webif.divrep.DivRepPage;
-import com.webif.divrep.common.DivRepTextBox;
+import com.divrep.DivRepEvent;
+import com.divrep.DivRepEventListener;
+import com.divrep.DivRepPage;
+import com.divrep.DivRepRoot;
+import com.divrep.common.DivRepButton;
+import com.divrep.common.DivRepTextBox;
 
 import edu.iu.grid.oim.model.db.ActionModel;
 import edu.iu.grid.oim.model.db.ConfigModel;

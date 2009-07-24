@@ -2,8 +2,8 @@ package edu.iu.grid.oim.view;
 
 import java.io.PrintWriter;
 
-import com.webif.divrep.DivRep;
-import com.webif.divrep.DivRepPage;
+import com.divrep.DivRep;
+import com.divrep.DivRepPage;
 
 //use this to make DivRep object behaves like a GenericView
 public class DivRepWrapper implements IView {

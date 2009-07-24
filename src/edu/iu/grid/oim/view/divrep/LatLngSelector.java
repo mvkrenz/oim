@@ -5,9 +5,9 @@ import java.util.Random;
 
 import org.apache.commons.lang.StringEscapeUtils;
 
-import com.webif.divrep.DivRep;
-import com.webif.divrep.DivRepEvent;
-import com.webif.divrep.common.DivRepFormElement;
+import com.divrep.DivRep;
+import com.divrep.DivRepEvent;
+import com.divrep.common.DivRepFormElement;
 
 import edu.iu.grid.oim.lib.StaticConfig;
 

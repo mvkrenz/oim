@@ -4,12 +4,13 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import org.apache.log4j.Logger;
-import com.webif.divrep.common.DivRepStaticContent;
-import com.webif.divrep.common.DivRepCheckBox;
-import com.webif.divrep.common.DivRepForm;
-import com.webif.divrep.common.DivRepTextArea;
-import com.webif.divrep.common.DivRepTextBox;
-import com.webif.divrep.validator.DivRepUniqueValidator;
+
+import com.divrep.common.DivRepCheckBox;
+import com.divrep.common.DivRepForm;
+import com.divrep.common.DivRepStaticContent;
+import com.divrep.common.DivRepTextArea;
+import com.divrep.common.DivRepTextBox;
+import com.divrep.validator.DivRepUniqueValidator;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Footprint;

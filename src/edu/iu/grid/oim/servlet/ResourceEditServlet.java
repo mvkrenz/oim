@@ -10,8 +10,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
 
-import com.webif.divrep.DivRep;
-import com.webif.divrep.common.DivRepForm;
+import com.divrep.DivRep;
+import com.divrep.common.DivRepForm;
 
 import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.model.Context;
