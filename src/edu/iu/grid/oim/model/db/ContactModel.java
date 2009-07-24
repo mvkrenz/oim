@@ -91,7 +91,7 @@ public class ContactModel extends SmallTableModelBase<ContactRecord> {
 		ArrayList<ContactRecord> list = new ArrayList<ContactRecord>();
 		
 		for(ContactRecord it : getAll()) {
-			if(it.person && it.confirmed.before(when)) {	
+			if(it.person && it.disable == false && it.confirmed.before(when)) {	
 				list.add(it);
 			}
 		}

@@ -96,7 +96,10 @@ public class ReportConfirmationServlet extends ServletBase implements Servlet {
 		ContentView contentview = new ContentView();	
 		contentview.add(new HtmlView("<h1>Confirmation Report</h1>"));
 		contentview.add(new HtmlView("<p>This pages shows lists of contacts who have not confirmed the content of OIM for more than "+StaticConfig.getConfirmationExpiration()+" days</p>"));
-	
+		contentview.add(new HtmlView("<p>This list only contains personal contact, and contact that are not disabled.</p>"));
+		
+		contentview.add(new HtmlView("<div class=\"divrep_indent\">"));
+		
 		try {		
 			ContactModel cmodel = new ContactModel(context);
 			for(ContactRecord rec : cmodel.getConfirmationExpiredPersonalContacts()) {
@@ -105,6 +108,8 @@ public class ReportConfirmationServlet extends ServletBase implements Servlet {
 		} catch(SQLException e) {
 			e.printStackTrace();
 		}
+		
+		contentview.add(new HtmlView("</div>"));
 		
 		return contentview;
 	}
