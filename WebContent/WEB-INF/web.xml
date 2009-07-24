@@ -21,7 +21,7 @@
 		</description>
 		<display-name>DivRepServlet</display-name>
 		<servlet-name>DivRepServlet</servlet-name>
-		<servlet-class>com.webif.divrep.DivRepServlet</servlet-class>
+		<servlet-class>com.divrep.DivRepServlet</servlet-class>
 	</servlet>
 	<servlet>
 		<description>
@@ -377,7 +377,7 @@
 		</description>
 		<display-name>CalculatorServlet</display-name>
 		<servlet-name>CalculatorServlet</servlet-name>
-		<servlet-class>com.webif.divrep.sample.CalculatorServlet</servlet-class>
+		<servlet-class>com.divrep.sample.CalculatorServlet</servlet-class>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>CalculatorServlet</servlet-name>
@@ -389,7 +389,7 @@
 		</description>
 		<display-name>FormServlet</display-name>
 		<servlet-name>FormServlet</servlet-name>
-		<servlet-class>com.webif.divrep.sample.FormServlet</servlet-class>
+		<servlet-class>com.divrep.sample.FormServlet</servlet-class>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>FormServlet</servlet-name>
@@ -401,7 +401,7 @@
 		</description>
 		<display-name>PuzzleGameServlet</display-name>
 		<servlet-name>PuzzleGameServlet</servlet-name>
-		<servlet-class>com.webif.divrep.sample.PuzzleGameServlet</servlet-class>
+		<servlet-class>com.divrep.sample.PuzzleGameServlet</servlet-class>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>PuzzleGameServlet</servlet-name>
@@ -413,7 +413,7 @@
 		</description>
 		<display-name>TreeServlet</display-name>
 		<servlet-name>TreeServlet</servlet-name>
-		<servlet-class>com.webif.divrep.sample.TreeServlet</servlet-class>
+		<servlet-class>com.divrep.sample.TreeServlet</servlet-class>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>TreeServlet</servlet-name>
@@ -425,7 +425,7 @@
 		</description>
 		<display-name>TradingGameServlet</display-name>
 		<servlet-name>TradingGameServlet</servlet-name>
-		<servlet-class>com.webif.divrep.sample.TradingGameServlet</servlet-class>
+		<servlet-class>com.divrep.sample.TradingGameServlet</servlet-class>
 	</servlet>
 	
 	<servlet>
@@ -687,7 +687,7 @@
 		CommonServlet</display-name>
 		<servlet-name>CommonServlet</servlet-name>
 		<servlet-class>
-		com.webif.divrep.sample.CommonServlet</servlet-class>
+		com.divrep.sample.CommonServlet</servlet-class>
 	</servlet>	
 	<servlet-mapping>
 		<servlet-name>CommonServlet</servlet-name>
@@ -699,7 +699,7 @@
 		</description>
 		<display-name>HelloWorldServlet</display-name>
 		<servlet-name>HelloWorldServlet</servlet-name>
-		<servlet-class>com.webif.divrep.sample.HelloWorldServlet</servlet-class>
+		<servlet-class>com.divrep.sample.HelloWorldServlet</servlet-class>
 	</servlet>	
 	
 	<servlet-mapping>
