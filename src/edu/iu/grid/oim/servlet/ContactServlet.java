@@ -71,6 +71,11 @@ public class ContactServlet extends ServletBase implements Servlet {
 				return a.getName().compareToIgnoreCase(b.getName()); // We are comparing based on name
 			}
 		});
+		Collections.sort(contacts, new Comparator<ContactRecord> (){
+			public int compare(ContactRecord a, ContactRecord b) {
+				return a.isPerson().compareTo(b.isPerson()); // We are comparing based on bool person
+			}
+		});
 
 		ContentView contentview = new ContentView();	
 		contentview.add(new HtmlView("<h1>Contacts</h1>"));

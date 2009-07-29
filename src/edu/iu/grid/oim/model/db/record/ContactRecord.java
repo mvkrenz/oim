@@ -40,6 +40,9 @@ public class ContactRecord extends RecordBase implements Cloneable  {
 	public String getName() {
 		return name;
 	}
+	public Boolean isPerson() {
+		return person;
+	}
 	public String getFirstName()
 	{
 		if(name == null) return "";
