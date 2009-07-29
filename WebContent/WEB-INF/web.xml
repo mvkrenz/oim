@@ -379,12 +379,6 @@
 		<servlet-name>AdminAnnualReviewServlet</servlet-name>
 		<servlet-class>edu.iu.grid.oim.servlet.AdminAnnualReviewServlet</servlet-class>
 	</servlet>	
-	
-	<servlet-mapping>
-		<servlet-name>TradingGameServlet</servlet-name>
-		<url-pattern>/tradegame</url-pattern>
-	</servlet-mapping>
-	
 
 	<servlet-mapping>
 		<servlet-name>DivRepServlet</servlet-name>
@@ -635,10 +629,6 @@
 	<servlet-mapping>
 		<servlet-name>ErrorServlet</servlet-name>
 		<url-pattern>/error</url-pattern>
-	</servlet-mapping>
-	<servlet-mapping>
-		<servlet-name>CommonServlet</servlet-name>
-		<url-pattern>/CommonServlet</url-pattern>
 	</servlet-mapping>
 
 	<error-page>
