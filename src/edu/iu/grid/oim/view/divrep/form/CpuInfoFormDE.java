@@ -61,7 +61,7 @@ public class CpuInfoFormDE extends DivRepForm
 		hepspec_normalization_constant = new DivRepTextBox(this);
 		hepspec_normalization_constant.setLabel ("HEPSPEC Normalization Constant"); 
 		hepspec_normalization_constant.setValue(String.valueOf(rec.hepspec_normalization_constant));
-		hepspec_normalization_constant.setSampleValue("1.68433");
+		hepspec_normalization_constant.setSampleValue("9.906"); // ksi2k * 170/1000 according to Brian
 		hepspec_normalization_constant.addValidator(new DivRepDoubleValidator());
 		hepspec_normalization_constant.setRequired(true);
 
