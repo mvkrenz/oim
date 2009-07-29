@@ -5,6 +5,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Set;
 
@@ -24,6 +26,7 @@ import com.divrep.common.DivRepButton;
 import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.model.db.CpuInfoModel;
 import edu.iu.grid.oim.model.db.record.CpuInfoRecord;
+import edu.iu.grid.oim.model.db.record.VORecord;
 
 import edu.iu.grid.oim.view.BreadCrumbView;
 import edu.iu.grid.oim.view.ContentView;
@@ -65,8 +68,13 @@ public class CPUInfoServlet extends ServletBase implements Servlet {
 		throws ServletException, SQLException
 	{
 		CpuInfoModel model = new CpuInfoModel(context);
-		Collection<CpuInfoRecord> cpus = model.getAll();
-		
+		ArrayList<CpuInfoRecord> cpus = model.getAll();
+		Collections.sort(cpus, new Comparator<CpuInfoRecord> (){
+			public int compare(CpuInfoRecord a, CpuInfoRecord b) {
+				return a.getName().compareToIgnoreCase(b.getName()); // We are comparing based on name
+			}
+		});
+
 		ContentView contentview = new ContentView();	
 		contentview.add(new HtmlView("<h1>CPU Information</h1>"));
 	
@@ -78,6 +86,7 @@ public class CPUInfoServlet extends ServletBase implements Servlet {
 
 		 	table.addRow("Name", rec.name);
 			table.addRow("Normalization Constant", rec.normalization_constant.toString());
+			table.addRow("HEPSPEC Normalization Constant", rec.hepspec_normalization_constant.toString());
 			table.addRow("Notes", rec.notes);
 	
 			class EditButtonDE extends DivRepButton

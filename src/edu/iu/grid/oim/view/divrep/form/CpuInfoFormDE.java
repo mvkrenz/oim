@@ -28,6 +28,7 @@ public class CpuInfoFormDE extends DivRepForm
 	
 	private DivRepTextBox name;
 	private DivRepTextBox normalization_constant;
+	private DivRepTextBox hepspec_normalization_constant;
 	private DivRepTextArea notes;
 	
 	public CpuInfoFormDE(Context _context, CpuInfoRecord rec, String origin_url) throws AuthorizationException, SQLException
@@ -46,15 +47,24 @@ public class CpuInfoFormDE extends DivRepForm
 		name = new DivRepTextBox(this);
 		name.setLabel("Name");
 		name.setValue(rec.name);
+		name.setSampleValue("Intel(R) Xeon(TM) CPU 3.60GHz");
 		name.addValidator(new DivRepUniqueValidator<String>(cpu_infos.values()));
 		name.setRequired(true);
 		
 		normalization_constant = new DivRepTextBox(this);
 		normalization_constant.setLabel ("Normalization Constant"); 
 		normalization_constant.setValue(String.valueOf(rec.normalization_constant));
+		normalization_constant.setSampleValue ("1.684");
 		normalization_constant.addValidator(new DivRepDoubleValidator());
 		normalization_constant.setRequired(true);
 		
+		hepspec_normalization_constant = new DivRepTextBox(this);
+		hepspec_normalization_constant.setLabel ("HEPSPEC Normalization Constant"); 
+		hepspec_normalization_constant.setValue(String.valueOf(rec.hepspec_normalization_constant));
+		hepspec_normalization_constant.setSampleValue("1.68433");
+		hepspec_normalization_constant.addValidator(new DivRepDoubleValidator());
+		hepspec_normalization_constant.setRequired(true);
+
 		notes = new DivRepTextArea(this);
 		notes.setLabel("Notes");
 		notes.setValue(rec.notes);
@@ -79,6 +89,7 @@ public class CpuInfoFormDE extends DivRepForm
 		rec.id = id;
 		rec.name = name.getValue();
 		rec.normalization_constant = Float.valueOf(normalization_constant.getValue());
+		rec.hepspec_normalization_constant = Float.valueOf(hepspec_normalization_constant.getValue());
 		rec.notes = notes.getValue();
 
 		//Do insert / update to our DB

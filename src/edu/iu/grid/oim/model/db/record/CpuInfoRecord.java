@@ -8,10 +8,14 @@ public class CpuInfoRecord extends RecordBase {
 	@Key public Integer id;
 	public String name;
 	public Float normalization_constant;
+	public Float hepspec_normalization_constant;
 	public String notes;
 
 	//load from existing record
-	public CpuInfoRecord(ResultSet rs) throws SQLException { super(rs); }	
+	public CpuInfoRecord(ResultSet rs) throws SQLException { super(rs); }
+	public String getName() {
+		return name;
+	}
 	//for creating new record
 	public CpuInfoRecord() {}
 	/*
