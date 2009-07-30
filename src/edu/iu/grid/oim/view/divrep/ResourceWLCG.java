@@ -30,6 +30,7 @@ public class ResourceWLCG extends DivRepFormElement {
 		private DivRepTextBox wlcg_accounting_name;
 		private DivRepTextBox ksi2k_minimum;
 		private DivRepTextBox ksi2k_maximum;
+		private DivRepTextBox hepspec;
 		private DivRepTextBox storage_capacity_minimum;
 		private DivRepTextBox storage_capacity_maximum;
 
@@ -77,6 +78,12 @@ public class ResourceWLCG extends DivRepFormElement {
 			ksi2k_maximum.setSampleValue("500.0");
 			ksi2k_maximum.setRequired(true);
 
+			hepspec = new DivRepTextBox(this);
+			hepspec.setLabel("HEPSPEC Value");
+			hepspec.addValidator(DivRepDoubleValidator.getInstance());
+			hepspec.setSampleValue("85.0");
+			hepspec.setRequired(true);
+
 			storage_capacity_minimum = new DivRepTextBox(this);
 			storage_capacity_minimum.setLabel("Storage Capacity Minimum (in TeraBytes)");
 			storage_capacity_minimum.addValidator(DivRepDoubleValidator.getInstance());
@@ -106,6 +113,9 @@ public class ResourceWLCG extends DivRepFormElement {
 				}
 				if(wrec.ksi2k_maximum != null) {
 					ksi2k_maximum.setValue(wrec.ksi2k_maximum.toString());
+				}
+				if(wrec.hepspec != null) {
+					hepspec.setValue(wrec.hepspec.toString());
 				}
 				if(wrec.storage_capacity_minimum != null) {
 					storage_capacity_minimum.setValue(wrec.storage_capacity_minimum.toString());
@@ -158,6 +168,7 @@ public class ResourceWLCG extends DivRepFormElement {
 			rec.accounting_name    = wlcg_accounting_name.getValue();
 			rec.ksi2k_minimum      = ksi2k_minimum.getValueAsDouble();
 			rec.ksi2k_maximum      = ksi2k_maximum.getValueAsDouble();
+			rec.hepspec			   = hepspec.getValueAsDouble();
 			rec.storage_capacity_minimum = storage_capacity_minimum.getValueAsDouble();
 			rec.storage_capacity_maximum = storage_capacity_maximum.getValueAsDouble();
 			return rec;

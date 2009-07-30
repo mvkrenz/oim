@@ -49,7 +49,7 @@ public class ResourceEditServlet extends ServletBase implements Servlet {
 			int resource_id = Integer.parseInt(resource_id_str);
 			ResourceModel model = new ResourceModel(context);
 			if(!model.canEdit(resource_id)) {
-				throw new ServletException("You can't edit that");
+				throw new ServletException("You can't edit this resource!");
 			}
 			try {
 				ResourceRecord keyrec = new ResourceRecord();

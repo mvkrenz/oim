@@ -147,8 +147,9 @@ public class ResourceServlet extends ServletBase implements Servlet {
 			
 			RecordTableView hierarchy_table = new RecordTableView("inner_table");
 			hierarchy_table.addHeaderRow("This Resource Group Belongs To");
-			hierarchy_table.addRow("Site", srec.name);
 			hierarchy_table.addRow("Facility", frec.name);
+			hierarchy_table.addRow("Site", srec.name);
+			hierarchy_table.addHeaderRow("This Resource Group is Supported By ");
 			hierarchy_table.addRow("Support Center", screc.name);
 			GenericView hierarchy = new GenericView();
 			hierarchy.add(new HtmlView(StringEscapeUtils.escapeHtml(resource_group_name)));
@@ -267,6 +268,7 @@ public class ResourceServlet extends ServletBase implements Servlet {
 		}
 		table.addRow("KSI2K Minimum", rec.ksi2k_minimum);
 		table.addRow("KSI2K Maximum", rec.ksi2k_maximum);
+		table.addRow("HEPSPEC Value", rec.hepspec);
 		table.addRow("Storage Capacity Minimum (TB)", rec.storage_capacity_minimum);
 		table.addRow("Storage Capacity Maximum(TB)", rec.storage_capacity_maximum);
 		

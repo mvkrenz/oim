@@ -13,6 +13,7 @@ public class ResourceWLCGRecord extends RecordBase {
 	public String accounting_name;
 	public Double ksi2k_minimum;
 	public Double ksi2k_maximum;
+	public Double hepspec;
 	public Double storage_capacity_minimum;
 	public Double storage_capacity_maximum;
 
