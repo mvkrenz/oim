@@ -70,7 +70,6 @@ public class ServiceGroupServlet extends ServletBase implements Servlet
 		for(ServiceGroupRecord rec : rgs) {
 			contentview.add(new HtmlView("<h2>"+StringEscapeUtils.escapeHtml(rec.name)+"</h2>"));
 
-			
 			RecordTableView table = new RecordTableView();
 			contentview.add(table);
 

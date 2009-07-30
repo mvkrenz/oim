@@ -49,6 +49,9 @@ public class DivRepServlet extends HttpServlet {
 				PrintWriter writer = response.getWriter();
 				writer.print("alert('Lost session. Reloading page...'); window.location.reload();");			
 			} else {
+				//update last accesed time
+				div.getPageRoot().setAccessed();
+				
 				//dipatch divrep event handler
 				div.doGet(request, response);
 			}

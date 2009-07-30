@@ -1,13 +1,29 @@
 package com.divrep;
 
 import java.io.PrintWriter;
+import java.util.Date;
 
 public class DivRepPage extends DivRep
 {
-
-	public DivRepPage(DivRep _parent) {
+	//page key logically organizes all the pages. 
+	//For eample, page?id=1 and page?id=2 are different pages, but page?id=1&foo=bar and page?id=2&foo=hoge are the same.
+	//In that case, one page will have key of "page?id=1" regardless of what other parameters are.
+	//this mechanism is used to free previously accessed same page, or free last accessed page.
+	private String pagekey;
+	public String getPageKey() { return pagekey; }
+	//used for DivRepRoot to identify which page is last accessed and free it necessary.
+	private Date last_accessed;
+	public void setAccessed() {
+		last_accessed = new Date();
+	}
+	public Date getLastAccessed() {
+		return last_accessed;
+	}
+	
+	public DivRepPage(DivRep _parent, String _pagekey) {
 		super(_parent);
-		// TODO Auto-generated constructor stub
+		pagekey = _pagekey;
+		setAccessed();
 	}
 	
 	//post_replace_js will be executed *after* all the replaces are completed

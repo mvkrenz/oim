@@ -1,10 +1,12 @@
 package com.divrep;
 
 import java.io.PrintWriter;
-import java.util.HashMap;
+import java.util.ArrayList;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+
+//Each session contains a single DivRepRoot instance.
 
 public class DivRepRoot extends DivRep
 {    
@@ -37,21 +39,34 @@ public class DivRepRoot extends DivRep
     	return root;
 	}
 	
-	//DivRepRoot contains the list of DivRepPage that is the root for each pages
-	HashMap<String, DivRepPage> pages = new HashMap<String, DivRepPage>();
-	public DivRepPage initPage(String url)
+	public DivRepPage initPage(String pagekey)
 	{
-		//clear old page (if exist)
-		if(pages.containsKey(url)) {
-			DivRepPage oldpage = pages.get(url);
-			//remove references
-			pages.remove(url);
-			this.remove(oldpage);
+		//search and clear previous page with same pagekey
+		for(DivRep divrep : childnodes) {
+			DivRepPage page = (DivRepPage)divrep;
+			if(page.getPageKey().equals(pagekey)) {
+				//remove references
+				this.remove(page);
+				break;
+			}
+		}
+		
+		//if there are too many pages open, then close the last accessed one
+		if(childnodes.size() > 4) {
+			//find oldest page
+			DivRepPage last = null;
+			for(DivRep divrep : childnodes) {
+				DivRepPage page = (DivRepPage)divrep;
+				if(last == null || page.getLastAccessed().compareTo(last.getLastAccessed()) < 0) {
+					last = page;
+				}
+			}
+			this.remove(last);
+			System.out.println(last.getPageKey() + "(accessed "+last.getLastAccessed().toString()+") has been removed from this session due to too many pages.");
 		}
 		
 		//insert new page and return
-		DivRepPage page = new DivRepPage(this);
-		pages.put(url, page);
+		DivRepPage page = new DivRepPage(this, pagekey);
 		return page;
 	}
 
