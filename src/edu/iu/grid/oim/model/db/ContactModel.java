@@ -86,12 +86,9 @@ public class ContactModel extends SmallTableModelBase<ContactRecord> {
 	
 	public ArrayList<ContactRecord> getConfirmationExpiredPersonalContacts() throws SQLException
 	{
-		Date when = new Date();
-		when.setTime(when.getTime()-1000*3600*24*StaticConfig.getConfirmationExpiration());
-		ArrayList<ContactRecord> list = new ArrayList<ContactRecord>();
-		
+		ArrayList<ContactRecord> list = new ArrayList<ContactRecord>();	
 		for(ContactRecord it : getAll()) {
-			if(it.person && it.disable == false && it.confirmed.before(when)) {	
+			if(it.person && it.disable == false && it.isConfirmationExpired()) {	
 				list.add(it);
 			}
 		}

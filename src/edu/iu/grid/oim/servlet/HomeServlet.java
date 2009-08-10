@@ -106,10 +106,7 @@ public class HomeServlet extends ServletBase  {
 		}
 
 		public void render(PrintWriter out) {
-
-			Date when = new Date();
-			when.setTime(when.getTime()-1000*3600*24*StaticConfig.getConfirmationExpiration());
-			if(crec.confirmed.before(when)) {
+			if(crec.isConfirmationExpired()) {
 				out.write("<div id=\""+getNodeID()+"\">");
 				out.write("<h3>Content Confirmation</h3>");
 			

@@ -116,10 +116,7 @@ public class ProfileEditServlet extends ServletBase implements Servlet {
 		public void render(PrintWriter out) {
 			out.write("<div id=\""+getNodeID()+"\">");
 			out.write("<h3>Content Confirmation</h3>");
-			Date when = new Date();
-			when.setTime(when.getTime()-1000*3600*24*StaticConfig.getConfirmationExpiration());
-			out.write("<p>Last confirmation: "+crec.confirmed.toString()+"</p>");
-			if(crec.confirmed.before(when)) {
+			if(crec.isConfirmationExpired()) {
 				out.write("<p class=\"divrep_round divrep_elementerror\">You have not recently confirmed that your profile information is accurate</p>");
 			}
 			out.write("<p>If the information you see is accurate, please click following button for confirmation.</p>");

@@ -4,8 +4,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Date;
 
 import edu.iu.grid.oim.lib.Authorization;
+import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.ContactRankModel;
 import edu.iu.grid.oim.model.db.ContactTypeModel;
@@ -67,5 +69,11 @@ public class ContactRecord extends RecordBase implements Cloneable  {
 			lastname += tokens[i];
 		}
 		return lastname;
+	}
+	public boolean isConfirmationExpired()
+	{
+		Date when = new Date();
+		when.setTime(when.getTime()-1000L*3600*24*StaticConfig.getConfirmationExpiration());
+		return confirmed.before(when);
 	}
 }
