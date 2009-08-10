@@ -21,5 +21,6 @@
 	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/geonames-1.0.jar"/>
 	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/jdom-1.0.jar"/>
 	<classpathentry kind="lib" path="tomcat5-lib/mail.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/divrep.jar"/>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>

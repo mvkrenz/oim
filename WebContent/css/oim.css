@@ -286,12 +286,12 @@ padding: 5px;
 
 div.downtime
 {
-    margin-top: 5px;
-    margin-bottom: 5px;
-    background-color: #eee;
-    border-top: #aaa solid 1px;
-    border-bottom: #aaa solid 1px;
-    padding: 10px;
+margin-top: 5px;
+margin-bottom: 5px;
+background-color: #eee;
+border-top: #aaa solid 1px;
+border-bottom: #aaa solid 1px;
+padding: 10px;
 }
 img
 {
@@ -308,4 +308,8 @@ margin-left: 20px;
 optgroup
 {
 font-style: normal;	
+}
+.indent
+{
+margin-left: 40px;
 }
