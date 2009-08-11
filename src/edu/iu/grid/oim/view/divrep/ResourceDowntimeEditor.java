@@ -116,8 +116,8 @@ public class ResourceDowntimeEditor extends DivRepFormElement {
 				out.write("$(document).ready(function() { $(\"#"+getNodeID()+" .datepicker\").datepicker({" +
 						"onSelect: function(value) {divrep('"+getNodeID()+"', null, value);},"+
 						"dateFormat: '"+default_jquery_format+"',"+
-						"beforeShow: function() {$(this).attr('disabled', 'disabled');},"+
-						"onClose: function() {$(this).attr('disabled', '');},"+
+						//"beforeShow: function() {$(this).attr('disabled', 'disabled');},"+
+						//"onClose: function() {$(this).attr('disabled', '');},"+
 						"changeYear: true,"+
 						"changeMonth: true"
 						);
@@ -473,12 +473,16 @@ public class ResourceDowntimeEditor extends DivRepFormElement {
 		public void validate()
 		{
 			super.validate();
+			Boolean original = valid;
 
 			Timestamp start = getStartTime();
 			Timestamp end = getEndTime();
 			if(start.compareTo(end) > 0) {
 				valid = false;
 				error.set("Start Time is after the end time. Please correct.");
+				if(original != valid) {
+					error.redraw();
+				}
 				return;
 			}
 			
@@ -492,6 +496,9 @@ public class ResourceDowntimeEditor extends DivRepFormElement {
 			if(service_count == 0) {
 				valid = false;
 				error.set("Please select at least one affected service.");
+				if(original != valid) {
+					error.redraw();
+				}
 				return;
 			}
 		}

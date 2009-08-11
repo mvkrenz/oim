@@ -98,7 +98,9 @@ public class ResourceDowntimeEditServlet extends ServletBase implements Servlet 
 	private SideContentView createSideView()
 	{
 		SideContentView view = new SideContentView();
-		view.add("About", new HtmlView("This page allows you to schedule maintenance (downtime) for this resource, assuming you are listed as a contact for, and therefore are authorized to edit it."));		
+		view.add("Class", new HtmlView(
+				"<p><b>SCHEDULED</b></p><p>Downtimes that has been scheduled long before the acutual downtime.</p>" + 
+				"<p><b>UNSCHEDULED</b></p><p>Downtimes that has occured due to an event such as a sudden hardware failure, or any unforseen circumstances.</p>"));		
 		return view;
 	}
 }
