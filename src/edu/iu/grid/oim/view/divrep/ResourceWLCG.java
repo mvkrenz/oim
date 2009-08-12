@@ -98,16 +98,17 @@ public class ResourceWLCG extends DivRepFormElement {
 			
 			ResourceWLCGModel wmodel = new ResourceWLCGModel(context);
 			if(wrec != null) {
-					//if WLCG record exist, populate the values
+				//if WLCG record exist, populate the values
 				interop_bdii.setValue(wrec.interop_bdii);
 				interop_monitoring.setValue(wrec.interop_monitoring);
 				interop_accounting.setValue(wrec.interop_accounting);
-				
-				if (wrec.interop_accounting) {
-					wlcg_accounting_name.setValue(wrec.accounting_name);
+				if(wrec.interop_accounting) {
 					hideWLCGAccountingName(false);
 				}
 				
+				if (wrec.interop_accounting != null) {
+					wlcg_accounting_name.setValue(wrec.accounting_name);
+				}
 				if(wrec.ksi2k_minimum != null) {
 					ksi2k_minimum.setValue(wrec.ksi2k_minimum.toString());
 				}
