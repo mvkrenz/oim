@@ -79,6 +79,7 @@ public class ResourceDowntimeEditor extends DivRepFormElement {
 			protected DateDE(DivRep parent) {
 				super(parent);
 				value = new Date();//today
+				value.setTime((value.getTime() / (1000L*60)) * (1000L*60)); //round to nearest minute
 			}
 
 			public void setMinDate(Date d)
