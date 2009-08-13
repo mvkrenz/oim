@@ -168,6 +168,7 @@ public class ResourceDowntimeEditor extends DivRepFormElement {
 						Integer h = Integer.valueOf((String)e.value);
 						int current_min = value%60;
 						value = h*60 + current_min;
+						notifyListener(e);
 					}});
 				hour.setHasNull(false);
 				
@@ -181,6 +182,7 @@ public class ResourceDowntimeEditor extends DivRepFormElement {
 						Integer m = Integer.valueOf((String)e.value);
 						int current_hour = value/60;
 						value = current_hour*60 + m;
+						notifyListener(e);
 					}});
 				min.setHasNull(false);
 
@@ -473,16 +475,13 @@ public class ResourceDowntimeEditor extends DivRepFormElement {
 		public void validate()
 		{
 			super.validate();
-			Boolean original = valid;
 
 			Timestamp start = getStartTime();
 			Timestamp end = getEndTime();
 			if(start.compareTo(end) > 0) {
 				valid = false;
 				error.set("Start Time is after the end time. Please correct.");
-				if(original != valid) {
-					error.redraw();
-				}
+				error.redraw();
 				return;
 			}
 			
@@ -496,9 +495,7 @@ public class ResourceDowntimeEditor extends DivRepFormElement {
 			if(service_count == 0) {
 				valid = false;
 				error.set("Please select at least one affected service.");
-				if(original != valid) {
-					error.redraw();
-				}
+				error.redraw();
 				return;
 			}
 		}
