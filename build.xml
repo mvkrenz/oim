@@ -9,8 +9,12 @@
     <path id="oim.classpath">
         <pathelement location="build/classes"/>
         <path refid="EAR Libraries.libraryclasspath"/>
-        <pathelement location="WebContent/WEB-INF/lib"/>
-        <pathelement location="tomcat5-lib"/>
+        <fileset dir="WebContent/WEB-INF/lib">
+          <include name="*.jar"/>
+        </fileset>
+        <fileset dir="tomcat5-lib">
+          <include name="*.jar"/>
+        </fileset>
     </path>
     <target name="init">
         <mkdir dir="build/classes"/>
