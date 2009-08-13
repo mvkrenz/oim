@@ -94,8 +94,6 @@ public class CpuInfoFormDE extends DivRepForm
 
 		//Do insert / update to our DB
 		try {
-			auth.check("edit_measurement");
-			
 			CpuInfoModel model = new CpuInfoModel(context);
 			if(rec.id == null) {
 				model.insert(rec);

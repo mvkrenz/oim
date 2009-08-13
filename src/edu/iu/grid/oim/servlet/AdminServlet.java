@@ -43,8 +43,8 @@ public class AdminServlet extends ServletBase  {
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{
-		if(!auth.allows("admin") && !auth.allows("edit_measurement")) {
-			throw new ServletException("You need action authorization for admin or edit_measurement.");
+		if(!auth.allows("admin")) {
+			throw new ServletException("You need action authorization for admin");
 		}
 		
 		MenuView menuview = new MenuView(context, "admin");
@@ -99,14 +99,6 @@ public class AdminServlet extends ServletBase  {
 			contentview.add(new InternalLinkView("reportconfirmation", "Confirmation"));
 			contentview.add(new HtmlView("<br/>"));
 		}
-		/*
-		if (auth.allows("admin") || auth.allows("edit_measurement")) {
-			contentview.add(new HtmlView("<br/>"));
-			contentview.add(new HtmlView("<h3>Measurement</h3>"));
-			contentview.add(new InternalLinkView("cpuinfo", "CPU Information"));
-			contentview.add(new HtmlView("<br/>"));
-		}
-		*/
 		
 		return contentview;
 	}

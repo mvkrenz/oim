@@ -97,15 +97,12 @@ public class ResourceWLCG extends DivRepFormElement {
 			storage_capacity_maximum.setRequired(true);
 			
 			ResourceWLCGModel wmodel = new ResourceWLCGModel(context);
-			if(wrec != null) {
-					//if WLCG record exist, populate the values
+			if(wrec != null) {				
+				//if WLCG record exist, populate the values
 				interop_bdii.setValue(wrec.interop_bdii);
 				interop_monitoring.setValue(wrec.interop_monitoring);
 				interop_accounting.setValue(wrec.interop_accounting);
-				if(wrec.interop_accounting) {
-					hideWLCGAccountingName(false);
-				}
-				
+
 				if (wrec.interop_accounting != null) {
 					wlcg_accounting_name.setValue(wrec.accounting_name);
 				}
@@ -124,6 +121,11 @@ public class ResourceWLCG extends DivRepFormElement {
 				if(wrec.storage_capacity_maximum != null) {
 					storage_capacity_maximum.setValue(wrec.storage_capacity_maximum.toString());
 				}
+				
+				if(wrec.interop_accounting) {
+					hideWLCGAccountingName(false);
+				}
+				
 			}
 		}
 
