@@ -9,24 +9,8 @@
     <path id="oim.classpath">
         <pathelement location="build/classes"/>
         <path refid="EAR Libraries.libraryclasspath"/>
-        <pathelement location="WebContent/WEB-INF/lib/jakarta-oro-2.0.8.jar"/>
-        <pathelement location="WebContent/WEB-INF/lib/commons-validator-1.3.1.jar"/>
-        <pathelement location="WebContent/WEB-INF/lib/commons-lang-2.4.jar"/>
-        <pathelement location="WebContent/WEB-INF/lib/log4j-1.2.15.jar"/>
-        <pathelement location="tomcat5-lib/servlet-api.jar"/>
-        <pathelement location="tomcat5-lib/commons-el.jar"/>
-        <pathelement location="tomcat5-lib/jasper-compiler.jar"/>
-        <pathelement location="tomcat5-lib/jasper-compiler-jdt.jar"/>
-        <pathelement location="tomcat5-lib/jasper-runtime.jar"/>
-        <pathelement location="tomcat5-lib/jsp-api.jar"/>
-        <pathelement location="tomcat5-lib/mysql-connector-java-5.1.7-bin.jar"/>
-        <pathelement location="tomcat5-lib/naming-factory.jar"/>
-        <pathelement location="tomcat5-lib/naming-factory-dbcp.jar"/>
-        <pathelement location="tomcat5-lib/naming-resources.jar"/>
-        <pathelement location="WebContent/WEB-INF/lib/resolver.jar"/>
-        <pathelement location="WebContent/WEB-INF/lib/geonames-1.0.jar"/>
-        <pathelement location="WebContent/WEB-INF/lib/jdom-1.0.jar"/>
-        <pathelement location="tomcat5-lib/mail.jar"/>
+        <pathelement location="WebContent/WEB-INF/lib"/>
+        <pathelement location="tomcat5-lib"/>
     </path>
     <target name="init">
         <mkdir dir="build/classes"/>
