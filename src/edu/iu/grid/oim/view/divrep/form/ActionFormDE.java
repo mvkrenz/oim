@@ -11,7 +11,7 @@ import com.divrep.common.DivRepTextBox;
 import com.divrep.validator.DivRepUniqueValidator;
 
 import edu.iu.grid.oim.lib.Authorization;
-import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
+import edu.iu.grid.oim.lib.AuthorizationException;
 import edu.iu.grid.oim.model.Context;
 import edu.iu.grid.oim.model.db.ActionModel;
 import edu.iu.grid.oim.model.db.record.ActionRecord;

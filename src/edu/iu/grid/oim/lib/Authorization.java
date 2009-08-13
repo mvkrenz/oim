@@ -110,7 +110,7 @@ public class Authorization {
 					log.debug("Server on localhost. Overriding the DN to Soichi's");
 					user_dn = "/DC=org/DC=doegrids/OU=People/CN=Soichi Hayashi 461343";		
 					//user_dn = "/DC=org/DC=doegrids/OU=People/CN=Alain Roy 424511";
-					//user_dn = "/DC=org/DC=doegrids/OU=People/CN=Tiberiu Stef-Praun 764752";
+					user_dn = "/DC=org/DC=doegrids/OU=People/CN=Tiberiu Stef-Praun 764752";
 					//user_cn = null;
 		        } else if ((hostname.compareTo("lav-ag-desktop") == 0) || 
 		        	(hostname.compareTo("SATRIANI") == 0)){
@@ -164,12 +164,5 @@ public class Authorization {
 				}
 			}
 		}	
-	}
-
-	public class AuthorizationException extends ServletException 
-	{
-		AuthorizationException(String msg) {
-			super(msg);
-		}
 	}
 }

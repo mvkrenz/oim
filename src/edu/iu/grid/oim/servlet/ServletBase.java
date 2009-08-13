@@ -17,7 +17,7 @@ import com.divrep.DivRepRoot;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.StaticConfig;
-import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
+import edu.iu.grid.oim.lib.AuthorizationException;
 import edu.iu.grid.oim.model.Context;
 import edu.iu.grid.oim.model.MenuItem;
 import edu.iu.grid.oim.view.MenuView;

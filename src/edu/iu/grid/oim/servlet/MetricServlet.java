@@ -22,7 +22,7 @@ import com.divrep.DivRepRoot;
 import com.divrep.common.DivRepButton;
 
 import edu.iu.grid.oim.lib.StaticConfig;
-import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
+import edu.iu.grid.oim.lib.AuthorizationException;
 import edu.iu.grid.oim.model.db.AuthorizationTypeModel;
 import edu.iu.grid.oim.model.db.ContactRankModel;
 import edu.iu.grid.oim.model.db.ContactTypeModel;

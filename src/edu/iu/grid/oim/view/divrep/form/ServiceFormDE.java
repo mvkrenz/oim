@@ -15,7 +15,7 @@ import com.divrep.validator.DivRepIntegerValidator;
 import com.divrep.validator.DivRepUniqueValidator;
 
 import edu.iu.grid.oim.lib.Authorization;
-import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
+import edu.iu.grid.oim.lib.AuthorizationException;
 import edu.iu.grid.oim.model.Context;
 import edu.iu.grid.oim.model.db.MetricModel;
 import edu.iu.grid.oim.model.db.MetricServiceModel;

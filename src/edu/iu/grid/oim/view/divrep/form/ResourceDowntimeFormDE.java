@@ -8,7 +8,7 @@ import com.divrep.DivRepEvent;
 import com.divrep.common.DivRepForm;
 
 import edu.iu.grid.oim.lib.Authorization;
-import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
+import edu.iu.grid.oim.lib.AuthorizationException;
 import edu.iu.grid.oim.model.Context;
 import edu.iu.grid.oim.model.db.ResourceDowntimeModel;
 import edu.iu.grid.oim.view.divrep.ResourceDowntimeEditor;

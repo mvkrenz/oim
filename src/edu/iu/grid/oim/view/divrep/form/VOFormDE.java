@@ -31,7 +31,7 @@ import com.divrep.validator.DivRepUrlValidator;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Footprint;
-import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
+import edu.iu.grid.oim.lib.AuthorizationException;
 
 import edu.iu.grid.oim.model.Context;
 import edu.iu.grid.oim.model.VOReport;

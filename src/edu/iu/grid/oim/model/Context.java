@@ -14,7 +14,7 @@ import com.divrep.DivRepPage;
 import com.divrep.DivRepRoot;
 
 import edu.iu.grid.oim.lib.Authorization;
-import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
+import edu.iu.grid.oim.lib.AuthorizationException;
 
 public class Context {
     static Logger log = Logger.getLogger(Context.class);  

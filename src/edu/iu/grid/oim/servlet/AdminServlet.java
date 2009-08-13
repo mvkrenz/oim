@@ -18,7 +18,7 @@ import com.divrep.common.DivRepButton;
 
 import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.lib.Footprint;
-import edu.iu.grid.oim.lib.Authorization.AuthorizationException;
+import edu.iu.grid.oim.lib.AuthorizationException;
 import edu.iu.grid.oim.model.MenuItem;
 import edu.iu.grid.oim.model.db.SmallTableModelBase;
 import edu.iu.grid.oim.view.ContentView;
