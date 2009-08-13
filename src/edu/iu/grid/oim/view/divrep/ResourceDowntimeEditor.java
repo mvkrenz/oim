@@ -56,16 +56,11 @@ public class ResourceDowntimeEditor extends DivRepFormElement {
 	public class DowntimeEditor extends DivRepFormElement
 	{
 		//service details
-		private DivRepTextArea summary;
 		
 		private Integer downtime_id;
-		
-		private DateDE start_date;
-		private TimeDE start_time;
-		
-		private DateDE end_date;
-		private TimeDE end_time;
-		
+	
+		private DurationDR duration;
+		private DivRepTextArea summary;
 		private DivRepSelectBox class_id;
 		private DivRepSelectBox severity_id;
 			
@@ -130,7 +125,6 @@ public class ResourceDowntimeEditor extends DivRepFormElement {
 		}
 		class TimeDE extends DivRepFormElement<Integer>
 		{
-
 			DivRepSelectBox hour;
 			DivRepSelectBox min;
 			
@@ -232,59 +226,127 @@ public class ResourceDowntimeEditor extends DivRepFormElement {
 			}
 		}
 		
+		class DurationDR extends DivRepFormElement
+		{
+			private DateDE start_date;
+			private TimeDE start_time;
+			
+			private DateDE end_date;
+			private TimeDE end_time;
+			
+			protected DurationDR(DivRep parent, ResourceDowntimeRecord rec) {
+				super(parent);
+				new DivRepStaticContent(this, "<table><tr><td>");
+				start_date = new DateDE(this);
+				start_date.setMinDate(new Date());
+				if(rec.start_time != null) {
+					start_date.setValue(rec.start_time);
+				}
+				
+				start_date.addEventListener(new DivRepEventListener() {
+					public void handleEvent(DivRepEvent e) {
+						DurationDR.this.validate();
+					}});
+				
+				new DivRepStaticContent(this, "</td><td>");
+				
+				start_time = new TimeDE(this);
+				if(rec.start_time != null) {
+					start_time.setValue(rec.start_time);
+				}
+				start_time.addEventListener(new DivRepEventListener() {
+					public void handleEvent(DivRepEvent e) {
+						DurationDR.this.validate();
+					}});
+				new DivRepStaticContent(this, "</td><td>&nbsp;to&nbsp;</td><td>");
+				
+				end_date = new DateDE(this);
+				end_date.setMinDate(new Date());
+				if(rec.end_time != null) {
+					end_date.setValue(rec.end_time);
+				}
+				end_date.addEventListener(new DivRepEventListener() {
+					public void handleEvent(DivRepEvent e) {
+						DurationDR.this.validate();
+					}});
+				new DivRepStaticContent(this, "</td><td>");
+				
+				end_time = new TimeDE(this);
+				if(rec.end_time != null) {
+					end_time.setValue(rec.end_time);
+				}
+				end_time.addEventListener(new DivRepEventListener() {
+					public void handleEvent(DivRepEvent e) {
+						DurationDR.this.validate();
+					}});
+				new DivRepStaticContent(this, "</td></tr></table>");
+			}
+			public void validate()
+			{
+				valid = true;
+				
+				Timestamp start = getStartTime();
+				Timestamp end = getEndTime();
+				if(start.compareTo(end) > 0) {
+					valid = false;
+					error.set("Start Time is after the end time. Please correct.");
+				} else {
+					error.set(null);			
+				}
+				error.redraw();
+			}
+			public Timestamp getStartTime()
+			{
+				return convertToTimestamp(start_date.getValue(), start_time.getHour(), start_time.getMin());
+			}
+			public Timestamp getEndTime()
+			{
+				return convertToTimestamp(end_date.getValue(), end_time.getHour(), end_time.getMin());
+			}
+			@Override
+			protected void onEvent(DivRepEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			public void render(PrintWriter out) {
+				out.print("<div ");
+				renderClass(out);
+				out.write("id=\""+getNodeID()+"\">");
+				if(!hidden) {
+					if(label != null) {
+						out.print("<label>"+StringEscapeUtils.escapeHtml(label)+"</label><br/>");
+					}
+					
+					out.write("<table><tr><td>");
+					start_date.render(out);
+					out.write("</td><td>");
+					
+					start_time.render(out);
+					out.write("</td><td>&nbsp;to&nbsp;</td><td>");
+					
+					end_date.render(out);
+					out.write("</td><td>");
+					
+					end_time.render(out);
+					out.write("</td></tr></table>");
+					
+					if(isRequired()) {
+						out.write(" * Required");
+					}
+					error.render(out);
+				}
+				out.write("</div>");
+			}
+			
+		}
+		
 		public DowntimeEditor(DivRep parent, ResourceDowntimeRecord rec, Authorization auth) throws SQLException {
 			super(parent);
 			downtime_id = rec.id;
 			
 			new DivRepStaticContent(this, "<h3>Duration (UTC)</h3>");
-			new DivRepStaticContent(this, "<table><tr><td>");
-			start_date = new DateDE(this);
-			start_date.setMinDate(new Date());
-			if(rec.start_time != null) {
-				start_date.setValue(rec.start_time);
-			}
-			
-			start_date.addEventListener(new DivRepEventListener() {
-				public void handleEvent(DivRepEvent e) {
-					//DowntimeEditor.this.adjustEndTime();
-					DowntimeEditor.this.validate();
-				}});
-			
-			new DivRepStaticContent(this, "</td><td>");
-			
-			start_time = new TimeDE(this);
-			if(rec.start_time != null) {
-				start_time.setValue(rec.start_time);
-			}
-			start_time.addEventListener(new DivRepEventListener() {
-				public void handleEvent(DivRepEvent e) {
-					//DowntimeEditor.this.adjustEndTime();
-					DowntimeEditor.this.validate();
-				}});
-			new DivRepStaticContent(this, "</td><td>&nbsp;to&nbsp;</td><td>");
-			
-			end_date = new DateDE(this);
-			end_date.setMinDate(new Date());
-			if(rec.end_time != null) {
-				end_date.setValue(rec.end_time);
-			}
-			end_date.addEventListener(new DivRepEventListener() {
-				public void handleEvent(DivRepEvent e) {
-					//DowntimeEditor.this.adjustStartTime();
-					DowntimeEditor.this.validate();
-				}});
-			new DivRepStaticContent(this, "</td><td>");
-			
-			end_time = new TimeDE(this);
-			if(rec.end_time != null) {
-				end_time.setValue(rec.end_time);
-			}
-			end_time.addEventListener(new DivRepEventListener() {
-				public void handleEvent(DivRepEvent e) {
-					//DowntimeEditor.this.adjustStartTime();
-					DowntimeEditor.this.validate();
-				}});
-			new DivRepStaticContent(this, "</td></tr></table>");
+			duration = new DurationDR(this, rec);
 			
 			new DivRepStaticContent(this, "<h3>Detail</h3>");
 			summary = new DivRepTextArea(this);
@@ -350,6 +412,11 @@ public class ResourceDowntimeEditor extends DivRepFormElement {
 
 			try {
 				final DivRepCheckBox elem = new DivRepCheckBox(this);
+				elem.addEventListener(new DivRepEventListener() {
+					public void handleEvent(DivRepEvent e) {
+						//DowntimeEditor.this.adjustStartTime();
+						DowntimeEditor.this.validate();
+					}});
 				if(service_id != null) {
 					ServiceRecord srec = servicemodel.get(service_id);
 					elem.setLabel(srec.name);
@@ -429,12 +496,12 @@ public class ResourceDowntimeEditor extends DivRepFormElement {
 
 		public Timestamp getStartTime() 
 		{
-			return convertToTimestamp(start_date.getValue(), start_time.getHour(), start_time.getMin());
+			return duration.getStartTime();
 		}		
 		
 		public Timestamp getEndTime()
 		{
-			return convertToTimestamp(end_date.getValue(), end_time.getHour(), end_time.getMin());
+			return duration.getEndTime();
 		}
 		
 		private Timestamp convertToTimestamp(Date date, int hour, int min)
@@ -475,15 +542,6 @@ public class ResourceDowntimeEditor extends DivRepFormElement {
 		public void validate()
 		{
 			super.validate();
-
-			Timestamp start = getStartTime();
-			Timestamp end = getEndTime();
-			if(start.compareTo(end) > 0) {
-				valid = false;
-				error.set("Start Time is after the end time. Please correct.");
-				error.redraw();
-				return;
-			}
 			
 			int service_count = 0;
 			for(Integer service_id : affected_services.keySet()) {
@@ -497,6 +555,9 @@ public class ResourceDowntimeEditor extends DivRepFormElement {
 				error.set("Please select at least one affected service.");
 				error.redraw();
 				return;
+			} else {
+				error.set(null);
+				error.redraw();
 			}
 		}
 
