@@ -67,7 +67,7 @@ public class SiteEditServlet extends ServletBase implements Servlet {
 			contentview.add(new HtmlView("<h1>"+title+"</h1>"));	
 			contentview.add(new DivRepWrapper(form));
 			
-			Page page = new Page(new MenuView(context, parent_page), contentview, createSideView());
+			Page page = new Page(context, new MenuView(context, parent_page), contentview, createSideView());
 			
 			page.render(response.getWriter());	
 		} catch (SQLException e) {

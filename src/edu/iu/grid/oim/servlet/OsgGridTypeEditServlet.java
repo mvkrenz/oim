@@ -83,7 +83,7 @@ public class OsgGridTypeEditServlet extends ServletBase implements Servlet {
 		
 		contentview.setBreadCrumb(bread_crumb);
 		
-		Page page = new Page(new MenuView(context, "admin"), contentview, createSideView());	
+		Page page = new Page(context, new MenuView(context, "admin"), contentview, createSideView());	
 		page.render(response.getWriter());	
 	}
 	

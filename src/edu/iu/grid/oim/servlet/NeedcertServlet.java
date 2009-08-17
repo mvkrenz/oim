@@ -6,6 +6,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.model.Context;
 import edu.iu.grid.oim.view.ContentView;
 import edu.iu.grid.oim.view.HtmlView;
@@ -23,7 +24,7 @@ public class NeedcertServlet extends HttpServlet {
 	{		
 		MenuView menuview = new MenuView(Context.getGuestContext(), "home");
 		ContentView contentview = createContentView(request);		
-		Page page = new Page(menuview, contentview, new SideContentView());
+		Page page = new Page(Context.getGuestContext(), menuview, contentview, new SideContentView());//pass guest authorization
 		page.render(response.getWriter());	
 	}
 	

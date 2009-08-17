@@ -23,7 +23,7 @@ public class Error404Servlet extends HttpServlet {
 	{		
 		MenuView menuview = new MenuView(Context.getGuestContext(), "_error_");
 		ContentView contentview = createContentView(request);		
-		Page page = new Page(menuview, contentview, new SideContentView());
+		Page page = new Page(Context.getGuestContext(), menuview, contentview, new SideContentView());
 		page.render(response.getWriter());	
 	}
 	

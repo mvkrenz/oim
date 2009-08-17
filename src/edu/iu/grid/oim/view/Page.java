@@ -2,17 +2,25 @@ package edu.iu.grid.oim.view;
 
 import java.io.PrintWriter;
 
+import edu.iu.grid.oim.lib.Authorization;
+import edu.iu.grid.oim.model.Context;
+
 public class Page implements IView {
+	
+    protected Context context;
+    
 	private IView header;
 	private IView menu;
 	private IView content;
 	private IView footer;
 	private IView side;
 	
-	public Page(IView _menu, IView _content, IView _side)
+	public Page(Context _context, IView _menu, IView _content, IView _side)
 	{
-		header = new HtmlFileView("header.txt");
-		footer = new HtmlFileView("footer.txt");
+		context = _context;
+		
+		header = new HtmlFileView(context, "header.txt");
+		footer = new HtmlFileView(context, "footer.txt");
 		menu = _menu;
 		content = _content;
 		side = _side;

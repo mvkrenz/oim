@@ -53,7 +53,7 @@ public class FieldOfScienceServlet extends ServletBase implements Servlet {
 			bread_crumb.addCrumb("Field of Science",  null);
 			contentview.setBreadCrumb(bread_crumb);
 			
-			Page page = new Page(menuview, contentview, createSideView());
+			Page page = new Page(context, menuview, contentview, createSideView());
 			page.render(response.getWriter());				
 		} catch (SQLException e) {
 			log.error(e);

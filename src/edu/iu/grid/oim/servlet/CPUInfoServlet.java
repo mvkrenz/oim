@@ -54,7 +54,7 @@ public class CPUInfoServlet extends ServletBase implements Servlet {
 			MenuView menuview = new MenuView(context, "cpuinfo");;
 			ContentView contentview = createContentView();
 			
-			Page page = new Page(menuview, contentview, createSideView());
+			Page page = new Page(context, menuview, contentview, createSideView());
 			page.render(response.getWriter());				
 		} catch (SQLException e) {
 			log.error(e);

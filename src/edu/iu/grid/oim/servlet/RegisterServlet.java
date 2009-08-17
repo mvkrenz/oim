@@ -15,15 +15,18 @@ import org.apache.log4j.Logger;
 import com.divrep.DivRep;
 import com.divrep.DivRepEvent;
 import com.divrep.DivRepEventListener;
+import com.divrep.DivRepPage;
 import com.divrep.DivRepRoot;
 import com.divrep.common.DivRepButton;
 import com.divrep.common.DivRepForm;
+import com.divrep.common.DivRepStaticContent;
 import com.divrep.common.DivRepTextBox;
 import com.divrep.validator.DivRepIValidator;
 import com.divrep.validator.DivRepUniqueValidator;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.StaticConfig;
+import edu.iu.grid.oim.model.Context;
 import edu.iu.grid.oim.model.MenuItem;
 import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.DNAuthorizationTypeModel;
@@ -52,7 +55,7 @@ public class RegisterServlet extends ServletBase  {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{
 		Authorization auth = context.getAuthorization();
-		if(auth.getDNID() != null || auth.getUserCN() == null || auth.getUserCN() == null) {
+		if(auth.getDNID() != null || auth.getUserDN() == null || auth.getUserCN() == null) {
 			//user don't meet the requirement to register. send it to home
 			response.sendRedirect(StaticConfig.getApplicationBase()+ "/home");
 			return;
@@ -60,7 +63,7 @@ public class RegisterServlet extends ServletBase  {
 		
 		MenuView menuview = new MenuView(context, "register");
 		ContentView contentview = createContentView();
-		Page page = new Page(menuview, contentview, new SideContentView());
+		Page page = new Page(context, menuview, contentview, new SideContentView());
 		page.render(response.getWriter());	
 	}
 	
@@ -70,79 +73,28 @@ public class RegisterServlet extends ServletBase  {
 		
 		contentview.add(new HtmlView("<h1>OIM Registration</h1>"));
 		
-		WizardDE wizard = new WizardDE(context.getPageRoot());
-		wizard.setPage(new GreetingPage(wizard));
-		contentview.add(new DivRepWrapper(wizard));
+		contentview.add(new HtmlView("<p>Your certificate DN is not registered on OIM. </p>"));
+		contentview.add(new HtmlView("<p>To register and gain access to OIM, please register now by submitting following form.</p>"));			
+		EnterEmailPage form = new EnterEmailPage(context, context.getPageRoot());
+		contentview.add(new DivRepWrapper(form));
+	
 		
 		return contentview;
 	}
 
-	interface IWizardPage {
-		public void render(PrintWriter out);	
-	}
-	class WizardDE extends DivRep
-	{
-		IWizardPage currentpage = null;
-		protected void onEvent(DivRepEvent e) {
-			// TODO Auto-generated method stub
-			
-		}
-		
-		public WizardDE(DivRep _parent) {
-			super(_parent);
-		}
-		public void setPage(IWizardPage page)
-		{
-			currentpage = page;
-			redraw();
-		}
-
-		@Override
-		public void render(PrintWriter out) {
-			out.write("<div id=\""+getNodeID()+"\">");
-			currentpage.render(out);
-			out.write("</div>");
-		}
-	}
-	
-	class GreetingPage extends DivRep implements IWizardPage
+	class EnterEmailPage extends DivRepForm
  	{
-		DivRepButton button;
-		WizardDE wizard;
-		public GreetingPage(WizardDE _wizard) {
-			super(_wizard);
-			wizard = _wizard;
-			button = new DivRepButton(this, "Register");
-			button.addEventListener(new DivRepEventListener() {
-
-				@Override
-				public void handleEvent(DivRepEvent e) {
-					wizard.setPage(new EnterEmailPage(wizard));
-				}});
-		}
-		
-		public void render(PrintWriter out) {
-			out.write("<p>Welcome to the OSG Information Management (OIM) system. Your DN ("+auth.getUserDN()+"), that is loaded into your web browser, is not registered on OIM. </p>");
-			out.write("<p>To get access and begin using OIM, please register now by clicking the button below.</p>");		
-			button.render(out);
-		}
-
-		protected void onEvent(DivRepEvent e) {
-			// TODO Auto-generated method stub
-			
-		}
-	}
-	class EnterEmailPage extends DivRepForm implements IWizardPage
- 	{
-		WizardDE wizard;
+		private Context context;
 		private DivRepTextBox name;
 		private DivRepTextBox email;
 		private DivRepTextBox email_check;
 		private DivRepTextBox phone;
 		
-		public EnterEmailPage(WizardDE _wizard) {
-			super(_wizard, origin_url);
-			wizard = _wizard;
+		public EnterEmailPage(Context context, DivRepPage page_root) {
+			
+			super(page_root, origin_url);
+
+			new DivRepStaticContent(this, "<div class=\"divrep_form_element\"><label>Your Certificate DN</label><br/><input type=\"text\" disabled=\"disabled\" style=\"width: 400px;\" value=\""+context.getAuthorization().getUserDN()+"\"/> * Required</div>");
 			
 			name = new DivRepTextBox(this);
 			name.setLabel("Enter Your Full Name");

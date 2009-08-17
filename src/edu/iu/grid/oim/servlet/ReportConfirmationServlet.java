@@ -81,7 +81,7 @@ public class ReportConfirmationServlet extends ServletBase implements Servlet {
 			bread_crumb.addCrumb("Confirmation Report",  null);
 			contentview.setBreadCrumb(bread_crumb);
 			
-			Page page = new Page(menuview, contentview, createSideView());
+			Page page = new Page(context, menuview, contentview, createSideView());
 			PrintWriter out = response.getWriter();
 			page.render(out);			
 

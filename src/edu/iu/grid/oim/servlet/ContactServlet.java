@@ -53,7 +53,7 @@ public class ContactServlet extends ServletBase implements Servlet {
 			//construct view
 			MenuView menuview = new MenuView(context, "contact");
 			ContentView contentview = createContentView();
-			Page page = new Page(menuview, contentview, createSideView());
+			Page page = new Page(context, menuview, contentview, createSideView());
 			page.render(response.getWriter());			
 		} catch (SQLException e) {
 			log.error(e);

@@ -75,7 +75,7 @@ public class UserEditServlet extends ServletBase implements Servlet {
 			bread_crumb.addCrumb(rec.dn_string, null);
 			contentview.setBreadCrumb(bread_crumb);
 			
-			Page page = new Page(new MenuView(context, "admin"), contentview, createSideView());			
+			Page page = new Page(context, new MenuView(context, "admin"), contentview, createSideView());			
 			page.render(response.getWriter());	
 		} catch (SQLException e) {
 			throw new ServletException(e);

@@ -23,8 +23,8 @@ public class MenuView implements IView {
 
 		// TODO Need a clean way to show a nice page when unregistered user shows up with links 
 		//   to MYOSG for public OIM information, etc. -agopu
-		if(auth.getDNID() == null && auth.getUserCN() != null && auth.getUserCN() != null) {
-			menu.add(new MenuItem("Register to OIM", "register"));
+		if(auth.getDNID() == null && auth.getUserDN() != null && auth.getUserCN() != null) {
+			menu.add(new MenuItem("Register", "register"));
 		}
 		
 		if(auth.allows("edit_my_vo")) {

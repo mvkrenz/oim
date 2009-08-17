@@ -48,7 +48,7 @@ public class HomeServlet extends ServletBase  {
 		MenuView menuview = new MenuView(context, "home");
 		ContentView contentview;
 		contentview = createContentView();
-		Page page = new Page(menuview, contentview, createSideView());
+		Page page = new Page(context, menuview, contentview, createSideView());
 		page.render(response.getWriter());
 	}
 	
@@ -61,7 +61,7 @@ public class HomeServlet extends ServletBase  {
 		// TODO agopu: need to clean this up with some divs etc. Nicer font, etc.
 		String welcome_string = "<p>Welcome to the OSG Information Management System.</p>";
 		if(auth.isGuest()) {
-			welcome_string += "<p>Please provide a DOE certificate via your web browser in order to use this system.</p>";
+			welcome_string += "<p>Please provide a DOE certificate via your web browser in order to use or register to OIM.</p>";
 		} else {
 			welcome_string += "<p>In the menu along the top, you will find options for registering or updating information for various OSG entities.</p>";
 		}

@@ -49,7 +49,7 @@ public class AdminServlet extends ServletBase  {
 		
 		MenuView menuview = new MenuView(context, "admin");
 		ContentView contentview = createContentView();
-		Page page = new Page(menuview, contentview, createSideView());
+		Page page = new Page(context, menuview, contentview, createSideView());
 		page.render(response.getWriter());	
 	}
 	

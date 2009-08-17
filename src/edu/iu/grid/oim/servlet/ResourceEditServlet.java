@@ -83,7 +83,7 @@ public class ResourceEditServlet extends ServletBase implements Servlet {
 		bread_crumb.addCrumb(rec.name,  null);
 		contentview.setBreadCrumb(bread_crumb);
 
-		Page page = new Page(new MenuView(context, parent_page), contentview, createSideView());
+		Page page = new Page(context, new MenuView(context, parent_page), contentview, createSideView());
 		page.render(response.getWriter());
 	}
 	

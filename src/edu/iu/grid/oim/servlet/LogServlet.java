@@ -85,7 +85,7 @@ public class LogServlet extends ServletBase  {
 			//construct view
 			MenuView menuview = new MenuView(context, "log");
 			ContentView contentview = createContentView(filter, title);
-			Page page = new Page(menuview, contentview, createSideView());
+			Page page = new Page(context, menuview, contentview, createSideView());
 			page.render(response.getWriter());			
 		} catch (SQLException e) {
 			log.error(e);

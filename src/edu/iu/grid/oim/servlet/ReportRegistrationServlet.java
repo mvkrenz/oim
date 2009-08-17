@@ -90,7 +90,7 @@ public class ReportRegistrationServlet extends ServletBase implements Servlet {
 				bread_crumb.addCrumb("Registration Report",  null);
 				contentview.setBreadCrumb(bread_crumb);
 				
-				Page page = new Page(menuview, contentview, createSideView());
+				Page page = new Page(context, menuview, contentview, createSideView());
 				page.render(out);			
 			}
 		} catch (SQLException e) {

@@ -63,7 +63,7 @@ public class ProfileEditServlet extends ServletBase implements Servlet {
 			
 			contentview.add(new DivRepWrapper(form));
 			
-			Page page = new Page(new MenuView(context, "profileedit"), contentview, createSideView());
+			Page page = new Page(context, new MenuView(context, "profileedit"), contentview, createSideView());
 			page.render(response.getWriter());	
 			
 		} catch (SQLException e) {

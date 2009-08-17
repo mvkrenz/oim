@@ -76,7 +76,7 @@ public class ResourceGroupEditServlet extends ServletBase implements Servlet {
 			bread_crumb.addCrumb(rec.name,  null);
 			contentview.setBreadCrumb(bread_crumb);
 			
-			Page page = new Page(new MenuView(context, "resourcegroup"), contentview, createSideView());
+			Page page = new Page(context, new MenuView(context, "resourcegroup"), contentview, createSideView());
 			
 			page.render(response.getWriter());	
 		} catch (SQLException e) {

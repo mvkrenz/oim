@@ -34,7 +34,7 @@ public class HelpServlet extends ServletBase  {
 		ContentView contentview;
 		contentview = createContentView();
 		
-		Page page = new Page(menuview, contentview, new SideContentView());
+		Page page = new Page(context, menuview, contentview, new SideContentView());
 		page.render(response.getWriter());	
 	}
 	
