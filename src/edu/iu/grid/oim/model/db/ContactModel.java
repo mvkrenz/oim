@@ -94,6 +94,16 @@ public class ContactModel extends SmallTableModelBase<ContactRecord> {
 		}
 		return list;	
 	}
+	public ArrayList<ContactRecord> getAllNonDisabled() throws SQLException
+	{
+		ArrayList<ContactRecord> list = new ArrayList<ContactRecord>();
+		for(ContactRecord it : getAll()) {
+			if(it.person && it.disable == false) {	
+				list.add(it);
+			}
+		}
+		return list;			
+	}
 	
 	public ArrayList<ContactRecord> getAllEditable() throws SQLException
 	{	   

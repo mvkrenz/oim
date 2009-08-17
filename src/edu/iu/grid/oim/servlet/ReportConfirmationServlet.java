@@ -102,7 +102,9 @@ public class ReportConfirmationServlet extends ServletBase implements Servlet {
 		
 		try {		
 			ContactModel cmodel = new ContactModel(context);
-			for(ContactRecord rec : cmodel.getConfirmationExpiredPersonalContacts()) {
+			ArrayList<ContactRecord> recs = cmodel.getConfirmationExpiredPersonalContacts();
+			contentview.add(new HtmlView("<p>" + recs.size() + " contact has not confirmed their profile out of " + cmodel.getAllNonDisabled().size() + " non-disabled contacts.</p>"));
+			for(ContactRecord rec : recs) {
 				contentview.add(new HtmlView("<p>"+rec.name + " &lt;" + rec.primary_email+"&gt;</p>"));
 			}
 		} catch(SQLException e) {
