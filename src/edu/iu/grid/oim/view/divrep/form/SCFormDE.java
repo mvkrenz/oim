@@ -25,6 +25,7 @@ import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.SCRecord;
 import edu.iu.grid.oim.model.db.record.SCContactRecord;
 import edu.iu.grid.oim.view.divrep.ContactEditor;
+import edu.iu.grid.oim.view.divrep.ContactEditor.Rank;
 
 public class SCFormDE extends DivRepForm 
 {

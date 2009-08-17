@@ -1,6 +1,6 @@
 <br clear="all"/>
 <div id="footer">
-<div style="float: right">
+<div style="float: right; text-align: right;">
 <p>Version __VERSION__</p>
 <p>Logged in as <b>__DN__</b></p>
 </div>

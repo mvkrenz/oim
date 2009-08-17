@@ -442,6 +442,9 @@ public class VOFormDE extends DivRepForm
 					editor.setDisabled(true);
 				}
 			}
+			if(contact_type_id == 3) { //3 = administrative contact
+				editor.setMinContacts(Rank.PRIMARY, 1);
+			}
 			contact_editors.put(contact_type_id, editor);
 		}
 

@@ -45,6 +45,7 @@ import edu.iu.grid.oim.view.divrep.ResourceGroupSelector;
 import edu.iu.grid.oim.view.divrep.ResourceServices;
 import edu.iu.grid.oim.view.divrep.ResourceWLCG;
 import edu.iu.grid.oim.view.divrep.VOResourceOwnership;
+import edu.iu.grid.oim.view.divrep.ContactEditor.Rank;
 
 public class ResourceFormDE extends DivRepForm 
 {
@@ -194,6 +195,9 @@ public class ResourceFormDE extends DivRepForm
 				if(contact_type_id == 1) { //1 = Submitter Contact
 					editor.setDisabled(true);
 				}
+			}
+			if(contact_type_id == 3) { //3 = administrative contact
+				editor.setMinContacts(Rank.PRIMARY, 1);
 			}
 			contact_editors.put(contact_type_id, editor);
 		}
