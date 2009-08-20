@@ -317,3 +317,10 @@ margin-left: 40px;
 {
 margin-left: 10px;
 }
+p.warning
+{
+background-image:url(../images/warning.png);
+background-position:left top;
+background-repeat:no-repeat;
+padding-left:20px;
+}

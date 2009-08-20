@@ -8,13 +8,13 @@ import java.io.InputStreamReader;
 public class FileReader {
 	static public String loadContent(InputStream is)
 	{
-		BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+		InputStreamReader reader = new InputStreamReader(is);
 		StringBuilder sb = new StringBuilder();
-		String line = null;
         try {
-            while ((line = reader.readLine()) != null) {
-                sb.append(line + "\n");
-            }
+			int c;
+			while ((c = is.read()) != -1) {
+				sb.append((char)c);
+			}
         } catch (IOException e) {
             e.printStackTrace();
         } finally {

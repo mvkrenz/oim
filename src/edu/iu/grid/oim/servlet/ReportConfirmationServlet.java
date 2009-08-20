@@ -41,10 +41,22 @@ import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.CpuInfoModel;
 import edu.iu.grid.oim.model.db.DNModel;
 import edu.iu.grid.oim.model.db.LogModel;
+import edu.iu.grid.oim.model.db.ResourceContactModel;
+import edu.iu.grid.oim.model.db.ResourceModel;
+import edu.iu.grid.oim.model.db.SCContactModel;
+import edu.iu.grid.oim.model.db.SCModel;
+import edu.iu.grid.oim.model.db.VOContactModel;
+import edu.iu.grid.oim.model.db.VOModel;
 import edu.iu.grid.oim.model.db.record.ActionRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.CpuInfoRecord;
 import edu.iu.grid.oim.model.db.record.LogRecord;
+import edu.iu.grid.oim.model.db.record.ResourceContactRecord;
+import edu.iu.grid.oim.model.db.record.ResourceRecord;
+import edu.iu.grid.oim.model.db.record.SCContactRecord;
+import edu.iu.grid.oim.model.db.record.SCRecord;
+import edu.iu.grid.oim.model.db.record.VOContactRecord;
+import edu.iu.grid.oim.model.db.record.VORecord;
 
 import edu.iu.grid.oim.view.BreadCrumbView;
 import edu.iu.grid.oim.view.ContentView;
@@ -98,20 +110,83 @@ public class ReportConfirmationServlet extends ServletBase implements Servlet {
 		contentview.add(new HtmlView("<p>This pages shows lists of contacts who have not confirmed the content of OIM for more than "+StaticConfig.getConfirmationExpiration()+" days</p>"));
 		contentview.add(new HtmlView("<p>This list only contains personal contact, and contact that are not disabled.</p>"));
 		
-		contentview.add(new HtmlView("<div class=\"divrep_indent\">"));
+		ResourceModel rmodel = new ResourceModel(context);
+		ResourceContactModel rcontactmodel = new ResourceContactModel(context);
+		
+		VOModel vomodel = new VOModel(context);
+		VOContactModel vocontactmodel = new VOContactModel(context);
+		
+		SCModel scmodel = new SCModel(context);
+		SCContactModel sccontactmodel = new SCContactModel(context);
+		
+		ArrayList<ContactRecord> normal_list = new ArrayList<ContactRecord>();
+		ArrayList<ContactRecord> critical_list = new ArrayList<ContactRecord>();
+		HashMap<Integer, String> critical_details = new HashMap<Integer, String>();
 		
 		try {		
 			ContactModel cmodel = new ContactModel(context);
 			ArrayList<ContactRecord> recs = cmodel.getConfirmationExpiredPersonalContacts();
-			contentview.add(new HtmlView("<p>" + recs.size() + " contact has not confirmed their profile out of " + cmodel.getAllNonDisabled().size() + " non-disabled contacts.</p>"));
+			contentview.add(new HtmlView("<p>Following " + recs.size() + " contact has not confirmed their profile out of " + cmodel.getAllNonDisabled().size() + " non-disabled contacts.</p>"));
 			for(ContactRecord rec : recs) {
-				contentview.add(new HtmlView("<p>"+rec.name + " &lt;" + rec.primary_email+"&gt;</p>"));
+	
+				//determine if this person is a security contact in sc, resource, or vo
+				String critical_detail = "";
+				
+				ArrayList<ResourceContactRecord> rcrecs = rcontactmodel.getByContactID(rec.id);
+				for(ResourceContactRecord rcrec : rcrecs) {
+					if(rcrec.contact_type_id == 2) { //2 == security contact
+						ResourceRecord rrec = rmodel.get(rcrec.resource_id);
+						if(rrec.active && !rrec.disable) {
+							critical_detail += "<p class=\"warning\">Resource Security Contact for "+rrec.name+"</p>";
+						}
+					}
+				}
+				
+				ArrayList<VOContactRecord> vocrecs = vocontactmodel.getByContactID(rec.id);
+				for(VOContactRecord vocrec : vocrecs) {
+					if(vocrec.contact_type_id == 2) { //2 == security contact
+						VORecord vorec = vomodel.get(vocrec.vo_id);
+						if(vorec.active && !vorec.disable) {
+							critical_detail += "<p class=\"warning\">VO Security Contact for "+vorec.name+"</p>";
+						}
+					}
+				}		
+			
+				ArrayList<SCContactRecord> sccrecs = sccontactmodel.getByContactID(rec.id);
+				for(SCContactRecord sccrec : sccrecs) {
+					if(sccrec.contact_type_id == 2) { //2 == security contact
+						SCRecord screc = scmodel.get(sccrec.sc_id);
+						if(screc.active && !screc.disable) {
+							critical_detail += "<p class=\"warning\">SC Security Contact for "+screc.name+"</p>";
+						}
+					}
+				}	
+				
+				if(critical_detail.length() == 0) {
+					normal_list.add(rec);
+				} else {
+					critical_list.add(rec);
+					critical_details.put(rec.id, critical_detail);
+				}
+				
 			}
+			
+			contentview.add(new HtmlView("<h2>Contacts who are not security contact</h2>"));
+			for(ContactRecord rec : normal_list) {
+				contentview.add(new HtmlView("<p><b>"+rec.name + " &lt;" + rec.primary_email+"&gt;</b></p>"));
+			}
+			
+			contentview.add(new HtmlView("<br/><h2>Contacts who are security contact</h2>"));
+			for(ContactRecord rec : critical_list) {
+				contentview.add(new HtmlView("<p><b>"+rec.name + " &lt;" + rec.primary_email+"&gt;</b></p>"));
+				contentview.add(new HtmlView("<div class=\"divrep_indent\">"));
+				contentview.add(new HtmlView(critical_details.get(rec.id)));
+				contentview.add(new HtmlView("</div>"));
+			}			
+			
 		} catch(SQLException e) {
 			e.printStackTrace();
 		}
-		
-		contentview.add(new HtmlView("</div>"));
 		
 		return contentview;
 	}

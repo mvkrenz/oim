@@ -3,7 +3,6 @@ package edu.iu.grid.oim.view;
 import java.io.InputStream;
 import java.io.PrintWriter;
 
-import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.lib.FileReader;
 import edu.iu.grid.oim.model.Context;
