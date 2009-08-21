@@ -119,6 +119,9 @@ public class SCFormDE extends DivRepForm
 					editor.setDisabled(true);
 				}
 			}
+			if(contact_type_id != 5) { //5 = misc
+				editor.setMinContacts(Rank.PRIMARY, 1);
+			}
 			contact_editors.put(contact_type_id, editor);
 		}
 		if(auth.allows("admin")) {

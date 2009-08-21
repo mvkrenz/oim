@@ -196,7 +196,7 @@ public class ResourceFormDE extends DivRepForm
 					editor.setDisabled(true);
 				}
 			}
-			if(contact_type_id == 3) { //3 = administrative contact
+			if(contact_type_id != 5 && contact_type_id != 9) { //5 = misc, 9 = resource report
 				editor.setMinContacts(Rank.PRIMARY, 1);
 			}
 			contact_editors.put(contact_type_id, editor);
