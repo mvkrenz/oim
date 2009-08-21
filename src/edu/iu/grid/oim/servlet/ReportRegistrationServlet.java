@@ -67,6 +67,7 @@ public class ReportRegistrationServlet extends ServletBase implements Servlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{	
 		if(!auth.isLocal()) {
+			//allow cron to access
 			auth.check("admin");
 		}
 		
