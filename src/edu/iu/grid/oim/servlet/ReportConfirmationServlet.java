@@ -175,13 +175,17 @@ public class ReportConfirmationServlet extends ServletBase implements Servlet {
 				
 		contentview.add(new HtmlView("<h2>Contacts who are not security contact</h2>"));
 		for(ContactRecord rec : normal_list) {
-			contentview.add(new HtmlView("<p><b>"+rec.name + " &lt;" + rec.primary_email+"&gt;</b></p>"));
+			contentview.add(new HtmlView("<b>"+rec.name + "</b><br/>"));
+			contentview.add(new HtmlView("<div class=\"divrep_indent\">"));
+			contentview.add(new HtmlView(rec.primary_email+"<br/>"+rec.primary_phone));
+			contentview.add(new HtmlView("</div>"));
 		}
 		
 		contentview.add(new HtmlView("<br/><h2>Contacts who are security contact</h2>"));
 		for(ContactRecord rec : critical_list) {
-			contentview.add(new HtmlView("<p><b>"+rec.name + " &lt;" + rec.primary_email+"&gt;</b></p>"));
+			contentview.add(new HtmlView("<b>"+rec.name + "</b><br/>"));
 			contentview.add(new HtmlView("<div class=\"divrep_indent\">"));
+			contentview.add(new HtmlView("<p>"+rec.primary_email+"<br/>"+rec.primary_phone+"</p>"));
 			ArrayList<String> details = critical_details.get(rec.id);
 			StringBuffer details_str = new StringBuffer();
 			for(String detail: details) {

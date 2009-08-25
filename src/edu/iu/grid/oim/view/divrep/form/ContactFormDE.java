@@ -29,6 +29,8 @@ import edu.iu.grid.oim.model.db.DNModel;
 import edu.iu.grid.oim.model.db.record.DNRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 
+//alter table contact add column timezone varchar(16) default value "UTC";
+
 public class ContactFormDE extends DivRepForm 
 {
     static Logger log = Logger.getLogger(ContactFormDE.class); 
@@ -44,7 +46,6 @@ public class ContactFormDE extends DivRepForm
 	private DivRepTextBox sms_address;
 	private DivRepTextBox address_line_1, address_line_2;
 	private DivRepTextBox city, state, zipcode, country;
-	//sprivate DivRepCheckBox active;
 	private DivRepCheckBox disable;
 	private DivRepTextBox im;
 	private PhotoDE photo_url;
@@ -52,6 +53,7 @@ public class ContactFormDE extends DivRepForm
 	private DivRepTextArea contact_preference;
 	private DivRepSelectBox submitter_dn;
 	private Timestamp confirmed;
+	private DivRepSelectBox timezone;
 	
 	class PhotoDE extends DivRepFormElement<String>
 	{
@@ -154,7 +156,6 @@ public class ContactFormDE extends DivRepForm
 		primary_phone = new DivRepTextBox(this);
 		primary_phone.setLabel("Primary Phone");
 		primary_phone.setValue(rec.primary_phone);
-		//primary_phone.setRequired(true);
 
 		primary_phone_ext = new DivRepTextBox(this);
 		primary_phone_ext.setLabel("Primary Phone Extension");
@@ -272,6 +273,16 @@ public class ContactFormDE extends DivRepForm
 		
 		//confirmed field is not editable (maybe let GOC to edit?)
 		confirmed = rec.confirmed;
+		
+		/*
+		TreeMap<Integer, String> timezones = new TreeMap();
+		timezone = new DivRepSelectBox(this, timezones);
+		timezone.setLabel("Time Zone");
+		timezone.setValue(timezonesrec.timezone);
+		if(!auth.allows("admin")) {
+			timezone.setHidden(true);
+		}
+		*/
 	}
 
 	protected Boolean doSubmit() 
