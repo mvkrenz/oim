@@ -17,6 +17,7 @@ import com.divrep.common.DivRepFormElement;
 import com.divrep.common.DivRepSelectBox;
 import com.divrep.common.DivRepStaticContent;
 import com.divrep.common.DivRepTextBox;
+import com.divrep.validator.DivRepIValidator;
 import com.divrep.validator.DivRepUniqueValidator;
 
 import edu.iu.grid.oim.view.divrep.VOReportNames.VOReportNameEditor;
@@ -74,9 +75,12 @@ public class VOReportNames extends DivRepFormElement {
 			//vo_report_name.setLabel("");
 			vo_report_name.setRequired(true);
 			vo_report_name.setValue(vorepname_record.name);
-			vo_report_name.addEventListener(new DivRepEventListener() {
-				public void handleEvent(DivRepEvent e) {
-					validate_duplicatename();
+			vo_report_name.addValidator(new DivRepIValidator<String>(){
+				public String getErrorMessage() {
+					return "The report name is already used in another report. Please choose a different name.";
+				}
+				public Boolean isValid(String value) {
+					return !hasDuplicateName(VOReportNameEditor.this);
 				}
 			});
 
@@ -117,23 +121,6 @@ public class VOReportNames extends DivRepFormElement {
 				}
 			});
 		}	
-		public void validate_duplicatename()
-		{
-			if(hasDuplicateName(this)) {
-				valid = false;
-				error.set("The report name is already used in another report. Please choose a different name.");
-				error.redraw();
-				return;
-			} else {
-				error.set(null);
-				error.redraw();
-			}
-		}
-		public void validate()
-		{
-			super.validate();
-			validate_duplicatename();
-		}
 
 		public VOReport getVOReport()
 		{
