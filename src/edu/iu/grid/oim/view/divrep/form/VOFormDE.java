@@ -450,6 +450,7 @@ public class VOFormDE extends DivRepForm
 
 		// Handle reporting names
 		new DivRepStaticContent(this, "<h2>Reporting Names for your VO</h2>");
+		new DivRepStaticContent(this, "<p>This section allows you to define report names for this VO. These report names are used by the Gratia Accounting software to organize periodic usage accounting reports. You need to define at least one report name -- for example, one with the same name as the VO (short) name and no FQANs. Large VOs with several sub-groups can define different report names, and also one or more FQAN per report name. Contact gratia-operation@opensciencegrid.org if you have any questions about VO report names.</p>");
 		ContactModel cmodel = new ContactModel (context);
 		VOReportNameModel vorepname_model = new VOReportNameModel(context);
 		VOReportNameFqanModel vorepnamefqan_model = new VOReportNameFqanModel(context);
@@ -464,6 +465,7 @@ public class VOFormDE extends DivRepForm
 				vo_report_name_div.addVOReportName(vorepname_rec, vorepnamefqan_list, vorc_list);
 			}
 		} else {
+			//add new one by default
 			vo_report_name_div.addVOReportName(
 					new VOReportNameRecord(), 
 					new ArrayList<VOReportNameFqanRecord>(), 

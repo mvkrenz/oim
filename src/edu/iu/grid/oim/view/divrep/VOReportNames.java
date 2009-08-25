@@ -172,6 +172,7 @@ public class VOReportNames extends DivRepFormElement {
 	public void removeVOReportName(VOReportNameEditor vo_report_name)
 	{
 		remove(vo_report_name);
+		validate_count();
 		redraw();
 	}
 	
@@ -197,26 +198,38 @@ public class VOReportNames extends DivRepFormElement {
 		add_button.addEventListener(new DivRepEventListener() {
 			public void handleEvent(DivRepEvent e) {
 				addVOReportName(new VOReportNameRecord(),null,null);
+				validate_count();
 			}
 			
 		});
 	}
-	/*
+
 	public void validate()
 	{
-		redraw();
-		valid = true;
-		
+		super.validate();
+
+		validate_count();
+	}
+	public void validate_count()
+	{
+		int report_count = 0;
 		for(DivRep node : childnodes) {
 			if(node instanceof VOReportNameEditor) {
-				VOReportNameEditor vo_report_name = (VOReportNameEditor)node;
-				if(!vo_report_name.isValid()) {
-					valid = false;
-				}
+				++report_count;
 			}
 		}
+		
+		if(report_count == 0) {
+			valid = false;
+			error.set("Please provide at least one VO Report");
+			error.redraw();
+			return;
+		} else {
+			error.set(null);
+			error.redraw();
+		}
 	}
-	*/
+	
 	protected void onEvent(DivRepEvent e) {
 		// TODO Auto-generated method stub
 	}
@@ -231,6 +244,7 @@ public class VOReportNames extends DivRepFormElement {
 			}
 		}
 		add_button.render(out);
+		error.render(out);
 		out.print("</div>");
 	}
 
