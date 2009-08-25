@@ -74,6 +74,11 @@ public class VOReportNames extends DivRepFormElement {
 			//vo_report_name.setLabel("");
 			vo_report_name.setRequired(true);
 			vo_report_name.setValue(vorepname_record.name);
+			vo_report_name.addEventListener(new DivRepEventListener() {
+				public void handleEvent(DivRepEvent e) {
+					validate_duplicatename();
+				}
+			});
 
 			new DivRepStaticContent(this, "<h4>FQANs</h4>");
 			vo_report_name_fqan = new VOReportNameFqan (this);
@@ -112,6 +117,23 @@ public class VOReportNames extends DivRepFormElement {
 				}
 			});
 		}	
+		public void validate_duplicatename()
+		{
+			if(hasDuplicateName(this)) {
+				valid = false;
+				error.set("The report name is already used in another report. Please choose a different name.");
+				error.redraw();
+				return;
+			} else {
+				error.set(null);
+				error.redraw();
+			}
+		}
+		public void validate()
+		{
+			super.validate();
+			validate_duplicatename();
+		}
 
 		public VOReport getVOReport()
 		{
@@ -152,10 +174,11 @@ public class VOReportNames extends DivRepFormElement {
 					}
 				} else {
 					//non form element..
+					if(child instanceof DivRepFormElement.ErrorDE) continue;
 					child.render(out);
 				}
 			}
-			
+			error.render(out);
 			out.write("</div>");
 		}
 
@@ -210,6 +233,19 @@ public class VOReportNames extends DivRepFormElement {
 
 		validate_count();
 	}
+	public boolean hasDuplicateName(VOReportNameEditor that)
+	{
+		String that_name = that.vo_report_name.getValue();
+		for(DivRep node : childnodes) {
+			if(node instanceof VOReportNameEditor) {
+				if(node == that) break;
+				VOReportNameEditor editor = (VOReportNameEditor)node;
+				if(editor.vo_report_name.getValue().equals(that_name)) return true;
+			}
+		}
+		return false;
+	}
+	
 	public void validate_count()
 	{
 		int report_count = 0;
@@ -218,7 +254,6 @@ public class VOReportNames extends DivRepFormElement {
 				++report_count;
 			}
 		}
-		
 		if(report_count == 0) {
 			valid = false;
 			error.set("Please provide at least one VO Report");
