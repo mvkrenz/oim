@@ -90,9 +90,10 @@ public class RegisterServlet extends ServletBase  {
 		private DivRepTextBox email_check;
 		private DivRepTextBox phone;
 		
-		public EnterEmailPage(Context context, DivRepPage page_root) {
+		public EnterEmailPage(Context _context, DivRepPage page_root) {
 			
 			super(page_root, origin_url);
+			context = _context;
 
 			new DivRepStaticContent(this, "<div class=\"divrep_form_element\"><label>Your Certificate DN</label><br/><input type=\"text\" disabled=\"disabled\" style=\"width: 400px;\" value=\""+context.getAuthorization().getUserDN()+"\"/> * Required</div>");
 			
