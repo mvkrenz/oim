@@ -110,8 +110,9 @@ public class ReportConfirmationServlet extends ServletBase implements Servlet {
 		HSSFRow row = sheet.createRow(0);
 		row.createCell(0).setCellValue(new HSSFRichTextString("Name"));
 		row.createCell(1).setCellValue(new HSSFRichTextString("Email"));
-		row.createCell(2).setCellValue(new HSSFRichTextString("Confirmation Date (GMT)"));
-		row.createCell(3).setCellValue(new HSSFRichTextString("Detail"));	
+		row.createCell(2).setCellValue(new HSSFRichTextString("Phone"));
+		row.createCell(3).setCellValue(new HSSFRichTextString("Confirmation Date (GMT)"));
+		row.createCell(4).setCellValue(new HSSFRichTextString("Detail"));	
 		int rownum = 1;
 		for(ContactRecord rec : critical_list) {
 			row = sheet.createRow(rownum++);
@@ -125,6 +126,10 @@ public class ReportConfirmationServlet extends ServletBase implements Servlet {
 			cell.setCellValue(new HSSFRichTextString(rec.primary_email));
 			
 			cell = row.createCell(2);
+			cell.setCellStyle(cellstyle);
+			cell.setCellValue(new HSSFRichTextString(rec.primary_phone));
+			
+			cell = row.createCell(3);
 			cell.setCellStyle(cellstyle);
 			cell.setCellValue(new HSSFRichTextString(rec.confirmed.toString()));
 			
@@ -141,22 +146,26 @@ public class ReportConfirmationServlet extends ServletBase implements Servlet {
 		sheet.autoSizeColumn((short) 1);
 		sheet.autoSizeColumn((short) 2);
 		sheet.autoSizeColumn((short) 3);
+		sheet.autoSizeColumn((short) 4);
 		
 		sheet = wb.createSheet("Non-Security Contacts");
 		row = sheet.createRow(0);
 		row.createCell(0).setCellValue(new HSSFRichTextString("Name"));
 		row.createCell(1).setCellValue(new HSSFRichTextString("Email"));
-		row.createCell(2).setCellValue(new HSSFRichTextString("Confirmation Date (GMT)"));
+		row.createCell(2).setCellValue(new HSSFRichTextString("Phone Number"));	
+		row.createCell(3).setCellValue(new HSSFRichTextString("Confirmation Date (GMT)"));
 		rownum = 1;
 		for(ContactRecord rec : normal_list) {
 			row = sheet.createRow(rownum++);
 			row.createCell(0).setCellValue(new HSSFRichTextString(rec.name));
 			row.createCell(1).setCellValue(new HSSFRichTextString(rec.primary_email));
-			row.createCell(2).setCellValue(new HSSFRichTextString(rec.confirmed.toString()));
+			row.createCell(2).setCellValue(new HSSFRichTextString(rec.primary_phone));
+			row.createCell(3).setCellValue(new HSSFRichTextString(rec.confirmed.toString()));
 		}	
 		sheet.autoSizeColumn((short) 0);
 		sheet.autoSizeColumn((short) 1);
 		sheet.autoSizeColumn((short) 2);
+		sheet.autoSizeColumn((short) 3);
 		
 		return wb;
 		
