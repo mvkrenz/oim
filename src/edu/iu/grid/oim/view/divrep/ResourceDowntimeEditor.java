@@ -26,7 +26,6 @@ import com.divrep.common.DivRepStaticContent;
 import com.divrep.common.DivRepTextArea;
 
 import edu.iu.grid.oim.lib.Authorization;
-import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.model.Context;
 import edu.iu.grid.oim.model.ResourceDowntime;
 import edu.iu.grid.oim.model.db.DowntimeClassModel;
@@ -35,7 +34,6 @@ import edu.iu.grid.oim.model.db.ResourceDowntimeModel;
 import edu.iu.grid.oim.model.db.ResourceDowntimeServiceModel;
 import edu.iu.grid.oim.model.db.ResourceServiceModel;
 import edu.iu.grid.oim.model.db.ServiceModel;
-import edu.iu.grid.oim.model.db.ConfigModel.Config;
 import edu.iu.grid.oim.model.db.record.DowntimeClassRecord;
 import edu.iu.grid.oim.model.db.record.DowntimeSeverityRecord;
 import edu.iu.grid.oim.model.db.record.ResourceDowntimeRecord;
