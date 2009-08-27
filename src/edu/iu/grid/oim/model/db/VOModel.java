@@ -287,6 +287,7 @@ public class VOModel extends SmallTableModelBase<VORecord>
 			ArrayList<VOReportNameFqanRecord> fqans = voreport.fqans;
 			for(VOReportNameFqanRecord fqan : fqans) {
 				fqan.vo_report_name_id = voreport_rec.id;
+				if (fqan.role == null) fqan.role = ""; // New FQANs will have null role but DB does not accept null value, so set it to "" 
 			}
 			vorepnamefqan_model.update(vorepnamefqan_model.getAllByVOReportNameID(voreport_rec.id), fqans);		
 			
