@@ -257,7 +257,7 @@ public class ResourceDowntimeEditor extends DivRepFormElement {
 					public void handleEvent(DivRepEvent e) {
 						DurationDR.this.validate();
 					}});
-				new DivRepStaticContent(this, "</td><td>&nbsp;to&nbsp;</td><td>");
+				new DivRepStaticContent(this, "&nbsp;<strong>(UTC)</strong></td></tr><tr><td>&nbsp;to&nbsp;</td></tr></tr>");
 				
 				end_date = new DateDE(this);
 				end_date.setMinDate(new Date());
@@ -278,7 +278,7 @@ public class ResourceDowntimeEditor extends DivRepFormElement {
 					public void handleEvent(DivRepEvent e) {
 						DurationDR.this.validate();
 					}});
-				new DivRepStaticContent(this, "</td></tr></table>");
+				new DivRepStaticContent(this, "&nbsp;<strong>(UTC)</strong></td></tr></table>");
 			}
 			public void validate()
 			{
@@ -322,13 +322,13 @@ public class ResourceDowntimeEditor extends DivRepFormElement {
 					out.write("</td><td>");
 					
 					start_time.render(out);
-					out.write("</td><td>&nbsp;to&nbsp;</td><td>");
+					out.write("</td><td>&nbsp;<strong>(UTC)</strong></td><tr><td>&nbsp;to&nbsp;</td></tr><tr><td>");
 					
 					end_date.render(out);
 					out.write("</td><td>");
 					
 					end_time.render(out);
-					out.write("</td></tr></table>");
+					out.write("<td>&nbsp;<strong>(UTC)</strong></td></td></tr></table>");
 					
 					if(isRequired()) {
 						out.write(" * Required");
