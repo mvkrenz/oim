@@ -42,7 +42,8 @@ public class ProfileEditServlet extends ServletBase implements Servlet {
 	private static final long serialVersionUID = 1L;
 	static Logger log = Logger.getLogger(ProfileEditServlet.class);  
 	private String parent_page = "home";	
-
+	private ContactFormDE form;
+	
     public ProfileEditServlet() {
         super();
     }
@@ -55,7 +56,7 @@ public class ProfileEditServlet extends ServletBase implements Servlet {
 			rec = auth.getContact();
 				
 			String origin_url = StaticConfig.getApplicationBase()+"/"+parent_page;
-			ContactFormDE form = new ContactFormDE(context, rec, origin_url);
+			form = new ContactFormDE(context, rec, origin_url);
 			
 			//put the form in a view and display
 			ContentView contentview = new ContentView();
@@ -95,17 +96,22 @@ public class ProfileEditServlet extends ServletBase implements Servlet {
 			confirm = new DivRepButton(this, "Confirm");
 			confirm.addEventListener(new DivRepEventListener() {
 				public void handleEvent(DivRepEvent e) {
-					alert("Thank you!");
 					Date d = new Date();
-					crec.confirmed = new Timestamp(d.getTime());
+					Timestamp t = new Timestamp(d.getTime());
+					t.setNanos(0);
+					crec.confirmed = t;
 					try {
 						cmodel.update(cmodel.get(crec.id), crec);
 						Confirmation.this.context.close();
 						Confirmation.this.redraw();
+						
+						alert("Updated the confirmation date. Thank you!");
+						form.setConfirmed(t);
 					} catch (SQLException e1) {
 						log.error(e1);
 					}
-				}});
+				}
+			});
 		}
 
 		protected void onEvent(DivRepEvent e) {

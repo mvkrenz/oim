@@ -75,25 +75,22 @@ public class RegisterServlet extends ServletBase  {
 		
 		contentview.add(new HtmlView("<p>Your certificate DN is not registered on OIM. </p>"));
 		contentview.add(new HtmlView("<p>To register and gain access to OIM, please register now by submitting following form.</p>"));			
-		EnterEmailPage form = new EnterEmailPage(context, context.getPageRoot());
+		EnterEmailPage form = new EnterEmailPage(context.getPageRoot());
 		contentview.add(new DivRepWrapper(form));
 	
-		
 		return contentview;
 	}
 
 	class EnterEmailPage extends DivRepForm
  	{
-		private Context context;
 		private DivRepTextBox name;
 		private DivRepTextBox email;
 		private DivRepTextBox email_check;
 		private DivRepTextBox phone;
 		
-		public EnterEmailPage(Context _context, DivRepPage page_root) {
+		public EnterEmailPage(DivRepPage page_root) {
 			
 			super(page_root, origin_url);
-			context = _context;
 
 			new DivRepStaticContent(this, "<div class=\"divrep_form_element\"><label>Your Certificate DN</label><br/><input type=\"text\" disabled=\"disabled\" style=\"width: 400px;\" value=\""+context.getAuthorization().getUserDN()+"\"/> * Required</div>");
 			
@@ -158,6 +155,7 @@ public class RegisterServlet extends ServletBase  {
 					rec.disable = false;
 					model.insert(rec);
 				} else {
+					//TODO - this should be validated on the fly
 					//Make sure that this contact is not used by any DN already
 					if(dnmodel.getByContactID(rec.id) != null) {
 						alert("The email address specified is already associated with a different DN. Please try different email address.");
