@@ -55,6 +55,11 @@ public class ContactFormDE extends DivRepForm
 	private Timestamp confirmed;
 	private DivRepSelectBox timezone;
 	
+	public void setConfirmed(Timestamp _confirmed)
+	{
+		confirmed = _confirmed;
+	}
+	
 	class PhotoDE extends DivRepFormElement<String>
 	{
 		public PhotoDE(DivRep _parent) {
