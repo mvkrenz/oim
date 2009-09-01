@@ -3,7 +3,10 @@ package edu.iu.grid.oim.view.divrep.form;
 import java.io.PrintWriter;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.util.HashMap;
+import java.util.Calendar;
+import java.util.TimeZone;
+
+import java.util.GregorianCalendar;
 import java.util.TreeMap;
 
 import org.apache.log4j.Logger;
@@ -34,7 +37,7 @@ import edu.iu.grid.oim.model.db.record.ContactRecord;
 public class ContactFormDE extends DivRepForm 
 {
     static Logger log = Logger.getLogger(ContactFormDE.class); 
-   
+	
     private Context context;
     private Authorization auth;
 	private Integer id;
@@ -44,16 +47,123 @@ public class ContactFormDE extends DivRepForm
 	private DivRepTextBox primary_phone, secondary_phone;
 	private DivRepTextBox primary_phone_ext, secondary_phone_ext;
 	private DivRepTextBox sms_address;
+	
 	private DivRepTextBox address_line_1, address_line_2;
 	private DivRepTextBox city, state, zipcode, country;
 	private DivRepCheckBox disable;
 	private DivRepTextBox im;
 	private PhotoDE photo_url;
+	private DivRepSelectBox timezone;
 	private DivRepCheckBox person;
+	private DivRepTextArea profile;
+	
 	private DivRepTextArea contact_preference;
 	private DivRepSelectBox submitter_dn;
 	private Timestamp confirmed;
-	private DivRepSelectBox timezone;
+	private PersonalInfo personal_info;
+	
+	class PersonalInfo extends DivRepFormElement
+	{
+		protected void onEvent(DivRepEvent e) {
+			// TODO Auto-generated method stub
+			
+		}	
+		
+		PersonalInfo(DivRep _parent, ContactRecord rec) {
+			super(_parent);
+			
+			address_line_1 = new DivRepTextBox(this);
+			address_line_1.setLabel("Address Line 1");
+			address_line_1.setValue(rec.address_line_1);
+	
+			address_line_2 = new DivRepTextBox(this);
+			address_line_2.setLabel("Address Line 2");
+			address_line_2.setValue(rec.address_line_2);
+			
+			city = new DivRepTextBox(this);
+			city.setLabel("City");
+			city.setValue(rec.city);
+			city.setRequired(true);
+	
+			state = new DivRepTextBox(this);
+			state.setLabel("State");
+			state.setValue(rec.state);
+			state.setRequired(true);
+	
+			zipcode = new DivRepTextBox(this);
+			zipcode.setLabel("Zipcode");
+			zipcode.setValue(rec.zipcode);
+			zipcode.setRequired(true);
+	
+			country = new DivRepTextBox(this);
+			country.setLabel("Country");
+			country.setValue(rec.country);
+			country.setRequired(true);
+			
+			im = new DivRepTextBox(this);
+			im.setLabel("Instant Messaging Information");
+			im.setValue(rec.im);
+			im.setSampleValue("soichih@gtalk");
+			
+			photo_url = new PhotoDE(this);
+			photo_url.setLabel("Photo URL");
+			photo_url.setSampleValue("http://somewhere.com/myphoto.png");
+			photo_url.setValue(rec.photo_url);
+			
+			TreeMap<Integer, String> timezones_with_date = new TreeMap<Integer, String>();
+			int i = 0;
+			for(String tz : TimeZone.getAvailableIDs()) {
+				Calendar cal = new GregorianCalendar(TimeZone.getTimeZone(tz));
+				String tstr = String.format("%02d", cal.get(Calendar.HOUR)+1) + ":" + String.format("%02d", cal.get(Calendar.MINUTE)+1);
+				switch(cal.get(Calendar.AM_PM)) {
+				case Calendar.AM:
+					tstr += " AM";
+					break;
+				default:
+					tstr += " PM";
+				}
+				tstr += String.format("%2d", cal.get(Calendar.MONTH)+1) + "/" + cal.get(Calendar.DAY_OF_MONTH);
+				timezones_with_date.put(i, tstr + " " + tz);
+				++i;
+				
+			}
+			timezone = new DivRepSelectBox(this, timezones_with_date);
+			timezone.setLabel("Time Zone");
+			timezone.setRequired(true);
+			int id = 0;
+			for(String tz : TimeZone.getAvailableIDs()) {
+				if(tz.equals(rec.timezone)) {
+					timezone.setValue(id);
+					break;
+				}
+				++id;
+			}
+			
+			profile = new DivRepTextArea(this);
+			profile.setLabel("Profile");
+			profile.setSampleValue("Please enter your role within OSG community, and maybe a small introduction of who you are and what you do.");
+			profile.setValue(rec.profile);
+		}
+		
+		public void render(PrintWriter out) {
+			out.print("<div class=\"indent\" id=\""+getNodeID()+"\">");	
+			if(!hidden) {
+				for(DivRep child : childnodes) {
+					if(child instanceof DivRepFormElement) {
+						out.print("<div class=\"divrep_form_element\">");
+						child.render(out);
+						out.print("</div>");
+					
+					} else {
+						//non form element..
+						child.render(out);
+					}
+				}
+				error.render(out);
+			}
+			out.print("</div>");
+		}
+	}
 	
 	public void setConfirmed(Timestamp _confirmed)
 	{
@@ -117,6 +227,7 @@ public class ContactFormDE extends DivRepForm
 	
 	public void showHidePersonalDetail()
 	{
+		/*
 		Boolean hidden = !person.getValue();
 		address_line_1.setHidden(hidden);
 		address_line_2.setHidden(hidden);
@@ -127,6 +238,9 @@ public class ContactFormDE extends DivRepForm
 		im.setHidden(hidden);
 		photo_url.setHidden(hidden);
 		ContactFormDE.this.redraw();
+		*/
+		personal_info.setHidden(!person.getValue());
+		personal_info.redraw();
 		
 		Boolean required = person.getValue();
 		city.setRequired(required);
@@ -193,65 +307,18 @@ public class ContactFormDE extends DivRepForm
 		person.addEventListener(new DivRepEventListener() {
 			public void handleEvent(DivRepEvent e) {
 				showHidePersonalDetail();
-			}});
-		
-		new DivRepStaticContent(this, "<div class=\"indent\">");
-		{
-			address_line_1 = new DivRepTextBox(this);
-			address_line_1.setLabel("Address Line 1");
-			address_line_1.setValue(rec.address_line_1);
+			}}
+		);
 	
-			address_line_2 = new DivRepTextBox(this);
-			address_line_2.setLabel("Address Line 2");
-			address_line_2.setValue(rec.address_line_2);
-			
-			city = new DivRepTextBox(this);
-			city.setLabel("City");
-			city.setValue(rec.city);
-			city.setRequired(true);
-	
-			state = new DivRepTextBox(this);
-			state.setLabel("State");
-			state.setValue(rec.state);
-			state.setRequired(true);
-	
-			zipcode = new DivRepTextBox(this);
-			zipcode.setLabel("Zipcode");
-			zipcode.setValue(rec.zipcode);
-			zipcode.setRequired(true);
-	
-			country = new DivRepTextBox(this);
-			country.setLabel("Country");
-			country.setValue(rec.country);
-			country.setRequired(true);
-			
-			im = new DivRepTextBox(this);
-			im.setLabel("Instant Messaging Information");
-			im.setValue(rec.im);
-			im.setSampleValue("soichih@gtalk");
-			
-			photo_url = new PhotoDE(this);
-			photo_url.setLabel("Photo URL");
-			photo_url.setSampleValue("http://somewhere.com/myphoto.png");
-			photo_url.setValue(rec.photo_url);
+		personal_info = new PersonalInfo(this, rec);
+		if(rec.person == null || rec.person == false) {
+			showHidePersonalDetail();
 		}
-		new DivRepStaticContent(this, "</div>");
-
+		
 		if(auth.allows("admin")) {
 			new DivRepStaticContent(this, "<h2>Administrative Tasks</h2>");
 		}
 
-		if(rec.person == null || rec.person == false) {
-			showHidePersonalDetail();
-		}
-		/*
-		active = new DivRepCheckBox(this);
-		active.setLabel("Active");
-		active.setValue(rec.active);
-		if(!auth.allows("admin")) {
-			active.setHidden(true);
-		}
-		*/
 		disable = new DivRepCheckBox(this);
 		disable.setLabel("Disable");
 		disable.setValue(rec.disable);
@@ -278,16 +345,6 @@ public class ContactFormDE extends DivRepForm
 		
 		//confirmed field is not editable (maybe let GOC to edit?)
 		confirmed = rec.confirmed;
-		
-		/*
-		TreeMap<Integer, String> timezones = new TreeMap();
-		timezone = new DivRepSelectBox(this, timezones);
-		timezone.setLabel("Time Zone");
-		timezone.setValue(timezonesrec.timezone);
-		if(!auth.allows("admin")) {
-			timezone.setHidden(true);
-		}
-		*/
 	}
 
 	protected Boolean doSubmit() 
@@ -317,6 +374,8 @@ public class ContactFormDE extends DivRepForm
 		rec.contact_preference = contact_preference.getValue();
 		rec.submitter_dn_id = submitter_dn.getValue();
 		rec.confirmed = confirmed;
+		rec.timezone = TimeZone.getAvailableIDs()[timezone.getValue()];
+		rec.profile = profile.getValue();
 		
 		ContactModel model = new ContactModel(context);
 		try {

@@ -416,12 +416,14 @@ CREATE TABLE  `contact` (
   `contact_preference` text collate utf8_unicode_ci COMMENT 'this field can be used to store snippets about person like if they want you to avoid calling them, etc.',
   `im` varchar(128) collate utf8_unicode_ci default NULL,
   `photo_url` varchar(256) collate utf8_unicode_ci default NULL,
-  `sms_address` varchar(45) collate utf8_unicode_ci NOT NULL,
+  `sms_address` varchar(45) collate utf8_unicode_ci default NULL,
+  `confirmed` timestamp NOT NULL default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP,
+  `timezone` varchar(45) collate utf8_unicode_ci NOT NULL default 'UTC',
+  `profile` text collate utf8_unicode_ci NOT NULL,
   PRIMARY KEY  (`id`),
   KEY `dn_person` (`submitter_dn_id`),
   CONSTRAINT `dn_person` FOREIGN KEY (`submitter_dn_id`) REFERENCES `dn` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='<strong><u>Person</u></strong>: Information about any person';
-
+) ENGINE=InnoDB AUTO_INCREMENT=582 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='<strong><u>Person</u></strong>: Information about any person';
 --
 -- Table structure for table `resource`
 --

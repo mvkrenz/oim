@@ -23,6 +23,8 @@ public class ContactRecord extends RecordBase implements Cloneable  {
 	public String contact_preference;
 	public String sms_address;
 	public Timestamp confirmed;
+	public String timezone;
+	public String profile;
 	
 	//load from existing record
 	public ContactRecord(ResultSet rs) throws SQLException {
