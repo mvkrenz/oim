@@ -327,21 +327,15 @@ public abstract class SmallTableModelBase<T extends RecordBase> extends ModelBas
     protected void logInsert(RecordBase rec) throws SQLException 
     {
     	try {
-    		//String plog = "By " + auth.getContact().name;;
         	String xml = "<Log>\n";
         	xml += "<Type>Insert</Type>\n";
 	    	
     		//show key fields
-        	//plog += "<table width=\"100%\">";
 	    	xml += "<Keys>\n";
 	    	ArrayList<Field> keys = rec.getRecordKeys();
 	    	for(Field key : keys) {
 	    		String name = key.getName();
-	    		Object value = (Object) key.get(rec);
-/*
-	    		plog += "<tr><th>"+StringEscapeUtils.escapeHtml(name)+"</th>"+
-	    			"<td>"+StringEscapeUtils.escapeHtml(rec.toString(key, auth))+"</td></tr>";
-*/    		
+	    		Object value = (Object) key.get(rec);   		
 	    		xml += "<Key>\n";
 	    		xml += "\t<Name>" + StringEscapeUtils.escapeXml(name) + "</Name>\n";
 	    		xml += "\t<Value>" + formatValue(value) + "</Value>\n";
@@ -358,35 +352,13 @@ public abstract class SmallTableModelBase<T extends RecordBase> extends ModelBas
 	    		xml += "\t<Name>" + StringEscapeUtils.escapeXml(name) + "</Name>\n";
 	    		xml += "\t<Value>" + formatValue(value) + "</Value>\n";
 	    		xml += "</Field>\n";
-	    		/*
-	    		if(rec.isRestricted(f)) {
-	    			value = NonPublicInformation;
-	    		}
-	    		*/
-/*
-    			plog += "<tr><th>"+StringEscapeUtils.escapeHtml(name)+"</th>"+
-    			"<td>"+StringEscapeUtils.escapeHtml(rec.toString(f, auth))+"</td></tr>";	
- */
 	    	}
-	    	//plog += "</table>";
 	    	xml += "</Fields>\n";
 	    	xml += "</Log>";
 	    	
 			LogModel lmodel = new LogModel(context);
 			int logid = lmodel.insert("insert", getClass().getName(), xml);	    
-			/*
-			plog += "Log ID " + logid;
 
-			try {
-				PublicNotification.publish("Inserted " + rec.getTitle(), plog, rec.getLables());
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (ServiceException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			*/
 		} catch (IllegalArgumentException e) {
 			throw new SQLException(e);
 		} catch (IllegalAccessException e) {

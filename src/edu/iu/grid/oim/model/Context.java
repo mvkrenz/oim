@@ -23,6 +23,12 @@ public class Context {
 	private Authorization auth = new Authorization();
 	private HttpServletRequest request;
 	private Connection oim_connection = null;
+
+	//stores the reason for current transaction (used for log table)
+	//why should this work? because *usually* all update within a session occurs under common purpose.
+	private String comment;
+	public void setComment(String _comment) { comment = _comment; }
+	public String getComment() { return comment; }
 	
 	public Context(HttpServletRequest _request) throws AuthorizationException
 	{	

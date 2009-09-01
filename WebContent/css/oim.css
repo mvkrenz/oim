@@ -324,3 +324,8 @@ background-position:left top;
 background-repeat:no-repeat;
 padding-left:20px;
 }
+.sidenote
+{
+float: right;
+text-align: right;
+}

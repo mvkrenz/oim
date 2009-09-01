@@ -127,7 +127,6 @@ public class LogServlet extends ServletBase  {
 					}
 									
 					//display the log
-					view.add(new HtmlView("<h2>" + somemodel.getName() + " ("+rec.type+")</h2>"));
 					String dn_string_to_print = "(DN not available)";
 					if (rec.dn_id != null) {
 						DNRecord dnrec = dmodel.get(rec.dn_id);
@@ -135,7 +134,11 @@ public class LogServlet extends ServletBase  {
 							dn_string_to_print = dnrec.dn_string;
 						}
 					}
-					view.add(new HtmlView("<span>By "+dn_string_to_print+"<br/>Updated "+rec.timestamp.toString()+"</span>"));
+					view.add(new HtmlView("<h2>" + somemodel.getName() + " ("+rec.type+")</h2>"));
+					view.add(new HtmlView("<span class=\"sidenote\">By "+dn_string_to_print+"<br/>"+rec.timestamp.toString()+"</span>"));
+					if(rec.comment != null) {
+						view.add(new HtmlView("<p>"+StringEscapeUtils.escapeHtml(rec.comment)+"</p>"));
+					}
 					view.add(createLogView(xpath, somemodel, log));
 				} catch (SAXException e) {
 					view.add(new HtmlView("XML log Parse Error (" + somemodel.getName() + ") "+ e.toString()));

@@ -71,6 +71,8 @@ public class ResourceFormDE extends DivRepForm
 	private DivRepCheckBox wlcg;
 	private ResourceWLCG wlcg_section;
 	
+	private DivRepTextArea comment;
+	
 	//contact types to edit
 	private int contact_types[] = {
 		1, //submitter
@@ -253,6 +255,10 @@ public class ResourceFormDE extends DivRepForm
 		if(!auth.allows("admin")) {
 			disable.setHidden(true);
 		}
+		
+		comment = new DivRepTextArea(this);
+		comment.setLabel("Update Comment");
+		comment.setSampleValue("Please provide a reason for this update.");
 	}
 	
 	private void hideWLCGElement(Boolean b)
@@ -304,6 +310,8 @@ public class ResourceFormDE extends DivRepForm
 		if(wlcg.getValue()) {
 			wrec = wlcg_section.getWlcgRecord();
 		}
+		
+		context.setComment(comment.getValue());
 		
 		ResourceModel model = new ResourceModel(context);
 		try {
