@@ -92,8 +92,9 @@ public class VOFormDE extends DivRepForm
 	private DivRepCheckBox child_vo;
 	private DivRepSelectBox parent_vo;
 	
-	private VOReport vorep_consolidator;
 	private VOReportNames vo_report_name_div;
+	
+	private DivRepTextArea comment;
 	
 	class FieldOfScience extends DivRep
 	{
@@ -496,6 +497,10 @@ public class VOFormDE extends DivRepForm
 		if(!auth.allows("admin")) {
 			disable.setHidden(true);
 		}
+		
+		comment = new DivRepTextArea(this);
+		comment.setLabel("Update Comment");
+		comment.setSampleValue("Please provide a reason for this update.");
 	}
 	
 	private void hideParentVOSelector(Boolean b)
@@ -598,6 +603,8 @@ public class VOFormDE extends DivRepForm
 		rec.footprints_id = footprints_id.getValue();
 		rec.active = active.getValue();
 		rec.disable = disable.getValue();
+
+		context.setComment(comment.getValue());
 		
 		ArrayList<VOContactRecord> contacts = getContactRecordsFromEditor();
 		

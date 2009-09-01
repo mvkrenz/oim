@@ -92,7 +92,6 @@ public class ResourceEditServlet extends ServletBase implements Servlet {
 		SideContentView view = new SideContentView();
 		view.add("About", new HtmlView("This form allows you to edit this resource's registration information.</p>"));		
 		view.addContactNote();		
-		// view.addContactLegent();		
 		return view;
 	}
 }

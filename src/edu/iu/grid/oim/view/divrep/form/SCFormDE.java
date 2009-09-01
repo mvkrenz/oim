@@ -43,6 +43,8 @@ public class SCFormDE extends DivRepForm
 	private DivRepCheckBox active;
 	private DivRepCheckBox disable;
 	
+	private DivRepTextArea comment;
+	
 	//contact types to edit
 	private int contact_types[] = {
 		1, //submitter
@@ -148,6 +150,10 @@ public class SCFormDE extends DivRepForm
 		if(!auth.allows("admin")) {
 			disable.setHidden(true);
 		}
+		
+		comment = new DivRepTextArea(this);
+		comment.setLabel("Update Comment");
+		comment.setSampleValue("Please provide a reason for this update.");
 	}
 	
 	private ContactEditor createContactEditor(HashMap<Integer, ArrayList<SCContactRecord>> scclist, ContactTypeRecord ctrec) throws SQLException
@@ -197,6 +203,8 @@ public class SCFormDE extends DivRepForm
 		rec.footprints_id = footprints_id.getValue();
 		rec.active = active.getValue();
 		rec.disable = disable.getValue();
+		
+		context.setComment(comment.getValue());
 		
 		ArrayList<SCContactRecord> contacts = getContactRecordsFromEditor();
 		
