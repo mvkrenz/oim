@@ -106,7 +106,7 @@ public class ContactEditor extends DivRepFormElement<HashMap<ContactEditor.Rank,
 		}
 		
 		public String getErrorMessage() {
-			return "Please specify at least " + min + " contact(s).";
+			return "Please specify at least " + min + " contact(s) for " + rank.toString();
 		}
 
 		public Boolean isValid(HashMap<ContactEditor.Rank, ArrayList<ContactDE>> recs_hash) {

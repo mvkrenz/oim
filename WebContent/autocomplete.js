@@ -8,16 +8,19 @@ function setAutocomplete(node)
 	        matchContains: true,
 	        width: 300,
 	        delay: 100,
-			formatItem: function(data, i, n, value) {
-				return data[1] + "<br/>Email: " + data[2];
+			formatItem: function(item) {
+				return item[1] + "<br/>Email: " + item[2];
 			},
-			formatResult: function(data, value) {
+			formatResult: function(item) {
+				$(".ac_results").hide();//I believe thiss fixed the ghost ac_result window issue
 				return " ";
 			}
     	}); 
     });
     
-    node.result(function(event, data, formatted) {
-        divrep(this.parentNode.id, "change", data[0]);
+    node.result(function(event, item) {
+    	if(item != null) {
+    		divrep(this.parentNode.id, "change", item[0]);
+    	}
     });
 }
