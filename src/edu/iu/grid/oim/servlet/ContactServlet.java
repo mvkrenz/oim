@@ -108,8 +108,8 @@ public class ContactServlet extends ServletBase implements Servlet {
 		
 		for(ContactRecord rec : contacts) {
 			String image;
-			if(rec.person == false) {
-				image = "<img align=\"top\" src=\""+StaticConfig.getApplicationBase()+"/images/group.png\"/> ";
+			if(rec.person == true) {
+				image = "<img align=\"top\" src=\""+StaticConfig.getApplicationBase()+"/images/user.png\"/> ";
 			} else {
 				image = "";//"<img src=\""+StaticConfig.getApplicationBase()+"/images/user.png\"/> ";			
 			}
@@ -156,6 +156,8 @@ public class ContactServlet extends ServletBase implements Servlet {
 				} 
 				personal_table.addRow("Photo", new HtmlView("<img class=\"avatar\" src=\""+img+"\"/>"));
 				personal_table.addRow("Contact Preference", rec.contact_preference);	
+				personal_table.addRow("Time Zone", rec.timezone);
+				personal_table.addRow("Profile", new HtmlView("<div>"+StringEscapeUtils.escapeHtml(rec.profile)+"</div>"));
 			}
 			table.addRow("Contact Associations", contactAssociationView(rec.id));
 
