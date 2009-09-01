@@ -314,19 +314,19 @@ SET character_set_client = @saved_cs_client;
 -- Table structure for table `log`
 --
 
-
 DROP TABLE IF EXISTS `log`;
-CREATE TABLE  `log` (
+CREATE TABLE `log` (
   `id` int(11) NOT NULL auto_increment,
   `type` varchar(16) collate utf8_unicode_ci default NULL,
   `model` varchar(64) collate utf8_unicode_ci default NULL,
   `xml` text collate utf8_unicode_ci,
   `timestamp` timestamp NOT NULL default CURRENT_TIMESTAMP,
   `dn_id` int(11) default NULL,
+  `comment` text collate utf8_unicode_ci,
   PRIMARY KEY  (`id`),
   KEY `dn_log` (`dn_id`),
   CONSTRAINT `log_ibfk_1` FOREIGN KEY (`dn_id`) REFERENCES `dn` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Log table to store all OIM-DB changes for auditing purposes.';
+) ENGINE=InnoDB AUTO_INCREMENT=2446 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Log table to store all OIM-DB changes for auditing purposes.';
 
 DROP TABLE IF EXISTS `metric`;
 CREATE TABLE  `metric` (
