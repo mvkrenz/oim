@@ -7,12 +7,11 @@ function setAutocomplete(node)
 	        mustMatch: true,
 	        matchContains: true,
 	        width: 300,
-	        delay: 100,
+	        delay: 500,
 			formatItem: function(item) {
 				return item[1] + "<br/>Email: " + item[2];
 			},
 			formatResult: function(item) {
-				$(".ac_results").hide();//I believe thiss fixed the ghost ac_result window issue
 				return " ";
 			}
     	}); 
