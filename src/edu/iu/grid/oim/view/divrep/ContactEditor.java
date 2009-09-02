@@ -159,7 +159,7 @@ public class ContactEditor extends DivRepFormElement<HashMap<ContactEditor.Rank,
 			try {
 				String query = itrim(request.getParameter("q").toLowerCase());
 				int limit = Integer.parseInt(request.getParameter("limit")); //only returns records upto requested limit
-				Collection<ContactRecord> all = pmodel.getAll();
+				Collection<ContactRecord> all = pmodel.getAllNonDisabled();
 				HashMap<Integer, ContactRecord> persons = new HashMap();
 				ContactRecord best_guess = null;
 				int best_guess_distance = 10000;
