@@ -131,6 +131,11 @@ public class ContactFormDE extends DivRepForm
 					tstr += String.format("%2d", cal.get(Calendar.MONTH)+1) + "/" + cal.get(Calendar.DAY_OF_MONTH);
 					group.put(i, tstr + " " + tz);
 					timezone_id2tz.put(i, tz);
+			
+					if(tz.equals(rec.timezone)) {
+						timezone.setValue(i);
+					}
+					
 					++i;
 				}
 				String group_name = "GMT";
@@ -143,14 +148,7 @@ public class ContactFormDE extends DivRepForm
 			}
 			timezone.setLabel("Time Zone");
 			timezone.setRequired(true);
-			int id = 0;
-			for(String tz : TimeZone.getAvailableIDs()) {
-				if(tz.equals(rec.timezone)) {
-					timezone.setValue(id);
-					break;
-				}
-				++id;
-			}
+
 			
 			profile = new DivRepTextArea(this);
 			profile.setLabel("Profile");
