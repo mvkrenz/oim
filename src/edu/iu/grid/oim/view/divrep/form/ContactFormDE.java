@@ -130,8 +130,8 @@ public class ContactFormDE extends DivRepForm
 					}
 					tstr += String.format("%2d", cal.get(Calendar.MONTH)+1) + "/" + cal.get(Calendar.DAY_OF_MONTH);
 					group.put(i, tstr + " " + tz);
-					++i;
 					timezone_id2tz.put(i, tz);
+					++i;
 				}
 				String group_name = "GMT";
 				if(offset < 0) {
