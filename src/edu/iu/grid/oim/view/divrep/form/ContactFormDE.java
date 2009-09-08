@@ -4,6 +4,8 @@ import java.io.PrintWriter;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.Calendar;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.TimeZone;
 
 import java.util.GregorianCalendar;
@@ -54,6 +56,7 @@ public class ContactFormDE extends DivRepForm
 	private DivRepTextBox im;
 	private PhotoDE photo_url;
 	private DivRepSelectBox timezone;
+	private HashMap<Integer, String> timezone_id2tz;
 	private DivRepCheckBox person;
 	private DivRepTextArea profile;
 	
@@ -110,24 +113,34 @@ public class ContactFormDE extends DivRepForm
 			photo_url.setSampleValue("http://somewhere.com/myphoto.png");
 			photo_url.setValue(rec.photo_url);
 			
-			TreeMap<Integer, String> timezones_with_date = new TreeMap<Integer, String>();
+			timezone = new DivRepSelectBox(this);
+			timezone_id2tz = new HashMap<Integer, String>();
 			int i = 0;
-			for(String tz : TimeZone.getAvailableIDs()) {
-				Calendar cal = new GregorianCalendar(TimeZone.getTimeZone(tz));
-				String tstr = String.format("%02d", cal.get(Calendar.HOUR)+1) + ":" + String.format("%02d", cal.get(Calendar.MINUTE)+1);
-				switch(cal.get(Calendar.AM_PM)) {
-				case Calendar.AM:
-					tstr += " AM";
-					break;
-				default:
-					tstr += " PM";
+			for(int offset = -12;offset < 12;++offset) {
+				LinkedHashMap<Integer, String> group = new LinkedHashMap<Integer, String>();
+				for(String tz : TimeZone.getAvailableIDs(offset*1000*3600)) {
+					Calendar cal = new GregorianCalendar(TimeZone.getTimeZone(tz));
+					String tstr = String.format("%02d", cal.get(Calendar.HOUR)+1) + ":" + String.format("%02d", cal.get(Calendar.MINUTE)+1);
+					switch(cal.get(Calendar.AM_PM)) {
+					case Calendar.AM:
+						tstr += " AM";
+						break;
+					default:
+						tstr += " PM";
+					}
+					tstr += String.format("%2d", cal.get(Calendar.MONTH)+1) + "/" + cal.get(Calendar.DAY_OF_MONTH);
+					group.put(i, tstr + " " + tz);
+					++i;
+					timezone_id2tz.put(i, tz);
 				}
-				tstr += String.format("%2d", cal.get(Calendar.MONTH)+1) + "/" + cal.get(Calendar.DAY_OF_MONTH);
-				timezones_with_date.put(i, tstr + " " + tz);
-				++i;
-				
+				String group_name = "GMT";
+				if(offset < 0) {
+					group_name += offset;
+				} else if(offset > 0) {
+					group_name += "+" + offset;
+				}
+				timezone.addGroup(group_name, group);
 			}
-			timezone = new DivRepSelectBox(this, timezones_with_date);
 			timezone.setLabel("Time Zone");
 			timezone.setRequired(true);
 			int id = 0;
@@ -327,7 +340,7 @@ public class ContactFormDE extends DivRepForm
 		}
 		
 		//create DN selector
-		TreeMap<Integer, String> dns = new TreeMap();
+		LinkedHashMap<Integer, String> dns = new LinkedHashMap();
 		try {
 			DNModel dnmodel = new DNModel(context);;
 			for(DNRecord dnrec : dnmodel.getAll()) {
@@ -374,7 +387,7 @@ public class ContactFormDE extends DivRepForm
 		rec.contact_preference = contact_preference.getValue();
 		rec.submitter_dn_id = submitter_dn.getValue();
 		rec.confirmed = confirmed;
-		rec.timezone = TimeZone.getAvailableIDs()[timezone.getValue()];
+		rec.timezone = timezone_id2tz.get(timezone.getValue());
 		rec.profile = profile.getValue();
 		
 		ContactModel model = new ContactModel(context);

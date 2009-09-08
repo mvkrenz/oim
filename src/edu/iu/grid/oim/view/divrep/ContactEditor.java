@@ -48,7 +48,7 @@ public class ContactEditor extends DivRepFormElement<HashMap<ContactEditor.Rank,
 	}
 	public void setMaxContacts(Rank rank, int max) {
 		if (rank == Rank.PRIMARY) { 
-				max_primary = max;
+			max_primary = max;
 		}
 		else if (rank == Rank.SECONDARY) { 
 			max_secondary= max;

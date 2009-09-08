@@ -3,6 +3,7 @@ package edu.iu.grid.oim.view.divrep.form;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.TreeMap;
 
 import org.apache.commons.lang.StringEscapeUtils;
@@ -90,7 +91,7 @@ public class ResourceGroupFormDE extends DivRepForm
 		site_id.setRequired(true);
 		
 		OsgGridTypeModel omodel = new OsgGridTypeModel(context);
-		TreeMap<Integer, String> gridtype_kv = new TreeMap();
+		LinkedHashMap<Integer, String> gridtype_kv = new LinkedHashMap();
 		for(OsgGridTypeRecord site_rec : omodel.getAll()) {
 			gridtype_kv.put(site_rec.id, site_rec.name);
 		}

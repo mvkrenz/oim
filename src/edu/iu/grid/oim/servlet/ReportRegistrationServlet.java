@@ -8,6 +8,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Set;
 import java.util.TreeMap;
 
@@ -221,7 +222,7 @@ public class ReportRegistrationServlet extends ServletBase implements Servlet {
 
     	view.add(new HtmlView("<h3>List Types</h3>"));
     	view.add(new HtmlView("<div class=\"indent\">"));
-		TreeMap<Integer, String> keyvalues = new TreeMap<Integer, String>();
+    	LinkedHashMap<Integer, String> keyvalues = new LinkedHashMap<Integer, String>();
 		keyvalues.put(7, "Last 1 Week");
 		keyvalues.put(14, "Last 2 Week");
 		keyvalues.put(30, "Last 1 Month");

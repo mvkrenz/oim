@@ -1,38 +1,18 @@
 package edu.iu.grid.oim.view.divrep.form;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
-
 import org.apache.log4j.Logger;
-
-import com.divrep.DivRep;
 import com.divrep.DivRepEvent;
-import com.divrep.common.DivRepCheckBox;
 import com.divrep.common.DivRepForm;
-import com.divrep.common.DivRepSelectBox;
-import com.divrep.common.DivRepStaticContent;
 import com.divrep.common.DivRepTextArea;
 import com.divrep.common.DivRepTextBox;
 import com.divrep.validator.DivRepUniqueValidator;
-import com.divrep.validator.DivRepUrlValidator;
-
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.AuthorizationException;
 import edu.iu.grid.oim.model.Context;
-import edu.iu.grid.oim.model.db.ContactTypeModel;
-import edu.iu.grid.oim.model.db.ContactModel;
-import edu.iu.grid.oim.model.db.SCModel;
 import edu.iu.grid.oim.model.db.OsgGridTypeModel;
-import edu.iu.grid.oim.model.db.record.ContactTypeRecord;
-import edu.iu.grid.oim.model.db.record.ContactRecord;
-import edu.iu.grid.oim.model.db.record.RecordBase;
-import edu.iu.grid.oim.model.db.record.SCRecord;
 import edu.iu.grid.oim.model.db.record.OsgGridTypeRecord;
-import edu.iu.grid.oim.view.divrep.ContactEditor;
 
 public class OsgGridTypeFormDE extends DivRepForm 
 {

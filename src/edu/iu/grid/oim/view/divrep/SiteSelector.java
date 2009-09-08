@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -47,7 +48,7 @@ public class SiteSelector extends DivRepSelectBox {
 			ArrayList<FacilityRecord> frecs = fmodel.getAll();
 			for(FacilityRecord frec : frecs) {
 				ArrayList<SiteRecord> srecs = smodel.getByFacilityID(frec.id);
-				TreeMap<Integer, String> sites = new TreeMap<Integer, String>();
+				LinkedHashMap<Integer, String> sites = new LinkedHashMap<Integer, String>();
 				for(SiteRecord srec : srecs) {
 					sites.put(srec.id, srec.name);
 				}

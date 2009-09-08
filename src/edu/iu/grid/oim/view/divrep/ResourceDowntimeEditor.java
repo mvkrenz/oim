@@ -10,6 +10,7 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.TreeMap;
 
 import org.apache.commons.lang.StringEscapeUtils;
@@ -130,7 +131,7 @@ public class ResourceDowntimeEditor extends DivRepFormElement {
 			protected TimeDE(DivRep parent) {
 				super(parent);
 				
-				TreeMap<Integer, String> hours = new TreeMap<Integer, String>();
+				LinkedHashMap<Integer, String> hours = new LinkedHashMap<Integer, String>();
 				hours.put(0, "0 AM");
 				hours.put(1, "1 AM");
 				hours.put(2, "2 AM");
@@ -165,7 +166,7 @@ public class ResourceDowntimeEditor extends DivRepFormElement {
 					}});
 				hour.setHasNull(false);
 				
-				TreeMap<Integer, String> mins = new TreeMap<Integer, String>();	
+				LinkedHashMap<Integer, String> mins = new LinkedHashMap<Integer, String>();	
 				for(int m = 0; m < 60; m+=5) {
 					mins.put(m, ":" + m);
 				}
@@ -357,7 +358,7 @@ public class ResourceDowntimeEditor extends DivRepFormElement {
 			summary.setWidth(600);
 			summary.setHeight(200);
 			
-			TreeMap<Integer, String> class_kv = new TreeMap<Integer, String>();
+			LinkedHashMap<Integer, String> class_kv = new LinkedHashMap<Integer, String>();
 			DowntimeClassModel dcmodel = new DowntimeClassModel(context);
 			for(DowntimeClassRecord dcrec : dcmodel.getAll()) {
 				class_kv.put(dcrec.id, dcrec.name);
@@ -372,7 +373,7 @@ public class ResourceDowntimeEditor extends DivRepFormElement {
 				if (class_kv != null) class_id.setValue(1);
 			}
 			
-			TreeMap<Integer, String> severity_kv = new TreeMap<Integer, String>();
+			LinkedHashMap<Integer, String> severity_kv = new LinkedHashMap<Integer, String>();
 			DowntimeSeverityModel smodel = new DowntimeSeverityModel(context);
 			for(DowntimeSeverityRecord dcrec : smodel.getAll()) {
 				severity_kv.put(dcrec.id, dcrec.name);

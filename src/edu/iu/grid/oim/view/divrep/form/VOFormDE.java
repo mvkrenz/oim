@@ -9,6 +9,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
@@ -310,7 +311,7 @@ public class VOFormDE extends DivRepForm
 		//indent the parent VO stuff
 		new DivRepStaticContent(this, "<div class=\"indent\">");
 		//pull vos for unique validator
-		TreeMap<Integer, String> vos = getVONames();
+		LinkedHashMap<Integer, String> vos = getVONames();
 		if(id != null) { //if doing update, remove my own name (I can use my own name)
 			vos.remove(id);
 		}
@@ -531,21 +532,21 @@ public class VOFormDE extends DivRepForm
 		return editor;
 	}
 	
-	private TreeMap<Integer, String> getSCNames() throws AuthorizationException, SQLException
+	private LinkedHashMap<Integer, String> getSCNames() throws AuthorizationException, SQLException
 	{
 		SCModel model = new SCModel(context);
-		TreeMap<Integer, String> keyvalues = new TreeMap<Integer, String>();
+		LinkedHashMap<Integer, String> keyvalues = new LinkedHashMap<Integer, String>();
 		for(SCRecord rec : model.getAll()) {
 			keyvalues.put(rec.id, rec.name);
 		}
 		return keyvalues;
 	}
 	
-	private TreeMap<Integer, String> getVONames() throws AuthorizationException, SQLException
+	private LinkedHashMap<Integer, String> getVONames() throws AuthorizationException, SQLException
 	{
 		//pull all VOs
 		VOModel model = new VOModel(context);
-		TreeMap<Integer, String> keyvalues = new TreeMap<Integer, String>();
+		LinkedHashMap<Integer, String> keyvalues = new LinkedHashMap<Integer, String>();
 		for(VORecord rec : model.getAll()) {
 			keyvalues.put(rec.id, rec.name);
 		}

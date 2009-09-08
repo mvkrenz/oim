@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -47,7 +48,7 @@ public class ResourceGroupSelector extends DivRepSelectBox {
 			ArrayList<SiteRecord> srecs = smodel.getAll();
 			for(SiteRecord srec : srecs) {
 				ArrayList<ResourceGroupRecord> rgrecs = rgmodel.getBySiteID(srec.id);
-				TreeMap<Integer, String> rgs = new TreeMap<Integer, String>();
+				LinkedHashMap<Integer, String> rgs = new LinkedHashMap<Integer, String>();
 				for(ResourceGroupRecord rgrec : rgrecs) {
 					rgs.put(rgrec.id, rgrec.name);
 				}

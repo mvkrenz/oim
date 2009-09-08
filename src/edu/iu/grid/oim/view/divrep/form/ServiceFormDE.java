@@ -2,6 +2,7 @@ package edu.iu.grid.oim.view.divrep.form;
 
 import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.TreeMap;
 
 import org.apache.log4j.Logger;
@@ -73,7 +74,7 @@ public class ServiceFormDE extends DivRepForm
 			port.setValue(rec.port.toString());
 		}
 		
-		TreeMap<Integer, String> kv = new TreeMap<Integer, String>();
+		LinkedHashMap<Integer, String> kv = new LinkedHashMap<Integer, String>();
 		ServiceGroupModel sgmodel = new ServiceGroupModel(context);
 		for(ServiceGroupRecord sgrec : sgmodel.getAll()) {
 			kv.put(sgrec.id, sgrec.name);
@@ -85,7 +86,7 @@ public class ServiceFormDE extends DivRepForm
 		
 		new DivRepStaticContent(this, "<h3>RSV Metrics</h3>");
 		MetricModel mmodel = new MetricModel(context);
-		TreeMap<Integer, String> metric_kv = new TreeMap<Integer, String>();
+		LinkedHashMap<Integer, String> metric_kv = new LinkedHashMap<Integer, String>();
 		for(MetricRecord mrec : mmodel.getAll()) {
 			metric_kv.put(mrec.id, mrec.common_name);
 		}

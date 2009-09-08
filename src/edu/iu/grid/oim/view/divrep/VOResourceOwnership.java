@@ -3,6 +3,7 @@ package edu.iu.grid.oim.view.divrep;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.TreeMap;
 
 import com.divrep.DivRep;
@@ -36,7 +37,7 @@ public class VOResourceOwnership extends DivRepFormElement {
 			super(parent);
 			myself = this;
 		
-			TreeMap<Integer, String> kv = new TreeMap();
+			LinkedHashMap<Integer, String> kv = new LinkedHashMap();
 			for(VORecord vo_rec : vo_recs) {
 				kv.put(vo_rec.id, vo_rec.name);
 			}

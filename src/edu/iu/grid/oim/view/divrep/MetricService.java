@@ -3,6 +3,7 @@ package edu.iu.grid.oim.view.divrep;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.TreeMap;
 
 import com.divrep.DivRep;
@@ -24,7 +25,7 @@ public class MetricService extends DivRepFormElement {
 
 	//ArrayList<AliasEditor> aliases = new ArrayList<AliasEditor>();
 	private DivRepButton add_button;
-	TreeMap<Integer, String> metric_kv;
+	LinkedHashMap<Integer, String> metric_kv;
 	
 	class MetricEditor extends DivRepFormElement
 	{
@@ -102,7 +103,7 @@ public class MetricService extends DivRepFormElement {
 		redraw();
 	}
 	
-	public MetricService(DivRep parent, TreeMap<Integer, String> _metric_kv) {
+	public MetricService(DivRep parent, LinkedHashMap<Integer, String> _metric_kv) {
 		super(parent);
 		metric_kv = _metric_kv;
 		

@@ -7,6 +7,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.TreeMap;
 
 import org.apache.log4j.Logger;
@@ -81,7 +82,7 @@ public class SiteFormDE extends DivRepForm
 		new DivRepStaticContent(this, "<p>Add/modify basic information about this site.<br>NOTE: A site represents a department or a sub-organization within a an instituition (like BNL, Fermilab, etc.) or a university, referred to as facility.</p>");
 
 		//pull sites for unique validator
-		TreeMap<Integer, String> sites = getSites();
+		LinkedHashMap<Integer, String> sites = getSites();
 		if(id != null) {
 			//if doing update, remove my own name (I can use my own name)
 			sites.remove(id);
@@ -169,30 +170,30 @@ public class SiteFormDE extends DivRepForm
 		}
 	}
 	
-	private TreeMap<Integer, String> getSites() throws AuthorizationException, SQLException
+	private LinkedHashMap<Integer, String> getSites() throws AuthorizationException, SQLException
 	{
 		SiteModel model = new SiteModel(context);
-		TreeMap<Integer, String> keyvalues = new TreeMap<Integer, String>();
+		LinkedHashMap<Integer, String> keyvalues = new LinkedHashMap<Integer, String>();
 		for(SiteRecord rec : model.getAll()) {
 			keyvalues.put(rec.id, rec.name);
 		}
 		return keyvalues;
 	}
 	
-	private TreeMap<Integer, String> getSCs() throws AuthorizationException, SQLException
+	private LinkedHashMap<Integer, String> getSCs() throws AuthorizationException, SQLException
 	{
 		SCModel model = new SCModel(context);
-		TreeMap<Integer, String> keyvalues = new TreeMap<Integer, String>();
+		LinkedHashMap<Integer, String> keyvalues = new LinkedHashMap<Integer, String>();
 		for(SCRecord rec : model.getAll()) {
 			keyvalues.put(rec.id, rec.name);
 		}
 		return keyvalues;
 	}
 
-	private TreeMap<Integer, String> getFacilities() throws AuthorizationException, SQLException
+	private LinkedHashMap<Integer, String> getFacilities() throws AuthorizationException, SQLException
 	{
 		FacilityModel model = new FacilityModel(context);
-		TreeMap<Integer, String> keyvalues = new TreeMap<Integer, String>();
+		LinkedHashMap<Integer, String> keyvalues = new LinkedHashMap<Integer, String>();
 		for(FacilityRecord rec : model.getAll()) {
 			keyvalues.put(rec.id, rec.name);
 		}

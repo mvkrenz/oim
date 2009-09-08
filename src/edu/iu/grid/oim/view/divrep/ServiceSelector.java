@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -51,7 +52,7 @@ public class ServiceSelector extends DivRepSelectBox {
 			ArrayList<ServiceGroupRecord> sgrecs = sgmodel.getAll();
 			for(ServiceGroupRecord sgrec : sgrecs) {
 				ArrayList<ServiceRecord> srecs = smodel.getByServiceGroupID(sgrec.id);
-				TreeMap<Integer, String> services = new TreeMap<Integer, String>();
+				LinkedHashMap<Integer, String> services = new LinkedHashMap<Integer, String>();
 				for(ServiceRecord rgrec : srecs) {
 					services.put(rgrec.id, rgrec.name);
 				}
