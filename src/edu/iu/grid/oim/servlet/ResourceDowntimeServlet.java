@@ -3,12 +3,15 @@ package edu.iu.grid.oim.servlet;
 import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.DateFormat;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.TimeZone;
 
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
@@ -58,6 +61,7 @@ import edu.iu.grid.oim.view.SideContentView;
 public class ResourceDowntimeServlet extends ServletBase implements Servlet {
 	private static final long serialVersionUID = 1L;
 	static Logger log = Logger.getLogger(ResourceDowntimeServlet.class);  
+	private TimeZone timezone;
 	
     public ResourceDowntimeServlet() {
         // TODO Auto-generated constructor stub
@@ -68,9 +72,9 @@ public class ResourceDowntimeServlet extends ServletBase implements Servlet {
 		//setContext(request);
 		auth.check("edit_my_resource");
 		
-		//pull list of all vos
-
 		try {
+			timezone = TimeZone.getTimeZone(auth.getContact().timezone);
+			
 			//construct view
 			MenuView menuview =new MenuView(context, "resourcedowntime");
 			ContentView contentview = createContentView();
@@ -147,8 +151,15 @@ public class ResourceDowntimeServlet extends ServletBase implements Servlet {
 		
 		RecordTableView table = new RecordTableView();
 		table.addRow("Summary", rec.downtime_summary);
-		table.addRow("Start Time", rec.start_time.toString() + " UTC");
-		table.addRow("End Time", rec.end_time.toString() + " UTC");
+
+		DateFormat dformat = DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.SHORT);
+		String start = "";
+		//start += dformat.format(rec.start_time) + " UTC<br/>";
+		dformat.setTimeZone(timezone);
+		start += dformat.format(rec.start_time) + " " + timezone.getID();
+		table.addRow("Start Time", new HtmlView(start));
+		
+		table.addRow("End Time", dformat.format(rec.end_time) + " " + timezone.getID());
 		
 		DowntimeClassModel dtcmodel = new DowntimeClassModel(context);
 		table.addRow("Downtime Class", dtcmodel.get(rec.downtime_class_id).name);

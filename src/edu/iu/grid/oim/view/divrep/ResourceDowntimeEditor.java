@@ -11,7 +11,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.TreeMap;
+import java.util.TimeZone;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
@@ -35,6 +35,7 @@ import edu.iu.grid.oim.model.db.ResourceDowntimeModel;
 import edu.iu.grid.oim.model.db.ResourceDowntimeServiceModel;
 import edu.iu.grid.oim.model.db.ResourceServiceModel;
 import edu.iu.grid.oim.model.db.ServiceModel;
+import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.DowntimeClassRecord;
 import edu.iu.grid.oim.model.db.record.DowntimeSeverityRecord;
 import edu.iu.grid.oim.model.db.record.ResourceDowntimeRecord;
@@ -51,6 +52,7 @@ public class ResourceDowntimeEditor extends DivRepFormElement {
 	private ArrayList<ResourceDowntimeRecord> downtime_recs;
 	private Authorization auth;
 	private int resource_id;
+	private TimeZone timezone;
 	
 	public class DowntimeEditor extends DivRepFormElement
 	{
@@ -181,7 +183,7 @@ public class ResourceDowntimeEditor extends DivRepFormElement {
 				min.setHasNull(false);
 
 				Date current = new Date();
-				setValue(new Timestamp(current.getTime()));
+				setValue(current);
 			}
 
 			public void render(PrintWriter out) {
@@ -200,7 +202,7 @@ public class ResourceDowntimeEditor extends DivRepFormElement {
 				out.write("</td></tr></table>");
 			}
 
-			public void setValue(Timestamp time) {
+			public void setValue(Date time) {
 				long sec = time.getTime()/1000;
 				int sec_inday = (int)(sec % (3600*24));
 				int mins = sec_inday / 60;
@@ -237,12 +239,9 @@ public class ResourceDowntimeEditor extends DivRepFormElement {
 			protected DurationDR(DivRep parent, ResourceDowntimeRecord rec) {
 				super(parent);
 				new DivRepStaticContent(this, "<table><tr><td>");
-				start_date = new DateDE(this);
-				start_date.setMinDate(new Date());
-				if(rec.start_time != null) {
-					start_date.setValue(rec.start_time);
-				}
 				
+				start_date = new DateDE(this);
+				start_date.setMinDate(new Date());				
 				start_date.addEventListener(new DivRepEventListener() {
 					public void handleEvent(DivRepEvent e) {
 						DurationDR.this.validate();
@@ -251,20 +250,14 @@ public class ResourceDowntimeEditor extends DivRepFormElement {
 				new DivRepStaticContent(this, "</td><td>");
 				
 				start_time = new TimeDE(this);
-				if(rec.start_time != null) {
-					start_time.setValue(rec.start_time);
-				}
 				start_time.addEventListener(new DivRepEventListener() {
 					public void handleEvent(DivRepEvent e) {
 						DurationDR.this.validate();
 					}});
-				new DivRepStaticContent(this, "&nbsp;<strong>(UTC)</strong></td></tr><tr><td>&nbsp;to&nbsp;</td></tr></tr>");
+				new DivRepStaticContent(this, "&nbsp;<strong>("+timezone.getDisplayName()+")</strong></td></tr><tr><td>&nbsp;to&nbsp;</td></tr></tr>");
 				
 				end_date = new DateDE(this);
 				end_date.setMinDate(new Date());
-				if(rec.end_time != null) {
-					end_date.setValue(rec.end_time);
-				}
 				end_date.addEventListener(new DivRepEventListener() {
 					public void handleEvent(DivRepEvent e) {
 						DurationDR.this.validate();
@@ -272,21 +265,28 @@ public class ResourceDowntimeEditor extends DivRepFormElement {
 				new DivRepStaticContent(this, "</td><td>");
 				
 				end_time = new TimeDE(this);
-				if(rec.end_time != null) {
-					end_time.setValue(rec.end_time);
-				}
 				end_time.addEventListener(new DivRepEventListener() {
 					public void handleEvent(DivRepEvent e) {
 						DurationDR.this.validate();
 					}});
-				new DivRepStaticContent(this, "&nbsp;<strong>(UTC)</strong></td></tr></table>");
+				
+				if(rec.start_time != null && rec.end_time != null) {
+					Date local_start = new Date(rec.start_time.getTime() + timezone.getRawOffset());
+					start_date.setValue(local_start);
+					start_time.setValue(local_start);
+					
+					Date local_end = new Date(rec.end_time.getTime() + timezone.getRawOffset());
+					end_date.setValue(local_end);
+					end_time.setValue(local_end);
+				}
+				new DivRepStaticContent(this, "&nbsp;<strong>("+timezone.getID()+")</strong></td></tr></table>");
 			}
 			public void validate()
 			{
 				valid = true;
 				
-				Timestamp start = getStartTime();
-				Timestamp end = getEndTime();
+				Date start = getStartTime();
+				Date end = getEndTime();
 				if(start.compareTo(end) > 0) {
 					valid = false;
 					error.set("Start Time is after the end time. Please correct.");
@@ -295,13 +295,15 @@ public class ResourceDowntimeEditor extends DivRepFormElement {
 				}
 				error.redraw();
 			}
-			public Timestamp getStartTime()
+			public Date getStartTime()
 			{
-				return convertToTimestamp(start_date.getValue(), start_time.getHour(), start_time.getMin());
+				Date date = new Date(start_date.getValue().getTime());
+				return combineDateAndTime(date, start_time.getHour(), start_time.getMin());
 			}
-			public Timestamp getEndTime()
+			public Date getEndTime()
 			{
-				return convertToTimestamp(end_date.getValue(), end_time.getHour(), end_time.getMin());
+				Date date = new Date(end_date.getValue().getTime());
+				return combineDateAndTime(date, end_time.getHour(), end_time.getMin());
 			}
 			@Override
 			protected void onEvent(DivRepEvent e) {
@@ -323,13 +325,13 @@ public class ResourceDowntimeEditor extends DivRepFormElement {
 					out.write("</td><td>");
 					
 					start_time.render(out);
-					out.write("</td><td>&nbsp;<strong>(UTC)</strong></td><tr><td>&nbsp;to&nbsp;</td></tr><tr><td>");
+					out.write("</td><td>&nbsp;<strong>("+timezone.getID()+")</strong></td><tr><td>&nbsp;to&nbsp;</td></tr><tr><td>");
 					
 					end_date.render(out);
 					out.write("</td><td>");
 					
 					end_time.render(out);
-					out.write("<td>&nbsp;<strong>(UTC)</strong></td></td></tr></table>");
+					out.write("<td>&nbsp;<strong>("+timezone.getID()+")</strong></td></td></tr></table>");
 					
 					if(isRequired()) {
 						out.write(" * Required");
@@ -345,7 +347,7 @@ public class ResourceDowntimeEditor extends DivRepFormElement {
 			super(parent);
 			downtime_id = rec.id;
 			
-			new DivRepStaticContent(this, "<h3>Duration (UTC)</h3>");
+			new DivRepStaticContent(this, "<h3>Duration ("+timezone.getID()+")</h3>");
 			duration = new DurationDR(this, rec);
 			
 			new DivRepStaticContent(this, "<h3>Detail</h3>");
@@ -485,8 +487,8 @@ public class ResourceDowntimeEditor extends DivRepFormElement {
 			rec.id = downtime_id;
 			rec.resource_id = resource_id;
 			rec.downtime_summary = summary.getValue();
-			rec.start_time = getStartTime();
-			rec.end_time = getEndTime();
+			rec.start_time = new Timestamp(getStartTime().getTime());
+			rec.end_time = new Timestamp(getEndTime().getTime());
 			rec.downtime_class_id = class_id.getValue();
 			rec.downtime_severity_id = severity_id.getValue();
 			rec.dn_id = auth.getDNID();
@@ -494,25 +496,24 @@ public class ResourceDowntimeEditor extends DivRepFormElement {
 			return rec;
 		}
 
-		public Timestamp getStartTime() 
+		public Date getStartTime() 
 		{
 			return duration.getStartTime();
 		}		
 		
-		public Timestamp getEndTime()
+		public Date getEndTime()
 		{
 			return duration.getEndTime();
 		}
 		
-		private Timestamp convertToTimestamp(Date date, int hour, int min)
+		private Date combineDateAndTime(Date date, int hour, int min)
 		{
-			//Calendar cal = (Calendar)Calendar.getInstance().clone();
 			Calendar cal = Calendar.getInstance();
 			cal.setTime(date);
 			cal.set(Calendar.HOUR_OF_DAY, hour);
 			cal.set(Calendar.MINUTE, min);
 			cal.set(Calendar.SECOND, 0);
-			return new Timestamp(cal.getTimeInMillis());				
+			return new Timestamp(cal.getTimeInMillis() - timezone.getRawOffset());				
 		}
 		
 		public ArrayList<ResourceDowntimeServiceRecord> getAffectedServiceRecords()
@@ -581,6 +582,9 @@ public class ResourceDowntimeEditor extends DivRepFormElement {
 		context = _context;
 		auth = context.getAuthorization();
 		resource_id = _resource_id;
+		
+		ContactRecord crec = auth.getContact();
+		timezone = TimeZone.getTimeZone(crec.timezone);
 		
 		ResourceDowntimeModel dmodel = new ResourceDowntimeModel(context);	
 		Collection <ResourceDowntimeRecord> dt_records = dmodel.getFutureDowntimesByResourceID(resource_id);
