@@ -6,6 +6,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.TimeZone;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -31,6 +32,7 @@ public class Authorization {
 	private Integer dn_id = null;
     private Integer contact_id = null;
     private Boolean islocal = false;
+    private TimeZone timezone = null;
     
     private HashSet<String> actions = new HashSet<String>();
     
@@ -54,6 +56,8 @@ public class Authorization {
     	ContactModel model = new ContactModel(guest_context);
     	return model.get(contact_id);
     }
+    public TimeZone getTimeZone() { return timezone; }
+    
     //true if the client is accessing from localhost
     public Boolean isLocal() { return islocal; }
     
@@ -132,7 +136,6 @@ public class Authorization {
 		log.info("Authenticated User DN: "+user_dn);
 		log.info("SSL_CLIENT_I_DN_CN: " + user_cn);
 		
-		//if(!user_cn.equals(StaticConfig.getDOECN())) {
 		if(user_cn == null) {
 			log.warn("SSL_CLIENT_I_DN_CN is not set. Logging in as guest.");
 		} else {

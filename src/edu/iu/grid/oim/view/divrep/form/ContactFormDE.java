@@ -119,8 +119,8 @@ public class ContactFormDE extends DivRepForm
 			for(int offset = -12;offset < 12;++offset) {
 				LinkedHashMap<Integer, String> group = new LinkedHashMap<Integer, String>();
 				for(String tz : TimeZone.getAvailableIDs(offset*1000*3600)) {
-					Calendar cal = new GregorianCalendar(TimeZone.getTimeZone(tz));
-					String tstr = String.format("%02d", cal.get(Calendar.HOUR)+1) + ":" + String.format("%02d", cal.get(Calendar.MINUTE)+1);
+					Calendar cal = Calendar.getInstance(TimeZone.getTimeZone(tz));
+					String tstr = String.format("%02d", cal.get(Calendar.HOUR)) + ":" + String.format("%02d", cal.get(Calendar.MINUTE));
 					switch(cal.get(Calendar.AM_PM)) {
 					case Calendar.AM:
 						tstr += " AM";
@@ -149,7 +149,6 @@ public class ContactFormDE extends DivRepForm
 			timezone.setLabel("Time Zone");
 			timezone.setRequired(true);
 
-			
 			profile = new DivRepTextArea(this);
 			profile.setLabel("Profile");
 			profile.setSampleValue("Please enter your role within OSG community, and maybe a small introduction of who you are and what you do.");

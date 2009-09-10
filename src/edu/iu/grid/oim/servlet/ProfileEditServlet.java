@@ -4,7 +4,10 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.TimeZone;
 
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
@@ -45,7 +48,6 @@ public class ProfileEditServlet extends ServletBase implements Servlet {
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{
-
 		ContactRecord rec;
 		try {
 			rec = auth.getContact();
@@ -117,7 +119,10 @@ public class ProfileEditServlet extends ServletBase implements Servlet {
 		public void render(PrintWriter out) {
 			out.write("<div id=\""+getNodeID()+"\">");
 			out.write("<h3>Content Confirmation</h3>");
-			out.write("<p>Last confirmation: "+crec.confirmed.toString()+"</p>");
+			
+			DateFormat dformat = DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.SHORT);
+			dformat.setTimeZone(getTimeZone());
+			out.write("<p>Last confirmation:<br/><b>"+dformat.format(crec.confirmed) + " " + "</b></p>");
 			if(crec.isConfirmationExpired()) {
 				out.write("<p class=\"divrep_round divrep_elementerror\">You have not recently confirmed that your profile information is accurate</p>");
 			}

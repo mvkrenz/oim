@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.sql.SQLException;
+import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import javax.servlet.ServletException;
@@ -116,6 +117,8 @@ public class LogServlet extends ServletBase  {
 				Class modelClass = Class.forName(rec.model);
 				Constructor cons = modelClass.getConstructor(new Class[]{Context.class});
 				ModelBase somemodel = (ModelBase) cons.newInstance(context);	
+				DateFormat dformat = DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.SHORT);
+				dformat.setTimeZone(getTimeZone());
 				try {
 					byte[] bArray = rec.xml.getBytes();
 					ByteArrayInputStream bais = new ByteArrayInputStream(bArray);
@@ -135,7 +138,8 @@ public class LogServlet extends ServletBase  {
 						}
 					}
 					view.add(new HtmlView("<h2>" + somemodel.getName() + " ("+rec.type+")</h2>"));
-					view.add(new HtmlView("<span class=\"sidenote\">By "+dn_string_to_print+"<br/>"+rec.timestamp.toString()+"</span>"));
+					
+					view.add(new HtmlView("<span class=\"sidenote\">By "+dn_string_to_print+"<br/>"+dformat.format(rec.timestamp)+ " (" + getTimeZone().getID() + ")</span>"));
 					if(rec.comment != null) {
 						view.add(new HtmlView("<p>"+StringEscapeUtils.escapeHtml(rec.comment)+"</p>"));
 					}

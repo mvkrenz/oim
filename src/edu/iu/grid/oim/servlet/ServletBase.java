@@ -3,6 +3,7 @@ package edu.iu.grid.oim.servlet;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.TimeZone;
 
 import javax.naming.NamingException;
 import javax.servlet.ServletConfig;
@@ -27,9 +28,30 @@ public class ServletBase extends HttpServlet {
 	
     protected Context context;
 	protected Authorization auth;
+	private TimeZone timezone = null;
 	
 	public void init(ServletConfig conf) throws ServletException {
 		super.init(conf);
+	}
+	
+	protected TimeZone getTimeZone()
+	{
+		if(timezone == null) {
+			//load timezone
+	    	try {
+	    		String id = auth.getContact().timezone;
+	    		if(id != null) {
+	    			timezone = TimeZone.getTimeZone(id);
+	    		}
+	    	} catch (SQLException e) {
+	    		log.error(e.toString());
+	    	}
+	    	if(timezone == null) {
+	    		timezone = TimeZone.getDefault();
+	    	}
+		}
+    	
+    	return timezone;
 	}
 
 	protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException

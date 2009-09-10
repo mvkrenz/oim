@@ -61,7 +61,6 @@ import edu.iu.grid.oim.view.SideContentView;
 public class ResourceDowntimeServlet extends ServletBase implements Servlet {
 	private static final long serialVersionUID = 1L;
 	static Logger log = Logger.getLogger(ResourceDowntimeServlet.class);  
-	private TimeZone timezone;
 	
     public ResourceDowntimeServlet() {
         // TODO Auto-generated constructor stub
@@ -72,9 +71,7 @@ public class ResourceDowntimeServlet extends ServletBase implements Servlet {
 		//setContext(request);
 		auth.check("edit_my_resource");
 		
-		try {
-			timezone = TimeZone.getTimeZone(auth.getContact().timezone);
-			
+		try {			
 			//construct view
 			MenuView menuview =new MenuView(context, "resourcedowntime");
 			ContentView contentview = createContentView();
@@ -154,12 +151,11 @@ public class ResourceDowntimeServlet extends ServletBase implements Servlet {
 
 		DateFormat dformat = DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.SHORT);
 		String start = "";
-		//start += dformat.format(rec.start_time) + " UTC<br/>";
-		dformat.setTimeZone(timezone);
-		start += dformat.format(rec.start_time) + " " + timezone.getID();
+		dformat.setTimeZone(getTimeZone());
+		start += dformat.format(rec.start_time) + " (" + getTimeZone().getID() + ")";
 		table.addRow("Start Time", new HtmlView(start));
 		
-		table.addRow("End Time", dformat.format(rec.end_time) + " " + timezone.getID());
+		table.addRow("End Time", dformat.format(rec.end_time) + " (" + getTimeZone().getID() + ")");
 		
 		DowntimeClassModel dtcmodel = new DowntimeClassModel(context);
 		table.addRow("Downtime Class", dtcmodel.get(rec.downtime_class_id).name);

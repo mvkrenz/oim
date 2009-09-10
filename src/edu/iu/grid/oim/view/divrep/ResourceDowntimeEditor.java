@@ -64,6 +64,7 @@ public class ResourceDowntimeEditor extends DivRepFormElement {
 		private DivRepTextArea summary;
 		private DivRepSelectBox class_id;
 		private DivRepSelectBox severity_id;
+		private Timestamp timestamp;
 			
 		private HashMap<Integer/*service_id*/, DivRepCheckBox> affected_services = new HashMap<Integer, DivRepCheckBox>();
 		
@@ -105,6 +106,7 @@ public class ResourceDowntimeEditor extends DivRepFormElement {
 				}
 				
 				SimpleDateFormat format = new SimpleDateFormat(default_format);
+				format.setTimeZone(timezone);
 				String str = format.format(value);
 				out.write("<input type=\"text\" class=\"datepicker\" value=\""+str+"\"/>");	
 				
@@ -125,7 +127,7 @@ public class ResourceDowntimeEditor extends DivRepFormElement {
 				out.write("</div>");
 			}
 		}
-		class TimeDE extends DivRepFormElement<Integer>
+		class TimeDE extends DivRepFormElement<Calendar>
 		{
 			DivRepSelectBox hour;
 			DivRepSelectBox min;
@@ -162,8 +164,7 @@ public class ResourceDowntimeEditor extends DivRepFormElement {
 				hour.addEventListener(new DivRepEventListener() {
 					public void handleEvent(DivRepEvent e) {
 						Integer h = Integer.valueOf((String)e.value);
-						int current_min = value%60;
-						value = h*60 + current_min;
+						value.set(Calendar.HOUR_OF_DAY, h);
 						notifyListener(e);
 					}});
 				hour.setHasNull(false);
@@ -176,22 +177,16 @@ public class ResourceDowntimeEditor extends DivRepFormElement {
 				min.addEventListener(new DivRepEventListener() {
 					public void handleEvent(DivRepEvent e) {
 						Integer m = Integer.valueOf((String)e.value);
-						int current_hour = value/60;
-						value = current_hour*60 + m;
+						value.set(Calendar.MINUTE, m);
 						notifyListener(e);
 					}});
 				min.setHasNull(false);
-
-				Date current = new Date();
-				setValue(current);
+				value = Calendar.getInstance(timezone);
 			}
 
-			public void render(PrintWriter out) {
-				int value_hour = (int)value/60;
-				int value_min = (int)value%60;
-				
-				hour.setValue(value_hour);
-				min.setValue(value_min);
+			public void render(PrintWriter out) {				
+				hour.setValue(value.get(Calendar.HOUR_OF_DAY));
+				min.setValue(value.get(Calendar.MINUTE));
 				
 				out.write("<table id=\""+getNodeID()+"\"><tr><td>");
 				hour.render(out);
@@ -203,23 +198,15 @@ public class ResourceDowntimeEditor extends DivRepFormElement {
 			}
 
 			public void setValue(Date time) {
-				long sec = time.getTime()/1000;
-				int sec_inday = (int)(sec % (3600*24));
-				int mins = sec_inday / 60;
-				int hours = mins / 60;
-				
-				//adjust it to 5 minutes increment (since we don't allow selecting sub 5 minutes)
-				mins = (mins / 5) * 5;
-
-				value = (mins%60) + hours * 60;
+				value.setTime(time);
 			}
 			public Integer getHour()
 			{
-				return value/60;
+				return value.get(Calendar.HOUR_OF_DAY);
 			}
 			public Integer getMin()
 			{
-				return value%60;
+				return value.get(Calendar.MINUTE);
 			}
 		
 			protected void onEvent(DivRepEvent e) {
@@ -271,13 +258,13 @@ public class ResourceDowntimeEditor extends DivRepFormElement {
 					}});
 				
 				if(rec.start_time != null && rec.end_time != null) {
-					Date local_start = new Date(rec.start_time.getTime() + timezone.getRawOffset());
-					start_date.setValue(local_start);
-					start_time.setValue(local_start);
+					System.out.println(timezone.toString());
 					
-					Date local_end = new Date(rec.end_time.getTime() + timezone.getRawOffset());
-					end_date.setValue(local_end);
-					end_time.setValue(local_end);
+					start_date.setValue(rec.start_time);
+					start_time.setValue(rec.start_time);
+
+					end_date.setValue(rec.end_time);
+					end_time.setValue(rec.end_time);
 				}
 				new DivRepStaticContent(this, "&nbsp;<strong>("+timezone.getID()+")</strong></td></tr></table>");
 			}
@@ -405,6 +392,14 @@ public class ResourceDowntimeEditor extends DivRepFormElement {
 					modified(true);
 				}
 			});
+			
+			if(rec.timestamp != null) {
+				timestamp = rec.timestamp;
+			} else {
+				Date current = new Date();
+				timestamp = new Timestamp(current.getTime());
+				
+			}
 		}
 		
 		public void addService(Integer service_id)
@@ -492,6 +487,7 @@ public class ResourceDowntimeEditor extends DivRepFormElement {
 			rec.downtime_class_id = class_id.getValue();
 			rec.downtime_severity_id = severity_id.getValue();
 			rec.dn_id = auth.getDNID();
+			rec.timestamp = timestamp;
 
 			return rec;
 		}
@@ -510,10 +506,11 @@ public class ResourceDowntimeEditor extends DivRepFormElement {
 		{
 			Calendar cal = Calendar.getInstance();
 			cal.setTime(date);
+			cal.setTimeZone(timezone);
 			cal.set(Calendar.HOUR_OF_DAY, hour);
 			cal.set(Calendar.MINUTE, min);
 			cal.set(Calendar.SECOND, 0);
-			return new Timestamp(cal.getTimeInMillis() - timezone.getRawOffset());				
+			return new Timestamp(cal.getTimeInMillis());				
 		}
 		
 		public ArrayList<ResourceDowntimeServiceRecord> getAffectedServiceRecords()
