@@ -31,6 +31,14 @@ public class ResourceServices extends DivRepFormElement {
 	
 	private ResourceFormDE parent;
 
+	private boolean hasService(Integer service_id, ServiceEditor skip) {
+		for(ServiceEditor editor : services) {
+			if(editor == skip) continue;
+			if(editor.getService().equals(service_id)) return true;
+		}
+		return false;
+	}
+	
 	class ServiceEditor extends DivRepFormElement
 	{
 		//service details
@@ -50,6 +58,16 @@ public class ResourceServices extends DivRepFormElement {
 			service = new ServiceSelector(this, context);
 			service.setLabel("Service");
 			service.setRequired(true);
+			service.addValidator(new DivRepIValidator<Integer>() {
+				public String getErrorMessage() {
+					return "This service already exists for this resource.";
+				}
+				public Boolean isValid(Integer id) {
+					if(hasService(id, ServiceEditor.this)) {
+						return false;
+					}
+					return true;
+				}});
 			if(rec != null) {
 				service.setValue(rec.service_id);
 			}
@@ -248,6 +266,8 @@ public class ResourceServices extends DivRepFormElement {
 				valid = false;
 			}
 		}
+		
+		
 	}
 	
 	public Boolean isValidResourceFQDN(String url)

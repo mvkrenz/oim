@@ -53,20 +53,31 @@ public class Context {
 			if(oim_connection != null) {
 				oim_connection.close();
 			}
-			
 		} catch (SQLException e) {
 			log.error(e);
 		}
 	}
+	
+	
+	public boolean isConnectionValid() {
+		if (oim_connection == null)
+			return false;
+		try {
+			if (oim_connection.isClosed())
+				return false;
+			oim_connection.getMetaData();
+		} catch (Exception e) {
+			return false;
+		}
+		return true;
+	}
+	
+	
 	//make sure to close the connection as soon as you are done (inside the same function that you call connectOIM)
 	public Connection connectOIM() throws SQLException
 	{	
-		if(oim_connection != null) {
-			//if the same context already have open connection, reuse it
-			if(!oim_connection.isClosed()) {
-				//log.info("Reusing OIM db connection for " + auth.getUserDN());
-				return oim_connection;
-			}
+		if(isConnectionValid()) {
+			return oim_connection;
 		}
 		
 		//reconnect
