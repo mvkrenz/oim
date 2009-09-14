@@ -31,10 +31,10 @@ public class ResourceServices extends DivRepFormElement {
 	
 	private ResourceFormDE parent;
 
-	private boolean hasService(Integer service_id, ServiceEditor skip) {
+	private boolean hasService(Integer service_id, ServiceEditor ignore) {		
 		for(ServiceEditor editor : services) {
-			if(editor == skip) continue;
-			if(editor.getService().equals(service_id)) return true;
+			if(editor == ignore) continue;
+			if(service_id.equals(editor.getService())) return true;
 		}
 		return false;
 	}
