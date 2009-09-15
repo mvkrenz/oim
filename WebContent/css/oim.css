@@ -329,3 +329,9 @@ padding-left:20px;
 float: right;
 text-align: right;
 }
+p.info {
+background-image:url(../images/bullet.png);
+background-position:left top;
+background-repeat:no-repeat;
+padding-left:20px;
+}

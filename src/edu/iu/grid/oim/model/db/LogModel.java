@@ -30,16 +30,18 @@ public class LogModel extends ModelBase {
 		return new LogRecord();
 	}
     
-    public Collection<LogRecord> getLatest(String model, Integer days) throws SQLException
+    public Collection<LogRecord> getLatest(String type_filter, String model_filter, Integer days, String xml_filter) throws SQLException
     {
     	//no auth check -- client needs to figure out if the log is accessible to the user or not
     	
     	ArrayList<LogRecord> recs = new ArrayList<LogRecord>();
 
-    	String sql = "SELECT * FROM log WHERE timestampdiff(DAY, timestamp,localtimestamp) < "+days+" AND model LIKE ? ORDER BY timestamp DESC";
+    	String sql = "SELECT * FROM log WHERE timestampdiff(DAY, timestamp,localtimestamp) < "+days+" AND type LIKE ? AND model LIKE ? AND xml LIKE ? ORDER BY timestamp DESC";
     	Connection conn = connectOIM();
 		PreparedStatement stmt = conn.prepareStatement(sql); 
-		stmt.setString(1, model);
+		stmt.setString(1, type_filter);
+		stmt.setString(2, model_filter);
+		stmt.setString(3, xml_filter);
 		ResultSet rs = stmt.executeQuery();
 		while(rs.next()) {
 			LogRecord rec = new LogRecord(rs);

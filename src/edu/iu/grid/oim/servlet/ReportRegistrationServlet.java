@@ -112,7 +112,7 @@ public class ReportRegistrationServlet extends ServletBase implements Servlet {
 			
 			//pull log entries that matches the log type
 			LogModel lmodel = new LogModel(context);
-			Collection<LogRecord> recs = lmodel.getLatest("%", days);
+			Collection<LogRecord> recs = lmodel.getLatest("%", "%", days, "%");
 			
 			//sort the records
 			Collection<LogRecord> resource_recs = new ArrayList<LogRecord>();
@@ -220,13 +220,13 @@ public class ReportRegistrationServlet extends ServletBase implements Servlet {
 	{
 		SideContentView view = new SideContentView();
 
-    	view.add(new HtmlView("<h3>List Types</h3>"));
+    	view.add(new HtmlView("<h3>Time Period</h3>"));
     	view.add(new HtmlView("<div class=\"indent\">"));
     	LinkedHashMap<Integer, String> keyvalues = new LinkedHashMap<Integer, String>();
-		keyvalues.put(7, "Last 1 Week");
-		keyvalues.put(14, "Last 2 Week");
-		keyvalues.put(30, "Last 1 Month");
-		keyvalues.put(365, "Last 1 Year");
+		keyvalues.put(7, "Last 7 days");
+		keyvalues.put(14, "Last 14 days");
+		keyvalues.put(30, "Last 30 days");
+		keyvalues.put(365, "Last 365 days");
 		final DivRepSelectBox select = new DivRepSelectBox(context.getPageRoot(), keyvalues);
 		select.setLabel("Show Registration For");
 		select.setValue(days);

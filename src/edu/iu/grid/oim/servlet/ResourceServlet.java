@@ -116,13 +116,15 @@ public class ResourceServlet extends ServletBase implements Servlet {
 			//Place table in side the ViewWrapper, then wrap that into DivRepToggler
 			RecordTableView table = new RecordTableView();
 			// TODO agopu: 10 is an arbitrary number -- perhaps we should make this a user preference? show/hide?
-			DivRepToggler toggler = new DivRepToggler(context.getPageRoot(), new ViewWrapper(context.getPageRoot(), table));
 			if (resources.size() > 10) {
+				DivRepToggler toggler = new DivRepToggler(context.getPageRoot(), new ViewWrapper(context.getPageRoot(), table));
 				toggler.setShow(false);
+				contentview.add(toggler);
 			} else {
-				toggler.setShow(true);
+				contentview.add(new ViewWrapper(context.getPageRoot(), table));
 			}
-			contentview.add(toggler);
+			
+			
 			table.addRow("Resource FQDN", rec.fqdn);
 
 			//pull resource group
