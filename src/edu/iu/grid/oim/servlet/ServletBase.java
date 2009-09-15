@@ -59,6 +59,7 @@ public class ServletBase extends HttpServlet {
 		try {
 			context = new Context(req);
 			auth = context.getAuthorization();
+			timezone = null;
 			log.info(req.getRequestURI() + "?" + req.getQueryString());
 			if(auth.getDNID() == null) {
 				String path = req.getServletPath();
