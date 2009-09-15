@@ -51,9 +51,7 @@ public class LogServlet extends ServletBase  {
     }
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
-	{
-		//setContext(request);
-		
+	{		
 		//pull log type
 		String filter = null;
 		String title = null;
@@ -107,6 +105,8 @@ public class LogServlet extends ServletBase  {
 	    	DocumentBuilder builder = factory.newDocumentBuilder();
 
 			DNModel dmodel = new DNModel(context);
+			DateFormat dformat = DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.SHORT);
+			dformat.setTimeZone(getTimeZone());
 			
 			//pull log entries that matches the log type
 			LogModel lmodel = new LogModel(context);
@@ -117,8 +117,6 @@ public class LogServlet extends ServletBase  {
 				Class modelClass = Class.forName(rec.model);
 				Constructor cons = modelClass.getConstructor(new Class[]{Context.class});
 				ModelBase somemodel = (ModelBase) cons.newInstance(context);	
-				DateFormat dformat = DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.SHORT);
-				dformat.setTimeZone(getTimeZone());
 				try {
 					byte[] bArray = rec.xml.getBytes();
 					ByteArrayInputStream bais = new ByteArrayInputStream(bArray);

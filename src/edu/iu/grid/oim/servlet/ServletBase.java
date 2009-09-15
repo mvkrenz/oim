@@ -28,7 +28,7 @@ public class ServletBase extends HttpServlet {
 	
     protected Context context;
 	protected Authorization auth;
-	private TimeZone timezone = null;
+	private TimeZone timezone;
 	
 	public void init(ServletConfig conf) throws ServletException {
 		super.init(conf);
@@ -59,6 +59,8 @@ public class ServletBase extends HttpServlet {
 		try {
 			context = new Context(req);
 			auth = context.getAuthorization();
+			timezone = null; //force to reload the timezone in case user updates it
+			
 			log.info(req.getRequestURI() + "?" + req.getQueryString());
 			if(auth.getDNID() == null) {
 				String path = req.getServletPath();
