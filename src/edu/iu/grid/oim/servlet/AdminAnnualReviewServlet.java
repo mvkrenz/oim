@@ -88,7 +88,6 @@ public class AdminAnnualReviewServlet extends ServletBase implements Servlet {
 						try {
 							config.set(Config.ANNUAL_REVIEW_OPEN, name.getValue());
 							//redraw the entire page
-							openbutton.modified(false);
 							openbutton.redirect("?");
 						} catch (SQLException e1) {
 							openbutton.alert(e1.toString());
@@ -109,7 +108,6 @@ public class AdminAnnualReviewServlet extends ServletBase implements Servlet {
 				public void handleEvent(DivRepEvent e) {
 					try {
 						config.set(Config.ANNUAL_REVIEW_OPEN, null);
-						closebutton.modified(false);
 						closebutton.redirect("?");
 					} catch (SQLException e1) {
 						closebutton.alert(e1.toString());

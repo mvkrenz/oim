@@ -73,15 +73,17 @@ public class LogServlet extends ServletBase  {
 			// TODO Auto-generated method stub
 			
 		}
-		abstract public Collection<LogRecord> getRecords() throws SQLException;
+		abstract public Collection<LogRecord> getRecords(Parameters params) throws SQLException;
 		abstract public String getParameters();
 	}
 	
-	class ActivationList extends List
+	class XMLFilterList extends List
 	{
-		public ActivationList(DivRep _parent, HttpServletRequest request, String _title) {
+		String xml_filter;
+		
+		public XMLFilterList(DivRep _parent, HttpServletRequest request, String _title, String _xml_filter) {
 			super(_parent, _title);
-			// TODO Auto-generated constructor stub
+			xml_filter = _xml_filter;
 		}
 
 		public String getParameters() {
@@ -89,28 +91,112 @@ public class LogServlet extends ServletBase  {
 		}
 
 		@Override
-		public Collection<LogRecord> getRecords() throws SQLException {
+		public Collection<LogRecord> getRecords(Parameters params) throws SQLException {
 			LogModel lmodel = new LogModel(context);
-			return lmodel.getLatest("update", "%", 999999, "%<Name>active</Name>%");
+			return lmodel.getLatest(params.getTransactionFilter(), params.getModelFilter(), params.getDays(), xml_filter);
 		}
 
 		public void render(PrintWriter out) {
 			out.write("<div id=\""+getNodeID()+"\">");
-			out.write("<p class=\"info\">Logs that has to do with active field.</p>");
 			out.write("</div>");
 		}
 		
 	}
 	
-	class SimpleFilterList extends List
-	{
-    	private DivRepSelectBox days;
-    	private String filter;
+	class AllList extends List
+	{    	
+		public AllList(DivRep _parent, HttpServletRequest request) {
+			super(_parent, "All Logs");
+		}
+
+		public void render(PrintWriter out) {
+			out.write("<div id=\""+getNodeID()+"\">");
+			out.write("<p class=\"info\">Table specific logs.</p>");
+			out.write("</div>");
+		}
+
+		public Collection<LogRecord> getRecords(Parameters params) throws SQLException {
+			LogModel lmodel = new LogModel(context);
+			return lmodel.getLatest(params.getTransactionFilter(), params.getModelFilter(), params.getDays(), "%");
+		}
+
+		@Override
+		public String getParameters() {
+			return "";
+		}
+	}
+	
+    class Parameters extends DivRep
+    {	
+    	LinkedHashMap<Integer, List> lists;
+    	private DivRepSelectBox listtype;
+
+    	private LinkedHashMap<Integer, String> model_kv;
+    	private DivRepSelectBox model;
     	
-		public SimpleFilterList(DivRep _parent, HttpServletRequest request, String _title, String _filter) {
-			super(_parent, _title);
-			filter = _filter;
-			
+    	private LinkedHashMap<Integer, String> transaction_kv;
+    	private DivRepSelectBox transaction;
+    	
+    	private DivRepSelectBox days;
+    	
+    	private DivRepButton update;
+    	
+    	public String getTransactionFilter()
+    	{
+    		if(transaction.getValue() != null) {
+	    		switch(transaction.getValue()) {
+	    		case 1:	return "insert";
+	    		case 2:	return "update";
+	    		case 3:	return "remove";
+	    		}
+    		}
+    		return "%";
+    	}
+    	public String getModelFilter()
+    	{
+    		if(model.getValue() != null) {
+	    		switch(model.getValue()) {
+	    		case 1:	return "%.Resource%";
+	    		case 2:	return "%.VO%";
+	    		case 3:	return "%.SC%";
+	    		case 4: return "%.Contact%";
+	    		case 5: return "%.Site%";
+	    		case 6: return "%.Facility%";
+	    		case 7: return "%.ResourceWLCG%";
+	    		}
+    		}
+    		return "%";
+    	}
+    	public int getDays()
+    	{
+    		if(days.getValue() == null) return 9999999;
+    		return days.getValue();
+    	}
+    	
+    	Parameters(DivRep parent, HttpServletRequest request) {
+    		super(parent);
+    		
+    		lists = new LinkedHashMap<Integer, List>();
+    		lists.put(1, new AllList(this, request));
+    		lists.put(2, new XMLFilterList(this, request, "Activation Log", "%<Name>active</Name>%"));   		
+    		
+        	LinkedHashMap<Integer, String> list_kv = new LinkedHashMap<Integer, String>();
+        	for(Integer id : lists.keySet()) {
+        		list_kv.put(id, lists.get(id).title);
+        	}
+        	listtype = new DivRepSelectBox(this, list_kv);
+        	listtype.setLabel("Log Type");
+        	listtype.setValue(1);
+        	listtype.setHasNull(false);
+    		String str = request.getParameter("type");
+    		if(str != null) {
+    			listtype.setValue(Integer.parseInt(str));
+    		}
+    		listtype.addEventListener(new DivRepEventListener() {
+				public void handleEvent(DivRepEvent arg0) {
+					Parameters.this.redraw();
+				}});
+    		
     		LinkedHashMap<Integer, String> kv = new LinkedHashMap<Integer, String>();
     		kv.put(7, "Last 7 Days");  
     		kv.put(14, "Last 14 Days");
@@ -121,76 +207,42 @@ public class LogServlet extends ServletBase  {
     		days.setLabel("Time Period");
     		days.setValue(7);
     		days.setHasNull(false);
-    		String str = request.getParameter("days");
+    		str = request.getParameter("days");
     		if(str != null) {
     			days.setValue(Integer.parseInt(str));
     		}
-		}
-
-		public void render(PrintWriter out) {
-			out.write("<div id=\""+getNodeID()+"\">");
-			out.write("<p class=\"info\">Table specific logs.</p>");
-			days.render(out);
-			out.write("</div>");
-		}
-
-		public Collection<LogRecord> getRecords() throws SQLException {
-			LogModel lmodel = new LogModel(context);
-			return lmodel.getLatest("%", filter, days.getValue(), "%");
-		}
-
-		@Override
-		public String getParameters() {
-    		StringBuffer params = new StringBuffer();
-    		if(days.getValue() != null) {
-    			if(params.length() != 0) params.append("&");
-    			params.append("days=" + days.getValue());
-    		}
-    		return params.toString();
-		}
-	}
-	
-    class Parameters extends DivRep
-    {	
-    	LinkedHashMap<Integer, List> lists;
-    	private DivRepSelectBox type;
-    	
-    	private DivRepButton update;
-    	
-    	Parameters(DivRep parent, HttpServletRequest request) {
-    		super(parent);
     		
-    		lists = new LinkedHashMap<Integer, List>();
-    		lists.put(1, new SimpleFilterList(this, request, "All Logs", "%"));
-    		lists.put(2, new SimpleFilterList(this, request, "Virtual Organization Logs", "%.VO%"));
-    		lists.put(3, new SimpleFilterList(this, request, "Resource Logs", "%.Resource%"));
-    		lists.put(4, new SimpleFilterList(this, request, "Support Center Logs", "%.SC%"));
-    		lists.put(5, new SimpleFilterList(this, request, "Contact Logs", "%.Contact%"));
-    		lists.put(6, new SimpleFilterList(this, request, "Site Logs", "%.Site%"));
-    		lists.put(7, new SimpleFilterList(this, request, "Facility Logs", "%.Facility%"));
-    		lists.put(8, new ActivationList(this, request, "Activation Logs"));   		
-
-        	LinkedHashMap<Integer, String> list_kv = new LinkedHashMap<Integer, String>();
-        	for(Integer id : lists.keySet()) {
-        		list_kv.put(id, lists.get(id).title);
-        	}
-    		type = new DivRepSelectBox(this, list_kv);
-    		type.setLabel("Log Type");
-    		type.setValue(1);
-    		type.setHasNull(false);
-    		String str = request.getParameter("type");
+    		transaction_kv = new LinkedHashMap<Integer, String>();
+    		transaction_kv.put(1, "Insert");  
+    		transaction_kv.put(2, "Update");
+    		transaction_kv.put(3, "Remove");
+    		transaction = new DivRepSelectBox(this, transaction_kv);
+    		transaction.setLabel("Transaction");
+    		transaction.setValue(null);
+    		str = request.getParameter("transaction");
     		if(str != null) {
-    			type.setValue(Integer.parseInt(str));
+    			transaction.setValue(Integer.parseInt(str));
     		}
-    		type.addEventListener(new DivRepEventListener() {
-				public void handleEvent(DivRepEvent arg0) {
-					Parameters.this.redraw();
-				}});
     		
-    		update = new DivRepButton(this, "Update");
+    		model_kv = new LinkedHashMap<Integer, String>();
+    		model_kv.put(1, "Resource");  
+    		model_kv.put(2, "Virtual Organization");
+    		model_kv.put(3, "Support Center");
+    		model_kv.put(4, "Contact");
+    		model_kv.put(5, "Site");
+    		model_kv.put(6, "Facility");
+    		model_kv.put(7, "Resource WLCG");
+    		model = new DivRepSelectBox(this, model_kv);
+    		model.setLabel("Model");
+    		model.setValue(null);
+    		str = request.getParameter("model");
+    		if(str != null) {
+    			model.setValue(Integer.parseInt(str));
+    		}
+    		
+    		update = new DivRepButton(this, "Update Page");
     		update.addEventListener(new DivRepEventListener() {
 				public void handleEvent(DivRepEvent e) {
-					modified(false);
 					redirect("?" + getParameters());
 				}});
     	}
@@ -198,12 +250,27 @@ public class LogServlet extends ServletBase  {
     	//convert current parameter to a query string
     	public String getParameters() {
     		StringBuffer params = new StringBuffer();
-    		if(type.getValue() != null) {
+    		if(listtype.getValue() != null) {
     			if(params.length() != 0) params.append("&");
-    			params.append("type=" + type.getValue());
+    			params.append("type=" + listtype.getValue());
     		}
+    		if(days.getValue() != null) {
+    			if(params.length() != 0) params.append("&");
+    			params.append("days=" + days.getValue());
+    		}
+    		if(transaction.getValue() != null) {
+    			if(params.length() != 0) params.append("&");
+    			params.append("transaction=" + transaction.getValue());
+    		}
+    		if(model.getValue() != null) {
+    			if(params.length() != 0) params.append("&");
+    			params.append("model=" + model.getValue());
+    		}
+    		
+    		//list specific parameters
 			if(params.length() != 0) params.append("&");
     		params.append(getCurrentList().getParameters());
+    		
     		return params.toString();
     	}
 
@@ -216,23 +283,37 @@ public class LogServlet extends ServletBase  {
 		@Override
 		public void render(PrintWriter out) {
 			out.write("<div id=\""+getNodeID()+"\">");
-			type.render(out);
-			getCurrentList().render(out);
 
+			out.write("<h3>Logs to display</h3>");
+	    	out.write("<div class=\"indent\">");
+				listtype.render(out);
+				out.write("<div class=\"indent\">");
+					getCurrentList().render(out);
+				out.write("</div>");
+			out.write("</div>");
+			
+			out.write("<h3>Filters</h3>");
+	    	out.write("<div class=\"indent\">");
+				transaction.render(out);
+				model.render(out);
+				days.render(out);
+			out.write("</div>");
+			
 			out.write("<br/>");
 			update.render(out);
+			
 			out.write("</div>");
 		}
 		
 		private List getCurrentList()
 		{
-			return lists.get(type.getValue());
+			return lists.get(listtype.getValue());
 		}
 		public String getTitle() {
 			return getCurrentList().title;
 		}
 		public Collection<LogRecord> getRecords() throws SQLException {
-			return getCurrentList().getRecords();
+			return getCurrentList().getRecords(this);
 		}
     }
     
@@ -272,9 +353,7 @@ public class LogServlet extends ServletBase  {
 			dformat.setTimeZone(getTimeZone());
 			
 			//pull log entries that matches the log type
-			Collection<LogRecord> recs = params.getRecords();
-			
-			for(LogRecord rec : recs) {
+			for(LogRecord rec : params.getRecords()) {
 				
 				//instantiate the model specified on the log (with Authorization as parameter)
 				Class modelClass = Class.forName(rec.model);
@@ -318,7 +397,7 @@ public class LogServlet extends ServletBase  {
 			}
 			
 		} catch (Exception e) {
-			log.error(e);
+			throw new ServletException(e);
 		}
 			
 		return view;
@@ -417,11 +496,7 @@ public class LogServlet extends ServletBase  {
 	private SideContentView createSideView()
 	{
 		SideContentView view = new SideContentView();
-		
-    	view.add(new HtmlView("<h3>Parameters</h3>"));
-    	view.add(new HtmlView("<div class=\"indent\">"));
     	view.add(new DivRepWrapper(params));	
-		view.add(new HtmlView("</div>"));
 		
 		return view;
 	}

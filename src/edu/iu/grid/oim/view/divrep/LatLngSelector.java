@@ -31,6 +31,7 @@ public class LatLngSelector extends DivRepFormElement<LatLngSelector.LatLng> {
 		String coords[] = newval.split(",");
 		value.latitude = Double.parseDouble(coords[0]);
 		value.longitude = Double.parseDouble(coords[1]);
+		setFormModified();
 	}
 
 	public void render(PrintWriter out) {

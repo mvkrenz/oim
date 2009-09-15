@@ -140,7 +140,7 @@ public class ContactEditor extends DivRepFormElement<HashMap<ContactEditor.Rank,
 			try {
 				ContactRecord person = pmodel.get(contact_id);
 				addSelected(person, Enum2DBRank(rank));
-				modified(true);
+				setFormModified();
 			} catch (SQLException e1) {
 				alert("Unknown contact_id");
 			}
@@ -242,7 +242,7 @@ public class ContactEditor extends DivRepFormElement<HashMap<ContactEditor.Rank,
 			removebutton.addEventListener(new DivRepEventListener() {
 				public void handleEvent(DivRepEvent e) { 
 					removeContact(myself, rank);
-					modified(true);
+					setFormModified();
 				}
 			});
 		}

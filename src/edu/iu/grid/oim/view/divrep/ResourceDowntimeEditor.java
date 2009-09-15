@@ -95,7 +95,7 @@ public class ResourceDowntimeEditor extends DivRepFormElement {
 				} catch (ParseException e1) {
 					alert(e1.getMessage() + ". Please specify a valid date such as 4/17/2009");
 				}
-				modified(true);
+				setFormModified();
 				redraw();
 			}
 
@@ -389,7 +389,7 @@ public class ResourceDowntimeEditor extends DivRepFormElement {
 			remove_button.addEventListener(new DivRepEventListener() {
 				public void handleEvent(DivRepEvent e) {
 					removeDowntime(DowntimeEditor.this);	
-					modified(true);
+					setFormModified();
 				}
 			});
 			
@@ -595,7 +595,7 @@ public class ResourceDowntimeEditor extends DivRepFormElement {
 			public void handleEvent(DivRepEvent e) {
 				try {
 					addDowntime(new ResourceDowntimeRecord());
-					modified(true);
+					setFormModified();
 				} catch (SQLException e1) {
 					log.error(e1);
 				}

@@ -233,7 +233,6 @@ public class ReportRegistrationServlet extends ServletBase implements Servlet {
 		select.addEventListener(new DivRepEventListener(){
 			public void handleEvent(DivRepEvent e) {
 				String days = (String)e.value;
-				select.modified(false);
 				select.redirect(StaticConfig.getApplicationBase() + "/reportregistration?days=" + days);
 			}});
 		view.add(new DivRepWrapper(select));		
