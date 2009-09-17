@@ -239,7 +239,7 @@ font-size: 11px;
 	clear: both;
 }
 
-input[type='text'], textarea
+#content input[type='text'], textarea
 {
 border: 1px solid #ccc;
 padding: 5px;
@@ -255,3 +255,4 @@ position:absolute;
 top:2px;
 left:5px;
 }
+

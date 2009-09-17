@@ -5,6 +5,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -30,18 +31,52 @@ public class LogModel extends ModelBase {
 		return new LogRecord();
 	}
     
-    public Collection<LogRecord> getLatest(String type_filter, String model_filter, Integer days, String xml_filter) throws SQLException
+    public LogRecord get(int id) throws SQLException
     {
     	//no auth check -- client needs to figure out if the log is accessible to the user or not
     	
     	ArrayList<LogRecord> recs = new ArrayList<LogRecord>();
 
-    	String sql = "SELECT * FROM log WHERE timestampdiff(DAY, timestamp,localtimestamp) < "+days+" AND type LIKE ? AND model LIKE ? AND xml LIKE ? ORDER BY timestamp DESC";
+    	String sql = "SELECT * FROM log WHERE id = ?";
+    	Connection conn = connectOIM();
+		PreparedStatement stmt = conn.prepareStatement(sql); 
+		stmt.setInt(1, id);
+		ResultSet rs = stmt.executeQuery();
+		if(rs.next()) {
+			LogRecord rec = new LogRecord(rs);
+			return rec;
+		}
+		return null;
+    }
+    
+    public Collection<LogRecord> getLatest(String type_filter, String model_filter, Integer days, String xml_reg) throws SQLException
+    {
+    	//no auth check -- client needs to figure out if the log is accessible to the user or not
+    	
+    	ArrayList<LogRecord> recs = new ArrayList<LogRecord>();
+
+    	String sql = "SELECT * FROM log WHERE timestampdiff(DAY, timestamp,localtimestamp) < "+days+" AND type LIKE ? AND model LIKE ? AND xml REGEXP ? ORDER BY timestamp DESC";
     	Connection conn = connectOIM();
 		PreparedStatement stmt = conn.prepareStatement(sql); 
 		stmt.setString(1, type_filter);
 		stmt.setString(2, model_filter);
-		stmt.setString(3, xml_filter);
+		stmt.setString(3, xml_reg);
+		ResultSet rs = stmt.executeQuery();
+		while(rs.next()) {
+			LogRecord rec = new LogRecord(rs);
+			recs.add(new LogRecord(rs));
+		}
+		return recs;
+    }
+    
+    public Collection<LogRecord> getDateRange(Timestamp start, Timestamp end) throws SQLException
+    {
+    	ArrayList<LogRecord> recs = new ArrayList<LogRecord>();
+       	String sql = "SELECT * FROM log WHERE timestamp >= ? and timestamp <= ? ORDER BY timestamp DESC";
+    	Connection conn = connectOIM();
+		PreparedStatement stmt = conn.prepareStatement(sql); 
+		stmt.setTimestamp(1, start);
+		stmt.setTimestamp(2, end);
 		ResultSet rs = stmt.executeQuery();
 		while(rs.next()) {
 			LogRecord rec = new LogRecord(rs);

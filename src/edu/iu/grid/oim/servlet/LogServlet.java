@@ -6,9 +6,12 @@ import java.io.PrintWriter;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 
@@ -33,7 +36,10 @@ import com.divrep.DivRep;
 import com.divrep.DivRepEvent;
 import com.divrep.DivRepEventListener;
 import com.divrep.common.DivRepButton;
+import com.divrep.common.DivRepCheckBox;
+import com.divrep.common.DivRepDate;
 import com.divrep.common.DivRepSelectBox;
+import com.divrep.common.DivRepTextBox;
 
 import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.model.Context;
@@ -77,27 +83,33 @@ public class LogServlet extends ServletBase  {
 		abstract public String getParameters();
 	}
 	
-	class XMLFilterList extends List
+	class ActivationList extends List
 	{
-		String xml_filter;
-		
-		public XMLFilterList(DivRep _parent, HttpServletRequest request, String _title, String _xml_filter) {
-			super(_parent, _title);
-			xml_filter = _xml_filter;
+		public ActivationList(DivRep _parent, HttpServletRequest request) {
+			super(_parent, "Activation Log");
+			//xml_reg = "(<Name>)(active|disable)(</Name>)";
 		}
 
 		public String getParameters() {
 			return "";
 		}
 
-		@Override
 		public Collection<LogRecord> getRecords(Parameters params) throws SQLException {
 			LogModel lmodel = new LogModel(context);
-			return lmodel.getLatest(params.getTransactionFilter(), params.getModelFilter(), params.getDays(), xml_filter);
+			Collection<LogRecord> recs = new ArrayList<LogRecord>();
+			for(LogRecord rec : lmodel.getDateRange(params.getStartTime(), params.getEndTime())) {
+				if(params.filter(rec)) {
+					if(rec.xml.contains("<Name>active</Name>") || rec.xml.contains("<Name>disable</Name>")) {
+						recs.add(rec);
+					}
+				}
+			}
+			return recs;
 		}
 
 		public void render(PrintWriter out) {
 			out.write("<div id=\""+getNodeID()+"\">");
+			out.write("<p class=\"info\">Show logs that are related to activation and enabling.</p>");
 			out.write("</div>");
 		}
 		
@@ -111,13 +123,19 @@ public class LogServlet extends ServletBase  {
 
 		public void render(PrintWriter out) {
 			out.write("<div id=\""+getNodeID()+"\">");
-			out.write("<p class=\"info\">Table specific logs.</p>");
+			//out.write("<p class=\"info\">Table specific logs.</p>");
 			out.write("</div>");
 		}
 
 		public Collection<LogRecord> getRecords(Parameters params) throws SQLException {
 			LogModel lmodel = new LogModel(context);
-			return lmodel.getLatest(params.getTransactionFilter(), params.getModelFilter(), params.getDays(), "%");
+			Collection<LogRecord> recs = new ArrayList<LogRecord>();
+			for(LogRecord rec : lmodel.getDateRange(params.getStartTime(), params.getEndTime())) {
+				if(params.filter(rec)) {
+					recs.add(rec);
+				}
+			}
+			return recs;
 		}
 
 		@Override
@@ -126,51 +144,134 @@ public class LogServlet extends ServletBase  {
 		}
 	}
 	
+	class SpecificList extends List
+	{    	
+		DivRepTextBox id;
+		public SpecificList(DivRep _parent, HttpServletRequest request) {
+			super(_parent, "ID Specific Log");
+			
+			id = new DivRepTextBox(this);
+			id.setLabel("Log ID");
+			id.setValue(request.getParameter("id"));
+			id.setWidth(100);
+		}
+
+		public void render(PrintWriter out) {
+			out.write("<div id=\""+getNodeID()+"\">");
+			out.write("<p class=\"info\">Show a specific log from the Log ID. All filters are ignored.</p>");
+			id.render(out);
+			out.write("</div>");
+		}
+
+		public Collection<LogRecord> getRecords(Parameters params) throws SQLException {
+			LogModel lmodel = new LogModel(context);
+			Collection<LogRecord> recs = new ArrayList<LogRecord>();
+			if(id.getValue() != null) {
+				LogRecord rec = lmodel.get(Integer.parseInt(id.getValue()));
+				if(rec != null) {
+					recs.add(rec);
+				}
+			}
+			return recs;
+		}
+
+		public String getParameters() {
+			return "id=" + id.getValue();
+		}
+	}
+	
     class Parameters extends DivRep
-    {	
+    {    	
     	LinkedHashMap<Integer, List> lists;
     	private DivRepSelectBox listtype;
-
-    	private LinkedHashMap<Integer, String> model_kv;
-    	private DivRepSelectBox model;
     	
-    	private LinkedHashMap<Integer, String> transaction_kv;
-    	private DivRepSelectBox transaction;
+    	private LinkedHashMap<Integer, DivRepCheckBox> models;
+    	private LinkedHashMap<Integer, DivRepCheckBox> transactions;
     	
-    	private DivRepSelectBox days;
+    	private DivRepSelectBox start_type;
+    	private DivRepDate start_date;
+    	
+    	private DivRepSelectBox end_type;
+    	private DivRepDate end_date;
     	
     	private DivRepButton update;
     	
-    	public String getTransactionFilter()
+    	public Boolean filter(LogRecord rec)
     	{
-    		if(transaction.getValue() != null) {
-	    		switch(transaction.getValue()) {
-	    		case 1:	return "insert";
-	    		case 2:	return "update";
-	    		case 3:	return "remove";
-	    		}
-    		}
-    		return "%";
+    		if(!isTransactionIncluded(rec.type)) return false;
+    		if(!isModelIncluded(rec.model)) return false;
+    		return true;
     	}
-    	public String getModelFilter()
+    	
+    	public Boolean isTransactionIncluded(String transaction)
     	{
-    		if(model.getValue() != null) {
-	    		switch(model.getValue()) {
-	    		case 1:	return "%.Resource%";
-	    		case 2:	return "%.VO%";
-	    		case 3:	return "%.SC%";
-	    		case 4: return "%.Contact%";
-	    		case 5: return "%.Site%";
-	    		case 6: return "%.Facility%";
-	    		case 7: return "%.ResourceWLCG%";
-	    		}
+    		for(Integer id : transactions.keySet()) {
+    			DivRepCheckBox check = transactions.get(id);
+    			if(check.getValue()) {
+	    			String pattern = "";
+	    			switch(id) {
+	    			case 1: pattern = "insert"; break;
+	    			case 2: pattern = "update"; break;
+	    			case 3: pattern = "remove"; break;
+	    			}
+	    			if(transaction.equals(pattern)) {
+	    				return true;
+	    			}
+    			}
     		}
-    		return "%";
+    		return false;
     	}
-    	public int getDays()
+    	public Boolean isModelIncluded(String model)
     	{
-    		if(days.getValue() == null) return 9999999;
-    		return days.getValue();
+    		for(Integer id : models.keySet()) {
+    			DivRepCheckBox check = models.get(id);
+    			if(check.getValue()) {
+	    			String pattern = "";
+	    			switch(id) {
+	    			case 1: pattern = ".Resource"; break;
+	    			case 2: pattern = ".VO"; break;
+	    			case 3: pattern = ".SC"; break;
+	    			case 4: pattern = ".Contact"; break;
+	    			case 5: pattern = ".Site"; break;
+	    			case 6: pattern = ".Facility"; break;
+	    			case 7: pattern = ".ResourceWLCG"; break;
+	    			}
+	    			if(model.contains(pattern)) {
+		    			return true;
+	    			}
+    			}
+    		}
+    		return false;
+    	}
+    	public Timestamp getStartTime()
+    	{
+    		Calendar now = Calendar.getInstance();
+    		switch(start_type.getValue()) {
+    		//last 24 hours
+    		case 1: return new Timestamp(now.getTimeInMillis() - 1000L*3600*24);
+    		//last 7 days
+    		case 2: return new Timestamp(now.getTimeInMillis() - 1000L*3600*24 * 7);
+    		//last 14 days
+    		case 3: return new Timestamp(now.getTimeInMillis() - 1000L*3600*24 * 14);
+    		//last 30 days
+    		case 4: return new Timestamp(now.getTimeInMillis() - 1000L*3600*24 * 30);
+    		//last 90 days
+    		case 5: return new Timestamp(now.getTimeInMillis() - 1000L*3600*24 * 90);
+    		//custom start date
+    		case 999: return new Timestamp(start_date.getValue().getTime());
+    		}
+    		return null;
+    	}
+    	public Timestamp getEndTime()
+    	{
+    		Calendar now = Calendar.getInstance();
+    		switch(end_type.getValue()) {
+    		//Now
+    		case 1: return new Timestamp(now.getTimeInMillis());
+    		//custom start date
+    		case 999: return new Timestamp(end_date.getValue().getTime());
+    		}
+    		return null;
     	}
     	
     	Parameters(DivRep parent, HttpServletRequest request) {
@@ -178,7 +279,8 @@ public class LogServlet extends ServletBase  {
     		
     		lists = new LinkedHashMap<Integer, List>();
     		lists.put(1, new AllList(this, request));
-    		lists.put(2, new XMLFilterList(this, request, "Activation Log", "%<Name>active</Name>%"));   		
+    		lists.put(2, new ActivationList(this, request));   	
+    		lists.put(3, new SpecificList(this, request));  
     		
         	LinkedHashMap<Integer, String> list_kv = new LinkedHashMap<Integer, String>();
         	for(Integer id : lists.keySet()) {
@@ -198,48 +300,118 @@ public class LogServlet extends ServletBase  {
 				}});
     		
     		LinkedHashMap<Integer, String> kv = new LinkedHashMap<Integer, String>();
-    		kv.put(7, "Last 7 Days");  
-    		kv.put(14, "Last 14 Days");
-    		kv.put(30, "Last 30 Days");
-    		kv.put(90, "Last 90 Days");
-    		kv.put(180, "Last 180 Days");   
-    		days = new DivRepSelectBox(this, kv);
-    		days.setLabel("Time Period");
-    		days.setValue(7);
-    		days.setHasNull(false);
-    		str = request.getParameter("days");
-    		if(str != null) {
-    			days.setValue(Integer.parseInt(str));
+    		kv.put(1, "24 Hours Ago");  
+    		kv.put(2, "7 Days Ago");
+    		kv.put(3, "14 Days Ago");
+    		kv.put(4, "30 Days Ago");
+    		kv.put(5, "90 Days Ago");
+    		kv.put(999, "(Specify Date)");
+    		start_type = new DivRepSelectBox(this, kv);
+    		start_type.setLabel("Start Date");
+    		start_type.setValue(1);
+    		start_type.setHasNull(false);
+    		start_type.addEventListener(new DivRepEventListener(){
+				public void handleEvent(DivRepEvent e) {
+					Integer v = Integer.parseInt((String) e.value);
+					start_date.setHidden(!v.equals(999));
+					start_date.redraw();
+				}});
+    		str = request.getParameter("start_type");
+    		if(str != null) { start_type.setValue(Integer.parseInt(str)); }
+    		
+    		start_date = new DivRepDate(this);
+    		str = request.getParameter("start_date");
+    		if(str != null) { 
+    			Long date = Long.parseLong(str);
+    			start_date.setValue(new Date(date)); 
+    		}
+    		if(!start_type.getValue().equals(999)) {
+    			start_date.setHidden(true);
     		}
     		
-    		transaction_kv = new LinkedHashMap<Integer, String>();
-    		transaction_kv.put(1, "Insert");  
-    		transaction_kv.put(2, "Update");
-    		transaction_kv.put(3, "Remove");
-    		transaction = new DivRepSelectBox(this, transaction_kv);
-    		transaction.setLabel("Transaction");
-    		transaction.setValue(null);
-    		str = request.getParameter("transaction");
-    		if(str != null) {
-    			transaction.setValue(Integer.parseInt(str));
+    		kv = new LinkedHashMap<Integer, String>();
+    		kv.put(1, "Now");  
+    		kv.put(999, "(Specify Date)");
+    		end_type = new DivRepSelectBox(this, kv);
+    		end_type.setLabel("End Date");
+    		end_type.setValue(1);
+    		end_type.setHasNull(false);
+    		end_type.addEventListener(new DivRepEventListener(){
+				public void handleEvent(DivRepEvent e) {
+					Integer v = Integer.parseInt((String) e.value);
+					end_date.setHidden(!v.equals(999));
+					end_date.redraw();
+				}});
+    		str = request.getParameter("end_type");
+    		if(str != null) { end_type.setValue(Integer.parseInt(str)); }
+    		
+    		end_date = new DivRepDate(this);
+    		str = request.getParameter("end_date");
+    		if(str != null) { 
+    			Long date = Long.parseLong(str);
+    			end_date.setValue(new Date(date)); 
+    		}
+    		if(!end_type.getValue().equals(999)) {
+    			end_date.setHidden(true);
     		}
     		
-    		model_kv = new LinkedHashMap<Integer, String>();
-    		model_kv.put(1, "Resource");  
-    		model_kv.put(2, "Virtual Organization");
-    		model_kv.put(3, "Support Center");
-    		model_kv.put(4, "Contact");
-    		model_kv.put(5, "Site");
-    		model_kv.put(6, "Facility");
-    		model_kv.put(7, "Resource WLCG");
-    		model = new DivRepSelectBox(this, model_kv);
-    		model.setLabel("Model");
-    		model.setValue(null);
-    		str = request.getParameter("model");
-    		if(str != null) {
-    			model.setValue(Integer.parseInt(str));
-    		}
-    		
+    		///////////////////////////////////////////////////////////////////////////////////////
+    		//Transaction Types
+        	transactions = new LinkedHashMap<Integer, DivRepCheckBox>();
+        	DivRepCheckBox item;
+        	item = new DivRepCheckBox(this);
+        	item.setLabel("Insert");
+    		if(request.getParameter("transaction_1") != null) {item.setValue(true);}
+        	transactions.put(1, item);
+        	
+        	item = new DivRepCheckBox(this);
+        	item.setLabel("Update");
+    		if(request.getParameter("transaction_2") != null) {item.setValue(true);}
+        	transactions.put(2, item);
+        	
+        	item = new DivRepCheckBox(this);
+        	item.setLabel("Remove");
+    		if(request.getParameter("transaction_3") != null) {item.setValue(true);}
+        	transactions.put(3, item);
+
+    		///////////////////////////////////////////////////////////////////////////////////////
+    		//Model Types
+        	models = new LinkedHashMap<Integer, DivRepCheckBox>();
+        	item = new DivRepCheckBox(this);
+        	item.setLabel("Resource");
+    		if(request.getParameter("model_1") != null) {item.setValue(true);}
+        	models.put(1, item);  
+        	
+        	item = new DivRepCheckBox(this);
+        	item.setLabel("Virtual Organization");
+    		if(request.getParameter("model_2") != null) {item.setValue(true);}
+        	models.put(2, item);
+        	
+        	item = new DivRepCheckBox(this);
+        	item.setLabel("Support Center");
+    		if(request.getParameter("model_3") != null) {item.setValue(true);}
+        	models.put(3, item);  
+        	
+        	item = new DivRepCheckBox(this);
+        	item.setLabel("Contact");
+    		if(request.getParameter("model_4") != null) {item.setValue(true);}
+        	models.put(4, item);  
+        	
+        	item = new DivRepCheckBox(this);
+        	item.setLabel("Site");
+    		if(request.getParameter("model_5") != null) {item.setValue(true);}
+        	models.put(5, item); 
+        	
+        	item = new DivRepCheckBox(this);
+        	item.setLabel("Facility");
+    		if(request.getParameter("model_6") != null) {item.setValue(true);}
+        	models.put(6, item); 
+        	
+        	item = new DivRepCheckBox(this);
+        	item.setLabel("ResourceWLCG");
+    		if(request.getParameter("model_7") != null) {item.setValue(true);}
+        	models.put(7, item); 
+        	
     		update = new DivRepButton(this, "Update Page");
     		update.addEventListener(new DivRepEventListener() {
 				public void handleEvent(DivRepEvent e) {
@@ -254,17 +426,35 @@ public class LogServlet extends ServletBase  {
     			if(params.length() != 0) params.append("&");
     			params.append("type=" + listtype.getValue());
     		}
-    		if(days.getValue() != null) {
+    		if(start_type.getValue() != null) {
     			if(params.length() != 0) params.append("&");
-    			params.append("days=" + days.getValue());
+    			params.append("start_type=" + start_type.getValue());
     		}
-    		if(transaction.getValue() != null) {
+    		if(start_date.getValue() != null) {
     			if(params.length() != 0) params.append("&");
-    			params.append("transaction=" + transaction.getValue());
+    			params.append("start_date=" + start_date.getValue().getTime());
     		}
-    		if(model.getValue() != null) {
+    		if(end_type.getValue() != null) {
     			if(params.length() != 0) params.append("&");
-    			params.append("model=" + model.getValue());
+    			params.append("end_type=" + end_type.getValue());
+    		}
+    		if(end_date.getValue() != null) {
+    			if(params.length() != 0) params.append("&");
+    			params.append("end_date=" + end_date.getValue().getTime());
+    		}
+    		for(Integer id : transactions.keySet()) {
+    			DivRepCheckBox check = transactions.get(id);
+	    		if(check.getValue() == true) {
+	    			if(params.length() != 0) params.append("&");
+	    			params.append("transaction_"+id+"=on");
+	    		}
+    		}
+      		for(Integer id : models.keySet()) {
+    			DivRepCheckBox check = models.get(id);
+	    		if(check.getValue() == true) {
+	    			if(params.length() != 0) params.append("&");
+	    			params.append("model_"+id+"=on");
+	    		}
     		}
     		
     		//list specific parameters
@@ -274,13 +464,11 @@ public class LogServlet extends ServletBase  {
     		return params.toString();
     	}
 
-		@Override
 		protected void onEvent(DivRepEvent arg0) {
 			// TODO Auto-generated method stub
 			
 		}
 
-		@Override
 		public void render(PrintWriter out) {
 			out.write("<div id=\""+getNodeID()+"\">");
 
@@ -290,17 +478,48 @@ public class LogServlet extends ServletBase  {
 				out.write("<div class=\"indent\">");
 					getCurrentList().render(out);
 				out.write("</div>");
+				
+				out.write("<br/>");
+				start_type.render(out);
+				
+				//out.write("<div class=\"indent\">");
+				start_date.render(out);
+				//out.write("</div>");
+				
+				end_type.render(out);
+				
+				//out.write("<div class=\"indent\">");
+				end_date.render(out);
+				//out.write("</div>");
+				
+				out.write("<br/>");
 			out.write("</div>");
 			
 			out.write("<h3>Filters</h3>");
 	    	out.write("<div class=\"indent\">");
-				transaction.render(out);
-				model.render(out);
-				days.render(out);
+	    	
+		    	out.write("<b>Tranaction Type</b>");
+				for(DivRepCheckBox transaction : transactions.values()) {
+					transaction.render(out);
+				}
+				out.write("<br/>");
+				
+		    	out.write("<b>Model Type</b>");
+				for(DivRepCheckBox model : models.values()) {
+					model.render(out);
+				}
+				out.write("<br/>");
+			
+			
 			out.write("</div>");
 			
 			out.write("<br/>");
 			update.render(out);
+			
+			out.write("<h3>Subscribe</h3>");
+	    	out.write("<div class=\"indent\">");
+		    	out.write("<a target=\"_blank\" href=\"?xml=true&"+getParameters()+"\">XML</a>");			
+			out.write("</div>");
 			
 			out.write("</div>");
 		}
@@ -325,15 +544,82 @@ public class LogServlet extends ServletBase  {
 	{		
 		params = new Parameters(context.getPageRoot(), request);
 		try {
-			//construct view
-			MenuView menuview = new MenuView(context, "log");
-			ContentView contentview = createContentView(params);
-			Page page = new Page(context, menuview, contentview, createSideView());
-			page.render(response.getWriter());			
+			if(request.getParameter("xml") == null) {
+				//construct HTML
+				MenuView menuview = new MenuView(context, "log");
+				ContentView contentview = createContentView(params);
+				Page page = new Page(context, menuview, contentview, createSideView());
+				page.render(response.getWriter());		
+			} else {
+				//construct XML
+				response.setHeader("Content-type", "text/xml");
+				outputXML(response.getWriter());
+			}
 		} catch (SQLException e) {
 			log.error(e);
 			throw new ServletException(e);
 		}
+	}
+	
+	protected void outputXML(PrintWriter out) throws ServletException, SQLException
+	{
+		out.write("<Logs>");
+		try {
+	    	DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+	    	factory.setNamespaceAware(false);
+	    	factory.setValidating(false);
+	    	DocumentBuilder builder = factory.newDocumentBuilder();
+			builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+			
+			DNModel dmodel = new DNModel(context);
+			DateFormat dformat = DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.SHORT);
+			dformat.setTimeZone(getTimeZone());
+			
+			//pull log entries that matches the log type
+			Collection<LogRecord> recs = params.getRecords();
+			for(LogRecord rec : recs) {
+				out.write("<Log>");
+				
+				out.write("<ID>"+rec.id+"</ID>");
+				
+				//instantiate the model specified on the log (with Authorization as parameter)
+				Class modelClass = Class.forName(rec.model);
+				Constructor cons = modelClass.getConstructor(new Class[]{Context.class});
+				ModelBase somemodel = (ModelBase) cons.newInstance(context);	
+	
+				byte[] bArray = rec.xml.getBytes();
+				ByteArrayInputStream bais = new ByteArrayInputStream(bArray);
+				Document log = builder.parse(bais);
+								
+				//display the log
+				String dn_string_to_print = "(DN not available)";
+				if (rec.dn_id != null) {
+					DNRecord dnrec = dmodel.get(rec.dn_id);
+					if(dnrec != null) {
+						dn_string_to_print = dnrec.dn_string;
+					}
+				}
+				out.write("<Model><Name>" + StringEscapeUtils.escapeHtml(somemodel.getName()) + "</Name>");
+				out.write("<ID>"+rec.model+"</ID></Model>");
+				out.write("<Transaction>"+rec.type+"</Transaction>");
+				
+				out.write("<DN>" + dn_string_to_print+"</DN>");
+				out.write("<Timestamp>" + rec.timestamp + "</Timestamp>");
+				
+				out.write("<Comment>");
+				if(rec.comment != null) {
+					out.write(StringEscapeUtils.escapeHtml(rec.comment));
+				}
+				out.write("</Comment>");
+				out.write(rec.xml);	
+				
+				out.write("</Log>");
+			}
+		} catch (Exception e) {
+			throw new ServletException(e);
+		}		
+		
+		out.write("</Logs>");
 	}
 	
 	protected ContentView createContentView(Parameters params) throws ServletException, SQLException
@@ -353,49 +639,47 @@ public class LogServlet extends ServletBase  {
 			dformat.setTimeZone(getTimeZone());
 			
 			//pull log entries that matches the log type
-			for(LogRecord rec : params.getRecords()) {
-				
-				//instantiate the model specified on the log (with Authorization as parameter)
-				Class modelClass = Class.forName(rec.model);
-				Constructor cons = modelClass.getConstructor(new Class[]{Context.class});
-				ModelBase somemodel = (ModelBase) cons.newInstance(context);	
-			
-				try {
-					byte[] bArray = rec.xml.getBytes();
-					ByteArrayInputStream bais = new ByteArrayInputStream(bArray);
-					Document log = builder.parse(bais);
-				
-					/*
-					if(!somemodel.hasLogAccess(xpath, log)) {
-						continue;
-					}
-					*/
-									
-					//display the log
-					String dn_string_to_print = "(DN not available)";
-					if (rec.dn_id != null) {
-						DNRecord dnrec = dmodel.get(rec.dn_id);
-						if(dnrec != null) {
-							dn_string_to_print = dnrec.dn_string;
-						}
-					}
-					view.add(new HtmlView("<h2>" + somemodel.getName() + " ("+rec.type+")</h2>"));
+			Collection<LogRecord> recs = params.getRecords();
+			if(recs.size() == 0) {
+				view.add(new HtmlView("<p>No Log entry matches your current criteria. Please adjust.</p>"));
+			} else {
+				for(LogRecord rec : recs) {
 					
-					view.add(new HtmlView("<span class=\"sidenote\">By "+dn_string_to_print+"<br/>"+dformat.format(rec.timestamp)+ " (" + getTimeZone().getID() + ")</span>"));
-					if(rec.comment != null) {
-						view.add(new HtmlView("<p>"+StringEscapeUtils.escapeHtml(rec.comment)+"</p>"));
+					//instantiate the model specified on the log (with Authorization as parameter)
+					Class modelClass = Class.forName(rec.model);
+					Constructor cons = modelClass.getConstructor(new Class[]{Context.class});
+					ModelBase somemodel = (ModelBase) cons.newInstance(context);	
+				
+					try {
+						byte[] bArray = rec.xml.getBytes();
+						ByteArrayInputStream bais = new ByteArrayInputStream(bArray);
+						Document log = builder.parse(bais);
+										
+						//display the log
+						String dn_string_to_print = "(DN not available)";
+						if (rec.dn_id != null) {
+							DNRecord dnrec = dmodel.get(rec.dn_id);
+							if(dnrec != null) {
+								dn_string_to_print = dnrec.dn_string;
+							}
+						}
+						view.add(new HtmlView("<h2>" + somemodel.getName() + " ("+rec.type+")<a href=\"?type=3&id="+rec.id+"\" class=\"sidenote\">"+rec.id+"</a></h2>"));
+						
+						view.add(new HtmlView("<div class=\"sidenote\">By "+dn_string_to_print+"<br/>"+dformat.format(rec.timestamp)+ " (" + getTimeZone().getID() + ")</div>"));
+						if(rec.comment != null) {
+							view.add(new HtmlView("<p>"+StringEscapeUtils.escapeHtml(rec.comment)+"</p>"));
+						}
+						view.add(createLogView(xpath, somemodel, log));
+					} catch (SAXException e) {
+						view.add(new HtmlView("XML log Parse Error (" + somemodel.getName() + ") "+ e.toString()));
+					} catch (XPathExpressionException e) {
+						view.add(new HtmlView("XPath Expression Error (" + somemodel.getName() + ") "+ e.toString()));
+					} catch (NullPointerException e) {
+						//this happens if log xml contains invalid keys
+						view.add(new HtmlView(e.toString()));
 					}
-					view.add(createLogView(xpath, somemodel, log));
-				} catch (SAXException e) {
-					view.add(new HtmlView("XML log Parse Error (" + somemodel.getName() + ") "+ e.toString()));
-				} catch (XPathExpressionException e) {
-					view.add(new HtmlView("XPath Expression Error (" + somemodel.getName() + ") "+ e.toString()));
-				} catch (NullPointerException e) {
-					//this happens if log xml contains invalid keys
-					view.add(new HtmlView(e.toString()));
 				}
 			}
-			
 		} catch (Exception e) {
 			throw new ServletException(e);
 		}
