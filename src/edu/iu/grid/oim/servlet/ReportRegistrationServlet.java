@@ -5,7 +5,9 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -112,7 +114,9 @@ public class ReportRegistrationServlet extends ServletBase implements Servlet {
 			
 			//pull log entries that matches the log type
 			LogModel lmodel = new LogModel(context);
-			Collection<LogRecord> recs = lmodel.getLatest("%", "%", days, "%");
+			Calendar now = Calendar.getInstance();
+			Collection<LogRecord> recs = lmodel.getDateRange(new Timestamp(now.getTimeInMillis() - 1000L * 3600*24*days), 
+					new Timestamp(now.getTimeInMillis()));
 			
 			//sort the records
 			Collection<LogRecord> resource_recs = new ArrayList<LogRecord>();
