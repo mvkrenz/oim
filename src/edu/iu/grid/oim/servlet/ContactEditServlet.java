@@ -89,7 +89,7 @@ public class ContactEditServlet extends ServletBase implements Servlet {
 	private SideContentView createSideView()
 	{
 		SideContentView view = new SideContentView();
-		view.add("TODO", new HtmlView("Whatever"));
+		//view.add("TODO", new HtmlView("Whatever"));
 		return view;
 	}
 }

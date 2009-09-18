@@ -496,6 +496,7 @@ public class LogServlet extends ServletBase  {
 			out.write("</div>");
 			
 			out.write("<h3>Filters</h3>");
+			out.write("<p class=\"info\">Please select at least one item from both Transaction Type and Model Type.</p>");
 	    	out.write("<div class=\"indent\">");
 	    	
 		    	out.write("<b>Tranaction Type</b>");

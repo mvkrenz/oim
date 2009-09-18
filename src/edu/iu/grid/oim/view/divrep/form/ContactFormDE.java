@@ -3,6 +3,7 @@ package edu.iu.grid.oim.view.divrep.form;
 import java.io.PrintWriter;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.text.DateFormat;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -16,6 +17,7 @@ import org.apache.log4j.Logger;
 import com.divrep.DivRep;
 import com.divrep.DivRepEvent;
 import com.divrep.DivRepEventListener;
+import com.divrep.common.DivRepButton;
 import com.divrep.common.DivRepCheckBox;
 import com.divrep.common.DivRepForm;
 import com.divrep.common.DivRepFormElement;
@@ -23,6 +25,7 @@ import com.divrep.common.DivRepSelectBox;
 import com.divrep.common.DivRepStaticContent;
 import com.divrep.common.DivRepTextArea;
 import com.divrep.common.DivRepTextBox;
+import com.divrep.common.DivRepButton.Style;
 import com.divrep.validator.DivRepEmailValidator;
 import com.divrep.validator.DivRepUrlValidator;
 
@@ -59,11 +62,57 @@ public class ContactFormDE extends DivRepForm
 	private HashMap<Integer, String> timezone_id2tz;
 	private DivRepCheckBox person;
 	private DivRepTextArea profile;
-	
+	private Confirmation confirmation;
 	private DivRepTextArea contact_preference;
 	private DivRepSelectBox submitter_dn;
-	private Timestamp confirmed;
+	
 	private PersonalInfo personal_info;
+	
+	class Confirmation extends DivRepFormElement
+	{
+		private Timestamp timestamp;
+		private DivRepButton update;
+		private DateFormat dformat;
+		
+		public Timestamp getTimestamp()
+		{
+			return timestamp;
+		}
+		
+		protected Confirmation(DivRep parent, ContactRecord rec) {
+			super(parent);
+			
+			dformat = DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.SHORT);
+			TimeZone timezone = TimeZone.getTimeZone(rec.timezone);
+			dformat.setTimeZone(timezone);
+			
+			timestamp = (Timestamp)rec.confirmed.clone();
+			
+			update = new DivRepButton(this, "Update Confirmation Date");
+			update.setStyle(Style.BUTTON);
+			update.addEventListener(new DivRepEventListener() {
+				public void handleEvent(DivRepEvent e) {
+					Calendar cal = Calendar.getInstance();
+					timestamp.setTime(cal.getTimeInMillis());
+					Confirmation.this.setFormModified();
+					redraw();
+				}});
+		}
+
+		@Override
+		protected void onEvent(DivRepEvent e) {
+			// TODO Auto-generated method stub
+			
+		}
+
+		public void render(PrintWriter out) {
+			out.print("<div class=\"divrep_form_element\" id=\""+getNodeID()+"\">");	
+			out.write("<p>The information on this page was last confirmed at <b>"+dformat.format(timestamp) + " " + "</b></p>");
+			out.write("<p>Please click following button and submit the form to update the confirmation date.</p>");
+			update.render(out);
+			out.print("</div>");
+		}		
+	}
 	
 	class PersonalInfo extends DivRepFormElement
 	{
@@ -175,10 +224,12 @@ public class ContactFormDE extends DivRepForm
 		}
 	}
 	
+	/*
 	public void setConfirmed(Timestamp _confirmed)
 	{
 		confirmed = _confirmed;
 	}
+	*/
 	
 	class PhotoDE extends DivRepFormElement<String>
 	{
@@ -325,6 +376,9 @@ public class ContactFormDE extends DivRepForm
 			showHidePersonalDetail();
 		}
 		
+		new DivRepStaticContent(this, "<h2>Confirmation</h2>");
+		confirmation = new Confirmation(this, rec);
+		
 		if(auth.allows("admin")) {
 			new DivRepStaticContent(this, "<h2>Administrative Tasks</h2>");
 		}
@@ -352,9 +406,6 @@ public class ContactFormDE extends DivRepForm
 		if(!auth.allows("admin")) {
 			submitter_dn.setHidden(true);
 		}
-		
-		//confirmed field is not editable (maybe let GOC to edit?)
-		confirmed = rec.confirmed;
 	}
 
 	protected Boolean doSubmit() 
@@ -383,7 +434,7 @@ public class ContactFormDE extends DivRepForm
 		rec.photo_url = photo_url.getValue();
 		rec.contact_preference = contact_preference.getValue();
 		rec.submitter_dn_id = submitter_dn.getValue();
-		rec.confirmed = confirmed;
+		rec.confirmed = confirmation.getTimestamp();
 		rec.timezone = timezone_id2tz.get(timezone.getValue());
 		rec.profile = profile.getValue();
 		

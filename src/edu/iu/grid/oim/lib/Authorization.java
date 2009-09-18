@@ -32,7 +32,7 @@ public class Authorization {
 	private Integer dn_id = null;
     private Integer contact_id = null;
     private Boolean islocal = false;
-    private TimeZone timezone = null;
+    //private TimeZone timezone = null;
     
     private HashSet<String> actions = new HashSet<String>();
     
@@ -56,7 +56,7 @@ public class Authorization {
     	ContactModel model = new ContactModel(guest_context);
     	return model.get(contact_id);
     }
-    public TimeZone getTimeZone() { return timezone; }
+    //public TimeZone getTimeZone() { return timezone; }
     
     //true if the client is accessing from localhost
     public Boolean isLocal() { return islocal; }

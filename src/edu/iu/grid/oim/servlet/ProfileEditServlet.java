@@ -72,10 +72,15 @@ public class ProfileEditServlet extends ServletBase implements Servlet {
 	private SideContentView createSideView() throws SQLException
 	{
 		SideContentView view = new SideContentView();
-		view.add(new DivRepWrapper(new Confirmation(auth.getContactID(), context)));
+		//view.add(new DivRepWrapper(new Confirmation(auth.getContactID(), context)));
+		if(auth.getContact().isConfirmationExpired()) {
+			view.add(new HtmlView("<p class=\"divrep_round divrep_elementerror\">You have not recently confirmed the accuracy of your profile information. Please review the information and update the confirmation date inside this form.</p>"));
+		}
+	
+		
 		return view;
 	}
-	
+	/*
 	class Confirmation extends DivRep
 	{
 		DivRepButton confirm;
@@ -131,4 +136,5 @@ public class ProfileEditServlet extends ServletBase implements Servlet {
 			out.write("</div>");
 		}	
 	}
+	*/
 }
