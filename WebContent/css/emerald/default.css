@@ -239,11 +239,12 @@ font-size: 11px;
 	clear: both;
 }
 
-#content input[type='text'], textarea
+input[type='text'], textarea
 {
 border: 1px solid #ccc;
 padding: 5px;
 }
+
 select
 {
 border: 1px solid #ccc;
