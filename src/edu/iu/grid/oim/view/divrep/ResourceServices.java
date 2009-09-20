@@ -206,12 +206,13 @@ public class ResourceServices extends DivRepFormElement {
 	{
 		services.remove(service);
 		redraw();
-		
+		/*
 		//notify any listener of our action
 		DivRepEvent e = new DivRepEvent(null, null);
 		e.action = "remove";
 		e.value = service;
 		notifyListener(e);
+		*/
 	}
 	
 	public void addService(ResourceServiceRecord rec) { 
@@ -219,11 +220,13 @@ public class ResourceServices extends DivRepFormElement {
 		services.add(service);
 		redraw();
 		
+		/*
 		//notify any listener of our action
 		DivRepEvent e = new DivRepEvent(null, null);
 		e.action = "add";
 		e.value = service;
 		notifyListener(e);
+		*/
 	}
 	
 	public ResourceServices(ResourceFormDE _parent, Context _context, ArrayList<ServiceRecord> _service_recs) {

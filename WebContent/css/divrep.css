@@ -7,16 +7,22 @@ input.divrep_sample, textarea.divrep_sample { color: #ccc;}
 }
 .divrep_elementerror
 {
-background-color: red;
-color: white;
-background-position: 5px 5px;
-background-repeat:no-repeat;
-margin: 2px;
-padding: 5px;
-padding-left:25px;
-background-image:url(divrep/error.png);
-
+-moz-background-clip:border;
+-moz-background-inline-policy:continuous;
+-moz-background-origin:padding;
+background:#B81900 url(images/error_back.png) repeat scroll 50% 50%;
+border:1px solid #CD0A0A;
+color:#FFFFFF;
+padding:5px;
+margin-top: 2px;
 }
+.divrep_icon_error
+{
+background-image:url(images/error.png);
+height:16px;
+width:16px;
+}
+
 .divrep_round
 {
 -moz-border-radius-topleft: 4px;
@@ -38,19 +44,19 @@ display: none;
 }
 .divrep_loading
 {
-background-image:url(divrep/loading.gif);
+background-image:url(images/loading.gif);
 background-repeat:no-repeat;
 padding-left: 20px;
 }
 .divrep_folderopen
 {
-background-image:url(divrep/folder-open.gif);
+background-image:url(images/folder-open.gif);
 background-repeat:no-repeat;
 padding-left: 20px;
 }
 .divrep_folderopen
 {
-background-image:url(divrep/folder-close.gif);
+background-image:url(images/folder-close.gif);
 background-repeat:no-repeat;
 padding-left: 20px;
 }

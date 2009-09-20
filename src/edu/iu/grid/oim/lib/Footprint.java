@@ -6,11 +6,13 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 
 import javax.xml.soap.*;
 
 import edu.iu.grid.oim.model.Context;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
+import edu.iu.grid.oim.view.HtmlFileView;
 
 public class Footprint 
 {
@@ -52,9 +54,9 @@ public class Footprint
 
 	public void createNewResourceTicket(String resource_name)
 	{
-		InputStream is = this.getClass().getResourceAsStream("footprints_new_resource_template.txt");
-		String description = FileReader.loadContent(is);
-		description = description.replaceAll("##RESOURCE_NAME##", resource_name);
+		HashMap<String, String> params = new HashMap<String, String>();
+		params.put("##RESOURCE_NAME##", resource_name);
+		HtmlFileView description = new HtmlFileView("footprints_new_resource_template.txt", params);
 		
 		try
         {
@@ -114,7 +116,7 @@ public class Footprint
             
             SOAPElement arg4_4 = args.addChildElement( env.createName("description") );
             arg4_4.addAttribute( env.createName("type","xsi",""), "xsd:string" );
-            arg4_4.addTextNode(description);
+            arg4_4.addTextNode(description.toString());
 
             SOAPElement arg4_5 = args.addChildElement( env.createName("assignees") );
             arg4_5.addAttribute( env.createName("type","xsi",""), "SOAP-ENC:Array" );
@@ -179,10 +181,10 @@ public class Footprint
 	}
 	
 	public void createNewSCTicket(String sc_name)
-	{
-		InputStream is = this.getClass().getResourceAsStream("footprints_new_sc_template.txt");
-		String description = FileReader.loadContent(is);
-		description = description.replaceAll("##SC_NAME##", sc_name);
+	{		
+		HashMap<String, String> params = new HashMap<String, String>();
+		params.put("##SC_NAME##", sc_name);
+		HtmlFileView description = new HtmlFileView("footprints_new_sc_template.txt", params);
 		
 		try
         {
@@ -242,7 +244,7 @@ public class Footprint
             
             SOAPElement arg4_4 = args.addChildElement( env.createName("description") );
             arg4_4.addAttribute( env.createName("type","xsi",""), "xsd:string" );
-            arg4_4.addTextNode(description);
+            arg4_4.addTextNode(description.toString());
 
             SOAPElement arg4_5 = args.addChildElement( env.createName("assignees") );
             arg4_5.addAttribute( env.createName("type","xsi",""), "SOAP-ENC:Array" );
@@ -307,10 +309,10 @@ public class Footprint
 	}
 	
 	public void createNewVOTicket(String vo_name)
-	{
-		InputStream is = this.getClass().getResourceAsStream("footprints_new_vo_template.txt");
-		String description = FileReader.loadContent(is);
-		description = description.replaceAll("##VO_NAME##", vo_name);
+	{	
+		HashMap<String, String> params = new HashMap<String, String>();
+		params.put("##VO_NAME##", vo_name);
+		HtmlFileView description = new HtmlFileView("footprints_new_vo_template.txt", params);	
 		
 		try
         {
@@ -370,7 +372,7 @@ public class Footprint
             
             SOAPElement arg4_4 = args.addChildElement( env.createName("description") );
             arg4_4.addAttribute( env.createName("type","xsi",""), "xsd:string" );
-            arg4_4.addTextNode(description);
+            arg4_4.addTextNode(description.toString());
 
             SOAPElement arg4_5 = args.addChildElement( env.createName("assignees") );
             arg4_5.addAttribute( env.createName("type","xsi",""), "SOAP-ENC:Array" );

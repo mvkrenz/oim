@@ -5,8 +5,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
-public class FileReader {
-	static public String loadContent(InputStream is)
+public class ResourceReader {
+	static public StringBuilder loadContent(InputStream is)
 	{
 		InputStreamReader reader = new InputStreamReader(is);
 		StringBuilder sb = new StringBuilder();
@@ -24,6 +24,6 @@ public class FileReader {
                 e.printStackTrace();
             }
         }
-        return sb.toString();
+        return sb;
 	}
 }
