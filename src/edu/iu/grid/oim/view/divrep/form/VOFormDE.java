@@ -33,17 +33,11 @@ import com.divrep.validator.DivRepUrlValidator;
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Footprint;
 import edu.iu.grid.oim.lib.AuthorizationException;
-
 import edu.iu.grid.oim.model.Context;
-import edu.iu.grid.oim.model.VOReport;
-
 import edu.iu.grid.oim.model.db.ContactRankModel;
 import edu.iu.grid.oim.model.db.ContactTypeModel;
 import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.FieldOfScienceModel;
-import edu.iu.grid.oim.model.db.ResourceServiceModel;
-import edu.iu.grid.oim.model.db.ResourceWLCGModel;
-import edu.iu.grid.oim.model.db.ServiceModel;
 import edu.iu.grid.oim.model.db.VOReportContactModel;
 import edu.iu.grid.oim.model.db.VOReportNameModel;
 import edu.iu.grid.oim.model.db.VOReportNameFqanModel;
@@ -65,11 +59,7 @@ import edu.iu.grid.oim.model.db.record.SCRecord;
 import edu.iu.grid.oim.model.db.record.VOContactRecord;
 import edu.iu.grid.oim.model.db.record.VOFieldOfScienceRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
-import edu.iu.grid.oim.model.db.record.VOVORecord;
 import edu.iu.grid.oim.view.divrep.ContactEditor;
-import edu.iu.grid.oim.view.divrep.ResourceServices;
-import edu.iu.grid.oim.view.divrep.ResourceWLCG;
-import edu.iu.grid.oim.view.divrep.VOReportNameFqan;
 import edu.iu.grid.oim.view.divrep.VOReportNames;
 import edu.iu.grid.oim.view.divrep.ContactEditor.Rank;
 
@@ -625,7 +615,7 @@ public class VOFormDE extends DivRepForm
 						contacts, 
 						parent_vo.getValue(), 
 						field_of_science_ids,
-						vo_report_name_div.getVOReports());
+						vo_report_name_div.getVOReports(model));
 				
 				//create footprint ticket
 				Footprint fp = new Footprint(context);
@@ -636,7 +626,7 @@ public class VOFormDE extends DivRepForm
 						contacts, 
 						parent_vo.getValue(), 
 						field_of_science_ids,
-						vo_report_name_div.getVOReports());
+						vo_report_name_div.getVOReports(model));
 			}
 		} catch (Exception e) {
 			alert(e.getMessage());

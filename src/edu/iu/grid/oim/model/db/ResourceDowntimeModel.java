@@ -14,21 +14,22 @@ import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 
 import edu.iu.grid.oim.model.Context;
-import edu.iu.grid.oim.model.ResourceDowntime;
 import edu.iu.grid.oim.model.db.record.DNRecord;
 import edu.iu.grid.oim.model.db.record.DowntimeClassRecord;
 import edu.iu.grid.oim.model.db.record.DowntimeSeverityRecord;
-import edu.iu.grid.oim.model.db.record.OsgGridTypeRecord;
 import edu.iu.grid.oim.model.db.record.RecordBase;
 import edu.iu.grid.oim.model.db.record.ResourceDowntimeRecord;
 import edu.iu.grid.oim.model.db.record.ResourceDowntimeServiceRecord;
 import edu.iu.grid.oim.model.db.record.ResourceRecord;
-import edu.iu.grid.oim.model.db.record.ServiceRecord;
-import edu.iu.grid.oim.model.db.record.SiteRecord;
 
 public class ResourceDowntimeModel extends SmallTableModelBase<ResourceDowntimeRecord> {
     static Logger log = Logger.getLogger(ResourceDowntimeModel.class); 
-
+    
+    public class ResourceDowntime {
+    	public ResourceDowntimeRecord downtime;
+    	public ArrayList<ResourceDowntimeServiceRecord> services;
+    }
+    
 	public ResourceDowntimeModel(Context context) {
 		super(context, "resource_downtime");
 	}

@@ -14,7 +14,6 @@ import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 
 import edu.iu.grid.oim.model.Context;
-import edu.iu.grid.oim.model.VOReport;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.RecordBase;
 import edu.iu.grid.oim.model.db.record.SCRecord;
@@ -29,6 +28,12 @@ import edu.iu.grid.oim.model.db.record.VOReportContactRecord;
 public class VOModel extends SmallTableModelBase<VORecord>
 {	
     static Logger log = Logger.getLogger(VOModel.class);  
+
+    public class VOReport {
+    	public VOReportNameRecord name;
+    	public ArrayList<VOReportNameFqanRecord> fqans;
+    	public ArrayList<ContactRecord> contacts;
+    }
 
     public VOModel(Context context) 
     {

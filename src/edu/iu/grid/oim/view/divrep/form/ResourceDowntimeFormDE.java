@@ -38,7 +38,7 @@ public class ResourceDowntimeFormDE extends DivRepForm
 		Boolean ret = true;
 		ResourceDowntimeModel model = new ResourceDowntimeModel(context);
 		try {
-			model.updateDetail(id, downtime.getResourceDowntimes());
+			model.updateDetail(id, downtime.getResourceDowntimes(model));
 		} catch (Exception e) {
 			alert(e.getMessage());
 			ret = false;

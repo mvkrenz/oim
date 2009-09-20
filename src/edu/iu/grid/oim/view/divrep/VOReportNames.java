@@ -4,39 +4,21 @@ import java.io.PrintWriter;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
-
-import org.apache.commons.lang.StringEscapeUtils;
-
 import com.divrep.DivRep;
 import com.divrep.DivRepEvent;
 import com.divrep.DivRepEventListener;
 import com.divrep.common.DivRepButton;
-import com.divrep.common.DivRepCheckBox;
 import com.divrep.common.DivRepFormElement;
-import com.divrep.common.DivRepSelectBox;
 import com.divrep.common.DivRepStaticContent;
 import com.divrep.common.DivRepTextBox;
 import com.divrep.validator.DivRepIValidator;
-import com.divrep.validator.DivRepUniqueValidator;
-
-import edu.iu.grid.oim.view.divrep.VOReportNames.VOReportNameEditor;
-
-import edu.iu.grid.oim.model.VOReport;
-
 import edu.iu.grid.oim.model.db.ContactModel;
-import edu.iu.grid.oim.model.db.ContactTypeModel;
-import edu.iu.grid.oim.model.db.VOReportContactModel;
-import edu.iu.grid.oim.model.db.VOReportNameFqanModel;
+import edu.iu.grid.oim.model.db.VOModel;
+import edu.iu.grid.oim.model.db.VOModel.VOReport;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
-import edu.iu.grid.oim.model.db.record.ResourceContactRecord;
-import edu.iu.grid.oim.model.db.record.ServiceRecord;
-import edu.iu.grid.oim.model.db.record.VOContactRecord;
 import edu.iu.grid.oim.model.db.record.VOReportNameFqanRecord;
 import edu.iu.grid.oim.model.db.record.VOReportNameRecord;
 import edu.iu.grid.oim.model.db.record.VOReportContactRecord;
-import edu.iu.grid.oim.model.db.record.VORecord;
-
 
 public class VOReportNames extends DivRepFormElement {
 
@@ -122,9 +104,9 @@ public class VOReportNames extends DivRepFormElement {
 			});
 		}	
 
-		public VOReport getVOReport()
+		public VOReport getVOReport(VOModel model)
 		{
-			VOReport report = new VOReport();
+			VOReport report = model.new VOReport();
 			report.name = getVOReportNameRecord();
 			report.fqans = vo_report_name_fqan.getVOReportNameFqanRecords();
 			report.contacts = vorc_editor.getContactRecordsByRank(Integer.valueOf(1));
@@ -270,14 +252,14 @@ public class VOReportNames extends DivRepFormElement {
 		out.print("</div>");
 	}
 
-	public ArrayList<VOReport> getVOReports()
+	public ArrayList<VOReport> getVOReports(VOModel model)
 	{
 		ArrayList<VOReport> voreports = new ArrayList<VOReport>();
 		
 		for(DivRep node : childnodes) {
 			if(node instanceof VOReportNameEditor) {
 				VOReportNameEditor vo_report_name = (VOReportNameEditor)node;
-				voreports.add(vo_report_name.getVOReport());
+				voreports.add(vo_report_name.getVOReport(model));
 			}
 		}
 		return voreports;

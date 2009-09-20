@@ -28,13 +28,13 @@ import com.divrep.common.DivRepTextArea;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.model.Context;
-import edu.iu.grid.oim.model.ResourceDowntime;
 import edu.iu.grid.oim.model.db.DowntimeClassModel;
 import edu.iu.grid.oim.model.db.DowntimeSeverityModel;
 import edu.iu.grid.oim.model.db.ResourceDowntimeModel;
 import edu.iu.grid.oim.model.db.ResourceDowntimeServiceModel;
 import edu.iu.grid.oim.model.db.ResourceServiceModel;
 import edu.iu.grid.oim.model.db.ServiceModel;
+import edu.iu.grid.oim.model.db.ResourceDowntimeModel.ResourceDowntime;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.DowntimeClassRecord;
 import edu.iu.grid.oim.model.db.record.DowntimeSeverityRecord;
@@ -529,9 +529,9 @@ public class ResourceDowntimeEditor extends DivRepFormElement {
 			return list;
 		}
 		
-		public ResourceDowntime getResourceDowntime()
+		public ResourceDowntime getResourceDowntime(ResourceDowntimeModel model)
 		{
-			ResourceDowntime downtime = new ResourceDowntime();
+			ResourceDowntime downtime = model.new ResourceDowntime();
 			downtime.downtime = getDowntimeRecord();
 			downtime.services = getAffectedServiceRecords();
 			return downtime;
@@ -603,13 +603,13 @@ public class ResourceDowntimeEditor extends DivRepFormElement {
 		});
 	}
 
-	public ArrayList<ResourceDowntime> getResourceDowntimes()
+	public ArrayList<ResourceDowntime> getResourceDowntimes(ResourceDowntimeModel model)
 	{
 		ArrayList<ResourceDowntime> downtimes = new ArrayList<ResourceDowntime>();
 		for(DivRep node : childnodes) {
 			if(node instanceof DowntimeEditor) {
 				DowntimeEditor downtime = (DowntimeEditor)node;
-				downtimes.add(downtime.getResourceDowntime());
+				downtimes.add(downtime.getResourceDowntime(model));
 			}
 		}
 		return downtimes;
