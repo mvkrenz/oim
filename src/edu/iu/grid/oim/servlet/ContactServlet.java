@@ -19,6 +19,7 @@ import org.apache.log4j.Logger;
 import com.divrep.DivRep;
 import com.divrep.DivRepEvent;
 import com.divrep.common.DivRepButton;
+import com.divrep.common.DivRepStaticContent;
 import com.divrep.common.DivRepToggler;
 
 import edu.iu.grid.oim.lib.StaticConfig;
@@ -79,7 +80,7 @@ public class ContactServlet extends ServletBase implements Servlet {
 		throws ServletException, SQLException
 	{
 		ContactModel model = new ContactModel(context);
-		ArrayList<ContactRecord> contacts = model.getAllEditable();
+		ArrayList<ContactRecord> contacts = model.getAll();
 		Collections.sort(contacts, new Comparator<ContactRecord> (){
 			public int compare(ContactRecord a, ContactRecord b) {
 				return a.getName().compareToIgnoreCase(b.getName()); // We are comparing based on name
@@ -92,112 +93,145 @@ public class ContactServlet extends ServletBase implements Servlet {
 		});
 
 		ContentView contentview = new ContentView();	
-		contentview.add(new HtmlView("<h1>Contacts</h1>"));
 		
-		return createContentViewHelper (contentview, contacts);
+		ArrayList<ContactRecord> editable_contacts = new ArrayList<ContactRecord>();
+		ArrayList<ContactRecord> readonly_contacts = new ArrayList<ContactRecord>();
+		for(ContactRecord rec : contacts) {
+			if(model.canEdit(rec.id)) {
+				editable_contacts.add(rec);
+			} else {
+				readonly_contacts.add(rec);
+			}
+		}
+		
+		return createContentViewHelper (contentview, editable_contacts, readonly_contacts);
 	}
 
-	protected ContentView createContentViewHelper (ContentView contentview, Collection<ContactRecord> contacts) 
+	protected ContentView createContentViewHelper (ContentView contentview, 
+			Collection<ContactRecord> editable_contacts, 
+			Collection<ContactRecord> readonly_contacts) 
 		throws ServletException, SQLException
 	{  
-		DNModel dnmodel = new DNModel(context);
-
-		if(contacts.size() == 0) {
+		contentview.add(new HtmlView("<h1>Contacts</h1>"));
+		if(editable_contacts.size() == 0) {
 			contentview.add(new HtmlView("<p>You currently don't have any contacts that you are the submitter of.</p>"));
 		}
-		
-		for(ContactRecord rec : contacts) {
-			String image;
-			if(rec.person == true) {
-				image = "<img align=\"top\" src=\""+StaticConfig.getApplicationBase()+"/images/user.png\"/> ";
-			} else {
-				image = "";//"<img src=\""+StaticConfig.getApplicationBase()+"/images/user.png\"/> ";			
-			}
-			contentview.add(new HtmlView("<h2>"+image+StringEscapeUtils.escapeHtml(rec.name)+"</h2>"));
-
-			RecordTableView table = new RecordTableView();
-			// TODO agopu: 10 is an arbitrary number -- perhaps we should make this a user preference? show/hide?
-			if (contacts.size() > 10) {
-				DivRepToggler toggler = new DivRepToggler(context.getPageRoot(), new ViewWrapper(context.getPageRoot(), table));
-				toggler.setShow(false);
-				contentview.add(toggler);
-			} else {
-				contentview.add(new ViewWrapper(context.getPageRoot(), table));
-			}
-			
-			table.addRow("Primary Email", new HtmlView("<a class=\"mailto\" href=\"mailto:"+rec.primary_email+"\">"+StringEscapeUtils.escapeHtml(rec.primary_email)+"</a>"));
-			table.addRow("Secondary Email", rec.secondary_email);
-
-			table.addRow("Primary Phone", rec.primary_phone);
-			table.addRow("Primary Phone Ext", rec.primary_phone_ext);
-
-			table.addRow("Secondary Phone", rec.secondary_phone);
-			table.addRow("Secondary Phone Ext", rec.secondary_phone_ext);
-			
-			table.addRow("SMS Address", rec.sms_address);
-			
-			if(rec.person == false) {
-				table.addRow("Personal Information", new HtmlView("(Not a personal contact)"));
-			} else {
-				RecordTableView personal_table = new RecordTableView("inner_table");
-				table.addRow("Personal Information", personal_table);
-	
-				personal_table.addRow("Address Line 1", rec.address_line_1);
-				personal_table.addRow("Address Line 2", rec.address_line_2);
-				personal_table.addRow("City", rec.city);
-				personal_table.addRow("State", rec.state);
-				personal_table.addRow("ZIP Code", rec.zipcode);
-				personal_table.addRow("Country", rec.country);
-				personal_table.addRow("Instant Messaging", rec.im);
-	
-				String img = rec.photo_url;
-				if(rec.photo_url == null || rec.photo_url.length() == 0) {
-					img = StaticConfig.getApplicationBase() + "/images/noavatar.gif";
-				} 
-				personal_table.addRow("Photo", new HtmlView("<img class=\"avatar\" src=\""+img+"\"/>"));
-				personal_table.addRow("Contact Preference", rec.contact_preference);	
-				personal_table.addRow("Time Zone", rec.timezone);
-				personal_table.addRow("Profile", new HtmlView("<div>"+StringEscapeUtils.escapeHtml(rec.profile)+"</div>"));
-			}
-			table.addRow("Contact Associations", contactAssociationView(rec.id));
-
-			//table.addRow("Active", rec.active);
-			table.addRow("Disable", rec.disable);
-			
-			if(auth.allows("admin")) {
-				String submitter_dn = null;
-				if(rec.submitter_dn_id != null) {
-					DNRecord dn = dnmodel.get(rec.submitter_dn_id);
-					submitter_dn = dn.dn_string;
-				}
-				table.addRow("Submitter DN", submitter_dn);
-			}
-
-			if(auth.allows("admin")) {
-				String dn_string = null;
-				DNRecord dnrec = dnmodel.getByContactID(rec.id);
-				if(dnrec != null) {
-					dn_string = dnrec.dn_string;
-				}
-				table.addRow("Associated DN", dn_string);		
-			}
-
-			class EditButtonDE extends DivRepButton
-			{
-				String url;
-				public EditButtonDE(DivRep parent, String _url)
-				{
-					super(parent, "Edit");
-					url = _url;
-				}
-				protected void onEvent(DivRepEvent e) {
-					redirect(url);
-				}
-			};
-			table.add(new DivRepWrapper(new EditButtonDE(context.getPageRoot(), StaticConfig.getApplicationBase()+"/contactedit?id=" + rec.id)));
+		for(ContactRecord rec : editable_contacts) {
+			contentview.add(new HtmlView(getContactHeader(rec)));
+			contentview.add(showContact(rec, true)); //true = show edit button
 		}
+		
+		if(readonly_contacts.size() != 0) {
+			contentview.add(new HtmlView("<br/><h1>Read-Only Contacts</h1>"));
+			contentview.add(new HtmlView("<p>Following are the contact that are currently registered at OIM that you do not have edit access.</p>"));
+	
+			for(ContactRecord rec : readonly_contacts) {
+				contentview.add(new HtmlView(getContactHeader(rec)));
+				contentview.add(showContact(rec, false)); //false = no edit button
+			}
+		}
+		
 		return contentview;
-	}	
+	}
+	private String getContactHeader(ContactRecord rec)
+	{
+		String image;
+		if(rec.person == true) {
+			image = "<img align=\"top\" src=\""+StaticConfig.getApplicationBase()+"/images/user.png\"/> ";
+		} else {
+			image = "";//"<img src=\""+StaticConfig.getApplicationBase()+"/images/user.png\"/> ";			
+		}
+		return "<h2>"+image+StringEscapeUtils.escapeHtml(rec.name)+"</h2>";
+	}
+	
+	private DivRepToggler showContact(final ContactRecord rec, final boolean show_edit_button)
+	{
+		final DNModel dnmodel = new DNModel(context);
+		
+		DivRepToggler toggler = new DivRepToggler(context.getPageRoot()) {
+			public DivRep createContent() {
+				RecordTableView table = new RecordTableView();
+				try {	
+					table.addRow("Primary Email", new HtmlView("<a class=\"mailto\" href=\"mailto:"+rec.primary_email+"\">"+StringEscapeUtils.escapeHtml(rec.primary_email)+"</a>"));
+					table.addRow("Secondary Email", rec.secondary_email);
+		
+					table.addRow("Primary Phone", rec.primary_phone);
+					table.addRow("Primary Phone Ext", rec.primary_phone_ext);
+		
+					table.addRow("Secondary Phone", rec.secondary_phone);
+					table.addRow("Secondary Phone Ext", rec.secondary_phone_ext);
+					
+					table.addRow("SMS Address", rec.sms_address);
+					
+					if(rec.person == false) {
+						table.addRow("Personal Information", new HtmlView("(Not a personal contact)"));
+					} else {
+						RecordTableView personal_table = new RecordTableView("inner_table");
+						table.addRow("Personal Information", personal_table);
+			
+						personal_table.addRow("Address Line 1", rec.address_line_1);
+						personal_table.addRow("Address Line 2", rec.address_line_2);
+						personal_table.addRow("City", rec.city);
+						personal_table.addRow("State", rec.state);
+						personal_table.addRow("ZIP Code", rec.zipcode);
+						personal_table.addRow("Country", rec.country);
+						personal_table.addRow("Instant Messaging", rec.im);
+			
+						String img = rec.photo_url;
+						if(rec.photo_url == null || rec.photo_url.length() == 0) {
+							img = StaticConfig.getApplicationBase() + "/images/noavatar.gif";
+						} 
+						personal_table.addRow("Photo", new HtmlView("<img class=\"avatar\" src=\""+img+"\"/>"));
+						personal_table.addRow("Contact Preference", rec.contact_preference);	
+						personal_table.addRow("Time Zone", rec.timezone);
+						personal_table.addRow("Profile", new HtmlView("<div>"+StringEscapeUtils.escapeHtml(rec.profile)+"</div>"));
+					}
+					table.addRow("Contact Associations", contactAssociationView(rec.id));
+		
+					//table.addRow("Active", rec.active);
+					table.addRow("Disable", rec.disable);
+					
+					if(auth.allows("admin")) {
+						String submitter_dn = null;
+						if(rec.submitter_dn_id != null) {
+							DNRecord dn = dnmodel.get(rec.submitter_dn_id);
+							submitter_dn = dn.dn_string;
+						}
+						table.addRow("Submitter DN", submitter_dn);
+					}
+		
+					if(auth.allows("admin")) {
+						String dn_string = null;
+						DNRecord dnrec = dnmodel.getByContactID(rec.id);
+						if(dnrec != null) {
+							dn_string = dnrec.dn_string;
+						}
+						table.addRow("Associated DN", dn_string);		
+					}
+		
+					if(show_edit_button) {
+						class EditButtonDE extends DivRepButton
+						{
+							String url;
+							public EditButtonDE(DivRep parent, String _url)
+							{
+								super(parent, "Edit");
+								url = _url;
+							}
+							protected void onEvent(DivRepEvent e) {
+								redirect(url);
+							}
+						};
+						table.add(new DivRepWrapper(new EditButtonDE(context.getPageRoot(), StaticConfig.getApplicationBase()+"/contactedit?id=" + rec.id)));
+					}
+				} catch (SQLException e) {
+					return new DivRepStaticContent(this, e.toString());
+				}
+				return new ViewWrapper(context.getPageRoot(), table);
+			}
+		};
+		return toggler;
+	}
 	
 	private GenericView contactAssociationView(int id) throws SQLException
 	{

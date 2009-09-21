@@ -17,6 +17,7 @@ import org.apache.log4j.Logger;
 import com.divrep.DivRep;
 import com.divrep.DivRepEvent;
 import com.divrep.common.DivRepButton;
+import com.divrep.common.DivRepStaticContent;
 import com.divrep.common.DivRepToggler;
 
 import edu.iu.grid.oim.lib.StaticConfig;
@@ -93,165 +94,190 @@ public class ResourceServlet extends ServletBase implements Servlet {
 		throws ServletException, SQLException
 	{
 		ResourceModel model = new ResourceModel(context);
-		ArrayList<ResourceRecord> resources = model.getAllEditable();
+		ArrayList<ResourceRecord> resources = model.getAll();
 		Collections.sort(resources, new Comparator<ResourceRecord> () {
 			public int compare(ResourceRecord a, ResourceRecord b) {
 				return a.getName().compareToIgnoreCase(b.getName());
 			}
 		});
-
-		ContentView contentview = new ContentView();	
-		contentview.add(new HtmlView("<h1>Resource</h1>"));
 		
-		if(resources.size() == 0) {
-			contentview.add(new HtmlView("<p>You currently don't have any resources that list your contact in any of the contact types.</p>"));
+		ArrayList<ResourceRecord> editable_resources = new ArrayList<ResourceRecord>();
+		ArrayList<ResourceRecord> readonly_resources = new ArrayList<ResourceRecord>();
+		for(ResourceRecord rec : resources) {
+			if(model.canEdit(rec.id)) {
+				editable_resources.add(rec);
+			} else {
+				readonly_resources.add(rec);
+			}
 		}
 	
-		for(ResourceRecord rec : resources) {
-			
-			//TODO - need to make "disabled" more conspicuous
+		ContentView contentview = new ContentView();
+		contentview.add(new HtmlView("<h1>Resources</h1>"));
+		if(editable_resources.size() == 0) {
+			contentview.add(new HtmlView("<p>You currently don't have any resources that list your contact in any of the contact types.</p>"));
+		}
+		for(ResourceRecord rec : editable_resources) {
 			String name = rec.name;
 			contentview.add(new HtmlView("<h2>"+StringEscapeUtils.escapeHtml(name)+"</h2>"));
+			contentview.add(showResource(rec, true)); //true = show edit button
+		}
+		
+		if(readonly_resources.size() != 0) {
+			contentview.add(new HtmlView("<br/><h1>Read-Only Resources</h1>"));
+			contentview.add(new HtmlView("<p>Following are the resources that are currently registered at OIM that you do not have edit access.</p>"));
 	
-			//Place table in side the ViewWrapper, then wrap that into DivRepToggler
-			RecordTableView table = new RecordTableView();
-			// TODO agopu: 10 is an arbitrary number -- perhaps we should make this a user preference? show/hide?
-			if (resources.size() > 10) {
-				DivRepToggler toggler = new DivRepToggler(context.getPageRoot(), new ViewWrapper(context.getPageRoot(), table));
-				toggler.setShow(false);
-				contentview.add(toggler);
-			} else {
-				contentview.add(new ViewWrapper(context.getPageRoot(), table));
+			for(ResourceRecord rec : readonly_resources) {
+				String name = rec.name;
+				contentview.add(new HtmlView("<h2>"+StringEscapeUtils.escapeHtml(name)+"</h2>"));
+				contentview.add(showResource(rec, false)); //false = no edit button
 			}
-			
-			
-			table.addRow("Resource FQDN", rec.fqdn);
-
-			//pull resource group
-			ResourceGroupModel gmodel = new ResourceGroupModel(context);
-			ResourceGroupRecord resource_group_rec = gmodel.get(rec.resource_group_id);
-			String resource_group_name = null;
-			if(resource_group_rec != null) {
-				resource_group_name = resource_group_rec.name;
-			}
-			
-			//pull site
-			SiteModel smodel = new SiteModel(context);
-			SiteRecord srec = smodel.get(resource_group_rec.site_id);
-			
-			//pull facility
-			FacilityModel fmodel = new FacilityModel(context);
-			FacilityRecord frec = fmodel.get(srec.facility_id);
-			
-			//pull support center
-			SCModel scmodel = new SCModel(context);
-			SCRecord screc = scmodel.get(srec.sc_id);
-			
-			RecordTableView hierarchy_table = new RecordTableView("inner_table");
-			hierarchy_table.addHeaderRow("This Resource Group Belongs To");
-			hierarchy_table.addRow("Facility", frec.name);
-			hierarchy_table.addRow("Site", srec.name);
-			hierarchy_table.addHeaderRow("This Resource Group is Supported By ");
-			hierarchy_table.addRow("Support Center", screc.name);
-			GenericView hierarchy = new GenericView();
-			hierarchy.add(new HtmlView(StringEscapeUtils.escapeHtml(resource_group_name)));
-			hierarchy.add(hierarchy_table);
-			
-			table.addRow("Resource Group", hierarchy);
-			
-			table.addRow("Resource Description", rec.description);
-			if(rec.url != null && rec.url.length() != 0) {
-				table.addRow("Information URL", new HtmlView("<a target=\"_blank\" href=\""+rec.url+"\">"+rec.url+"</a>"));	
-			} else {
-				table.addRow("Information URL", (String)null);
-			}
-			table.addRow("Resource FQDN Alias", new HtmlView(getAlias(rec.id)));
-			
-			//Resource Services
-			ResourceServiceModel rsmodel = new ResourceServiceModel(context);
-			ArrayList<ResourceServiceRecord> services = rsmodel.getAllByResourceID(rec.id);
-			GenericView services_view = new GenericView();
-			for(ResourceServiceRecord rsrec : services) {
-				services_view.add(createServiceView(rsrec));
-			}
-			table.addRow("Services", services_view);
-			
-			// Ownership information
-			table.addRow("VO Owners of This Resource", getVOOwners(rec.id));
-			
-			//contacts (only shows contacts that are filled out)
-			ContactTypeModel ctmodel = new ContactTypeModel(context);
-			ContactRankModel crmodel = new ContactRankModel(context);
-			ContactModel pmodel = new ContactModel(context);
-			ResourceContactModel rcmodel = new ResourceContactModel(context);
-			ArrayList<ResourceContactRecord> rclist = rcmodel.getByResourceID(rec.id);
-			HashMap<Integer, ArrayList<ResourceContactRecord>> voclist_grouped = rcmodel.groupByContactTypeID(rclist);
-			for(Integer type_id : voclist_grouped.keySet()) {
-				ContactTypeRecord ctrec = ctmodel.get(type_id);
-				
-				ArrayList<ResourceContactRecord> clist = voclist_grouped.get(type_id);
-				Collections.sort(clist, new Comparator<ResourceContactRecord> (){
-					public int compare(ResourceContactRecord a, ResourceContactRecord b) {
-						if (a.getRank() > b.getRank()) // We are comparing based on rank id 
-							return 1; 
-						return 0;
-					}
-				});
-				String cliststr = "";
-				
-				for(ResourceContactRecord vcrec : clist) {
-					ContactRecord person = pmodel.get(vcrec.contact_id);
-					ContactRankRecord rank = crmodel.get(vcrec.contact_rank_id);
-
-					cliststr += "<div class='contact_rank contact_"+rank.name+"'>"+person.name+"</div>";
-				}
-				
-				table.addRow(ctrec.name, new HtmlView(cliststr));
-			}		
-			
-			//WLCG
-			ResourceWLCGModel wmodel = new ResourceWLCGModel(context);
-			ResourceWLCGRecord wrec = wmodel.get(rec.id);
-			table.addRow("WLCG Information", createWLCGView(wrec));
-
-			class EditDowntimeButtonDE extends DivRepButton
-			{
-				String url;
-				public EditDowntimeButtonDE(DivRep parent, String _url)
-				{
-					super(parent, "Add/Edit Downtime");
-					this.setStyle(Style.ALINK);
-					url = _url;
-				}
-				protected void onEvent(DivRepEvent e) {
-					redirect(url);
-				}
-			};
-
-			table.addRow("Downtime", new DivRepWrapper(new EditDowntimeButtonDE(context.getPageRoot(), 
-					StaticConfig.getApplicationBase()+"/resourcedowntimeedit?id=" + rec.id)));
-			
-			table.addRow("Active", rec.active);
-			table.addRow("Disable", rec.disable);
-
-			class EditButtonDE extends DivRepButton
-			{
-				String url;
-				public EditButtonDE(DivRep parent, String _url)
-				{
-					super(parent, "Edit");
-					url = _url;
-				}
-				protected void onEvent(DivRepEvent e) {
-					redirect(url);
-				}
-			};
-			table.add(new DivRepWrapper(new EditButtonDE(context.getPageRoot(), 
-					StaticConfig.getApplicationBase()+"/resourceedit?id=" + rec.id)));
-
 		}
 		
 		return contentview;
+	}
+	
+	private DivRepToggler showResource(final ResourceRecord rec, final boolean show_edit_button)
+	{
+		DivRepToggler toggler = new DivRepToggler(context.getPageRoot()) {
+			public DivRep createContent() {
+				RecordTableView table = new RecordTableView();
+				try {
+					
+					table.addRow("Resource FQDN", rec.fqdn);
+
+					//pull resource group
+					ResourceGroupModel gmodel = new ResourceGroupModel(context);
+					ResourceGroupRecord resource_group_rec;
+				
+					resource_group_rec = gmodel.get(rec.resource_group_id);
+
+					String resource_group_name = null;
+					if(resource_group_rec != null) {
+						resource_group_name = resource_group_rec.name;
+					}
+					
+					//pull site
+					SiteModel smodel = new SiteModel(context);
+					SiteRecord srec = smodel.get(resource_group_rec.site_id);
+					
+					//pull facility
+					FacilityModel fmodel = new FacilityModel(context);
+					FacilityRecord frec = fmodel.get(srec.facility_id);
+					
+					//pull support center
+					SCModel scmodel = new SCModel(context);
+					SCRecord screc = scmodel.get(srec.sc_id);
+					
+					RecordTableView hierarchy_table = new RecordTableView("inner_table");
+					hierarchy_table.addHeaderRow("This Resource Group Belongs To");
+					hierarchy_table.addRow("Facility", frec.name);
+					hierarchy_table.addRow("Site", srec.name);
+					hierarchy_table.addHeaderRow("This Resource Group is Supported By ");
+					hierarchy_table.addRow("Support Center", screc.name);
+					GenericView hierarchy = new GenericView();
+					hierarchy.add(new HtmlView(StringEscapeUtils.escapeHtml(resource_group_name)));
+					hierarchy.add(hierarchy_table);
+					
+					table.addRow("Resource Group", hierarchy);
+					
+					table.addRow("Resource Description", rec.description);
+					if(rec.url != null && rec.url.length() != 0) {
+						table.addRow("Information URL", new HtmlView("<a target=\"_blank\" href=\""+rec.url+"\">"+rec.url+"</a>"));	
+					} else {
+						table.addRow("Information URL", (String)null);
+					}
+					table.addRow("Resource FQDN Alias", new HtmlView(getAlias(rec.id)));
+					
+					//Resource Services
+					ResourceServiceModel rsmodel = new ResourceServiceModel(context);
+					ArrayList<ResourceServiceRecord> services = rsmodel.getAllByResourceID(rec.id);
+					GenericView services_view = new GenericView();
+					for(ResourceServiceRecord rsrec : services) {
+						services_view.add(createServiceView(rsrec));
+					}
+					table.addRow("Services", services_view);
+					
+					// Ownership information
+					table.addRow("VO Owners of This Resource", getVOOwners(rec.id));
+					
+					//contacts (only shows contacts that are filled out)
+					ContactTypeModel ctmodel = new ContactTypeModel(context);
+					ContactRankModel crmodel = new ContactRankModel(context);
+					ContactModel pmodel = new ContactModel(context);
+					ResourceContactModel rcmodel = new ResourceContactModel(context);
+					ArrayList<ResourceContactRecord> rclist = rcmodel.getByResourceID(rec.id);
+					HashMap<Integer, ArrayList<ResourceContactRecord>> voclist_grouped = rcmodel.groupByContactTypeID(rclist);
+					for(Integer type_id : voclist_grouped.keySet()) {
+						ContactTypeRecord ctrec = ctmodel.get(type_id);
+						
+						ArrayList<ResourceContactRecord> clist = voclist_grouped.get(type_id);
+						Collections.sort(clist, new Comparator<ResourceContactRecord> (){
+							public int compare(ResourceContactRecord a, ResourceContactRecord b) {
+								if (a.getRank() > b.getRank()) // We are comparing based on rank id 
+									return 1; 
+								return 0;
+							}
+						});
+						String cliststr = "";
+						
+						for(ResourceContactRecord vcrec : clist) {
+							ContactRecord person = pmodel.get(vcrec.contact_id);
+							ContactRankRecord rank = crmodel.get(vcrec.contact_rank_id);
+
+							cliststr += "<div class='contact_rank contact_"+rank.name+"'>"+person.name+"</div>";
+						}
+						
+						table.addRow(ctrec.name, new HtmlView(cliststr));
+					}		
+					
+					//WLCG
+					ResourceWLCGModel wmodel = new ResourceWLCGModel(context);
+					ResourceWLCGRecord wrec = wmodel.get(rec.id);
+					table.addRow("WLCG Information", createWLCGView(wrec));
+
+					class EditDowntimeButtonDE extends DivRepButton
+					{
+						String url;
+						public EditDowntimeButtonDE(DivRep parent, String _url)
+						{
+							super(parent, "Add/Edit Downtime");
+							this.setStyle(Style.ALINK);
+							url = _url;
+						}
+						protected void onEvent(DivRepEvent e) {
+							redirect(url);
+						}
+					};
+
+					table.addRow("Downtime", new DivRepWrapper(new EditDowntimeButtonDE(context.getPageRoot(), 
+							StaticConfig.getApplicationBase()+"/resourcedowntimeedit?id=" + rec.id)));
+					
+					table.addRow("Active", rec.active);
+					table.addRow("Disable", rec.disable);
+
+					if(show_edit_button) {
+						class EditButtonDE extends DivRepButton
+						{
+							String url;
+							public EditButtonDE(DivRep parent, String _url)
+							{
+								super(parent, "Edit");
+								url = _url;
+							}
+							protected void onEvent(DivRepEvent e) {
+								redirect(url);
+							}
+						};
+						table.add(new DivRepWrapper(new EditButtonDE(context.getPageRoot(), 
+								StaticConfig.getApplicationBase()+"/resourceedit?id=" + rec.id)));
+					}
+				} catch (SQLException e) {
+					return new DivRepStaticContent(this, e.toString());
+				}
+				return new ViewWrapper(context.getPageRoot(), table);
+			}
+		};
+		return toggler;
 	}
 	
 	private IView createWLCGView(ResourceWLCGRecord rec)
@@ -301,6 +327,7 @@ public class ResourceServlet extends ServletBase implements Servlet {
 		return view;
 	}
 
+	/*
 	private IView createAffectedServices(int downtime_id) throws SQLException
 	{
 		String html = "";
@@ -312,8 +339,8 @@ public class ResourceServlet extends ServletBase implements Servlet {
 			html += service.service_id + "<br/>";
 		}
 		return new HtmlView(html);
-
 	}
+	*/
 	
 	private String getAlias(int resource_id) throws SQLException
 	{
@@ -385,8 +412,7 @@ public class ResourceServlet extends ServletBase implements Servlet {
 				redirect(url);
 			}
 		};
-		view.add("Operation", new NewButtonDE(context.getPageRoot(), "resourceedit"));
-		view.add("About", new HtmlView("This page shows a list of resources that you have access to edit."));	
+		view.add("Operation", new NewButtonDE(context.getPageRoot(), "resourceedit"));	
 		view.addContactLegend();
 		return view;
 	}

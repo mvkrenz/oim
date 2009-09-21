@@ -17,6 +17,7 @@ import org.apache.log4j.Logger;
 import com.divrep.DivRep;
 import com.divrep.DivRepEvent;
 import com.divrep.common.DivRepButton;
+import com.divrep.common.DivRepStaticContent;
 import com.divrep.common.DivRepToggler;
 
 import edu.iu.grid.oim.lib.StaticConfig;
@@ -35,6 +36,7 @@ import edu.iu.grid.oim.model.db.record.ContactRankRecord;
 import edu.iu.grid.oim.model.db.record.ContactTypeRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.FieldOfScienceRecord;
+import edu.iu.grid.oim.model.db.record.ResourceRecord;
 import edu.iu.grid.oim.model.db.record.VOReportNameRecord;
 import edu.iu.grid.oim.model.db.record.VOReportNameFqanRecord;
 import edu.iu.grid.oim.model.db.record.SCRecord;
@@ -82,121 +84,148 @@ public class VOServlet extends ServletBase implements Servlet {
 		throws ServletException, SQLException
 	{
 		VOModel model = new VOModel(context);
-		ArrayList<VORecord> vos = (ArrayList<VORecord>) model.getAllEditable();
+		ArrayList<VORecord> vos = (ArrayList<VORecord>) model.getAll();
 		Collections.sort(vos, new Comparator<VORecord> (){
 			public int compare(VORecord a, VORecord b) {
 				return a.getName().compareToIgnoreCase(b.getName()); // We are comparing based on name
 			}
 		});
 		
-		ContentView contentview = new ContentView();	
-		contentview.add(new HtmlView("<h1>Virtual Organization</h1>"));
-	
-		if(vos.size() == 0) {
-			contentview.add(new HtmlView("<p>You currently don't have any virtual organizations that list your contact in any of the contact types.</p>"));
+		ArrayList<VORecord> editable_vos = new ArrayList<VORecord>();
+		ArrayList<VORecord> readonly_vos = new ArrayList<VORecord>();
+		for(VORecord rec : vos) {
+			if(model.canEdit(rec.id)) {
+				editable_vos.add(rec);
+			} else {
+				readonly_vos.add(rec);
+			}
 		}
 		
-		for(VORecord rec : vos) {
-			contentview.add(new HtmlView("<h2>"+StringEscapeUtils.escapeHtml(rec.name)+"</h2>"));
-			
-			RecordTableView table = new RecordTableView();
-			// TODO agopu: 10 is an arbitrary number -- perhaps we should make this a user preference? show/hide?
-
-			if (vos.size() > 10) {
-				DivRepToggler toggler = new DivRepToggler(context.getPageRoot(), new ViewWrapper(context.getPageRoot(), table));
-				toggler.setShow(false);
-				contentview.add(toggler);
-			} else {
-				contentview.add(new ViewWrapper(context.getPageRoot(), table));
-			}
-
-
-			//pull parent vo
-			VORecord parent_vo_rec = model.getParentVO(rec.id);
-			String parent_vo_name = null;
-			if(parent_vo_rec != null) {
-				parent_vo_name = parent_vo_rec.name;
-			}
-			else {
-				parent_vo_name = "N/A";
-			}
-			table.addRow("Parent VO", parent_vo_name);
-			table.addRow("Support Center", getSCName(rec.sc_id));
-			table.addRow("Long Name", rec.long_name);
-			table.addRow("Description", rec.description);
-			table.addRow("App Description", rec.app_description);
-			table.addRow("Community", rec.community);
-			table.addRow("Field of Scicnce", getFieldOfScience(rec.id));
-			table.addRow("Primary URL", new HtmlView("<a target=\"_blank\" href=\""+rec.primary_url+"\">"+rec.primary_url+"</a>"));
-			table.addRow("AUP URL", new HtmlView("<a target=\"_blank\" href=\""+rec.aup_url+"\">"+rec.aup_url+"</a>"));
-			table.addRow("Membership Services URL", new HtmlView("<a target=\"_blank\" href=\""+rec.membership_services_url+"\">"+rec.membership_services_url+"</a>"));
-			table.addRow("Purpose URL", new HtmlView("<a target=\"_blank\" href=\""+rec.purpose_url+"\">"+rec.purpose_url+"</a>"));
-			table.addRow("Support URL", new HtmlView("<a target=\"_blank\" href=\""+rec.support_url+"\">"+rec.support_url+"</a>"));
+		ContentView contentview = new ContentView();
+		contentview.add(new HtmlView("<h1>Virtual Organizations</h1>"));
+		if(editable_vos.size() == 0) {
+			contentview.add(new HtmlView("<p>You currently don't have any virtual organization that list your contact in any of the contact types.</p>"));
+		}
+		for(VORecord rec : editable_vos) {
+			String name = rec.name;
+			contentview.add(new HtmlView("<h2>"+StringEscapeUtils.escapeHtml(name)+"</h2>"));
+			contentview.add(showVO(rec, true)); //true = show edit button
+		}
 		
-			ContactTypeModel ctmodel = new ContactTypeModel(context);
-			ContactRankModel crmodel = new ContactRankModel(context);
-			ContactModel pmodel = new ContactModel(context);
-			
-			//contacts (only shows contacts that are filled out)
-			VOContactModel vocmodel = new VOContactModel(context);
-			ArrayList<VOContactRecord> voclist = vocmodel.getByVOID(rec.id);
-			HashMap<Integer, ArrayList<VOContactRecord>> voclist_grouped = vocmodel.groupByContactTypeID(voclist);
-			for(Integer type_id : voclist_grouped.keySet()) {
-				ContactTypeRecord ctrec = ctmodel.get(type_id);
-
-				ArrayList<VOContactRecord> clist = voclist_grouped.get(type_id);
-				Collections.sort(clist, new Comparator<VOContactRecord> (){
-					public int compare(VOContactRecord a, VOContactRecord b) {
-						if (a.getRank() > b.getRank()) // We are comparing based on rank id 
-							return 1; 
-						return 0;
-					}
-				});
-				String cliststr = "";
-				
-				for(VOContactRecord vcrec : clist) {
-					ContactRecord person = pmodel.get(vcrec.contact_id);
-					ContactRankRecord rank = crmodel.get(vcrec.contact_rank_id);
-
-					cliststr += "<div class='contact_rank contact_"+rank.name+"'>";
-					cliststr += person.name;
-					cliststr += "</div>";
-				}
-				table.addRow(ctrec.name, new HtmlView(cliststr));
-				
-			}			
-
-			//VO Report Names
-			VOReportNameModel vorepname_model = new VOReportNameModel(context);
-			ArrayList<VOReportNameRecord> vorepname_records = vorepname_model.getAllByVOID(rec.id);
-			GenericView vorepname_view = new GenericView();
-			for(VOReportNameRecord vorepname_record : vorepname_records) {
-				vorepname_view.add(createVOReportNameView(vorepname_record));
+		if(readonly_vos.size() != 0) {
+			contentview.add(new HtmlView("<br/><h1>Read-Only Virtual Organizations</h1>"));
+			contentview.add(new HtmlView("<p>Following are the virtual organizations that are currently registered at OIM that you do not have edit access.</p>"));
+	
+			for(VORecord rec : readonly_vos) {
+				String name = rec.name;
+				contentview.add(new HtmlView("<h2>"+StringEscapeUtils.escapeHtml(name)+"</h2>"));
+				contentview.add(showVO(rec, false)); //false = no edit button
 			}
-			table.addRow("Reports", vorepname_view);
-
-			if(auth.allows("admin_vo")) {
-				table.addRow("Footprints ID", rec.footprints_id);
-			}
-			table.addRow("Active", rec.active);
-			table.addRow("Disable", rec.disable);
-						
-			class EditButtonDE extends DivRepButton
-			{
-				String url;
-				public EditButtonDE(DivRep parent, String _url)
-				{
-					super(parent, "Edit");
-					url = _url;
-				}
-				protected void onEvent(DivRepEvent e) {
-					redirect(url);
-				}
-			};
-			table.add(new DivRepWrapper(new EditButtonDE(context.getPageRoot(), StaticConfig.getApplicationBase()+"/voedit?id=" + rec.id)));
 		}
 		
 		return contentview;
+	}
+	
+	private DivRepToggler showVO(final VORecord rec, final boolean show_edit_button)
+	{
+		DivRepToggler toggler = new DivRepToggler(context.getPageRoot()) {
+			public DivRep createContent() {
+				RecordTableView table = new RecordTableView();
+				try {	
+	
+					//pull parent vo
+					VOModel model = new VOModel(context);
+					VORecord parent_vo_rec = model.getParentVO(rec.id);
+					String parent_vo_name = null;
+					if(parent_vo_rec != null) {
+						parent_vo_name = parent_vo_rec.name;
+					}
+					else {
+						parent_vo_name = "N/A";
+					}
+					table.addRow("Parent VO", parent_vo_name);
+					table.addRow("Support Center", getSCName(rec.sc_id));
+					table.addRow("Long Name", rec.long_name);
+					table.addRow("Description", rec.description);
+					table.addRow("App Description", rec.app_description);
+					table.addRow("Community", rec.community);
+					table.addRow("Field of Scicnce", getFieldOfScience(rec.id));
+					table.addRow("Primary URL", new HtmlView("<a target=\"_blank\" href=\""+rec.primary_url+"\">"+rec.primary_url+"</a>"));
+					table.addRow("AUP URL", new HtmlView("<a target=\"_blank\" href=\""+rec.aup_url+"\">"+rec.aup_url+"</a>"));
+					table.addRow("Membership Services URL", new HtmlView("<a target=\"_blank\" href=\""+rec.membership_services_url+"\">"+rec.membership_services_url+"</a>"));
+					table.addRow("Purpose URL", new HtmlView("<a target=\"_blank\" href=\""+rec.purpose_url+"\">"+rec.purpose_url+"</a>"));
+					table.addRow("Support URL", new HtmlView("<a target=\"_blank\" href=\""+rec.support_url+"\">"+rec.support_url+"</a>"));
+				
+					ContactTypeModel ctmodel = new ContactTypeModel(context);
+					ContactRankModel crmodel = new ContactRankModel(context);
+					ContactModel pmodel = new ContactModel(context);
+					
+					//contacts (only shows contacts that are filled out)
+					VOContactModel vocmodel = new VOContactModel(context);
+					ArrayList<VOContactRecord> voclist = vocmodel.getByVOID(rec.id);
+					HashMap<Integer, ArrayList<VOContactRecord>> voclist_grouped = vocmodel.groupByContactTypeID(voclist);
+					for(Integer type_id : voclist_grouped.keySet()) {
+						ContactTypeRecord ctrec = ctmodel.get(type_id);
+		
+						ArrayList<VOContactRecord> clist = voclist_grouped.get(type_id);
+						Collections.sort(clist, new Comparator<VOContactRecord> (){
+							public int compare(VOContactRecord a, VOContactRecord b) {
+								if (a.getRank() > b.getRank()) // We are comparing based on rank id 
+									return 1; 
+								return 0;
+							}
+						});
+						String cliststr = "";
+						
+						for(VOContactRecord vcrec : clist) {
+							ContactRecord person = pmodel.get(vcrec.contact_id);
+							ContactRankRecord rank = crmodel.get(vcrec.contact_rank_id);
+		
+							cliststr += "<div class='contact_rank contact_"+rank.name+"'>";
+							cliststr += person.name;
+							cliststr += "</div>";
+						}
+						table.addRow(ctrec.name, new HtmlView(cliststr));
+						
+					}			
+		
+					//VO Report Names
+					VOReportNameModel vorepname_model = new VOReportNameModel(context);
+					ArrayList<VOReportNameRecord> vorepname_records = vorepname_model.getAllByVOID(rec.id);
+					GenericView vorepname_view = new GenericView();
+					for(VOReportNameRecord vorepname_record : vorepname_records) {
+						vorepname_view.add(createVOReportNameView(vorepname_record));
+					}
+					table.addRow("Reports", vorepname_view);
+		
+					if(auth.allows("admin_vo")) {
+						table.addRow("Footprints ID", rec.footprints_id);
+					}
+					table.addRow("Active", rec.active);
+					table.addRow("Disable", rec.disable);
+							
+					if(show_edit_button) {
+						class EditButtonDE extends DivRepButton
+						{
+							String url;
+							public EditButtonDE(DivRep parent, String _url)
+							{
+								super(parent, "Edit");
+								url = _url;
+							}
+							protected void onEvent(DivRepEvent e) {
+								redirect(url);
+							}
+						};
+						table.add(new DivRepWrapper(new EditButtonDE(context.getPageRoot(), StaticConfig.getApplicationBase()+"/voedit?id=" + rec.id)));
+					}
+				} catch (SQLException e) {
+					return new DivRepStaticContent(this, e.toString());
+				}
+				return new ViewWrapper(context.getPageRoot(), table);
+			}
+		};
+		return toggler;
 	}
 	
 	private String getSCName(Integer sc_id) throws SQLException
@@ -300,7 +329,7 @@ public class VOServlet extends ServletBase implements Servlet {
 			}
 		};
 		view.add("Operation", new NewButtonDE(context.getPageRoot(), "voedit"));
-		view.add("About", new HtmlView("This page shows a list of Virtual Organization that you have access to edit."));		
+		//view.add("About", new HtmlView("This page shows a list of Virtual Organization that you have access to edit."));		
 		view.addContactLegend();
 		
 		return view;
