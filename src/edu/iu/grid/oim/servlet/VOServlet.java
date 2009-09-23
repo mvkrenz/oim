@@ -149,7 +149,7 @@ public class VOServlet extends ServletBase implements Servlet {
 					table.addRow("Description", rec.description);
 					table.addRow("App Description", rec.app_description);
 					table.addRow("Community", rec.community);
-					table.addRow("Field of Scicnce", getFieldOfScience(rec.id));
+					table.addRow("Field of Science", getFieldOfScience(rec.id));
 					table.addRow("Primary URL", new HtmlView("<a target=\"_blank\" href=\""+rec.primary_url+"\">"+rec.primary_url+"</a>"));
 					table.addRow("AUP URL", new HtmlView("<a target=\"_blank\" href=\""+rec.aup_url+"\">"+rec.aup_url+"</a>"));
 					table.addRow("Membership Services URL", new HtmlView("<a target=\"_blank\" href=\""+rec.membership_services_url+"\">"+rec.membership_services_url+"</a>"));

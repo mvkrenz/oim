@@ -61,7 +61,7 @@ public class MenuView implements IView {
 			menu.add(new MenuItem("Profile", "profileedit"));
 		}
 		if(auth.getDNID() != null) {
-			menu.add(new MenuItem("Log", "log"));
+			menu.add(new MenuItem("Log", "log?type=1&start_type=2&end_type=1&transaction_1=on&transaction_2=on&transaction_3=on&model_1=on&model_2=on&model_3=on&model_4=on&model_5=on&model_6=on&model_7=on&"));
 		}
 		if (auth.allows("edit_measurement")) {
 			menu.add(new MenuItem("CPU Info", "cpuinfo"));	

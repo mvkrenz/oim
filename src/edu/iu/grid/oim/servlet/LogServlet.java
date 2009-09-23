@@ -158,7 +158,7 @@ public class LogServlet extends ServletBase  {
 
 		public void render(PrintWriter out) {
 			out.write("<div id=\""+getNodeID()+"\">");
-			out.write("<p class=\"info\">Show a specific log from the Log ID. All filters are ignored.</p>");
+			out.write("<p class=\"info\">Show a specific log from the Log ID. All other criterias are ignored.</p>");
 			id.render(out);
 			out.write("</div>");
 		}
@@ -493,11 +493,9 @@ public class LogServlet extends ServletBase  {
 				//out.write("</div>");
 				
 				out.write("<br/>");
-			out.write("</div>");
-			
-			out.write("<h3>Filters</h3>");
-			out.write("<p class=\"info\">Please select at least one item from both Transaction Type and Model Type.</p>");
-	    	out.write("<div class=\"indent\">");
+
+				out.write("<p class=\"info\">Please select at least one item from both Transaction Type and Model Type.</p>");
+
 	    	
 		    	out.write("<b>Tranaction Type</b>");
 				for(DivRepCheckBox transaction : transactions.values()) {
