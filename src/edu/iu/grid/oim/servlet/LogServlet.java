@@ -673,9 +673,6 @@ public class LogServlet extends ServletBase  {
 						view.add(new HtmlView("XML log Parse Error (" + somemodel.getName() + ") "+ e.toString()));
 					} catch (XPathExpressionException e) {
 						view.add(new HtmlView("XPath Expression Error (" + somemodel.getName() + ") "+ e.toString()));
-					} catch (NullPointerException e) {
-						//this happens if log xml contains invalid keys
-						view.add(new HtmlView(e.toString()));
 					}
 				}
 			}
@@ -709,18 +706,19 @@ public class LogServlet extends ServletBase  {
 		for(Node node : pullNonTextNode(dom.getElementsByTagName("Key"))) {
 			row = table.new Row();
 			ArrayList<Node> key = pullNonTextNode(node.getChildNodes());
-			Node name = key.get(0);
-			Node value = key.get(1);
-			String field_name = name.getTextContent();
+			String name = key.get(0).getTextContent();
+			String value = key.get(1).getTextContent();
 			String human_value;
 			try {
-				human_value = model.getHumanValue(field_name, value.getTextContent());
+				human_value = model.getHumanValue(name, value);
 			} catch (NumberFormatException e) {
-				human_value = "(Format Exception)";
+				human_value = value + " (Format Exception)";
 			} catch (SQLException e) {
-				human_value = "(SQL Exception)";
+				human_value = value + " (SQL Exception)";
+			} catch (NullPointerException e) {
+				human_value = value + " (Record no longer exists)";
 			}
-			row.addHeaderCell(new HtmlView(field_name));
+			row.addHeaderCell(new HtmlView("<img align=\"top\" src=\""+StaticConfig.getApplicationBase()+"/images/key.png\" /> "+name));
 			row.addCell(new HtmlView(StringEscapeUtils.escapeHtml(human_value)));
 			if(type.compareTo("Update") == 0) {
 				row.addCell(new HtmlView(""));
@@ -733,29 +731,31 @@ public class LogServlet extends ServletBase  {
 			row = table.new Row();
 			ArrayList<Node> field = pullNonTextNode(node.getChildNodes());
 			
-			Node name = field.get(0);
-			String field_name = name.getTextContent();
-			row.addHeaderCell(new HtmlView(field_name));
-			
-			Node value = field.get(1);
+			String name = field.get(0).getTextContent();
+			String value = field.get(1).getTextContent();
 			String human_value;
+			row.addHeaderCell(new HtmlView(name));
 			try {
-				human_value = model.getHumanValue(field_name, value.getTextContent());
+				human_value = model.getHumanValue(name, value);
 			} catch (NumberFormatException e) {
-				human_value = "(Format Exception)";
+				human_value = value + " (Format Exception)";
 			} catch (SQLException e) {
-				human_value = "(SQL Exception)";
+				human_value = value + " (SQL Exception)";
+			} catch (NullPointerException e) {
+				human_value = value + " (Record no longer exists)";
 			}
 			row.addCell(new HtmlView(StringEscapeUtils.escapeHtml(human_value)));
 			
 			if(type.compareTo("Update") == 0) {
-				Node newvalue = field.get(2);
+				String newvalue = field.get(2).getTextContent();
 				try {
-					human_value = model.getHumanValue(field_name, newvalue.getTextContent());
+					human_value = model.getHumanValue(name, newvalue);
 				} catch (NumberFormatException e) {
-					human_value = "(Format Exception)";
+					human_value = newvalue + " (Format Exception)";
 				} catch (SQLException e) {
-					human_value = "(SQL Exception)";
+					human_value = newvalue + " (SQL Exception)";
+				} catch (NullPointerException e) {
+					human_value = newvalue + " (Record no longer exists)";
 				}
 				row.addCell(new HtmlView(StringEscapeUtils.escapeHtml(human_value)));
 			}

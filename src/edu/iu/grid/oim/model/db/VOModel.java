@@ -74,20 +74,6 @@ public class VOModel extends SmallTableModelBase<VORecord>
 	    }	    	
 	    return list;
 	}
-	/*
-	public Collection<VORecord> getAllEditableAlphabetized() throws SQLException
-	{	   
-		ArrayList<VORecord> list = (ArrayList<VORecord>) getAllEditable();
-		Collections.sort(list, new Comparator<VORecord> (){
-		    // Comparator interface requires defining compare method. 
-			public int compare(VORecord a, VORecord b) {
-				// We are comparing based on name
-				return a.getName().compareToIgnoreCase(b.getName());
-			}
-		});
-	    return list;
-	}
-	*/
 	
 	//returns all record id that the user has access to
 	private HashSet<Integer> getEditableIDs() throws SQLException
