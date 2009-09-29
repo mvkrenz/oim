@@ -10,7 +10,7 @@ import edu.iu.grid.oim.servlet.LogServlet;
 public class TableView extends GenericView {
     static Logger log = Logger.getLogger(LogServlet.class);  
     
-	static public enum CellStyle { NORMAL, HEADER };
+	static public enum CellStyle { NORMAL, HEADER, BOLD };
 	String cls = "";
 	
 	public TableView(String cls)
@@ -49,6 +49,11 @@ public class TableView extends GenericView {
 					content.render(out);
 					out.print("</td>");
 					break;
+				case BOLD:
+					out.print("<td colspan=\""+span+"\" class=\"record_data_bold\">");
+					content.render(out);
+					out.print("</td>");
+					break;
 				case HEADER:
 					out.print("<th colspan=\""+span+"\">");
 					content.render(out);
@@ -70,6 +75,11 @@ public class TableView extends GenericView {
 		public void addHeaderCell(IView content) {
 			Cell cell = new Cell(content);
 			cell.setStyle(TableView.CellStyle.HEADER);
+			cells.add(cell);
+		}
+		public void addBoldCell(IView content) {
+			Cell cell = new Cell(content);
+			cell.setStyle(TableView.CellStyle.BOLD);
 			cells.add(cell);
 		}
 		

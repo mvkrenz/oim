@@ -59,6 +59,13 @@ border-bottom: 1px solid #ddd;
 padding-left: 5px;
 padding-right: 5px;
 }
+table.record_table td.record_data_bold
+{
+border-bottom: 1.5px solid #ddd;
+padding-left: 5px;
+font-weight: bold;
+padding-right: 5px;
+}
 table.record_table th
 {
 text-align: left;

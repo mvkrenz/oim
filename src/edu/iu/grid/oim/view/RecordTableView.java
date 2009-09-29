@@ -29,6 +29,18 @@ public class RecordTableView extends TableView {
 		row.addCell(content);		
 	}
 	
+	public void addBoldRow(String content) {
+		Row row = new Row();
+		addRow(row);
+		row.addBoldCell(new HtmlView(StringEscapeUtils.escapeHtml(content)));
+	}
+
+	public void addRow(String content) {
+		Row row = new Row();
+		addRow(row);
+		row.addCell(new HtmlView(StringEscapeUtils.escapeHtml(content)));
+	}
+
 	public void addRow(String header, String content)
 	{
 		content = StringEscapeUtils.escapeHtml(content);

@@ -19,6 +19,7 @@ import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.model.db.MetricModel;
 import edu.iu.grid.oim.model.db.MetricServiceModel;
 import edu.iu.grid.oim.model.db.ResourceDowntimeModel;
+import edu.iu.grid.oim.model.db.ServiceGroupModel;
 import edu.iu.grid.oim.model.db.ServiceModel;
 import edu.iu.grid.oim.model.db.record.MetricServiceRecord;
 import edu.iu.grid.oim.model.db.record.ResourceDowntimeRecord;
@@ -74,6 +75,7 @@ public class ServiceServlet extends ServletBase implements Servlet {
 		contentview.add(new HtmlView("<h1>Service</h1>"));
 
 		ServiceModel model = new ServiceModel(context);
+		ServiceGroupModel sgmodel = new ServiceGroupModel(context);
 		
 		for(ServiceRecord rec : model.getAll()) {
 			contentview.add(new HtmlView("<h2>"+StringEscapeUtils.escapeHtml(rec.name)+"</h2>"));
@@ -85,7 +87,8 @@ public class ServiceServlet extends ServletBase implements Servlet {
 			if (rec.port != null) {
 				table.addRow("Port", rec.port.toString());	
 			}
-			table.addRow("Service Group ID", rec.service_group_id.toString());
+			table.addRow("Service Group", sgmodel.get(rec.service_group_id).name);
+			// table.addRow("Service Group", rec.name);
 			
 			//Metric stuff
 			GenericView metric_view = new GenericView();
@@ -121,12 +124,14 @@ public class ServiceServlet extends ServletBase implements Servlet {
 		MetricModel metric_model = new MetricModel(context);
 		// Probably need to be more careful looking for null stuff
 		try {
-			table.addHeaderRow(rec.metric_id.toString()+ " " + metric_model.get(rec.metric_id).name);
+			if (rec.critical) 
+				table.addBoldRow(rec.metric_id.toString()+ " " + metric_model.get(rec.metric_id).name +" (Critical)");
+			else
+				table.addRow(rec.metric_id.toString()+ " " + metric_model.get(rec.metric_id).name);
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		table.addRow("Critical", rec.critical);
 	
 		view.add(table);
 		
