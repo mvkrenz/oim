@@ -586,7 +586,7 @@ public class ResourceDowntimeEditor extends DivRepFormElement {
 		timezone = TimeZone.getTimeZone(crec.timezone);
 		
 		ResourceDowntimeModel dmodel = new ResourceDowntimeModel(context);	
-		Collection <ResourceDowntimeRecord> dt_records = dmodel.getFutureDowntimesByResourceID(resource_id);
+		Collection <ResourceDowntimeRecord> dt_records = dmodel.getRecentDowntimesByResourceID(resource_id);
 		for(ResourceDowntimeRecord drec : dt_records) {
 			addDowntime(drec);
 		}

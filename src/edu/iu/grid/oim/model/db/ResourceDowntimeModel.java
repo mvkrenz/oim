@@ -84,7 +84,7 @@ public class ResourceDowntimeModel extends SmallTableModelBase<ResourceDowntimeR
 		}
 		return list;
 	}
-	
+	/*
 	public Collection<ResourceDowntimeRecord> getFutureDowntimesByResourceID(int resource_id) throws SQLException
 	{
 		ArrayList<ResourceDowntimeRecord> list = new ArrayList<ResourceDowntimeRecord>();
@@ -97,6 +97,7 @@ public class ResourceDowntimeModel extends SmallTableModelBase<ResourceDowntimeR
 		}
 		return list;
 	}
+	*/
 
 	public Collection<ResourceDowntimeRecord> getRecentDowntimesByResourceID(int resource_id) throws SQLException
 	{
@@ -126,7 +127,7 @@ public class ResourceDowntimeModel extends SmallTableModelBase<ResourceDowntimeR
 			for(ResourceDowntime downtime : downtimes) {	
 				downtime_recs.add(downtime.downtime);
 			}
-			dmodel.update(dmodel.getFutureDowntimesByResourceID(resource_id), downtime_recs);
+			dmodel.update(dmodel.getRecentDowntimesByResourceID(resource_id), downtime_recs);
 			
 			for(ResourceDowntime downtime : downtimes) {
 				ResourceDowntimeRecord downtime_rec = downtime.downtime;

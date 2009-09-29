@@ -56,7 +56,7 @@ public class ResourceDowntimeServiceModel extends SmallTableModelBase<ResourceDo
 		
 		//grap all downtime_id
 		ResourceDowntimeModel rdmodel = new ResourceDowntimeModel(context);
-		Collection<ResourceDowntimeRecord> downtimes = rdmodel.getFutureDowntimesByResourceID(resource_id);
+		Collection<ResourceDowntimeRecord> downtimes = rdmodel.getRecentDowntimesByResourceID(resource_id);
 		for(ResourceDowntimeRecord downtime : downtimes) {
 			list.addAll(getByDowntimeID(downtime.id));
 		}
