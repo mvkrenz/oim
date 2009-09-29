@@ -112,9 +112,9 @@ public class ResourceServlet extends ServletBase implements Servlet {
 		}
 	
 		ContentView contentview = new ContentView();
-		contentview.add(new HtmlView("<h1>Resources</h1>"));
+		contentview.add(new HtmlView("<h1>Resources I am authorized to edit</h1>"));
 		if(editable_resources.size() == 0) {
-			contentview.add(new HtmlView("<p>You currently don't have any resources that list your contact in any of the contact types.</p>"));
+			contentview.add(new HtmlView("<p>You currently are not listed as a contact of any contact type on any resource - therefore you are not authorized to edit any resources.</p>"));
 		}
 		for(ResourceRecord rec : editable_resources) {
 			String name = rec.name;
@@ -124,7 +124,7 @@ public class ResourceServlet extends ServletBase implements Servlet {
 		
 		if(readonly_resources.size() != 0) {
 			contentview.add(new HtmlView("<br/><h1>Read-Only Resources</h1>"));
-			contentview.add(new HtmlView("<p>Following are the resources that are currently registered at OIM that you do not have edit access.</p>"));
+			contentview.add(new HtmlView("<p>Following are the currently registered resources on OIM - you do not have edit access on these records.</p>"));
 	
 			for(ResourceRecord rec : readonly_resources) {
 				String name = rec.name;

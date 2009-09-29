@@ -88,9 +88,9 @@ public class SCServlet extends ServletBase implements Servlet {
 		}
 		
 		ContentView contentview = new ContentView();
-		contentview.add(new HtmlView("<h1>Support Centers</h1>"));
+		contentview.add(new HtmlView("<h1>Support Centers I am authorized to edit</h1>"));
 		if(editable_scs.size() == 0) {
-			contentview.add(new HtmlView("<p>You currently don't have any support centers that list your contact in any of the contact types.</p>"));
+			contentview.add(new HtmlView("<p>You currently are not listed as a contact of any contact type on any support center - therefore you are not authorized to edit any SCs.</p>"));
 		}
 		for(SCRecord rec : editable_scs) {
 			String name = rec.name;
@@ -100,7 +100,7 @@ public class SCServlet extends ServletBase implements Servlet {
 		
 		if(readonly_scs.size() != 0) {
 			contentview.add(new HtmlView("<br/><h1>Read-Only Support Centers</h1>"));
-			contentview.add(new HtmlView("<p>Following are the support centers that are currently registered at OIM that you do not have edit access.</p>"));
+			contentview.add(new HtmlView("<p>Following are the currently registered support centers on OIM - you do not have edit access on these records.</p>"));
 	
 			for(SCRecord rec : readonly_scs) {
 				String name = rec.name;

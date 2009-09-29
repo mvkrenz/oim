@@ -102,9 +102,9 @@ public class VOServlet extends ServletBase implements Servlet {
 		}
 		
 		ContentView contentview = new ContentView();
-		contentview.add(new HtmlView("<h1>Virtual Organizations</h1>"));
+		contentview.add(new HtmlView("<h1>Virtual Organizations I am authorized to edit</h1>"));
 		if(editable_vos.size() == 0) {
-			contentview.add(new HtmlView("<p>You currently don't have any virtual organization that list your contact in any of the contact types.</p>"));
+			contentview.add(new HtmlView("<p>You currently are not listed as a contact of any contact type on any virtual organization - therefore you are not authorized to edit any VOs.</p>"));
 		}
 		for(VORecord rec : editable_vos) {
 			String name = rec.name;
@@ -114,7 +114,7 @@ public class VOServlet extends ServletBase implements Servlet {
 		
 		if(readonly_vos.size() != 0) {
 			contentview.add(new HtmlView("<br/><h1>Read-Only Virtual Organizations</h1>"));
-			contentview.add(new HtmlView("<p>Following are the virtual organizations that are currently registered at OIM that you do not have edit access.</p>"));
+			contentview.add(new HtmlView("<p>Following are the currently registered virtual organizations on OIM - you do not have edit access on these records.</p>"));
 	
 			for(VORecord rec : readonly_vos) {
 				String name = rec.name;

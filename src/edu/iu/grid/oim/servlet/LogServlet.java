@@ -497,7 +497,7 @@ public class LogServlet extends ServletBase  {
 				out.write("<p class=\"info\">Please select at least one item from both Transaction Type and Model Type.</p>");
 
 	    	
-		    	out.write("<b>Tranaction Type</b>");
+		    	out.write("<b>Transaction Type</b>");
 				for(DivRepCheckBox transaction : transactions.values()) {
 					transaction.render(out);
 				}
