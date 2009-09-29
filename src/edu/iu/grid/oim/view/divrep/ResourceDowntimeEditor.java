@@ -90,6 +90,7 @@ public class ResourceDowntimeEditor extends DivRepFormElement {
 			}
 			protected void onEvent(DivRepEvent e) {
 				SimpleDateFormat format = new SimpleDateFormat(default_format);
+				format.setTimeZone(timezone);
 				try {
 					value = format.parse((String)e.value);
 				} catch (ParseException e1) {
@@ -108,7 +109,7 @@ public class ResourceDowntimeEditor extends DivRepFormElement {
 				SimpleDateFormat format = new SimpleDateFormat(default_format);
 				format.setTimeZone(timezone);
 				String str = format.format(value);
-				out.write("<input type=\"text\" class=\"datepicker\" value=\""+str+"\"/>");	
+				out.write("<input type=\"text\" class=\"datepicker\" value=\""+str+"\" onchange=\"divrep('"+getNodeID()+"', null, $(this).val());\"/>");	
 				
 				//setup the datepicker
 				out.write("<script type=\"text/javascript\">");

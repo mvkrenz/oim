@@ -77,30 +77,40 @@ vertical-align: top;
 
 .menu
 {
-	background-color: black;
-	padding: 4px 28px 4px 20px;
-}
-.menu span
-{
-    padding-right: 20px;
+background-color: black;
+padding: 4px 28px 4px 20px;
+height: 24px;
 }
 .menu span.link
 {
-	font-size: 12px;
-	font-weight: bold;
-	color: #888;
-	text-decoration: none;
-	cursor: pointer;
+font-size: 12px;
+font-weight: bold;
+color: #888;
+text-decoration: none;
+padding:2px;
+padding-left: 7px;
+padding-right: 7px;
+cursor: pointer;
 }
 .menu span.link:hover
 {
-	color: #6B7E09;
-	text-decoration: underline;
+text-decoration: underline;
 }
 .menu span.selected
 {
-    color: #fff;
+color: #fff;
+background-color: #333;
+-moz-border-radius-bottomleft:4px;
+-moz-border-radius-bottomright:4px;
+-moz-border-radius-topleft:4px;
+-moz-border-radius-topright:4px;
+-webkit-border-top-left-radius: 4px;
+-webkit-border-top-right-radius: 4px;
+-webkit-border-bottom-left-radius: 4px;
+-webkit-border-bottom-right-radius: 4px;
 }
+
+
 /* Content */
 #content
 {
