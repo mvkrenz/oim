@@ -2,7 +2,9 @@ package edu.iu.grid.oim.model.db;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 
@@ -96,6 +98,19 @@ public class ResourceDowntimeModel extends SmallTableModelBase<ResourceDowntimeR
 		return list;
 	}
 
+	public Collection<ResourceDowntimeRecord> getRecentDowntimesByResourceID(int resource_id) throws SQLException
+	{
+		ArrayList<ResourceDowntimeRecord> list = new ArrayList<ResourceDowntimeRecord>();
+		for(RecordBase it : getCache()) {
+			ResourceDowntimeRecord rec = (ResourceDowntimeRecord)it;
+			//search for downtime that ends in future.
+			Timestamp lastmonth = new Timestamp(Calendar.getInstance().getTimeInMillis() - 1000L * 3600 * 24 * 30);
+			if(rec.resource_id == resource_id && rec.timestamp.compareTo(lastmonth) > 0) {
+				list.add(rec);
+			}
+		}
+		return list;
+	}
 	
 	public void updateDetail(int resource_id, ArrayList<ResourceDowntime> downtimes) throws Exception
 	{
