@@ -116,6 +116,7 @@ public class ResourceDowntimeEditor extends DivRepFormElement {
 				out.write("$(document).ready(function() { $(\"#"+getNodeID()+" .datepicker\").datepicker({" +
 						"onSelect: function(value) {divrep('"+getNodeID()+"', null, value);},"+
 						"dateFormat: '"+default_jquery_format+"',"+
+						"showOn: 'button',"+
 						//"beforeShow: function() {$(this).attr('disabled', 'disabled');},"+
 						//"onClose: function() {$(this).attr('disabled', '');},"+
 						"changeYear: true,"+
