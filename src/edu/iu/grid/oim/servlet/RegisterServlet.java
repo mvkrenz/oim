@@ -153,6 +153,8 @@ public class RegisterServlet extends ServletBase  {
 					rec.primary_email = email.getValue();
 					rec.primary_phone = phone.getValue();
 					rec.person = true;
+					rec.timezone = "UTC";
+					rec.profile = "";
 					// Setting to false by default
 					//rec.active = false;
 					rec.disable = false;
@@ -187,7 +189,7 @@ public class RegisterServlet extends ServletBase  {
 				
 			} catch (SQLException e) {
 				alert(e.toString());
-				redirect(origin_url);
+				//redirect(origin_url);
 				ret = false;
 			}
 			
