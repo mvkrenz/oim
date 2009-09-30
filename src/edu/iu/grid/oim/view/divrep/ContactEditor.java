@@ -174,11 +174,13 @@ public class ContactEditor extends DivRepFormElement<HashMap<ContactEditor.Rank,
 							continue;
 						}
 						
-						//calculate levenshtein distance
-						int distance = StringUtils.getLevenshteinDistance(name, query);
-						if(best_guess_distance > distance) {
-							best_guess = rec;
-							best_guess_distance = distance;
+						//calculate levenshtein distance per token
+						for(String token : rec.name.split(" ")) {
+							int distance = StringUtils.getLevenshteinDistance(token, query);
+							if(best_guess_distance > distance) {
+								best_guess = rec;
+								best_guess_distance = distance;
+							}
 						}
 					}
 					if(rec.primary_email != null) {
