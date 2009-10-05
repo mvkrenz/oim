@@ -121,10 +121,6 @@ public class ContactFormDE extends DivRepForm
 			update.render(out);
 			out.print("</div>");
 		}	
-		public void validate()
-		{
-			
-		}
 	}
 	
 	class PersonalInfo extends DivRepFormElement
