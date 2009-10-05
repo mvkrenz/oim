@@ -71,70 +71,7 @@ public class ProfileEditServlet extends ServletBase implements Servlet {
 	
 	private SideContentView createSideView() throws SQLException
 	{
-		SideContentView view = new SideContentView();
-		//view.add(new DivRepWrapper(new Confirmation(auth.getContactID(), context)));
-		if(auth.getContact().isConfirmationExpired()) {
-			view.add(new HtmlView("<p class=\"divrep_round divrep_elementerror\">You have not recently confirmed the accuracy of your profile information. Please review the information and update the confirmation date inside this form.</p>"));
-		}
-	
-		
+		SideContentView view = new SideContentView();		
 		return view;
 	}
-	/*
-	class Confirmation extends DivRep
-	{
-		DivRepButton confirm;
-		final ContactRecord crec;
-		final ContactModel cmodel;
-		final Context context;
-		
-		public Confirmation(Integer contact_id, Context _context) throws SQLException {
-			super(_context.getPageRoot());
-			
-	    	cmodel = new ContactModel(_context);
-	    	crec = (ContactRecord) cmodel.get(contact_id).clone();	    	
-	    	context = _context;
-				
-			confirm = new DivRepButton(this, "Confirm");
-			confirm.addEventListener(new DivRepEventListener() {
-				public void handleEvent(DivRepEvent e) {
-					Date d = new Date();
-					Timestamp t = new Timestamp(d.getTime());
-					t.setNanos(0);
-					crec.confirmed = t;
-					try {
-						cmodel.update(cmodel.get(crec.id), crec);
-						Confirmation.this.context.close();
-						Confirmation.this.redraw();
-						
-						alert("Updated the confirmation date. Thank you!");
-						form.setConfirmed(t);
-					} catch (SQLException e1) {
-						log.error(e1);
-					}
-				}
-			});
-		}
-
-		protected void onEvent(DivRepEvent e) {
-			// TODO Auto-generated method stub
-			
-		}
-
-		public void render(PrintWriter out) {
-			out.write("<div id=\""+getNodeID()+"\">");
-			out.write("<h3>Content Confirmation</h3>");
-			
-			DateFormat dformat = DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.SHORT);
-			dformat.setTimeZone(getTimeZone());
-			out.write("<p>Last confirmation:<br/><b>"+dformat.format(crec.confirmed) + " " + "</b></p>");
-			if(crec.isConfirmationExpired()) {
-				out.write("<p class=\"divrep_round divrep_elementerror\">You have not recently confirmed that your profile information is accurate</p>");
-			}
-			out.write("<p>If the information you see is accurate, please click following button for confirmation.</p>");
-			confirm.render(out);
-			out.write("</div>");
-		}	
-	}
-	*/
 }

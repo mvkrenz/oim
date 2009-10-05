@@ -36,6 +36,7 @@ import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.DNModel;
 import edu.iu.grid.oim.model.db.record.DNRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
+import edu.iu.grid.oim.view.HtmlView;
 
 //alter table contact add column timezone varchar(16) default value "UTC";
 
@@ -73,20 +74,21 @@ public class ContactFormDE extends DivRepForm
 		private Timestamp timestamp;
 		private DivRepButton update;
 		private DateFormat dformat;
+		ContactRecord rec;
 		
 		public Timestamp getTimestamp()
 		{
 			return timestamp;
 		}
 		
-		protected Confirmation(DivRep parent, ContactRecord rec) {
+		protected Confirmation(DivRep parent, ContactRecord _rec) {
 			super(parent);
+			rec = _rec;
 			
 			dformat = DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.SHORT);
 			TimeZone timezone = TimeZone.getTimeZone(rec.timezone);
 			dformat.setTimeZone(timezone);
-			
-			timestamp = (Timestamp)rec.confirmed.clone();
+			timestamp = rec.confirmed;
 			
 			update = new DivRepButton(this, "Update Confirmation Date");
 			update.setStyle(Style.BUTTON);
@@ -107,11 +109,18 @@ public class ContactFormDE extends DivRepForm
 
 		public void render(PrintWriter out) {
 			out.print("<div class=\"divrep_form_element\" id=\""+getNodeID()+"\">");	
-			out.write("<p>The information on this page was last confirmed at <b>"+dformat.format(timestamp) + " " + "</b></p>");
+		
+			if(rec.isConfirmationExpired()) {
+				out.write("<p class=\"divrep_round divrep_elementerror\">");
+			} else {
+				out.write("<p>");
+			}
+			
+			out.write("The information on this page was last confirmed at <b>"+dformat.format(timestamp) + " " + "</b></p>");
 			out.write("<p>Please click following button and submit the form to update the confirmation date.</p>");
 			update.render(out);
 			out.print("</div>");
-		}		
+		}	
 	}
 	
 	class PersonalInfo extends DivRepFormElement
