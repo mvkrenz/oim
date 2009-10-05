@@ -3,6 +3,7 @@ package edu.iu.grid.oim.model.db.record;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.Calendar;
 import java.util.Date;
 import edu.iu.grid.oim.lib.StaticConfig;
 
@@ -31,7 +32,11 @@ public class ContactRecord extends RecordBase implements Cloneable  {
 		super(rs);
 	}
 	//for creating new record
-	public ContactRecord() {}
+	public ContactRecord() {
+		timezone = "UTC";
+		profile = "";
+		confirmed = new Timestamp(Calendar.getInstance().getTimeInMillis());
+	}
 	public String getName() {
 		return name;
 	}
