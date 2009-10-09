@@ -3,6 +3,8 @@ package edu.iu.grid.oim.view;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 
+import org.apache.commons.lang.StringEscapeUtils;
+
 public class BreadCrumbView implements IView {
 	
 	ArrayList<Crumb> crumbs = new ArrayList();
@@ -16,10 +18,10 @@ public class BreadCrumbView implements IView {
 				if(title == null) {
 					out.write("New");
 				} else {
-					out.write(title);
+					out.write(StringEscapeUtils.escapeHtml(title));
 				}
 			} else {
-				out.write("<a href=\""+url+"\">"+title+"</a>");
+				out.write("<a href=\""+url+"\">"+StringEscapeUtils.escapeHtml(title)+"</a>");
 			}
 		}
 	}

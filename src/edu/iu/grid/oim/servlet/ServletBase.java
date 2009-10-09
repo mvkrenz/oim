@@ -56,6 +56,8 @@ public class ServletBase extends HttpServlet {
 
 	protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException
 	{
+		resp.setCharacterEncoding("UTF-8");
+		
 		try {
 			context = new Context(req);
 			auth = context.getAuthorization();
