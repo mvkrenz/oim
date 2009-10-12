@@ -1,3 +1,19 @@
-Thank you for registering the ##VO_NAME## Virtual Organization. 
+Thank you for registering the ##VO_NAME## Virtual Organization. By completing the VO Registration form you have started the approval process to have your VO added to the OSG.  This process should take approximately 7 business days to complete.
+
+Your VO will be presented for approval to the OSG Council on the first Thursday after it is submitted and then sent to the next Operations Workgroup for discussion on the next Monday. If you would like to attend the Operations Workgroup meeting to represent your VO and inform the community of your participation and goal in joining the OSG you can find the details at http://twiki.grid.iu.edu/bin/view/Operations/ProductionMeetingMinutes.
+
+There are several mailing lists associated with the OSG, as a new VO you may want to subscribe to the following mailing lists:
+
+osg@opensciencegrid.org  -- For general OSG announcements
+osg-general@opensciencegrid.org  -- For general technical discussion and open community support
+osg-operations@opensciencegrid.org  -- Operations activities
+osg-ops-status@opensciencegrid.org  -- OSG Status Reports
+vo-admins@opensciencegrid.org  -- OSG VO and GUMS Administration
+
+Details for subscribing to these lists and a list of other OSG mailing lists you may be interested in subscribing to can be found at http://www.opensciencegrid.org/Consortium_Mailing_Lists.
+
+Please contact the Grid Operations Center (GOC) at goc@opensciencegrid.org if you have any questions.
+
+Thank you for your interest in the OSG, and we look forward to your participation in the OSG Consortium!
 
 OSG Operations Workgroup
