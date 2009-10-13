@@ -43,6 +43,7 @@ function divrep(id, event, value) {
 			action: event.type,
 			value : value },
 		type: "POST",
+		contentType: "application/x-www-form-urlencoded; charset=UTF-8",
 		dataType: "script",//Evaluates the response as JavaScript and returns it as plain text. Disables caching unless option "cache" is used. Note: This will turn POSTs into GETs for remote-domain requests. 
 	    success: function(msg){
 		    divrepClearProcessing();

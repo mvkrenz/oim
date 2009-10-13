@@ -8,6 +8,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 
+import javax.mail.MessagingException;
 import javax.xml.soap.*;
 
 import edu.iu.grid.oim.model.Context;
@@ -129,10 +130,10 @@ public class Footprint
 	            SOAPElement arg4_5_2 = arg4_5.addChildElement( env.createName("item") );
 	            arg4_5_2.addAttribute( env.createName("type","xsi",""), "xsd:string" );
 	            arg4_5_2.addTextNode("echism");
-            
+	            
             SOAPElement ccs = args.addChildElement( env.createName("permanentCCs") );
             ccs.addAttribute( env.createName("type","xsi",""), "SOAP-ENC:Array" );
-            ccs.addAttribute( env.createName("arrayType","SOAP-ENC",""), "xsd:string[2]" );//CHANGE [1] to [n] based on the number of items
+            ccs.addAttribute( env.createName("arrayType","SOAP-ENC",""), "xsd:string[3]" );//CHANGE [1] to [n] based on the number of items
             
 	            SOAPElement cc1 = ccs.addChildElement( env.createName("item") );
 	            cc1.addAttribute( env.createName("type","xsi",""), "xsd:string" );
@@ -141,7 +142,11 @@ public class Footprint
 	            SOAPElement cc2 = ccs.addChildElement( env.createName("item") );
 	            cc2.addAttribute( env.createName("type","xsi",""), "xsd:string" );
 	            cc2.addTextNode("rquick@iu.edu");
-            
+	            
+	            SOAPElement cc3 = ccs.addChildElement( env.createName("item") );
+	            cc3.addAttribute( env.createName("type","xsi",""), "xsd:string" );
+	            cc3.addTextNode("ruth@fnal.gov");   
+        
             //project fields
             SOAPElement projfields = args.addChildElement( env.createName("projfields") );
             projfields.addAttribute( env.createName("type","xsi",""), "namesp2:SOAPStruct" );
@@ -257,10 +262,10 @@ public class Footprint
 	            SOAPElement arg4_5_2 = arg4_5.addChildElement( env.createName("item") );
 	            arg4_5_2.addAttribute( env.createName("type","xsi",""), "xsd:string" );
 	            arg4_5_2.addTextNode("echism");
-            
+            	            
             SOAPElement ccs = args.addChildElement( env.createName("permanentCCs") );
             ccs.addAttribute( env.createName("type","xsi",""), "SOAP-ENC:Array" );
-            ccs.addAttribute( env.createName("arrayType","SOAP-ENC",""), "xsd:string[2]" );//CHANGE [1] to [n] based on the number of items
+            ccs.addAttribute( env.createName("arrayType","SOAP-ENC",""), "xsd:string[3]" );//CHANGE [1] to [n] based on the number of items
             
 	            SOAPElement cc1 = ccs.addChildElement( env.createName("item") );
 	            cc1.addAttribute( env.createName("type","xsi",""), "xsd:string" );
@@ -269,6 +274,10 @@ public class Footprint
 	            SOAPElement cc2 = ccs.addChildElement( env.createName("item") );
 	            cc2.addAttribute( env.createName("type","xsi",""), "xsd:string" );
 	            cc2.addTextNode("rquick@iu.edu");
+	            
+	            SOAPElement cc3 = ccs.addChildElement( env.createName("item") );
+	            cc3.addAttribute( env.createName("type","xsi",""), "xsd:string" );
+	            cc3.addTextNode("ruth@fnal.gov");   	          
             
             //project fields
             SOAPElement projfields = args.addChildElement( env.createName("projfields") );
@@ -301,11 +310,13 @@ public class Footprint
             msg.saveChanges();
 
             call();
-        } catch(SOAPException ex) {
-            ex.printStackTrace();
-        } catch (SQLException e) {
-			e.printStackTrace();
-		}
+        } catch(Exception ex) {
+        	try {
+				SendMail.sendErrorEmail("Failed to open Footprint ticket: " + ex.toString());
+			} catch (MessagingException e) {
+				System.out.println(ex.toString());
+			}
+        } 
 	}
 	
 	public void createNewVOTicket(String vo_name)
@@ -388,7 +399,7 @@ public class Footprint
             
             SOAPElement ccs = args.addChildElement( env.createName("permanentCCs") );
             ccs.addAttribute( env.createName("type","xsi",""), "SOAP-ENC:Array" );
-            ccs.addAttribute( env.createName("arrayType","SOAP-ENC",""), "xsd:string[2]" );//CHANGE [1] to [n] based on the number of items
+            ccs.addAttribute( env.createName("arrayType","SOAP-ENC",""), "xsd:string[3]" );//CHANGE [1] to [n] based on the number of items
             
 	            SOAPElement cc1 = ccs.addChildElement( env.createName("item") );
 	            cc1.addAttribute( env.createName("type","xsi",""), "xsd:string" );
@@ -397,7 +408,11 @@ public class Footprint
 	            SOAPElement cc2 = ccs.addChildElement( env.createName("item") );
 	            cc2.addAttribute( env.createName("type","xsi",""), "xsd:string" );
 	            cc2.addTextNode("rquick@iu.edu");
-            
+	            
+	            SOAPElement cc3 = ccs.addChildElement( env.createName("item") );
+	            cc3.addAttribute( env.createName("type","xsi",""), "xsd:string" );
+	            cc3.addTextNode("ruth@fnal.gov");   
+	            
             //project fields
             SOAPElement projfields = args.addChildElement( env.createName("projfields") );
             projfields.addAttribute( env.createName("type","xsi",""), "namesp2:SOAPStruct" );

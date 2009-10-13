@@ -55,9 +55,7 @@ public class ServletBase extends HttpServlet {
 	}
 
 	protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException
-	{
-		resp.setCharacterEncoding("UTF-8");
-		
+	{	
 		try {
 			context = new Context(req);
 			auth = context.getAuthorization();
@@ -76,6 +74,8 @@ public class ServletBase extends HttpServlet {
 			
 			String method = req.getMethod();
 			if(method.equals("GET")) {
+				resp.setCharacterEncoding("UTF-8");
+				//resp.addHeader("Content-Type", "text/html; charset=UTF-8");
 				doGet(req, resp);
 			}
 		} catch (AuthorizationException e) {
