@@ -184,6 +184,10 @@ public class ResourceDowntimeEditor extends DivRepFormElement {
 					}});
 				min.setHasNull(false);
 				value = Calendar.getInstance(timezone);
+				
+				//reset to 0:0AM
+				value.set(Calendar.HOUR_OF_DAY, 0);
+				value.set(Calendar.MINUTE, 0);
 			}
 
 			public void render(PrintWriter out) {				
