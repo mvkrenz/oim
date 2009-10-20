@@ -119,7 +119,7 @@ public class ResourceModel extends SmallTableModelBase<ResourceRecord> {
 
 		HashSet<Integer> voids = new HashSet<Integer>();
 		for (VOContactRecord voc_rec: voc_recs) {
-			// VO Manager is contact type 6
+			//Is contact_type_id 6 (VO Manager)?
 			if(voc_rec.contact_type_id == 6) {
 				voids.add(voc_rec.vo_id);
 			}

@@ -25,6 +25,7 @@ import edu.iu.grid.oim.model.Context;
 import edu.iu.grid.oim.model.MenuItem;
 import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
+import edu.iu.grid.oim.view.ContactAssociationView;
 import edu.iu.grid.oim.view.ContentView;
 import edu.iu.grid.oim.view.DivRepWrapper;
 import edu.iu.grid.oim.view.GenericView;
@@ -75,6 +76,13 @@ public class HomeServlet extends ServletBase  {
 			} catch (SQLException e) {
 				log.error(e);
 			}				
+		}
+		
+		//show entities that this user is associated
+		if(auth.isOIMUser()) {
+			contentview.add(new HtmlView("<h2>Associated Entities</h2>"));
+			contentview.add(new HtmlView("<p>Following entities are associated with your contact</p>"));
+			contentview.add(new ContactAssociationView(context, auth.getContactID()));
 		}
 
 		return contentview;
