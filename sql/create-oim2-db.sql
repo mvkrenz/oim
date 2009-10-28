@@ -1,8 +1,8 @@
 -- MySQL dump 10.11
 --
--- Host: localhost    Database: oim2
+-- Host: localhost    Database: oim
 -- ------------------------------------------------------
--- Server version	5.0.51a-log
+-- Server version	5.0.77
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -14,14 +14,6 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
-
---
--- Current Database: `oim2`
---
-
-CREATE DATABASE IF NOT EXISTS `oim` /*!40100 DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci */;
-
-USE `oim`;
 
 --
 -- Table structure for table `View_VoReportNamesFqans`
@@ -44,13 +36,18 @@ SET character_set_client = @saved_cs_client;
 --
 
 DROP TABLE IF EXISTS `action`;
-CREATE TABLE  `action` (
+SET @saved_cs_client     = @@character_set_client;
+SET character_set_client = utf8;
+CREATE TABLE `action` (
   `id` int(11) NOT NULL auto_increment,
   `name` varchar(64) collate utf8_unicode_ci NOT NULL,
   `description` text collate utf8_unicode_ci,
   PRIMARY KEY  (`id`),
   UNIQUE KEY `name` (`name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=34 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+SET character_set_client = @saved_cs_client;
+
+--
 -- Table structure for table `authorization_type`
 --
 
@@ -61,7 +58,7 @@ CREATE TABLE `authorization_type` (
   `id` int(11) NOT NULL auto_increment,
   `name` varchar(512) collate utf8_unicode_ci NOT NULL,
   PRIMARY KEY  (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 SET character_set_client = @saved_cs_client;
 
 --
@@ -76,8 +73,8 @@ CREATE TABLE `authorization_type_action` (
   `action_id` int(11) NOT NULL,
   PRIMARY KEY  (`authorization_type_id`,`action_id`),
   KEY `action_id` (`action_id`),
-  CONSTRAINT `authorization_type_action_ibfk_2` FOREIGN KEY (`action_id`) REFERENCES `action` (`id`),
-  CONSTRAINT `authorization_type_action_ibfk_1` FOREIGN KEY (`authorization_type_id`) REFERENCES `authorization_type` (`id`)
+  CONSTRAINT `authorization_type_action_ibfk_1` FOREIGN KEY (`authorization_type_id`) REFERENCES `authorization_type` (`id`),
+  CONSTRAINT `authorization_type_action_ibfk_2` FOREIGN KEY (`action_id`) REFERENCES `action` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 SET character_set_client = @saved_cs_client;
 
@@ -99,37 +96,55 @@ CREATE TABLE `ca` (
 SET character_set_client = @saved_cs_client;
 
 --
--- Table structure for table `dn`
+-- Table structure for table `config`
 --
 
-DROP TABLE IF EXISTS `dn`;
+DROP TABLE IF EXISTS `config`;
 SET @saved_cs_client     = @@character_set_client;
 SET character_set_client = utf8;
-CREATE TABLE `dn` (
-  `id` int(11) NOT NULL auto_increment,
-  `dn_string` varchar(1024) collate utf8_unicode_ci NOT NULL,
-  `contact_id` int(11) NOT NULL,
-  PRIMARY KEY  (`id`),
-  KEY `contact_dn` (`contact_id`),
-  CONSTRAINT `contact_dn` FOREIGN KEY (`contact_id`) REFERENCES `contact` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=145 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+CREATE TABLE `config` (
+  `key` varchar(45) collate utf8_unicode_ci NOT NULL,
+  `value` text collate utf8_unicode_ci NOT NULL,
+  PRIMARY KEY  (`key`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 SET character_set_client = @saved_cs_client;
 
 --
--- Table structure for table `dn_authorization_type`
+-- Table structure for table `contact`
 --
 
-DROP TABLE IF EXISTS `dn_authorization_type`;
+DROP TABLE IF EXISTS `contact`;
 SET @saved_cs_client     = @@character_set_client;
 SET character_set_client = utf8;
-CREATE TABLE `dn_authorization_type` (
-  `dn_id` int(11) NOT NULL,
-  `authorization_type_id` int(11) NOT NULL,
-  PRIMARY KEY  (`dn_id`,`authorization_type_id`),
-  KEY `FK_dn_authorization_type` USING BTREE (`authorization_type_id`),
-  CONSTRAINT `dn_authorization_type_ibfk_1` FOREIGN KEY (`dn_id`) REFERENCES `dn` (`id`),
-  CONSTRAINT `FK_dn_authorization_type_1` FOREIGN KEY (`authorization_type_id`) REFERENCES `authorization_type` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Will help enable various type of authorizations for a DN (i.';
+CREATE TABLE `contact` (
+  `id` int(11) NOT NULL auto_increment,
+  `name` varchar(512) collate utf8_unicode_ci default NULL,
+  `primary_email` varchar(128) collate utf8_unicode_ci NOT NULL default 'foo@bar.com_CHANGE_THIS',
+  `secondary_email` varchar(128) collate utf8_unicode_ci default NULL,
+  `primary_phone` varchar(32) collate utf8_unicode_ci default '1-234-567-8900_CHANGE_THIS',
+  `primary_phone_ext` varchar(32) collate utf8_unicode_ci default '1-234-567-8900_CHANGE_THIS',
+  `secondary_phone` varchar(32) collate utf8_unicode_ci default NULL,
+  `secondary_phone_ext` varchar(32) collate utf8_unicode_ci default NULL,
+  `address_line_1` text collate utf8_unicode_ci,
+  `address_line_2` text collate utf8_unicode_ci,
+  `city` text collate utf8_unicode_ci,
+  `state` text collate utf8_unicode_ci,
+  `zipcode` text collate utf8_unicode_ci,
+  `country` varchar(512) collate utf8_unicode_ci default NULL COMMENT 'Fill in using country table data in web code',
+  `person` tinyint(1) NOT NULL default '0' COMMENT 'This field indicates if a contact is a human being (true) or a mailing list (false)',
+  `submitter_dn_id` int(11) default NULL,
+  `disable` tinyint(1) NOT NULL default '0' COMMENT 'The disable field supersedes the active flag, and can be used to permanently inactivate a record. It has to be set by the programmatic interface, it''s set to false by default.',
+  `contact_preference` text collate utf8_unicode_ci COMMENT 'this field can be used to store snippets about person like if they want you to avoid calling them, etc.',
+  `im` varchar(128) collate utf8_unicode_ci default NULL,
+  `photo_url` varchar(256) collate utf8_unicode_ci default NULL,
+  `sms_address` varchar(45) collate utf8_unicode_ci default NULL,
+  `confirmed` timestamp NOT NULL default CURRENT_TIMESTAMP,
+  `timezone` varchar(45) collate utf8_unicode_ci NOT NULL default 'UTC',
+  `profile` text collate utf8_unicode_ci NOT NULL,
+  PRIMARY KEY  (`id`),
+  KEY `dn_person` (`submitter_dn_id`),
+  CONSTRAINT `dn_person` FOREIGN KEY (`submitter_dn_id`) REFERENCES `dn` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=600 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='<strong><u>Person</u></strong>: Information about any person';
 SET character_set_client = @saved_cs_client;
 
 --
@@ -157,7 +172,7 @@ CREATE TABLE `contact_type` (
   `id` int(11) NOT NULL auto_increment,
   `name` varchar(512) collate utf8_unicode_ci NOT NULL,
   `allow_secondary` tinyint(1) NOT NULL default '0' COMMENT 'Does this contact type allow a secondary contact?',
-  `allow_tertiary`  tinyint(1) NOT NULL default '0' COMMENT 'Does this contact type allow tertiary contacts?',
+  `allow_tertiary` tinyint(1) NOT NULL default '0' COMMENT 'Does this contact type allow tertiary contacts?',
   PRIMARY KEY  (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 SET character_set_client = @saved_cs_client;
@@ -187,9 +202,44 @@ CREATE TABLE `cpu_info` (
   `id` int(11) NOT NULL auto_increment,
   `name` varchar(512) collate utf8_unicode_ci NOT NULL,
   `normalization_constant` float NOT NULL,
+  `hepspec_normalization_constant` float NOT NULL default '0',
   `notes` text collate utf8_unicode_ci,
   PRIMARY KEY  (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Aux. table to store CPU normalization constants, etc.- for M';
+) ENGINE=InnoDB AUTO_INCREMENT=159 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Aux. table to store CPU normalization constants, etc.- for M';
+SET character_set_client = @saved_cs_client;
+
+--
+-- Table structure for table `dn`
+--
+
+DROP TABLE IF EXISTS `dn`;
+SET @saved_cs_client     = @@character_set_client;
+SET character_set_client = utf8;
+CREATE TABLE `dn` (
+  `id` int(11) NOT NULL auto_increment,
+  `dn_string` varchar(1024) collate utf8_unicode_ci NOT NULL,
+  `contact_id` int(11) NOT NULL,
+  PRIMARY KEY  (`id`),
+  KEY `contact_dn` (`contact_id`),
+  CONSTRAINT `contact_dn` FOREIGN KEY (`contact_id`) REFERENCES `contact` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=298 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+SET character_set_client = @saved_cs_client;
+
+--
+-- Table structure for table `dn_authorization_type`
+--
+
+DROP TABLE IF EXISTS `dn_authorization_type`;
+SET @saved_cs_client     = @@character_set_client;
+SET character_set_client = utf8;
+CREATE TABLE `dn_authorization_type` (
+  `dn_id` int(11) NOT NULL,
+  `authorization_type_id` int(11) NOT NULL,
+  PRIMARY KEY  (`dn_id`,`authorization_type_id`),
+  KEY `FK_dn_authorization_type` USING BTREE (`authorization_type_id`),
+  CONSTRAINT `dn_authorization_type_ibfk_1` FOREIGN KEY (`dn_id`) REFERENCES `dn` (`id`),
+  CONSTRAINT `FK_dn_authorization_type_1` FOREIGN KEY (`authorization_type_id`) REFERENCES `authorization_type` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Will help enable various type of authorizations for a DN (i.';
 SET character_set_client = @saved_cs_client;
 
 --
@@ -272,14 +322,17 @@ CREATE TABLE `facility` (
   `active` tinyint(1) NOT NULL default '0',
   `disable` tinyint(1) NOT NULL default '0' COMMENT 'The disable field supersedes the active flag, and can be used to permanently inactivate a record. It has to be set by the programmatic interface, it''s set to false by default.',
   PRIMARY KEY  (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=10063 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=10080 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 SET character_set_client = @saved_cs_client;
 
+--
+-- Table structure for table `facility_contact_deleteme`
+--
 
-DROP TABLE IF EXISTS `facility_contact`;
+DROP TABLE IF EXISTS `facility_contact_deleteme`;
 SET @saved_cs_client     = @@character_set_client;
 SET character_set_client = utf8;
-CREATE TABLE `facility_contact` (
+CREATE TABLE `facility_contact_deleteme` (
   `contact_id` int(11) NOT NULL,
   `facility_id` int(11) NOT NULL,
   `contact_type_id` int(11) NOT NULL,
@@ -288,13 +341,12 @@ CREATE TABLE `facility_contact` (
   KEY `facility_facility_contact` (`facility_id`),
   KEY `contact_type_facility_contact` (`contact_type_id`),
   KEY `contact_rank_facility_contact` (`contact_rank_id`),
+  CONSTRAINT `contact_faclity_contact` FOREIGN KEY (`contact_id`) REFERENCES `contact` (`id`),
   CONSTRAINT `contact_rank_facility_contact` FOREIGN KEY (`contact_rank_id`) REFERENCES `contact_rank` (`id`),
   CONSTRAINT `contact_type_facility_contact` FOREIGN KEY (`contact_type_id`) REFERENCES `contact_type` (`id`),
-  CONSTRAINT `contact_faclity_contact` FOREIGN KEY (`contact_id`) REFERENCES `contact` (`id`),
   CONSTRAINT `facility_facility_contact` FOREIGN KEY (`facility_id`) REFERENCES `facility` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 SET character_set_client = @saved_cs_client;
-
 
 --
 -- Table structure for table `field_of_science`
@@ -307,7 +359,7 @@ CREATE TABLE `field_of_science` (
   `id` int(11) NOT NULL auto_increment,
   `name` varchar(512) collate utf8_unicode_ci NOT NULL,
   PRIMARY KEY  (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=36 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 SET character_set_client = @saved_cs_client;
 
 --
@@ -315,6 +367,8 @@ SET character_set_client = @saved_cs_client;
 --
 
 DROP TABLE IF EXISTS `log`;
+SET @saved_cs_client     = @@character_set_client;
+SET character_set_client = utf8;
 CREATE TABLE `log` (
   `id` int(11) NOT NULL auto_increment,
   `type` varchar(16) collate utf8_unicode_ci default NULL,
@@ -326,10 +380,17 @@ CREATE TABLE `log` (
   PRIMARY KEY  (`id`),
   KEY `dn_log` (`dn_id`),
   CONSTRAINT `log_ibfk_1` FOREIGN KEY (`dn_id`) REFERENCES `dn` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2446 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Log table to store all OIM-DB changes for auditing purposes.';
+) ENGINE=InnoDB AUTO_INCREMENT=4273 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Log table to store all OIM-DB changes for auditing purposes.';
+SET character_set_client = @saved_cs_client;
+
+--
+-- Table structure for table `metric`
+--
 
 DROP TABLE IF EXISTS `metric`;
-CREATE TABLE  `metric` (
+SET @saved_cs_client     = @@character_set_client;
+SET character_set_client = utf8;
+CREATE TABLE `metric` (
   `id` int(11) NOT NULL auto_increment,
   `name` varchar(512) collate utf8_unicode_ci NOT NULL,
   `common_name` varchar(512) collate utf8_unicode_ci default NULL,
@@ -340,7 +401,8 @@ CREATE TABLE  `metric` (
   `help_url` text collate utf8_unicode_ci,
   `wlcg_metric_type` varchar(512) collate utf8_unicode_ci NOT NULL default 'status' COMMENT 'Silly field to hold on to status or performance values as defined in WLCG specs 0.91.',
   PRIMARY KEY  (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=25 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=30 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+SET character_set_client = @saved_cs_client;
 
 --
 -- Table structure for table `metric_service`
@@ -386,49 +448,30 @@ CREATE TABLE `osg_grid_type` (
   `name` varchar(512) collate utf8_unicode_ci default NULL,
   `description` varchar(512) collate utf8_unicode_ci NOT NULL,
   PRIMARY KEY  (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='This table will likely be populated only by GOC staff (using';
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='This table will likely be populated only by GOC staff (using';
 SET character_set_client = @saved_cs_client;
 
 --
--- Table structure for table `contact`
+-- Table structure for table `ra_contact`
 --
 
-DROP TABLE IF EXISTS `contact`;
-CREATE TABLE  `contact` (
-  `id` int(11) NOT NULL auto_increment,
-  `name` varchar(512) collate utf8_unicode_ci default NULL,
-  `primary_email` varchar(128) collate utf8_unicode_ci NOT NULL default 'foo@bar.com_CHANGE_THIS',
-  `secondary_email` varchar(128) collate utf8_unicode_ci default NULL,
-  `primary_phone` varchar(32) collate utf8_unicode_ci default '1-234-567-8900_CHANGE_THIS',
-  `primary_phone_ext` varchar(32) collate utf8_unicode_ci default '1-234-567-8900_CHANGE_THIS',
-  `secondary_phone` varchar(32) collate utf8_unicode_ci default NULL,
-  `secondary_phone_ext` varchar(32) collate utf8_unicode_ci default NULL,
-  `address_line_1` text collate utf8_unicode_ci,
-  `address_line_2` text collate utf8_unicode_ci,
-  `city` text collate utf8_unicode_ci,
-  `state` text collate utf8_unicode_ci,
-  `zipcode` text collate utf8_unicode_ci,
-  `country` varchar(512) collate utf8_unicode_ci default NULL COMMENT 'Fill in using country table data in web code',
-  `person` tinyint(1) NOT NULL default '0' COMMENT 'This field indicates if a contact is a human being (true) or a mailing list (false)',
-  `submitter_dn_id` int(11) default NULL,
-  `active` tinyint(1) NOT NULL default '0' COMMENT 'The active field has to be set by the programmatic interface, it''s set to false by default.',
-  `disable` tinyint(1) NOT NULL default '0' COMMENT 'The disable field supersedes the active flag, and can be used to permanently inactivate a record. It has to be set by the programmatic interface, it''s set to false by default.',
-  `contact_preference` text collate utf8_unicode_ci COMMENT 'this field can be used to store snippets about person like if they want you to avoid calling them, etc.',
-  `im` varchar(128) collate utf8_unicode_ci default NULL,
-  `photo_url` varchar(256) collate utf8_unicode_ci default NULL,
-  `sms_address` varchar(45) collate utf8_unicode_ci default NULL,
-  `confirmed` timestamp NOT NULL default CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP,
-  `timezone` varchar(45) collate utf8_unicode_ci NOT NULL default 'UTC',
-  `profile` text collate utf8_unicode_ci NOT NULL,
-  PRIMARY KEY  (`id`),
-  KEY `dn_person` (`submitter_dn_id`),
-  CONSTRAINT `dn_person` FOREIGN KEY (`submitter_dn_id`) REFERENCES `dn` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=582 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='<strong><u>Person</u></strong>: Information about any person';
+DROP TABLE IF EXISTS `ra_contact`;
+SET @saved_cs_client     = @@character_set_client;
+SET character_set_client = utf8;
+CREATE TABLE `ra_contact` (
+  `contact_id` int(11) NOT NULL auto_increment,
+  PRIMARY KEY  (`contact_id`),
+  CONSTRAINT `FK_ra_contact_1` FOREIGN KEY (`contact_id`) REFERENCES `contact` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=467 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+SET character_set_client = @saved_cs_client;
+
 --
 -- Table structure for table `resource`
 --
 
 DROP TABLE IF EXISTS `resource`;
+SET @saved_cs_client     = @@character_set_client;
+SET character_set_client = utf8;
 CREATE TABLE `resource` (
   `id` int(11) NOT NULL auto_increment,
   `name` text collate utf8_unicode_ci,
@@ -438,22 +481,27 @@ CREATE TABLE `resource` (
   `active` int(11) NOT NULL COMMENT 'Use this to also flag inactive resources?',
   `disable` int(11) NOT NULL default '0' COMMENT 'Use this to also flag inactive resources?',
   `resource_group_id` int(11) NOT NULL,
+  `confirmed` timestamp NOT NULL default CURRENT_TIMESTAMP,
   PRIMARY KEY  (`id`),
   KEY `resource_resource_group` (`resource_group_id`),
   CONSTRAINT `resource_resource_group` FOREIGN KEY (`resource_group_id`) REFERENCES `resource_group` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='This table does not have an active flag field because we hav';
+) ENGINE=InnoDB AUTO_INCREMENT=303 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='This table does not have an active flag field because we hav';
+SET character_set_client = @saved_cs_client;
 
 --
 -- Table structure for table `resource_alias`
 --
 
 DROP TABLE IF EXISTS `resource_alias`;
-CREATE TABLE  `resource_alias` (
+SET @saved_cs_client     = @@character_set_client;
+SET character_set_client = utf8;
+CREATE TABLE `resource_alias` (
   `resource_id` int(11) NOT NULL,
   `resource_alias` varchar(128) collate utf8_unicode_ci NOT NULL default '(not specified)',
   PRIMARY KEY  USING BTREE (`resource_id`,`resource_alias`),
   CONSTRAINT `resource_resource_alias` FOREIGN KEY (`resource_id`) REFERENCES `resource` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+SET character_set_client = @saved_cs_client;
 
 --
 -- Table structure for table `resource_contact`
@@ -472,8 +520,8 @@ CREATE TABLE `resource_contact` (
   KEY `contact_type_resource_contact` (`contact_type_id`),
   KEY `contact_rank_resource_contact` (`contact_rank_id`),
   CONSTRAINT `contact_rank_resource_contact` FOREIGN KEY (`contact_rank_id`) REFERENCES `contact_rank` (`id`),
-  CONSTRAINT `contact_type_resource_contact` FOREIGN KEY (`contact_type_id`) REFERENCES `contact_type` (`id`),
   CONSTRAINT `contact_resource_contact` FOREIGN KEY (`contact_id`) REFERENCES `contact` (`id`),
+  CONSTRAINT `contact_type_resource_contact` FOREIGN KEY (`contact_type_id`) REFERENCES `contact_type` (`id`),
   CONSTRAINT `resource_resource_contact` FOREIGN KEY (`resource_id`) REFERENCES `resource` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 SET character_set_client = @saved_cs_client;
@@ -505,12 +553,17 @@ CREATE TABLE `resource_downtime` (
   CONSTRAINT `downtime_class_resource_downtime` FOREIGN KEY (`downtime_class_id`) REFERENCES `downtime_class` (`id`),
   CONSTRAINT `downtime_severity_resource_downtime` FOREIGN KEY (`downtime_severity_id`) REFERENCES `downtime_severity` (`id`),
   CONSTRAINT `resource_resource_downtime` FOREIGN KEY (`resource_id`) REFERENCES `resource` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1000136 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1000918 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 SET character_set_client = @saved_cs_client;
 
+--
+-- Table structure for table `resource_downtime_service`
+--
 
 DROP TABLE IF EXISTS `resource_downtime_service`;
-CREATE TABLE  `resource_downtime_service` (
+SET @saved_cs_client     = @@character_set_client;
+SET character_set_client = utf8;
+CREATE TABLE `resource_downtime_service` (
   `resource_downtime_id` int(11) NOT NULL,
   `service_id` int(11) NOT NULL,
   PRIMARY KEY  (`resource_downtime_id`,`service_id`),
@@ -518,6 +571,7 @@ CREATE TABLE  `resource_downtime_service` (
   CONSTRAINT `resource_downtime_resource_downtime_service` FOREIGN KEY (`resource_downtime_id`) REFERENCES `resource_downtime` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `service_resource_downtime_service` FOREIGN KEY (`service_id`) REFERENCES `service` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+SET character_set_client = @saved_cs_client;
 
 --
 -- Table structure for table `resource_group`
@@ -539,13 +593,16 @@ CREATE TABLE `resource_group` (
   KEY `osg_grid_type_resource_group` (`osg_grid_type_id`),
   CONSTRAINT `osg_grid_type_resource_group` FOREIGN KEY (`osg_grid_type_id`) REFERENCES `osg_grid_type` (`id`),
   CONSTRAINT `site_resource_group` FOREIGN KEY (`site_id`) REFERENCES `site` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=202 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='This table does not have an active flag field because we hav';
+) ENGINE=InnoDB AUTO_INCREMENT=258 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='This table does not have an active flag field because we hav';
 SET character_set_client = @saved_cs_client;
 
 --
 -- Table structure for table `resource_service`
 --
+
 DROP TABLE IF EXISTS `resource_service`;
+SET @saved_cs_client     = @@character_set_client;
+SET character_set_client = utf8;
 CREATE TABLE `resource_service` (
   `service_id` int(11) NOT NULL,
   `resource_id` int(11) NOT NULL,
@@ -558,6 +615,52 @@ CREATE TABLE `resource_service` (
   CONSTRAINT `resource_resource_service` FOREIGN KEY (`resource_id`) REFERENCES `resource` (`id`),
   CONSTRAINT `service_resource_service` FOREIGN KEY (`service_id`) REFERENCES `service` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='Each resource could run one or more service. For example, a ';
+SET character_set_client = @saved_cs_client;
+
+--
+-- Table structure for table `resource_wlcg`
+--
+
+DROP TABLE IF EXISTS `resource_wlcg`;
+SET @saved_cs_client     = @@character_set_client;
+SET character_set_client = utf8;
+CREATE TABLE `resource_wlcg` (
+  `resource_id` int(11) NOT NULL auto_increment COMMENT 'resource_id that this WLCG information is related to',
+  `interop_bdii` tinyint(1) NOT NULL,
+  `interop_monitoring` tinyint(1) NOT NULL,
+  `interop_accounting` tinyint(1) NOT NULL,
+  `accounting_name` varchar(256) collate utf8_unicode_ci default NULL,
+  `ksi2k_minimum` double NOT NULL,
+  `ksi2k_maximum` double NOT NULL,
+  `hepspec` float NOT NULL default '0',
+  `storage_capacity_minimum` double NOT NULL,
+  `storage_capacity_maximum` double NOT NULL,
+  PRIMARY KEY  USING BTREE (`resource_id`),
+  CONSTRAINT `resource_id` FOREIGN KEY (`resource_id`) REFERENCES `resource` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=270 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+SET character_set_client = @saved_cs_client;
+
+--
+-- Table structure for table `sc`
+--
+
+DROP TABLE IF EXISTS `sc`;
+SET @saved_cs_client     = @@character_set_client;
+SET character_set_client = utf8;
+CREATE TABLE `sc` (
+  `id` int(11) NOT NULL auto_increment,
+  `name` text collate utf8_unicode_ci NOT NULL,
+  `long_name` text collate utf8_unicode_ci,
+  `description` text collate utf8_unicode_ci NOT NULL,
+  `community` text collate utf8_unicode_ci NOT NULL,
+  `active` tinyint(1) NOT NULL default '0',
+  `disable` tinyint(1) NOT NULL default '0' COMMENT 'The disable field supersedes the active flag, and can be used to permanently inactivate a record. It has to be set by the programmatic interface, it''s set to false by default.',
+  `footprints_id` varchar(256) collate utf8_unicode_ci default NULL,
+  `confirmed` timestamp NOT NULL default CURRENT_TIMESTAMP,
+  PRIMARY KEY  (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=46 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+SET character_set_client = @saved_cs_client;
+
 --
 -- Table structure for table `sc_contact`
 --
@@ -575,8 +678,8 @@ CREATE TABLE `sc_contact` (
   KEY `contact_type_sc_contact` (`contact_type_id`),
   KEY `contact_rank_sc_contact` (`contact_rank_id`),
   CONSTRAINT `contact_rank_sc_contact` FOREIGN KEY (`contact_rank_id`) REFERENCES `contact_rank` (`id`),
-  CONSTRAINT `contact_type_sc_contact` FOREIGN KEY (`contact_type_id`) REFERENCES `contact_type` (`id`),
   CONSTRAINT `contact_sc_contact` FOREIGN KEY (`contact_id`) REFERENCES `contact` (`id`),
+  CONSTRAINT `contact_type_sc_contact` FOREIGN KEY (`contact_type_id`) REFERENCES `contact_type` (`id`),
   CONSTRAINT `sc_sc_contact` FOREIGN KEY (`sc_id`) REFERENCES `sc` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 SET character_set_client = @saved_cs_client;
@@ -586,7 +689,9 @@ SET character_set_client = @saved_cs_client;
 --
 
 DROP TABLE IF EXISTS `service`;
-CREATE TABLE  `service` (
+SET @saved_cs_client     = @@character_set_client;
+SET character_set_client = utf8;
+CREATE TABLE `service` (
   `id` int(11) NOT NULL auto_increment,
   `name` varchar(512) collate utf8_unicode_ci NOT NULL,
   `description` text collate utf8_unicode_ci,
@@ -595,19 +700,23 @@ CREATE TABLE  `service` (
   PRIMARY KEY  (`id`),
   KEY `service_service_group` (`service_group_id`),
   CONSTRAINT `service_service_group` FOREIGN KEY (`service_group_id`) REFERENCES `service_group` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=108 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=116 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+SET character_set_client = @saved_cs_client;
 
 --
 -- Table structure for table `service_group`
 --
 
 DROP TABLE IF EXISTS `service_group`;
-CREATE TABLE  `service_group` (
+SET @saved_cs_client     = @@character_set_client;
+SET character_set_client = utf8;
+CREATE TABLE `service_group` (
   `id` int(11) NOT NULL auto_increment,
   `name` varchar(256) collate utf8_unicode_ci NOT NULL,
   `description` text collate utf8_unicode_ci,
   PRIMARY KEY  (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1001 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1002 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+SET character_set_client = @saved_cs_client;
 
 --
 -- Table structure for table `site`
@@ -641,27 +750,7 @@ CREATE TABLE `site` (
   CONSTRAINT `dn_site` FOREIGN KEY (`submitter_dn_id`) REFERENCES `dn` (`id`),
   CONSTRAINT `facility_site` FOREIGN KEY (`facility_id`) REFERENCES `facility` (`id`),
   CONSTRAINT `sc_site` FOREIGN KEY (`sc_id`) REFERENCES `sc` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=10088 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
-SET character_set_client = @saved_cs_client;
-
---
--- Table structure for table `sc`
---
-
-DROP TABLE IF EXISTS `sc`;
-SET @saved_cs_client     = @@character_set_client;
-SET character_set_client = utf8;
-CREATE TABLE `sc` (
-  `id` int(11) NOT NULL auto_increment,
-  `name` text collate utf8_unicode_ci NOT NULL,
-  `long_name` text collate utf8_unicode_ci,
-  `description` text collate utf8_unicode_ci NOT NULL,
-  `community` text collate utf8_unicode_ci NOT NULL,
-  `active` tinyint(1) NOT NULL default '0',
-  `disable` tinyint(1) NOT NULL default '0' COMMENT 'The disable field supersedes the active flag, and can be used to permanently inactivate a record. It has to be set by the programmatic interface, it''s set to false by default.',
-  `footprints_id` varchar(256) collate utf8_unicode_ci default NULL,
-  PRIMARY KEY  (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=37 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=10110 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 SET character_set_client = @saved_cs_client;
 
 --
@@ -687,10 +776,11 @@ CREATE TABLE `vo` (
   `active` tinyint(1) NOT NULL default '0',
   `disable` tinyint(1) NOT NULL default '0' COMMENT 'The disable field supersedes the active flag, and can be used to permanently inactivate a record. It has to be set by the programmatic interface, it''s set to false by default.',
   `footprints_id` varchar(256) collate utf8_unicode_ci default NULL,
+  `confirmed` timestamp NOT NULL default CURRENT_TIMESTAMP,
   PRIMARY KEY  (`id`),
   KEY `sc_vo` (`sc_id`),
   CONSTRAINT `sc_vo` FOREIGN KEY (`sc_id`) REFERENCES `sc` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=37 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=64 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 SET character_set_client = @saved_cs_client;
 
 --
@@ -734,23 +824,6 @@ CREATE TABLE `vo_field_of_science` (
 SET character_set_client = @saved_cs_client;
 
 --
--- Table structure for table `vo_fqan`
---
-
-DROP TABLE IF EXISTS `vo_report_name_fqan`;
-SET @saved_cs_client     = @@character_set_client;
-SET character_set_client = utf8;
-CREATE TABLE `vo_report_name_fqan` (
-  `vo_report_name_id` int(11) NOT NULL,
-  `group_name` varchar(128) collate utf8_unicode_ci NOT NULL,
-  `role` varchar(64) collate utf8_unicode_ci NULL,
-  PRIMARY KEY  USING BTREE (`vo_report_name_id`,`group_name`,`role`),
-  CONSTRAINT `vo_report_name_vo_fqan` FOREIGN KEY (`vo_report_name_id`) REFERENCES `vo_report_name` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=71 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
-SET character_set_client = @saved_cs_client;
-
-
---
 -- Table structure for table `vo_report_contact`
 --
 
@@ -766,10 +839,10 @@ CREATE TABLE `vo_report_contact` (
   KEY `contact_type_vo_report_contact` (`contact_type_id`),
   KEY `contact_rank_vo_report_contact` (`contact_rank_id`),
   KEY `vo_report_name_vo_report_contact` (`vo_report_name_id`),
-  CONSTRAINT `vo_report_name_vo_report_contact` FOREIGN KEY (`vo_report_name_id`) REFERENCES `vo_report_name` (`id`),
-  CONSTRAINT `contact_vo_report_contact` FOREIGN KEY (`contact_id`) REFERENCES `contact` (`id`),
   CONSTRAINT `contact_rank_vo_report_contact` FOREIGN KEY (`contact_rank_id`) REFERENCES `contact_rank` (`id`),
-  CONSTRAINT `contact_type_vo_report_contact` FOREIGN KEY (`contact_type_id`) REFERENCES `contact_type` (`id`)
+  CONSTRAINT `contact_type_vo_report_contact` FOREIGN KEY (`contact_type_id`) REFERENCES `contact_type` (`id`),
+  CONSTRAINT `contact_vo_report_contact` FOREIGN KEY (`contact_id`) REFERENCES `contact` (`id`),
+  CONSTRAINT `vo_report_name_vo_report_contact` FOREIGN KEY (`vo_report_name_id`) REFERENCES `vo_report_name` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 SET character_set_client = @saved_cs_client;
 
@@ -787,7 +860,23 @@ CREATE TABLE `vo_report_name` (
   PRIMARY KEY  (`id`),
   KEY `vo_vo_report_name` (`vo_id`),
   CONSTRAINT `vo_vo_report_name` FOREIGN KEY (`vo_id`) REFERENCES `vo` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=34 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=58 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+SET character_set_client = @saved_cs_client;
+
+--
+-- Table structure for table `vo_report_name_fqan`
+--
+
+DROP TABLE IF EXISTS `vo_report_name_fqan`;
+SET @saved_cs_client     = @@character_set_client;
+SET character_set_client = utf8;
+CREATE TABLE `vo_report_name_fqan` (
+  `vo_report_name_id` int(11) NOT NULL,
+  `group_name` varchar(128) collate utf8_unicode_ci NOT NULL,
+  `role` varchar(64) collate utf8_unicode_ci NOT NULL default '',
+  PRIMARY KEY  USING BTREE (`vo_report_name_id`,`group_name`,`role`),
+  CONSTRAINT `vo_report_name_vo_fqan` FOREIGN KEY (`vo_report_name_id`) REFERENCES `vo_report_name` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 SET character_set_client = @saved_cs_client;
 
 --
@@ -800,7 +889,7 @@ SET character_set_client = utf8;
 CREATE TABLE `vo_resource_ownership` (
   `resource_id` int(11) NOT NULL,
   `vo_id` int(11) NOT NULL,
-  `percent` double default NULL,
+  `percent` double NOT NULL,
   PRIMARY KEY  (`resource_id`,`vo_id`),
   KEY `vo_vo_resource_ownership` (`vo_id`),
   CONSTRAINT `resource_vo_resource_ownership` FOREIGN KEY (`resource_id`) REFERENCES `resource` (`id`),
@@ -841,19 +930,14 @@ CREATE TABLE `vo_vo` (
   CONSTRAINT `vo_vo_ibfk_2` FOREIGN KEY (`parent_vo_id`) REFERENCES `vo` (`id`) ON DELETE NO ACTION ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 SET character_set_client = @saved_cs_client;
+/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
-DROP TABLE IF EXISTS `resource_wlcg`;
-CREATE TABLE `resource_wlcg` (
-  `resource_id` int(11) NOT NULL auto_increment COMMENT 'resource_id that this WLCG information is related to',
-  `interop_bdii` tinyint(1) NOT NULL,
-  `interop_monitoring` tinyint(1) NOT NULL,
-  `interop_accounting` tinyint(1) NOT NULL,
-  `accounting_name` varchar(256) collate utf8_unicode_ci,
-  `ksi2k_minimum` double NOT NULL,
-  `ksi2k_maximum` double NOT NULL,
-  `storage_capacity_minimum` double NOT NULL,
-  `storage_capacity_maximum` double NOT NULL,
-  PRIMARY KEY  USING BTREE (`resource_id`),
-  CONSTRAINT `resource_id` FOREIGN KEY (`resource_id`) REFERENCES `resource` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
+/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
+/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
+-- Dump completed on 2009-10-28 18:14:27

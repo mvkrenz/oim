@@ -25,16 +25,12 @@ public class ContactAssociationView extends GenericView {
 	private GenericView view;
 	private Context context;
     
-	public ContactAssociationView(Context _context, int contactid)
+	public ContactAssociationView(Context _context, int contactid) throws SQLException
 	{
 		context = _context;
-		try {
-			view = createView(contactid);
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		view = createView(contactid);
 	}
+	
 	private GenericView createView(int contactid) throws SQLException
 	{
 		GenericView view = new GenericView();

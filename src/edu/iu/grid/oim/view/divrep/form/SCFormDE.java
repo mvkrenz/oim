@@ -24,6 +24,7 @@ import edu.iu.grid.oim.model.db.record.ContactTypeRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.SCRecord;
 import edu.iu.grid.oim.model.db.record.SCContactRecord;
+import edu.iu.grid.oim.view.divrep.Confirmation;
 import edu.iu.grid.oim.view.divrep.ContactEditor;
 import edu.iu.grid.oim.view.divrep.ContactEditor.Rank;
 
@@ -42,7 +43,7 @@ public class SCFormDE extends DivRepForm
 	private DivRepTextBox footprints_id;
 	private DivRepCheckBox active;
 	private DivRepCheckBox disable;
-	
+	private Confirmation confirmation;
 	private DivRepTextArea comment;
 	
 	//contact types to edit
@@ -126,6 +127,10 @@ public class SCFormDE extends DivRepForm
 			}
 			contact_editors.put(contact_type_id, editor);
 		}
+		
+		new DivRepStaticContent(this, "<h2>Confirmation</h2>");
+		confirmation = new Confirmation(this, rec, auth);
+		
 		if(auth.allows("admin")) {
 			new DivRepStaticContent(this, "<h2>Administrative Tasks</h2>");
 		}
@@ -203,6 +208,7 @@ public class SCFormDE extends DivRepForm
 		rec.footprints_id = footprints_id.getValue();
 		rec.active = active.getValue();
 		rec.disable = disable.getValue();
+		rec.confirmed = confirmation.getTimestamp();
 		
 		context.setComment(comment.getValue());
 		

@@ -37,6 +37,7 @@ import edu.iu.grid.oim.model.db.DNModel;
 import edu.iu.grid.oim.model.db.record.DNRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.view.HtmlView;
+import edu.iu.grid.oim.view.divrep.Confirmation;
 
 //alter table contact add column timezone varchar(16) default value "UTC";
 
@@ -68,60 +69,6 @@ public class ContactFormDE extends DivRepForm
 	private DivRepSelectBox submitter_dn;
 	
 	private PersonalInfo personal_info;
-	
-	class Confirmation extends DivRepFormElement
-	{
-		private Timestamp timestamp;
-		private DivRepButton update;
-		private DateFormat dformat;
-		ContactRecord rec;
-		
-		public Timestamp getTimestamp()
-		{
-			return timestamp;
-		}
-		
-		protected Confirmation(DivRep parent, ContactRecord _rec) {
-			super(parent);
-			rec = _rec;
-			
-			dformat = DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.SHORT);
-			TimeZone timezone = TimeZone.getTimeZone(rec.timezone);
-			dformat.setTimeZone(timezone);
-			timestamp = rec.confirmed;
-			
-			update = new DivRepButton(this, "Update Confirmation Date");
-			update.setStyle(Style.BUTTON);
-			update.addEventListener(new DivRepEventListener() {
-				public void handleEvent(DivRepEvent e) {
-					Calendar cal = Calendar.getInstance();
-					timestamp.setTime(cal.getTimeInMillis());
-					Confirmation.this.setFormModified();
-					redraw();
-				}});
-		}
-
-		@Override
-		protected void onEvent(DivRepEvent e) {
-			// TODO Auto-generated method stub
-			
-		}
-
-		public void render(PrintWriter out) {
-			out.print("<div class=\"divrep_form_element\" id=\""+getNodeID()+"\">");	
-		
-			if(rec.isConfirmationExpired()) {
-				out.write("<p class=\"divrep_round divrep_elementerror\">");
-			} else {
-				out.write("<p>");
-			}
-			
-			out.write("The information on this page was last confirmed at <b>"+dformat.format(timestamp) + " " + "</b></p>");
-			out.write("<p>Please click following button and submit the form to update the confirmation date.</p>");
-			update.render(out);
-			out.print("</div>");
-		}	
-	}
 	
 	class PersonalInfo extends DivRepFormElement
 	{
@@ -386,7 +333,7 @@ public class ContactFormDE extends DivRepForm
 		}
 		
 		new DivRepStaticContent(this, "<h2>Confirmation</h2>");
-		confirmation = new Confirmation(this, rec);
+		confirmation = new Confirmation(this, rec, auth);
 		
 		if(auth.allows("admin")) {
 			new DivRepStaticContent(this, "<h2>Administrative Tasks</h2>");

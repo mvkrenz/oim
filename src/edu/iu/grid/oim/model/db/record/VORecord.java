@@ -2,17 +2,13 @@ package edu.iu.grid.oim.model.db.record;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
+import java.sql.Timestamp;
+import java.util.Calendar;
+import java.util.Date;
+import edu.iu.grid.oim.lib.StaticConfig;
 
-import edu.iu.grid.oim.lib.Authorization;
-import edu.iu.grid.oim.model.db.ActionModel;
-import edu.iu.grid.oim.model.db.AuthorizationTypeModel;
-import edu.iu.grid.oim.model.db.ResourceGroupModel;
-import edu.iu.grid.oim.model.db.SCModel;
-import edu.iu.grid.oim.model.db.VOReportNameModel;
-
-public class VORecord extends RecordBase 
-{
+public class VORecord extends ConfirmableRecord {
+	
 	@Key public Integer id;
 	public String name;
 	public String long_name;
@@ -32,7 +28,9 @@ public class VORecord extends RecordBase
 	//load from existing record
 	public VORecord(ResultSet rs) throws SQLException { super(rs); }
 	//for creating new record
-	public VORecord() {}
+	public VORecord() {
+		confirmed = new Timestamp(Calendar.getInstance().getTimeInMillis());
+	}
 	public String getName() {
 		return name;
 	}

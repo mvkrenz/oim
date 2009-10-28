@@ -59,6 +59,7 @@ import edu.iu.grid.oim.model.db.record.SCRecord;
 import edu.iu.grid.oim.model.db.record.VOContactRecord;
 import edu.iu.grid.oim.model.db.record.VOFieldOfScienceRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
+import edu.iu.grid.oim.view.divrep.Confirmation;
 import edu.iu.grid.oim.view.divrep.ContactEditor;
 import edu.iu.grid.oim.view.divrep.VOReportNames;
 import edu.iu.grid.oim.view.divrep.ContactEditor.Rank;
@@ -82,6 +83,7 @@ public class VOFormDE extends DivRepForm
 	private DivRepCheckBox disable;
 	private DivRepCheckBox child_vo;
 	private DivRepSelectBox parent_vo;
+	private Confirmation confirmation;
 	
 	private VOReportNames vo_report_name_div;
 	
@@ -464,6 +466,10 @@ public class VOFormDE extends DivRepForm
 					new ArrayList<VOReportContactRecord>()
 			);		
 		}
+		
+		new DivRepStaticContent(this, "<h2>Confirmation</h2>");
+		confirmation = new Confirmation(this, rec, auth);
+		
 		if(auth.allows("admin")) {
 			new DivRepStaticContent(this, "<h2>Administrative Tasks</h2>");
 		}
@@ -592,6 +598,7 @@ public class VOFormDE extends DivRepForm
 		rec.community = community.getValue();
 		rec.sc_id = sc_id.getValue();
 		rec.footprints_id = footprints_id.getValue();
+		rec.confirmed = confirmation.getTimestamp();
 		rec.active = active.getValue();
 		rec.disable = disable.getValue();
 

@@ -39,6 +39,7 @@ import edu.iu.grid.oim.model.db.record.ResourceRecord;
 import edu.iu.grid.oim.model.db.record.ResourceServiceRecord;
 import edu.iu.grid.oim.model.db.record.ResourceWLCGRecord;
 import edu.iu.grid.oim.model.db.record.VOResourceOwnershipRecord;
+import edu.iu.grid.oim.view.divrep.Confirmation;
 import edu.iu.grid.oim.view.divrep.ContactEditor;
 import edu.iu.grid.oim.view.divrep.ResourceAlias;
 import edu.iu.grid.oim.view.divrep.ResourceGroupSelector;
@@ -70,6 +71,8 @@ public class ResourceFormDE extends DivRepForm
 
 	private DivRepCheckBox wlcg;
 	private ResourceWLCG wlcg_section;
+	
+	private Confirmation confirmation;
 	
 	private DivRepTextArea comment;
 	
@@ -214,8 +217,8 @@ public class ResourceFormDE extends DivRepForm
 		wlcg.setLabel("This is a WLCG resource");
 
 		//indent the whole WCLG things
-		new DivRepStaticContent(this, "<div class=\"indent\">");
-		wlcg_section = new ResourceWLCG (this, context, null);
+		//new DivRepStaticContent(this, "<div class=\"divrep_indent\">");
+		wlcg_section = new ResourceWLCG(this, context, null);
 		hideWLCGElement(true);
 
 		wlcg.addEventListener(new DivRepEventListener() {
@@ -237,7 +240,10 @@ public class ResourceFormDE extends DivRepForm
 				hideWLCGElement(false);				
 			}
 		}
-		new DivRepStaticContent(this, "</div>");
+		//new DivRepStaticContent(this, "</div>");
+		
+		new DivRepStaticContent(this, "<h2>Confirmation</h2>");
+		confirmation = new Confirmation(this, rec, auth);
 
 		if(auth.allows("admin")) {
 			new DivRepStaticContent(this, "<h2>Administrative Tasks</h2>");
@@ -304,6 +310,7 @@ public class ResourceFormDE extends DivRepForm
 		rec.active = active.getValue();
 		rec.disable = disable.getValue();
 		rec.resource_group_id = resource_group_id.getValue();
+		rec.confirmed = confirmation.getTimestamp();
 		
 		//If WLCG is on, then create wlcg record
 		ResourceWLCGRecord wrec = null;

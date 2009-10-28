@@ -16,7 +16,7 @@ import org.apache.log4j.Logger;
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.servlet.ServletBase;
 
-public abstract class RecordBase implements Comparable<RecordBase>, Cloneable {
+public abstract class RecordBase implements Comparable<RecordBase> {
 
 	@Retention(RetentionPolicy.RUNTIME)
 	public @interface Key {}
@@ -36,7 +36,8 @@ public abstract class RecordBase implements Comparable<RecordBase>, Cloneable {
 			for(Field fld : fields) {
 				String name = fld.getName();
 				Class type = fld.getType();
-			
+				
+				//We can't use switch for Class type
 		        if(type == String.class) {
 					fld.set(this, rs.getString(name));
 		        } else if(type == Integer.class) {
@@ -104,18 +105,7 @@ public abstract class RecordBase implements Comparable<RecordBase>, Cloneable {
 		record_keys.put(getClass(), keys);
 		record_fields.put(getClass(), fields);
 	}
-	/*
-	public Boolean isRestricted(Field f)
-	{
-		Annotation[] as = f.getDeclaredAnnotations();
-		for(Annotation a : as) {
-			if(a instanceof Restricted) {
-				return true;
-			}
-		}
-		return false;
-	}
-	*/
+
 	//list fields that are different
 	public ArrayList<Field> diff(RecordBase rec)
 	{
@@ -187,12 +177,27 @@ public abstract class RecordBase implements Comparable<RecordBase>, Cloneable {
 		ArrayList<String> lables = new ArrayList();
 		return lables;
 	}
+	/*
     public Object clone() {
-        try {
-            return super.clone();
-        }
-        catch (CloneNotSupportedException e) {
-            throw new InternalError(e.toString());
-        }
+    	
+    	//deep copy all fields
+    	try {
+			Object rec = getClass().newInstance();
+			ArrayList<Field> fields = getRecordFields();
+			for(Field fld : fields) {
+				Cloneable value = (Cloneable)fld.get(this);
+				fld.set(rec, value);
+			}
+			return rec;
+		} catch (InstantiationException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		return null;
     }
+    */
 }

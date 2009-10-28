@@ -7,7 +7,7 @@ import java.util.Calendar;
 import java.util.Date;
 import edu.iu.grid.oim.lib.StaticConfig;
 
-public class ContactRecord extends RecordBase implements Cloneable  {
+public class ContactRecord extends ConfirmableRecord {
 
 	@Key public Integer id;
 	public String name;
@@ -23,7 +23,6 @@ public class ContactRecord extends RecordBase implements Cloneable  {
 	public Integer submitter_dn_id;
 	public String contact_preference;
 	public String sms_address;
-	public Timestamp confirmed;
 	public String timezone;
 	public String profile;
 	
@@ -67,11 +66,5 @@ public class ContactRecord extends RecordBase implements Cloneable  {
 			lastname += tokens[i];
 		}
 		return lastname;
-	}
-	public boolean isConfirmationExpired()
-	{
-		Date when = new Date();
-		when.setTime(when.getTime()-1000L*3600*24*StaticConfig.getConfirmationExpiration());
-		return confirmed.before(when);
 	}
 }

@@ -207,7 +207,7 @@ public class ResourceWLCG extends DivRepFormElement {
 	}
 
 	public void render(PrintWriter out) {
-		out.print("<div id=\""+getNodeID()+"\">");
+		out.print("<div id=\""+getNodeID()+"\" class=\"indent\">");
 		if (!hidden) {
 			editor.render(out);
 		}

@@ -2,13 +2,17 @@ package edu.iu.grid.oim.model.db.record;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 
 import edu.iu.grid.oim.lib.Authorization;
+import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.model.db.ResourceGroupModel;
 import edu.iu.grid.oim.model.db.SCModel;
 
-public class ResourceRecord extends RecordBase {
+public class ResourceRecord extends ConfirmableRecord {
 
 	@Key public Integer id;
 	public String name;
@@ -23,7 +27,9 @@ public class ResourceRecord extends RecordBase {
 	//load from existing record
 	public ResourceRecord(ResultSet rs) throws SQLException { super(rs); }
 	//for creating new record
-	public ResourceRecord() {}
+	public ResourceRecord() {
+		confirmed = new Timestamp(Calendar.getInstance().getTimeInMillis());
+	}
 	public String getName() {
 		return name;
 	}

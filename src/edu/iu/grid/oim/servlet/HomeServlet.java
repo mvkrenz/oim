@@ -53,7 +53,7 @@ public class HomeServlet extends ServletBase  {
 		page.render(response.getWriter());
 	}
 	
-	protected ContentView createContentView()
+	protected ContentView createContentView() throws ServletException
 	{
 		ContentView contentview = new ContentView();
 		
@@ -82,7 +82,11 @@ public class HomeServlet extends ServletBase  {
 		if(auth.isOIMUser()) {
 			contentview.add(new HtmlView("<h2>Associated Entities</h2>"));
 			contentview.add(new HtmlView("<p>Following entities are associated with your contact</p>"));
-			contentview.add(new ContactAssociationView(context, auth.getContactID()));
+			try {
+				contentview.add(new ContactAssociationView(context, auth.getContactID()));
+			} catch (SQLException e) {
+				throw new ServletException(e);
+			}
 		}
 
 		return contentview;
@@ -104,7 +108,7 @@ public class HomeServlet extends ServletBase  {
 			super(_context.getPageRoot());
 			
 	    	cmodel = new ContactModel(_context);
-	    	crec = (ContactRecord) cmodel.get(contact_id).clone();	    	
+	    	crec = (ContactRecord) cmodel.get(contact_id);//.clone();	    	
 	    	context = _context;
 		}
 
