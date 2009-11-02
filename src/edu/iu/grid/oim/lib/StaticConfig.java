@@ -12,7 +12,7 @@ import org.apache.log4j.Logger;
 import org.xml.sax.InputSource;
 
 public class StaticConfig {
-	static public String getVersion() { return "2.9"; } //version shouldn't be configurable
+	static public String getVersion() { return "2.10"; } //version shouldn't be configurable
 	
 	static Logger log = Logger.getLogger(StaticConfig.class);  
     
