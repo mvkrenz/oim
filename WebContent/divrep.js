@@ -16,7 +16,6 @@ function divrep(id, event, value) {
 		event = new Object();
 		event.type = "unknown";
 	}
-	
 	//make sure there is only one request at the same time (prevent double clicking of submit button)
 	if(divrep_processing_id == id) {
 		//previous request on same target still running - ignore;
