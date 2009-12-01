@@ -1,3 +1,4 @@
+//divrep.js requires jquery lib (for now..). please load it before you load this script
 
 var divrep_processing_id = null;
 function divrepClearProcessing() {
@@ -5,16 +6,20 @@ function divrepClearProcessing() {
 	$(".divrep_processing").removeClass("divrep_processing");
 }
 
-function divrep(id, event, value) {
+function divrep(id, event, value, action) {
 	//stop bubble - needs to happen before ignore / queueing events to prevent
 	//event such as double clicking to bubble up
 	if(!event) var event = window.event;//IE
 	if(event) {
 		event.cancelBubble = true;//IE
 		if(event.stopPropagation) event.stopPropagation();//Standard
-	} else {
-		event = new Object();
-		event.type = "unknown";
+	}
+	if(!action)  {
+		if(event) {
+			var action = event.type;
+		} else {
+			var action = "unknown";
+		}
 	}
 	//make sure there is only one request at the same time (prevent double clicking of submit button)
 	if(divrep_processing_id == id) {
@@ -39,10 +44,10 @@ function divrep(id, event, value) {
 		url: "divrep",
 		async: true,//now running in async mode to not hose up browser..
 		data: { nodeid: id,
-			action: event.type,
+			action: action,
 			value : value },
 		type: "POST",
-		contentType: "application/x-www-form-urlencoded; charset=UTF-8",
+		contentType: "application/x-www-form-urlencoded; charset=UTF-8",//IE doesn't set charset correctly..
 		dataType: "script",//Evaluates the response as JavaScript and returns it as plain text. Disables caching unless option "cache" is used. Note: This will turn POSTs into GETs for remote-domain requests. 
 	    success: function(msg){
 		    divrepClearProcessing();
@@ -75,6 +80,9 @@ function divrep_replace(node, url)
 		complete: function(res, status){
 			// If successful, inject the HTML into all the matched elements
 			if ( status == "success" || status == "notmodified" ) {
+				//why am I emptying the content before replacing it? because jQuery's replaceWith adds new content before removing the
+				//old content. This causes identical ID to coexist in the dom structure and causes redraw issue
+				node.empty();
 				node.replaceWith(res.responseText);
 			}
 			--divrep_replace_counter;
@@ -139,5 +147,34 @@ function divrep_doRedirect()
 		//IE7 blows up if user cancel the onbeforeunload confirmation invoked by window redirect
 		//this block silences IE7
 	}
+}
+
+//following is for datepicker used inside dialog (for now)
+//http://www.west-wind.com/weblog/posts/891992.aspx
+$.maxZIndex = $.fn.maxZIndex = function(opt) {
+    /// <summary>
+    /// Returns the max zOrder in the document (no parameter)
+    /// Sets max zOrder by passing a non-zero number
+    /// which gets added to the highest zOrder.
+    /// </summary>    
+    /// <param name="opt" type="object">
+    /// inc: increment value, 
+    /// group: selector for zIndex elements to find max for
+    /// </param>
+    /// <returns type="jQuery" />
+    var def = { inc: 10, group: "*" };
+    $.extend(def, opt);
+    var zmax = 0;
+    $(def.group).each(function() {
+        var cur = parseInt($(this).css('z-index'));
+        zmax = cur > zmax ? cur : zmax;
+    });
+    if (!this.jquery)
+        return zmax;
+
+    return this.each(function() {
+        zmax += def.inc;
+        $(this).css("z-index", zmax);
+    });
 }
 
