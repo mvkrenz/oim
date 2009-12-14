@@ -133,13 +133,12 @@ background-color: #333;
 #content h2
 {
 	color: white;
-	background-color: gray;
-	padding: 4px;
+background-image:url('images/h3_back.png');
+	padding: 4px 8px 4px 8px;
 	margin-top: 3px;
 	margin-bottom: 3px;
 	font-size: 13px;
 	font-family: "Arial";
-	padding-left: 5px;
 }
 #content h3
 {
