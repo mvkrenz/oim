@@ -62,7 +62,7 @@ public class HomeServlet extends ServletBase  {
 		// TODO agopu: need to clean this up with some divs etc. Nicer font, etc.
 		String welcome_string = "<p>Welcome to the OSG Information Management System.</p>";
 		if(auth.isGuest()) {
-			welcome_string += "<p>Please provide a IGTF approved certificate via your web browser in order to use or register to OIM.</p>";
+			welcome_string += "<p>Please provide an X509 certificate issued by an <a href=\"http://software.grid.iu.edu/cadist/\">OSG-approved Certifying Authority (CA)</a> via your web browser in order to use or register to OIM.</p>";
 		} else {
 			welcome_string += "<p>In the menu along the top, you will find options for registering or updating information for various OSG entities.</p>";
 		}
