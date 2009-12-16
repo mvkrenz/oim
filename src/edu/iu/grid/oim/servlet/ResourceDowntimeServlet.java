@@ -121,19 +121,19 @@ public class ResourceDowntimeServlet extends ServletBase implements Servlet {
 			}
 			contentview.add(downtime_view);
 		
-			class EditButtonDE extends DivRepButton
+			class NewButtonDE extends DivRepButton
 			{
 				String url;
-				public EditButtonDE(DivRep parent, String _url)
+				public NewButtonDE(DivRep parent, String _url)
 				{
-					super(parent, "Add/Edit Downtime");
+					super(parent, "Add New Downtime");
 					url = _url;
 				}
 				protected void onEvent(DivRepEvent e) {
 					redirect(url);
 				}
 			};
-			contentview.add(new DivRepWrapper(new EditButtonDE(context.getPageRoot(), StaticConfig.getApplicationBase()+"/resourcedowntimeedit?id=" + rec.id)));
+			contentview.add(new DivRepWrapper(new NewButtonDE(context.getPageRoot(), StaticConfig.getApplicationBase()+"/resourcedowntimeedit?rid=" + rec.id)));
 			//contentview.add(table);
 		}
 		
@@ -170,6 +170,20 @@ public class ResourceDowntimeServlet extends ServletBase implements Servlet {
 		
 		view.add(table);
 		
+		class EditButtonDE extends DivRepButton
+		{
+			String url;
+			public EditButtonDE(DivRep parent, String _url)
+			{
+				super(parent, "Edit");
+				url = _url;
+			}
+			protected void onEvent(DivRepEvent e) {
+				redirect(url);
+			}
+		};
+		table.add(new DivRepWrapper(new EditButtonDE(context.getPageRoot(), StaticConfig.getApplicationBase()+"/resourcedowntimeedit?rid=" + rec.resource_id + "&did=" + rec.id)));
+
 		view.add(new HtmlView("</div>"));
 		
 		return view;

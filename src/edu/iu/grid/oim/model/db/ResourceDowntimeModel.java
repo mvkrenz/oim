@@ -35,10 +35,12 @@ public class ResourceDowntimeModel extends SmallTableModelBase<ResourceDowntimeR
 	public ResourceDowntimeModel(Context context) {
 		super(context, "resource_downtime");
 	}
+	
     public String getName()
     {
     	return "Resource Downtime";
     }
+    
 	public String getHumanValue(String field_name, String value) throws NumberFormatException, SQLException
 	{
 		if(field_name.equals("downtime_class_id")) {
@@ -60,10 +62,12 @@ public class ResourceDowntimeModel extends SmallTableModelBase<ResourceDowntimeR
 		}
 		return value;
 	}
+	
 	ResourceDowntimeRecord createRecord() throws SQLException
 	{
 		return new ResourceDowntimeRecord();
 	}
+	
 	public ResourceDowntimeRecord get(int id) throws SQLException {
 		ResourceDowntimeRecord keyrec = new ResourceDowntimeRecord();
 		keyrec.id = id;
@@ -84,20 +88,6 @@ public class ResourceDowntimeModel extends SmallTableModelBase<ResourceDowntimeR
 		}
 		return list;
 	}
-	/*
-	public Collection<ResourceDowntimeRecord> getFutureDowntimesByResourceID(int resource_id) throws SQLException
-	{
-		ArrayList<ResourceDowntimeRecord> list = new ArrayList<ResourceDowntimeRecord>();
-		for(RecordBase it : getCache()) {
-			ResourceDowntimeRecord rec = (ResourceDowntimeRecord)it;
-			//search for downtime that ends in future.
-			if(rec.resource_id == resource_id && rec.end_time.compareTo(new Date()) > 0) {
-				list.add(rec);
-			}
-		}
-		return list;
-	}
-	*/
 
 	public Collection<ResourceDowntimeRecord> getRecentDowntimesByResourceID(int resource_id) throws SQLException
 	{
@@ -113,6 +103,68 @@ public class ResourceDowntimeModel extends SmallTableModelBase<ResourceDowntimeR
 		return list;
 	}
 	
+	public void updateDowntime(ResourceDowntime downtime_info) throws Exception
+	{
+		Connection conn = connectOIM();
+		try {		
+			conn.setAutoCommit(false);
+	
+			ResourceDowntimeModel dmodel = new ResourceDowntimeModel(context);
+			ResourceDowntimeServiceModel rdsmodel = new ResourceDowntimeServiceModel(context);
+			
+			//process downtime record itself
+			Integer downtime_id = downtime_info.downtime.id;
+			dmodel.update(dmodel.get(downtime_id), downtime_info.downtime);
+		
+			//process service records
+			ArrayList<ResourceDowntimeServiceRecord> services = downtime_info.services;
+			rdsmodel.update(rdsmodel.getByDowntimeID(downtime_id), services);			
+			
+			conn.commit();
+			conn.setAutoCommit(true);
+		} catch (Exception e) {
+			log.error(e);
+			log.info("Rolling back resource downtime transaction.");
+			conn.rollback();
+			conn.setAutoCommit(true);
+			
+			//re-throw original exception
+			throw new Exception(e);
+		}	
+	}
+	public void insertDowntime(ResourceDowntime downtime_info) throws Exception
+	{
+		Connection conn = connectOIM();
+		try {		
+			conn.setAutoCommit(false);
+	
+			ResourceDowntimeModel dmodel = new ResourceDowntimeModel(context);
+			ResourceDowntimeServiceModel rdsmodel = new ResourceDowntimeServiceModel(context);
+			
+			//process downtime record itself
+			dmodel.insert(downtime_info.downtime);
+			
+			//process service records
+			ArrayList<ResourceDowntimeServiceRecord> services = downtime_info.services;
+			//reset the resource_downtime_id
+			for(ResourceDowntimeServiceRecord service : services) {
+				service.resource_downtime_id = downtime_info.downtime.id;
+			}
+			rdsmodel.insert(services);			
+			
+			conn.commit();
+			conn.setAutoCommit(true);
+		} catch (Exception e) {
+			log.error(e);
+			log.info("Rolling back resource downtime transaction.");
+			conn.rollback();
+			conn.setAutoCommit(true);
+			
+			//re-throw original exception
+			throw new Exception(e);
+		}	
+	}
+	/*
 	public void updateDetail(int resource_id, ArrayList<ResourceDowntime> downtimes) throws Exception
 	{
 		Connection conn = connectOIM();
@@ -129,6 +181,7 @@ public class ResourceDowntimeModel extends SmallTableModelBase<ResourceDowntimeR
 			}
 			dmodel.update(dmodel.getRecentDowntimesByResourceID(resource_id), downtime_recs);
 			
+			//then for each downtimes..
 			for(ResourceDowntime downtime : downtimes) {
 				ResourceDowntimeRecord downtime_rec = downtime.downtime;
 
@@ -152,4 +205,5 @@ public class ResourceDowntimeModel extends SmallTableModelBase<ResourceDowntimeR
 			throw new Exception(e);
 		}			
 	}
+	*/
 }

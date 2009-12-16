@@ -249,9 +249,10 @@ public class ResourceServlet extends ServletBase implements Servlet {
 						}
 					};
 
+					/*
 					table.addRow("Downtime", new DivRepWrapper(new EditDowntimeButtonDE(context.getPageRoot(), 
 							StaticConfig.getApplicationBase()+"/resourcedowntimeedit?id=" + rec.id)));
-					
+					*/
 					table.addRow("Active", rec.active);
 					table.addRow("Disable", rec.disable);
 

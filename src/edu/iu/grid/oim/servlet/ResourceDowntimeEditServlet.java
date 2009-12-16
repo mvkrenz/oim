@@ -35,25 +35,22 @@ public class ResourceDowntimeEditServlet extends ServletBase implements Servlet 
 	private static final long serialVersionUID = 1L;
 	static Logger log = Logger.getLogger(ResourceDowntimeEditServlet.class);  
 	private String parent_page = "resourcedowntime";	
-	private Integer resource_id;
-	private ResourceDowntimeFormDE form;
-
-    public ResourceDowntimeEditServlet() {
-        super();
-    }
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{
-		//setContext(request);
 		auth.check("edit_my_resource");
+		
+		Integer resource_id = null;
+		Integer downtime_id = null;
+		ResourceDowntimeFormDE form;
 		
 		ResourceRecord rec;
 		String title;
 
-		String id_str = request.getParameter("id");
-		if(id_str != null) {
-			//pull record to update
-			resource_id = Integer.parseInt(id_str);
+		String rid_str = request.getParameter("rid");
+		if(rid_str != null) {
+			//pull resource information
+			resource_id = Integer.parseInt(rid_str);
 			ResourceModel model = new ResourceModel(context);
 			if(!model.canEdit(resource_id)) {
 				throw new ServletException("You are not authorized to edit this resource!");
@@ -67,13 +64,18 @@ public class ResourceDowntimeEditServlet extends ServletBase implements Servlet 
 			}	
 			title = rec.name + " Downtime";
 		} else {
-			// TODO What is this comment about? Perhaps a copy n paste that did not get a new message?
-			throw new ServletException("You are not authorized to add a new resource");
+			throw new ServletException("resourc id not set");
 		}
-	
+		
+		String did_str = request.getParameter("did");
+		if(did_str != null) {
+			//pul downtime information
+			downtime_id = Integer.parseInt(did_str);
+		}
+		
 		String origin_url = StaticConfig.getApplicationBase()+"/"+parent_page;
 		try {
-			form = new ResourceDowntimeFormDE(context, origin_url, resource_id);
+			form = new ResourceDowntimeFormDE(context, origin_url, resource_id, downtime_id, getTimeZone());
 			
 			//put the form in a view and display
 			ContentView contentview = new ContentView();

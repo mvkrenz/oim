@@ -113,8 +113,8 @@ public class Authorization {
 		        if(hostname.compareTo("HAYASHIS") == 0) {
 					log.debug("Server on localhost. Overriding the DN to Soichi's");
 					//user_dn = null; //browser didn't give us any dn
-					user_dn = "/DC=org/DC=doegrids/OU=People/CN=Soichi Hayashi 461343";		
-					//user_dn = "/DC=org/DC=doegrids/OU=People/CN=Alain Roy 424511";
+					//user_dn = "/DC=org/DC=doegrids/OU=People/CN=Soichi Hayashi 461343";		
+					user_dn = "/DC=org/DC=doegrids/OU=People/CN=Alain Roy 424511";
 					//user_dn = "/DC=org/DC=doegrids/OU=People/CN=Tiberiu Stef-Praun 764752";
 					//user_cn = null;
 		        } else if ((hostname.compareTo("lav-ag-desktop") == 0) || 
