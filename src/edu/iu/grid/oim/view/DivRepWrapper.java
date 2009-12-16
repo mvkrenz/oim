@@ -20,7 +20,7 @@ public class DivRepWrapper implements IView {
 		//ouput JS too
 		out.write("<script type=\"text/javascript\">");
 		DivRepPage page = de.getPageRoot();
-		page.flushPostReplaceJS(out);
+		page.flushJavascript(out);
 		out.write("</script>");
 		
 		//divrep frameworks sets this at the end of update request, but since we are doing the initial-draw,

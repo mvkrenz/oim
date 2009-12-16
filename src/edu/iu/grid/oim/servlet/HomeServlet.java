@@ -90,8 +90,8 @@ public class HomeServlet extends ServletBase  {
 		}
 		
 		//show oim hierarchy doc
-		contentview.add(new HtmlView("<h2>OSG Topology used by OIM</h2>"));
-		contentview.add(new HtmlView("<p>This presentation walk through various entities within OIM hierarchy and describes their relationship.</p>"));
+		contentview.add(new HtmlView("<h2>OSG Topology</h2>"));
+		contentview.add(new HtmlView("<p>This presentation walk through various entities within OIM topology used by OIM and describes their relationship.</p>"));
 		contentview.add(new HtmlView("<iframe src=\"http://docs.google.com/present/embed?id=ddtgc5bt_113fp3fmvgp&size=l\" frameborder=\"0\" width=\"700\" height=\"559\"></iframe>"));
 
 		return contentview;
