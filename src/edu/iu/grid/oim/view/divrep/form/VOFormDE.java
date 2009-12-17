@@ -38,6 +38,8 @@ import edu.iu.grid.oim.model.db.ContactRankModel;
 import edu.iu.grid.oim.model.db.ContactTypeModel;
 import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.FieldOfScienceModel;
+import edu.iu.grid.oim.model.db.ResourceGroupModel;
+import edu.iu.grid.oim.model.db.SiteModel;
 import edu.iu.grid.oim.model.db.VOReportContactModel;
 import edu.iu.grid.oim.model.db.VOReportNameModel;
 import edu.iu.grid.oim.model.db.VOReportNameFqanModel;
@@ -51,7 +53,9 @@ import edu.iu.grid.oim.model.db.record.ContactTypeRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.FieldOfScienceRecord;
 import edu.iu.grid.oim.model.db.record.RecordBase;
+import edu.iu.grid.oim.model.db.record.ResourceGroupRecord;
 import edu.iu.grid.oim.model.db.record.ResourceWLCGRecord;
+import edu.iu.grid.oim.model.db.record.SiteRecord;
 import edu.iu.grid.oim.model.db.record.VOReportContactRecord;
 import edu.iu.grid.oim.model.db.record.VOReportNameRecord;
 import edu.iu.grid.oim.model.db.record.VOReportNameFqanRecord;
@@ -624,10 +628,13 @@ public class VOFormDE extends DivRepForm
 						field_of_science_ids,
 						vo_report_name_div.getVOReports(model));
 				
+				//Find the Footprint ID of the associated SC
+				SCModel scmodel = new SCModel(context);
+				SCRecord screc = scmodel.get(rec.sc_id);
+				
 				//create footprint ticket
 				Footprint fp = new Footprint(context);
-				fp.createNewVOTicket(rec.name);
-				
+				fp.createNewVOTicket(rec.name, screc.footprints_id);
 			} else {
 				model.updateDetail(rec, 
 						contacts, 

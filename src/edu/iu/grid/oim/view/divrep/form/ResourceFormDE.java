@@ -25,19 +25,25 @@ import edu.iu.grid.oim.model.db.ContactTypeModel;
 import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.ResourceAliasModel;
 import edu.iu.grid.oim.model.db.ResourceContactModel;
+import edu.iu.grid.oim.model.db.ResourceGroupModel;
 import edu.iu.grid.oim.model.db.ResourceServiceModel;
 import edu.iu.grid.oim.model.db.ResourceWLCGModel;
+import edu.iu.grid.oim.model.db.SCModel;
 import edu.iu.grid.oim.model.db.ServiceModel;
 import edu.iu.grid.oim.model.db.ResourceModel;
+import edu.iu.grid.oim.model.db.SiteModel;
 import edu.iu.grid.oim.model.db.VOModel;
 import edu.iu.grid.oim.model.db.VOResourceOwnershipModel;
 import edu.iu.grid.oim.model.db.record.ContactTypeRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.ResourceAliasRecord;
 import edu.iu.grid.oim.model.db.record.ResourceContactRecord;
+import edu.iu.grid.oim.model.db.record.ResourceGroupRecord;
 import edu.iu.grid.oim.model.db.record.ResourceRecord;
 import edu.iu.grid.oim.model.db.record.ResourceServiceRecord;
 import edu.iu.grid.oim.model.db.record.ResourceWLCGRecord;
+import edu.iu.grid.oim.model.db.record.SCRecord;
+import edu.iu.grid.oim.model.db.record.SiteRecord;
 import edu.iu.grid.oim.model.db.record.VOResourceOwnershipRecord;
 import edu.iu.grid.oim.view.divrep.Confirmation;
 import edu.iu.grid.oim.view.divrep.ContactEditor;
@@ -330,9 +336,17 @@ public class ResourceFormDE extends DivRepForm
 						resource_services.getResourceServiceRecords(),
 						owners.getOwners());
 				
+				//Traverse OIM hirearchy to find the Footprint ID of the associated SC
+				ResourceGroupModel rgmodel = new ResourceGroupModel(context);
+				ResourceGroupRecord rgrec = rgmodel.get(rec.resource_group_id);
+				SiteModel smodel = new SiteModel(context);
+				SiteRecord srec = smodel.get(rgrec.site_id);
+				SCModel scmodel = new SCModel(context);
+				SCRecord screc = scmodel.get(srec.sc_id);
+				
 				//create footprint ticket
 				Footprint fp = new Footprint(context);
-				fp.createNewResourceTicket(rec.name);
+				fp.createNewResourceTicket(rec.name, screc.footprints_id);
 				
 			} else {
 				model.updateDetail(rec, 

@@ -53,7 +53,7 @@ public class Footprint
 		}
 	}
 
-	public void createNewResourceTicket(String resource_name)
+	public void createNewResourceTicket(String resource_name, String sc_footprint_id)
 	{
 		HashMap<String, String> params = new HashMap<String, String>();
 		params.put("##RESOURCE_NAME##", resource_name);
@@ -121,7 +121,7 @@ public class Footprint
 
             SOAPElement arg4_5 = args.addChildElement( env.createName("assignees") );
             arg4_5.addAttribute( env.createName("type","xsi",""), "SOAP-ENC:Array" );
-            arg4_5.addAttribute( env.createName("arrayType","SOAP-ENC",""), "xsd:string[2]" );//CHANGE [1] to [n] based on the number of items
+            arg4_5.addAttribute( env.createName("arrayType","SOAP-ENC",""), "xsd:string[3]" );//CHANGE [1] to [n] based on the number of items
             
 	            SOAPElement arg4_5_1 = arg4_5.addChildElement( env.createName("item") );
 	            arg4_5_1.addAttribute( env.createName("type","xsi",""), "xsd:string" );
@@ -130,6 +130,11 @@ public class Footprint
 	            SOAPElement arg4_5_2 = arg4_5.addChildElement( env.createName("item") );
 	            arg4_5_2.addAttribute( env.createName("type","xsi",""), "xsd:string" );
 	            arg4_5_2.addTextNode("echism");
+	            
+	            //assign the associated SC so that they will be notified of this resource registration
+	            SOAPElement arg4_5_3 = arg4_5.addChildElement( env.createName("item") );
+	            arg4_5_3.addAttribute( env.createName("type","xsi",""), "xsd:string" );
+	            arg4_5_3.addTextNode(sc_footprint_id);
 	            
             SOAPElement ccs = args.addChildElement( env.createName("permanentCCs") );
             ccs.addAttribute( env.createName("type","xsi",""), "SOAP-ENC:Array" );
@@ -319,7 +324,7 @@ public class Footprint
         } 
 	}
 	
-	public void createNewVOTicket(String vo_name)
+	public void createNewVOTicket(String vo_name, String sc_footprint_id)
 	{	
 		HashMap<String, String> params = new HashMap<String, String>();
 		params.put("##VO_NAME##", vo_name);
@@ -387,7 +392,7 @@ public class Footprint
 
             SOAPElement arg4_5 = args.addChildElement( env.createName("assignees") );
             arg4_5.addAttribute( env.createName("type","xsi",""), "SOAP-ENC:Array" );
-            arg4_5.addAttribute( env.createName("arrayType","SOAP-ENC",""), "xsd:string[2]" );//CHANGE [1] to [n] based on the number of items
+            arg4_5.addAttribute( env.createName("arrayType","SOAP-ENC",""), "xsd:string[3]" );//CHANGE [1] to [n] based on the number of items
             
 	            SOAPElement arg4_5_1 = arg4_5.addChildElement( env.createName("item") );
 	            arg4_5_1.addAttribute( env.createName("type","xsi",""), "xsd:string" );
@@ -396,7 +401,12 @@ public class Footprint
 	            SOAPElement arg4_5_2 = arg4_5.addChildElement( env.createName("item") );
 	            arg4_5_2.addAttribute( env.createName("type","xsi",""), "xsd:string" );
 	            arg4_5_2.addTextNode("echism");
-            
+ 
+	            //assign the associated SC so that they will be notified of this resource registration
+	            SOAPElement arg4_5_3 = arg4_5.addChildElement( env.createName("item") );
+	            arg4_5_3.addAttribute( env.createName("type","xsi",""), "xsd:string" );
+	            arg4_5_3.addTextNode(sc_footprint_id);
+	            
             SOAPElement ccs = args.addChildElement( env.createName("permanentCCs") );
             ccs.addAttribute( env.createName("type","xsi",""), "SOAP-ENC:Array" );
             ccs.addAttribute( env.createName("arrayType","SOAP-ENC",""), "xsd:string[3]" );//CHANGE [1] to [n] based on the number of items
