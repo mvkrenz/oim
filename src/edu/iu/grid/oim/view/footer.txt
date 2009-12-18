@@ -5,7 +5,7 @@
 <p>Logged in as <b>__DN__</b></p>
 </div>
 <p><a href="https://myosg.grid.iu.edu">MyOSG</a> | <a href="https://ticket.grid.iu.edu/goc">GOC Ticket</a> | OIM | <a href="https://twiki.grid.iu.edu">TWiki</a> | <a href="https://ticket.grid.iu.edu/goc/oim">Report Bugs</a></p>
-<p><img src="__STATICBASE__/images/potato.png" align="left"/>&nbsp;Copyright (C) 2009 Indiana University - Developed for Open Science Grid</p>
+<p><img src="__STATICBASE__/images/potato.png" align="left"/>&nbsp;Copyright 2009 The Trustees of Indiana University  - Developed for Open Science Grid</p>
 </div>
 <script type="text/javascript">
 var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
