@@ -1,7 +1,13 @@
 package edu.iu.grid.oim.view;
 
 import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
+
+import javax.servlet.http.HttpServletRequest;
+import java.net.URLEncoder;
+
+import org.apache.commons.lang.StringEscapeUtils;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.StaticConfig;
@@ -24,6 +30,7 @@ public class Page implements IView {
 		params.put("__STATICBASE__", StaticConfig.getStaticBase());
 		params.put("__APPNAME__", StaticConfig.getApplicationName());
 		params.put("__VERSION__", StaticConfig.getVersion());
+		params.put("__REF__", getRequestURL(context.getRequest()));
 		if(context.getAuthorization().isGuest()) {
 			params.put("__DN__", "Guest");
 		} else {
@@ -35,6 +42,21 @@ public class Page implements IView {
 		menu = _menu;
 		content = _content;
 		side = _side;
+	}
+	
+	private String getRequestURL(HttpServletRequest request) {
+		String url = "";
+		url += request.getRequestURI();
+		if(request.getQueryString() != null) {
+			url += "?" + request.getQueryString();
+		}
+		try {
+			return URLEncoder.encode(url, "UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} 
+		return null;
 	}
 	
 	public void render(PrintWriter out)
