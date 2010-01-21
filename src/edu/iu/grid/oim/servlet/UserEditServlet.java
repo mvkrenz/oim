@@ -61,19 +61,27 @@ public class UserEditServlet extends ServletBase implements Servlet {
 				title = "New User";	
 			}
 		
-			UserFormDE form = new UserFormDE(context, rec, StaticConfig.getApplicationBase()+"/"+current_page);
-			
-			//put the form in a view and display
 			ContentView contentview = new ContentView();
-			contentview.add(new HtmlView("<h1>"+title+"</h1>"));	
-			contentview.add(new DivRepWrapper(form));
 			
-			//setup crumbs
-			BreadCrumbView bread_crumb = new BreadCrumbView();
-			bread_crumb.addCrumb("Administration",  "admin");
-			bread_crumb.addCrumb("Users",  "user");
-			bread_crumb.addCrumb(rec.dn_string, null);
-			contentview.setBreadCrumb(bread_crumb);
+			if(rec != null) {
+				UserFormDE form = new UserFormDE(context, rec, StaticConfig.getApplicationBase()+"/"+current_page);
+				
+				//put the form in a view and display
+				contentview.add(new HtmlView("<h1>"+title+"</h1>"));	
+				contentview.add(new DivRepWrapper(form));
+				
+				//setup crumbs
+				BreadCrumbView bread_crumb = new BreadCrumbView();
+				bread_crumb.addCrumb("Administration",  "admin");
+				bread_crumb.addCrumb("Users",  "user");
+				bread_crumb.addCrumb(rec.dn_string, null);
+				contentview.setBreadCrumb(bread_crumb);
+			} else {
+				//no user ID found..
+				contentview.add(new HtmlView("<h1>Can't find User ID</h1>"));
+				contentview.add(new HtmlView("<p>Perhaps the user has been removed?</p>"));
+			}
+		
 			
 			Page page = new Page(context, new MenuView(context, "admin"), contentview, createSideView());			
 			page.render(response.getWriter());	

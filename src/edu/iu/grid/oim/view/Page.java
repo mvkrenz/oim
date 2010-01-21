@@ -46,10 +46,13 @@ public class Page implements IView {
 	
 	private String getRequestURL(HttpServletRequest request) {
 		String url = "";
-		url += request.getRequestURI();
-		if(request.getQueryString() != null) {
-			url += "?" + request.getQueryString();
+		if(request != null) {
+			url += request.getRequestURI();
+			if(request.getQueryString() != null) {
+				url += "?" + request.getQueryString();
+			}
 		}
+
 		try {
 			return URLEncoder.encode(url, "UTF-8");
 		} catch (UnsupportedEncodingException e) {
