@@ -60,7 +60,7 @@ public class SendMail {
 		tos.add("hayashis@indiana.edu");
 		tos.add("8126067104@txt.att.net");
 		tos.add("goc-alert@googlegroups.com");
-		String subject = "OIM Error";
+		String subject = "[oim][critical] error";
 		String message = "OIM has detected an error\r\n" + content;
 
 		SendMail sendMail = new SendMail(from, tos, subject, message);
