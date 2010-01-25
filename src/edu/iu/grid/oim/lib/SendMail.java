@@ -59,6 +59,7 @@ public class SendMail {
 		ArrayList<String> tos = new ArrayList<String>();
 		tos.add("hayashis@indiana.edu");
 		tos.add("8126067104@txt.att.net");
+		tos.add("goc-alert@googlegroups.com");
 		String subject = "OIM Error";
 		String message = "OIM has detected an error\r\n" + content;
 
