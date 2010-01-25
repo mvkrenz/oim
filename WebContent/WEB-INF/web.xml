@@ -382,14 +382,6 @@
 		<servlet-class>edu.iu.grid.oim.servlet.HelpServlet</servlet-class>
 	</servlet>
 
-	<servlet>
-		<description>
-		</description>
-		<display-name>AdminAnnualReviewServlet</display-name>
-		<servlet-name>AdminAnnualReviewServlet</servlet-name>
-		<servlet-class>edu.iu.grid.oim.servlet.AdminAnnualReviewServlet</servlet-class>
-	</servlet>	
-
 	<servlet-mapping>
 		<servlet-name>DivRepServlet</servlet-name>
 		<url-pattern>/divrep</url-pattern>
@@ -595,11 +587,6 @@
 	<servlet-mapping>
 		<servlet-name>NeedcertServlet</servlet-name>
 		<url-pattern>/needcert</url-pattern>
-	</servlet-mapping>
-
-	<servlet-mapping>
-		<servlet-name>AdminAnnualReviewServlet</servlet-name>
-		<url-pattern>/adminannualreview</url-pattern>
 	</servlet-mapping>
 		
 	<servlet>

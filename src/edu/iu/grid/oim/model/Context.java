@@ -19,7 +19,9 @@ import edu.iu.grid.oim.lib.AuthorizationException;
 public class Context {
     static Logger log = Logger.getLogger(Context.class);  
     
+    private DivRepRoot divrep_root;
 	private DivRepPage divrep_pageroot;
+	
 	private Authorization auth = new Authorization();
 	private HttpServletRequest request;
 	private Connection oim_connection = null;
@@ -34,8 +36,8 @@ public class Context {
 	{	
 		request = _request;		
 		auth = new Authorization(request);
-		DivRepRoot root = DivRepRoot.getInstance(request.getSession());
-		divrep_pageroot = root.initPage(request.getRequestURI() + request.getQueryString());
+		divrep_root = DivRepRoot.getInstance(request.getSession());
+		divrep_pageroot = divrep_root.initPage(request.getRequestURI() + request.getQueryString());
 	}
 
 	public static Context getGuestContext()
@@ -53,6 +55,9 @@ public class Context {
 			if(oim_connection != null) {
 				oim_connection.close();
 			}
+			
+			divrep_root.setSession(request.getSession());
+			
 		} catch (SQLException e) {
 			log.error(e);
 		}
