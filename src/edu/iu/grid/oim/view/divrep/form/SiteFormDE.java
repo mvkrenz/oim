@@ -110,7 +110,7 @@ public class SiteFormDE extends DivRepForm
 		description.setRequired(false);
 
 		sc_id = new DivRepSelectBox(this, getSCs());
-		sc_id.setLabel("Select Support Center for this Site");
+		sc_id.setLabel("Select Support Center that supports resources and services for this site");
 		sc_id.setValue(rec.sc_id);
 		sc_id.setRequired(true);
 

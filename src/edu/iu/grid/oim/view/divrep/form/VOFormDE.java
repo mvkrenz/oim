@@ -361,7 +361,7 @@ public class VOFormDE extends DivRepForm
 		long_name.setSampleValue("Collider Detector at Fermilab");
 
 		sc_id = new DivRepSelectBox(this, getSCNames());
-		sc_id.setLabel("Select a Support Center that will support this VO");
+		sc_id.setLabel("Select a Support Center that supports your users and applications");
 		sc_id.setValue(rec.sc_id);
 		sc_id.setRequired(true);
 		
