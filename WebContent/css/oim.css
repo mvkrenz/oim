@@ -27,6 +27,7 @@ text-align: left;
 width: 90px;
 padding-top: 5px;
 padding-bottom: 5px;
+padding-right: 10px;
 }
 table.auth_matrix th
 {
@@ -91,7 +92,7 @@ width: 100%;
 table.inner_table th, table.inner_table tr.header td
 {
 padding-left: 10px;
-width: 40%;
+width: 50%;
 }
 table.fqan_table
 {
@@ -101,7 +102,7 @@ border-collapse: collapse;
 }
 table.fqan_table th, table.fqan_table tr.header td
 {
-padding-left: 10px;
+padding-left: 5px;
 }
 table.fqan_table td
 {
