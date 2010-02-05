@@ -111,7 +111,7 @@ public class ReportConfirmationServlet extends ServletBase implements Servlet {
 		row.createCell(0).setCellValue(new HSSFRichTextString("Name"));
 		row.createCell(1).setCellValue(new HSSFRichTextString("Email"));
 		row.createCell(2).setCellValue(new HSSFRichTextString("Phone"));
-		row.createCell(3).setCellValue(new HSSFRichTextString("Confirmation Date (GMT)"));
+		row.createCell(3).setCellValue(new HSSFRichTextString("Confirmation Date (UTC)"));
 		row.createCell(4).setCellValue(new HSSFRichTextString("Detail"));	
 		int rownum = 1;
 		for(ContactRecord rec : critical_list) {
@@ -138,7 +138,7 @@ public class ReportConfirmationServlet extends ServletBase implements Servlet {
 			for(String detail: details) {
 				details_str.append(detail + "\n");
 			}
-			cell = row.createCell(3);
+			cell = row.createCell(4);
 			cell.setCellStyle(cellstyle);
 			cell.setCellValue(new HSSFRichTextString(details_str.toString()));
 		}
@@ -153,7 +153,7 @@ public class ReportConfirmationServlet extends ServletBase implements Servlet {
 		row.createCell(0).setCellValue(new HSSFRichTextString("Name"));
 		row.createCell(1).setCellValue(new HSSFRichTextString("Email"));
 		row.createCell(2).setCellValue(new HSSFRichTextString("Phone Number"));	
-		row.createCell(3).setCellValue(new HSSFRichTextString("Confirmation Date (GMT)"));
+		row.createCell(3).setCellValue(new HSSFRichTextString("Confirmation Date (UTC)"));
 		rownum = 1;
 		for(ContactRecord rec : normal_list) {
 			row = sheet.createRow(rownum++);
