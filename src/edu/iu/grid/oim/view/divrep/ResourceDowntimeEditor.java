@@ -475,17 +475,19 @@ public class ResourceDowntimeEditor extends DivRepFormElement {
 		out.write("</div>");
 	}
 
-	//caller should set resource_id
 	public ResourceDowntimeRecord getDowntimeRecord() {
-		rec.downtime_summary = summary.getValue();
-		rec.start_time = new Timestamp(getStartTime().getTime());
-		rec.end_time = new Timestamp(getEndTime().getTime());
-		rec.downtime_class_id = class_id.getValue();
-		rec.downtime_severity_id = severity_id.getValue();
-		rec.dn_id = auth.getDNID();
-		rec.timestamp = timestamp;
+		ResourceDowntimeRecord newrec = new ResourceDowntimeRecord();
+		newrec.id = rec.id;
+		newrec.resource_id = rec.resource_id;
+		newrec.downtime_summary = summary.getValue();
+		newrec.start_time = new Timestamp(getStartTime().getTime());
+		newrec.end_time = new Timestamp(getEndTime().getTime());
+		newrec.downtime_class_id = class_id.getValue();
+		newrec.downtime_severity_id = severity_id.getValue();
+		newrec.dn_id = auth.getDNID();
+		newrec.timestamp = timestamp;
 
-		return rec;
+		return newrec;
 	}
 
 	public Date getStartTime() 
