@@ -8,12 +8,15 @@ import javax.servlet.http.HttpServletRequest;
 import java.net.URLEncoder;
 
 import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.log4j.Logger;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.model.Context;
+import edu.iu.grid.oim.servlet.ActionServlet;
 
 public class Page implements IView {
+	static Logger log = Logger.getLogger(Page.class);  
 	
     protected Context context;
     
@@ -30,7 +33,15 @@ public class Page implements IView {
 		params.put("__STATICBASE__", StaticConfig.getStaticBase());
 		params.put("__APPNAME__", StaticConfig.getApplicationName());
 		params.put("__VERSION__", StaticConfig.getVersion());
-		params.put("__REF__", getRequestURL(context.getRequest()));
+		
+		try {
+			String request_uri = context.getRequestURL();
+			request_uri = URLEncoder.encode(request_uri, "UTF-8");
+			params.put("__REF__", request_uri);
+		} catch (UnsupportedEncodingException e) {
+			log.error(e);
+		} 
+
 		if(context.getAuthorization().isGuest()) {
 			params.put("__DN__", "Guest");
 		} else {
@@ -43,24 +54,7 @@ public class Page implements IView {
 		content = _content;
 		side = _side;
 	}
-	
-	private String getRequestURL(HttpServletRequest request) {
-		String url = "";
-		if(request != null) {
-			url += request.getRequestURI();
-			if(request.getQueryString() != null) {
-				url += "?" + request.getQueryString();
-			}
-		}
 
-		try {
-			return URLEncoder.encode(url, "UTF-8");
-		} catch (UnsupportedEncodingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} 
-		return null;
-	}
 	
 	public void render(PrintWriter out)
 	{

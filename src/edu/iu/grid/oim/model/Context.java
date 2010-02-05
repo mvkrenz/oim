@@ -7,6 +7,7 @@ import java.util.TimeZone;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
 import javax.sql.DataSource;
 import org.apache.log4j.Logger;
 
@@ -23,7 +24,8 @@ public class Context {
 	private DivRepPage divrep_pageroot;
 	
 	private Authorization auth = new Authorization();
-	private HttpServletRequest request;
+	private String request_url;
+	private HttpSession session;
 	private Connection oim_connection = null;
 
 	//stores the reason for current transaction (used for log table)
@@ -32,10 +34,14 @@ public class Context {
 	public void setComment(String _comment) { comment = _comment; }
 	public String getComment() { return comment; }
 	
-	public Context(HttpServletRequest _request) throws AuthorizationException
+	public Context(HttpServletRequest request) throws AuthorizationException
 	{	
-		request = _request;		
+		//don't store request object because it can get stale really fast... (was causing issue when divrep tries to get session from it)
+		//request = _request;	
+		
+		session = request.getSession();
 		auth = new Authorization(request);
+		setRequestURL(request);
 		divrep_root = DivRepRoot.getInstance(request.getSession());
 		divrep_pageroot = divrep_root.initPage(request.getRequestURI() + request.getQueryString());
 	}
@@ -55,11 +61,12 @@ public class Context {
 			if(oim_connection != null) {
 				oim_connection.close();
 			}
-			
-			divrep_root.setSession(request.getSession());
+			divrep_root.setSession(session);
 			
 		} catch (SQLException e) {
 			log.error(e);
+		} catch (Exception e) {
+			log.error("Failed to reset session for divrep: ", e);
 		}
 	}
 	
@@ -111,8 +118,20 @@ public class Context {
 	{
 		return divrep_pageroot;
 	}
-	public HttpServletRequest getRequest()
+	
+	public String getRequestURL()
 	{
-		return request;
+		return request_url;
+	}
+
+	
+	private void setRequestURL(HttpServletRequest request) {
+		request_url = "";
+		if(request != null) {
+			request_url += request.getRequestURI();
+			if(request.getQueryString() != null) {
+				request_url += "?" + request.getQueryString();
+			}
+		}
 	}
 }
