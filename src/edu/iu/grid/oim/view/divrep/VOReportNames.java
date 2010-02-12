@@ -166,6 +166,7 @@ public class VOReportNames extends DivRepFormElement {
 		remove(vo_report_name);
 		validate_count();
 		redraw();
+		modified(true);
 	}
 	
 	public void addVOReportName(VOReportNameRecord vorepname_record, 
@@ -191,6 +192,7 @@ public class VOReportNames extends DivRepFormElement {
 			public void handleEvent(DivRepEvent e) {
 				addVOReportName(new VOReportNameRecord(),null,null);
 				validate_count();
+				modified(true);
 			}
 			
 		});

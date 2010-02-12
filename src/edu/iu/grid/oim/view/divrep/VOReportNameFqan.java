@@ -100,6 +100,7 @@ public class VOReportNameFqan extends DivRepFormElement {
 	{
 		remove(vo_report_name_fqan);
 		redraw();
+		modified(true);
 	}
 	
 	public void addVOReportNameFqan(VOReportNameFqanRecord record) { 
@@ -116,9 +117,9 @@ public class VOReportNameFqan extends DivRepFormElement {
 		add_button.addEventListener(new DivRepEventListener() {
 			public void handleEvent(DivRepEvent e) {
 				addVOReportNameFqan(new VOReportNameFqanRecord());
+				modified(true);
 			}
 		});
-		//add_button.addClass("indent");
 	}
 
 	public ArrayList<VOReportNameFqanRecord> getVOReportNameFqanRecords()

@@ -133,13 +133,16 @@ public class VOResourceOwnership extends DivRepFormElement {
 	public void removeOwner(OwnershipEditor owner)
 	{
 		remove(owner);
+		modified(true);
 		redraw();
 	}
 	
 	public void addOwner(VOResourceOwnershipRecord rec) { 
 		OwnershipEditor owner = new OwnershipEditor(this, rec, vo_recs);
 		redraw();
-		//validate();
+		
+		//don't set modifed(true) here - addOwner is called by init and doing so will make form to popup confirmation
+		//everytime user opens it
 	}
 	
 	public VOResourceOwnership(DivRep parent, ArrayList<VORecord> _vo_recs) {
@@ -151,6 +154,7 @@ public class VOResourceOwnership extends DivRepFormElement {
 		add_button.addEventListener(new DivRepEventListener() {
 			public void handleEvent(DivRepEvent e) {
 				addOwner(new VOResourceOwnershipRecord());
+				modified(true);
 			}
 		});	
 	}

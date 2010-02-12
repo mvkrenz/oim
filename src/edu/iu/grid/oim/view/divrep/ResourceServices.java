@@ -205,19 +205,14 @@ public class ResourceServices extends DivRepFormElement {
 	public void removeService(ServiceEditor service)
 	{
 		services.remove(service);
+		modified(true);
 		redraw();
-		/*
-		//notify any listener of our action
-		DivRepEvent e = new DivRepEvent(null, null);
-		e.action = "remove";
-		e.value = service;
-		notifyListener(e);
-		*/
 	}
 	
 	public void addService(ResourceServiceRecord rec) { 
 		ServiceEditor service = new ServiceEditor(this, rec, service_recs);
 		services.add(service);
+		modified(true);
 		redraw();
 		
 		/*
@@ -269,8 +264,6 @@ public class ResourceServices extends DivRepFormElement {
 				valid = false;
 			}
 		}
-		
-		
 	}
 	
 	public Boolean isValidResourceFQDN(String url)
