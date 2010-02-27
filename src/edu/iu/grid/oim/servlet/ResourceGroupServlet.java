@@ -89,7 +89,7 @@ public class ResourceGroupServlet extends ServletBase implements Servlet {
 			table.addRow("Description", rec.description);
 			table.addRow("Site", site_model.get(rec.site_id).name);
 			table.addRow("OSG Grid Type", ogt_model.get(rec.osg_grid_type_id).name);
-			table.addRow("Active", rec.active);
+			//table.addRow("Active", rec.active);
 			table.addRow("Disable", rec.disable);
 
 			class EditButtonDE extends DivRepButton

@@ -58,7 +58,7 @@ public class ResourceGroupFormDE extends DivRepForm
 	private DivRepTextArea description;
 	private SiteSelector site_id;
 	private DivRepSelectBox osg_grid_type_id;
-	private DivRepCheckBox active;
+	//private DivRepCheckBox active;
 	private DivRepCheckBox disable;
 	
 	public ResourceGroupFormDE(Context _context, ResourceGroupRecord rec, String origin_url) throws AuthorizationException, SQLException
@@ -111,12 +111,14 @@ public class ResourceGroupFormDE extends DivRepForm
 			new DivRepStaticContent(this, "<h2>Administrative Tasks</h2>");
 		}
 
+		/*
 		active = new DivRepCheckBox(this);
 		active.setLabel("Active");
 		active.setValue(rec.active);
 		if(!auth.allows("admin")) {
 			active.setHidden(true);
 		}
+		*/
 		
 		disable = new DivRepCheckBox(this);
 		disable.setLabel("Disable");
@@ -160,7 +162,7 @@ public class ResourceGroupFormDE extends DivRepForm
 		rec.description = description.getValue();
 		rec.site_id = site_id.getValue();
 		rec.osg_grid_type_id = osg_grid_type_id.getValue();
-		rec.active = active.getValue();
+		//rec.active = active.getValue();
 		rec.disable = disable.getValue();
 		
 		ResourceGroupModel model = new ResourceGroupModel(context);
