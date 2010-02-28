@@ -87,7 +87,7 @@ public class MenuView implements IView {
 	    	if(item.param != null) {
 	    		url += item.param;
 	    	}
-	    	out.println("<span class=\"link "+ cls +"\" onclick=\"divrep_redirect('"+url+"');\">"+StringEscapeUtils.escapeHtml(item.name)+"</span>");
+	    	out.println("<div class=\"link "+ cls +"\" onclick=\"divrep_redirect('"+url+"');\">"+StringEscapeUtils.escapeHtml(item.name)+"</div>");
 	    }
 		out.println("</div>");
 		
