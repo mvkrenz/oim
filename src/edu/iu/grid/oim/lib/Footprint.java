@@ -11,12 +11,17 @@ import java.util.HashMap;
 import javax.mail.MessagingException;
 import javax.xml.soap.*;
 
+import org.apache.log4j.Logger;
+
 import edu.iu.grid.oim.model.Context;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.view.HtmlFileView;
+import edu.iu.grid.oim.view.divrep.ResourceDowntimeEditor;
 
 public class Footprint 
 {
+    static Logger log = Logger.getLogger(Footprint.class); 
+    
 	Context context;
 	
 	SOAPBody body;
@@ -319,7 +324,7 @@ public class Footprint
         	try {
 				SendMail.sendErrorEmail("Failed to open Footprint ticket: " + ex.toString());
 			} catch (MessagingException e) {
-				System.out.println(ex.toString());
+				log.error("Failed to send email about the FP ticket creation error", ex);
 			}
         } 
 	}
@@ -466,45 +471,5 @@ public class Footprint
         SOAPMessage reply = connection.call(msg, StaticConfig.getFootprintsUrl());
         connection.close();
         return reply.getSOAPPart().getEnvelope().getBody();
-        /*
-        if( replybody.hasFault()) {
-            throw new Exception( replybody.getFault().getFaultString() );
-        }
-        */
-
-        /*
-        // Iterate through the result body, extracting information
-        java.util.Iterator it = replybody.getChildElements();
-        while( it.hasNext() )
-        {
-            Object obj = it.next();
-            if( obj instanceof SOAPElement ) {
-                SOAPElement ele = (SOAPElement)obj;
-                java.util.Iterator it2 = ele.getChildElements();
-                while( it2.hasNext() )
-                {
-                    Object obj2 = it2.next();
-                    if( obj2 instanceof SOAPElement )
-                    {
-                        SOAPElement ele2 = (SOAPElement)obj2;
-                        String s2 = ele2.getElementName().getLocalName();
-                        if( s2.equals("return") )
-                        {
-                            java.util.Iterator it3 = ele2.getChildElements();
-                            while( it3.hasNext() )
-                            {
-                                Object obj3 = it3.next();
-                                if( obj3 instanceof Text )
-                                {
-                                    Text txt = (Text)obj3;
-                                    System.out.println( "Issue " + txt.getValue() + " has been created." );
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        */
 	}
 }

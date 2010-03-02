@@ -331,9 +331,7 @@ public class ResourceDowntimeEditor extends DivRepFormElement {
 					DurationDR.this.validate();
 				}});
 			
-			if(rec.start_time != null && rec.end_time != null) {
-				System.out.println(timezone.toString());
-				
+			if(rec.start_time != null && rec.end_time != null) {				
 				start_date.setValue(rec.start_time);
 				start_time.setValue(rec.start_time);
 
