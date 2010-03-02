@@ -75,10 +75,13 @@ public class Context {
 		if (oim_connection == null)
 			return false;
 		try {
-			if (oim_connection.isClosed())
+			if (oim_connection.isClosed()) {
+				log.warn("OIM connection is closed...");
 				return false;
+			}
 			oim_connection.getMetaData();
 		} catch (Exception e) {
+			log.warn("OIM connection is stale...");
 			return false;
 		}
 		return true;
