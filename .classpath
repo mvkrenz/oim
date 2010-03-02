@@ -20,7 +20,7 @@
 	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/geonames-1.0.jar"/>
 	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/jdom-1.0.jar"/>
 	<classpathentry kind="lib" path="tomcat5-lib/mail.jar"/>
-	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/divrep.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/divrep.jar" sourcepath="/divrep"/>
 	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/commons-logging-1.1.jar"/>
 	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/junit-3.8.1.jar"/>
 	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/poi-3.2-FINAL-20081019.jar"/>
