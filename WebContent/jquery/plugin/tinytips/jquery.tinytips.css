@@ -1,0 +1,17 @@
+.tinyTip { 
+width: 325px; padding: 17px 0px 0px 0px; display: block;
+background: url(tinyTip-top.png) 0px 0px no-repeat;
+}
+
+.tinyTip .content { 
+padding: 0px 15px 0px 15px; 
+background: url(tinyTip-content.png) 0px 0px repeat-y;
+font-family: Verdana;
+color: black;
+font-size: 10pt;
+}
+
+.tinyTip .bottom { 
+height: 47px;
+background: url(tinyTip-bottom.png) 0px 0px no-repeat; font: 0px/0px sans-serif;
+}

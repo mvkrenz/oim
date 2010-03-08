@@ -14,54 +14,58 @@ public class RecordTableView extends TableView {
 	{
 		super("record_table");
 	}
-	public void addHeaderRow(String content)
+	public Row addHeaderRow(String content)
 	{
 		Row row = new Row();
 		row.setClass("header");
 		addRow(row);
 		row.addCell(new HtmlView(StringEscapeUtils.escapeHtml(content)), 2);
+		return row;
 	}
 	
-	public void addRow(String header, IView content) {
+	public Row addRow(String header, IView content) {
 		Row row = new Row();
 		addRow(row);
 		row.addHeaderCell(new HtmlView(StringEscapeUtils.escapeHtml(header)));
-		row.addCell(content);		
+		row.addCell(content);	
+		return row;
 	}
 	
-	public void addBoldRow(String content) {
+	public Row addBoldRow(String content) {
 		Row row = new Row();
 		addRow(row);
 		row.addBoldCell(new HtmlView(StringEscapeUtils.escapeHtml(content)));
+		return row;
 	}
 
-	public void addRow(String content) {
+	public Row addRow(String content) {
 		Row row = new Row();
 		addRow(row);
 		row.addCell(new HtmlView(StringEscapeUtils.escapeHtml(content)));
+		return row;
 	}
 
-	public void addRow(String header, String content)
+	public Row addRow(String header, String content)
 	{
 		content = StringEscapeUtils.escapeHtml(content);
 		content = Utils.nullStrFilter(content);
-		addRow(header, new HtmlView(content));
+		return addRow(header, new HtmlView(content));
 	}
-	public void addRow(String header, Double value)
+	public Row addRow(String header, Double value)
 	{
 		String str = null;
 		if(value != null) {
 			str = value.toString();
 		}
 		str = Utils.nullStrFilter(str);
-		addRow(header, new HtmlView(str));
+		return addRow(header, new HtmlView(str));
 	}
-	public void addRow(String header, Boolean b)
+	public Row addRow(String header, Boolean b)
 	{
 		if(b) {
-			addRow(header, "True");		
+			return addRow(header, "True");		
 		} else {
-			addRow(header, "False");
+			return addRow(header, "False");
 		}
 	}
 }

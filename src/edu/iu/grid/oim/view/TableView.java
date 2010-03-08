@@ -3,6 +3,7 @@ package edu.iu.grid.oim.view;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 
 import edu.iu.grid.oim.servlet.LogServlet;
@@ -11,11 +12,15 @@ public class TableView extends GenericView {
     static Logger log = Logger.getLogger(LogServlet.class);  
     
 	static public enum CellStyle { NORMAL, HEADER, BOLD };
+	static int next_id = 0;
+	int id;
 	String cls = "";
 	
 	public TableView(String cls)
 	{
 		addClass(cls);
+		id = next_id;
+		next_id++;
 	}
 	
 	public class Row implements IView
@@ -24,6 +29,12 @@ public class TableView extends GenericView {
 		public void setClass(String _clazz) {
 			clazz = _clazz;
 		}
+		
+		private String tip = null;
+		public void setTip(String tip) {
+			this.tip = tip;
+		}
+		
 		public class Cell implements IView
 		{
 			CellStyle style = CellStyle.NORMAL;
@@ -57,6 +68,9 @@ public class TableView extends GenericView {
 				case HEADER:
 					out.print("<th colspan=\""+span+"\">");
 					content.render(out);
+					if(tip != null) {
+						out.print("<img class=\"tinytip\" src=\"images/tip.png\" title=\""+StringEscapeUtils.escapeHtml(tip)+"\"/>");
+					}
 					out.print("</th>");
 					break;
 				}
@@ -113,7 +127,7 @@ public class TableView extends GenericView {
 	
 	public void render(PrintWriter out)
 	{
-		out.print("<table class='"+cls+"'>");
+		out.print("<table id='table_"+id+"' class='"+cls+"'>");
 		for(Row row : rows) {
 			row.render(out);
 		}
@@ -127,7 +141,12 @@ public class TableView extends GenericView {
 			out.print("</td></tr>");
 		}
 			
-		out.print("</table>");		
+		out.print("</table>");	
+		
+		out.print("<script type=\"text/javascript\">");
+		out.print("$('#table_"+id+" .tinytip').tinyTips('title');");
+		//out.print("console.log($('.tinytip').attr('title'));");
+		out.print("</script>");
 	}
 
 }
