@@ -7,8 +7,7 @@ background: url(tinyTip-top.png) 0px 0px no-repeat;
 padding: 0px 15px 0px 15px; 
 background: url(tinyTip-content.png) 0px 0px repeat-y;
 font-family: Verdana;
-color: black;
-font-size: 10pt;
+font-size: 9pt;
 }
 
 .tinyTip .bottom { 
