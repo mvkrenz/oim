@@ -65,13 +65,15 @@ public class UserFormDE extends DivRepForm
 		dn_string.setValue(rec.dn_string);
 		dn_string.setRequired(true);
 
-		new DivRepStaticContent(this, "<h3>Contact Person Name</h3>");
+		new DivRepStaticContent(this, "<h3>Contact's Name</h3>");
 		contact = new ContactEditor(this, new ContactModel(context), false, false);
 		contact.setShowRank(false);
 		contact.setMinContacts(ContactEditor.Rank.PRIMARY, 1);
 		ContactModel cmodel = new ContactModel(context);
-		ContactRecord crec = cmodel.get(rec.contact_id);
-		contact.addSelected(crec, 1);//1 = is for primary (I know.. the api is not consistent with setMinContact() above)
+		if (id != null) {
+			ContactRecord crec = cmodel.get(rec.contact_id);
+			contact.addSelected(crec, 1);//1 = is for primary (I know.. the api is not consistent with setMinContact() above)
+		}
 		
 		new DivRepStaticContent(this, "<h3>Authorization Types</h3>");
 		AuthorizationTypeModel atmodel = new AuthorizationTypeModel(context);

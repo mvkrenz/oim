@@ -42,7 +42,10 @@ public class SideContentView implements IView {
 		add("Note about Contacts", new HtmlView("<p>The contact boxes allow you to search and assign contacts.</p><p>When assigning various contacts on this form, if you do not find the contact you are searching for, then <a href=\"contactedit\" target=\"_blank\">click here to add a new contact</a> first [opens in a new tab]."));		
 	}
 	public void addContactLegend () {
-		add("Legend", new HtmlView("<p>Contacts are flagged by their rank:</p><p><div class=\'contact_rank contact_Primary\'>Primary</div></p><p><div class=\'contact_rank contact_Secondary\'>Secondary</div></p><p><div class=\'contact_rank contact_Tertiary\'>Tertiary</div></p>"));		
+		add("Contact Rank Legend", new HtmlView("<p>Contacts are flagged by their rank:</p><p><div class=\'contact_rank contact_Primary\'>Primary</div></p><p><div class=\'contact_rank contact_Secondary\'>Secondary</div></p><p><div class=\'contact_rank contact_Tertiary\'>Tertiary</div></p>"));		
+	}
+	public void addContactGroupFlagLegend () {
+		add("Contact Grouping Legend", new HtmlView("<p>Contacts are flagged based on whether they are tagged as a group contact or not:</p><p><div class=\'contact_rank contact_flag_Group\'>Group Contact (Mailing list, etc.)</div></p><p><div class=\'contact_rank contact_flag_Person\'>Non-Group Contact (Human user or Service-cert. mapped user)</div></p>"));		
 	}
 	public void render(PrintWriter out)
 	{

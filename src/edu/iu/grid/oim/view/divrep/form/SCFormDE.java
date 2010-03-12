@@ -143,7 +143,8 @@ public class SCFormDE extends DivRepForm
 		}
 
 		active = new DivRepCheckBox(this);
-		active.setLabel("Active");
+		active.setLabel("Active (Soon to be phased out - modification not allowed)");
+		active.setDisabled(true);
 		active.setValue(rec.active);
 		if(!auth.allows("admin")) {
 			active.setHidden(true);
@@ -206,8 +207,13 @@ public class SCFormDE extends DivRepForm
 		rec.description = description.getValue();
 		rec.community = community.getValue();
 		rec.footprints_id = footprints_id.getValue();
-		rec.active = active.getValue();
 		rec.disable = disable.getValue();
+		// rec.active = active.getValue();
+		if (rec.disable == true) {
+			rec.active = false; // not using real active value, instead defaulting based on disable value
+		} else {
+			rec.active = true; 
+		}
 		rec.confirmed = confirmation.getTimestamp();
 		
 		context.setComment(comment.getValue());

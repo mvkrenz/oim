@@ -156,7 +156,8 @@ public class SiteFormDE extends DivRepForm
 		}
 
 		active = new DivRepCheckBox(this);
-		active.setLabel("Active");
+		active.setLabel("Active (Soon to be phased out - modification not allowed)");
+		active.setDisabled(true);
 		active.setValue(rec.active);
 		if(!auth.allows("admin")) {
 			active.setHidden(true);
@@ -227,8 +228,13 @@ public class SiteFormDE extends DivRepForm
 			rec.sc_id = sc_id.getValue();
 			rec.facility_id = facility_id.getValue();
 	
-			rec.active = active.getValue();
 			rec.disable = disable.getValue();
+			// rec.active = active.getValue();
+			if (rec.disable == true) {
+				rec.active = false; // not using real active value, instead defaulting based on disable value
+			} else {
+				rec.active = true; 
+			}
 
 			SiteModel model = new SiteModel(context);
 			if(rec.id == null) {

@@ -42,6 +42,9 @@ public class ContactRecord extends ConfirmableRecord {
 	public Boolean isPerson() {
 		return person;
 	}
+	public Boolean isDisabled() {
+		return disable;
+	}
 	public String getFirstName()
 	{
 		if(name == null) return "";

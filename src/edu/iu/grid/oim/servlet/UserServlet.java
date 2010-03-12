@@ -67,9 +67,9 @@ public class UserServlet extends ServletBase implements Servlet {
 		throws ServletException, SQLException
 	{
 		ContentView contentview = new ContentView();	
-		contentview.add(new HtmlView("<h1>Users</h1>"));
+		contentview.add(new HtmlView("<h1>Users/Contacts with DN mappings (Non-Group Contacts) </h1>"));
 
-		//pull list of all sites
+		//pull list of all DNs
 		DNModel model = new DNModel(context);
 		DNAuthorizationTypeModel dnauthmodel = new DNAuthorizationTypeModel(context);
 		AuthorizationTypeModel authmodel = new AuthorizationTypeModel(context);
@@ -114,7 +114,22 @@ public class UserServlet extends ServletBase implements Servlet {
 	private SideContentView createSideView()
 	{
 		SideContentView view = new SideContentView();
-		view.add("About", new HtmlView("This page shows a list of DN entries with all associated information."));		
+
+		class NewButtonDE extends DivRepButton
+		{
+			String url;
+			public NewButtonDE(DivRep parent, String _url)
+			{
+				super(parent, "Add DN/User/AuthType mapping");
+				url = _url;
+			}
+			protected void onEvent(DivRepEvent e) {
+				redirect(url);
+			}
+		};
+		
+		view.add("Operation", new NewButtonDE(context.getPageRoot(), "useredit"));
+		view.add("About", new HtmlView("This page shows a list of DN entries with associated user and authorization type mappings.<p><br/> You can modify an existing entry to correct wrong mapping of a user or auth-type. <p><br/> You can also add a new DN for an existing contact without a DN, and map that DN to various auth-types."));		
 		return view;
 	}
 }

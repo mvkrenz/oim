@@ -75,7 +75,8 @@ public class FacilityFormDE extends DivRepForm
 			new DivRepStaticContent(this, "<p>NOTE: These fields are editable only by GOC administrative staff.</p>");
 		}
 		active = new DivRepCheckBox(this);
-		active.setLabel("Active");
+		active.setLabel("Active (Soon to be phased out - modification not allowed)");
+		active.setDisabled(true);
 		active.setValue(rec.active);
 		if(!auth.allows("admin")) {
 			active.setHidden(true);
@@ -109,8 +110,12 @@ public class FacilityFormDE extends DivRepForm
 		
 			rec.name = name.getValue();
 			rec.description = description.getValue();
-			rec.active = active.getValue();
 			rec.disable = disable.getValue();
+			if (rec.disable == true) {
+				rec.active = false; // active.getValue(); // not using real active value, instead defaulting based on disable value
+			} else {
+				rec.active = true; 
+			}
 			
 			FacilityModel model = new FacilityModel(context);
 

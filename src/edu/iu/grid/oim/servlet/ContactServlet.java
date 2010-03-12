@@ -80,6 +80,7 @@ public class ContactServlet extends ServletBase implements Servlet {
 	{
 		ContactModel model = new ContactModel(context);
 		ArrayList<ContactRecord> contacts = model.getAll();
+
 		Collections.sort(contacts, new Comparator<ContactRecord> (){
 			public int compare(ContactRecord a, ContactRecord b) {
 				return a.getName().compareToIgnoreCase(b.getName()); // We are comparing based on name
@@ -91,35 +92,59 @@ public class ContactServlet extends ServletBase implements Servlet {
 			}
 		});
 
+		Collections.sort(contacts, new Comparator<ContactRecord> (){
+			public int compare(ContactRecord a, ContactRecord b) {
+				return a.isDisabled().compareTo(b.isDisabled()); // We are comparing based on bool disable (disabled ones will go in the end)
+			}
+		});
+
 		ContentView contentview = new ContentView();	
 		
 		ArrayList<ContactRecord> editable_contacts = new ArrayList<ContactRecord>();
+		ArrayList<ContactRecord> editable_disabled_contacts = new ArrayList<ContactRecord>();
 		ArrayList<ContactRecord> readonly_contacts = new ArrayList<ContactRecord>();
 		for(ContactRecord rec : contacts) {
 			if(model.canEdit(rec.id)) {
-				editable_contacts.add(rec);
+				if (rec.isDisabled()) {
+					editable_disabled_contacts.add(rec);
+				} else {
+					editable_contacts.add(rec);
+				}
 			} else {
 				readonly_contacts.add(rec);
 			}
 		}
 		
-		return createContentViewHelper (contentview, editable_contacts, readonly_contacts);
+		return createContentViewHelper (contentview, editable_contacts, editable_disabled_contacts, readonly_contacts);
 	}
 
 	protected ContentView createContentViewHelper (ContentView contentview, 
 			Collection<ContactRecord> editable_contacts, 
+			Collection<ContactRecord> editable_disabled_contacts, 
 			Collection<ContactRecord> readonly_contacts) 
 		throws ServletException, SQLException
 	{  
 		contentview.add(new HtmlView("<h1>Contacts</h1>"));
 		if(editable_contacts.size() == 0) {
-			contentview.add(new HtmlView("<p>You currently don't have any contacts that you are the submitter of.</p>"));
+			contentview.add(new HtmlView("<p>There are currently no contacts that you submitted (and therefore would have been able to edit).</p>"));
+		} else {
+			contentview.add(new HtmlView("<p>Here are the contacts you submitted, and therefore are able to edit.</p>"));
 		}
 		for(ContactRecord rec : editable_contacts) {
 			contentview.add(new HtmlView(getContactHeader(rec)));
 			contentview.add(showContact(rec, true)); //true = show edit button
 		}
-		
+
+		if(editable_disabled_contacts.size() != 0) {
+			contentview.add(new HtmlView("<br/><h1>Disabled Contacts</h1>"));
+			contentview.add(new HtmlView("<p>Following are the contact that are currently disabled.</p>"));
+	
+			for(ContactRecord rec : editable_disabled_contacts) {
+				contentview.add(new HtmlView(getContactHeader(rec)));
+				contentview.add(showContact(rec, true)); //true = show edit button
+			}
+		}	
+
 		if(readonly_contacts.size() != 0) {
 			contentview.add(new HtmlView("<br/><h1>Read-Only Contacts</h1>"));
 			contentview.add(new HtmlView("<p>Following are the contact that are currently registered at OIM that you do not have edit access.</p>"));
@@ -134,13 +159,18 @@ public class ContactServlet extends ServletBase implements Servlet {
 	}
 	private String getContactHeader(ContactRecord rec)
 	{
-		String image;
+		String image, name_to_display;
 		if(rec.person == true) {
 			image = "<img align=\"top\" src=\""+StaticConfig.getApplicationBase()+"/images/user.png\"/> ";
 		} else {
-			image = "";//"<img src=\""+StaticConfig.getApplicationBase()+"/images/user.png\"/> ";			
+			image = "<img align=\"top\" src=\""+StaticConfig.getApplicationBase()+"/images/group.png\"/> "; 
 		}
-		return "<h2>"+image+StringEscapeUtils.escapeHtml(rec.name)+"</h2>";
+		if(rec.disable == false) {
+			name_to_display = "<h2>"+image+StringEscapeUtils.escapeHtml(rec.name)+"</h2>";
+		} else {
+			name_to_display = "<h2 class=\"disabled\">"+image+StringEscapeUtils.escapeHtml(rec.name)+"</h2>";
+		}
+			return name_to_display;
 	}
 	
 	private DivRepToggler showContact(final ContactRecord rec, final boolean show_edit_button)
@@ -252,7 +282,9 @@ public class ContactServlet extends ServletBase implements Servlet {
 				redirect(url);
 			}
 		};
-		view.add("Operation", new NewButtonDE(context.getPageRoot(), "contactedit"));		
+		view.add("Operation", new NewButtonDE(context.getPageRoot(), "contactedit"));
+		view.add("About", new HtmlView("This page shows a list of contacts on OIM. Contacts can be a person or a mailing list or a service that needs to be registered on OIM to access privileged information on other OSG services. <p><br/> You as a registered OIM user will be able to edit any contact you added. GOC staff are able to edit all contacts including previous de-activated ones. <p><br/> If you want to map a certain person or group contact (and their email/phone number) to a resource, VO, SC, etc. but cannot find that contact already in OIM, then you can add a new contact. <p><br/>  Note that if you add a person as a new contact, that person will still not be able to perform any actions inside OIM until they register their X509 certificate on OIM."));		
+		view.addContactGroupFlagLegend();
 		return view;
 	}
 }

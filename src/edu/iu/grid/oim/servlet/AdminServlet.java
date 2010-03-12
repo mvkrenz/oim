@@ -66,10 +66,10 @@ public class AdminServlet extends ServletBase  {
 			contentview.add(new InternalLinkView("authtype", "Authorization Types"));
 			contentview.add(new HtmlView("<br/>"));
 			
-			contentview.add(new InternalLinkView("authmatrix", "Authorization Matrix" ));
+			contentview.add(new InternalLinkView("authmatrix", "Action/Authorization Matrix" ));
 			contentview.add(new HtmlView("<br/>"));
 			
-			contentview.add(new InternalLinkView("user", "Users" ));
+			contentview.add(new InternalLinkView("user", "Person Contacts - Authorization Type mapping" ));
 			contentview.add(new HtmlView("<br/>"));
 			
 			contentview.add(new HtmlView("<br/>"));
