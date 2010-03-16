@@ -63,7 +63,7 @@ public class ContactEditServlet extends ServletBase implements Servlet {
 		}
 
 		String origin_url = StaticConfig.getApplicationBase()+"/"+parent_page;
-		ContactFormDE form = new ContactFormDE(context, rec, origin_url);
+		ContactFormDE form = new ContactFormDE(context, rec, origin_url, false);
 		
 		//put the form in a view and display
 		ContentView contentview = new ContentView();

@@ -27,6 +27,7 @@ import com.divrep.common.DivRepTextArea;
 import com.divrep.common.DivRepTextBox;
 import com.divrep.common.DivRepButton.Style;
 import com.divrep.validator.DivRepEmailValidator;
+import com.divrep.validator.DivRepIValidator;
 import com.divrep.validator.DivRepUrlValidator;
 
 import edu.iu.grid.oim.lib.Authorization;
@@ -49,8 +50,9 @@ public class ContactFormDE extends DivRepForm
     private Authorization auth;
 	private Integer id;
 	
+	private DivRepTextBox associated_dn;
 	private DivRepTextBox name;
-	private DivRepTextBox primary_email, secondary_email;
+	private DivRepTextBox primary_email, secondary_email, primary_email_check ;
 	private DivRepTextBox primary_phone, secondary_phone;
 	private DivRepTextBox primary_phone_ext, secondary_phone_ext;
 	private DivRepTextBox sms_address;
@@ -77,9 +79,15 @@ public class ContactFormDE extends DivRepForm
 			
 		}	
 		
-		PersonalInfo(DivRep _parent, ContactRecord rec) {
+		PersonalInfo(DivRep _parent, ContactRecord rec, DNRecord associated_dn) {
 			super(_parent);
 			
+			String associated_dn_string = "Contact not registered on OIM";
+			if (associated_dn != null ) {
+				associated_dn_string = associated_dn.dn_string;
+			}
+			new DivRepStaticContent(this, "<div class=\"divrep_form_element\"><label>Associated DN</label><br/><input type=\"text\" disabled=\"disabled\" style=\"width: 400px;\" value=\""+ associated_dn_string +"\"/><br/><sub>* Can only be modified by GOC Staff on request using Admin interface</sub></div>");
+
 			address_line_1 = new DivRepTextBox(this);
 			address_line_1.setLabel("Address Line 1");
 			address_line_1.setValue(rec.address_line_1);
@@ -114,7 +122,7 @@ public class ContactFormDE extends DivRepForm
 			im.setSampleValue("soichih@gtalk");
 			
 			photo_url = new PhotoDE(this);
-			photo_url.setLabel("Photo URL");
+			photo_url.setLabel("Profile Picture URL (where we can pick up an image)");
 			photo_url.setSampleValue("http://somewhere.com/myphoto.png");
 			photo_url.setValue(rec.photo_url);
 			
@@ -155,7 +163,7 @@ public class ContactFormDE extends DivRepForm
 			timezone.setRequired(true);
 
 			profile = new DivRepTextArea(this);
-			profile.setLabel("Profile");
+			profile.setLabel("Profile Details - Tell OSG about yourself, your role, etc.");
 			profile.setSampleValue("Please enter your role within OSG community, and maybe a small introduction of who you are and what you do.");
 			profile.setValue(rec.profile);
 		}
@@ -266,12 +274,27 @@ public class ContactFormDE extends DivRepForm
 		country.setRequired(required);
 	}
 	
-	public ContactFormDE(Context _context, ContactRecord rec, String origin_url)
+	public ContactFormDE(Context _context, ContactRecord rec, String origin_url,
+			boolean profileEdit) //, boolean newRegistration)
 	{	
 		super(_context.getPageRoot(), origin_url);
 		context = _context;
 		auth = context.getAuthorization();
 		id = rec.id;
+
+		DNRecord associated_dn = new DNRecord();
+		try {
+			DNModel dnmodel = new DNModel(context);;
+			associated_dn= dnmodel.getByContactID(id);
+		} catch (SQLException e) {
+			log.error(e);
+		}
+
+		if ((associated_dn != null) && (!profileEdit)) {
+			if (associated_dn.dn_string.equals(context.getAuthorization().getUserDN())) {
+				new DivRepStaticContent(this, "<div><h2>NOTE: This is your profile!</h2></div>");
+			}
+		}
 
 		name = new DivRepTextBox(this);
 		name.setLabel("Full Name");
@@ -321,13 +344,20 @@ public class ContactFormDE extends DivRepForm
 		person = new DivRepCheckBox(this);
 		person.setLabel("This is a personal contact (not mailing list, group contact, etc...)");
 		person.setValue(rec.person);
-		person.addEventListener(new DivRepEventListener() {
-			public void handleEvent(DivRepEvent e) {
-				showHidePersonalDetail();
-			}}
-		);
-	
-		personal_info = new PersonalInfo(this, rec);
+
+		if ((profileEdit == true) || (associated_dn!= null)) {
+			person.setValue(true);
+			person.setLabel("Person contact flag (Cannot modify: Always true for users whose DN is registered with OIM)");
+			person.setDisabled(true);
+		}
+		else {
+			person.addEventListener(new DivRepEventListener() {
+				public void handleEvent(DivRepEvent e) {
+					showHidePersonalDetail();
+				}}
+			);
+		}
+		personal_info = new PersonalInfo(this, rec, associated_dn);
 		if(rec.person == null || rec.person == false) {
 			showHidePersonalDetail();
 		}
@@ -339,13 +369,6 @@ public class ContactFormDE extends DivRepForm
 			new DivRepStaticContent(this, "<h2>Administrative Tasks</h2>");
 		}
 
-		disable = new DivRepCheckBox(this);
-		disable.setLabel("Disable");
-		disable.setValue(rec.disable);
-		if(!auth.allows("admin")) {
-			disable.setHidden(true);
-		}
-		
 		//create DN selector
 		LinkedHashMap<Integer, String> dns = new LinkedHashMap();
 		try {
@@ -362,6 +385,19 @@ public class ContactFormDE extends DivRepForm
 		if(!auth.allows("admin")) {
 			submitter_dn.setHidden(true);
 		}
+
+		disable = new DivRepCheckBox(this);
+		disable.setLabel("Disable");
+		disable.setValue(rec.disable);
+
+		if (profileEdit == true) {
+			disable.setLabel("Disable (Not allowed on your own profile! Ask other GOC staff for help.)");
+			disable.setDisabled(true);
+		}
+		if(!auth.allows("admin")) {
+			disable.setHidden(true);
+		}
+		
 	}
 
 	protected Boolean doSubmit() 

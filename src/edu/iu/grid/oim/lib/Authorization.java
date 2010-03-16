@@ -15,10 +15,12 @@ import org.apache.log4j.Logger;
 import edu.iu.grid.oim.model.Context;
 import edu.iu.grid.oim.model.db.ActionModel;
 import edu.iu.grid.oim.model.db.AuthorizationTypeActionModel;
+import edu.iu.grid.oim.model.db.AuthorizationTypeModel;
 import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.DNAuthorizationTypeModel;
 import edu.iu.grid.oim.model.db.DNModel;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
+import edu.iu.grid.oim.model.db.record.DNAuthorizationTypeRecord;
 import edu.iu.grid.oim.model.db.record.DNRecord;
 
 //provide client the authorization information
@@ -31,10 +33,12 @@ public class Authorization {
 	private String user_cn = null;
 	private Integer dn_id = null;
     private Integer contact_id = null;
+    private Boolean isDisabled = false;
     private Boolean islocal = false;
     //private TimeZone timezone = null;
     
     private HashSet<String> actions = new HashSet<String>();
+    private HashSet<String> auth_types = new HashSet<String>();
     
     public Boolean isGuest()
     {
@@ -43,8 +47,13 @@ public class Authorization {
     }
     public Boolean isOIMUser()
     {
-    	if(dn_id == null) return false;
+    	if ((dn_id == null) || (isDisabled())) return false;
     	return true;
+    }
+    public Boolean isDisabledOIMUser()
+    {
+    	if ((dn_id != null) && (isDisabled())) return true;
+    	return false;
     }
     
     public String getUserDN() { return user_dn; }
@@ -60,6 +69,7 @@ public class Authorization {
     
     //true if the client is accessing from localhost
     public Boolean isLocal() { return islocal; }
+    public Boolean isDisabled() { return isDisabled; }
     
 	public void check(String action) throws AuthorizationException
 	{
@@ -72,6 +82,27 @@ public class Authorization {
 	public Boolean allows(String action)
 	{
 		return actions.contains(action);
+	}
+	
+	public HashSet<String> getAuthorizationTypesForCurrentDN(){
+		return auth_types;
+	}
+	
+	public String getNoDNWarning() {
+		return "<p><br/></p><div class=\"warning\"><h2>Warning! No X509 Certificate Detected in Web Browser!</h2>" +
+		"<p>OIM requires the Distinguished Name (DN) of an X509 certificate issued by an <a target=\"_blank\" href='http://software.grid.iu.edu/cadist/'>OSG-approved Certifying Authority (CA)</a> to be registered in order to proceed. No X509 certificate was detected on your web browser.</p>"+
+		"<p>Please <strong>provide an X509 certificate</strong> issued by an OSG-approved CA</a> via your web browser. This website will allow you to register your certificate's DN with the OIM system, if it is not already registered.</p><p>If you are not sure how to register, or have any questions, please open <a target=\"_blank\" href=\"https://ticket.grid.iu.edu/goc/oim\">a ticket</a> with the OSG Grid Operations Center (GOC).</p></div><p><br/></p>";
+	}
+	
+	public String getUnregisteredUserWarning() {
+		return "<p><br/></p><div class=\"warning\"><h2>Warning! Unregistered User!</h2>" + "<p class=\"warning\">OIM requires the Distinguished Name (DN) of an X509 certificate issued by an <a target=\"_blank\" href='http://software.grid.iu.edu/cadist/'>OSG-approved Certifying Authority (CA)</a> to be registered in order to proceed.</p><p>The following unregistered DN was detected from your web browser: <br/> <strong>" + getUserDN()+ "</strong>.</p>" +
+		"<p>Please <strong>register your certificate's DN</strong> with the OIM system using the <strong>Register</strong> menu item above, so you can be allowed to proceed further.</p><p>If you believe, you have previously registered this DN, or are not sure how to register, or have any other questions, please open <a target=\"_blank\" href=\"https://ticket.grid.iu.edu/goc/oim\">a ticket</a> with the OSG Grid Operations Center (GOC).</p></div><p><br/></p>"; 
+	}
+	
+	public String getDisabledUserWarning() {
+		return "<p><br/></p><div class=\"warning\"><h2>Warning! De-activated User!</h2>" +
+			"<p class=\"warning\">OIM requires the Distinguished Name (DN) of an X509 certificate issued by an <a target=\"_blank\" href='http://software.grid.iu.edu/cadist/'>OSG-approved Certifying Authority (CA)</a> to be registered in order to proceed.</p><p>The following unregistered DN was detected from your web browser: <br/> <strong>" + getUserDN()+ "</strong>.</p>" +
+			"<p>This DN is indeed <strong>already registered</strong> but the account associated with the DN is <strong>de-activated</strong>. </p><p>If you believe, this is in error, or have any other questions, please open <a target=\"_blank\" href=\"https://ticket.grid.iu.edu/goc/oim\">a ticket</a> with the OSG Grid Operations Center (GOC).</p></div><p><br/></p>";
 	}
 	
 	//Guest
@@ -120,7 +151,9 @@ public class Authorization {
 		        } else if ((hostname.compareTo("lav-ag-desktop") == 0) || 
 		        	(hostname.compareTo("SATRIANI") == 0)){
 					log.debug("Server on localhost. Overriding the DN to Arvind's");
-					user_dn = "/DC=org/DC=doegrids/OU=People/CN=Arvind Gopu 369621";  // GOC
+					// // Test when No DN is provided
+					user_dn = "/DC=org/DC=doegrids/OU=People/CN=Arvind Gopu 369621";  // GOC staff
+					// user_dn = "/DC=org/DC=doegrids/OU=People/CN=Arvind Gopu 369621222";  // Fake Arvind DN that is not registered
 					//user_dn = "/DC=org/DC=doegrids/OU=People/CN=Robert C Ball 331645"; // AGLT2 Admin
 					//user_dn = "/DC=org/DC=doegrids/OU=People/CN=Brian Bockelman 504307"; // Measurements 
 					//user_dn = "/DC=org/DC=doegrids/OU=People/CN=Robert W. Gardner Jr. 669916" ; // AGLT2 (ATLAS) vo owner's manager
@@ -151,22 +184,34 @@ public class Authorization {
 	private void initAction(DNRecord certdn) throws SQLException
 	{
 		if(certdn == null) {
-			log.info("The DN not found in Certificate table");
+			log.info("The DN not found in \"dn\" table");
 		} else {
-			dn_id = certdn.id;
 			contact_id = certdn.contact_id;
+			dn_id = certdn.id;
 			user_dn = certdn.dn_string;
-			
-			DNAuthorizationTypeModel dnauthtypemodel = new DNAuthorizationTypeModel(guest_context);
-			Collection<Integer> auth_type_ids = dnauthtypemodel.getAuthorizationTypesByDNID(certdn.id);
-			AuthorizationTypeActionModel authactionmodel = new AuthorizationTypeActionModel(guest_context);
-			ActionModel actionmodel = new ActionModel(guest_context);
-			for(Integer auth_type_id : auth_type_ids) {
-				Collection<Integer> aids = authactionmodel.getActionByAuthTypeID(auth_type_id);
-				for(Integer aid : aids) {
-					actions.add(actionmodel.get(aid).name);
+
+			ContactModel cmodel = new ContactModel(guest_context);
+			ContactRecord contact = cmodel.get(contact_id);
+			if (contact.isDisabled()) {
+				isDisabled = true;
+				log.info("The DN found in \"dn\" table but is mapped to disabled contact. Set isDisabled to true.");
+			}
+			else {
+				DNAuthorizationTypeModel dnauthtypemodel = new DNAuthorizationTypeModel(guest_context);
+				AuthorizationTypeModel authtypemodel = new AuthorizationTypeModel(guest_context); 
+				Collection<Integer> auth_type_ids = dnauthtypemodel.getAuthorizationTypesByDNID(certdn.id);
+
+				AuthorizationTypeActionModel authactionmodel = new AuthorizationTypeActionModel(guest_context);
+				ActionModel actionmodel = new ActionModel(guest_context);
+				
+				for (Integer auth_type_id : auth_type_ids) {
+					auth_types.add(authtypemodel.get(auth_type_id).name);
+					Collection<Integer> aids = authactionmodel.getActionByAuthTypeID(auth_type_id);
+					for (Integer aid : aids) {
+						actions.add(actionmodel.get(aid).name);
+					}
 				}
 			}
-		}	
+		}
 	}
 }

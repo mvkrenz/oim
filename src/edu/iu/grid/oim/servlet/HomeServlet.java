@@ -60,10 +60,18 @@ public class HomeServlet extends ServletBase  {
 		contentview.add(new HtmlView("<h1>OIM</h1>"));
 
 		// TODO agopu: need to clean this up with some divs etc. Nicer font, etc.
-		String welcome_string = "Register various OSG information";
+		String welcome_string = "<p>The Open Science Grid Information Management (OIM) system defines the topology used by various OSG systems and services; it is based on the <a target=\"_blank\" href=\"http://osg-docdb.opensciencegrid.org/cgi-bin/ShowDocument?docid=18.\">OSG Blueprint Document</a>. Please view the slideshow embedded below and/or visit the Help pages linked above for more information.</p>";
 		if(auth.isGuest()) {
-			welcome_string += "<p>Please provide an X509 certificate issued by an <a href='http://software.grid.iu.edu/cadist/'>OSG-approved Certifying Authority (CA)</a> via your web browser in order to use or register to OIM.</p>";		
+			welcome_string += auth.getNoDNWarning(); 		
 		}
+		else if(!auth.isOIMUser()) {
+			if(auth.isDisabledOIMUser()) {
+				welcome_string += auth.getDisabledUserWarning();		
+			} else {
+				welcome_string += auth.getUnregisteredUserWarning();		
+			}
+		}
+		
 		//welcome_string += "<p>Please see Help page for more information.</p>";
 		contentview.add(new HtmlView(welcome_string));
 	
@@ -78,8 +86,8 @@ public class HomeServlet extends ServletBase  {
 		
 		//show entities that this user is associated
 		if(auth.isOIMUser()) {
-			contentview.add(new HtmlView("<h2>Associated Entities</h2>"));
-			contentview.add(new HtmlView("<p>Following entities are associated with your contact</p>"));
+			contentview.add(new HtmlView("<h2>Entities You Are Able To Edit</h2>"));
+			contentview.add(new HtmlView("<p>Your account is associated with the following entities, and therefore allows you to modify their content.</p>"));
 			try {
 				contentview.add(new ContactAssociationView(context, auth.getContactID()));
 			} catch (SQLException e) {
@@ -88,8 +96,8 @@ public class HomeServlet extends ServletBase  {
 		}
 		
 		//show oim hierarchy doc
-		contentview.add(new HtmlView("<h2>OSG Topology</h2>"));
-		contentview.add(new HtmlView("<p>This presentation walk through various entities within OIM topology used by OIM and describes their relationship.</p>"));
+		contentview.add(new HtmlView("<h2>OSG Topology Slideshow</h2>"));
+		contentview.add(new HtmlView("<p>The following slideshow presentation walks you through various entities in the OSG topology used by OIM, and describes the relationships between those entities. If you are new to the OSG and/or OIM, we strongly urge you to take a few minutes to go through this slideshow!</p>"));
 		contentview.add(new HtmlView("<iframe src=\"http://docs.google.com/present/embed?id=ddtgc5bt_113fp3fmvgp&size=l\" frameborder=\"0\" width=\"700\" height=\"559\"></iframe>"));
 
 		return contentview;

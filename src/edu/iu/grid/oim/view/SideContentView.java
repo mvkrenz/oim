@@ -2,7 +2,6 @@ package edu.iu.grid.oim.view;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
-
 import com.divrep.DivRep;
 import com.divrep.DivRepPage;
 

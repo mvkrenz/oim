@@ -44,6 +44,8 @@ public class Page implements IView {
 
 		if(context.getAuthorization().isGuest()) {
 			params.put("__DN__", "Guest");
+		} else if(!context.getAuthorization().isOIMUser()) {
+			params.put("__DN__", "Unregistered DN (" + context.getAuthorization().getUserDN() + ")");
 		} else {
 			params.put("__DN__", context.getAuthorization().getUserDN());
 		}

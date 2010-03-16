@@ -4,6 +4,10 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.TimeZone;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -18,9 +22,13 @@ import com.divrep.DivRepEventListener;
 import com.divrep.DivRepPage;
 import com.divrep.DivRepRoot;
 import com.divrep.common.DivRepButton;
+import com.divrep.common.DivRepCheckBox;
 import com.divrep.common.DivRepForm;
+import com.divrep.common.DivRepSelectBox;
 import com.divrep.common.DivRepStaticContent;
+import com.divrep.common.DivRepTextArea;
 import com.divrep.common.DivRepTextBox;
+import com.divrep.validator.DivRepEmailValidator;
 import com.divrep.validator.DivRepIValidator;
 import com.divrep.validator.DivRepUniqueValidator;
 
@@ -41,6 +49,7 @@ import edu.iu.grid.oim.view.MenuView;
 import edu.iu.grid.oim.view.Page;
 import edu.iu.grid.oim.view.IView;
 import edu.iu.grid.oim.view.SideContentView;
+import edu.iu.grid.oim.view.divrep.Confirmation;
 
 public class RegisterServlet extends ServletBase  {
 	private static final long serialVersionUID = 1L;
@@ -86,9 +95,19 @@ public class RegisterServlet extends ServletBase  {
  	{
 		private Context context;
 		private DivRepTextBox name;
-		private DivRepTextBox email;
-		private DivRepTextBox email_check;
-		private DivRepTextBox phone;
+		private DivRepTextBox primary_email, secondary_email, primary_email_check ;
+		private DivRepTextBox primary_phone, secondary_phone;
+		private DivRepTextBox primary_phone_ext, secondary_phone_ext;
+		private DivRepTextBox sms_address;
+		
+		private DivRepTextBox address_line_1, address_line_2;
+		private DivRepTextBox city, state, zipcode, country;
+		private DivRepTextBox im;
+		// private PhotoDE photo_url;
+		private DivRepSelectBox timezone;
+		private HashMap<Integer, String> timezone_id2tz;
+		private DivRepTextArea profile;
+		private DivRepTextArea contact_preference;
 		
 		public EnterEmailPage(Context _context, DivRepPage page_root) {
 			
@@ -101,9 +120,9 @@ public class RegisterServlet extends ServletBase  {
 			name.setLabel("Enter Your Full Name");
 			name.setRequired(true);
 			
-			email = new DivRepTextBox(this);
-			email.setLabel("Enter Your Email");
-			email.setRequired(true);
+			primary_email = new DivRepTextBox(this);
+			primary_email.setLabel("Enter Your Email");
+			primary_email.setRequired(true);
 			
 			class CheckValidator implements DivRepIValidator
 			{
@@ -120,16 +139,100 @@ public class RegisterServlet extends ServletBase  {
 				}
 			}
 			
-			email_check = new DivRepTextBox(this);
-			email_check.setLabel("Re-enter Your Email");
-			email_check.setRequired(true);
-			email_check.addValidator(new CheckValidator(email));
+			primary_email_check = new DivRepTextBox(this);
+			primary_email_check.setLabel("Re-enter Your Email");
+			primary_email_check.setRequired(true);
+			primary_email_check.addValidator(new CheckValidator(primary_email));
 			
-			phone = new DivRepTextBox(this);
+			secondary_email = new DivRepTextBox(this);
+			secondary_email.setLabel("Secondary Email");
+			secondary_email.addValidator(new DivRepEmailValidator());
+
 			// TODO Need formatting help here -agopu  -- looks like the phone number used by OSG community is very diverse. I don't know how simple is simple enough
 			// validation in our case.. -- hayashis
-			phone.setLabel("Enter Your Phone Number");
-			phone.setRequired(true);
+			primary_phone = new DivRepTextBox(this);
+			primary_phone.setLabel("Primary Phone");
+
+			primary_phone_ext = new DivRepTextBox(this);
+			primary_phone_ext.setLabel("Primary Phone Extension");
+
+			secondary_phone = new DivRepTextBox(this);
+			secondary_phone.setLabel("Secondary Phone");
+
+			secondary_phone_ext = new DivRepTextBox(this);
+			secondary_phone_ext.setLabel("Secondary Phone Extension");
+			
+			sms_address = new DivRepTextBox(this);
+			sms_address.setLabel("SMS Address");
+			sms_address.setSampleValue("8127771234@txt.att.net");
+			sms_address.addValidator(DivRepEmailValidator.getInstance());
+			
+			contact_preference = new DivRepTextArea(this);
+			contact_preference.setLabel("Enter Additional Contact Preferences");
+			contact_preference.setSampleValue("Please contact me via phone during the day.");
+
+			address_line_1 = new DivRepTextBox(this);
+			address_line_1.setLabel("Address Line 1");
+	
+			address_line_2 = new DivRepTextBox(this);
+			address_line_2.setLabel("Address Line 2");
+			
+			city = new DivRepTextBox(this);
+			city.setLabel("City");
+			city.setRequired(true);
+	
+			state = new DivRepTextBox(this);
+			state.setLabel("State");
+			state.setRequired(true);
+	
+			zipcode = new DivRepTextBox(this);
+			zipcode.setLabel("Zipcode");
+			zipcode.setRequired(true);
+	
+			country = new DivRepTextBox(this);
+			country.setLabel("Country");
+			country.setRequired(true);
+			
+			im = new DivRepTextBox(this);
+			im.setLabel("Instant Messaging Information");
+			im.setSampleValue("soichih@gtalk");
+			
+			timezone = new DivRepSelectBox(this);
+			timezone_id2tz = new HashMap<Integer, String>();
+			int i = 0;
+			for(int offset = -12;offset < 12;++offset) {
+				LinkedHashMap<Integer, String> group = new LinkedHashMap<Integer, String>();
+				for(String tz : TimeZone.getAvailableIDs(offset*1000*3600)) {
+					Calendar cal = Calendar.getInstance(TimeZone.getTimeZone(tz));
+					String tstr = String.format("%02d", cal.get(Calendar.HOUR)) + ":" + String.format("%02d", cal.get(Calendar.MINUTE));
+					switch(cal.get(Calendar.AM_PM)) {
+					case Calendar.AM:
+						tstr += " AM";
+						break;
+					default:
+						tstr += " PM";
+					}
+					tstr += String.format("%2d", cal.get(Calendar.MONTH)+1) + "/" + cal.get(Calendar.DAY_OF_MONTH);
+					group.put(i, tstr + " " + tz);
+					timezone_id2tz.put(i, tz);
+			
+					++i;
+				}
+				String group_name = "GMT";
+				if(offset < 0) {
+					group_name += offset;
+				} else if(offset > 0) {
+					group_name += "+" + offset;
+				}
+				timezone.addGroup(group_name, group);
+			}
+			timezone.setLabel("Time Zone");
+			timezone.setRequired(true);
+
+			profile = new DivRepTextArea(this);
+			profile.setLabel("Profile");
+			profile.setRequired(true);
+			profile.setSampleValue("Please enter your role within OSG community, and maybe a small introduction of who you are and what you do.");
 		}
 
 		protected void onEvent(DivRepEvent e) {
@@ -145,16 +248,32 @@ public class RegisterServlet extends ServletBase  {
 			DNModel dnmodel = new DNModel(context);
 			try {
 				//Find contact record with the same email address
-				ContactRecord rec = model.getByemail(email.getValue());
+				ContactRecord rec = model.getByemail(primary_email.getValue());
 				//Create new one if none is found
 				if(rec == null) {
 					rec = new ContactRecord();
 					rec.name = name.getValue();
-					rec.primary_email = email.getValue();
-					rec.primary_phone = phone.getValue();
+					rec.primary_email = primary_email.getValue();
+					rec.secondary_email = secondary_email.getValue();
+					rec.primary_phone = primary_phone.getValue();
+					rec.primary_phone_ext = primary_phone_ext.getValue();
+					rec.secondary_phone = secondary_phone.getValue();
+					rec.secondary_phone_ext = secondary_phone_ext.getValue();
+					rec.sms_address = sms_address.getValue();
+					rec.address_line_1 = address_line_1.getValue(); 
+					rec.address_line_2 = address_line_2.getValue(); 
+					rec.city = city.getValue();
+					rec.state = state.getValue();
+					rec.zipcode = zipcode.getValue();
+					rec.country = country.getValue();
+					rec.im = im.getValue();
+					rec.timezone = timezone_id2tz.get(timezone.getValue());
+					rec.profile = profile.getValue();
+					rec.contact_preference = profile.getValue();
+
 					rec.person = true;
-					rec.timezone = "UTC";
-					rec.profile = "";
+					// rec.timezone = "UTC";
+					// rec.profile = "";
 					// Setting to false by default
 					//rec.active = false;
 					rec.disable = false;
@@ -163,8 +282,8 @@ public class RegisterServlet extends ServletBase  {
 					//Make sure that this contact is not used by any DN already
 					if(dnmodel.getByContactID(rec.id) != null) {
 						alert("The email address specified is already associated with a different DN. Please try different email address.");
-						//email.setValue("");
-						//email_check.setValue("");
+						//primary_email.setValue("");
+						//primary_email_check.setValue("");
 
 						context.close();
 						return false;
@@ -177,7 +296,7 @@ public class RegisterServlet extends ServletBase  {
 				dnrec.dn_string = auth.getUserDN();
 				dnmodel.insert(dnrec);
 				
-				//Give him OSG end user access
+				//Give user OSG end user access
 				DNAuthorizationTypeModel dnauthmodel = new DNAuthorizationTypeModel(context);
 				DNAuthorizationTypeRecord dnauthrec = new DNAuthorizationTypeRecord();
 				dnauthrec.dn_id = dnrec.id;
