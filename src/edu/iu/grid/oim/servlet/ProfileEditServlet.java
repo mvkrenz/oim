@@ -80,7 +80,7 @@ public class ProfileEditServlet extends ServletBase implements Servlet {
 		for (String auth_type: auth_types) {
 			auth_type_string += "<p>" + auth_type + "</p>";
 		}
-		view.add("About", new HtmlView("This page lets you edit your OIM profil.</p><p>On your OIM profile, you can set contact information like email, phone number and extension, an email address for SMS text messages, and postal address (only applicable to human contacts).</p><p>You can also set your local timezone so other applications like GOCTicket and MyOSG can display timestamps in your local timezone.</p><p>You can also provide a link to an image that you would like to use as your profile picture!"));
+		view.add("About", new HtmlView("This page lets you edit your OIM profile.</p><p>On your OIM profile, you can set contact information like email, phone number and extension, an email address for SMS text messages, and postal address (only applicable to human contacts).</p><p>You can also set your local timezone so other applications like GOCTicket and MyOSG can display timestamps in your local timezone.</p><p>You can also provide a link to an image that you would like to use as your profile picture!"));
 		if (auth_type_string == "") 
 			auth_type_string = "N/A to de-activated account.";
 		view.add("Auth Type(s) For Your Profile", new HtmlView(auth_type_string));		
