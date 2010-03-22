@@ -75,15 +75,24 @@ public class ProfileEditServlet extends ServletBase implements Servlet {
 	private SideContentView createSideView() throws SQLException
 	{
 		SideContentView view = new SideContentView();
-		String auth_type_string = "";
+
+		view.add("About", new HtmlView("<p>This page lets you edit your OIM profile.</p>"+
+				"<p>On your OIM profile, you can set contact information like email, phone number and extension, an email address for SMS text messages, and postal address (only applicable to human contacts).</p>"+
+				"<p>You can also set your local timezone so other applications like GOCTicket and MyOSG can display timestamps in your local timezone.</p>"+
+				"<p>You can also provide a link to an image that you would like to use as your profile picture!</p>"));
+
 		HashSet<String> auth_types = auth.getAuthorizationTypesForCurrentDN();
-		for (String auth_type: auth_types) {
-			auth_type_string += "<p>" + auth_type + "</p>";
+		if(auth_types.size() > 0) {
+			//compose list of auth types
+			StringBuffer auth_type_string = new StringBuffer();
+			for (String auth_type: auth_types) {
+				auth_type_string.append("<p>" + auth_type + "</p>");
+			}
+			view.add("Auth Types For Your Profile", new HtmlView(auth_type_string.toString()));	
+		} else {
+			view.add("Auth Types For Your Profile", new HtmlView("N/A (Your account is de-activated)"));		
 		}
-		view.add("About", new HtmlView("This page lets you edit your OIM profile.</p><p>On your OIM profile, you can set contact information like email, phone number and extension, an email address for SMS text messages, and postal address (only applicable to human contacts).</p><p>You can also set your local timezone so other applications like GOCTicket and MyOSG can display timestamps in your local timezone.</p><p>You can also provide a link to an image that you would like to use as your profile picture!"));
-		if (auth_type_string == "") 
-			auth_type_string = "N/A to de-activated account.";
-		view.add("Auth Type(s) For Your Profile", new HtmlView(auth_type_string));		
+		
 		return view;
 	}
 }

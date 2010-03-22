@@ -100,10 +100,14 @@ public class Authorization {
 	}
 	
 	public String getDisabledUserWarning() {
-		return "<p><br/></p><div class=\"warning\"><h2>Warning! De-activated User!</h2>" +
-			"<p class=\"warning\">OIM requires the Distinguished Name (DN) of an X509 certificate issued by an <a target=\"_blank\" href='http://software.grid.iu.edu/cadist/'>OSG-approved Certifying Authority (CA)</a> to be registered in order to proceed.</p><p>The following unregistered DN was detected from your web browser: <br/> <strong>" + getUserDN()+ "</strong>.</p>" +
-			"<p>This DN is indeed <strong>already registered</strong> but the account associated with the DN is <strong>de-activated</strong>. </p><p>If you believe, this is in error, or have any other questions, please open <a target=\"_blank\" href=\"https://ticket.grid.iu.edu/goc/oim\">a ticket</a> with the OSG Grid Operations Center (GOC).</p></div><p><br/></p>";
+		return "<div class=\"warning\">"+
+			"<p>OIM requires the Distinguished Name (DN) of an X509 certificate issued by an <a target=\"_blank\" href='http://software.grid.iu.edu/cadist/'>OSG-approved Certifying Authority (CA)</a> to be registered in order to proceed.</p>"+
+			"<p>The following unregistered DN was detected from your web browser: <br/> <strong>" + getUserDN() + "</strong></p>" +
+			"<p>This DN is indeed <strong>already registered</strong> but the account associated with the DN is <strong>de-activated</strong>. </p>"+
+			"<p>If you believe, this is in error, or have any other questions, please open <a target=\"_blank\" href=\"https://ticket.grid.iu.edu/goc/oim\">a ticket</a> with the OSG Grid Operations Center (GOC).</p>"+
+			"</div>";
 	}
+
 	
 	//Guest
 	public Authorization() {}
@@ -144,7 +148,8 @@ public class Authorization {
 		        if(hostname.compareTo("d830") == 0) {
 					log.debug("Server on localhost. Overriding the DN to Soichi's");
 					//user_dn = null; //browser didn't give us any dn
-					user_dn = "/DC=org/DC=doegrids/OU=People/CN=Soichi Hayashi 461343";		
+					//user_dn = "/DC=org/DC=doegrids/OU=People/CN=Soichi Hayashi 461343";		
+					user_dn = "/DC=org/DC=doegrids/OU=People/CN=Tim Silvers 993975";
 					//user_dn = "/DC=org/DC=doegrids/OU=People/CN=Alain Roy 424511";
 					//user_dn = "/DC=org/DC=doegrids/OU=People/CN=Tiberiu Stef-Praun 764752";
 					//user_cn = null;
