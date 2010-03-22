@@ -89,18 +89,24 @@ public class Authorization {
 	}
 	
 	public String getNoDNWarning() {
-		return "<p><br/></p><div class=\"warning\"><h2>Warning! No X509 Certificate Detected in Web Browser!</h2>" +
+		return "<p><br/></p><h2>Warning! No X509 Certificate Detected in Web Browser!</h2>"+
+		"<div class=\"warning\">" +
 		"<p>OIM requires the Distinguished Name (DN) of an X509 certificate issued by an <a target=\"_blank\" href='http://software.grid.iu.edu/cadist/'>OSG-approved Certifying Authority (CA)</a> to be registered in order to proceed. No X509 certificate was detected on your web browser.</p>"+
-		"<p>Please <strong>provide an X509 certificate</strong> issued by an OSG-approved CA</a> via your web browser. This website will allow you to register your certificate's DN with the OIM system, if it is not already registered.</p><p>If you are not sure how to register, or have any questions, please open <a target=\"_blank\" href=\"https://ticket.grid.iu.edu/goc/oim\">a ticket</a> with the OSG Grid Operations Center (GOC).</p></div><p><br/></p>";
+		"<p>Please <strong>provide an X509 certificate</strong> issued by an OSG-approved CA</a> via your web browser. This website will allow you to register your certificate's DN with the OIM system, if it is not already registered.</p><p>If you are not sure how to register, or have any questions, please open <a target=\"_blank\" href=\"https://ticket.grid.iu.edu/goc/oim\">a ticket</a> with the OSG Grid Operations Center (GOC).</p>"+
+		"</div><p><br/></p>";
 	}
 	
 	public String getUnregisteredUserWarning() {
-		return "<p><br/></p><div class=\"warning\"><h2>Warning! Unregistered User!</h2>" + "<p class=\"warning\">OIM requires the Distinguished Name (DN) of an X509 certificate issued by an <a target=\"_blank\" href='http://software.grid.iu.edu/cadist/'>OSG-approved Certifying Authority (CA)</a> to be registered in order to proceed.</p><p>The following unregistered DN was detected from your web browser: <br/> <strong>" + getUserDN()+ "</strong>.</p>" +
-		"<p>Please <strong>register your certificate's DN</strong> with the OIM system using the <strong>Register</strong> menu item above, so you can be allowed to proceed further.</p><p>If you believe, you have previously registered this DN, or are not sure how to register, or have any other questions, please open <a target=\"_blank\" href=\"https://ticket.grid.iu.edu/goc/oim\">a ticket</a> with the OSG Grid Operations Center (GOC).</p></div><p><br/></p>"; 
+		return "<p><br/></p><h2>Warning! Unregistered User!</h2>"+
+		"<div class=\"warning\">" + 
+		"<p class=\"warning\">OIM requires the Distinguished Name (DN) of an X509 certificate issued by an <a target=\"_blank\" href='http://software.grid.iu.edu/cadist/'>OSG-approved Certifying Authority (CA)</a> to be registered in order to proceed.</p><p>The following unregistered DN was detected from your web browser: <br/> <strong>" + getUserDN()+ "</strong>.</p>" +
+		"<p>Please <strong>register your certificate's DN</strong> with the OIM system using the <strong>Register</strong> menu item above, so you can be allowed to proceed further.</p><p>If you believe, you have previously registered this DN, or are not sure how to register, or have any other questions, please open <a target=\"_blank\" href=\"https://ticket.grid.iu.edu/goc/oim\">a ticket</a> with the OSG Grid Operations Center (GOC).</p>"+
+		"</div><p><br/></p>"; 
 	}
 	
 	public String getDisabledUserWarning() {
-		return "<div class=\"warning\">"+
+		return "<h2>Warning! De-activated User Account!</h2>"+
+			"<div class=\"warning\">"+
 			"<p>OIM requires the Distinguished Name (DN) of an X509 certificate issued by an <a target=\"_blank\" href='http://software.grid.iu.edu/cadist/'>OSG-approved Certifying Authority (CA)</a> to be registered in order to proceed.</p>"+
 			"<p>The following unregistered DN was detected from your web browser: <br/> <strong>" + getUserDN() + "</strong></p>" +
 			"<p>This DN is indeed <strong>already registered</strong> but the account associated with the DN is <strong>de-activated</strong>. </p>"+
@@ -157,8 +163,9 @@ public class Authorization {
 		        	(hostname.compareTo("SATRIANI") == 0)){
 					log.debug("Server on localhost. Overriding the DN to Arvind's");
 					// // Test when No DN is provided
-					user_dn = "/DC=org/DC=doegrids/OU=People/CN=Arvind Gopu 369621";  // GOC staff
-					// user_dn = "/DC=org/DC=doegrids/OU=People/CN=Arvind Gopu 369621222";  // Fake Arvind DN that is not registered
+					// user_dn = "/DC=org/DC=doegrids/OU=People/CN=Arvind Gopu 369621";  // GOC staff
+					user_dn = "/DC=org/DC=doegrids/OU=People/CN=Arvind Gopu 36962122245";  // Fake Arvind DN that is not registered
+					//user_dn = "/DC=org/DC=doegrids/OU=People/CN=Arvind Gopu 369621222";  // Fake Arvind DN that is registered but de-activated
 					//user_dn = "/DC=org/DC=doegrids/OU=People/CN=Robert C Ball 331645"; // AGLT2 Admin
 					//user_dn = "/DC=org/DC=doegrids/OU=People/CN=Brian Bockelman 504307"; // Measurements 
 					//user_dn = "/DC=org/DC=doegrids/OU=People/CN=Robert W. Gardner Jr. 669916" ; // AGLT2 (ATLAS) vo owner's manager
