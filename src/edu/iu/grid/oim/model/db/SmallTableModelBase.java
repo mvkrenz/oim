@@ -226,7 +226,6 @@ public abstract class SmallTableModelBase<T extends RecordBase> extends ModelBas
 	    		++count;
 	    	}         
 			stmt.executeUpdate(); 
-			stmt.close();
 		} catch (IllegalArgumentException e) {
 			throw new SQLException(e);
 		} catch (IllegalAccessException e) {
@@ -257,6 +256,7 @@ public abstract class SmallTableModelBase<T extends RecordBase> extends ModelBas
 		
 		logInsert(rec);
 		emptyCache();
+		stmt.close();
     }
     
     //find out which fields are changed and do SQL update on those fields
