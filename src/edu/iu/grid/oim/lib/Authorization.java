@@ -178,11 +178,9 @@ public class Authorization {
 			}
 		}
 		
-		log.info("Authenticated User DN: "+user_dn);
-		log.info("SSL_CLIENT_I_DN_CN: " + user_cn);
-		
+		log.info("Authenticated User DN: "+user_dn + " SSL_CLIENT_I_DN_CN: " + user_cn);
 		if(user_cn == null) {
-			log.warn("SSL_CLIENT_I_DN_CN is not set. Logging in as guest.");
+			log.info("SSL_CLIENT_I_DN_CN is not set. Logging in as guest.");
 		} else {
 			try {
 				DNModel dnmodel = new DNModel(guest_context);
