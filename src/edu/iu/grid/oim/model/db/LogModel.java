@@ -44,8 +44,10 @@ public class LogModel extends ModelBase {
 		ResultSet rs = stmt.executeQuery();
 		if(rs.next()) {
 			LogRecord rec = new LogRecord(rs);
+			stmt.close();
 			return rec;
 		}
+		stmt.close();
 		return null;
     }
         
@@ -62,6 +64,7 @@ public class LogModel extends ModelBase {
 			LogRecord rec = new LogRecord(rs);
 			recs.add(new LogRecord(rs));
 		}
+		stmt.close();
 		return recs;
     }
     

@@ -50,6 +50,7 @@ public abstract class SmallTableModelBase<T extends RecordBase> extends ModelBas
 		    		list.add(rec);
 				}
 		    }	
+		    stmt.close();
 		    cache.put(table_name, list);
 		}
 	}
@@ -185,6 +186,7 @@ public abstract class SmallTableModelBase<T extends RecordBase> extends ModelBas
 	    		++count;
 			}
 			stmt.executeUpdate();
+			stmt.close();
 		} catch (IllegalArgumentException e) {
 			throw new SQLException(e);
 		} catch (IllegalAccessException e) {
@@ -224,6 +226,7 @@ public abstract class SmallTableModelBase<T extends RecordBase> extends ModelBas
 	    		++count;
 	    	}         
 			stmt.executeUpdate(); 
+			stmt.close();
 		} catch (IllegalArgumentException e) {
 			throw new SQLException(e);
 		} catch (IllegalAccessException e) {

@@ -80,6 +80,7 @@ public class SCModel extends SmallTableModelBase<SCRecord> {
 			SCContactRecord rec = new SCContactRecord(rs);
 			list.add(rec.sc_id);
 		}
+		stmt.close();
 		
 		return list;
 	}
