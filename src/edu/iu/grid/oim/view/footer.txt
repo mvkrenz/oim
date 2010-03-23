@@ -4,11 +4,20 @@
 <p>OIM Version __VERSION__</p>
 <p>Logged in as <b>__DN__</b></p>
 </div>
-<p><a href="https://myosg.grid.iu.edu">MyOSG</a> | 
+<p>
+<a href="https://myosg.grid.iu.edu">MyOSG</a> | 
+<a href="https://is.grid.iu.edu/documentation.html">BDII</a> | 
 <a href="https://ticket.grid.iu.edu/goc">GOC Ticket</a> | 
 OIM | 
+<a href="http://software.grid.iu.edu">OSG Software Cache</a> | 
 <a href="https://twiki.grid.iu.edu">TWiki</a> | 
-<a href="https://ticket.grid.iu.edu/goc/oim?ref=__REF__">Report Bugs</a></p>
+<a href="http://osggoc.blogspot.com">GOC News Blog</a> | 
+<a href="https://ticket.grid.iu.edu/goc/oim?ref=__REF__">Report Bugs</a> 
+<!-- | 
+Other Operational Services: 
+<a href="http://gratia-osg-prod-reports.opensciencegrid.org/gratia-reporting/">Gratia Accounting</a>
+--> 
+</p>
 <p><img src="__STATICBASE__/images/potato.png" align="left"/>&nbsp;Copyright 2009 The Trustees of Indiana University  - Developed for Open Science Grid</p>
 </div>
 <script type="text/javascript">
