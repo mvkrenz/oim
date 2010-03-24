@@ -58,7 +58,7 @@ public class Footprint
 		}
 	}
 
-	public void createNewResourceTicket(String resource_name, String sc_footprint_id)
+	public void createNewResourceTicket(String resource_name, String sc_footprint_id, String vo_name)
 	{
 		HashMap<String, String> params = new HashMap<String, String>();
 		params.put("##RESOURCE_NAME##", resource_name);
@@ -167,7 +167,11 @@ public class Footprint
             
             SOAPElement dest_vo = projfields.addChildElement( env.createName("Destination__bVO__bSupport__bCenter") );
             dest_vo.addAttribute( env.createName("type","xsi",""), "xsd:string" );
-            dest_vo.addTextNode("MIS");
+            if(vo_name == null) {
+            	dest_vo.addTextNode("MIS");
+            } else {
+            	dest_vo.addTextNode(vo_name);
+            }
             
             SOAPElement next_action = projfields.addChildElement( env.createName("ENG__bNext__bAction__bItem") );
             next_action.addAttribute( env.createName("type","xsi",""), "xsd:string" );
