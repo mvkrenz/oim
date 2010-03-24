@@ -2,6 +2,7 @@ package edu.iu.grid.oim.view.divrep.form;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 
 import org.apache.commons.lang.StringEscapeUtils;
@@ -44,6 +45,7 @@ import edu.iu.grid.oim.model.db.record.ResourceServiceRecord;
 import edu.iu.grid.oim.model.db.record.ResourceWLCGRecord;
 import edu.iu.grid.oim.model.db.record.SCRecord;
 import edu.iu.grid.oim.model.db.record.SiteRecord;
+import edu.iu.grid.oim.model.db.record.VORecord;
 import edu.iu.grid.oim.model.db.record.VOResourceOwnershipRecord;
 import edu.iu.grid.oim.view.divrep.Confirmation;
 import edu.iu.grid.oim.view.divrep.ContactEditor;
@@ -344,9 +346,27 @@ public class ResourceFormDE extends DivRepForm
 				SCModel scmodel = new SCModel(context);
 				SCRecord screc = scmodel.get(srec.sc_id);
 				
+				//find VO that owns this resource
+				VOResourceOwnershipModel voromodel = new VOResourceOwnershipModel(context);
+				Collection<VOResourceOwnershipRecord> list = voromodel.getAllByResourceID(rec.id);
+				double max = 0;
+				Integer max_vo_id = null;
+				for(VOResourceOwnershipRecord rorec : list) {
+					if(max_vo_id == null || rorec.percent > max) {
+						max_vo_id = rorec.vo_id;
+						max = rorec.percent;
+					}
+				}
+				String vo_name = null;
+				if(max_vo_id != null) {
+					VOModel vomodel = new VOModel(context);
+					VORecord vorec = vomodel.get(max_vo_id);
+					vo_name = vorec.name;
+				}
+				
 				//create footprint ticket
 				Footprint fp = new Footprint(context);
-				fp.createNewResourceTicket(rec.name, screc.footprints_id);
+				fp.createNewResourceTicket(rec.name, screc.footprints_id, vo_name);
 				
 			} else {
 				model.updateDetail(rec, 
