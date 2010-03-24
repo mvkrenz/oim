@@ -45,6 +45,15 @@ public class Context {
 		divrep_root = DivRepRoot.getInstance(request.getSession());
 		divrep_pageroot = divrep_root.initPage(request.getRequestURI() + request.getQueryString());
 	}
+	
+	protected void finalize() throws Throwable {
+	    try {
+	        close(); 
+	    } finally {
+	        super.finalize();
+	    }
+	}
+
 
 	public static Context getGuestContext()
 	{
@@ -61,7 +70,9 @@ public class Context {
 			if(oim_connection != null) {
 				oim_connection.close();
 			}
-			divrep_root.setSession(session);
+			if(divrep_root != null) {	
+				divrep_root.setSession(session);
+			}
 			
 		} catch (SQLException e) {
 			log.error(e);
