@@ -63,6 +63,7 @@ public class Context {
 	{
 	}
 
+	//this function is now called automatically by finalize(), but it's good to call when manually if possible
 	public void close()
 	{
 		try {
