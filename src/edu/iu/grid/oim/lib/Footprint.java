@@ -50,11 +50,9 @@ public class Footprint
 	        env.addNamespaceDeclaration( "SOAP-ENC", "http://schemas.xmlsoap.org/soap/encoding/" );
 	        body = env.getBody();
 		} catch (UnsupportedOperationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error("Failed to initialize Footprint object", e);
 		} catch (SOAPException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error("Failed to initialize Footprint object", e);
 		}
 	}
 
@@ -192,10 +190,8 @@ public class Footprint
             msg.saveChanges();
 
             call();
-        } catch(SOAPException ex) {
-            ex.printStackTrace();
-        } catch (SQLException e) {
-			e.printStackTrace();
+        } catch(Exception e) {
+			log.error("Failed to create resource ticket: ", e);
 		}
 	}
 	
@@ -325,11 +321,7 @@ public class Footprint
 
             call();
         } catch(Exception ex) {
-        	try {
-				SendMail.sendErrorEmail("Failed to open Footprint ticket: " + ex.toString());
-			} catch (MessagingException e) {
-				log.error("Failed to send email about the FP ticket creation error", ex);
-			}
+			log.error("Failed to create sc ticket: ", ex);
         } 
 	}
 	
@@ -463,17 +455,15 @@ public class Footprint
             msg.saveChanges();
 
             call();
-        } catch(SOAPException ex) {
-            ex.printStackTrace();
-        } catch (SQLException e) {
-			e.printStackTrace();
+        } catch(Exception e) {
+			log.error("Failed to create vo ticket: ", e);
 		}
 	}
 	
-	SOAPBody call() throws SOAPException
+	void call() throws SOAPException
 	{
         SOAPMessage reply = connection.call(msg, StaticConfig.getFootprintsUrl());
         connection.close();
-        return reply.getSOAPPart().getEnvelope().getBody();
+        //return reply.getSOAPPart().getEnvelope().getBody();
 	}
 }
