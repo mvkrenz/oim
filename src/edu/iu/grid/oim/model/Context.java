@@ -67,18 +67,19 @@ public class Context {
 	public void close()
 	{
 		try {
-			//close oim
 			if(oim_connection != null) {
 				oim_connection.close();
 			}
+		} catch (SQLException e) {
+			log.error(e);
+		} 
+		
+		try {
 			if(divrep_root != null) {	
 				divrep_root.setSession(session);
 			}
-			
-		} catch (SQLException e) {
-			log.error(e);
-		} catch (Exception e) {
-			log.error("Failed to reset session for divrep: ", e);
+		} catch (IllegalStateException e) {
+			log.warn("Failed to reset session for divrep: ", e);
 		}
 	}
 	
