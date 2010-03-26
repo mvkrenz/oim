@@ -68,7 +68,10 @@ public class Context {
 	{
 		try {
 			if(oim_connection != null) {
-				oim_connection.close();
+				if (!oim_connection.isClosed()) {
+					log.info("Closing OIM connection: " + oim_connection.toString());
+					oim_connection.close();
+				}
 			}
 		} catch (SQLException e) {
 			log.error(e);
