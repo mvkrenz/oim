@@ -36,8 +36,12 @@ public class Page implements IView {
 		
 		try {
 			String request_uri = context.getRequestURL();
-			request_uri = URLEncoder.encode(request_uri, "UTF-8");
-			params.put("__REF__", request_uri);
+			if(request_uri != null) {
+				request_uri = URLEncoder.encode(request_uri, "UTF-8");
+				params.put("__REF__", request_uri);
+			} else {
+				params.put("__REF__", "unknown_url");		
+			}
 		} catch (UnsupportedEncodingException e) {
 			log.error(e);
 		} 
