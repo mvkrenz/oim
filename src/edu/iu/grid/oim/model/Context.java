@@ -81,7 +81,8 @@ public class Context {
 				divrep_root.setSession(session);
 			}
 		} catch (IllegalStateException e) {
-			log.warn("Failed to reset session for divrep: ", e);
+			//log.warn("Failed to reset session for divrep: ", e);
+			//if session is already gone, then don't worry about setting anything..
 		}
 	}
 	
