@@ -224,14 +224,20 @@ public class SCFormDE extends DivRepForm
 		try {
 			if(rec.id == null) {
 				model.insertDetail(rec, contacts);
-				//create footprint ticket
-				Footprint fp = new Footprint(context);
-				fp.createNewSCTicket(rec.name);
+				
+				try {
+					//create footprint ticket
+					Footprint fp = new Footprint(context);
+					fp.createNewSCTicket(rec.name);
+				} catch (Exception fpe) {
+					log.error("Failed to open footprints ticket: ", fpe);
+				}
 			} else {
 				model.updateDetail(rec, contacts);
 			}
 		} catch (Exception e) {
 			alert(e.getMessage());
+			log.error("Failed to insert/update record", e);
 			ret = false;
 		}
 		context.close();
