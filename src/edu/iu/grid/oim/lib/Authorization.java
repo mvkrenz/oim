@@ -178,7 +178,10 @@ public class Authorization {
 			}
 		}
 		
+		//outpu some log
+		log.info(request.getRequestURI() + "?" + request.getQueryString());
 		log.info("Authenticated User DN: "+user_dn + " SSL_CLIENT_I_DN_CN: " + user_cn);
+		
 		if(user_cn == null) {
 			log.info("SSL_CLIENT_I_DN_CN is not set. Logging in as guest.");
 		} else {
