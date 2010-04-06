@@ -628,13 +628,17 @@ public class VOFormDE extends DivRepForm
 						field_of_science_ids,
 						vo_report_name_div.getVOReports(model));
 				
-				//Find the Footprint ID of the associated SC
-				SCModel scmodel = new SCModel(context);
-				SCRecord screc = scmodel.get(rec.sc_id);
-				
-				//create footprint ticket
-				Footprint fp = new Footprint(context);
-				fp.createNewVOTicket(rec.name, screc.footprints_id);
+				try {
+					//Find the Footprint ID of the associated SC
+					SCModel scmodel = new SCModel(context);
+					SCRecord screc = scmodel.get(rec.sc_id);
+					
+					//create footprint ticket
+					Footprint fp = new Footprint(context);
+					fp.createNewVOTicket(rec.name, screc.footprints_id);
+				} catch (Exception fpe) {
+					log.error("Failed to open footprints ticket: ", fpe);
+				}
 			} else {
 				model.updateDetail(rec, 
 						contacts, 
@@ -644,7 +648,7 @@ public class VOFormDE extends DivRepForm
 			}
 		} catch (Exception e) {
 			alert(e.getMessage());
-			log.error(e);
+			log.error("Failed to insert/update record", e);
 			ret = false;
 		}
 		context.close();
