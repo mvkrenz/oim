@@ -133,9 +133,10 @@ public class Authorization {
 			user_cn = user_cn_tmp;
 		}
 		
-		log.info("getLocalName() = " + request.getLocalName());
-		if(request.getLocalName().equals("localhost") ||
-				request.getLocalName().equals("localhost.localdomain")) {
+		String localname = request.getLocalName();
+		if(localname.equals("localhost") ||
+				localname.equals("localhost.localdomain") ||
+				localname.equals("0.0.0.0")) {
 			islocal = true;
 			log.info("localuser... auth.isLocal() will be true");
 		}
@@ -154,9 +155,9 @@ public class Authorization {
 		        if(hostname.compareTo("d830") == 0) {
 					log.debug("Server on localhost. Overriding the DN to Soichi's");
 					//user_dn = null; //browser didn't give us any dn
-					//user_dn = "/DC=org/DC=doegrids/OU=People/CN=Soichi Hayashi 461343";		
+					user_dn = "/DC=org/DC=doegrids/OU=People/CN=Soichi Hayashi 461343";		
 					//user_dn = "/DC=org/DC=doegrids/OU=People/CN=Tim Silvers 993975";
-					user_dn = "/DC=org/DC=doegrids/OU=People/CN=Alain Roy 424511";
+					//user_dn = "/DC=org/DC=doegrids/OU=People/CN=Alain Roy 424511";
 					//user_dn = "/DC=org/DC=doegrids/OU=People/CN=Tiberiu Stef-Praun 764752";
 					//user_cn = null;
 		        } else if ((hostname.compareTo("lav-ag-desktop") == 0) || 
