@@ -26,6 +26,6 @@
 	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/poi-3.2-FINAL-20081019.jar"/>
 	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/poi-contrib-3.2-FINAL-20081019.jar"/>
 	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/poi-scratchpad-3.2-FINAL-20081019.jar"/>
-	<classpathentry kind="lib" path="tomcat5-lib/mysql-connector-java-5.1.8-bin.jar"/>
+	<classpathentry kind="lib" path="tomcat5-lib/mysql-connector-java-5.1.12-bin.jar"/>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>
