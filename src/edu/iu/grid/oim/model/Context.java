@@ -70,10 +70,11 @@ public class Context {
 				if (!oim_connection.isClosed()) {
 					log.info("Closing OIM connection: " + oim_connection.toString());
 					oim_connection.close();
+					
 				}
 			}
 		} catch (SQLException e) {
-			log.error(e);
+			log.info("Failed to reset session for divrep (it's okay if this caused by invalidated session)", e);
 		} 
 		
 		try {
@@ -81,8 +82,7 @@ public class Context {
 				divrep_root.setSession(session);
 			}
 		} catch (IllegalStateException e) {
-			//log.warn("Failed to reset session for divrep: ", e);
-			//if session is already gone, then don't worry about setting anything..
+			log.info("Failed to reset session for divrep (it's okay if this caused by invalidated session)", e);
 		}
 	}
 	
@@ -90,6 +90,14 @@ public class Context {
 	public boolean isConnectionValid() {
 		if (oim_connection == null)
 			return false;
+		
+		try {
+			return oim_connection.isValid(0);
+		} catch (SQLException e) {
+			log.error("isValid() threw SQLException - treasing this connection as invalid", e);
+			return false;
+		}
+		/*
 		try {
 			if (oim_connection.isClosed()) {
 				//log.warn("OIM connection is closed...");
@@ -101,6 +109,7 @@ public class Context {
 			return false;
 		}
 		return true;
+		*/
 	}
 	
 	
