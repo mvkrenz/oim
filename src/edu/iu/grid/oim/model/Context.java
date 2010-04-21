@@ -86,18 +86,18 @@ public class Context {
 		}
 	}
 	
+	/*
+	I don't know why, but JDBC's isValid() function doesn't work.. When I use it I get following exception
 	
+	java.lang.AbstractMethodError: org.apache.tomcat.dbcp.dbcp.PoolingDataSource$PoolGuardConnectionWrapper.isValid(I)Z
+	at edu.iu.grid.oim.model.Context.isConnectionValid(Context.java:95)
+
+	 */
 	public boolean isConnectionValid() {
 		if (oim_connection == null)
 			return false;
 		
-		try {
-			return oim_connection.isValid(0);
-		} catch (SQLException e) {
-			log.error("isValid() threw SQLException - treasing this connection as invalid", e);
-			return false;
-		}
-		/*
+		//my version of isValid()... since JDBC.isValid() doesn't work!
 		try {
 			if (oim_connection.isClosed()) {
 				//log.warn("OIM connection is closed...");
@@ -109,7 +109,7 @@ public class Context {
 			return false;
 		}
 		return true;
-		*/
+		
 	}
 	
 	
