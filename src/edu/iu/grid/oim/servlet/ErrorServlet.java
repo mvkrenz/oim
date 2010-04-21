@@ -126,13 +126,13 @@ public class ErrorServlet extends HttpServlet {
 			//send report to GOC via email
 		   	try {
     			SendMail.sendErrorEmail(buffer.toString());
-				contentview.add(new HtmlView("<p>Detail of this issue has been sent to GOC and GOC will be processing this issue soon. We appologize for your inconvenience.</p>"));			
+				contentview.add(new HtmlView("<p>Details of this issue have been sent to the GOC, and will be processed soon. We apologize for the inconvenience.</p>"));			
 		   	} catch (MessagingException e) {
-				contentview.add(new HtmlView("<p>OIM has tried to send the error report to OIM development team, but the attemp has failed due to following reason.</p>"));			
+				contentview.add(new HtmlView("<p>OIM tried to send an error report to OIM development team, but the attempt has failed due to following reason.</p>"));			
 				contentview.add(new HtmlView("<div class=\"indent\">"));
 				contentview.add(new HtmlView("<p>"+e.toString()+"</p>"));
 				contentview.add(new HtmlView("</div>"));
-				contentview.add(new HtmlView("<p>Please open a ticket at <a target=\"_blank\" href=\"https://ticket.grid.iu.edu/goc/other\">GOC Ticket</a> with following error detail</p>"));
+				contentview.add(new HtmlView("<p>Please open a ticket at <a target=\"_blank\" href=\"https://ticket.grid.iu.edu/goc/other\">GOC Ticket</a> with following details regarding this error.</p>"));
 				
 				contentview.add(new HtmlView("<div class=\"indent\">"));
 				contentview.add(new HtmlView("<pre>"+buffer.toString()+"</pre>"));
