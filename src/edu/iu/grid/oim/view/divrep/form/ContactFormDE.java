@@ -283,16 +283,17 @@ public class ContactFormDE extends DivRepForm
 		id = rec.id;
 
 		DNRecord associated_dn = new DNRecord();
-		try {
-			DNModel dnmodel = new DNModel(context);;
-			associated_dn= dnmodel.getByContactID(id);
-		} catch (SQLException e) {
-			log.error(e);
-		}
-
-		if ((associated_dn != null) && (!profileEdit)) {
-			if (associated_dn.dn_string.equals(context.getAuthorization().getUserDN())) {
-				new DivRepStaticContent(this, "<div><h2>NOTE: This is your profile!</h2></div>");
+		if (id != null) {
+			try {
+				DNModel dnmodel = new DNModel(context);;
+				associated_dn= dnmodel.getByContactID(id);
+			} catch (SQLException e) {
+				log.error(e);
+			}
+			if ((associated_dn != null) && (!profileEdit)) {
+				if (associated_dn.dn_string.equals(context.getAuthorization().getUserDN())) {
+					new DivRepStaticContent(this, "<div><h2>NOTE: This is your profile!</h2></div>");
+				}
 			}
 		}
 
@@ -357,9 +358,11 @@ public class ContactFormDE extends DivRepForm
 				}}
 			);
 		}
-		personal_info = new PersonalInfo(this, rec, associated_dn);
-		if(rec.person == null || rec.person == false) {
-			showHidePersonalDetail();
+		if (id != null) {
+			personal_info = new PersonalInfo(this, rec, associated_dn);
+			if(rec.person == null || rec.person == false) {
+				showHidePersonalDetail();
+			}
 		}
 		
 		new DivRepStaticContent(this, "<h2>Confirmation</h2>");
