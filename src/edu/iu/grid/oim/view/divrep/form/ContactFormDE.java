@@ -50,9 +50,8 @@ public class ContactFormDE extends DivRepForm
     private Authorization auth;
 	private Integer id;
 	
-	private DivRepTextBox associated_dn;
 	private DivRepTextBox name;
-	private DivRepTextBox primary_email, secondary_email, primary_email_check ;
+	private DivRepTextBox primary_email, secondary_email;
 	private DivRepTextBox primary_phone, secondary_phone;
 	private DivRepTextBox primary_phone_ext, secondary_phone_ext;
 	private DivRepTextBox sms_address;
@@ -79,12 +78,12 @@ public class ContactFormDE extends DivRepForm
 			
 		}	
 		
-		PersonalInfo(DivRep _parent, ContactRecord rec, DNRecord associated_dn) {
+		PersonalInfo(DivRep _parent, ContactRecord rec, DNRecord associated_dn_rec) {
 			super(_parent);
 			
 			String associated_dn_string = "Contact not registered on OIM";
-			if (associated_dn != null ) {
-				associated_dn_string = associated_dn.dn_string;
+			if (associated_dn_rec != null ) {
+				associated_dn_string = associated_dn_rec.dn_string;
 			}
 			new DivRepStaticContent(this, "<div class=\"divrep_form_element\"><label>Associated DN</label><br/><input type=\"text\" disabled=\"disabled\" style=\"width: 400px;\" value=\""+ associated_dn_string +"\"/><br/><sub>* Can only be modified by GOC Staff on request using Admin interface</sub></div>");
 
@@ -264,15 +263,16 @@ public class ContactFormDE extends DivRepForm
 		photo_url.setHidden(hidden);
 		ContactFormDE.this.redraw();
 		*/
-		personal_info.setHidden(!person.getValue());
-		personal_info.redraw();
-		
+	
 		Boolean required = person.getValue();
 		city.setRequired(required);
 		state.setRequired(required);
 		zipcode.setRequired(required);
 		country.setRequired(required);
-	}
+
+		personal_info.setHidden(!person.getValue());
+		personal_info.redraw();
+}
 	
 	public ContactFormDE(Context _context, ContactRecord rec, String origin_url,
 			boolean profileEdit) //, boolean newRegistration)
@@ -282,16 +282,17 @@ public class ContactFormDE extends DivRepForm
 		auth = context.getAuthorization();
 		id = rec.id;
 
-		DNRecord associated_dn = new DNRecord();
+		DNRecord associated_dn_rec = null;
 		if (id != null) {
 			try {
+				associated_dn_rec = new DNRecord();
 				DNModel dnmodel = new DNModel(context);;
-				associated_dn= dnmodel.getByContactID(id);
+				associated_dn_rec= dnmodel.getByContactID(id);
 			} catch (SQLException e) {
 				log.error(e);
 			}
-			if ((associated_dn != null) && (!profileEdit)) {
-				if (associated_dn.dn_string.equals(context.getAuthorization().getUserDN())) {
+			if ((associated_dn_rec != null) && (!profileEdit)) {
+				if (associated_dn_rec.dn_string.equals(context.getAuthorization().getUserDN())) {
 					new DivRepStaticContent(this, "<div><h2>NOTE: This is your profile!</h2></div>");
 				}
 			}
@@ -343,10 +344,12 @@ public class ContactFormDE extends DivRepForm
 		new DivRepStaticContent(this, "<h2>Personal Information</h2>");
 		
 		person = new DivRepCheckBox(this);
-		person.setLabel("This is a personal contact (not mailing list, group contact, etc...)");
+		person.setLabel("This is a person/service contact (not a group mailing list, etc...) that in the future may attempt to register an X509 certificate on OIM.");
 		person.setValue(rec.person);
 
-		if ((profileEdit == true) || (associated_dn!= null)) {
+		personal_info = new PersonalInfo(this, rec, associated_dn_rec);
+
+		if ((profileEdit == true) || (associated_dn_rec!= null)) {
 			person.setValue(true);
 			person.setLabel("Person contact flag (Cannot modify: Always true for users whose DN is registered with OIM)");
 			person.setDisabled(true);
@@ -358,11 +361,8 @@ public class ContactFormDE extends DivRepForm
 				}}
 			);
 		}
-		if (id != null) {
-			personal_info = new PersonalInfo(this, rec, associated_dn);
-			if(rec.person == null || rec.person == false) {
-				showHidePersonalDetail();
-			}
+		if(rec.person == null || rec.person == false) {
+			showHidePersonalDetail();
 		}
 		
 		new DivRepStaticContent(this, "<h2>Confirmation</h2>");

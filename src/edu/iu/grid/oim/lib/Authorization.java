@@ -164,8 +164,8 @@ public class Authorization {
 					log.debug("Server on localhost. Overriding the DN to Arvind's");
 					// // Test when No DN is provided
 					// user_dn = "/DC=org/DC=doegrids/OU=People/CN=Arvind Gopu 369621";  // GOC staff
-					// user_dn = "/DC=org/DC=doegrids/OU=People/CN=Arvind Gopu 36962122245";  // Fake Arvind DN that is not registered
-					user_dn = "/C=KR/O=KISTI/O=GRID/O=KISTI/CN=84035421 Beob Kyum Kim";
+					// user_dn = "/DC=org/DC=doegrids/OU=People/CN=Arvind Gopu 3696212224546";  // Fake Arvind DN that is not registered
+					// user_dn = "/C=KR/O=KISTI/O=GRID/O=KISTI/CN=84035421 Beob Kyum Kim";
 					//user_dn = "/DC=org/DC=doegrids/OU=People/CN=Arvind Gopu 369621222";  // Fake Arvind DN that is registered but de-activated
 					//user_dn = "/DC=org/DC=doegrids/OU=People/CN=Robert C Ball 331645"; // AGLT2 Admin
 					//user_dn = "/DC=org/DC=doegrids/OU=People/CN=Brian Bockelman 504307"; // Measurements 
