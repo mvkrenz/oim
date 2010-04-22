@@ -43,10 +43,8 @@ public class AdminServlet extends ServletBase  {
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{
-		if(!auth.allows("admin")) {
-			throw new ServletException("You need action authorization for admin");
-		}
-		
+		auth.check("admin");
+
 		MenuView menuview = new MenuView(context, "admin");
 		ContentView contentview = createContentView();
 		Page page = new Page(context, menuview, contentview, createSideView());

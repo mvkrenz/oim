@@ -60,11 +60,11 @@ public class ErrorServlet extends HttpServlet {
 		
 	    if(throwable instanceof AuthorizationException) {
 			contentview.add(new HtmlView("<h2>Authorization Error</h2>"));
-			contentview.add(new HtmlView("<p>You are not authorized to access this page.</p>"));
+			contentview.add(new HtmlView("<p>You are not authorized to access this page. Click <string>Home</string> on the above menu for more information.</p>"));
 			contentview.add(new HtmlView("<p>If you believe, you should be able to access the page, then please open <a target=\"_blank\" href=\"https://ticket.grid.iu.edu/goc/oim\">a ticket</a> with the OSG Grid Operations Center (GOC).</p>"));
 	    } else {
 			contentview.add(new HtmlView("<h2>Oops!</h2>"));
-			contentview.add(new HtmlView("<p>Sorry, OIM has encountered a  problem. </p>"));
+			contentview.add(new HtmlView("<p>Sorry, OIM has encountered a problem. </p>"));
 			contentview.add(new HtmlView("<p>The GOC has been notified about this error; please feel free to additionally open <a target=\"_blank\" href=\"https://ticket.grid.iu.edu/goc/oim\">a ticket</a> with the OSG Grid Operations Center (GOC).</p>"));
 			reportError(contentview, message);
 	    }

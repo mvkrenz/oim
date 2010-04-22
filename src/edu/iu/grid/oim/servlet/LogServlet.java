@@ -540,7 +540,9 @@ public class LogServlet extends ServletBase  {
     }
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
-	{		
+	{	
+		auth.check("read_all_logs");
+
 		params = new Parameters(context.getPageRoot(), request);
 		try {
 			if(request.getParameter("xml") == null) {

@@ -183,7 +183,8 @@ public class AuthorizationMatrixServlet extends ServletBase  {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{
 		//setContext(request);
-	
+		auth.check("admin_authorization");
+
 		//construct view
 		MenuView menuview = new MenuView(context, "admin");
 		ContentView contentview;
