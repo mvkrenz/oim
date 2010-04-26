@@ -29,11 +29,12 @@ public class TableView extends GenericView {
 		public void setClass(String _clazz) {
 			clazz = _clazz;
 		}
-		
+		/*
 		private String tip = null;
 		public void setTip(String tip) {
 			this.tip = tip;
 		}
+		*/
 		
 		public class Cell implements IView
 		{
@@ -68,9 +69,11 @@ public class TableView extends GenericView {
 				case HEADER:
 					out.print("<th colspan=\""+span+"\">");
 					content.render(out);
+					/*
 					if(tip != null) {
-						out.print("<img class=\"tinytip\" src=\"images/tip.png\" title=\""+StringEscapeUtils.escapeHtml(tip)+"\"/>");
+						out.print("&nbsp;<img style=\"cursor: pointer;\" align=\"top\" class=\"tinytip\" src=\"images/help.png\" title=\""+StringEscapeUtils.escapeHtml(tip)+"\"/>");
 					}
+					*/
 					out.print("</th>");
 					break;
 				}
@@ -117,12 +120,13 @@ public class TableView extends GenericView {
 		rows.add(row);
 	}
 	
-	public void addRow(IView header, IView view)
+	public Row addRow(IView header, IView view)
 	{
 		Row row = new Row();
 		addRow(row);
 		row.addHeaderCell(header);
 		row.addCell(view);
+		return row;
 	}
 	
 	public void render(PrintWriter out)
@@ -143,10 +147,11 @@ public class TableView extends GenericView {
 			
 		out.print("</table>");	
 		
+		/*
 		out.print("<script type=\"text/javascript\">");
 		out.print("$('#table_"+id+" .tinytip').tinyTips('title');");
-		//out.print("console.log($('.tinytip').attr('title'));");
 		out.print("</script>");
+		*/
 	}
 
 }

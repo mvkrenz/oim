@@ -63,6 +63,7 @@ import edu.iu.grid.oim.view.MenuView;
 import edu.iu.grid.oim.view.Page;
 import edu.iu.grid.oim.view.RecordTableView;
 import edu.iu.grid.oim.view.SideContentView;
+import edu.iu.grid.oim.view.ToolTip;
 import edu.iu.grid.oim.view.TableView.Row;
 import edu.iu.grid.oim.view.divrep.ViewWrapper;
 
@@ -249,17 +250,13 @@ public class ResourceServlet extends ServletBase implements Servlet {
 							redirect(url);
 						}
 					};
-
-					/*
-					table.addRow("Downtime", new DivRepWrapper(new EditDowntimeButtonDE(context.getPageRoot(), 
-							StaticConfig.getApplicationBase()+"/resourcedowntimeedit?id=" + rec.id)));
-					*/
-					Row r;
-					r = table.addRow("Active", rec.active);
-					r.setTip("Shows if this resource has been activated by GOC staff. Until it is activated, this resource is not available to OSG in general sense.");
 					
-					r = table.addRow("Disable", rec.disable);
-					r.setTip("Shows if this resource has been removed from the OIM database.");
+					Row r;
+					ToolTip tip = new ToolTip("Shows if this resource has been activated by GOC staff. Until it is activated, this resource is not available to OSG in general sense.");
+					r = table.addRow(new HtmlView("Active" + tip.render()), rec.active);
+					
+					tip = new ToolTip("Shows if this resource has been removed from the OIM database.");
+					r = table.addRow(new HtmlView("Disable" + tip.render()), rec.disable);
 
 					if(show_edit_button) {
 						class EditButtonDE extends DivRepButton

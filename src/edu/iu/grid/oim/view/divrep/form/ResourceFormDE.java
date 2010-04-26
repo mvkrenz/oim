@@ -47,6 +47,7 @@ import edu.iu.grid.oim.model.db.record.SCRecord;
 import edu.iu.grid.oim.model.db.record.SiteRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
 import edu.iu.grid.oim.model.db.record.VOResourceOwnershipRecord;
+import edu.iu.grid.oim.view.ToolTip;
 import edu.iu.grid.oim.view.divrep.Confirmation;
 import edu.iu.grid.oim.view.divrep.ContactEditor;
 import edu.iu.grid.oim.view.divrep.ResourceAlias;
@@ -182,8 +183,10 @@ public class ResourceFormDE extends DivRepForm
 			owners.addOwner(new VOResourceOwnershipRecord());
 		}
 
-		new DivRepStaticContent(this, "<h2>Contact Information</h2>");
-		new DivRepStaticContent(this, "<p>Add, remove, modify various types of contacts associated with your resource. These contacts have the authorization to modify this resource. Each contact entry field shows you a list of contacts as you type a name.</p>");
+		ToolTip tip = new ToolTip("Add, remove, modify various types of contacts associated with your resource. These contacts have the authorization to modify this resource. Each contact entry field shows you a list of contacts as you type a name.");
+		new DivRepStaticContent(this, "<h2>Contact Information "+tip.render()+"</h2>");
+		//new DivRepStaticContent(this, "<p>Add, remove, modify various types of contacts associated with your resource. These contacts have the authorization to modify this resource. Each contact entry field shows you a list of contacts as you type a name.</p>");
+		
 		HashMap<Integer/*contact_type_id*/, ArrayList<ResourceContactRecord>> voclist_grouped = null;
 		if(id != null) {
 			ResourceContactModel vocmodel = new ResourceContactModel(context);

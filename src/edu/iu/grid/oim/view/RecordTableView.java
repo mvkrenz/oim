@@ -14,58 +14,88 @@ public class RecordTableView extends TableView {
 	{
 		super("record_table");
 	}
+
 	public Row addHeaderRow(String content)
+	{
+		return addHeaderRow(new HtmlView(content));
+	}
+	public Row addHeaderRow(IView content)
 	{
 		Row row = new Row();
 		row.setClass("header");
 		addRow(row);
-		row.addCell(new HtmlView(StringEscapeUtils.escapeHtml(content)), 2);
+		row.addCell(content, 2);
 		return row;
 	}
 	
+	public Row addRow(String header, String content) {
+		if(content == null) {
+			content = Utils.nullStrFilter(null);
+		} else {
+			content = StringEscapeUtils.escapeHtml(content);
+		}
+		return addRow(new HtmlView(header), new HtmlView(content));
+	}
 	public Row addRow(String header, IView content) {
-		Row row = new Row();
-		addRow(row);
-		row.addHeaderCell(new HtmlView(StringEscapeUtils.escapeHtml(header)));
-		row.addCell(content);	
-		return row;
+		return addRow(new HtmlView(header), content);
 	}
-	
-	public Row addBoldRow(String content) {
+	public Row addRow(IView header, String content)
+	{
+		if(content == null) {
+			content = Utils.nullStrFilter(null);
+		} else {
+			content = StringEscapeUtils.escapeHtml(content);
+		}
+		return addRow(header, new HtmlView(content));
+	}
+
+	public Row addBoldRow(String header) {
+		return addBoldRow(new HtmlView(header));
+	}
+	public Row addBoldRow(IView header) {
 		Row row = new Row();
 		addRow(row);
-		row.addBoldCell(new HtmlView(StringEscapeUtils.escapeHtml(content)));
+		row.addBoldCell(header);
 		return row;
 	}
 
 	public Row addRow(String content) {
+		return addRow(new HtmlView(content));
+	}
+	public Row addRow(IView content) {
 		Row row = new Row();
 		addRow(row);
-		row.addCell(new HtmlView(StringEscapeUtils.escapeHtml(content)));
+		row.addCell(content);
 		return row;
 	}
-
-	public Row addRow(String header, String content)
-	{
-		content = StringEscapeUtils.escapeHtml(content);
-		content = Utils.nullStrFilter(content);
-		return addRow(header, new HtmlView(content));
+	
+	public Row addRow(String header, Double value) {
+		return addRow(new HtmlView(header), value);
 	}
-	public Row addRow(String header, Double value)
+	public Row addRow(IView header, Double value)
 	{
-		String str = null;
-		if(value != null) {
+		String str;
+		if(value == null) {
+			str = Utils.nullStrFilter(null);
+		} else {
 			str = value.toString();
 		}
-		str = Utils.nullStrFilter(str);
 		return addRow(header, new HtmlView(str));
 	}
-	public Row addRow(String header, Boolean b)
+	
+	public Row addRow(String header, Boolean b) {
+		return addRow(new HtmlView(header), b);
+	}
+	public Row addRow(IView header, Boolean b)
 	{
-		if(b) {
-			return addRow(header, "True");		
+		String str;
+		if(b == null) {
+			str = Utils.nullStrFilter(null);
+		} else if(b) {
+			str = "True";		
 		} else {
-			return addRow(header, "False");
+			str = "False";
 		}
+		return addRow(header, str);
 	}
 }
