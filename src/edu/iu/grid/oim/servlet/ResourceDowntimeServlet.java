@@ -22,9 +22,13 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 
 import com.divrep.DivRep;
+import com.divrep.DivRepContainer;
 import com.divrep.DivRepEvent;
+import com.divrep.DivRepPage;
 import com.divrep.DivRepRoot;
 import com.divrep.common.DivRepButton;
+import com.divrep.common.DivRepDialog;
+import com.divrep.common.DivRepStaticContent;
 
 
 import edu.iu.grid.oim.lib.StaticConfig;
@@ -62,14 +66,46 @@ public class ResourceDowntimeServlet extends ServletBase implements Servlet {
 	private static final long serialVersionUID = 1L;
 	static Logger log = Logger.getLogger(ResourceDowntimeServlet.class);  
 	
+	class RemoveDowntimeDialog extends DivRepDialog {
+		//public DivRepStaticContent summary;
+		ResourceDowntimeRecord rec;
+		public RemoveDowntimeDialog(DivRep parent, Boolean _has_cancelbutton) {
+			super(parent, _has_cancelbutton);
+			setTitle("Remove Downtime");
+			new DivRepStaticContent(this, "Do you really want to remove this downtime?");
+		
+			//summary = new DivRepStaticContent(this, "....");
+		}
+		public void setRecord(ResourceDowntimeRecord rec) {
+			this.rec = rec;
+		}
+		public void onCancel() {
+			close();
+		}
+
+		public void onSubmit() {
+			ResourceDowntimeModel model = new ResourceDowntimeModel(context);
+			try {
+				model.removeDowntime(rec);
+			} catch (Exception e) {
+				alert(e.toString());
+				log.error("Failed to fulfill user request to remove", e);
+			}
+			redirect(StaticConfig.getApplicationBase()+"/resourcedowntime");
+		}
+	}
+	RemoveDowntimeDialog remove_downtime_dialog;
+	
+	
     public ResourceDowntimeServlet() {
-        // TODO Auto-generated constructor stub
     }
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{	
 		//setContext(request);
 		auth.check("edit_my_resource");
+		
+		remove_downtime_dialog = new RemoveDowntimeDialog(context.getPageRoot(), true);
 		
 		try {			
 			//construct view
@@ -107,8 +143,6 @@ public class ResourceDowntimeServlet extends ServletBase implements Servlet {
 
 			contentview.add(new HtmlView("<h2>"+StringEscapeUtils.escapeHtml(name)+"</h2>"));
 	
-			//RecordTableView table = new RecordTableView();
-			
 			//downtime
 			GenericView downtime_view = new GenericView();
 			ResourceDowntimeModel dmodel = new ResourceDowntimeModel(context);
@@ -134,17 +168,35 @@ public class ResourceDowntimeServlet extends ServletBase implements Servlet {
 				}
 			};
 			contentview.add(new DivRepWrapper(new NewButtonDE(context.getPageRoot(), StaticConfig.getApplicationBase()+"/resourcedowntimeedit?rid=" + rec.id)));
-			//contentview.add(table);
 		}
+		
+		contentview.add(new DivRepWrapper(remove_downtime_dialog));
 		
 		return contentview;
 	}
 	
-	private IView createDowntimeView(ResourceDowntimeRecord rec) throws SQLException
+	private IView createDowntimeView(final ResourceDowntimeRecord rec) throws SQLException
 	{
 		GenericView view = new GenericView();
 		
 		view.add(new HtmlView("<div class=\"downtime\">"));
+		
+		class RemoveButtonDE extends DivRepButton
+		{
+			public RemoveButtonDE(DivRep parent)
+			{
+				super(parent, "images/delete.png");
+				setStyle(DivRepButton.Style.IMAGE);
+				addClass("right");
+			}
+			protected void onEvent(DivRepEvent e) {
+				//remove_downtime_dialog.summary.setHtml("<br/><b>Summary</b><br/><i>"+rec.downtime_summary + "</i>");
+				//remove_downtime_dialog.summary.redraw();
+				remove_downtime_dialog.setRecord(rec);
+				remove_downtime_dialog.open();	
+			}
+		};
+		view.add(new DivRepWrapper(new RemoveButtonDE(context.getPageRoot())));
 		
 		RecordTableView table = new RecordTableView();
 		table.addRow("Summary", rec.downtime_summary);

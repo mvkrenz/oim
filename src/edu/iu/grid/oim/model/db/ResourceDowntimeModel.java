@@ -164,34 +164,22 @@ public class ResourceDowntimeModel extends SmallTableModelBase<ResourceDowntimeR
 			throw new Exception(e);
 		}	
 	}
-	/*
-	public void updateDetail(int resource_id, ArrayList<ResourceDowntime> downtimes) throws Exception
+	public void removeDowntime(ResourceDowntimeRecord rec) throws Exception
 	{
 		Connection conn = connectOIM();
 		try {		
 			conn.setAutoCommit(false);
-	
-			ResourceDowntimeModel dmodel = new ResourceDowntimeModel(context);
+			
+			//remove all service record
 			ResourceDowntimeServiceModel rdsmodel = new ResourceDowntimeServiceModel(context);
-			
-			//process downtime record itself
-			ArrayList<ResourceDowntimeRecord> downtime_recs = new ArrayList();
-			for(ResourceDowntime downtime : downtimes) {	
-				downtime_recs.add(downtime.downtime);
+			Collection<ResourceDowntimeServiceRecord> services = rdsmodel.getByDowntimeID(rec.id);	
+			for(ResourceDowntimeServiceRecord srec : services) {
+				rdsmodel.remove(srec);
 			}
-			dmodel.update(dmodel.getRecentDowntimesByResourceID(resource_id), downtime_recs);
 			
-			//then for each downtimes..
-			for(ResourceDowntime downtime : downtimes) {
-				ResourceDowntimeRecord downtime_rec = downtime.downtime;
-
-				//process service records
-				ArrayList<ResourceDowntimeServiceRecord> services = downtime.services;
-				for(ResourceDowntimeServiceRecord service : services) {
-					service.resource_downtime_id = downtime_rec.id;
-				}
-				rdsmodel.update(rdsmodel.getByDowntimeID(downtime_rec.id), services);			
-			}
+			//remove downtime itself
+			ResourceDowntimeModel dmodel = new ResourceDowntimeModel(context);
+			dmodel.remove(rec);
 			
 			conn.commit();
 			conn.setAutoCommit(true);
@@ -203,7 +191,6 @@ public class ResourceDowntimeModel extends SmallTableModelBase<ResourceDowntimeR
 			
 			//re-throw original exception
 			throw new Exception(e);
-		}			
+		}	
 	}
-	*/
 }
