@@ -60,7 +60,7 @@ public class ContactServlet extends ServletBase implements Servlet {
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{	
-		auth.check("edit_my_contacts");
+		auth.check("edit_my_contact");
 
 		//pull list of all contacts
 		ContactModel model = new ContactModel(context);
