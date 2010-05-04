@@ -53,6 +53,7 @@ import edu.iu.grid.oim.view.MenuView;
 import edu.iu.grid.oim.view.Page;
 import edu.iu.grid.oim.view.RecordTableView;
 import edu.iu.grid.oim.view.SideContentView;
+import edu.iu.grid.oim.view.ToolTip;
 import edu.iu.grid.oim.view.TableView.Row;
 import edu.iu.grid.oim.view.divrep.ViewWrapper;
 
@@ -143,13 +144,15 @@ public class VOServlet extends ServletBase implements Servlet {
 					else {
 						parent_vo_name = "N/A";
 					}
-					table.addRow("Parent VO", parent_vo_name);
+					ToolTip parent_vo_tip = new ToolTip("Sometimes a project grows large enough to include several offshoot projects in it. When this happens, such a VO would want to be its own registration but would want to cite the parent project on its registration. This item helps a VO manager make such a mapping.");
+					table.addRow("Parent VO " + parent_vo_tip.render() + " ", parent_vo_name);
 					table.addRow("Support Center", getSCName(rec.sc_id));
 					table.addRow("Long Name", rec.long_name);
 					table.addRow("Description", rec.description);
 					table.addRow("App Description", rec.app_description);
 					table.addRow("Community", rec.community);
-					table.addRow("Field of Science", getFieldOfScience(rec.id));
+					ToolTip field_of_science_tip = new ToolTip("VOs are often associated with one or more scientific fields. ");
+					table.addRow("Field of Science " +field_of_science_tip.render()+ " ", getFieldOfScience(rec.id));
 					table.addRow("Primary URL", new HtmlView("<a target=\"_blank\" href=\""+rec.primary_url+"\">"+rec.primary_url+"</a>"));
 					table.addRow("AUP URL", new HtmlView("<a target=\"_blank\" href=\""+rec.aup_url+"\">"+rec.aup_url+"</a>"));
 					table.addRow("Membership Services URL", new HtmlView("<a target=\"_blank\" href=\""+rec.membership_services_url+"\">"+rec.membership_services_url+"</a>"));

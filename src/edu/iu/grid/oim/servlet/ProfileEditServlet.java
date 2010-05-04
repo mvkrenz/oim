@@ -50,7 +50,7 @@ public class ProfileEditServlet extends ServletBase implements Servlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{
 		// Probably ok to use this auth level since a profile is one's own contact information? -agopu 2010-04-22
-		auth.check("edit_my_contacts");
+		auth.check("edit_my_contact");
 		
 		ContactRecord rec;
 		try {
