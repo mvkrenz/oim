@@ -166,7 +166,8 @@ public class LogServlet extends ServletBase  {
 		public Collection<LogRecord> getRecords(Parameters params) throws SQLException {
 			LogModel lmodel = new LogModel(context);
 			Collection<LogRecord> recs = new ArrayList<LogRecord>();
-			if(id.getValue() != null) {
+			String id_str = id.getValue();
+			if(id_str != null) {
 				LogRecord rec = lmodel.get(Integer.parseInt(id.getValue()));
 				if(rec != null) {
 					recs.add(rec);
@@ -176,7 +177,10 @@ public class LogServlet extends ServletBase  {
 		}
 
 		public String getParameters() {
-			return "id=" + id.getValue();
+			if(id.getValue() != null) {
+				return "id=" + id.getValue();
+			} 
+			return "";
 		}
 	}
 	
