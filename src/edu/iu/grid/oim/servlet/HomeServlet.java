@@ -3,37 +3,26 @@ package edu.iu.grid.oim.servlet;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Date;
 
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import org.apache.log4j.Logger;
-
 import com.divrep.DivRep;
 import com.divrep.DivRepEvent;
-import com.divrep.DivRepEventListener;
-import com.divrep.DivRepRoot;
-import com.divrep.common.DivRepButton;
 
 import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.model.Context;
-import edu.iu.grid.oim.model.MenuItem;
 import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.view.ContactAssociationView;
 import edu.iu.grid.oim.view.ContentView;
 import edu.iu.grid.oim.view.DivRepWrapper;
-import edu.iu.grid.oim.view.GenericView;
 import edu.iu.grid.oim.view.HtmlView;
 import edu.iu.grid.oim.view.MenuView;
 import edu.iu.grid.oim.view.Page;
-import edu.iu.grid.oim.view.IView;
 import edu.iu.grid.oim.view.SideContentView;
+import edu.iu.grid.oim.view.ToolTip;
 
 public class HomeServlet extends ServletBase  {
 	private static final long serialVersionUID = 1L;
@@ -60,7 +49,7 @@ public class HomeServlet extends ServletBase  {
 		contentview.add(new HtmlView("<h1>OIM</h1>"));
 
 		// TODO agopu: need to clean this up with some divs etc. Nicer font, etc.
-		String welcome_string = "<p>The Open Science Grid Information Management (OIM) system defines the topology used by various OSG systems and services; it is based on the <a target=\"_blank\" href=\"http://osg-docdb.opensciencegrid.org/cgi-bin/ShowDocument?docid=18.\">OSG Blueprint Document</a>. Please view the slideshow embedded below and/or visit the Help pages linked above for more information.</p>";
+		String welcome_string = "<p>The topology used by various OSG systems and services based on the <a target=\"_blank\" href=\"http://osg-docdb.opensciencegrid.org/cgi-bin/ShowDocument?docid=18.\">OSG Blueprint Document</a></p>";
 		if(auth.isGuest()) {
 			welcome_string += auth.getNoDNWarning(); 		
 		}
@@ -86,18 +75,20 @@ public class HomeServlet extends ServletBase  {
 		
 		//show entities that this user is associated
 		if(auth.isOIMUser()) {
-			contentview.add(new HtmlView("<h2>Entities You Are Able To Edit</h2>"));
-			contentview.add(new HtmlView("<p>Your account is associated with the following entities, and therefore allows you to modify their content.</p>"));
+			ToolTip tip = new ToolTip("Your account is associated with the following entities, and therefore allows you to modify their content.");
+			contentview.add(new HtmlView("<h2>Your OSG Entities "+tip.render()+"</h2>"));
 			try {
-				contentview.add(new ContactAssociationView(context, auth.getContactID()));
+				ContactAssociationView caview = new ContactAssociationView(context, auth.getContactID());
+				caview.showNewButtons(true);
+				contentview.add(caview);
 			} catch (SQLException e) {
 				throw new ServletException(e);
 			}
 		}
 		
 		//show oim hierarchy doc
-		contentview.add(new HtmlView("<h2>OSG Topology Slideshow</h2>"));
-		contentview.add(new HtmlView("<p>The following slideshow presentation walks you through various entities in the OSG topology used by OIM, and describes the relationships between those entities. If you are new to the OSG and/or OIM, we strongly urge you to take a few minutes to go through this slideshow!</p>"));
+		ToolTip tip = new ToolTip("The following slideshow presentation walks you through various entities in the OSG topology used by OIM, and describes the relationships between those entities. If you are new to the OSG and/or OIM, we strongly urge you to take a few minutes to go through this slideshow!");
+		contentview.add(new HtmlView("<h2>OSG Topology Slideshow "+tip.render()+"</h2>"));
 		contentview.add(new HtmlView("<iframe src=\"http://docs.google.com/present/embed?id=ddtgc5bt_113fp3fmvgp&size=l\" frameborder=\"0\" width=\"700\" height=\"559\"></iframe>"));
 
 		return contentview;
