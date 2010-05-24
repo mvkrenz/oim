@@ -75,7 +75,8 @@ cursor: pointer;
 
 .divrep_colorpicker_preset {
 margin-top: 3px;
-margin-bottom: 6px;
+margin-bottom: 3px;
+line-height: 150%;
 }
 
 .divrep_colorpicker_preset span {
@@ -96,4 +97,80 @@ height: 45px;
 border: 1px solid black;
 float: left;
 }
+.divrep_disabled
+{
+color: gray;
+}
 
+.divrep_app {
+background-color: black;
+color: white;
+}
+.divrep_app_header {
+font-family:"Palatino Linotype",Palatino,"Book Antiqua",serif;
+font-size:19pt;
+font-weight:bold;
+padding-left:20px;
+height:40px;
+}
+.divrep_app_side {
+float:left;
+margin-right:10px;
+margin-bottom:15px;
+width:140px;
+-moz-border-radius-bottomright:8px;
+-moz-border-radius-topright:8px;
+background-color:#444444;
+color:#CCCCCC;
+font-size:12px;
+line-height:160%;
+padding:10px 15px;
+}
+.divrep_app_side h2 {
+color:#FFFFFF;
+font-size:20px;
+margin-bottom: 4px;
+font-family:"Palatino Linotype",Palatino,"Book Antiqua",serif;
+}
+.divrep_app_side p {
+color:#CCCCCC;
+cursor:pointer;
+font-weight:bold;
+font-size:12px;
+line-height:160%;
+font-family:Arial,"Lucida Sans Unicode",sans-serif;
+}
+
+.divrep_app_main {
+-moz-border-radius-bottomleft:8px;
+-moz-border-radius-topleft:8px;
+background-color: #a33;
+margin-left:180px;
+padding:5px 15px;
+}
+.divrep_app_main h2 {
+color:white;
+font-family:"Palatino Linotype",Palatino,"Book Antiqua",serif;
+font-size:20px;
+font-weight:bold;
+padding-bottom:5px;
+}
+
+.divrep_app_main h3 {
+font-size:20px;
+margin-bottom:3px;
+padding:5px 5px 5px 10px;
+font-family:"Palatino Linotype",Palatino,"Book Antiqua",serif;
+}
+
+.divrep_app a,
+.divrep_app a.visited {
+color:inherit;
+}
+
+.divrep_app_section {
+-moz-border-radius:8px 8px 8px 8px;
+background-color: white;
+color: black;
+margin-bottom: 15px;
+}
