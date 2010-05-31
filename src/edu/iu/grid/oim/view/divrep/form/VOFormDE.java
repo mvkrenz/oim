@@ -5,11 +5,13 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.TimeZone;
 import java.util.TreeMap;
 import java.util.TreeSet;
 
@@ -51,6 +53,7 @@ import edu.iu.grid.oim.model.db.VOVOModel;
 import edu.iu.grid.oim.model.db.record.ContactRankRecord;
 import edu.iu.grid.oim.model.db.record.ContactTypeRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
+import edu.iu.grid.oim.model.db.record.DNRecord;
 import edu.iu.grid.oim.model.db.record.FieldOfScienceRecord;
 import edu.iu.grid.oim.model.db.record.RecordBase;
 import edu.iu.grid.oim.model.db.record.ResourceGroupRecord;
@@ -67,6 +70,8 @@ import edu.iu.grid.oim.view.divrep.Confirmation;
 import edu.iu.grid.oim.view.divrep.ContactEditor;
 import edu.iu.grid.oim.view.divrep.VOReportNames;
 import edu.iu.grid.oim.view.divrep.ContactEditor.Rank;
+import edu.iu.grid.oim.view.divrep.form.ContactFormDE.PersonalInfo;
+import edu.iu.grid.oim.view.divrep.form.ContactFormDE.PhotoDE;
 
 public class VOFormDE extends DivRepForm 
 {
@@ -79,7 +84,6 @@ public class VOFormDE extends DivRepForm
 	private DivRepTextBox name;
 	private DivRepTextBox long_name;
 	private DivRepTextArea description;
-	private DivRepTextArea app_description;
 	private DivRepTextArea community;
 	private DivRepTextBox footprints_id;
 	private DivRepSelectBox sc_id;
@@ -87,12 +91,119 @@ public class VOFormDE extends DivRepForm
 	private DivRepCheckBox disable;
 	private DivRepCheckBox child_vo;
 	private DivRepSelectBox parent_vo;
+
 	private Confirmation confirmation;
+	private DivRepTextArea comment;
+
+	//contact types to edit
+	private int contact_types[] = {
+		1, //submitter
+		6, //vo manager
+		3, //admin contact       -- Formerly operations contact for VOs
+		2, //security contact
+		5, //misc contact
+	};
+	private HashMap<Integer, ContactEditor> contact_editors = new HashMap();
+
+	// Moving fields related to only VOs that do actual research, apart 
+	//  from providing services on their facility to a separate area that
+	//  that can be hidden -agopu 2010-05-31
+	private DivRepCheckBox science_vo;
+	private ScienceVOInfo science_vo_info;
 	
+	private DivRepTextArea app_description;
 	private VOReportNames vo_report_name_div;
 	
-	private DivRepTextArea comment;
+	private FieldOfScience field_of_science_de;
 	
+	private URLs urls;
+	private DivRepTextBox primary_url; // Moved out of URLs class to enable direct property manipulation
+	private DivRepTextBox aup_url;
+	private DivRepTextBox membership_services_url;
+	private DivRepTextBox purpose_url;
+	private DivRepTextBox support_url;	
+
+	class ScienceVOInfo extends DivRepFormElement
+	{
+		protected void onEvent(DivRepEvent e) {
+			// TODO Auto-generated method stub
+			
+		}	
+		
+		ScienceVOInfo(DivRep _parent, VORecord rec) {
+			super(_parent);
+			
+			new DivRepStaticContent(this, "<h3>More Extended Descriptions including URLs</h3>");
+
+			app_description = new DivRepTextArea(this);
+			app_description.setLabel("Enter an Application Description");
+			app_description.setValue(rec.app_description);
+			app_description.setRequired(true);
+			app_description.setSampleValue("CDF Analysis jobs will be run");
+
+			urls = new URLs(this, rec);
+
+			// Fields of Science
+			try {
+				field_of_science_de = new FieldOfScience(this, rec);
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+			// Handle reporting names
+			new DivRepStaticContent(this, "<h3>Reporting Names for your VO</h3>");
+			new DivRepStaticContent(this, "<p>This section allows you to define report names for this VO. These report names are used by the Gratia Accounting software to organize periodic usage accounting reports. You need to define at least one report name -- for example, one with the same name as the VO (short) name and no FQANs. Large VOs with several sub-groups can define different report names, and also one or more FQAN per report name. Contact gratia-operation@opensciencegrid.org if you have any questions about VO report names.</p>");
+			ContactModel cmodel = new ContactModel (context);
+			VOReportNameModel vorepname_model = new VOReportNameModel(context);
+			VOReportNameFqanModel vorepnamefqan_model = new VOReportNameFqanModel(context);
+
+			ArrayList<VOReportNameRecord> vorepname_records;
+			try {
+				vorepname_records = vorepname_model.getAll();
+				vo_report_name_div = new VOReportNames(this, vorepname_records, cmodel);
+				if(id != null) {
+					for(VOReportNameRecord vorepname_rec : vorepname_model.getAllByVOID(id)) {
+						VOReportContactModel vorcmodel = new VOReportContactModel(context);
+						Collection<VOReportContactRecord> vorc_list = vorcmodel.getAllByVOReportNameID(vorepname_rec.id);
+						Collection<VOReportNameFqanRecord> vorepnamefqan_list = vorepnamefqan_model.getAllByVOReportNameID(vorepname_rec.id);
+						vo_report_name_div.addVOReportName(vorepname_rec, vorepnamefqan_list, vorc_list);
+					}
+				} else {
+					//add new one by default
+					vo_report_name_div.addVOReportName(
+							new VOReportNameRecord(), 
+							new ArrayList<VOReportNameFqanRecord>(), 
+							new ArrayList<VOReportContactRecord>()
+					);		
+				}
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		
+		}
+		
+		public void render(PrintWriter out) {
+			out.print("<div class=\"indent\" id=\""+getNodeID()+"\">");	
+			if(!hidden) {
+				for(DivRep child : childnodes) {
+					if(child instanceof DivRepFormElement) {
+						out.print("<div class=\"divrep_form_element\">");
+						child.render(out);
+						out.print("</div>");
+					
+					} else {
+						//non form element..
+						child.render(out);
+					}
+				}
+				error.render(out);
+			}
+			out.print("</div>");
+		}
+	}
+
 	class FieldOfScience extends DivRep
 	{
 		DivRepButton add_fs;
@@ -185,7 +296,7 @@ public class VOFormDE extends DivRepForm
 		public void render(PrintWriter out) {
 			out.write("<div id=\""+getNodeID()+"\">");
 			
-			out.write("<h2>Field of Science</h2>");
+			out.write("<h3>Field of Science</h3>");
 	
 			
 			out.write("<p>Select Field Of Science(s) applicable to this VO</p>");
@@ -213,7 +324,6 @@ public class VOFormDE extends DivRepForm
 			out.write("</div>");
 		}	
 	}
-	private FieldOfScience field_of_science_de;
 	
 	class URLs extends DivRep
 	{
@@ -225,43 +335,43 @@ public class VOFormDE extends DivRepForm
 			primary_url.setLabel("Primary URL");
 			primary_url.setValue(rec.primary_url);
 			primary_url.addValidator(DivRepUrlValidator.getInstance());
-			primary_url.setRequired(true);
+			// primary_url.setRequired(true);
 			primary_url.setSampleValue("http://www-cdf.fnal.gov");
 
 			aup_url = new DivRepTextBox(this);
 			aup_url.setLabel("AUP URL");
 			aup_url.setValue(rec.aup_url);
 			aup_url.addValidator(DivRepUrlValidator.getInstance());
-			aup_url.setRequired(true);
+			// aup_url.setRequired(true);
 			aup_url.setSampleValue("http://www-cdf.fnal.gov");
 
 			membership_services_url = new DivRepTextBox(this);
 			membership_services_url.setLabel("Membership Services (VOMS) URL");
 			membership_services_url.setValue(rec.membership_services_url);
 			membership_services_url.addValidator(DivRepUrlValidator.getInstance());
-			membership_services_url.setRequired(true);
+			// membership_services_url.setRequired(true);
 			membership_services_url.setSampleValue("https://voms.fnal.gov:8443/voms/cdf/");
 
 			purpose_url = new DivRepTextBox(this);
 			purpose_url.setLabel("Purpose URL"); 
 			purpose_url.setValue(rec.purpose_url);
 			purpose_url.addValidator(DivRepUrlValidator.getInstance());
-			purpose_url.setRequired(true);
+			// purpose_url.setRequired(true);
 			purpose_url.setSampleValue("http://www-cdf.fnal.gov");
 
 			support_url = new DivRepTextBox(this);
 			support_url.setLabel("Support URL"); 
 			support_url.setValue(rec.support_url);
 			support_url.addValidator(DivRepUrlValidator.getInstance());
-			support_url.setRequired(true);
+			// support_url.setRequired(true);
 			support_url.setSampleValue("http://cdfcaf.fnal.gov");
 		}
-
-		public DivRepTextBox primary_url;
-		public DivRepTextBox aup_url;
-		public DivRepTextBox membership_services_url;
-		public DivRepTextBox purpose_url;
-		public DivRepTextBox support_url;
+		// Moved to base class (VOFormDE) level
+		//		public DivRepTextBox primary_url;
+		//		public DivRepTextBox aup_url;
+		//		public DivRepTextBox membership_services_url;
+		//		public DivRepTextBox purpose_url;
+		//		public DivRepTextBox support_url;
 		
 		protected void onEvent(DivRepEvent e) {
 			// TODO Auto-generated method stub
@@ -279,17 +389,21 @@ public class VOFormDE extends DivRepForm
 			out.write("<br/></div>");
 		}
 	}
-	private URLs urls;
+
 	
-	//contact types to edit
-	private int contact_types[] = {
-		1, //submitter
-		6, //vo manager
-		3, //admin contact       -- Formerly operations contact for VOs
-		2, //security contact
-		5, //misc contact
-	};
-	private HashMap<Integer, ContactEditor> contact_editors = new HashMap();
+	public void showHideScienceVODetail()
+	{
+		Boolean required = science_vo.getValue();
+		primary_url.setRequired(required);
+		aup_url.setRequired(required);
+		membership_services_url.setRequired(required);
+		purpose_url.setRequired(required);
+		support_url.setRequired(required);
+		primary_url.setRequired(required);
+
+		science_vo_info.setHidden(!required);
+		science_vo_info.redraw();
+	}
 	
 	public VOFormDE(Context _context, VORecord rec, String origin_url) throws AuthorizationException, SQLException
 	{	
@@ -365,7 +479,6 @@ public class VOFormDE extends DivRepForm
 		sc_id.setValue(rec.sc_id);
 		sc_id.setRequired(true);
 		
-		urls = new URLs(this, rec);
 
 		new DivRepStaticContent(this, "<h3>Extended Descriptions</h3>");
 		description = new DivRepTextArea(this);
@@ -374,19 +487,29 @@ public class VOFormDE extends DivRepForm
 		description.setRequired(true);
 		description.setSampleValue("Collider Detector at Fermilab");
 
-		app_description = new DivRepTextArea(this);
-		app_description.setLabel("Enter an Application Description");
-		app_description.setValue(rec.app_description);
-		app_description.setRequired(true);
-		app_description.setSampleValue("CDF Analysis jobs will be run");
-
 		community = new DivRepTextArea(this);
 		community.setLabel("Describe the Community this VO serves");
 		community.setValue(rec.community);
 		community.setRequired(true);
 		community.setSampleValue("The Collider Detector at Fermilab (CDF) experimental collaboration is committed to studying high energy particle collisions");
+
+		new DivRepStaticContent(this, "<h2>Additional Information for VOs that include OSG Users</h2>");
 		
-		field_of_science_de = new FieldOfScience(this, rec);
+		science_vo = new DivRepCheckBox(this);
+		science_vo.setLabel("This is a VO that includes user who do OSG-dependent scientific research apart from providing services to the OSG.");
+		science_vo.setValue(rec.science_vo);
+
+		science_vo_info = new ScienceVOInfo(this, rec);
+
+		science_vo.addEventListener(new DivRepEventListener() {
+				public void handleEvent(DivRepEvent e) {
+					showHideScienceVODetail();
+				}}
+			);
+		
+		if(rec.science_vo == null || rec.science_vo == false) {
+			showHideScienceVODetail();
+		}
 
 		new DivRepStaticContent(this, "<h2>Contact Information</h2>");
 		HashMap<Integer/*contact_type_id*/, ArrayList<VOContactRecord>> voclist_grouped = null;
@@ -446,31 +569,6 @@ public class VOFormDE extends DivRepForm
 			contact_editors.put(contact_type_id, editor);
 		}
 
-		// Handle reporting names
-		new DivRepStaticContent(this, "<h2>Reporting Names for your VO</h2>");
-		new DivRepStaticContent(this, "<p>This section allows you to define report names for this VO. These report names are used by the Gratia Accounting software to organize periodic usage accounting reports. You need to define at least one report name -- for example, one with the same name as the VO (short) name and no FQANs. Large VOs with several sub-groups can define different report names, and also one or more FQAN per report name. Contact gratia-operation@opensciencegrid.org if you have any questions about VO report names.</p>");
-		ContactModel cmodel = new ContactModel (context);
-		VOReportNameModel vorepname_model = new VOReportNameModel(context);
-		VOReportNameFqanModel vorepnamefqan_model = new VOReportNameFqanModel(context);
-
-		ArrayList<VOReportNameRecord> vorepname_records = vorepname_model.getAll();
-		vo_report_name_div = new VOReportNames(this, vorepname_records, cmodel);
-		if(id != null) {
-			for(VOReportNameRecord vorepname_rec : vorepname_model.getAllByVOID(id)) {
-				VOReportContactModel vorcmodel = new VOReportContactModel(context);
-				Collection<VOReportContactRecord> vorc_list = vorcmodel.getAllByVOReportNameID(vorepname_rec.id);
-				Collection<VOReportNameFqanRecord> vorepnamefqan_list = vorepnamefqan_model.getAllByVOReportNameID(vorepname_rec.id);
-				vo_report_name_div.addVOReportName(vorepname_rec, vorepnamefqan_list, vorc_list);
-			}
-		} else {
-			//add new one by default
-			vo_report_name_div.addVOReportName(
-					new VOReportNameRecord(), 
-					new ArrayList<VOReportNameFqanRecord>(), 
-					new ArrayList<VOReportContactRecord>()
-			);		
-		}
-		
 		new DivRepStaticContent(this, "<h2>Confirmation</h2>");
 		confirmation = new Confirmation(this, rec, auth);
 		
@@ -557,7 +655,8 @@ public class VOFormDE extends DivRepForm
 		VOModel model = new VOModel (context);
 		try {
 			VORecord parent_vo_rec = model.get(parent_vo_id);
-			
+
+			/*
 			if ((urls.primary_url.getValue() == null) || (urls.primary_url.getValue().length() == 0)) {
 				urls.primary_url.setValue(parent_vo_rec.primary_url);
 			}
@@ -573,7 +672,23 @@ public class VOFormDE extends DivRepForm
 			if ((urls.support_url.getValue() == null) || (urls.support_url.getValue().length() == 0)) {
 				urls.support_url.setValue(parent_vo_rec.support_url);
 			}
-			urls.redraw();
+			 */
+			if ((primary_url.getValue() == null) || (primary_url.getValue().length() == 0)) {
+				primary_url.setValue(parent_vo_rec.primary_url);
+			}
+			if ((aup_url.getValue() == null) || (aup_url.getValue().length() == 0)) {
+				aup_url.setValue(parent_vo_rec.aup_url);
+			}
+			if ((membership_services_url.getValue() == null) || (membership_services_url.getValue().length() == 0)) {
+				membership_services_url.setValue(parent_vo_rec.membership_services_url);
+			}
+			if ((purpose_url.getValue() == null) || (purpose_url.getValue().length() == 0)) {
+				purpose_url.setValue(parent_vo_rec.purpose_url);
+			}
+			if ((support_url.getValue() == null) || (support_url.getValue().length() == 0)) {
+				support_url.setValue(parent_vo_rec.support_url);
+			}
+			redraw();
 			
 			if (sc_id.getValue() == null) {
 				sc_id.setValue(parent_vo_rec.sc_id);
@@ -593,11 +708,11 @@ public class VOFormDE extends DivRepForm
 		rec.name = name.getValue();
 		rec.long_name = long_name.getValue();
 		rec.description = description.getValue();
-		rec.primary_url = urls.primary_url.getValue();
-		rec.aup_url = urls.aup_url.getValue();
-		rec.membership_services_url = urls.membership_services_url.getValue();
-		rec.purpose_url = urls.purpose_url.getValue();
-		rec.support_url = urls.support_url.getValue();
+		rec.primary_url = primary_url.getValue();
+		rec.aup_url = aup_url.getValue();
+		rec.membership_services_url = membership_services_url.getValue();
+		rec.purpose_url = purpose_url.getValue();
+		rec.support_url = support_url.getValue();
 		rec.app_description = app_description.getValue();
 		rec.community = community.getValue();
 		rec.sc_id = sc_id.getValue();
@@ -605,6 +720,7 @@ public class VOFormDE extends DivRepForm
 		rec.confirmed = confirmation.getTimestamp();
 		rec.active = active.getValue();
 		rec.disable = disable.getValue();
+		rec.science_vo = science_vo.getValue();
 
 		context.setComment(comment.getValue());
 		

@@ -272,7 +272,7 @@ public class ContactFormDE extends DivRepForm
 
 		personal_info.setHidden(!person.getValue());
 		personal_info.redraw();
-}
+	}
 	
 	public ContactFormDE(Context _context, ContactRecord rec, String origin_url,
 			boolean profileEdit) //, boolean newRegistration)

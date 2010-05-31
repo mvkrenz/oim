@@ -122,6 +122,15 @@ public class SCServlet extends ServletBase implements Servlet {
 					table.addRow("Description", rec.description);
 					table.addRow("Community", rec.community);
 		
+					// Display order for contact types  
+					final Integer contact_types[] = {
+						1, //submitter
+						4, //Operations (Ticketing) contact       
+						7, //Notifications contact
+						2, //security contact
+						5, //misc contact
+					};
+					
 					ContactTypeModel ctmodel = new ContactTypeModel(context);
 					ContactRankModel crmodel = new ContactRankModel(context);
 					ContactModel pmodel = new ContactModel(context);
@@ -130,30 +139,32 @@ public class SCServlet extends ServletBase implements Servlet {
 					SCContactModel sccmodel = new SCContactModel(context);
 					ArrayList<SCContactRecord> scclist = sccmodel.getBySCID(rec.id);
 					HashMap<Integer, ArrayList<SCContactRecord>> scclist_grouped = sccmodel.groupByContactTypeID(scclist);
-					for(Integer type_id : scclist_grouped.keySet()) {
-						ContactTypeRecord ctrec = ctmodel.get(type_id);
-		
-						ArrayList<SCContactRecord> clist = scclist_grouped.get(type_id);
-						Collections.sort(clist, new Comparator<SCContactRecord> (){
-							public int compare(SCContactRecord a, SCContactRecord b) {
-								if (a.getRank() > b.getRank()) // We are comparing based on rank id 
-									return 1; 
-								return 0;
+					for(Integer type_id : contact_types) { // scclist_grouped.keySet()) {
+						if(scclist_grouped.containsKey(type_id)) {
+							ContactTypeRecord ctrec = ctmodel.get(type_id);
+	
+							ArrayList<SCContactRecord> clist = scclist_grouped.get(type_id);
+							Collections.sort(clist, new Comparator<SCContactRecord> (){
+								public int compare(SCContactRecord a, SCContactRecord b) {
+									if (a.getRank() > b.getRank()) // We are comparing based on rank id 
+										return 1; 
+									return 0;
+								}
+							});
+							
+							String cliststr = "";
+							
+							for(SCContactRecord sccrec : clist) {
+								ContactRecord person = pmodel.get(sccrec.contact_id);
+								ContactRankRecord rank = crmodel.get(sccrec.contact_rank_id);
+			
+								cliststr += "<div class='contact_rank contact_"+rank.name+"'>";
+								cliststr += person.name;
+								cliststr += "</div>";
 							}
-						});
-						
-						String cliststr = "";
-						
-						for(SCContactRecord sccrec : clist) {
-							ContactRecord person = pmodel.get(sccrec.contact_id);
-							ContactRankRecord rank = crmodel.get(sccrec.contact_rank_id);
-		
-							cliststr += "<div class='contact_rank contact_"+rank.name+"'>";
-							cliststr += person.name;
-							cliststr += "</div>";
+							
+							table.addRow(ctrec.name, new HtmlView(cliststr));
 						}
-						
-						table.addRow(ctrec.name, new HtmlView(cliststr));
 					}			
 					if(auth.allows("admin")) {
 						table.addRow("Footprints ID", rec.footprints_id);

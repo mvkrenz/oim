@@ -203,33 +203,46 @@ public class ResourceServlet extends ServletBase implements Servlet {
 					table.addRow("VO Owners of This Resource", getVOOwners(rec.id));
 					
 					//contacts (only shows contacts that are filled out)
+
+					// Display order for contact types  
+					final Integer contact_types[] = {
+						1, //submitter
+						3, //Admin contact       
+						2, //security contact
+						9, //Resource_report contact
+						5, //misc contact
+					};
 					ContactTypeModel ctmodel = new ContactTypeModel(context);
 					ContactRankModel crmodel = new ContactRankModel(context);
 					ContactModel pmodel = new ContactModel(context);
 					ResourceContactModel rcmodel = new ResourceContactModel(context);
 					ArrayList<ResourceContactRecord> rclist = rcmodel.getByResourceID(rec.id);
-					HashMap<Integer, ArrayList<ResourceContactRecord>> voclist_grouped = rcmodel.groupByContactTypeID(rclist);
-					for(Integer type_id : voclist_grouped.keySet()) {
+					HashMap<Integer, ArrayList<ResourceContactRecord>> resourceclist_grouped = rcmodel.groupByContactTypeID(rclist);
+
+					for(Integer type_id : contact_types) {// resourceclist_grouped.keySet()) {
 						ContactTypeRecord ctrec = ctmodel.get(type_id);
 						
-						ArrayList<ResourceContactRecord> clist = voclist_grouped.get(type_id);
-						Collections.sort(clist, new Comparator<ResourceContactRecord> (){
-							public int compare(ResourceContactRecord a, ResourceContactRecord b) {
-								if (a.getRank() > b.getRank()) // We are comparing based on rank id 
-									return 1; 
-								return 0;
+						if(resourceclist_grouped.containsKey(type_id)) {
+	
+							ArrayList<ResourceContactRecord> clist = resourceclist_grouped.get(type_id);
+							Collections.sort(clist, new Comparator<ResourceContactRecord> (){
+								public int compare(ResourceContactRecord a, ResourceContactRecord b) {
+									if (a.getRank() > b.getRank()) // We are comparing based on rank id 
+										return 1; 
+									return 0;
+								}
+							});
+							String cliststr = "";
+							
+							for(ResourceContactRecord vcrec : clist) {
+								ContactRecord person = pmodel.get(vcrec.contact_id);
+								ContactRankRecord rank = crmodel.get(vcrec.contact_rank_id);
+	
+								cliststr += "<div class='contact_rank contact_"+rank.name+"'>"+person.name+"</div>";
 							}
-						});
-						String cliststr = "";
-						
-						for(ResourceContactRecord vcrec : clist) {
-							ContactRecord person = pmodel.get(vcrec.contact_id);
-							ContactRankRecord rank = crmodel.get(vcrec.contact_rank_id);
-
-							cliststr += "<div class='contact_rank contact_"+rank.name+"'>"+person.name+"</div>";
+							
+							table.addRow(ctrec.name, new HtmlView(cliststr));
 						}
-						
-						table.addRow(ctrec.name, new HtmlView(cliststr));
 					}		
 					
 					//WLCG

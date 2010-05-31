@@ -84,6 +84,7 @@ public class VOServlet extends ServletBase implements Servlet {
 	protected ContentView createContentView() 
 		throws ServletException, SQLException
 	{
+
 		VOModel model = new VOModel(context);
 		ArrayList<VORecord> vos = (ArrayList<VORecord>) model.getAll();
 		Collections.sort(vos, new Comparator<VORecord> (){
@@ -134,6 +135,15 @@ public class VOServlet extends ServletBase implements Servlet {
 				RecordTableView table = new RecordTableView();
 				try {	
 	
+					table.addRow("Long Name", rec.long_name);
+					if (rec.science_vo) {
+						table.addRow("VO Type", "OSG User and Resource Provider (Provides services to the OSG and does OSG-dependent scientific research)");
+					}
+					else {
+						table.addRow("VO Type", "Resource Provider Only (Provides services to the OSG but does not do OSG-dependent scientific research)");
+					}
+					table.addRow("Description", rec.description);
+					table.addRow("Community", rec.community);
 					//pull parent vo
 					VOModel model = new VOModel(context);
 					VORecord parent_vo_rec = model.getParentVO(rec.id);
@@ -147,18 +157,15 @@ public class VOServlet extends ServletBase implements Servlet {
 					ToolTip parent_vo_tip = new ToolTip("Sometimes a project grows large enough to include several offshoot projects in it. When this happens, such a VO would want to be its own registration but would want to cite the parent project on its registration. This item helps a VO manager make such a mapping.");
 					table.addRow("Parent VO " + parent_vo_tip.render() + " ", parent_vo_name);
 					table.addRow("Support Center", getSCName(rec.sc_id));
-					table.addRow("Long Name", rec.long_name);
-					table.addRow("Description", rec.description);
-					table.addRow("App Description", rec.app_description);
-					table.addRow("Community", rec.community);
-					ToolTip field_of_science_tip = new ToolTip("VOs are often associated with one or more scientific fields. ");
-					table.addRow("Field of Science " +field_of_science_tip.render()+ " ", getFieldOfScience(rec.id));
-					table.addRow("Primary URL", new HtmlView("<a target=\"_blank\" href=\""+rec.primary_url+"\">"+rec.primary_url+"</a>"));
-					table.addRow("AUP URL", new HtmlView("<a target=\"_blank\" href=\""+rec.aup_url+"\">"+rec.aup_url+"</a>"));
-					table.addRow("Membership Services URL", new HtmlView("<a target=\"_blank\" href=\""+rec.membership_services_url+"\">"+rec.membership_services_url+"</a>"));
-					table.addRow("Purpose URL", new HtmlView("<a target=\"_blank\" href=\""+rec.purpose_url+"\">"+rec.purpose_url+"</a>"));
-					table.addRow("Support URL", new HtmlView("<a target=\"_blank\" href=\""+rec.support_url+"\">"+rec.support_url+"</a>"));
-				
+
+					// Display order for contact types  
+					final Integer contact_types[] = {
+						1, //submitter
+						6, //vo manager
+						3, //admin contact       -- Formerly operations contact for VOs
+						2, //security contact
+						5, //misc contact
+					};
 					ContactTypeModel ctmodel = new ContactTypeModel(context);
 					ContactRankModel crmodel = new ContactRankModel(context);
 					ContactModel pmodel = new ContactModel(context);
@@ -167,40 +174,52 @@ public class VOServlet extends ServletBase implements Servlet {
 					VOContactModel vocmodel = new VOContactModel(context);
 					ArrayList<VOContactRecord> voclist = vocmodel.getByVOID(rec.id);
 					HashMap<Integer, ArrayList<VOContactRecord>> voclist_grouped = vocmodel.groupByContactTypeID(voclist);
-					for(Integer type_id : voclist_grouped.keySet()) {
-						ContactTypeRecord ctrec = ctmodel.get(type_id);
-		
-						ArrayList<VOContactRecord> clist = voclist_grouped.get(type_id);
-						Collections.sort(clist, new Comparator<VOContactRecord> (){
-							public int compare(VOContactRecord a, VOContactRecord b) {
-								if (a.getRank() > b.getRank()) // We are comparing based on rank id 
-									return 1; 
-								return 0;
+
+					for(Integer type_id : contact_types) {
+						if(voclist_grouped.containsKey(type_id)) {
+							ContactTypeRecord ctrec = ctmodel.get(type_id);
+
+							ArrayList<VOContactRecord> clist = voclist_grouped.get(type_id);
+							Collections.sort(clist, new Comparator<VOContactRecord> (){
+								public int compare(VOContactRecord a, VOContactRecord b) {
+									if (a.getRank() > b.getRank()) // We are comparing based on rank id 
+										return 1; 
+									return 0;
+								}
+							});
+							String cliststr = "";
+	
+							for(VOContactRecord vcrec : clist) {
+								ContactRecord person = pmodel.get(vcrec.contact_id);
+								ContactRankRecord rank = crmodel.get(vcrec.contact_rank_id);
+			
+								cliststr += "<div class='contact_rank contact_"+rank.name+"'>";
+								cliststr += person.name;
+								cliststr += "</div>";
 							}
-						});
-						String cliststr = "";
-						
-						for(VOContactRecord vcrec : clist) {
-							ContactRecord person = pmodel.get(vcrec.contact_id);
-							ContactRankRecord rank = crmodel.get(vcrec.contact_rank_id);
-		
-							cliststr += "<div class='contact_rank contact_"+rank.name+"'>";
-							cliststr += person.name;
-							cliststr += "</div>";
+							table.addRow(ctrec.name, new HtmlView(cliststr));
 						}
-						table.addRow(ctrec.name, new HtmlView(cliststr));
-						
 					}			
-		
-					//VO Report Names
-					VOReportNameModel vorepname_model = new VOReportNameModel(context);
-					ArrayList<VOReportNameRecord> vorepname_records = vorepname_model.getAllByVOID(rec.id);
-					GenericView vorepname_view = new GenericView();
-					for(VOReportNameRecord vorepname_record : vorepname_records) {
-						vorepname_view.add(createVOReportNameView(vorepname_record));
+					if (rec.science_vo) {
+						table.addRow("App Description", rec.app_description);
+						ToolTip field_of_science_tip = new ToolTip("VOs are often associated with one or more scientific fields. ");
+						table.addRow("Field of Science " +field_of_science_tip.render()+ " ", getFieldOfScience(rec.id));
+						table.addRow("Primary URL", new HtmlView("<a target=\"_blank\" href=\""+rec.primary_url+"\">"+rec.primary_url+"</a>"));
+						table.addRow("AUP URL", new HtmlView("<a target=\"_blank\" href=\""+rec.aup_url+"\">"+rec.aup_url+"</a>"));
+						table.addRow("Membership Services URL", new HtmlView("<a target=\"_blank\" href=\""+rec.membership_services_url+"\">"+rec.membership_services_url+"</a>"));
+						table.addRow("Purpose URL", new HtmlView("<a target=\"_blank\" href=\""+rec.purpose_url+"\">"+rec.purpose_url+"</a>"));
+						table.addRow("Support URL", new HtmlView("<a target=\"_blank\" href=\""+rec.support_url+"\">"+rec.support_url+"</a>"));
+	
+						//VO Report Names
+						VOReportNameModel vorepname_model = new VOReportNameModel(context);
+						ArrayList<VOReportNameRecord> vorepname_records = vorepname_model.getAllByVOID(rec.id);
+						GenericView vorepname_view = new GenericView();
+						for(VOReportNameRecord vorepname_record : vorepname_records) {
+							vorepname_view.add(createVOReportNameView(vorepname_record));
+						}
+						table.addRow("Reports", vorepname_view);
 					}
-					table.addRow("Reports", vorepname_view);
-		
+					
 					if(auth.allows("admin_vo")) {
 						table.addRow("Footprints ID", rec.footprints_id);
 					}
