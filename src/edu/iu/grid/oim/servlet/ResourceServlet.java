@@ -64,6 +64,7 @@ import edu.iu.grid.oim.view.Page;
 import edu.iu.grid.oim.view.RecordTableView;
 import edu.iu.grid.oim.view.SideContentView;
 import edu.iu.grid.oim.view.ToolTip;
+import edu.iu.grid.oim.view.URLView;
 import edu.iu.grid.oim.view.TableView.Row;
 import edu.iu.grid.oim.view.divrep.ViewWrapper;
 
@@ -183,11 +184,7 @@ public class ResourceServlet extends ServletBase implements Servlet {
 					table.addRow("Resource Group", hierarchy);
 					
 					table.addRow("Resource Description", rec.description);
-					if(rec.url != null && rec.url.length() != 0) {
-						table.addRow("Information URL", new HtmlView("<a target=\"_blank\" href=\""+rec.url+"\">"+rec.url+"</a>"));	
-					} else {
-						table.addRow("Information URL", (String)null);
-					}
+					table.addRow("Information URL", new URLView(rec.url));	
 					table.addRow("Resource FQDN Alias", new HtmlView(getAlias(rec.id)));
 					
 					//Resource Services

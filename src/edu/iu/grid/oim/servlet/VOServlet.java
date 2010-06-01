@@ -36,7 +36,6 @@ import edu.iu.grid.oim.model.db.record.ContactRankRecord;
 import edu.iu.grid.oim.model.db.record.ContactTypeRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.FieldOfScienceRecord;
-import edu.iu.grid.oim.model.db.record.ResourceRecord;
 import edu.iu.grid.oim.model.db.record.VOReportNameRecord;
 import edu.iu.grid.oim.model.db.record.VOReportNameFqanRecord;
 import edu.iu.grid.oim.model.db.record.SCRecord;
@@ -54,6 +53,7 @@ import edu.iu.grid.oim.view.Page;
 import edu.iu.grid.oim.view.RecordTableView;
 import edu.iu.grid.oim.view.SideContentView;
 import edu.iu.grid.oim.view.ToolTip;
+import edu.iu.grid.oim.view.URLView;
 import edu.iu.grid.oim.view.TableView.Row;
 import edu.iu.grid.oim.view.divrep.ViewWrapper;
 
@@ -204,11 +204,11 @@ public class VOServlet extends ServletBase implements Servlet {
 						table.addRow("App Description", rec.app_description);
 						ToolTip field_of_science_tip = new ToolTip("VOs are often associated with one or more scientific fields. ");
 						table.addRow("Field of Science " +field_of_science_tip.render()+ " ", getFieldOfScience(rec.id));
-						table.addRow("Primary URL", new HtmlView("<a target=\"_blank\" href=\""+rec.primary_url+"\">"+rec.primary_url+"</a>"));
-						table.addRow("AUP URL", new HtmlView("<a target=\"_blank\" href=\""+rec.aup_url+"\">"+rec.aup_url+"</a>"));
-						table.addRow("Membership Services URL", new HtmlView("<a target=\"_blank\" href=\""+rec.membership_services_url+"\">"+rec.membership_services_url+"</a>"));
-						table.addRow("Purpose URL", new HtmlView("<a target=\"_blank\" href=\""+rec.purpose_url+"\">"+rec.purpose_url+"</a>"));
-						table.addRow("Support URL", new HtmlView("<a target=\"_blank\" href=\""+rec.support_url+"\">"+rec.support_url+"</a>"));
+						table.addRow("Primary URL", new URLView(rec.primary_url));
+						table.addRow("AUP URL", new URLView(rec.aup_url));
+						table.addRow("Membership Services URL", new URLView(rec.membership_services_url));
+						table.addRow("Purpose URL", new URLView(rec.purpose_url));
+						table.addRow("Support URL", new URLView(rec.support_url));
 	
 						//VO Report Names
 						VOReportNameModel vorepname_model = new VOReportNameModel(context);
