@@ -301,6 +301,7 @@ public class VOFormDE extends DivRepForm
 			
 			out.write("<p>Select Field Of Science(s) applicable to this VO</p>");
 			
+			out.write("<table width=\"100%\"><tr><td width=\"33%\">");
 			//sort the field_of_science by name and render
 			TreeSet<DivRepCheckBox> sorted = new TreeSet<DivRepCheckBox>(new Comparator<DivRepCheckBox>() {
 				public int compare(DivRepCheckBox o1,
@@ -308,12 +309,18 @@ public class VOFormDE extends DivRepForm
 					return o1.getLabel().compareTo(o2.getLabel());
 				}
 			});
+			int items_per_column = field_of_science.size() / 3 + 1; //+1 is for rounding
 			sorted.addAll(field_of_science.values());
+			int count = 0;
 			for(DivRepCheckBox elem : sorted) {
 				elem.render(out);
+				++count;
+				if(count != 0 && count % items_per_column == 0) {
+					out.write("</td><td width=\"33%\">");
+				}
 			}
+			out.write("</td></tr></table>");
 		
-			
 			out.write("<table><tr><td>");
 			new_fs.render(out);
 			out.write("</td><td valign=\"bottom\">&nbsp;");
