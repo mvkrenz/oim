@@ -185,7 +185,7 @@ public class VOFormDE extends DivRepForm
 		}
 		
 		public void render(PrintWriter out) {
-			out.print("<div class=\"indent\" id=\""+getNodeID()+"\">");	
+			out.print("<div id=\""+getNodeID()+"\">");	
 			if(!hidden) {
 				for(DivRep child : childnodes) {
 					if(child instanceof DivRepFormElement) {
