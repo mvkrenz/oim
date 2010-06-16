@@ -66,6 +66,8 @@ import edu.iu.grid.oim.model.db.record.SCRecord;
 import edu.iu.grid.oim.model.db.record.VOContactRecord;
 import edu.iu.grid.oim.model.db.record.VOFieldOfScienceRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
+import edu.iu.grid.oim.view.RecordTableView;
+import edu.iu.grid.oim.view.ToolTip;
 import edu.iu.grid.oim.view.divrep.Confirmation;
 import edu.iu.grid.oim.view.divrep.ContactEditor;
 import edu.iu.grid.oim.view.divrep.VOReportNames;
@@ -138,7 +140,6 @@ public class VOFormDE extends DivRepForm
 			app_description = new DivRepTextArea(this);
 			app_description.setLabel("Enter an Application Description");
 			app_description.setValue(rec.app_description);
-			app_description.setRequired(true);
 			app_description.setSampleValue("CDF Analysis jobs will be run");
 
 			urls = new URLs(this, rec);
@@ -401,12 +402,13 @@ public class VOFormDE extends DivRepForm
 	public void showHideScienceVODetail()
 	{
 		Boolean required = science_vo.getValue();
+
+		app_description.setRequired(required);
 		primary_url.setRequired(required);
 		aup_url.setRequired(required);
 		membership_services_url.setRequired(required);
 		purpose_url.setRequired(required);
 		support_url.setRequired(required);
-		primary_url.setRequired(required);
 
 		science_vo_info.setHidden(!required);
 		science_vo_info.redraw();
@@ -422,7 +424,7 @@ public class VOFormDE extends DivRepForm
 		new DivRepStaticContent(this, "<h2>Basic VO Information</h2>");
 		
 		//new DivRepStaticContent(this, "<h2>Sub-VO Mapping</h2>");
-		new DivRepStaticContent(this, "<p>Check below if this VO is a sub-VO of an existing VO. For example, FermilabMinos is a sub VO of the Fermilab VO.</p>");
+		new DivRepStaticContent(this, "<p>Check  if this VO is a sub-VO of an existing VO. For example, FermilabMinos is a sub VO of the Fermilab VO.</p>");
 		child_vo = new DivRepCheckBox(this);
 		child_vo.setLabel("This is a sub-VO");
 		//indent the parent VO stuff
@@ -501,22 +503,23 @@ public class VOFormDE extends DivRepForm
 		community.setSampleValue("The Collider Detector at Fermilab (CDF) experimental collaboration is committed to studying high energy particle collisions");
 
 		new DivRepStaticContent(this, "<h2>Additional Information for VOs that include OSG Users</h2>");
-		
+		new DivRepStaticContent(this, "<p>Uncheck the checkbox below if your VO does <strong>not</strong> intend to use any OSG resources, and just wants to provide services to the OSG.</p>");
 		science_vo = new DivRepCheckBox(this);
-		science_vo.setLabel("This is a VO that includes user who do OSG-dependent scientific research apart from providing services to the OSG.");
+		science_vo.setLabel("This VO has or will have users who do OSG-dependent scientific research.");
 		science_vo.setValue(rec.science_vo);
-
+				
 		science_vo_info = new ScienceVOInfo(this, rec);
-
 		science_vo.addEventListener(new DivRepEventListener() {
-				public void handleEvent(DivRepEvent e) {
-					showHideScienceVODetail();
-				}}
-			);
+			public void handleEvent(DivRepEvent e) {
+				showHideScienceVODetail();
+			}
+		});
 		
-		if(rec.science_vo == null || rec.science_vo == false) {
-			showHideScienceVODetail();
+		// New VO addition attempt - we want the checkbox checked by default for new VO additions
+		if(rec.id == null) { 
+			science_vo.setValue(true);
 		}
+		showHideScienceVODetail();
 
 		new DivRepStaticContent(this, "<h2>Contact Information</h2>");
 		HashMap<Integer/*contact_type_id*/, ArrayList<VOContactRecord>> voclist_grouped = null;

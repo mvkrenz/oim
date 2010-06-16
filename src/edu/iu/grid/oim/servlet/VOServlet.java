@@ -137,10 +137,10 @@ public class VOServlet extends ServletBase implements Servlet {
 	
 					table.addRow("Long Name", rec.long_name);
 					if (rec.science_vo) {
-						table.addRow("VO Type", "OSG User and Resource Provider (Provides services to the OSG and does OSG-dependent scientific research)");
+						table.addRow("VO Type", "OSG User and Resource Provider (Provides services to the OSG and has/will have users who do OSG-dependent scientific research)");
 					}
 					else {
-						table.addRow("VO Type", "Resource Provider Only (Provides services to the OSG but does not do OSG-dependent scientific research)");
+						table.addRow("VO Type", "Resource Provider Only (Provides services to the OSG but does not have users who do OSG-dependent scientific research)");
 					}
 					table.addRow("Description", rec.description);
 					table.addRow("Community", rec.community);
@@ -220,7 +220,7 @@ public class VOServlet extends ServletBase implements Servlet {
 						table.addRow("Reports", vorepname_view);
 					}
 					
-					if(auth.allows("admin_vo")) {
+					if(auth.allows("admin")) {
 						table.addRow("Footprints ID", rec.footprints_id);
 					}
 					table.addRow("Active", rec.active);
