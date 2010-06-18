@@ -15,11 +15,11 @@ function divrep(id, event, value, action) {
 		if(event.stopPropagation) event.stopPropagation();//Standard
 	}
 	
-	if(!action)  {
-		if(event) {
-			var action = event.type;
-		} else {
-			var action = "unknown";
+	if(!action) {
+		try {
+			action = event.type;
+		} catch(e) {
+			action = "unknown";
 		}
 	}
 	//make sure there is only one request at the same time (prevent double clicking of submit button)
@@ -35,7 +35,7 @@ function divrep(id, event, value, action) {
 	if(divrep_processing_id != null) {
 		//wait until the previous processing ends
 		//console.log('queusing event on ' + id);
-		setTimeout(function() { divrep(id, event, value, action);}, 100);
+		setTimeout(function() { divrep(id, event, value,action);}, 100);
 		return;
 	}
 	
