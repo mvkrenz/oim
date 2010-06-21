@@ -70,7 +70,8 @@ public class ResourceDowntimeServlet extends ServletBase implements Servlet {
 		//public DivRepStaticContent summary;
 		ResourceDowntimeRecord rec;
 		public RemoveDowntimeDialog(DivRep parent, Boolean _has_cancelbutton) {
-			super(parent, _has_cancelbutton);
+			super(parent);
+			setHasCancelButton(_has_cancelbutton);
 			setTitle("Remove Downtime");
 			new DivRepStaticContent(this, "Do you really want to remove this downtime?");
 		
