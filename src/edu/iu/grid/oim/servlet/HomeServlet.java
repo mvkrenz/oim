@@ -49,7 +49,7 @@ public class HomeServlet extends ServletBase  {
 		contentview.add(new HtmlView("<h1>OIM</h1>"));
 
 		// TODO agopu: need to clean this up with some divs etc. Nicer font, etc.
-		String welcome_string = "<p>The topology used by various OSG systems and services based on the <a target=\"_blank\" href=\"http://osg-docdb.opensciencegrid.org/cgi-bin/ShowDocument?docid=18.\">OSG Blueprint Document</a></p>";
+		String welcome_string = "<p>The topology used by various OSG systems and services based on the <a target=\"_blank\" href=\"http://osg-docdb.opensciencegrid.org/cgi-bin/ShowDocument?docid=18\">OSG Blueprint Document</a></p>";
 		if(auth.isGuest()) {
 			welcome_string += auth.getNoDNWarning(); 		
 		}

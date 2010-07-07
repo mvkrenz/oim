@@ -132,6 +132,8 @@ public class Authorization {
 		if(user_cn_tmp != null && !user_cn_tmp.equals("none")) {
 			user_cn = user_cn_tmp;
 		}
+		String client_verify = (String)request.getAttribute("SSL_CLIENT_VERIFY");
+		log.info("SSL_CLIENT_VERIFY: " + client_verify);
 		
 		String localname = request.getLocalName();
 		if(localname.equals("localhost") ||
