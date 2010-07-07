@@ -69,7 +69,7 @@
 </head>
 <body>
     <div id="header">
-        <img id="logo" src="__STATICBASE__/images/osglogo.png" alt="OIM"/>
+        <a href="http://www.opensciencegrid.org"><img id="logo" src="__STATICBASE__/images/osglogo.png" alt="OSG"/></a>
         <h1><a href="">__APPNAME__</a></h1>
         <h2>by Grid Operations Center</h2>
     </div>

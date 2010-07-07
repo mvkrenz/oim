@@ -4,16 +4,12 @@ import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
 
-import javax.servlet.http.HttpServletRequest;
 import java.net.URLEncoder;
 
-import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 
-import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.model.Context;
-import edu.iu.grid.oim.servlet.ActionServlet;
 
 public class Page implements IView {
 	static Logger log = Logger.getLogger(Page.class);  
