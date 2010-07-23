@@ -55,10 +55,10 @@ public class SendMail {
 	}
 	
 	static public void sendErrorEmail(String content) throws MessagingException {
-		String from = "goc@opensciencegrid.org";
+		String from = "no-reply@oim.grid.iu.edu";
 		ArrayList<String> tos = new ArrayList<String>();
-		tos.add("hayashis@indiana.edu");
-		tos.add("8126067104@txt.att.net");
+		//tos.add("hayashis@indiana.edu");
+		//tos.add("8126067104@txt.att.net");
 		tos.add("goc-alert@googlegroups.com");
 		String subject = "[oim][critical] error";
 		String message = "OIM has detected an error\r\n" + content;
