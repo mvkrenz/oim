@@ -25,6 +25,7 @@ import com.divrep.common.DivRepFormElement;
 import com.divrep.common.DivRepSelectBox;
 import com.divrep.common.DivRepStaticContent;
 import com.divrep.common.DivRepTextArea;
+import com.divrep.validator.DivRepLengthValidator;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.model.Context;
@@ -79,6 +80,7 @@ public class ResourceDowntimeEditor extends DivRepFormElement {
 		if(rec.downtime_summary != null) {
 			summary.setValue(rec.downtime_summary);
 		}
+		summary.addValidator(new DivRepLengthValidator(0, 1024));
 		summary.setWidth(600);
 		summary.setHeight(200);
 		
