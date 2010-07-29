@@ -31,6 +31,7 @@ public class Authorization {
 	
 	private String user_dn = null;
 	private String user_cn = null;
+	private String client_verify = null;
 	private Integer dn_id = null;
     private Integer contact_id = null;
     private Boolean isDisabled = false;
@@ -132,8 +133,10 @@ public class Authorization {
 		if(user_cn_tmp != null && !user_cn_tmp.equals("none")) {
 			user_cn = user_cn_tmp;
 		}
-		String client_verify = (String)request.getAttribute("SSL_CLIENT_VERIFY");
-		log.info("SSL_CLIENT_VERIFY: " + client_verify);
+		String client_verify_tmp = (String)request.getAttribute("SSL_CLIENT_VERIFY");
+		if(client_verify_tmp != null && !client_verify_tmp.equals("none")) {
+			client_verify = client_verify_tmp;
+		}
 		
 		String localname = request.getLocalName();
 		if(localname.equals("localhost") ||
@@ -149,6 +152,7 @@ public class Authorization {
 			try {
 				//override user_cn
 		        user_cn = StaticConfig.getDOECN();
+		        client_verify = "SUCCESS";
 		        
 		        //override with fake dn
 				addr = InetAddress.getLocalHost();
@@ -190,11 +194,18 @@ public class Authorization {
 		if(user_cn == null) {
 			log.info("SSL_CLIENT_I_DN_CN is not set. Logging in as guest.");
 		} else {
-			try {
-				DNModel dnmodel = new DNModel(guest_context);
-				initAction(dnmodel.getByDNString(user_dn));
-			} catch (SQLException e) {
-				throw new AuthorizationException("Authorization check failed due to " + e.getMessage());
+			if(client_verify == null || !(client_verify.equals("SUCCESS"))) {
+				log.info("SSL_DN / CN is set, but CLIENT_VERIFY has failed :: "+client_verify+". Logging in as guest");
+				user_dn = null;
+				user_cn = null;
+			} else {
+				//login as OIM user
+				try {
+					DNModel dnmodel = new DNModel(guest_context);
+					initAction(dnmodel.getByDNString(user_dn));
+				} catch (SQLException e) {
+					throw new AuthorizationException("Authorization check failed due to " + e.getMessage());
+				}
 			}
 		}
 	}
@@ -207,7 +218,7 @@ public class Authorization {
 			contact_id = certdn.contact_id;
 			dn_id = certdn.id;
 			user_dn = certdn.dn_string;
-
+		
 			ContactModel cmodel = new ContactModel(guest_context);
 			ContactRecord contact = cmodel.get(contact_id);
 			if (contact.isDisabled()) {
