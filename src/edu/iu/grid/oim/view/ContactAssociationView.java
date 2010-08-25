@@ -64,7 +64,8 @@ public class ContactAssociationView extends GenericView {
 			HashMap<Integer, String> resourceassoc = new HashMap<Integer, String>();
 			for(ResourceContactRecord rcrec : rcrecs) {
 				ResourceRecord rrec = rmodel.get(rcrec.resource_id);
-				if(rrec.active && !rrec.disable) {
+				//if(rrec.active && !rrec.disable) {
+				if(rmodel.canEdit(rrec.id)) {
 					resourceassoc.put(rrec.id, rrec.name);
 				}
 			}
@@ -102,7 +103,8 @@ public class ContactAssociationView extends GenericView {
 			HashMap<Integer, String> voassoc = new HashMap<Integer, String>();
 			for(VOContactRecord vocrec : vocrecs) {
 				VORecord vorec = vomodel.get(vocrec.vo_id);
-				if(vorec.active && !vorec.disable) {
+				//if(vorec.active && !vorec.disable) {
+				if(vomodel.canEdit(vorec.id)) {
 					voassoc.put(vorec.id, vorec.name);
 				}	
 			}	
@@ -138,7 +140,8 @@ public class ContactAssociationView extends GenericView {
 			HashMap<Integer, String> scassoc = new HashMap<Integer, String>();
 			for(SCContactRecord sccrec : sccrecs) {
 				SCRecord screc = scmodel.get(sccrec.sc_id);
-				if(screc.active && !screc.disable) {
+				//if(screc.active && !screc.disable) {
+				if(scmodel.canEdit(screc.id)) {
 					scassoc.put(screc.id, screc.name);
 				}
 			}
