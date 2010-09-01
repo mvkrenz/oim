@@ -44,7 +44,7 @@ vertical-align: top;
 
 .menu
 {
-background-image: url(../images/topnav_bg.gif);
+background: #000 url(../images/topnav_bg.gif);
 padding: 3px 15px;
 height: 27px;
 }
@@ -52,7 +52,7 @@ height: 27px;
 .menu div {
 display: inline-block;
 padding: 5px;
-margin: 0px 0px 0px 0px;
+margin: 0px;
 font-size: 12px;
 font-weight: bold;
 color: #888;
