@@ -44,31 +44,20 @@ vertical-align: top;
 
 .menu
 {
-background-color: black;
-padding: 4px 12px;
+background-image: url(../images/topnav_bg.gif);
+padding: 3px 15px;
+height: 27px;
 }
 
 .menu div {
 display: inline-block;
-padding: 2px 8px;
-}
-
-.menu .link
-{
+padding: 5px;
+margin: 0px 0px 0px 0px;
 font-size: 12px;
 font-weight: bold;
 color: #888;
 text-decoration: none;
 cursor: pointer;
-line-height: 150%;
-}
-.menu .link:hover
-{
-text-decoration: underline;
-}
-.menu .selected
-{
-background-color: #333;
 -moz-border-radius-bottomleft:4px;
 -moz-border-radius-bottomright:4px;
 -moz-border-radius-topleft:4px;
@@ -77,6 +66,15 @@ background-color: #333;
 -webkit-border-top-right-radius: 4px;
 -webkit-border-bottom-left-radius: 4px;
 -webkit-border-bottom-right-radius: 4px;
+}
+.menu .link:hover
+{
+background-color: #555;
+color: white;
+}
+.menu .selected
+{
+background-color: #333;
 color: #fff;
 }
 

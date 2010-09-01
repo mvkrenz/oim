@@ -72,6 +72,17 @@
         <a href="http://www.opensciencegrid.org"><img id="logo" src="__STATICBASE__/images/osglogo.png" alt="OSG"/></a>
         <h1><a href="">__APPNAME__</a></h1>
         <h2>by Grid Operations Center</h2>
+        
+        <p id="links">
+            <a target="_blank" href="https://myosg.grid.iu.edu">MyOSG</a> |
+            <span class="active">OIM</span> |
+            <a target="_blank" href="https://ticket.grid.iu.edu/goc">Ticket</a> |
+            <a target="_blank" href="http://software.grid.iu.edu/">Software Cache</a> |
+            <a target="_blank" href="https://is.grid.iu.edu/documentation.html">BDII</a> |
+            <a target="_blank" href="https://twiki.grid.iu.edu/">TWiki</a> |
+            <a target="_blank" href="http://osggoc.blogspot.com/">News</a>
+        </p>
+        
     </div>
     
 	<div id="tooltip">tooltip area</div>
