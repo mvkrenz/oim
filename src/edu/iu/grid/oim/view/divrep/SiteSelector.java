@@ -46,6 +46,11 @@ public class SiteSelector extends DivRepSelectBox {
 		SiteModel smodel = new SiteModel(context);
 		try {
 			ArrayList<FacilityRecord> frecs = fmodel.getAll();
+			Collections.sort(frecs, new Comparator<FacilityRecord> (){
+				public int compare(FacilityRecord a, FacilityRecord b) {
+					return a.getName().compareToIgnoreCase(b.getName()); // We are comparing based on name
+				}
+			});
 			for(FacilityRecord frec : frecs) {
 				ArrayList<SiteRecord> srecs = smodel.getByFacilityID(frec.id);
 				LinkedHashMap<Integer, String> sites = new LinkedHashMap<Integer, String>();

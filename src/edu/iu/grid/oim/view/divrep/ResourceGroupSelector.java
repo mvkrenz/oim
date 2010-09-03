@@ -32,6 +32,7 @@ import edu.iu.grid.oim.model.db.record.FacilityRecord;
 import edu.iu.grid.oim.model.db.record.ResourceGroupRecord;
 import edu.iu.grid.oim.model.db.record.ResourceRecord;
 import edu.iu.grid.oim.model.db.record.SiteRecord;
+import edu.iu.grid.oim.model.db.record.VORecord;
 
 public class ResourceGroupSelector extends DivRepSelectBox {
 
@@ -46,6 +47,11 @@ public class ResourceGroupSelector extends DivRepSelectBox {
 		ResourceGroupModel rgmodel = new ResourceGroupModel(context);
 		try {
 			ArrayList<SiteRecord> srecs = smodel.getAll();
+			Collections.sort(srecs, new Comparator<SiteRecord> (){
+				public int compare(SiteRecord a, SiteRecord b) {
+					return a.getName().compareToIgnoreCase(b.getName()); // We are comparing based on name
+				}
+			});
 			for(SiteRecord srec : srecs) {
 				ArrayList<ResourceGroupRecord> rgrecs = rgmodel.getBySiteID(srec.id);
 				LinkedHashMap<Integer, String> rgs = new LinkedHashMap<Integer, String>();
