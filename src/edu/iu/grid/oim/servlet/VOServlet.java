@@ -106,7 +106,7 @@ public class VOServlet extends ServletBase implements Servlet {
 		ContentView contentview = new ContentView();
 		contentview.add(new HtmlView("<h1>Virtual Organizations I am authorized to edit</h1>"));
 		if(editable_vos.size() == 0) {
-			contentview.add(new HtmlView("<p>You currently are not listed as a contact of any contact type on any virtual organization - therefore you are not authorized to edit any VOs.</p>"));
+			contentview.add(new HtmlView("<p>You currently are not listed as a contact of any contact type (exept submitter) on any virtual organization - therefore you are not authorized to edit any VOs.</p>"));
 		}
 		for(VORecord rec : editable_vos) {
 			String name = rec.name;

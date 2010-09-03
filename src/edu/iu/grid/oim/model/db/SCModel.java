@@ -78,6 +78,7 @@ public class SCModel extends SmallTableModelBase<SCRecord> {
 		rs = stmt.executeQuery();
 		while(rs.next()) {
 			SCContactRecord rec = new SCContactRecord(rs);
+			if(rec.contact_type_id == 1) continue; //submitter contact can't edit.
 			list.add(rec.sc_id);
 		}
 		stmt.close();

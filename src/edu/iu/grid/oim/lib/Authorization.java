@@ -166,7 +166,8 @@ public class Authorization {
 					//user_dn = "/DC=org/DC=doegrids/OU=People/CN=Alain Roy 424511";
 					//user_dn = "/DC=org/DC=doegrids/OU=People/CN=Tiberiu Stef-Praun 764752";
 					//user_cn = null;
-					user_dn = "/DC=org/DC=doegrids/OU=People/CN=Marco Mambelli 325802";
+					//user_dn = "/DC=org/DC=doegrids/OU=People/CN=Marco Mambelli 325802";
+					user_dn = "/DC=org/DC=doegrids/OU=People/CN=Robert W. Gardner Jr. 669916";
 		        } 
 			} catch (UnknownHostException e) {
 				//ignore then..

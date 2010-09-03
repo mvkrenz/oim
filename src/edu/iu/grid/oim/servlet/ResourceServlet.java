@@ -117,7 +117,7 @@ public class ResourceServlet extends ServletBase implements Servlet {
 		ContentView contentview = new ContentView();
 		contentview.add(new HtmlView("<h1>Resources I am authorized to edit</h1>"));
 		if(editable_resources.size() == 0) {
-			contentview.add(new HtmlView("<p>You currently are not listed as a contact of any contact type on any resource - therefore you are not authorized to edit any resources.</p>"));
+			contentview.add(new HtmlView("<p>You currently are not listed as a contact of any contact type (except submitter) on any resource or the resources that a VO owns where you are the VO manager - therefore you are not authorized to edit any resources.</p>"));
 		}
 		for(ResourceRecord rec : editable_resources) {
 			String name = rec.name;

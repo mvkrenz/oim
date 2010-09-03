@@ -90,7 +90,7 @@ public class SCServlet extends ServletBase implements Servlet {
 		ContentView contentview = new ContentView();
 		contentview.add(new HtmlView("<h1>Support Centers I am authorized to edit</h1>"));
 		if(editable_scs.size() == 0) {
-			contentview.add(new HtmlView("<p>You currently are not listed as a contact of any contact type on any support center - therefore you are not authorized to edit any SCs.</p>"));
+			contentview.add(new HtmlView("<p>You currently are not listed as a contact of any contact type (except submitter) on any support center - therefore you are not authorized to edit any SCs.</p>"));
 		}
 		for(SCRecord rec : editable_scs) {
 			String name = rec.name;

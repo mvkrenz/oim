@@ -44,7 +44,7 @@ public class Confirmation extends DivRepFormElement
 		}
 		timestamp = rec.confirmed;
 		
-		update = new DivRepButton(this, "Update");
+		update = new DivRepButton(this, "Update Confirmation Date");
 		update.setStyle(Style.BUTTON);
 		update.addEventListener(new DivRepEventListener() {
 			public void handleEvent(DivRepEvent e) {
@@ -63,16 +63,15 @@ public class Confirmation extends DivRepFormElement
 
 	public void render(PrintWriter out) {
 		out.print("<div class=\"divrep_form_element\" id=\""+getNodeID()+"\">");	
-	
-		if(rec.isConfirmationExpired()) {
-			out.write("<p class=\"divrep_round divrep_elementerror\">");
-		} else {
-			out.write("<p>");
-		}
 		
-		out.write("The date when the information on this page was last reviewed and confirmed<br/>");
+		out.write("The date when the information on this page was last reviewed<br/>");
 		out.write("<input style=\"width: 200px\" type=\"text\" value=\""+dformat.format(timestamp)+"\" disabled > ");//<b>"+dformat.format(timestamp) + " " + "</b></p>");
 		update.render(out);
+		
+		if(rec.isConfirmationExpired()) {
+			out.write("<p class=\"divrep_round divrep_elementerror\">Date expired. Please review the information and update the confirmation date.</p>");
+		}
+		
 		out.print("</div>");
 	}	
 }
