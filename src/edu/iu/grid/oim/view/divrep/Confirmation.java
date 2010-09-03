@@ -44,7 +44,7 @@ public class Confirmation extends DivRepFormElement
 		}
 		timestamp = rec.confirmed;
 		
-		update = new DivRepButton(this, "Update Confirmation Date");
+		update = new DivRepButton(this, "Update");
 		update.setStyle(Style.BUTTON);
 		update.addEventListener(new DivRepEventListener() {
 			public void handleEvent(DivRepEvent e) {
@@ -70,8 +70,8 @@ public class Confirmation extends DivRepFormElement
 			out.write("<p>");
 		}
 		
-		out.write("The information on this page was last confirmed at <b>"+dformat.format(timestamp) + " " + "</b></p>");
-		out.write("<p>Please click following button and submit the form to update the confirmation date.</p>");
+		out.write("The date when the information on this page was last reviewed and confirmed<br/>");
+		out.write("<input style=\"width: 200px\" type=\"text\" value=\""+dformat.format(timestamp)+"\" disabled > ");//<b>"+dformat.format(timestamp) + " " + "</b></p>");
 		update.render(out);
 		out.print("</div>");
 	}	
