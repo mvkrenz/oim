@@ -195,13 +195,33 @@ public class ResourceFormDE extends DivRepForm
 		} else {
 			//set user's contact as submitter
 			voclist_grouped = new HashMap<Integer, ArrayList<ResourceContactRecord>>();
-			ArrayList<ResourceContactRecord> list = new ArrayList<ResourceContactRecord>();
+			
+			//prepopulate submitter
+			ArrayList<ResourceContactRecord> submitter_list = new ArrayList<ResourceContactRecord>();
 			ResourceContactRecord submitter = new ResourceContactRecord();
 			submitter.contact_id = auth.getContactID();
 			submitter.contact_rank_id = 1;//primary
 			submitter.contact_type_id = 1;//submitter
-			list.add(submitter);
-			voclist_grouped.put(1/*submitter*/, list);
+			submitter_list.add(submitter);
+			voclist_grouped.put(1/*submitter*/, submitter_list);
+			
+			//prepopulatee admin contact
+			ArrayList<ResourceContactRecord> admin_list = new ArrayList<ResourceContactRecord>();
+			ResourceContactRecord admin = new ResourceContactRecord();
+			admin.contact_id = auth.getContactID();
+			admin.contact_rank_id = 1;//primary
+			admin.contact_type_id = 3;//admin
+			admin_list.add(admin);
+			voclist_grouped.put(3/*admin*/, admin_list);
+		
+			//security contact
+			ArrayList<ResourceContactRecord> security_list = new ArrayList<ResourceContactRecord>();
+			ResourceContactRecord security = new ResourceContactRecord();
+			security.contact_id = auth.getContactID();
+			security.contact_rank_id = 1;//primary
+			security.contact_type_id = 2;//security
+			security_list.add(security);
+			voclist_grouped.put(2/*security*/, security_list);
 		}
 		ContactTypeModel ctmodel = new ContactTypeModel(context);
 		for(int contact_type_id : contact_types) {
