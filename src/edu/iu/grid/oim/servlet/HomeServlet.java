@@ -89,7 +89,7 @@ public class HomeServlet extends ServletBase  {
 		//show oim hierarchy doc
 		ToolTip tip = new ToolTip("The following slideshow presentation walks you through various entities in the OSG topology used by OIM, and describes the relationships between those entities. If you are new to the OSG and/or OIM, we strongly urge you to take a few minutes to go through this slideshow!");
 		contentview.add(new HtmlView("<h2>OSG Topology Slideshow "+tip.render()+"</h2>"));
-		contentview.add(new HtmlView("<iframe src=\"http://docs.google.com/present/embed?id=ddtgc5bt_113fp3fmvgp&size=l\" frameborder=\"0\" width=\"700\" height=\"559\"></iframe>"));
+		contentview.add(new HtmlView("<iframe src=\"https://docs.google.com/present/embed?id=ddtgc5bt_113fp3fmvgp&size=l\" frameborder=\"0\" width=\"700\" height=\"559\"></iframe>"));
 
 		return contentview;
 	}
