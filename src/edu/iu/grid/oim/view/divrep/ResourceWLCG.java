@@ -33,6 +33,7 @@ public class ResourceWLCG extends DivRepFormElement {
 		private DivRepTextBox hepspec;
 		private DivRepTextBox storage_capacity_minimum;
 		private DivRepTextBox storage_capacity_maximum;
+		private DivRepTextBox tape_capacity;
 
 		private WLCGEditor myself;
 		
@@ -96,6 +97,11 @@ public class ResourceWLCG extends DivRepFormElement {
 			storage_capacity_maximum.setSampleValue("5.5");
 			storage_capacity_maximum.setRequired(true);
 			
+			tape_capacity = new DivRepTextBox(this);
+			tape_capacity.setLabel("Tape Capacity (in TeraBytes)");
+			tape_capacity.addValidator(DivRepDoubleValidator.getInstance());
+			tape_capacity.setSampleValue("5.5");
+			
 			ResourceWLCGModel wmodel = new ResourceWLCGModel(context);
 			if(wrec != null) {				
 				//if WLCG record exist, populate the values
@@ -120,6 +126,9 @@ public class ResourceWLCG extends DivRepFormElement {
 				}
 				if(wrec.storage_capacity_maximum != null) {
 					storage_capacity_maximum.setValue(wrec.storage_capacity_maximum.toString());
+				}
+				if(wrec.tape_capacity != null) {
+					tape_capacity.setValue(wrec.tape_capacity.toString());
 				}
 				
 				if(wrec.interop_accounting) {
@@ -174,6 +183,7 @@ public class ResourceWLCG extends DivRepFormElement {
 			rec.hepspec			   = hepspec.getValueAsDouble();
 			rec.storage_capacity_minimum = storage_capacity_minimum.getValueAsDouble();
 			rec.storage_capacity_maximum = storage_capacity_maximum.getValueAsDouble();
+			rec.tape_capacity = tape_capacity.getValueAsDouble();
 			return rec;
 		}
 	}

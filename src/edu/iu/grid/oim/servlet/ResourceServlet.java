@@ -311,7 +311,8 @@ public class ResourceServlet extends ServletBase implements Servlet {
 		table.addRow("KSI2K Maximum", rec.ksi2k_maximum);
 		table.addRow("HEPSPEC Value", rec.hepspec);
 		table.addRow("Storage Capacity Minimum (TB)", rec.storage_capacity_minimum);
-		table.addRow("Storage Capacity Maximum(TB)", rec.storage_capacity_maximum);
+		table.addRow("Storage Capacity Maximum (TB)", rec.storage_capacity_maximum);
+		table.addRow("Tape Capacity (TB)", rec.tape_capacity);
 		
 		view.add(table);
 		return view;
