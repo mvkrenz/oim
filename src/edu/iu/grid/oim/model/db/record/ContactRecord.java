@@ -25,6 +25,8 @@ public class ContactRecord extends ConfirmableRecord {
 	public String sms_address;
 	public String timezone;
 	public String profile;
+	public Boolean use_twiki;
+	public String twiki_id;
 	
 	//load from existing record
 	public ContactRecord(ResultSet rs) throws SQLException {

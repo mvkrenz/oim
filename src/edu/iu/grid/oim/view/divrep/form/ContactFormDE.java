@@ -2,22 +2,16 @@ package edu.iu.grid.oim.view.divrep.form;
 
 import java.io.PrintWriter;
 import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.text.DateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.TimeZone;
-
-import java.util.GregorianCalendar;
-import java.util.TreeMap;
-
 import org.apache.log4j.Logger;
 
 import com.divrep.DivRep;
 import com.divrep.DivRepEvent;
 import com.divrep.DivRepEventListener;
-import com.divrep.common.DivRepButton;
 import com.divrep.common.DivRepCheckBox;
 import com.divrep.common.DivRepForm;
 import com.divrep.common.DivRepFormElement;
@@ -25,9 +19,9 @@ import com.divrep.common.DivRepSelectBox;
 import com.divrep.common.DivRepStaticContent;
 import com.divrep.common.DivRepTextArea;
 import com.divrep.common.DivRepTextBox;
-import com.divrep.common.DivRepButton.Style;
 import com.divrep.validator.DivRepEmailValidator;
 import com.divrep.validator.DivRepIValidator;
+import com.divrep.validator.DivRepUniqueValidator;
 import com.divrep.validator.DivRepUrlValidator;
 
 import edu.iu.grid.oim.lib.Authorization;
@@ -37,7 +31,6 @@ import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.DNModel;
 import edu.iu.grid.oim.model.db.record.DNRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
-import edu.iu.grid.oim.view.HtmlView;
 import edu.iu.grid.oim.view.divrep.Confirmation;
 
 //alter table contact add column timezone varchar(16) default value "UTC";
@@ -68,6 +61,8 @@ public class ContactFormDE extends DivRepForm
 	private Confirmation confirmation;
 	private DivRepTextArea contact_preference;
 	private DivRepSelectBox submitter_dn;
+	private DivRepCheckBox use_twiki;
+	private DivRepTextBox twiki_id;
 	
 	private PersonalInfo personal_info;
 	
@@ -78,7 +73,7 @@ public class ContactFormDE extends DivRepForm
 			
 		}	
 		
-		PersonalInfo(DivRep _parent, ContactRecord rec, DNRecord associated_dn_rec) {
+		PersonalInfo(DivRep _parent, final ContactRecord rec, DNRecord associated_dn_rec) {
 			super(_parent);
 			
 			String associated_dn_string = "Contact not registered on OIM";
@@ -165,6 +160,51 @@ public class ContactFormDE extends DivRepForm
 			profile.setLabel("Profile Details - Tell OSG about yourself, your role, etc.");
 			profile.setSampleValue("Please enter your role within OSG community, and maybe a small introduction of who you are and what you do.");
 			profile.setValue(rec.profile);
+			
+			use_twiki = new DivRepCheckBox(this);
+			use_twiki.setLabel("Use OSG TWiki");
+			use_twiki.setValue(rec.use_twiki);
+			
+			twiki_id = new DivRepTextBox(this);
+			twiki_id.setLabel("OSG TWiki ID - Only GOC support staff can edit this");
+			twiki_id.setValue(rec.twiki_id);
+			//twiki_id.addClass("divrep_indent");
+			if(auth.allows("admin")) {
+				//admin can edit - so validate
+				ArrayList<String> values = new ArrayList<String>();
+				ContactModel model = new ContactModel(context);
+				try {
+					for(ContactRecord crec : model.getAll()) {
+						if(rec == crec) continue;
+						values.add(crec.twiki_id);
+					}
+				} catch (SQLException e2) {
+					log.error("Failed to load existing twiki IDs", e2);
+				}
+				twiki_id.addValidator(new DivRepUniqueValidator<String>(values));
+				
+			} else {
+				//non-admin can't edit this field
+				twiki_id.setDisabled(true);
+			}
+			if(rec.id == null) {
+				//generate new TWiki ID if this is for new contact record
+				name.addEventListener(new DivRepEventListener() {
+					public void handleEvent(DivRepEvent e) {
+						if(e.action.equals("change")) {
+							ContactModel model = new ContactModel(context);
+							try {
+								twiki_id.setValue(model.generateTwikiID(e.value, rec));
+								if(!personal_info.isHidden()) {
+									twiki_id.redraw();
+								}	
+							} catch (SQLException e1) {
+								log.error("Failed to generate twiki ID", e1);
+							}
+						}
+					}
+				});
+			}
 		}
 		
 		public void render(PrintWriter out) {
@@ -251,19 +291,6 @@ public class ContactFormDE extends DivRepForm
 	
 	public void showHidePersonalDetail()
 	{
-		/*
-		Boolean hidden = !person.getValue();
-		address_line_1.setHidden(hidden);
-		address_line_2.setHidden(hidden);
-		city.setHidden(hidden);
-		state.setHidden(hidden);
-		zipcode.setHidden(hidden);
-		country.setHidden(hidden);
-		im.setHidden(hidden);
-		photo_url.setHidden(hidden);
-		ContactFormDE.this.redraw();
-		*/
-	
 		Boolean required = person.getValue();
 		city.setRequired(required);
 		state.setRequired(required);
@@ -432,6 +459,8 @@ public class ContactFormDE extends DivRepForm
 		rec.confirmed = confirmation.getTimestamp();
 		rec.timezone = timezone_id2tz.get(timezone.getValue());
 		rec.profile = profile.getValue();
+		rec.use_twiki = use_twiki.getValue();
+		rec.twiki_id = twiki_id.getValue();
 		
 		ContactModel model = new ContactModel(context);
 		try {

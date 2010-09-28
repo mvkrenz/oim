@@ -154,4 +154,40 @@ public class ContactModel extends SmallTableModelBase<ContactRecord> {
 		}
 		return false;
 	}
+	public String generateTwikiID(String full_name, ContactRecord rec_ignore) throws SQLException 
+	{
+		StringBuffer twiki_id = new StringBuffer();
+		
+		//create twiki name from name
+		String tokens[] = full_name.split(" ");
+		for(String token : tokens) {
+			token = token.trim().toLowerCase();
+			if(token.length() == 0) continue;
+			
+			//capitalize the first char
+			char ch = Character.toUpperCase(token.charAt(0));
+			twiki_id.append(ch);
+			twiki_id.append(token.substring(1));
+		}
+		
+		//find any collision - if there is, iterate until no collision
+		String unused_twiki_id = twiki_id.toString();
+		int count = 2; //start with #2 (because #1 already exist)
+		while(isTWikiIDExist(unused_twiki_id, rec_ignore)) {
+			unused_twiki_id = twiki_id.toString() + count;
+		}
+		
+		return unused_twiki_id;
+	}
+	
+	public Boolean isTWikiIDExist(String twikiid, ContactRecord rec_ignore) throws SQLException {
+		for(RecordBase it : getCache()) {
+			ContactRecord crec = (ContactRecord)it;
+			if(crec == rec_ignore) continue;
+			if(crec.twiki_id.equals(twikiid)) {
+				return true;
+			}
+		}
+		return false;
+	}
 }

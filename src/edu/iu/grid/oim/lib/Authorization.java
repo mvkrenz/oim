@@ -169,6 +169,7 @@ public class Authorization {
 					//user_cn = null;
 					//user_dn = "/DC=org/DC=doegrids/OU=People/CN=Marco Mambelli 325802";
 					//user_dn = "/DC=org/DC=doegrids/OU=People/CN=Robert W. Gardner Jr. 669916";
+					//user_dn = "/DC=org/DC=doegrids/OU=People/CN=Someone New 461343";	
 		        } 
 			} catch (UnknownHostException e) {
 				//ignore then..

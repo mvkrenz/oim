@@ -216,6 +216,8 @@ public class ContactServlet extends ServletBase implements Servlet {
 						personal_table.addRow("Contact Preference", rec.contact_preference);	
 						personal_table.addRow("Time Zone", rec.timezone);
 						personal_table.addRow("Profile", new HtmlView("<div>"+StringEscapeUtils.escapeHtml(rec.profile)+"</div>"));
+						personal_table.addRow("Use TWiki", rec.use_twiki);
+						personal_table.addRow("TWiki ID", rec.twiki_id);
 					}
 					
 					//only show contact association information for admin - it display links that user might not have access to

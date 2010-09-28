@@ -1,27 +1,20 @@
 package edu.iu.grid.oim.servlet;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.TimeZone;
 
 import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
-
-import com.divrep.DivRep;
 import com.divrep.DivRepEvent;
 import com.divrep.DivRepEventListener;
 import com.divrep.DivRepPage;
-import com.divrep.DivRepRoot;
-import com.divrep.common.DivRepButton;
 import com.divrep.common.DivRepCheckBox;
 import com.divrep.common.DivRepForm;
 import com.divrep.common.DivRepSelectBox;
@@ -30,12 +23,10 @@ import com.divrep.common.DivRepTextArea;
 import com.divrep.common.DivRepTextBox;
 import com.divrep.validator.DivRepEmailValidator;
 import com.divrep.validator.DivRepIValidator;
-import com.divrep.validator.DivRepUniqueValidator;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.model.Context;
-import edu.iu.grid.oim.model.MenuItem;
 import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.DNAuthorizationTypeModel;
 import edu.iu.grid.oim.model.db.DNModel;
@@ -47,9 +38,7 @@ import edu.iu.grid.oim.view.DivRepWrapper;
 import edu.iu.grid.oim.view.HtmlView;
 import edu.iu.grid.oim.view.MenuView;
 import edu.iu.grid.oim.view.Page;
-import edu.iu.grid.oim.view.IView;
 import edu.iu.grid.oim.view.SideContentView;
-import edu.iu.grid.oim.view.divrep.Confirmation;
 
 public class RegisterServlet extends ServletBase  {
 	private static final long serialVersionUID = 1L;
@@ -108,6 +97,8 @@ public class RegisterServlet extends ServletBase  {
 		private HashMap<Integer, String> timezone_id2tz;
 		private DivRepTextArea profile;
 		private DivRepTextArea contact_preference;
+		private DivRepCheckBox use_twiki;
+		private DivRepTextBox twiki_id;
 		
 		public EnterEmailPage(Context _context, DivRepPage page_root) {
 			
@@ -226,13 +217,34 @@ public class RegisterServlet extends ServletBase  {
 				}
 				timezone.addGroup(group_name, group);
 			}
-			timezone.setLabel("Time Zone");
+			timezone.setLabel("Time Zone - Please choose location based timezone such as America/Chicago");
 			timezone.setRequired(true);
 
 			profile = new DivRepTextArea(this);
 			profile.setLabel("Profile");
 			profile.setRequired(true);
 			profile.setSampleValue("Please enter your role within OSG community, and maybe a small introduction of who you are and what you do.");
+		
+			use_twiki = new DivRepCheckBox(this);
+			use_twiki.setLabel("Use OSG TWiki");
+			use_twiki.setValue(false);
+			
+			twiki_id = new DivRepTextBox(this);
+			twiki_id.setLabel("OSG TWiki ID - Generated from your name");
+			twiki_id.setDisabled(true);
+			name.addEventListener(new DivRepEventListener() {
+				public void handleEvent(DivRepEvent e) {
+					if(e.action.equals("change")) {
+						ContactModel model = new ContactModel(context);
+						try {
+							twiki_id.setValue(model.generateTwikiID(e.value, null));
+							twiki_id.redraw();	
+						} catch (SQLException e1) {
+							alert(e1.toString());
+						}
+					}
+				}});
+			
 		}
 
 		protected void onEvent(DivRepEvent e) {
@@ -270,12 +282,9 @@ public class RegisterServlet extends ServletBase  {
 					rec.timezone = timezone_id2tz.get(timezone.getValue());
 					rec.profile = profile.getValue();
 					rec.contact_preference = profile.getValue();
-
+					rec.use_twiki = use_twiki.getValue();
+					rec.twiki_id = twiki_id.getValue();
 					rec.person = true;
-					// rec.timezone = "UTC";
-					// rec.profile = "";
-					// Setting to false by default
-					//rec.active = false;
 					rec.disable = false;
 					model.insert(rec);
 				} else {
