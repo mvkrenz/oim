@@ -8,12 +8,14 @@ import com.divrep.DivRepEventListener;
 import com.divrep.common.DivRepButton;
 import com.divrep.common.DivRepCheckBox;
 import com.divrep.common.DivRepFormElement;
+import com.divrep.common.DivRepStaticContent;
 import com.divrep.common.DivRepTextBox;
 import com.divrep.validator.DivRepDoubleValidator;
 
 import edu.iu.grid.oim.model.Context;
 import edu.iu.grid.oim.model.db.ResourceWLCGModel;
 import edu.iu.grid.oim.model.db.record.ResourceWLCGRecord;
+import edu.iu.grid.oim.view.ToolTip;
 
 public class ResourceWLCG extends DivRepFormElement {
 
@@ -49,8 +51,9 @@ public class ResourceWLCG extends DivRepFormElement {
 
 			interop_accounting = new DivRepCheckBox(this);
 			interop_accounting.setLabel("Should this resource be part of WLCG Interop Accounting?");
-
+			//new DivRepStaticContent(this, "Some help");
 			wlcg_accounting_name = new DivRepTextBox(this);
+			wlcg_accounting_name.addClass("divrep_indent");//make it look like it's part of above checkbox
 			wlcg_accounting_name.setLabel("WLCG Accounting Name");
 			wlcg_accounting_name.setSampleValue("ABC Accounting");
 			wlcg_accounting_name.setRequired(true);
