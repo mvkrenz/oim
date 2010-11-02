@@ -20,6 +20,7 @@ import com.divrep.DivRep;
 import com.divrep.DivRepEvent;
 import com.divrep.common.DivRepCheckBox;
 import com.divrep.common.DivRepForm;
+import com.divrep.common.DivRepLocationSelector;
 import com.divrep.common.DivRepSelectBox;
 import com.divrep.common.DivRepStaticContent;
 import com.divrep.common.DivRepTextArea;
@@ -30,6 +31,7 @@ import com.divrep.validator.DivRepUrlValidator;
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Footprint;
 import edu.iu.grid.oim.lib.AuthorizationException;
+import edu.iu.grid.oim.lib.StaticConfig;
 
 import edu.iu.grid.oim.model.Context;
 import edu.iu.grid.oim.model.db.ContactModel;
@@ -43,7 +45,6 @@ import edu.iu.grid.oim.model.db.record.SiteRecord;
 import edu.iu.grid.oim.model.db.record.FacilityRecord;
 
 import edu.iu.grid.oim.view.divrep.ContactEditor;
-import edu.iu.grid.oim.view.divrep.LatLngSelector;
 import edu.iu.grid.oim.view.divrep.ContactEditor.Rank;
 
 import java.lang.Double;
@@ -65,7 +66,7 @@ public class SiteFormDE extends DivRepForm
 	private DivRepTextBox state;
 	private DivRepTextBox zipcode;
 	private DivRepTextBox country;
-	private LatLngSelector latlng;
+	private DivRepLocationSelector latlng;
 	private DivRepSelectBox sc_id;
 	private DivRepSelectBox facility_id;
 	private DivRepCheckBox active;
@@ -147,9 +148,11 @@ public class SiteFormDE extends DivRepForm
 		country.setValue(rec.country);
 		country.setRequired(true);
 		
-		latlng = new LatLngSelector(this);
+		//latlng = new LatLngSelector(this);
+		latlng = new DivRepLocationSelector(this, StaticConfig.getApplicationBase()+"/images/target.png");
 		latlng.setLabel("Latitude / Longitude");
 		latlng.setValue(latlng.new LatLng(rec.latitude, rec.longitude));
+		latlng.setRequired(true);
 		
 		if(auth.allows("admin")) {
 			new DivRepStaticContent(this, "<h2>Administrative Tasks</h2>");
