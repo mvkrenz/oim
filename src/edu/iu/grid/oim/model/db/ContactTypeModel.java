@@ -1,6 +1,7 @@
 package edu.iu.grid.oim.model.db;
 
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import javax.xml.xpath.XPath;
@@ -10,6 +11,8 @@ import org.w3c.dom.Document;
 
 import edu.iu.grid.oim.model.Context;
 import edu.iu.grid.oim.model.db.record.ContactTypeRecord;
+import edu.iu.grid.oim.model.db.record.RecordBase;
+import edu.iu.grid.oim.model.db.record.ResourceContactRecord;
 
 public class ContactTypeModel extends SmallTableModelBase<ContactTypeRecord> {
 
@@ -22,6 +25,16 @@ public class ContactTypeModel extends SmallTableModelBase<ContactTypeRecord> {
 	{
 		return new ContactTypeRecord();
 	}
+	
+	public HashMap<Integer, ContactTypeRecord> getAll() throws SQLException
+	{ 
+		HashMap<Integer, ContactTypeRecord> list = new HashMap<Integer, ContactTypeRecord>();
+		for(RecordBase rec : getCache()) {
+			ContactTypeRecord vcrec = (ContactTypeRecord)rec;
+			list.put(vcrec.id, vcrec);
+		}
+		return list;
+	}	
 	
 	public ContactTypeRecord get(int id) throws SQLException {
 		ContactTypeRecord keyrec = new ContactTypeRecord();

@@ -43,8 +43,19 @@ public class ResourceWLCG extends DivRepFormElement {
 			super(parent);
 			myself = this;
 			
+			/*
+			 * We need to add detailed explanation of what happens when user click on one of these things..
+			 *
+			 * I believe http://lcg-bdii-conf.cern.ch/bdii-conf/bdii.conf is generated via MyOSG which
+			 * relies on these flags
+			 */
+			
 			interop_bdii = new DivRepCheckBox(this);
 			interop_bdii.setLabel("Should this resource be part of WLCG Interop BDII?");
+			/*
+			 * is.grid.iu.edu post BDII entries for sites which this check box checked and 
+			 * publish it to is.grid.iu.edu:2180 as well as 2170.
+			 */
 
 			interop_monitoring = new DivRepCheckBox(this);
 			interop_monitoring.setLabel("Should this resource be part of WLCG Interop Monitoring?");

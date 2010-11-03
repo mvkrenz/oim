@@ -13,12 +13,16 @@ import com.divrep.common.DivRepButton;
 
 import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.model.Context;
+import edu.iu.grid.oim.model.db.ContactRankModel;
+import edu.iu.grid.oim.model.db.ContactTypeModel;
 import edu.iu.grid.oim.model.db.ResourceContactModel;
 import edu.iu.grid.oim.model.db.ResourceModel;
 import edu.iu.grid.oim.model.db.SCContactModel;
 import edu.iu.grid.oim.model.db.SCModel;
 import edu.iu.grid.oim.model.db.VOContactModel;
 import edu.iu.grid.oim.model.db.VOModel;
+import edu.iu.grid.oim.model.db.record.ContactRankRecord;
+import edu.iu.grid.oim.model.db.record.ContactTypeRecord;
 import edu.iu.grid.oim.model.db.record.ResourceContactRecord;
 import edu.iu.grid.oim.model.db.record.ResourceRecord;
 import edu.iu.grid.oim.model.db.record.SCContactRecord;
@@ -60,6 +64,15 @@ public class ContactAssociationView extends GenericView {
 			SCModel scmodel = new SCModel(context);
 			SCContactModel sccontactmodel = new SCContactModel(context);
 			
+			//aux..
+			ContactTypeModel ctmodel = new ContactTypeModel(context);
+			HashMap<Integer, ContactTypeRecord> ctlist = ctmodel.getAll();
+			ContactRankModel crmodel = new ContactRankModel(context);
+			HashMap<Integer, ContactRankRecord> crlist = crmodel.getAll();
+						
+			view.add(new HtmlView("<table width=\"100%\"><tr><td width=\"33%\">"));
+			
+			view.add(new HtmlView("<h3>Resource</h3>"));
 			ArrayList<ResourceContactRecord> rcrecs = rcontactmodel.getByContactID(contactid);
 			HashMap<Integer, String> resourceassoc = new HashMap<Integer, String>();
 			for(ResourceContactRecord rcrec : rcrecs) {
@@ -68,14 +81,6 @@ public class ContactAssociationView extends GenericView {
 				if(rmodel.canEdit(rrec.id)) {
 					resourceassoc.put(rrec.id, rrec.name);
 				}
-			}
-			
-			view.add(new HtmlView("<table width=\"100%\"><tr><td width=\"33%\">"));
-			
-			view.add(new HtmlView("<h3>Resource</h3>"));
-			for(Integer rid : resourceassoc.keySet()) {
-				String name = resourceassoc.get(rid);
-				view.add(new HtmlView("<p><a href=\""+StaticConfig.getApplicationBase()+"/resourceedit?id="+rid+"\">"+name+"</a></p>"));
 			}
 			if(show_new_buttons) {
 				class NewResourceButtonDE extends DivRepButton
@@ -96,9 +101,25 @@ public class ContactAssociationView extends GenericView {
 					view.add(new HtmlView("<p>None</p>"));
 				}
 			}
+			for(Integer rid : resourceassoc.keySet()) {
+				String name = resourceassoc.get(rid);
+				view.add(new HtmlView("<div><a href=\""+StaticConfig.getApplicationBase()+"/resourceedit?id="+rid+"\">"+name+"</a></div>"));
+				
+				//show which contact types the user is associated with
+				ArrayList<ResourceContactRecord> recs = rcontactmodel.getByResourceID(rid);
+				for(ResourceContactRecord rec : recs) {
+					if(rec.contact_id.equals(contactid)) {
+						ContactTypeRecord ctrec = ctlist.get(rec.contact_type_id);
+						String rank = crlist.get(rec.contact_rank_id).name;
+						view.add(new HtmlView("<div class=\"small_indent contact_rank contact_"+rank+"\">"+ctrec.name+"</div>"));
+					}
+				}
+				
+			}
 			
 			view.add(new HtmlView("</td><td width=\"33%\">"));
 			
+			view.add(new HtmlView("<h3>Virtual Organization</h3>"));
 			ArrayList<VOContactRecord> vocrecs = vocontactmodel.getByContactID(contactid);
 			HashMap<Integer, String> voassoc = new HashMap<Integer, String>();
 			for(VOContactRecord vocrec : vocrecs) {
@@ -107,12 +128,6 @@ public class ContactAssociationView extends GenericView {
 				if(vomodel.canEdit(vorec.id)) {
 					voassoc.put(vorec.id, vorec.name);
 				}	
-			}	
-	
-			view.add(new HtmlView("<h3>Virtual Organization</h3>"));
-			for(Integer vo_id : voassoc.keySet()) {
-				String name = voassoc.get(vo_id);
-				view.add(new HtmlView("<p><a href=\""+StaticConfig.getApplicationBase()+"/voedit?id="+vo_id+"\">"+name+"</a></p>"));
 			}
 			if(show_new_buttons) {
 				class NewVOButtonDE extends DivRepButton
@@ -132,10 +147,25 @@ public class ContactAssociationView extends GenericView {
 				if(voassoc.size() == 0) {
 					view.add(new HtmlView("<p>None</p>"));
 				}
+			}	
+			for(Integer vo_id : voassoc.keySet()) {
+				String name = voassoc.get(vo_id);
+				view.add(new HtmlView("<div><a href=\""+StaticConfig.getApplicationBase()+"/voedit?id="+vo_id+"\">"+name+"</a></div>"));
+				
+				//show which contact types the user is associated with
+				ArrayList<VOContactRecord> recs = vocontactmodel.getByVOID(vo_id);
+				for(VOContactRecord rec : recs) {
+					if(rec.contact_id.equals(contactid)) {
+						ContactTypeRecord ctrec = ctlist.get(rec.contact_type_id);
+						String rank = crlist.get(rec.contact_rank_id).name;
+						view.add(new HtmlView("<div class=\"small_indent contact_rank contact_"+rank+"\">"+ctrec.name+"</div>"));
+					}
+				}
 			}
 			
 			view.add(new HtmlView("</td><td width=\"33%\">"));
 			
+			view.add(new HtmlView("<h3>Support Center</h3>"));
 			ArrayList<SCContactRecord> sccrecs = sccontactmodel.getByContactID(contactid);
 			HashMap<Integer, String> scassoc = new HashMap<Integer, String>();
 			for(SCContactRecord sccrec : sccrecs) {
@@ -144,11 +174,6 @@ public class ContactAssociationView extends GenericView {
 				if(scmodel.canEdit(screc.id)) {
 					scassoc.put(screc.id, screc.name);
 				}
-			}
-			view.add(new HtmlView("<h3>Support Center</h3>"));
-			for(Integer scid : scassoc.keySet()) {
-				String name = scassoc.get(scid);
-				view.add(new HtmlView("<p><a href=\""+StaticConfig.getApplicationBase()+"/scedit?id="+scid+"\">"+name+"</a></p>"));
 			}
 			if(show_new_buttons) {
 				class NewSCButtonDE extends DivRepButton
@@ -169,6 +194,21 @@ public class ContactAssociationView extends GenericView {
 					view.add(new HtmlView("<p>None</p>"));
 				}
 			}
+			for(Integer scid : scassoc.keySet()) {
+				String name = scassoc.get(scid);
+				view.add(new HtmlView("<div><a href=\""+StaticConfig.getApplicationBase()+"/scedit?id="+scid+"\">"+name+"</a></div>"));
+				
+				//show which contact types the user is associated with
+				ArrayList<SCContactRecord> recs = sccontactmodel.getBySCID(scid);
+				for(SCContactRecord rec : recs) {
+					if(rec.contact_id.equals(contactid)) {
+						ContactTypeRecord ctrec = ctlist.get(rec.contact_type_id);
+						String rank = crlist.get(rec.contact_rank_id).name;
+						view.add(new HtmlView("<div class=\"small_indent contact_rank contact_"+rank+"\">"+ctrec.name+"</div>"));
+					}
+				}
+			}
+
 			
 			view.add(new HtmlView("</td></tr></table>"));
 		

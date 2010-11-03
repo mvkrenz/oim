@@ -246,7 +246,7 @@ div.contact_rank
 background-position: 0px 2px;
 background-repeat:no-repeat;
 padding-left:20px;
-height: 20px;
+min-height: 20px;
 }
 div.contact_Primary
 {
@@ -339,6 +339,10 @@ font-style: normal;
 .indent
 {
 margin-left: 40px;
+}
+.small_indent
+{
+margin-left: 15px;
 }
 #sideContent .indent
 {
