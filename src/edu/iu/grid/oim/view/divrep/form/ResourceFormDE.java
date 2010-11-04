@@ -48,6 +48,7 @@ import edu.iu.grid.oim.model.db.record.SiteRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
 import edu.iu.grid.oim.model.db.record.VOResourceOwnershipRecord;
 import edu.iu.grid.oim.view.ToolTip;
+import edu.iu.grid.oim.view.divrep.AUPConfirmation;
 import edu.iu.grid.oim.view.divrep.Confirmation;
 import edu.iu.grid.oim.view.divrep.ContactEditor;
 import edu.iu.grid.oim.view.divrep.ResourceAlias;
@@ -293,9 +294,14 @@ public class ResourceFormDE extends DivRepForm
 			disable.setHidden(true);
 		}
 		
+		if(id == null) {
+			AUPConfirmation aup = new AUPConfirmation(this);
+		}
+		
 		comment = new DivRepTextArea(this);
 		comment.setLabel("Update Comment");
 		comment.setSampleValue("Please provide a reason for this update.");
+		
 	}
 	
 	private void hideWLCGElement(Boolean b)

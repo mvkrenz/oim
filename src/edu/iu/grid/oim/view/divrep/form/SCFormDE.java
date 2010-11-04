@@ -25,6 +25,7 @@ import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.ResourceContactRecord;
 import edu.iu.grid.oim.model.db.record.SCRecord;
 import edu.iu.grid.oim.model.db.record.SCContactRecord;
+import edu.iu.grid.oim.view.divrep.AUPConfirmation;
 import edu.iu.grid.oim.view.divrep.Confirmation;
 import edu.iu.grid.oim.view.divrep.ContactEditor;
 import edu.iu.grid.oim.view.divrep.ContactEditor.Rank;
@@ -196,6 +197,10 @@ public class SCFormDE extends DivRepForm
 		disable.setValue(rec.disable);
 		if(!auth.allows("admin")) {
 			disable.setHidden(true);
+		}
+		
+		if(id == null) {
+			AUPConfirmation aup = new AUPConfirmation(this);
 		}
 		
 		comment = new DivRepTextArea(this);
