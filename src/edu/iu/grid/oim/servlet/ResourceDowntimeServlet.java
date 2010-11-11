@@ -261,7 +261,7 @@ public class ResourceDowntimeServlet extends ServletBase implements Servlet {
 	{
 		SideContentView view = new SideContentView();
 		
-		view.add("About", new HtmlView("<p>This page allows you to schedule maintenance (downtime) for resources you are listed as a contact for, and therefore are authorized to edit.</p><p>Non-Active or Disabled Resources are filtered out.</p><p>This page only shows downtimes that ends no older than "+StaticConfig.getDowntimeEditableEndDays()+" days from today.</p>"));		
+		view.add("About", new HtmlView("<p>This page allows you to schedule maintenance (downtime) for resources you are listed as a contact for, and therefore are authorized to edit.</p><p>Non-Active or Disabled Resources are filtered out.</p><p>This page only shows downtimes that end within the previous "+StaticConfig.getDowntimeEditableEndDays()+" days.</p>"));		
 		return view;
 	}
 }
