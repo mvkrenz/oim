@@ -89,14 +89,14 @@ public class ResourceDowntimeModel extends SmallTableModelBase<ResourceDowntimeR
 		return list;
 	}
 
-	public Collection<ResourceDowntimeRecord> getRecentDowntimesByResourceID(int resource_id) throws SQLException
+	public Collection<ResourceDowntimeRecord> getRecentDowntimesByResourceID(int resource_id, int days) throws SQLException
 	{
 		ArrayList<ResourceDowntimeRecord> list = new ArrayList<ResourceDowntimeRecord>();
 		for(RecordBase it : getCache()) {
 			ResourceDowntimeRecord rec = (ResourceDowntimeRecord)it;
-			//search for downtime that ends in future.
-			Timestamp lastmonth = new Timestamp(Calendar.getInstance().getTimeInMillis() - 1000L * 3600 * 24 * 30);
-			if(rec.resource_id == resource_id && rec.timestamp.compareTo(lastmonth) > 0) {
+			//search for downtime that ends no older than "days".
+			Timestamp lastmonth = new Timestamp(Calendar.getInstance().getTimeInMillis() - 1000L * 3600 * 24 * days);
+			if(rec.resource_id == resource_id && rec.end_time.compareTo(lastmonth) > 0) {
 				list.add(rec);
 			}
 		}

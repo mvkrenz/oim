@@ -34,6 +34,9 @@ public class StaticConfig {
 	private int confirmation_expiration;
 	static public int getConfirmationExpiration() { return config.confirmation_expiration; }
 	
+	private int downtime_editable_end_datys;
+	static public int getDowntimeEditableEndDays() { return config.downtime_editable_end_datys; }
+	
 	//Footprints
 	private String footprints_uri;
 	static public String getFootprintsUri() { return config.footprints_uri; }
@@ -81,23 +84,26 @@ public class StaticConfig {
 			footprints_url = (String)xpath.evaluate("//Footprints/URL", config_xml);
 			is.reset();
 			
-			footprints_username = (String)xpath.evaluate("//Footprints/Username", config_xml);;
+			footprints_username = (String)xpath.evaluate("//Footprints/Username", config_xml);
 			is.reset();
 
-			footprints_password = (String)xpath.evaluate("//Footprints/Password", config_xml);;
+			footprints_password = (String)xpath.evaluate("//Footprints/Password", config_xml);
 			is.reset();
 
 			footprints_projectid = Integer.parseInt(((String)xpath.evaluate("//Footprints/ProjectID", config_xml)));
 			is.reset();
 			
-			ssl_truststore = (String)xpath.evaluate("//SSLTruststorePath", config_xml);;
+			ssl_truststore = (String)xpath.evaluate("//SSLTruststorePath", config_xml);
 			is.reset();
 			
-			doe_cn = (String)xpath.evaluate("//DOECN", config_xml);;
+			doe_cn = (String)xpath.evaluate("//DOECN", config_xml);
 			is.reset();
 			
 			Double d = (Double)xpath.evaluate("//ConfirmationExpiration", config_xml, XPathConstants.NUMBER);
 			confirmation_expiration = d.intValue();
+			is.reset();
+			
+			downtime_editable_end_datys = Integer.parseInt(((String)xpath.evaluate("//DowntimeEditableEndDays", config_xml)));
 			is.reset();
 			
 		} catch (XPathExpressionException e) {

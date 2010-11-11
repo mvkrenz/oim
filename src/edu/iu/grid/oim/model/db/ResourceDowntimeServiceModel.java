@@ -50,6 +50,7 @@ public class ResourceDowntimeServiceModel extends SmallTableModelBase<ResourceDo
 		}
 		return list;
 	}
+	/*
 	public Collection<ResourceDowntimeServiceRecord> getAllByResourceID(int resource_id) throws SQLException 
 	{
 		ArrayList<ResourceDowntimeServiceRecord> list = new ArrayList<ResourceDowntimeServiceRecord>();
@@ -63,6 +64,7 @@ public class ResourceDowntimeServiceModel extends SmallTableModelBase<ResourceDo
 		
 		return list;
 	}
+	*/
     public String getName()
     {
     	return "Resource Downtime / Service";

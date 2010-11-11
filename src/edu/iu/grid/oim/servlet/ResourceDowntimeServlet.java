@@ -147,7 +147,7 @@ public class ResourceDowntimeServlet extends ServletBase implements Servlet {
 			//downtime
 			GenericView downtime_view = new GenericView();
 			ResourceDowntimeModel dmodel = new ResourceDowntimeModel(context);
-			Collection <ResourceDowntimeRecord> dt_records = dmodel.getRecentDowntimesByResourceID(rec.id);
+			Collection <ResourceDowntimeRecord> dt_records = dmodel.getRecentDowntimesByResourceID(rec.id, StaticConfig.getDowntimeEditableEndDays());
 			for(ResourceDowntimeRecord drec : dt_records) {
 				downtime_view.add(createDowntimeView(drec));
 			}
@@ -261,7 +261,7 @@ public class ResourceDowntimeServlet extends ServletBase implements Servlet {
 	{
 		SideContentView view = new SideContentView();
 		
-		view.add("About", new HtmlView("<p>This page allows you to schedule maintenance (downtime) for resources you are listed as a contact for, and therefore are authorized to edit.</p><p>Non-Active or Disabled Resources are filtered out.</p><p>This page only shows downtimes that are entered within last 30 days.</p>"));		
+		view.add("About", new HtmlView("<p>This page allows you to schedule maintenance (downtime) for resources you are listed as a contact for, and therefore are authorized to edit.</p><p>Non-Active or Disabled Resources are filtered out.</p><p>This page only shows downtimes that ends no older than "+StaticConfig.getDowntimeEditableEndDays()+" days from today.</p>"));		
 		return view;
 	}
 }

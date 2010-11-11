@@ -28,6 +28,7 @@ import com.divrep.common.DivRepTextArea;
 import com.divrep.validator.DivRepLengthValidator;
 
 import edu.iu.grid.oim.lib.Authorization;
+import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.model.Context;
 import edu.iu.grid.oim.model.db.DowntimeClassModel;
 import edu.iu.grid.oim.model.db.DowntimeSeverityModel;
@@ -348,11 +349,17 @@ public class ResourceDowntimeEditor extends DivRepFormElement {
 			
 			Date start = getStartTime();
 			Date end = getEndTime();
+			Date end_limit = new Date(Calendar.getInstance().getTimeInMillis() - 1000L * 3600 * 24 * StaticConfig.getDowntimeEditableEndDays());
 			if(start.compareTo(end) > 0) {
 				valid = false;
 				error.set("Start Time is after the end time. Please correct.");
 			} else {
-				error.set(null);			
+				if(end.compareTo(end_limit) < 0) {
+					valid = false;
+					error.set("End Time can not be older than than "+StaticConfig.getDowntimeEditableEndDays() + " days from today.");
+				} else {
+					error.set(null);	
+				}
 			}
 			error.redraw();
 		}

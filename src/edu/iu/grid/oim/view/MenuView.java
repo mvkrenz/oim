@@ -41,7 +41,7 @@ public class MenuView implements IView {
 		}
 		
 		if(auth.allows("edit_my_resource")) {
-			menu.add(new MenuItem("Downtime", "resourcedowntime"));
+			menu.add(new MenuItem("Downtimes", "resourcedowntime"));
 		}
 		
 		// Do we need auth checks for these given we will allow anyone to edit? I guess not .. -agopu
@@ -62,7 +62,7 @@ public class MenuView implements IView {
 			menu.add(new MenuItem("Profile", "profileedit"));
 		}
 		if ((auth.getDNID() != null) && (!auth.isDisabled())) {
-			menu.add(new MenuItem("Log", "log", "?type=1&start_type=2&end_type=1&transaction_1=on&transaction_2=on&transaction_3=on&model_1=on&model_2=on&model_3=on&model_4=on&model_5=on&model_6=on&model_7=on&"));
+			menu.add(new MenuItem("Logs", "log", "?type=1&start_type=2&end_type=1&transaction_1=on&transaction_2=on&transaction_3=on&model_1=on&model_2=on&model_3=on&model_4=on&model_5=on&model_6=on&model_7=on&"));
 		}
 		if (auth.allows("edit_measurement")) {
 			menu.add(new MenuItem("CPU Info", "cpuinfo"));	
