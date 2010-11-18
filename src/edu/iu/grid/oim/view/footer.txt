@@ -1,6 +1,6 @@
 <br clear="all" />
 <div id="footer">
-<p>OIM Version __VERSION__ | <a href="https://ticket.grid.iu.edu/goc/oim?ref=__REF__">Report Bugs</a></p>
+<p>OIM Version __VERSION__ | <a href="https://ticket.grid.iu.edu/goc/oim?ref=__REF__">Report Bugs about this page</a></p>
 <p>Logged in as <b>__DN__</b></p>
 <p><img src="__STATICBASE__/images/potato.png" align="top"/>&nbsp;Copyright 2009 The Trustees of Indiana University  - Developed for Open Science Grid</p>
 </div>
