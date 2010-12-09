@@ -465,10 +465,14 @@ public class Footprint
 		            arg4_5_2.addAttribute( env.createName("type","xsi",""), "xsd:string" );
 		            arg4_5_2.addTextNode("echism");
 		            
-		            //assign the associated SC so that they will be notified of this resource registration
-		            SOAPElement arg4_5_3 = arg4_5.addChildElement( env.createName("item") );
-		            arg4_5_3.addAttribute( env.createName("type","xsi",""), "xsd:string" );
-		            arg4_5_3.addTextNode(sc_footprint_id);
+		            if(sc_footprint_id != null) {
+			            //assign the associated SC so that they will be notified of this resource registration
+			            SOAPElement arg4_5_3 = arg4_5.addChildElement( env.createName("item") );
+			            arg4_5_3.addAttribute( env.createName("type","xsi",""), "xsd:string" );
+			            arg4_5_3.addTextNode(sc_footprint_id);
+		            } else {
+				        log.warn("Failed to set Support Center as assignee for VO registration form since sc_footprint_id hasn't been set in OIM yet");            	
+		            }
     		}
 	            
     		if(StaticConfig.isDebug()) {
