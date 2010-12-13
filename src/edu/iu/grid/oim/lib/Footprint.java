@@ -98,9 +98,11 @@ public class Footprint
             arg4_3_4.addAttribute( env.createName("type","xsi",""), "xsd:string" );
             arg4_3_4.addTextNode(contact.primary_email);
             
-            SOAPElement arg4_3_5 = abfields.addChildElement( env.createName("Office__bPhone") );
-            arg4_3_5.addAttribute( env.createName("type","xsi",""), "xsd:string" );
-            arg4_3_5.addTextNode(contact.primary_phone);
+            if(contact.primary_phone != null) {
+	            SOAPElement arg4_3_5 = abfields.addChildElement( env.createName("Office__bPhone") );
+	            arg4_3_5.addAttribute( env.createName("type","xsi",""), "xsd:string" );
+	            arg4_3_5.addTextNode(contact.primary_phone);
+            }
 
             //Basic Information
             SOAPElement arg4_7 = args.addChildElement( env.createName("projectID") );
@@ -256,10 +258,12 @@ public class Footprint
             arg4_3_4.addAttribute( env.createName("type","xsi",""), "xsd:string" );
             arg4_3_4.addTextNode(contact.primary_email);
             
-            SOAPElement arg4_3_5 = abfields.addChildElement( env.createName("Office__bPhone") );
-            arg4_3_5.addAttribute( env.createName("type","xsi",""), "xsd:string" );
-            arg4_3_5.addTextNode(contact.primary_phone);
-
+            if(contact.primary_phone != null) {
+            	SOAPElement arg4_3_5 = abfields.addChildElement( env.createName("Office__bPhone") );
+            	arg4_3_5.addAttribute( env.createName("type","xsi",""), "xsd:string" );
+            	arg4_3_5.addTextNode(contact.primary_phone);	
+            }
+            	
             //Basic Information
             SOAPElement arg4_7 = args.addChildElement( env.createName("projectID") );
             arg4_7.addAttribute( env.createName("type","xsi",""), "xsd:int" );
@@ -418,10 +422,12 @@ public class Footprint
             arg4_3_4.addAttribute( env.createName("type","xsi",""), "xsd:string" );
             arg4_3_4.addTextNode(contact.primary_email);
             
-            SOAPElement arg4_3_5 = abfields.addChildElement( env.createName("Office__bPhone") );
-            arg4_3_5.addAttribute( env.createName("type","xsi",""), "xsd:string" );
-            arg4_3_5.addTextNode(contact.primary_phone);
-
+            if(contact.primary_phone != null) {
+            	SOAPElement arg4_3_5 = abfields.addChildElement( env.createName("Office__bPhone") );
+            	arg4_3_5.addAttribute( env.createName("type","xsi",""), "xsd:string" );
+            	arg4_3_5.addTextNode(contact.primary_phone);
+            }
+            
             //Basic Information
             SOAPElement arg4_7 = args.addChildElement( env.createName("projectID") );
             arg4_7.addAttribute( env.createName("type","xsi",""), "xsd:int" );
