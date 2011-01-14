@@ -96,7 +96,10 @@ public class HomeServlet extends ServletBase  {
 	
 	private SideContentView createSideView()
 	{
-		SideContentView view = new SideContentView();	
+		SideContentView view = new SideContentView();
+		if(auth.isOIMUser()) {
+			view.addContactLegend();
+		}
 		return view;
 	}
 	

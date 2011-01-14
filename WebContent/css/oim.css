@@ -402,3 +402,11 @@ text-decoration: underline;
 font-weight: bold;
 color: #fff;
 }
+
+table.layout {
+width: 100%;
+}
+table.layout td {
+padding-bottom: 5px;
+margin-bottom: 5px;
+}

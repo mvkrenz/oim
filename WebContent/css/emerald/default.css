@@ -98,13 +98,16 @@ color: #fff;
 }
 #content h2
 {
-	color: white;
-background-image:url('images/h3_back.png');
-	padding: 4px 8px 4px 8px;
-	margin-top: 3px;
-	margin-bottom: 3px;
-	font-size: 13px;
-	font-family: "Arial";
+color: white;
+
+background-color: #333;
+background: -moz-linear-gradient(center top , #777, #444) repeat scroll 0 0 #333;
+
+padding: 4px 8px 4px 8px;
+margin-top: 3px;
+margin-bottom: 3px;
+font-size: 13px;
+font-family: "Arial";
 }
 #content h3
 {
