@@ -52,6 +52,8 @@ public class Footprint
 
 	public void createNewResourceTicket(String resource_name, String sc_footprint_id, String vo_name)
 	{
+		log.debug("createNewResourceTicket .. beginning");
+		
 		HashMap<String, String> params = new HashMap<String, String>();
 		params.put("##RESOURCE_NAME##", resource_name);
 		HtmlFileView description = new HtmlFileView("footprints_new_resource_template.txt", params);
@@ -203,11 +205,14 @@ public class Footprint
             arg4_2.addAttribute( env.createName("type","xsi",""), "xsd:string" );
             arg4_2.addTextNode("Engineering");
             msg.saveChanges();
-
+            
+    		log.debug("createNewResourceTicket .. all setup.. calling SOAP");
             call();
+    		log.debug("createNewResourceTicket .. yeah! success");
         } catch(Exception e) {
 			log.error("Failed to create resource ticket: ", e);
 		}
+		log.debug("createNewResourceTicket .. ending");
 	}
 	
 	public void createNewSCTicket(String sc_name)

@@ -13,6 +13,7 @@ import com.divrep.common.DivRepCheckBox;
 import com.divrep.common.DivRepFormElement;
 import com.divrep.common.DivRepSelectBox;
 import com.divrep.common.DivRepTextBox;
+import com.divrep.i18n.Labels;
 import com.divrep.validator.DivRepIValidator;
 import com.divrep.validator.DivRepUrlValidator;
 
@@ -22,7 +23,8 @@ import edu.iu.grid.oim.model.db.record.ServiceRecord;
 import edu.iu.grid.oim.view.divrep.form.ResourceFormDE;
 
 public class ResourceServices extends DivRepFormElement {
-
+	Labels lab = Labels.getInstance();
+	
 	ArrayList<ServiceEditor> services = new ArrayList<ServiceEditor>();
 	ArrayList<Integer> service_id_taken = new ArrayList<Integer>();
 	private DivRepButton add_button;
@@ -256,13 +258,26 @@ public class ResourceServices extends DivRepFormElement {
 	
 	public void validate()
 	{
+		boolean original = valid;
+		
 		//validate all services
 		redraw();
 		valid = true;
 		for(ServiceEditor service : services) {
 			if(!service.isValid()) {
+				error.set(null);//child element should show error message
 				valid = false;
 			}
+		}
+		
+		if(required && services.size() == 0) {
+			error.set("Please specify at least one service.");
+			valid = false;
+		}
+		
+		//why valid == false? because sometime error message can change to something else while it's set to true
+		if(original != valid || valid == false) {
+			error.redraw();
 		}
 	}
 	
@@ -279,6 +294,14 @@ public class ResourceServices extends DivRepFormElement {
 			service.render(out);
 		}
 		add_button.render(out);
+		
+		/*
+		if(isRequired()) {
+			//out.print(" * Required");
+			out.print(lab.RequiredFieldNote());
+		}
+		*/
+		error.render(out);
 		
 		out.print("</div>");
 	}

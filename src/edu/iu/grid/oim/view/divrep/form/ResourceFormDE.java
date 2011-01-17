@@ -168,6 +168,7 @@ public class ResourceFormDE extends DivRepForm
 				resource_services.addService(rarec);
 			}
 		}
+		resource_services.setRequired(true);
 
 		// Resource ownership stuff
 		new DivRepStaticContent(this, "<h2>VO Owners</h2>");
