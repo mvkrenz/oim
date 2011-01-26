@@ -34,7 +34,7 @@ public class SCModel extends SmallTableModelBase<SCRecord> {
 
 	public ArrayList<SCRecord> getAllEditable() throws SQLException
 	{		
-		ArrayList<SCRecord> list = new ArrayList();
+		ArrayList<SCRecord> list = new ArrayList<SCRecord>();
 
     	//only select record that is editable
 	    for(RecordBase rec : getCache()) {
@@ -99,6 +99,17 @@ public class SCModel extends SmallTableModelBase<SCRecord> {
 			list.add((SCRecord)it);
 		}
 		return list;
+	}
+	
+	public ArrayList<SCRecord> getAllNonDisabled() throws SQLException
+	{
+		ArrayList<SCRecord> list = new ArrayList<SCRecord>();
+		for(SCRecord it : getAll()) {
+			if(it.disable == false) {	
+				list.add(it);
+			}
+		}
+		return list;			
 	}
 	
 	public void insertDetail(SCRecord rec, 

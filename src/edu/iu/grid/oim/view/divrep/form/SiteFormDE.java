@@ -110,7 +110,7 @@ public class SiteFormDE extends DivRepForm
 		description.setValue(rec.description);
 		description.setRequired(false);
 
-		sc_id = new DivRepSelectBox(this, getSCs());
+		sc_id = new DivRepSelectBox(this, getNonDisabledSCs());
 		sc_id.setLabel("Select Support Center that supports resources and services for this site");
 		sc_id.setValue(rec.sc_id);
 		sc_id.setRequired(true);
@@ -184,11 +184,11 @@ public class SiteFormDE extends DivRepForm
 		return keyvalues;
 	}
 	
-	private LinkedHashMap<Integer, String> getSCs() throws AuthorizationException, SQLException
+	private LinkedHashMap<Integer, String> getNonDisabledSCs() throws AuthorizationException, SQLException
 	{
 		SCModel model = new SCModel(context);
 		LinkedHashMap<Integer, String> keyvalues = new LinkedHashMap<Integer, String>();
-		for(SCRecord rec : model.getAll()) {
+		for(SCRecord rec : model.getAllNonDisabled()) {
 			keyvalues.put(rec.id, rec.name);
 		}
 		return keyvalues;
