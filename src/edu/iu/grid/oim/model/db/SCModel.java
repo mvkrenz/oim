@@ -101,11 +101,11 @@ public class SCModel extends SmallTableModelBase<SCRecord> {
 		return list;
 	}
 	
-	public ArrayList<SCRecord> getAllNonDisabled() throws SQLException
+	public ArrayList<SCRecord> getAllActiveNonDisabled() throws SQLException
 	{
 		ArrayList<SCRecord> list = new ArrayList<SCRecord>();
 		for(SCRecord it : getAll()) {
-			if(it.disable == false) {	
+			if(it.active = true && it.disable == false) {	
 				list.add(it);
 			}
 		}
