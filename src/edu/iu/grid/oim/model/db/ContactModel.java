@@ -145,6 +145,7 @@ public class ContactModel extends SmallTableModelBase<ContactRecord> {
 	public boolean canEdit(int vo_id)
 	{
 		if(auth.allows("admin")) return true;
+		if(auth.allows("admin_contacts")) return true;
 		
 		try {
 			HashSet<Integer> ints = getEditableIDs();
