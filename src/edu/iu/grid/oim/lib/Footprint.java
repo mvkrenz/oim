@@ -137,24 +137,29 @@ public class Footprint
     		} else {
 	            SOAPElement arg4_5 = args.addChildElement( env.createName("assignees") );
 	            arg4_5.addAttribute( env.createName("type","xsi",""), "SOAP-ENC:Array" );
-	            arg4_5.addAttribute( env.createName("arrayType","SOAP-ENC",""), "xsd:string[3]" );//CHANGE [1] to [n] based on the number of items
 	            
-		            SOAPElement arg4_5_1 = arg4_5.addChildElement( env.createName("item") );
-		            arg4_5_1.addAttribute( env.createName("type","xsi",""), "xsd:string" );
-		            arg4_5_1.addTextNode("kagross");
-		            
-		            SOAPElement arg4_5_2 = arg4_5.addChildElement( env.createName("item") );
-		            arg4_5_2.addAttribute( env.createName("type","xsi",""), "xsd:string" );
-		            arg4_5_2.addTextNode("echism");
-		            
-		            if(sc_footprint_id != null) {
-			            //assign the associated SC so that they will be notified of this resource registration
-			            SOAPElement arg4_5_3 = arg4_5.addChildElement( env.createName("item") );
-			            arg4_5_3.addAttribute( env.createName("type","xsi",""), "xsd:string" );
-			            arg4_5_3.addTextNode(sc_footprint_id);
-		            } else {
-		            	log.warn("Couldn't assign support center for the registration ticket since the information hasn't been filled out in OIM");
-		            }
+	            int count = 0;
+	            
+	            SOAPElement arg4_5_1 = arg4_5.addChildElement( env.createName("item") );
+	            arg4_5_1.addAttribute( env.createName("type","xsi",""), "xsd:string" );
+	            arg4_5_1.addTextNode("kagross");
+	            count++;
+	            
+	            SOAPElement arg4_5_2 = arg4_5.addChildElement( env.createName("item") );
+	            arg4_5_2.addAttribute( env.createName("type","xsi",""), "xsd:string" );
+	            arg4_5_2.addTextNode("echism");
+	            count++;
+	            
+	            if(sc_footprint_id != null) {
+		            //assign the associated SC so that they will be notified of this resource registration
+		            SOAPElement arg4_5_3 = arg4_5.addChildElement( env.createName("item") );
+		            arg4_5_3.addAttribute( env.createName("type","xsi",""), "xsd:string" );
+		            arg4_5_3.addTextNode(sc_footprint_id);
+		            count++;
+	            } else {
+	            	log.warn("Couldn't assign support center for the registration ticket since the information hasn't been filled out in OIM");
+	            }
+		        arg4_5.addAttribute( env.createName("arrayType","SOAP-ENC",""), "xsd:string["+count+"]" );//CHANGE [1] to [n] based on the number of items    
     		}
 	            
     		if(StaticConfig.isDebug()) {
@@ -464,24 +469,29 @@ public class Footprint
     		} else {
 	            SOAPElement arg4_5 = args.addChildElement( env.createName("assignees") );
 	            arg4_5.addAttribute( env.createName("type","xsi",""), "SOAP-ENC:Array" );
-	            arg4_5.addAttribute( env.createName("arrayType","SOAP-ENC",""), "xsd:string[3]" );//CHANGE [1] to [n] based on the number of items
+	            int count = 0;
 	            
-		            SOAPElement arg4_5_1 = arg4_5.addChildElement( env.createName("item") );
-		            arg4_5_1.addAttribute( env.createName("type","xsi",""), "xsd:string" );
-		            arg4_5_1.addTextNode("kagross");
-		            
-		            SOAPElement arg4_5_2 = arg4_5.addChildElement( env.createName("item") );
-		            arg4_5_2.addAttribute( env.createName("type","xsi",""), "xsd:string" );
-		            arg4_5_2.addTextNode("echism");
-		            
-		            if(sc_footprint_id != null) {
-			            //assign the associated SC so that they will be notified of this resource registration
-			            SOAPElement arg4_5_3 = arg4_5.addChildElement( env.createName("item") );
-			            arg4_5_3.addAttribute( env.createName("type","xsi",""), "xsd:string" );
-			            arg4_5_3.addTextNode(sc_footprint_id);
-		            } else {
-				        log.warn("Failed to set Support Center as assignee for VO registration form since sc_footprint_id hasn't been set in OIM yet");            	
-		            }
+	            SOAPElement arg4_5_1 = arg4_5.addChildElement( env.createName("item") );
+	            arg4_5_1.addAttribute( env.createName("type","xsi",""), "xsd:string" );
+	            arg4_5_1.addTextNode("kagross");
+	            count++;
+	            
+	            SOAPElement arg4_5_2 = arg4_5.addChildElement( env.createName("item") );
+	            arg4_5_2.addAttribute( env.createName("type","xsi",""), "xsd:string" );
+	            arg4_5_2.addTextNode("echism");
+	            count++;
+	            
+	            if(sc_footprint_id != null) {
+		            //assign the associated SC so that they will be notified of this resource registration
+		            SOAPElement arg4_5_3 = arg4_5.addChildElement( env.createName("item") );
+		            arg4_5_3.addAttribute( env.createName("type","xsi",""), "xsd:string" );
+		            arg4_5_3.addTextNode(sc_footprint_id);
+		            count++;
+	            } else {
+			        log.warn("Failed to set Support Center as assignee for VO registration form since sc_footprint_id hasn't been set in OIM yet");            	
+	            }
+		        arg4_5.addAttribute( env.createName("arrayType","SOAP-ENC",""), "xsd:string["+count+"]" );//CHANGE [1] to [n] based on the number of items
+		        
     		}
 	            
     		if(StaticConfig.isDebug()) {
@@ -574,11 +584,14 @@ public class Footprint
 	
 	void call() throws SOAPException
 	{
-		System.out.println("Dumpging request soap body");
-		DumpSOAPElement(msg.getSOAPBody(), 0);
-		
+ 		if(StaticConfig.isDebug()) {
+ 			System.out.println("Dumpging request soap body");
+ 			DumpSOAPElement(msg.getSOAPBody(), 0);
+ 		}
+ 		
         SOAPMessage reply = connection.call(msg, StaticConfig.getFootprintsUrl());
         connection.close();
+        
         
 		System.out.println("Dumpging reply body");
 		DumpSOAPElement(reply.getSOAPBody(), 0);
