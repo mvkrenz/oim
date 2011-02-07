@@ -540,12 +540,47 @@ public class Footprint
 		}
 	}
 	
+	public static String GetIndent(int num) {
+
+		String s = "";
+		for (int i = 0; i < num; i++) {
+			s = s + " ";
+		}
+		return s;
+	}
+	
+	public static void DumpSOAPElement(SOAPElement el, int indent)
+	{
+		java.util.Iterator it = el.getChildElements();
+		while (it.hasNext())
+		{
+			String indstr = GetIndent(indent);
+			Object obj = it.next();
+			if (obj instanceof SOAPElement)
+			{
+				SOAPElement ele = (SOAPElement) obj;
+				System.out.println(indstr + "-----------------------------");
+				System.out.println(indstr + ele.getElementName().getLocalName());
+				System.out.println(indstr + "-----------------------------");
+				DumpSOAPElement(ele, indent + 4);
+			}
+			else if (obj instanceof Text)
+			{
+				Text txt = (Text) obj;
+				System.out.println(indstr + txt.getValue() + "\n");
+			}
+		}
+	}
+	
 	void call() throws SOAPException
 	{
-		//in order to dump message, use
-		//log4j.logger.org.apache.axis.transport.http.HTTPSender=DEBUG  
+		System.out.println("Dumpging request soap body");
+		DumpSOAPElement(msg.getSOAPBody(), 0);
 		
         SOAPMessage reply = connection.call(msg, StaticConfig.getFootprintsUrl());
         connection.close();
+        
+		System.out.println("Dumpging reply body");
+		DumpSOAPElement(reply.getSOAPBody(), 0);
 	}
 }
