@@ -3,10 +3,12 @@ package edu.iu.grid.oim.lib;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 
 import javax.xml.soap.*;
 
 import org.apache.log4j.Logger;
+import org.w3c.dom.NodeList;
 
 import edu.iu.grid.oim.model.Context;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
@@ -569,15 +571,15 @@ public class Footprint
 			if (obj instanceof SOAPElement)
 			{
 				SOAPElement ele = (SOAPElement) obj;
-				System.out.println(indstr + "-----------------------------");
-				System.out.println(indstr + ele.getElementName().getLocalName());
-				System.out.println(indstr + "-----------------------------");
+				System.err.println(indstr + "-----------------------------");
+				System.err.println(indstr + ele.getElementName().getLocalName());
+				System.err.println(indstr + "-----------------------------");
 				DumpSOAPElement(ele, indent + 4);
 			}
 			else if (obj instanceof Text)
 			{
 				Text txt = (Text) obj;
-				System.out.println(indstr + txt.getValue() + "\n");
+				System.err.println(indstr + txt.getValue() + "\n");
 			}
 		}
 	}
@@ -592,8 +594,13 @@ public class Footprint
         SOAPMessage reply = connection.call(msg, StaticConfig.getFootprintsUrl());
         connection.close();
         
-        
-		System.out.println("Dumpging reply body");
-		DumpSOAPElement(reply.getSOAPBody(), 0);
+        NodeList list = reply.getSOAPBody().getElementsByTagName("MRWebServices__createIssue_gocResponse");
+        if(list.getLength() == 1) {
+        	log.debug("Created Ticket: " + list.item(0).getTextContent());
+        } else {
+        	System.out.println("SOAP did not return ticket ID.. dumping..");
+ 			DumpSOAPElement(msg.getSOAPBody(), 0);
+        	DumpSOAPElement(reply.getSOAPBody(), 0);
+        }
 	}
 }
