@@ -571,17 +571,17 @@ public class Footprint
 			if (obj instanceof SOAPElement)
 			{
 				SOAPElement ele = (SOAPElement) obj;
-				System.err.println(indstr + "-----------------------------");
-				System.err.println(indstr + ele.getElementName().getLocalName());
-				System.err.println(indstr + "-----------------------------");
+				log.error(indstr + "-----------------------------");
+				log.error(indstr + ele.getElementName().getLocalName());
+				log.error(indstr + "-----------------------------");
 				DumpSOAPElement(ele, indent + 4);
 			}
 			else if (obj instanceof Text)
 			{
 				Text txt = (Text) obj;
-				System.err.println(indstr + "TextNode:" + txt.getValue() + "\n");
+				log.error(indstr + "TextNode:" + txt.getValue() + "\n");
 			} else {
-				System.err.println(indstr + obj.toString());
+				log.error(indstr + obj.toString());
 			}
 		}
 	}
@@ -604,12 +604,12 @@ public class Footprint
         	if(item.getElementName().getLocalName().equals("MRWebServices__createIssue_gocResponse")) {
         		log.debug("Created Ticket: " + item.getTextContent());
         	} else {
-	        	System.err.println("SOAP did not return ticket ID.. dumping..");
+	        	log.error("SOAP did not return ticket ID.. dumping..");
 	 			DumpSOAPElement(msg.getSOAPBody(), 0);
 	        	DumpSOAPElement(reply.getSOAPBody(), 0);
 	        }
         } else {
-        	System.err.println("SOAP did not return anything at all...");
+        	log.error("SOAP did not return anything at all...");
         }
 	}
 }
