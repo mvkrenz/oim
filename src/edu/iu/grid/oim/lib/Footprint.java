@@ -594,9 +594,11 @@ public class Footprint
         SOAPMessage reply = connection.call(msg, StaticConfig.getFootprintsUrl());
         connection.close();
         
-        NodeList list = reply.getSOAPBody().getElementsByTagName("MRWebServices__createIssue_gocResponse");
-        if(list.getLength() == 1) {
-        	log.debug("Created Ticket: " + list.item(0).getTextContent());
+        Name name = env.createName("MRWebServices__createIssue_gocResponse");
+        Iterator list = reply.getSOAPBody().getChildElements(name);
+        if(list.hasNext()) {
+        	SOAPElement item = (SOAPElement) list.next();
+        	log.debug("Created Ticket: " + item.getTextContent());
         } else {
         	System.out.println("SOAP did not return ticket ID.. dumping..");
  			DumpSOAPElement(msg.getSOAPBody(), 0);
