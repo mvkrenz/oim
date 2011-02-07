@@ -579,17 +579,21 @@ public class Footprint
 			else if (obj instanceof Text)
 			{
 				Text txt = (Text) obj;
-				System.err.println(indstr + txt.getValue() + "\n");
+				System.err.println(indstr + "TextNode:" + txt.getValue() + "\n");
+			} else {
+				System.err.println(indstr + obj.toString());
 			}
 		}
 	}
 	
 	void call() throws SOAPException
 	{
+		/*
  		if(StaticConfig.isDebug()) {
  			System.out.println("Dumpging request soap body");
  			DumpSOAPElement(msg.getSOAPBody(), 0);
  		}
+ 		*/
  		
         SOAPMessage reply = connection.call(msg, StaticConfig.getFootprintsUrl());
         connection.close();
