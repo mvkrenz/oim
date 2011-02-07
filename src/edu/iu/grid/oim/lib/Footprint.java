@@ -129,6 +129,10 @@ public class Footprint
 		            arg4_5_1.addAttribute( env.createName("type","xsi",""), "xsd:string" );
 		            arg4_5_1.addTextNode("hayashis");
 		            
+		            if(sc_footprint_id == null) {
+		            	log.warn("Can't assign support center for the registration ticket since the information hasn't been filled out in OIM");
+		            }
+		            
 		        log.debug("DEBUG: assigning hayashis - in reality following would have assigned: kagross, echism, " + sc_footprint_id);
     		} else {
 	            SOAPElement arg4_5 = args.addChildElement( env.createName("assignees") );
@@ -538,8 +542,17 @@ public class Footprint
 	
 	void call() throws SOAPException
 	{
+        if(StaticConfig.isDebug()) {
+        	log.debug("Calling SOAP with following message");
+        	log.debug(msg);
+        }		
         SOAPMessage reply = connection.call(msg, StaticConfig.getFootprintsUrl());
         connection.close();
-        //return reply.getSOAPPart().getEnvelope().getBody();
+        
+        if(StaticConfig.isDebug()) {
+        	String out = reply.getSOAPPart().getEnvelope().getBody().toString();
+        	log.debug("Received following reply body");
+        	log.debug(out);
+        }
 	}
 }
