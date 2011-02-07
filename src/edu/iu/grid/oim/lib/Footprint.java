@@ -3,10 +3,12 @@ package edu.iu.grid.oim.lib;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 
 import javax.xml.soap.*;
 
 import org.apache.log4j.Logger;
+import org.w3c.dom.NodeList;
 
 import edu.iu.grid.oim.model.Context;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
@@ -129,28 +131,37 @@ public class Footprint
 		            arg4_5_1.addAttribute( env.createName("type","xsi",""), "xsd:string" );
 		            arg4_5_1.addTextNode("hayashis");
 		            
+		            if(sc_footprint_id == null) {
+		            	log.warn("Can't assign support center for the registration ticket since the information hasn't been filled out in OIM");
+		            }
+		            
 		        log.debug("DEBUG: assigning hayashis - in reality following would have assigned: kagross, echism, " + sc_footprint_id);
     		} else {
 	            SOAPElement arg4_5 = args.addChildElement( env.createName("assignees") );
 	            arg4_5.addAttribute( env.createName("type","xsi",""), "SOAP-ENC:Array" );
-	            arg4_5.addAttribute( env.createName("arrayType","SOAP-ENC",""), "xsd:string[3]" );//CHANGE [1] to [n] based on the number of items
 	            
-		            SOAPElement arg4_5_1 = arg4_5.addChildElement( env.createName("item") );
-		            arg4_5_1.addAttribute( env.createName("type","xsi",""), "xsd:string" );
-		            arg4_5_1.addTextNode("kagross");
-		            
-		            SOAPElement arg4_5_2 = arg4_5.addChildElement( env.createName("item") );
-		            arg4_5_2.addAttribute( env.createName("type","xsi",""), "xsd:string" );
-		            arg4_5_2.addTextNode("echism");
-		            
-		            if(sc_footprint_id != null) {
-			            //assign the associated SC so that they will be notified of this resource registration
-			            SOAPElement arg4_5_3 = arg4_5.addChildElement( env.createName("item") );
-			            arg4_5_3.addAttribute( env.createName("type","xsi",""), "xsd:string" );
-			            arg4_5_3.addTextNode(sc_footprint_id);
-		            } else {
-		            	log.warn("Couldn't assign support center for the registration ticket since the information hasn't been filled out in OIM");
-		            }
+	            int count = 0;
+	            
+	            SOAPElement arg4_5_1 = arg4_5.addChildElement( env.createName("item") );
+	            arg4_5_1.addAttribute( env.createName("type","xsi",""), "xsd:string" );
+	            arg4_5_1.addTextNode("kagross");
+	            count++;
+	            
+	            SOAPElement arg4_5_2 = arg4_5.addChildElement( env.createName("item") );
+	            arg4_5_2.addAttribute( env.createName("type","xsi",""), "xsd:string" );
+	            arg4_5_2.addTextNode("echism");
+	            count++;
+	            
+	            if(sc_footprint_id != null) {
+		            //assign the associated SC so that they will be notified of this resource registration
+		            SOAPElement arg4_5_3 = arg4_5.addChildElement( env.createName("item") );
+		            arg4_5_3.addAttribute( env.createName("type","xsi",""), "xsd:string" );
+		            arg4_5_3.addTextNode(sc_footprint_id);
+		            count++;
+	            } else {
+	            	log.warn("Couldn't assign support center for the registration ticket since the information hasn't been filled out in OIM");
+	            }
+		        arg4_5.addAttribute( env.createName("arrayType","SOAP-ENC",""), "xsd:string["+count+"]" );//CHANGE [1] to [n] based on the number of items    
     		}
 	            
     		if(StaticConfig.isDebug()) {
@@ -460,24 +471,29 @@ public class Footprint
     		} else {
 	            SOAPElement arg4_5 = args.addChildElement( env.createName("assignees") );
 	            arg4_5.addAttribute( env.createName("type","xsi",""), "SOAP-ENC:Array" );
-	            arg4_5.addAttribute( env.createName("arrayType","SOAP-ENC",""), "xsd:string[3]" );//CHANGE [1] to [n] based on the number of items
+	            int count = 0;
 	            
-		            SOAPElement arg4_5_1 = arg4_5.addChildElement( env.createName("item") );
-		            arg4_5_1.addAttribute( env.createName("type","xsi",""), "xsd:string" );
-		            arg4_5_1.addTextNode("kagross");
-		            
-		            SOAPElement arg4_5_2 = arg4_5.addChildElement( env.createName("item") );
-		            arg4_5_2.addAttribute( env.createName("type","xsi",""), "xsd:string" );
-		            arg4_5_2.addTextNode("echism");
-		            
-		            if(sc_footprint_id != null) {
-			            //assign the associated SC so that they will be notified of this resource registration
-			            SOAPElement arg4_5_3 = arg4_5.addChildElement( env.createName("item") );
-			            arg4_5_3.addAttribute( env.createName("type","xsi",""), "xsd:string" );
-			            arg4_5_3.addTextNode(sc_footprint_id);
-		            } else {
-				        log.warn("Failed to set Support Center as assignee for VO registration form since sc_footprint_id hasn't been set in OIM yet");            	
-		            }
+	            SOAPElement arg4_5_1 = arg4_5.addChildElement( env.createName("item") );
+	            arg4_5_1.addAttribute( env.createName("type","xsi",""), "xsd:string" );
+	            arg4_5_1.addTextNode("kagross");
+	            count++;
+	            
+	            SOAPElement arg4_5_2 = arg4_5.addChildElement( env.createName("item") );
+	            arg4_5_2.addAttribute( env.createName("type","xsi",""), "xsd:string" );
+	            arg4_5_2.addTextNode("echism");
+	            count++;
+	            
+	            if(sc_footprint_id != null) {
+		            //assign the associated SC so that they will be notified of this resource registration
+		            SOAPElement arg4_5_3 = arg4_5.addChildElement( env.createName("item") );
+		            arg4_5_3.addAttribute( env.createName("type","xsi",""), "xsd:string" );
+		            arg4_5_3.addTextNode(sc_footprint_id);
+		            count++;
+	            } else {
+			        log.warn("Failed to set Support Center as assignee for VO registration form since sc_footprint_id hasn't been set in OIM yet");            	
+	            }
+		        arg4_5.addAttribute( env.createName("arrayType","SOAP-ENC",""), "xsd:string["+count+"]" );//CHANGE [1] to [n] based on the number of items
+		        
     		}
 	            
     		if(StaticConfig.isDebug()) {
@@ -536,10 +552,64 @@ public class Footprint
 		}
 	}
 	
+	public static String GetIndent(int num) {
+
+		String s = "";
+		for (int i = 0; i < num; i++) {
+			s = s + " ";
+		}
+		return s;
+	}
+	
+	public static void DumpSOAPElement(SOAPElement el, int indent)
+	{
+		java.util.Iterator it = el.getChildElements();
+		while (it.hasNext())
+		{
+			String indstr = GetIndent(indent);
+			Object obj = it.next();
+			if (obj instanceof SOAPElement)
+			{
+				SOAPElement ele = (SOAPElement) obj;
+				log.error(indstr + "-----------------------------");
+				log.error(indstr + ele.getElementName().getLocalName());
+				log.error(indstr + "-----------------------------");
+				DumpSOAPElement(ele, indent + 4);
+			}
+			else if (obj instanceof Text)
+			{
+				Text txt = (Text) obj;
+				log.error(indstr + "TextNode:" + txt.getValue() + "\n");
+			} else {
+				log.error(indstr + obj.toString());
+			}
+		}
+	}
+	
 	void call() throws SOAPException
 	{
+		/*
+ 		if(StaticConfig.isDebug()) {
+ 			System.out.println("Dumpging request soap body");
+ 			DumpSOAPElement(msg.getSOAPBody(), 0);
+ 		}
+ 		*/
+ 		
         SOAPMessage reply = connection.call(msg, StaticConfig.getFootprintsUrl());
         connection.close();
-        //return reply.getSOAPPart().getEnvelope().getBody();
+        
+        Iterator it = reply.getSOAPBody().getChildElements();
+        if(it.hasNext()) {
+        	SOAPElement item = (SOAPElement) it.next();
+        	if(item.getElementName().getLocalName().equals("MRWebServices__createIssue_gocResponse")) {
+        		log.debug("Created Ticket: " + item.getTextContent());
+        	} else {
+	        	log.error("SOAP did not return ticket ID.. dumping..");
+	 			DumpSOAPElement(msg.getSOAPBody(), 0);
+	        	DumpSOAPElement(reply.getSOAPBody(), 0);
+	        }
+        } else {
+        	log.error("SOAP did not return anything at all...");
+        }
 	}
 }
