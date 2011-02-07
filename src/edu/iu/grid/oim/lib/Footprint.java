@@ -539,8 +539,17 @@ public class Footprint
 	
 	void call() throws SOAPException
 	{
+        if(StaticConfig.isDebug()) {
+        	log.debug("Calling SOAP with following message");
+        	log.debug(msg);
+        }		
         SOAPMessage reply = connection.call(msg, StaticConfig.getFootprintsUrl());
         connection.close();
-        //return reply.getSOAPPart().getEnvelope().getBody();
+        
+        if(StaticConfig.isDebug()) {
+        	String out = reply.getSOAPPart().getEnvelope().getBody().toString();
+        	log.debug("Received following reply body");
+        	log.debug(out);
+        }
 	}
 }
