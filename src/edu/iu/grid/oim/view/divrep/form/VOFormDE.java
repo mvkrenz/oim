@@ -428,15 +428,15 @@ public class VOFormDE extends DivRepForm
 		new DivRepStaticContent(this, "<p>Check  if this VO is a sub-VO of an existing VO. For example, FermilabMinos is a sub VO of the Fermilab VO.</p>");
 		child_vo = new DivRepCheckBox(this);
 		child_vo.setLabel("This is a sub-VO");
-		//indent the parent VO stuff
-		new DivRepStaticContent(this, "<div class=\"indent\">");
+
 		//pull vos for unique validator
 		LinkedHashMap<Integer, String> vos = getVONames();
-		if(id != null) { //if doing update, remove my own name (I can use my own name)
+		if(id != null) { //if doing update, remove my own name (I can't use my own name)
 			vos.remove(id);
 		}
 		parent_vo = new DivRepSelectBox(this, vos);
 		parent_vo.setLabel("Select a Parent VO");
+		parent_vo.addClass("indent");
 		hideParentVOSelector(true);
 		child_vo.addEventListener(new DivRepEventListener() {
 			public void handleEvent(DivRepEvent e) {	
@@ -463,7 +463,6 @@ public class VOFormDE extends DivRepForm
 				handleParentVOSelection(Integer.parseInt((String)e.value));
 			}
 		});
-		new DivRepStaticContent(this, "</div>");
 		
 		//new DivRepStaticContent(this, "<p>Add/modify basic information about this VO</p>");
 
@@ -648,8 +647,14 @@ public class VOFormDE extends DivRepForm
 	private LinkedHashMap<Integer, String> getSCNames() throws AuthorizationException, SQLException
 	{
 		SCModel model = new SCModel(context);
+		ArrayList<SCRecord> recs = model.getAllActiveNonDisabled();
+		Collections.sort(recs, new Comparator<SCRecord> () {
+			public int compare(SCRecord a, SCRecord b) {
+				return a.getName().compareToIgnoreCase(b.getName());
+			}
+		});
 		LinkedHashMap<Integer, String> keyvalues = new LinkedHashMap<Integer, String>();
-		for(SCRecord rec : model.getAll()) {
+		for(SCRecord rec : recs) {
 			keyvalues.put(rec.id, rec.name);
 		}
 		return keyvalues;
@@ -659,8 +664,14 @@ public class VOFormDE extends DivRepForm
 	{
 		//pull all VOs
 		VOModel model = new VOModel(context);
+		ArrayList<VORecord> recs = model.getAll();
+		Collections.sort(recs, new Comparator<VORecord> () {
+			public int compare(VORecord a, VORecord b) {
+				return a.getName().compareToIgnoreCase(b.getName());
+			}
+		});
 		LinkedHashMap<Integer, String> keyvalues = new LinkedHashMap<Integer, String>();
-		for(VORecord rec : model.getAll()) {
+		for(VORecord rec : recs) {
 			keyvalues.put(rec.id, rec.name);
 		}
 		return keyvalues;

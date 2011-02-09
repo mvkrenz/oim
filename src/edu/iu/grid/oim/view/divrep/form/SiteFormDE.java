@@ -1,23 +1,12 @@
 package edu.iu.grid.oim.view.divrep.form;
 
-import java.io.PrintWriter;
-import java.sql.Connection;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
-import java.util.TreeMap;
 
 import org.apache.log4j.Logger;
-import org.geonames.Toponym;
-import org.geonames.ToponymSearchCriteria;
-import org.geonames.ToponymSearchResult;
-import org.geonames.WebService;
-
-import com.divrep.DivRep;
-import com.divrep.DivRepEvent;
 import com.divrep.common.DivRepCheckBox;
 import com.divrep.common.DivRepForm;
 import com.divrep.common.DivRepLocationSelector;
@@ -26,7 +15,6 @@ import com.divrep.common.DivRepStaticContent;
 import com.divrep.common.DivRepTextArea;
 import com.divrep.common.DivRepTextBox;
 import com.divrep.validator.DivRepUniqueValidator;
-import com.divrep.validator.DivRepUrlValidator;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Footprint;
@@ -34,20 +22,12 @@ import edu.iu.grid.oim.lib.AuthorizationException;
 import edu.iu.grid.oim.lib.StaticConfig;
 
 import edu.iu.grid.oim.model.Context;
-import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.SCModel;
 import edu.iu.grid.oim.model.db.SiteModel;
 import edu.iu.grid.oim.model.db.FacilityModel;
-import edu.iu.grid.oim.model.db.record.RecordBase;
-import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.SCRecord;
 import edu.iu.grid.oim.model.db.record.SiteRecord;
 import edu.iu.grid.oim.model.db.record.FacilityRecord;
-
-import edu.iu.grid.oim.view.divrep.ContactEditor;
-import edu.iu.grid.oim.view.divrep.ContactEditor.Rank;
-
-import java.lang.Double;
 
 public class SiteFormDE extends DivRepForm 
 {
@@ -151,7 +131,14 @@ public class SiteFormDE extends DivRepForm
 		//latlng = new LatLngSelector(this);
 		latlng = new DivRepLocationSelector(this, StaticConfig.getApplicationBase()+"/images/target.png");
 		latlng.setLabel("Latitude / Longitude");
-		latlng.setValue(latlng.new LatLng(rec.latitude, rec.longitude));
+		int zoom = 10;
+		if(rec.latitude == null || rec.longitude == null) {
+			//set it to some *random* location
+			rec.latitude = 37.401394D;
+			rec.longitude = -116.867846D;
+			zoom = 2;
+		}
+		latlng.setValue(latlng.new LatLng(rec.latitude, rec.longitude, zoom));
 		latlng.setRequired(true);
 		
 		if(auth.allows("admin")) {
@@ -187,8 +174,14 @@ public class SiteFormDE extends DivRepForm
 	private LinkedHashMap<Integer, String> getActiveNonDisabledSCs() throws AuthorizationException, SQLException
 	{
 		SCModel model = new SCModel(context);
+		ArrayList<SCRecord> recs = model.getAllActiveNonDisabled();
+		Collections.sort(recs, new Comparator<SCRecord> () {
+			public int compare(SCRecord a, SCRecord b) {
+				return a.getName().compareToIgnoreCase(b.getName());
+			}
+		});
 		LinkedHashMap<Integer, String> keyvalues = new LinkedHashMap<Integer, String>();
-		for(SCRecord rec : model.getAllActiveNonDisabled()) {
+		for(SCRecord rec : recs) {
 			keyvalues.put(rec.id, rec.name);
 		}
 		return keyvalues;
@@ -197,8 +190,14 @@ public class SiteFormDE extends DivRepForm
 	private LinkedHashMap<Integer, String> getFacilities() throws AuthorizationException, SQLException
 	{
 		FacilityModel model = new FacilityModel(context);
+		ArrayList<FacilityRecord> recs = model.getAll();
+		Collections.sort(recs, new Comparator<FacilityRecord> () {
+			public int compare(FacilityRecord a, FacilityRecord b) {
+				return a.getName().compareToIgnoreCase(b.getName());
+			}
+		});
 		LinkedHashMap<Integer, String> keyvalues = new LinkedHashMap<Integer, String>();
-		for(FacilityRecord rec : model.getAll()) {
+		for(FacilityRecord rec : recs) {
 			keyvalues.put(rec.id, rec.name);
 		}
 		return keyvalues;
