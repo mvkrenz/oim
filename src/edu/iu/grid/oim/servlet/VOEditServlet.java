@@ -7,6 +7,8 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.log4j.Logger;
+
+import edu.iu.grid.oim.lib.AuthorizationException;
 import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.model.db.VOModel;
 import edu.iu.grid.oim.model.db.record.VORecord;
@@ -43,7 +45,7 @@ public class VOEditServlet extends ServletBase implements Servlet {
 			int vo_id = Integer.parseInt(vo_id_str);
 			VOModel model = new VOModel(context);
 			if(!model.canEdit(vo_id)) {
-				throw new ServletException("Sorry, you don't have permission to edit VO " + vo_id);
+				throw new AuthorizationException("Sorry, you don't have permission to edit VO ID:" + vo_id);
 			}
 			
 			try {

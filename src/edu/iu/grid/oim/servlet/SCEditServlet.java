@@ -13,6 +13,7 @@ import org.apache.log4j.Logger;
 import com.divrep.DivRepRoot;
 
 import edu.iu.grid.oim.lib.Authorization;
+import edu.iu.grid.oim.lib.AuthorizationException;
 import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.model.db.SCModel;
 import edu.iu.grid.oim.model.db.record.SCRecord;
@@ -49,7 +50,7 @@ public class SCEditServlet extends ServletBase implements Servlet {
 			int sc_id = Integer.parseInt(sc_id_str);
 			SCModel model = new SCModel(context);			
 			if(!model.canEdit(sc_id)) {
-				throw new ServletException("Sorry, you don't have permission to edit this SC " + sc_id);
+				throw new AuthorizationException("Sorry, you don't have permission to edit this SC ID:" + sc_id);
 			}
 			
 			try {

@@ -4,7 +4,7 @@ import javax.servlet.ServletException;
 
 public class AuthorizationException extends ServletException 
 {
-	AuthorizationException(String msg) {
+	public AuthorizationException(String msg) {
 		super(msg);
 	}
 }

@@ -1,6 +1,8 @@
 package edu.iu.grid.oim.servlet;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.TimeZone;
@@ -78,8 +80,20 @@ public class ServletBase extends HttpServlet {
 				doGet(req, resp);
 			}
 		} catch (AuthorizationException e) {
-			throw new ServletException(e);
-		}	
+			try {
+				String request_uri = context.getRequestURL();
+				if(request_uri != null) {
+					request_uri = URLEncoder.encode(request_uri, "UTF-8");
+					req.getSession().setAttribute("request_uri", request_uri);
+				}
+			} catch (UnsupportedEncodingException e1) {
+				log.error(e);
+			} 
+			
+			req.getSession().setAttribute("exception", e);
+			resp.sendRedirect(StaticConfig.getApplicationBase()+"/error");
+		}
+		
 		context.close();
 	}
 }

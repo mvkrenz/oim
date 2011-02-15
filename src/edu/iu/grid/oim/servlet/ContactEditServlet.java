@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
 
+import edu.iu.grid.oim.lib.AuthorizationException;
 import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
@@ -46,7 +47,7 @@ public class ContactEditServlet extends ServletBase implements Servlet {
 			ContactModel model = new ContactModel(context);
 			int id = Integer.parseInt(id_str);
 			if(!model.canEdit(id)) {
-				throw new ServletException("you can't edit that");
+				throw new AuthorizationException("you can't edit contact ID:" + id_str);
 			}
 			try {
 				ContactRecord keyrec = new ContactRecord();

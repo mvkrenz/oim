@@ -13,6 +13,7 @@ import org.apache.log4j.Logger;
 import com.divrep.DivRep;
 import com.divrep.common.DivRepForm;
 
+import edu.iu.grid.oim.lib.AuthorizationException;
 import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.model.Context;
 import edu.iu.grid.oim.model.db.ResourceModel;
@@ -49,7 +50,7 @@ public class ResourceEditServlet extends ServletBase implements Servlet {
 			int resource_id = Integer.parseInt(resource_id_str);
 			ResourceModel model = new ResourceModel(context);
 			if(!model.canEdit(resource_id)) {
-				throw new ServletException("You can't edit this resource!");
+				throw new AuthorizationException("You can't edit this resource ID:" + resource_id_str);
 			}
 			try {
 				ResourceRecord keyrec = new ResourceRecord();
