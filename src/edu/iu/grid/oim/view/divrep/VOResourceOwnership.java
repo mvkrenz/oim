@@ -2,6 +2,8 @@ package edu.iu.grid.oim.view.divrep;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.TreeMap;
@@ -17,6 +19,7 @@ import com.divrep.validator.DivRepDoubleValidator;
 import com.divrep.validator.DivRepIValidator;
 
 import edu.iu.grid.oim.model.db.record.ResourceServiceRecord;
+import edu.iu.grid.oim.model.db.record.SCRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
 import edu.iu.grid.oim.model.db.record.VOResourceOwnershipRecord;
 import edu.iu.grid.oim.view.divrep.ResourceServices.ServiceEditor;
@@ -37,10 +40,16 @@ public class VOResourceOwnership extends DivRepFormElement {
 			super(parent);
 			myself = this;
 		
+			Collections.sort(vo_recs, new Comparator<VORecord> () {
+				public int compare(VORecord a, VORecord b) {
+					return a.getName().compareToIgnoreCase(b.getName());
+				}
+			});
 			LinkedHashMap<Integer, String> kv = new LinkedHashMap();
 			for(VORecord vo_rec : vo_recs) {
 				kv.put(vo_rec.id, vo_rec.name);
 			}
+			
 			vo = new DivRepSelectBox(this, kv);
 			vo.setLabel("Select a VO Owner");
 			vo.setRequired(true);
