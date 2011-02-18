@@ -463,19 +463,13 @@ public class VOFormDE extends DivRepForm
 				handleParentVOSelection(Integer.parseInt((String)e.value));
 			}
 		});
-		
-		//new DivRepStaticContent(this, "<p>Add/modify basic information about this VO</p>");
 
-		// Name is not an editable field except for GOC staff
 		name = new DivRepTextBox(this);
 		name.setLabel("Name");
 		name.setValue(rec.name);
 		name.addValidator(new DivRepUniqueValidator<String>(vos.values()));
 		name.setRequired(true);
 		name.setSampleValue("CDF");
-		if (auth.allows("admin")) {
-			name.setDisabled(true);
-		}
 
 		long_name = new DivRepTextBox(this);
 		long_name.setLabel("Enter the Long Name for this VO");
@@ -488,7 +482,6 @@ public class VOFormDE extends DivRepForm
 		sc_id.setValue(rec.sc_id);
 		sc_id.setRequired(true);
 		
-
 		new DivRepStaticContent(this, "<h3>Extended Descriptions</h3>");
 		description = new DivRepTextArea(this);
 		description.setLabel("Enter a Description for this VO");
