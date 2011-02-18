@@ -146,6 +146,7 @@ public class RegisterServlet extends ServletBase  {
 
 			primary_phone_ext = new DivRepTextBox(this);
 			primary_phone_ext.setLabel("Primary Phone Extension");
+			primary_phone.setRequired(true);
 
 			secondary_phone = new DivRepTextBox(this);
 			secondary_phone.setLabel("Secondary Phone");
