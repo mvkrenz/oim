@@ -35,14 +35,15 @@ import edu.iu.grid.oim.model.db.DowntimeSeverityModel;
 import edu.iu.grid.oim.model.db.ResourceDowntimeModel;
 import edu.iu.grid.oim.model.db.ResourceDowntimeServiceModel;
 import edu.iu.grid.oim.model.db.ResourceServiceModel;
+import edu.iu.grid.oim.model.db.ResourceWLCGModel;
 import edu.iu.grid.oim.model.db.ServiceModel;
 import edu.iu.grid.oim.model.db.ResourceDowntimeModel.ResourceDowntime;
-import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.DowntimeClassRecord;
 import edu.iu.grid.oim.model.db.record.DowntimeSeverityRecord;
 import edu.iu.grid.oim.model.db.record.ResourceDowntimeRecord;
 import edu.iu.grid.oim.model.db.record.ResourceDowntimeServiceRecord;
 import edu.iu.grid.oim.model.db.record.ResourceServiceRecord;
+import edu.iu.grid.oim.model.db.record.ResourceWLCGRecord;
 import edu.iu.grid.oim.model.db.record.ServiceRecord;
 
 public class ResourceDowntimeEditor extends DivRepFormElement {
@@ -54,6 +55,7 @@ public class ResourceDowntimeEditor extends DivRepFormElement {
    
 	private DurationDR duration;
 	private DivRepTextArea summary;
+	private DivRepStaticContent summary_warning;
 	private DivRepSelectBox class_id;
 	private DivRepSelectBox severity_id;
 	private Timestamp timestamp;
@@ -84,6 +86,26 @@ public class ResourceDowntimeEditor extends DivRepFormElement {
 		summary.addValidator(new DivRepLengthValidator(0, 1024));
 		summary.setWidth(600);
 		summary.setHeight(200);
+		
+		//is this for a WLCG enabled resource? if so, display warning if the content is more than 500 chars (WLCG SAM truncation)
+		ResourceWLCGModel model = new ResourceWLCGModel(context);
+		ResourceWLCGRecord wrec = model.get(_rec.resource_id);
+		if(wrec != null && wrec.interop_monitoring) {
+			summary.addEventListener(new DivRepEventListener() {
+				public void handleEvent(DivRepEvent e) {
+					int len = e.value.length();
+					if(len > 500 && summary.isValid()) {
+						summary_warning.setHtml("<p class=\"warning\">The length of this text is "+len+" chars which is more than allowed for WLCG SAM (500 max). Text will be truncated.</p>");
+					} else {
+						summary_warning.setHtml("");
+					}
+					summary_warning.redraw();
+				}
+			});
+			summary_warning = new DivRepStaticContent(this, "");
+		} else {
+			summary_warning = null;
+		}
 		
 		LinkedHashMap<Integer, String> class_kv = new LinkedHashMap<Integer, String>();
 		DowntimeClassModel dcmodel = new DowntimeClassModel(context);

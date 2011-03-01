@@ -160,7 +160,7 @@ public class Authorization {
 		        if(hostname.compareTo("d830") == 0) {
 					log.debug("Server on localhost. Overriding the DN to Soichi's");
 					//user_dn = null; //browser didn't give us any dn
-					user_dn = "/DC=org/DC=doegrids/OU=People/CN=Soichi Hayashi 461343_";	
+					user_dn = "/DC=org/DC=doegrids/OU=People/CN=Soichi Hayashi 461343";	
 					//user_dn = "/DC=org/DC=doegrids/OU=People/CN=Kyle A. Gross 453426";
 					//user_dn = "/DC=org/DC=doegrids/OU=People/CN=Horst Severini 926890";
 					//user_dn = "/DC=org/DC=doegrids/OU=People/CN=Carl Lundstedt 229191";
