@@ -115,7 +115,7 @@ public class SiteFormDE extends DivRepForm
 		state = new DivRepTextBox(this);
 		state.setLabel("State");
 		state.setValue(rec.state);
-		state.setRequired(true);
+		//state.setRequired(true);
 
 		zipcode = new DivRepTextBox(this);
 		zipcode.setLabel("Zipcode");
