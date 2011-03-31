@@ -6,7 +6,7 @@ There are several mailing lists associated with the OSG, as a new SC you may wan
 
 osg@opensciencegrid.org  -- For general OSG announcements
 osg-general@opensciencegrid.org  -- For general technical discussion and open community support
-osg-operaions@opensciencegrid.org  -- Operations activities
+osg-operations@opensciencegrid.org  -- Operations activities
 osg-ops-status@opensciencegrid.org  -- OSG Status Reports
 
 Details for subscribing to these lists and a list of other OSG mailing lists you may be interested in subscribing to can be found at http://www.opensciencegrid.org/Consortium_Mailing_List.
