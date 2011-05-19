@@ -86,10 +86,9 @@ public class AdminServlet extends ServletBase  {
 			
 			contentview.add(new InternalLinkView("fieldofscience", "Fields of Science (associated with VOs)"));
 			contentview.add(new HtmlView("<br/>"));
-			/*
-			contentview.add(new InternalLinkView("adminannualreview", "Annual Review Controller"));
+
+			contentview.add(new InternalLinkView("fptemplates", "Footprints Ticket Templates"));
 			contentview.add(new HtmlView("<br/>"));
-			*/
 			
 			contentview.add(new HtmlView("<br/>"));
 			contentview.add(new HtmlView("<h3>Reports</h3>"));
