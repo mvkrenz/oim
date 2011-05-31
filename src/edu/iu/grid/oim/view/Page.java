@@ -1,5 +1,6 @@
 package edu.iu.grid.oim.view;
 
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
@@ -49,9 +50,8 @@ public class Page implements IView {
 		} else {
 			params.put("__DN__", context.getAuthorization().getUserDN());
 		}
-		
-		header = new HtmlFileView("header.txt", params);
-		footer = new HtmlFileView("footer.txt", params);
+		header = new HtmlFileView(getClass().getResourceAsStream("header.txt"), params);
+		footer = new HtmlFileView(getClass().getResourceAsStream("footer.txt"), params);
 		menu = _menu;
 		content = _content;
 		side = _side;
