@@ -9,10 +9,18 @@ public class HtmlFileView implements IView
 {
 	StringBuilder content;
 	
-	public HtmlFileView(String resource_name, HashMap<String, String> params) {
-		InputStream is = this.getClass().getResourceAsStream(resource_name);
+	
+	public HtmlFileView(String template, HashMap<String, String> params) {
+		content = new StringBuilder(template);
+		applyTemplate(params);
+	}
+	
+	public HtmlFileView(InputStream is, HashMap<String, String> params) {
 		content = ResourceReader.loadContent(is);
-		
+		applyTemplate(params);
+	}
+	
+	private void applyTemplate(HashMap<String, String> params) {
 		//replace templates
 		for(String key : params.keySet()) {
 			String value = params.get(key);
