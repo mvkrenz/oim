@@ -11,8 +11,10 @@ import javax.xml.xpath.XPathFactory;
 import org.apache.log4j.Logger;
 import org.xml.sax.InputSource;
 
+
+//we now have *dynamic* configuration (ConfigModel) now.. use it instead
 public class StaticConfig {
-	static public String getVersion() { return "2.32"; } //version shouldn't be configurable
+	static public String getVersion() { return "2.34"; } //version shouldn't be configurable
 	
 	static Logger log = Logger.getLogger(StaticConfig.class);  
     

@@ -11,6 +11,7 @@ import org.apache.log4j.Logger;
 import org.w3c.dom.NodeList;
 
 import edu.iu.grid.oim.model.Context;
+import edu.iu.grid.oim.model.db.ConfigModel;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.view.HtmlFileView;
 
@@ -25,13 +26,17 @@ public class Footprint
 	SOAPConnection connection;
 	SOAPMessage msg;
 	
-	public Footprint(Context _context)
+	ConfigModel config;
+	
+	public Footprint(Context context)
 	{
-		context = _context;
+		this.context = context;
 		
 		//using program listed here > http://blogs.sun.com/andreas/entry/no_more_unable_to_find
 		//to create the trusted keystore
 		System.setProperty("javax.net.ssl.trustStore", StaticConfig.getSSLTrustStorePath());
+		
+		config = new ConfigModel(context);
 		
         //Init SOAP
 		try {
@@ -58,7 +63,7 @@ public class Footprint
 		
 		HashMap<String, String> params = new HashMap<String, String>();
 		params.put("##RESOURCE_NAME##", resource_name);
-		HtmlFileView description = new HtmlFileView("footprints_new_resource_template.txt", params);
+		HtmlFileView description = new HtmlFileView(config.ResourceFPTemplate.get(), params);
 		
 		try
         {
@@ -230,7 +235,7 @@ public class Footprint
 	{		
 		HashMap<String, String> params = new HashMap<String, String>();
 		params.put("##SC_NAME##", sc_name);
-		HtmlFileView description = new HtmlFileView("footprints_new_sc_template.txt", params);
+		HtmlFileView description = new HtmlFileView(config.SCFPTemplate.get(), params);
 		
 		try
         {
@@ -394,7 +399,7 @@ public class Footprint
 	{	
 		HashMap<String, String> params = new HashMap<String, String>();
 		params.put("##VO_NAME##", vo_name);
-		HtmlFileView description = new HtmlFileView("footprints_new_vo_template.txt", params);	
+		HtmlFileView description = new HtmlFileView(config.VOFPTemplate.get(), params);	
 		
 		try
         {

@@ -37,19 +37,20 @@ public class FacilityEditServlet extends ServletBase implements Servlet {
         super();
     }
 
-	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
-	{
-		//setContext(request);
+	protected void doGet(HttpServletRequest request,
+			HttpServletResponse response) throws ServletException, IOException {
+		// setContext(request);
 		auth.check("edit_all_facility");
-		
+
 		FacilityRecord rec;
 		String title;
 
 		try {
-			//if site_id is provided then we are doing update, otherwise do new.
+			// if site_id is provided then we are doing update, otherwise do
+			// new.
 			String facility_id_str = request.getParameter("facility_id");
-			if(facility_id_str != null) {
-				//pull record to update
+			if (facility_id_str != null) {
+				// pull record to update
 				int facility_id = Integer.parseInt(facility_id_str);
 				FacilityModel model = new FacilityModel(context);
 				FacilityRecord keyrec = new FacilityRecord();
@@ -58,28 +59,30 @@ public class FacilityEditServlet extends ServletBase implements Servlet {
 				title = "Update Facility";
 			} else {
 				rec = new FacilityRecord();
-				title = "New Facility";	
+				title = "New Facility";
 			}
-	
-		FacilityFormDE form;
-		String origin_url = StaticConfig.getApplicationBase()+"/"+parent_page;
+
+			FacilityFormDE form;
+			String origin_url = StaticConfig.getApplicationBase() + "/"
+					+ parent_page;
 			form = new FacilityFormDE(context, rec, origin_url);
-		
-		//put the form in a view and display
-		ContentView contentview = new ContentView();
-		contentview.add(new HtmlView("<h1>"+title+"</h1>"));	
-		contentview.add(new DivRepWrapper(form));
-		
-		//setup crumbs
-		BreadCrumbView bread_crumb = new BreadCrumbView();
-		//bread_crumb.addCrumb("Administration",  "admin");
-		bread_crumb.addCrumb("Facility",  parent_page);
-		bread_crumb.addCrumb(rec.name,  null);
-		contentview.setBreadCrumb(bread_crumb);
-		
-		Page page = new Page(context, new MenuView(context, parent_page), contentview, createSideView());
-		
-		page.render(response.getWriter());	
+
+			// put the form in a view and display
+			ContentView contentview = new ContentView();
+			contentview.add(new HtmlView("<h1>" + title + "</h1>"));
+			contentview.add(new DivRepWrapper(form));
+
+			// setup crumbs
+			BreadCrumbView bread_crumb = new BreadCrumbView();
+			// bread_crumb.addCrumb("Administration", "admin");
+			bread_crumb.addCrumb("Facility", parent_page);
+			bread_crumb.addCrumb(rec.name, null);
+			contentview.setBreadCrumb(bread_crumb);
+
+			Page page = new Page(context, new MenuView(context, parent_page),
+					contentview, createSideView());
+
+			page.render(response.getWriter());
 		} catch (SQLException e) {
 			throw new ServletException(e);
 		}
