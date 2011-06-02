@@ -3,7 +3,7 @@
 <ApplicationBase>http://localhost:8080/oim</ApplicationBase>
 <ApplicationName>OSG Information Management System (OIM)</ApplicationName>
 <StaticBase>http://localhost:8080/oim</StaticBase>
-<SSLTruststorePath>C:/dev/java/InstallCert/jssecacerts</SSLTruststorePath>
+<SSLTruststorePath>C:/Users/soichi/dev/jee/oim/jssecacerts</SSLTruststorePath>
 <Footprints>
         <URI>https://tick.globalnoc.iu.edu/MRWebServices</URI>
         <URL>https://tick.globalnoc.iu.edu/MRcgi/MRWebServices.pl</URL>

@@ -29,7 +29,7 @@ public abstract class ModelBase<T extends RecordBase> {
 	}
 	protected Connection connectOIM() throws SQLException
 	{
-		return context.connectOIM();
+		return context.connect("jdbc/oim");
 	}
 	
 	//override this to provide human readable value
