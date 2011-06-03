@@ -129,7 +129,6 @@ public class ResourceFormDE extends DivRepForm
 		fqdn.setSampleValue("gate01.sample.edu");
 
 		resource_group_id = new ResourceGroupSelector(this, context);
-		resource_group_id.setLabel("Resource Group");
 		resource_group_id.setRequired(true);
 		if(id != null) {
 			resource_group_id.setValue(rec.resource_group_id);
@@ -167,6 +166,9 @@ public class ResourceFormDE extends DivRepForm
 			for(ResourceServiceRecord rarec : rsmodel.getAllByResourceID(id)) {
 				resource_services.addService(rarec);
 			}
+		} else {
+			//add new one
+			resource_services.addService(new ResourceServiceRecord());
 		}
 		resource_services.setRequired(true);
 
