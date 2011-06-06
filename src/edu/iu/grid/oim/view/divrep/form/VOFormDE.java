@@ -1,21 +1,15 @@
 package edu.iu.grid.oim.view.divrep.form;
 
 import java.io.PrintWriter;
-import java.sql.Connection;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.TimeZone;
-import java.util.TreeMap;
 import java.util.TreeSet;
 
-import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 
 import com.divrep.DivRep;
@@ -36,12 +30,9 @@ import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Footprint;
 import edu.iu.grid.oim.lib.AuthorizationException;
 import edu.iu.grid.oim.model.Context;
-import edu.iu.grid.oim.model.db.ContactRankModel;
 import edu.iu.grid.oim.model.db.ContactTypeModel;
 import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.FieldOfScienceModel;
-import edu.iu.grid.oim.model.db.ResourceGroupModel;
-import edu.iu.grid.oim.model.db.SiteModel;
 import edu.iu.grid.oim.model.db.VOReportContactModel;
 import edu.iu.grid.oim.model.db.VOReportNameModel;
 import edu.iu.grid.oim.model.db.VOReportNameFqanModel;
@@ -49,16 +40,10 @@ import edu.iu.grid.oim.model.db.SCModel;
 import edu.iu.grid.oim.model.db.VOContactModel;
 import edu.iu.grid.oim.model.db.VOFieldOfScienceModel;
 import edu.iu.grid.oim.model.db.VOModel;
-import edu.iu.grid.oim.model.db.VOVOModel;
-import edu.iu.grid.oim.model.db.record.ContactRankRecord;
 import edu.iu.grid.oim.model.db.record.ContactTypeRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
-import edu.iu.grid.oim.model.db.record.DNRecord;
 import edu.iu.grid.oim.model.db.record.FieldOfScienceRecord;
-import edu.iu.grid.oim.model.db.record.RecordBase;
-import edu.iu.grid.oim.model.db.record.ResourceGroupRecord;
-import edu.iu.grid.oim.model.db.record.ResourceWLCGRecord;
-import edu.iu.grid.oim.model.db.record.SiteRecord;
+
 import edu.iu.grid.oim.model.db.record.VOReportContactRecord;
 import edu.iu.grid.oim.model.db.record.VOReportNameRecord;
 import edu.iu.grid.oim.model.db.record.VOReportNameFqanRecord;
@@ -66,15 +51,12 @@ import edu.iu.grid.oim.model.db.record.SCRecord;
 import edu.iu.grid.oim.model.db.record.VOContactRecord;
 import edu.iu.grid.oim.model.db.record.VOFieldOfScienceRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
-import edu.iu.grid.oim.view.RecordTableView;
 import edu.iu.grid.oim.view.ToolTip;
 import edu.iu.grid.oim.view.divrep.AUPConfirmation;
 import edu.iu.grid.oim.view.divrep.Confirmation;
 import edu.iu.grid.oim.view.divrep.ContactEditor;
 import edu.iu.grid.oim.view.divrep.VOReportNames;
 import edu.iu.grid.oim.view.divrep.ContactEditor.Rank;
-import edu.iu.grid.oim.view.divrep.form.ContactFormDE.PersonalInfo;
-import edu.iu.grid.oim.view.divrep.form.ContactFormDE.PhotoDE;
 
 public class VOFormDE extends DivRepForm 
 {
@@ -98,14 +80,16 @@ public class VOFormDE extends DivRepForm
 	private Confirmation confirmation;
 	private DivRepTextArea comment;
 
-	//contact types to edit
-	private int contact_types[] = {
-		1, //submitter
-		6, //vo manager
-		3, //admin contact       -- Formerly operations contact for VOs
-		2, //security contact
-		5, //misc contact
-	};
+	static public ArrayList<ContactTypeRecord.Info> ContactTypes;
+	static {
+		ContactTypes = new ArrayList<ContactTypeRecord.Info>();
+		ContactTypes.add(new ContactTypeRecord.Info(1, "A contact who has registered this virtual organization"));
+		ContactTypes.add(new ContactTypeRecord.Info(6, "Contacts who decides on what virtual organizations are allowed to run on VO-owned resources, who are users of this virtual organization, etc"));
+		ContactTypes.add(new ContactTypeRecord.Info(3, "Retained for legacy reasons. Purposes unknown"));
+		ContactTypes.add(new ContactTypeRecord.Info(2, "Security notifications sent out by the OSG security team are sent to primary and secondary virtual organization security contacts"));
+		ContactTypes.add(new ContactTypeRecord.Info(5, "Contacts who do not fall under any of the above types but would like to be able to edit this virtual organization can be added as miscellaneous contact"));
+	}
+	
 	private HashMap<Integer, ContactEditor> contact_editors = new HashMap();
 
 	// Moving fields related to only VOs that do actual research, apart 
@@ -558,18 +542,19 @@ public class VOFormDE extends DivRepForm
 			voclist_grouped.put(2/*security_contact*/, security_contact_list);
 		}
 		ContactTypeModel ctmodel = new ContactTypeModel(context);
-		for(int contact_type_id : contact_types) {
-			ContactEditor editor = createContactEditor(voclist_grouped, ctmodel.get(contact_type_id));
+		for(ContactTypeRecord.Info contact_type : ContactTypes) {
+			ToolTip tip = new ToolTip(contact_type.desc);
+			ContactEditor editor = createContactEditor(voclist_grouped, ctmodel.get(contact_type.id), tip);
 			//disable submitter editor if needed
 			if(!auth.allows("admin")) {
-				if(contact_type_id == 1) { //1 = Submitter Contact
+				if(contact_type.id == 1) { //1 = Submitter Contact
 					editor.setDisabled(true);
 				}
 			}
-			if(contact_type_id != 5 && contact_type_id != 10) { //5 = misc, 9 = resource report
+			if(contact_type.id != 5 && contact_type.id != 10) { //5 = misc, 9 = resource report
 				editor.setMinContacts(Rank.PRIMARY, 1);
 			}
-			contact_editors.put(contact_type_id, editor);
+			contact_editors.put(contact_type.id, editor);
 		}
 
 		new DivRepStaticContent(this, "<h2>Confirmation</h2>");
@@ -615,9 +600,9 @@ public class VOFormDE extends DivRepForm
 		parent_vo.redraw();
 	}
 
-	private ContactEditor createContactEditor(HashMap<Integer, ArrayList<VOContactRecord>> voclist, ContactTypeRecord ctrec) throws SQLException
+	private ContactEditor createContactEditor(HashMap<Integer, ArrayList<VOContactRecord>> voclist, ContactTypeRecord ctrec, ToolTip tip) throws SQLException
 	{
-		new DivRepStaticContent(this, "<h3>" + ctrec.name + "</h3>");
+		new DivRepStaticContent(this, "<h3>" + ctrec.name + " " + tip.render() + "</h3>");
 		ContactModel pmodel = new ContactModel(context);		
 		ContactEditor editor = new ContactEditor(this, pmodel, ctrec.allow_secondary, ctrec.allow_tertiary);
 		

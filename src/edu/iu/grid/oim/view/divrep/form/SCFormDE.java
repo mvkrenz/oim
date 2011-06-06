@@ -25,6 +25,7 @@ import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.ResourceContactRecord;
 import edu.iu.grid.oim.model.db.record.SCRecord;
 import edu.iu.grid.oim.model.db.record.SCContactRecord;
+import edu.iu.grid.oim.view.ToolTip;
 import edu.iu.grid.oim.view.divrep.AUPConfirmation;
 import edu.iu.grid.oim.view.divrep.Confirmation;
 import edu.iu.grid.oim.view.divrep.ContactEditor;
@@ -48,14 +49,16 @@ public class SCFormDE extends DivRepForm
 	private Confirmation confirmation;
 	private DivRepTextArea comment;
 	
-	//contact types to edit
-	private int contact_types[] = {
-		1, //submitter
-		4, //operational contact
-		7, //notification contact
-		2, //security contact
-		5, //misc contact
-	};
+	static public ArrayList<ContactTypeRecord.Info> ContactTypes;
+	static {
+		ContactTypes = new ArrayList<ContactTypeRecord.Info>();
+		ContactTypes.add(new ContactTypeRecord.Info(1, "A contact who has registered this support center"));
+		ContactTypes.add(new ContactTypeRecord.Info(4, "GOC tickets when assigned to a support center are sent to the primary Operations contact's email address"));
+		ContactTypes.add(new ContactTypeRecord.Info(7, "GOC notifications (also available via RSS) are sent to both primary and secondary notification contacts"));
+		ContactTypes.add(new ContactTypeRecord.Info(2, "Security notifications sent out by the OSG security team are sent to these contacts"));
+		ContactTypes.add(new ContactTypeRecord.Info(5, "Contacts who do not fall under any of the above types but would like to be able to edit this support center can be added as miscellaneous contact"));
+	}	
+	
 	private HashMap<Integer, ContactEditor> contact_editors = new HashMap();
 	
 	public SCFormDE(Context _context, SCRecord rec, String origin_url) throws AuthorizationException, SQLException
@@ -156,18 +159,19 @@ public class SCFormDE extends DivRepForm
 			
 		}
 		ContactTypeModel ctmodel = new ContactTypeModel(context);
-		for(int contact_type_id : contact_types) {
-			ContactEditor editor = createContactEditor(scclist_grouped, ctmodel.get(contact_type_id));
+		for(ContactTypeRecord.Info contact_type : ContactTypes) {
+			ToolTip tip = new ToolTip(contact_type.desc);
+			ContactEditor editor = createContactEditor(scclist_grouped, ctmodel.get(contact_type.id), tip);
 			//disable submitter editor if needed
 			if(!auth.allows("admin")) {
-				if(contact_type_id == 1) { //1 = Submitter Contact
+				if(contact_type.id == 1) { //1 = Submitter Contact
 					editor.setDisabled(true);
 				}
 			}
-			if(contact_type_id != 5) { //5 = misc
+			if(contact_type.id != 5) { //5 = misc
 				editor.setMinContacts(Rank.PRIMARY, 1);
 			}
-			contact_editors.put(contact_type_id, editor);
+			contact_editors.put(contact_type.id, editor);
 		}
 		
 		new DivRepStaticContent(this, "<h2>Confirmation</h2>");
@@ -208,9 +212,9 @@ public class SCFormDE extends DivRepForm
 		comment.setSampleValue("Please provide a reason for this update.");
 	}
 	
-	private ContactEditor createContactEditor(HashMap<Integer, ArrayList<SCContactRecord>> scclist, ContactTypeRecord ctrec) throws SQLException
+	private ContactEditor createContactEditor(HashMap<Integer, ArrayList<SCContactRecord>> scclist, ContactTypeRecord ctrec, ToolTip tip) throws SQLException
 	{
-		new DivRepStaticContent(this, "<h3>" + ctrec.name + "</h3>");
+		new DivRepStaticContent(this, "<h3>" + ctrec.name + " " + tip.render() + "</h3>");
 		ContactModel pmodel = new ContactModel(context);		
 		ContactEditor editor = new ContactEditor(this, pmodel, ctrec.allow_secondary, ctrec.allow_tertiary);
 		
@@ -254,7 +258,6 @@ public class SCFormDE extends DivRepForm
 		rec.community = community.getValue();
 		rec.footprints_id = footprints_id.getValue();
 		rec.disable = disable.getValue();
-		// rec.active = active.getValue();
 		if (rec.disable == true) {
 			rec.active = false; // not using real active value, instead defaulting based on disable value
 		} else {

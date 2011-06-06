@@ -67,6 +67,8 @@ import edu.iu.grid.oim.view.ToolTip;
 import edu.iu.grid.oim.view.URLView;
 import edu.iu.grid.oim.view.TableView.Row;
 import edu.iu.grid.oim.view.divrep.ViewWrapper;
+import edu.iu.grid.oim.view.divrep.form.ResourceFormDE;
+import edu.iu.grid.oim.view.divrep.form.SCFormDE;
 
 public class ResourceServlet extends ServletBase implements Servlet {
 	private static final long serialVersionUID = 1L;
@@ -200,7 +202,7 @@ public class ResourceServlet extends ServletBase implements Servlet {
 					table.addRow("VO Owners of This Resource", getVOOwners(rec.id));
 					
 					//contacts (only shows contacts that are filled out)
-
+/*
 					// Display order for contact types  
 					final Integer contact_types[] = {
 						1, //submitter
@@ -209,6 +211,7 @@ public class ResourceServlet extends ServletBase implements Servlet {
 						9, //Resource_report contact
 						5, //misc contact
 					};
+*/
 					ContactTypeModel ctmodel = new ContactTypeModel(context);
 					ContactRankModel crmodel = new ContactRankModel(context);
 					ContactModel pmodel = new ContactModel(context);
@@ -216,12 +219,12 @@ public class ResourceServlet extends ServletBase implements Servlet {
 					ArrayList<ResourceContactRecord> rclist = rcmodel.getByResourceID(rec.id);
 					HashMap<Integer, ArrayList<ResourceContactRecord>> resourceclist_grouped = rcmodel.groupByContactTypeID(rclist);
 
-					for(Integer type_id : contact_types) {// resourceclist_grouped.keySet()) {
-						ContactTypeRecord ctrec = ctmodel.get(type_id);
+					for(ContactTypeRecord.Info contact_type : ResourceFormDE.ContactTypes) {
+						ContactTypeRecord ctrec = ctmodel.get(contact_type.id);
 						
-						if(resourceclist_grouped.containsKey(type_id)) {
+						if(resourceclist_grouped.containsKey(contact_type.id)) {
 	
-							ArrayList<ResourceContactRecord> clist = resourceclist_grouped.get(type_id);
+							ArrayList<ResourceContactRecord> clist = resourceclist_grouped.get(contact_type.id);
 							Collections.sort(clist, new Comparator<ResourceContactRecord> (){
 								public int compare(ResourceContactRecord a, ResourceContactRecord b) {
 									if (a.getRank() > b.getRank()) // We are comparing based on rank id 
@@ -238,7 +241,8 @@ public class ResourceServlet extends ServletBase implements Servlet {
 								cliststr += "<div class='contact_rank contact_"+rank.name+"'>"+person.name+"</div>";
 							}
 							
-							table.addRow(ctrec.name, new HtmlView(cliststr));
+							ToolTip tip = new ToolTip(contact_type.desc);
+							table.addRow(ctrec.name + " " + tip.render(), new HtmlView(cliststr));
 						}
 					}		
 					
