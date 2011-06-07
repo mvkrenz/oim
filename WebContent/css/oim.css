@@ -410,3 +410,7 @@ table.layout td {
 padding-bottom: 5px;
 margin-bottom: 5px;
 }
+
+.ui-widget {
+font-size: 0.9em !important;
+}

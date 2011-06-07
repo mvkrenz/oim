@@ -1,10 +1,12 @@
 package edu.iu.grid.oim.lib;
 
+import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 
+import javax.naming.NamingException;
 import javax.xml.soap.*;
 
 import org.apache.log4j.Logger;
@@ -12,6 +14,7 @@ import org.w3c.dom.NodeList;
 
 import edu.iu.grid.oim.model.Context;
 import edu.iu.grid.oim.model.db.ConfigModel;
+import edu.iu.grid.oim.model.db.GOCTicket;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.view.HtmlFileView;
 
@@ -600,6 +603,7 @@ public class Footprint
  		}
  		*/
  		
+		log.debug("Calling : " + StaticConfig.getFootprintsUrl());
         SOAPMessage reply = connection.call(msg, StaticConfig.getFootprintsUrl());
         connection.close();
         
@@ -607,7 +611,23 @@ public class Footprint
         if(it.hasNext()) {
         	SOAPElement item = (SOAPElement) it.next();
         	if(item.getElementName().getLocalName().equals("MRWebServices__createIssue_gocResponse")) {
-        		log.debug("Created Ticket: " + item.getTextContent());
+        		int ticket_id = Integer.parseInt(item.getTextContent());
+        		log.debug("Created Ticket: " + ticket_id);
+        		
+        		//storing metadata
+				try {
+		            ContactRecord contact = context.getAuthorization().getContact();
+					GOCTicket gocticket = new GOCTicket();
+					gocticket.setMetadata(ticket_id, "SUBMITTER_NAME", contact.getFirstName() + " " + contact.getLastName());
+					gocticket.setMetadata(ticket_id, "SUBMITTER_DN", context.getAuthorization().getUserDN());
+					gocticket.setMetadata(ticket_id, "SUBMITTED_VIA", "OIM/registration");
+				} catch (NamingException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
         	} else {
 	        	log.error("SOAP did not return ticket ID.. dumping..");
 	 			DumpSOAPElement(msg.getSOAPBody(), 0);

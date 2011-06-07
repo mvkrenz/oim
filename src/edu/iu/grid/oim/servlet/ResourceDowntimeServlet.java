@@ -1,17 +1,13 @@
 package edu.iu.grid.oim.servlet;
 
 import java.io.IOException;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.DateFormat;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
-import java.util.TimeZone;
 
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
@@ -22,34 +18,24 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 
 import com.divrep.DivRep;
-import com.divrep.DivRepContainer;
 import com.divrep.DivRepEvent;
-import com.divrep.DivRepPage;
-import com.divrep.DivRepRoot;
 import com.divrep.common.DivRepButton;
 import com.divrep.common.DivRepDialog;
 import com.divrep.common.DivRepStaticContent;
 
-
 import edu.iu.grid.oim.lib.StaticConfig;
 
+import edu.iu.grid.oim.model.Context;
 import edu.iu.grid.oim.model.db.DNModel;
 import edu.iu.grid.oim.model.db.DowntimeClassModel;
 import edu.iu.grid.oim.model.db.DowntimeSeverityModel;
-import edu.iu.grid.oim.model.db.ResourceServiceModel;
 import edu.iu.grid.oim.model.db.ServiceModel;
-
 import edu.iu.grid.oim.model.db.ResourceDowntimeModel;
 import edu.iu.grid.oim.model.db.ResourceDowntimeServiceModel;
-
 import edu.iu.grid.oim.model.db.ResourceModel;
-
 import edu.iu.grid.oim.model.db.record.ResourceDowntimeRecord;
 import edu.iu.grid.oim.model.db.record.ResourceDowntimeServiceRecord;
-import edu.iu.grid.oim.model.db.record.ResourceServiceRecord;
 import edu.iu.grid.oim.model.db.record.ServiceRecord;
-import edu.iu.grid.oim.model.db.record.SiteRecord;
-
 import edu.iu.grid.oim.model.db.record.ResourceRecord;
 
 import edu.iu.grid.oim.view.ContentView;
@@ -61,52 +47,22 @@ import edu.iu.grid.oim.view.MenuView;
 import edu.iu.grid.oim.view.Page;
 import edu.iu.grid.oim.view.RecordTableView;
 import edu.iu.grid.oim.view.SideContentView;
+import edu.iu.grid.oim.view.divrep.RemoveDowntimeDialog;
 
 public class ResourceDowntimeServlet extends ServletBase implements Servlet {
 	private static final long serialVersionUID = 1L;
 	static Logger log = Logger.getLogger(ResourceDowntimeServlet.class);  
 	
-	class RemoveDowntimeDialog extends DivRepDialog {
-		//public DivRepStaticContent summary;
-		ResourceDowntimeRecord rec;
-		public RemoveDowntimeDialog(DivRep parent, Boolean _has_cancelbutton) {
-			super(parent);
-			setHasCancelButton(_has_cancelbutton);
-			setTitle("Remove Downtime");
-			new DivRepStaticContent(this, "Do you really want to remove this downtime?");
-		
-			//summary = new DivRepStaticContent(this, "....");
-		}
-		public void setRecord(ResourceDowntimeRecord rec) {
-			this.rec = rec;
-		}
-		public void onCancel() {
-			close();
-		}
-
-		public void onSubmit() {
-			ResourceDowntimeModel model = new ResourceDowntimeModel(context);
-			try {
-				model.removeDowntime(rec);
-			} catch (Exception e) {
-				alert(e.toString());
-				log.error("Failed to fulfill user request to remove", e);
-			}
-			redirect(StaticConfig.getApplicationBase()+"/resourcedowntime");
-		}
-	}
 	RemoveDowntimeDialog remove_downtime_dialog;
-	
 	
     public ResourceDowntimeServlet() {
     }
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{	
-		//setContext(request);
 		auth.check("edit_my_resource");
 		
-		remove_downtime_dialog = new RemoveDowntimeDialog(context.getPageRoot(), true);
+		remove_downtime_dialog = new RemoveDowntimeDialog(context.getPageRoot(), context);
 		
 		try {			
 			//construct view

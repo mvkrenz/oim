@@ -26,11 +26,26 @@ public class ResourceDowntimeRecord extends RecordBase {
 	public Integer downtime_severity_id;
 	public Integer resource_id;
 	public Integer dn_id;
+	public Boolean disable;
 	
-	//load from existing record
+	//copy ctor.. I need this to disable a downtime
+	public ResourceDowntimeRecord(ResourceDowntimeRecord copy) {
+		id = copy.id;
+		timestamp = copy.timestamp;
+		start_time = copy.start_time;
+		end_time = copy.end_time;
+		downtime_summary = copy.downtime_summary;
+		downtime_class_id = copy.downtime_class_id;
+		downtime_severity_id = copy.downtime_severity_id;
+		resource_id = copy.resource_id;
+		dn_id = copy.dn_id;
+		disable = copy.disable;
+	}
+	
 	public ResourceDowntimeRecord(ResultSet rs) throws SQLException { 
 		super(rs); 
 	}
+	
 	//for creating new record
 	public ResourceDowntimeRecord() {}
 	/*

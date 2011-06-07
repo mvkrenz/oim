@@ -40,7 +40,10 @@ import edu.iu.grid.oim.view.MenuView;
 import edu.iu.grid.oim.view.Page;
 import edu.iu.grid.oim.view.RecordTableView;
 import edu.iu.grid.oim.view.SideContentView;
+import edu.iu.grid.oim.view.ToolTip;
 import edu.iu.grid.oim.view.divrep.ViewWrapper;
+import edu.iu.grid.oim.view.divrep.form.SCFormDE;
+import edu.iu.grid.oim.view.divrep.form.VOFormDE;
 
 public class SCServlet extends ServletBase implements Servlet {
 	private static final long serialVersionUID = 1L;
@@ -121,16 +124,7 @@ public class SCServlet extends ServletBase implements Servlet {
 				 	table.addRow("Long Name", rec.long_name);
 					table.addRow("Description", rec.description);
 					table.addRow("Community", rec.community);
-		
-					// Display order for contact types  
-					final Integer contact_types[] = {
-						1, //submitter
-						4, //Operations (Ticketing) contact       
-						7, //Notifications contact
-						2, //security contact
-						5, //misc contact
-					};
-					
+
 					ContactTypeModel ctmodel = new ContactTypeModel(context);
 					ContactRankModel crmodel = new ContactRankModel(context);
 					ContactModel pmodel = new ContactModel(context);
@@ -139,11 +133,11 @@ public class SCServlet extends ServletBase implements Servlet {
 					SCContactModel sccmodel = new SCContactModel(context);
 					ArrayList<SCContactRecord> scclist = sccmodel.getBySCID(rec.id);
 					HashMap<Integer, ArrayList<SCContactRecord>> scclist_grouped = sccmodel.groupByContactTypeID(scclist);
-					for(Integer type_id : contact_types) { // scclist_grouped.keySet()) {
-						if(scclist_grouped.containsKey(type_id)) {
-							ContactTypeRecord ctrec = ctmodel.get(type_id);
+					for(ContactTypeRecord.Info contact_type : SCFormDE.ContactTypes) {
+						if(scclist_grouped.containsKey(contact_type.id)) {
+							ContactTypeRecord ctrec = ctmodel.get(contact_type.id);
 	
-							ArrayList<SCContactRecord> clist = scclist_grouped.get(type_id);
+							ArrayList<SCContactRecord> clist = scclist_grouped.get(contact_type.id);
 							Collections.sort(clist, new Comparator<SCContactRecord> (){
 								public int compare(SCContactRecord a, SCContactRecord b) {
 									if (a.getRank() > b.getRank()) // We are comparing based on rank id 
@@ -151,7 +145,6 @@ public class SCServlet extends ServletBase implements Servlet {
 									return 0;
 								}
 							});
-							
 							String cliststr = "";
 							
 							for(SCContactRecord sccrec : clist) {
@@ -162,8 +155,8 @@ public class SCServlet extends ServletBase implements Servlet {
 								cliststr += person.name;
 								cliststr += "</div>";
 							}
-							
-							table.addRow(ctrec.name, new HtmlView(cliststr));
+							ToolTip tip = new ToolTip(contact_type.desc);
+							table.addRow(ctrec.name + " " + tip.render(), new HtmlView(cliststr));
 						}
 					}			
 					if(auth.allows("admin")) {

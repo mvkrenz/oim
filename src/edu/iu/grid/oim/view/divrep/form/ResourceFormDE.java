@@ -86,14 +86,16 @@ public class ResourceFormDE extends DivRepForm
 	
 	private DivRepTextArea comment;
 	
-	//contact types to edit
-	private int contact_types[] = {
-		1, //submitter
-		3, //admin contact
-		2, //security contact
-		9, //resource report contact
-		5 //misc contact
-	};
+	static public ArrayList<ContactTypeRecord.Info> ContactTypes;
+	static {
+		ContactTypes = new ArrayList<ContactTypeRecord.Info>();
+		ContactTypes.add(new ContactTypeRecord.Info(1, "A contact who has registered this resource"));
+		ContactTypes.add(new ContactTypeRecord.Info(9, "Gratia-accounting based resource-usage reports are sent out daily/weekly to these contacts"));
+		ContactTypes.add(new ContactTypeRecord.Info(3, "GOC tickets when assigned to a support center of a resource are also sent to the primary resource admin contact (usually the sysadmin of a resource) via the ticket's CC mechanism. Admin contacts are also contacted by GOC staff and others to deal with system-administrative problems"));
+		ContactTypes.add(new ContactTypeRecord.Info(2, "Security notifications sent out by the OSG security team are sent to primary and secondary security contacts for this resource"));
+		ContactTypes.add(new ContactTypeRecord.Info(5, "Contacts who do not fall under any of the above types but would like to be able to edit this resource can be added as miscellaneous contact"));
+	}
+	
 	private HashMap<Integer, ContactEditor> contact_editors = new HashMap();
 	
 	public ResourceFormDE(Context _context, ResourceRecord rec, String origin_url) throws AuthorizationException, SQLException
@@ -129,7 +131,6 @@ public class ResourceFormDE extends DivRepForm
 		fqdn.setSampleValue("gate01.sample.edu");
 
 		resource_group_id = new ResourceGroupSelector(this, context);
-		resource_group_id.setLabel("Resource Group");
 		resource_group_id.setRequired(true);
 		if(id != null) {
 			resource_group_id.setValue(rec.resource_group_id);
@@ -167,6 +168,9 @@ public class ResourceFormDE extends DivRepForm
 			for(ResourceServiceRecord rarec : rsmodel.getAllByResourceID(id)) {
 				resource_services.addService(rarec);
 			}
+		} else {
+			//add new one
+			resource_services.addService(new ResourceServiceRecord());
 		}
 		resource_services.setRequired(true);
 
@@ -226,18 +230,19 @@ public class ResourceFormDE extends DivRepForm
 			voclist_grouped.put(2/*security*/, security_list);
 		}
 		ContactTypeModel ctmodel = new ContactTypeModel(context);
-		for(int contact_type_id : contact_types) {
-			ContactEditor editor = createContactEditor(voclist_grouped, ctmodel.get(contact_type_id));
+		for(ContactTypeRecord.Info contact_type : ContactTypes) {
+			tip = new ToolTip(contact_type.desc);
+			ContactEditor editor = createContactEditor(voclist_grouped, ctmodel.get(contact_type.id), tip);
 			//disable submitter editor if needed
 			if(!auth.allows("admin")) {
-				if(contact_type_id == 1) { //1 = Submitter Contact
+				if(contact_type.id == 1) { //1 = Submitter Contact
 					editor.setDisabled(true);
 				}
 			}
-			if(contact_type_id != 5 && contact_type_id != 9) { //5 = misc, 9 = resource report
+			if(contact_type.id != 5 && contact_type.id != 9) { //5 = misc, 9 = resource report
 				editor.setMinContacts(Rank.PRIMARY, 1);
 			}
-			contact_editors.put(contact_type_id, editor);
+			contact_editors.put(contact_type.id, editor);
 		}
 		
 		new DivRepStaticContent(this, "<h2>WLCG Interoperability Information (If Applicable)</h2>");
@@ -311,9 +316,9 @@ public class ResourceFormDE extends DivRepForm
 		wlcg_section.redraw();
 	}
 	
-	private ContactEditor createContactEditor(HashMap<Integer, ArrayList<ResourceContactRecord>> voclist, ContactTypeRecord ctrec) throws SQLException
+	private ContactEditor createContactEditor(HashMap<Integer, ArrayList<ResourceContactRecord>> voclist, ContactTypeRecord ctrec, ToolTip tip) throws SQLException
 	{
-		new DivRepStaticContent(this, "<h3>" + StringEscapeUtils.escapeHtml(ctrec.name) + "</h3>");
+		new DivRepStaticContent(this, "<h3>" + StringEscapeUtils.escapeHtml(ctrec.name) + " " + tip.render() + "</h3>");
 		ContactModel pmodel = new ContactModel(context);		
 		ContactEditor editor = new ContactEditor(this, pmodel, ctrec.allow_secondary, ctrec.allow_tertiary);
 		

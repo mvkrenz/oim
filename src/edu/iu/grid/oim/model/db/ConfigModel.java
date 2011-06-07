@@ -67,7 +67,7 @@ public class ConfigModel {
 	}
 
 	private String get(String key) throws SQLException, NoSuchConfigException {
-		Connection conn = context.connectOIM();
+		Connection conn = context.connect("jdbc/oim");
 		PreparedStatement stmt = conn.prepareStatement("SELECT `value` FROM config WHERE `key` = ?");
 		stmt.setString(1, key);
 		String value = null;
@@ -86,7 +86,7 @@ public class ConfigModel {
 	}
 	
 	private void set(String key, String value) throws SQLException {
-		Connection conn = context.connectOIM();
+		Connection conn = context.connect("jdbc/oim");
 		int affected;
 		try {
 			//does the value exist?

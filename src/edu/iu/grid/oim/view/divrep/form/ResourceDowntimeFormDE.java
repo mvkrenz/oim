@@ -1,12 +1,10 @@
 package edu.iu.grid.oim.view.divrep.form;
 
-
 import java.sql.SQLException;
 import java.util.TimeZone;
 
 import org.apache.log4j.Logger;
 
-import com.divrep.DivRepEvent;
 import com.divrep.common.DivRepForm;
 
 import edu.iu.grid.oim.lib.Authorization;

@@ -84,7 +84,10 @@ public class ResourceDowntimeModel extends SmallTableModelBase<ResourceDowntimeR
 	public Collection<ResourceDowntimeRecord> getAll() throws SQLException {
 		ArrayList<ResourceDowntimeRecord> list = new ArrayList<ResourceDowntimeRecord>();
 		for(RecordBase it : getCache()) {
-			list.add((ResourceDowntimeRecord)it);
+			ResourceDowntimeRecord rec = (ResourceDowntimeRecord)it;
+			if(rec.disable == false) {
+				list.add(rec);
+			}
 		}
 		return list;
 	}
@@ -96,7 +99,9 @@ public class ResourceDowntimeModel extends SmallTableModelBase<ResourceDowntimeR
 			ResourceDowntimeRecord rec = (ResourceDowntimeRecord)it;
 			//search for downtime that ends no older than "days".
 			Timestamp lastmonth = new Timestamp(Calendar.getInstance().getTimeInMillis() - 1000L * 3600 * 24 * days);
-			if(rec.resource_id == resource_id && rec.end_time.compareTo(lastmonth) > 0) {
+			if(	rec.disable == false && 
+				rec.resource_id == resource_id && 
+				rec.end_time.compareTo(lastmonth) > 0) {
 				list.add(rec);
 			}
 		}
@@ -164,6 +169,17 @@ public class ResourceDowntimeModel extends SmallTableModelBase<ResourceDowntimeR
 			throw new Exception(e);
 		}	
 	}
+	public void disableDowntime(ResourceDowntimeRecord oldrec) throws SQLException
+	{
+		//deep copy to new record
+		ResourceDowntimeRecord newrec = new ResourceDowntimeRecord(oldrec);
+		newrec.disable = true;
+		
+		Connection conn = connectOIM();		
+		ResourceDowntimeModel model = new ResourceDowntimeModel(context);
+		model.update(oldrec, newrec);
+	}
+	/*
 	public void removeDowntime(ResourceDowntimeRecord rec) throws Exception
 	{
 		Connection conn = connectOIM();
@@ -193,4 +209,5 @@ public class ResourceDowntimeModel extends SmallTableModelBase<ResourceDowntimeR
 			throw new Exception(e);
 		}	
 	}
+	*/
 }

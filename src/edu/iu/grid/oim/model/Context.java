@@ -26,7 +26,9 @@ public class Context {
 	private Authorization auth = new Authorization();
 	private String request_url;
 	private HttpSession session;
-	private Connection oim_connection = null;
+	
+	//DB connection that we will reuse everywhere... it's OIM DB 100% of the time..
+	private Connection connection = null;
 
 	//stores the reason for current transaction (used for log table)
 	//why should this work? because *usually* all update within a session occurs under common purpose.
@@ -66,10 +68,10 @@ public class Context {
 	public void close()
 	{
 		try {
-			if(oim_connection != null) {
-				if (!oim_connection.isClosed()) {
-					log.info("Closing OIM connection: " + oim_connection.toString());
-					oim_connection.close();
+			if(connection != null) {
+				if (!connection.isClosed()) {
+					log.info("Closing connection: " + connection.toString());
+					connection.close();
 					
 				}
 			}
@@ -94,16 +96,16 @@ public class Context {
 
 	 */
 	public boolean isConnectionValid() {
-		if (oim_connection == null)
+		if (connection == null)
 			return false;
 		
 		//my version of isValid()... since JDBC.isValid() doesn't work!
 		try {
-			if (oim_connection.isClosed()) {
+			if (connection.isClosed()) {
 				//log.warn("OIM connection is closed...");
 				return false;
 			}
-			oim_connection.getMetaData();
+			connection.getMetaData();
 		} catch (Exception e) {
 			//log.warn("OIM connection is stale...");
 			return false;
@@ -114,24 +116,24 @@ public class Context {
 	
 	
 	//make sure to close the connection as soon as you are done (inside the same function that you call connectOIM)
-	public Connection connectOIM() throws SQLException
+	public Connection connect(String ctx) throws SQLException
 	{	
 		if(isConnectionValid()) {
-			return oim_connection;
+			return connection;
 		}
 		
 		//reconnect
 		try {
 			javax.naming.Context initContext = new InitialContext();
 			javax.naming.Context envContext = (javax.naming.Context)initContext.lookup("java:/comp/env");
-			DataSource ds = (DataSource)envContext.lookup("jdbc/oim");
-			oim_connection = ds.getConnection();
-			log.info("Requesting new OIM db connection: " + oim_connection.toString() + " for " + auth.getUserDN());
+			DataSource ds = (DataSource)envContext.lookup(ctx);
+			connection = ds.getConnection();
+			log.info("Requesting new db connection: context=" + ctx + " connection=" + connection.toString() + " for " + auth.getUserDN());
 			initContext.close();
 			
 			TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
 			
-			return oim_connection;
+			return connection;
 		} catch (NamingException e) {
 			log.error(e);
 		}

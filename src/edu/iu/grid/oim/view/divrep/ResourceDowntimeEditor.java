@@ -45,6 +45,7 @@ import edu.iu.grid.oim.model.db.record.ResourceDowntimeServiceRecord;
 import edu.iu.grid.oim.model.db.record.ResourceServiceRecord;
 import edu.iu.grid.oim.model.db.record.ResourceWLCGRecord;
 import edu.iu.grid.oim.model.db.record.ServiceRecord;
+import edu.iu.grid.oim.view.DivRepWrapper;
 
 public class ResourceDowntimeEditor extends DivRepFormElement {
     static Logger log = Logger.getLogger(ResourceDowntimeEditor.class); 
@@ -60,6 +61,22 @@ public class ResourceDowntimeEditor extends DivRepFormElement {
 	private DivRepSelectBox severity_id;
 	private Timestamp timestamp;
 	
+	class RemoveButtonDE extends DivRepButton
+	{
+		public RemoveButtonDE(DivRep parent)
+		{
+			super(parent, "images/delete.png");
+			setStyle(DivRepButton.Style.IMAGE);
+			addClass("right");
+		}
+		protected void onEvent(DivRepEvent e) {
+			remove_downtime_dialog.setRecord(rec);
+			remove_downtime_dialog.open();	
+		}
+	};
+	private RemoveButtonDE remove_button;
+	private RemoveDowntimeDialog remove_downtime_dialog;
+	
 	private ResourceDowntimeRecord rec;
 	
 	private HashMap<Integer/*service_id*/, DivRepCheckBox> affected_services = new HashMap<Integer, DivRepCheckBox>();	
@@ -72,6 +89,11 @@ public class ResourceDowntimeEditor extends DivRepFormElement {
 		timezone = _timezone;
 		
 		rec = _rec;
+		
+		if(rec.id != null) {
+			remove_button = new RemoveButtonDE(this);
+			remove_downtime_dialog = new RemoveDowntimeDialog(this, context);
+		}
 		
 		new DivRepStaticContent(this, "<h3>Duration ("+timezone.getID()+")</h3>");
 		duration = new DurationDR(this, rec);
@@ -515,6 +537,7 @@ public class ResourceDowntimeEditor extends DivRepFormElement {
 		newrec.downtime_severity_id = severity_id.getValue();
 		newrec.dn_id = auth.getDNID();
 		newrec.timestamp = timestamp;
+		newrec.disable = false;
 
 		return newrec;
 	}
@@ -586,57 +609,6 @@ public class ResourceDowntimeEditor extends DivRepFormElement {
 		}
 	}
 
-
-
-	/*
-	public void removeDowntime(DowntimeEditor downtime)
-	{
-		remove(downtime);
-		redraw();
-	}
-	*/
-	
-	/*
-	public DowntimeEditor addDowntime(ResourceDowntimeRecord rec) throws SQLException { 
-		DowntimeEditor elem = new DowntimeEditor(this, rec, auth);
-		redraw();
-		return elem;
-	}
-	*/
-	
-	/*
-	public ResourceDowntimeEditor(DivRep parent, Context _context, final Integer _resource_id, Integer downtime_id) throws SQLException {
-		super(parent);
-		context = _context;
-		auth = context.getAuthorization();
-		resource_id = _resource_id;
-		
-		ContactRecord crec = auth.getContact();
-		timezone = TimeZone.getTimeZone(crec.timezone);
-		
-		ResourceDowntimeModel dmodel = new ResourceDowntimeModel(context);	
-		if(downtime_id == null) {
-			downtime_rec = new ResourceDowntimeRecord();
-			//downtime_rec.resource_id = resource_id;
-		} else {
-			downtime_rec = dmodel.get(downtime_id);
-		}
-		
-		add_button = new DivRepButton(this, "Add New Downtime");
-		add_button.setStyle(DivRepButton.Style.ALINK);
-		add_button.addEventListener(new DivRepEventListener() {
-			public void handleEvent(DivRepEvent e) {
-				try {
-					addDowntime(new ResourceDowntimeRecord());
-					setFormModified();
-				} catch (SQLException e1) {
-					log.error(e1);
-				}
-			}
-		});
-	
-	}
-	*/
 	protected void onEvent(DivRepEvent e) {
 		// TODO Auto-generated method stub
 

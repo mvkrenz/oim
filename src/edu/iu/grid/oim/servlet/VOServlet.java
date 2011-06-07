@@ -56,6 +56,7 @@ import edu.iu.grid.oim.view.ToolTip;
 import edu.iu.grid.oim.view.URLView;
 import edu.iu.grid.oim.view.TableView.Row;
 import edu.iu.grid.oim.view.divrep.ViewWrapper;
+import edu.iu.grid.oim.view.divrep.form.VOFormDE;
 
 public class VOServlet extends ServletBase implements Servlet {
 	private static final long serialVersionUID = 1L;
@@ -157,7 +158,7 @@ public class VOServlet extends ServletBase implements Servlet {
 					ToolTip parent_vo_tip = new ToolTip("Sometimes a project grows large enough to include several offshoot projects in it. When this happens, such a VO would want to be its own registration but would want to cite the parent project on its registration. This item helps a VO manager make such a mapping.");
 					table.addRow("Parent VO " + parent_vo_tip.render() + " ", parent_vo_name);
 					table.addRow("Support Center", getSCName(rec.sc_id));
-
+/*
 					// Display order for contact types  
 					final Integer contact_types[] = {
 						1, //submitter
@@ -166,6 +167,7 @@ public class VOServlet extends ServletBase implements Servlet {
 						2, //security contact
 						5, //misc contact
 					};
+*/
 					ContactTypeModel ctmodel = new ContactTypeModel(context);
 					ContactRankModel crmodel = new ContactRankModel(context);
 					ContactModel pmodel = new ContactModel(context);
@@ -175,11 +177,11 @@ public class VOServlet extends ServletBase implements Servlet {
 					ArrayList<VOContactRecord> voclist = vocmodel.getByVOID(rec.id);
 					HashMap<Integer, ArrayList<VOContactRecord>> voclist_grouped = vocmodel.groupByContactTypeID(voclist);
 
-					for(Integer type_id : contact_types) {
-						if(voclist_grouped.containsKey(type_id)) {
-							ContactTypeRecord ctrec = ctmodel.get(type_id);
+					for(ContactTypeRecord.Info contact_type : VOFormDE.ContactTypes) {
+						if(voclist_grouped.containsKey(contact_type.id)) {
+							ContactTypeRecord ctrec = ctmodel.get(contact_type.id);
 
-							ArrayList<VOContactRecord> clist = voclist_grouped.get(type_id);
+							ArrayList<VOContactRecord> clist = voclist_grouped.get(contact_type.id);
 							Collections.sort(clist, new Comparator<VOContactRecord> (){
 								public int compare(VOContactRecord a, VOContactRecord b) {
 									if (a.getRank() > b.getRank()) // We are comparing based on rank id 
@@ -197,7 +199,8 @@ public class VOServlet extends ServletBase implements Servlet {
 								cliststr += person.name;
 								cliststr += "</div>";
 							}
-							table.addRow(ctrec.name, new HtmlView(cliststr));
+							ToolTip tip = new ToolTip(contact_type.desc);
+							table.addRow(ctrec.name + " " + tip.render(), new HtmlView(cliststr));
 						}
 					}			
 					if (rec.science_vo) {
