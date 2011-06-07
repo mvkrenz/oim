@@ -246,10 +246,7 @@ public class ResourceFormDE extends DivRepForm
 		}
 		
 		new DivRepStaticContent(this, "<h2>WLCG Interoperability Information (If Applicable)</h2>");
-		new DivRepStaticContent(this, "<p>Enable this section if your resource is part of the WLCG interoperability agreement. " + 
-					"You can then provide more interoperability details for this resource, including KSI2K Limits " + 
-					" and storage capacity min/max values. If you are not sure about any of these values, " + 
-					" ask your Owner VO(s)!</p>");
+		new DivRepStaticContent(this, "<p>By enabling this section you agree to publish Resource Information (GLUE via BDII), Monitoring Data (RSV), and Accounting Data (OIM Capacity and Benchmarking) to the WLCG and/or EGI.</p>");
 
 		wlcg = new DivRepCheckBox(this);
 		wlcg.setLabel("This is a WLCG resource");
