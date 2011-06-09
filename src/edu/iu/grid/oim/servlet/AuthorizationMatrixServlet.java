@@ -135,12 +135,6 @@ public class AuthorizationMatrixServlet extends ServletBase  {
 		}
 
 		@Override
-		public void validate() {
-			// TODO Auto-generated method stub
-			
-		}
-
-		@Override
 		protected void onEvent(DivRepEvent e) {
 			// TODO Auto-generated method stub
 			

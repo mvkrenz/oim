@@ -189,29 +189,37 @@ public class VOResourceOwnership extends DivRepFormElement {
 
 	}
 	
-	public void validate()
+	public boolean validate()
 	{
 		error.redraw();
+		boolean valid = true;
 		
-		//make sure percentage sums upto 100%
+		//validate each ownerships
 		Double total = 0D;
 		for(DivRep node : childnodes) {					
 			if(node instanceof OwnershipEditor) {
 				OwnershipEditor owner = (OwnershipEditor)node;
-				if(!owner.isValid()) {
+				if(!owner.validate()) {
+					error.set(null);//child element should show error message
 					valid = false;
-					return;
+				} else {
+					total += Double.parseDouble(owner.percent.getValue());
 				}
-				total += Double.parseDouble(owner.percent.getValue());
 			}
 		}
-		if(total <= 100D) {
-			error.clear();
-			valid = true;
-		} else {
-			error.set("Total percentage of ownership must be less than or equal to 100% -- Current total is " + total + "%");
-			valid = false;
-		}
+		
+		if(valid) {
+			//make sure percentage sums upto 100%
+			if(total <= 100D) {
+				error.clear();
+			} else {
+				error.set("Total percentage of ownership must be less than or equal to 100% -- Current total is " + total + "%");
+				valid = false;
+			}
+		}	
+		
+		setValid(valid);
+		return valid;
 	}
 	
 	public void render(PrintWriter out) {

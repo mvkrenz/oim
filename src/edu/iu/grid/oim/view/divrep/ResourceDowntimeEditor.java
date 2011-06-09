@@ -116,7 +116,7 @@ public class ResourceDowntimeEditor extends DivRepFormElement {
 			summary.addEventListener(new DivRepEventListener() {
 				public void handleEvent(DivRepEvent e) {
 					int len = e.value.length();
-					if(len > 500 && summary.isValid()) {
+					if(len > 500 && summary.validate()) {
 						summary_warning.setHtml("<p class=\"warning\">The length of this text is "+len+" chars which is more than allowed for WLCG SAM (500 max). Text will be truncated.</p>");
 					} else {
 						summary_warning.setHtml("");
@@ -196,8 +196,8 @@ public class ResourceDowntimeEditor extends DivRepFormElement {
 		String minDate = null;
 		protected DateDE(DivRep parent) {
 			super(parent);
-			value = new Date();//today
-			value.setTime((value.getTime() / (1000L*60)) * (1000L*60)); //round to nearest minute
+			setValue(new Date());//today
+			getValue().setTime((getValue().getTime() / (1000L*60)) * (1000L*60)); //round to nearest minute
 		}
 
 		public void setMinDate(Date d)
@@ -208,7 +208,7 @@ public class ResourceDowntimeEditor extends DivRepFormElement {
 			SimpleDateFormat format = new SimpleDateFormat(default_format);
 			format.setTimeZone(timezone);
 			try {
-				value = format.parse((String)e.value);
+				setValue(format.parse((String)e.value));
 			} catch (ParseException e1) {
 				alert(e1.getMessage() + ". Please specify a valid date such as 4/17/2009");
 			}
@@ -218,13 +218,13 @@ public class ResourceDowntimeEditor extends DivRepFormElement {
 
 		public void render(PrintWriter out) {
 			out.write("<div id=\""+getNodeID()+"\">");
-			if(label != null) {
-				out.print("<label>"+StringEscapeUtils.escapeHtml(label)+"</label><br/>");
+			if(getLabel() != null) {
+				out.print("<label>"+StringEscapeUtils.escapeHtml(getLabel())+"</label><br/>");
 			}
 			
 			SimpleDateFormat format = new SimpleDateFormat(default_format);
 			format.setTimeZone(timezone);
-			String str = format.format(value);
+			String str = format.format(getValue());
 			out.write("<input type=\"text\" class=\"datepicker\" value=\""+str+"\" onchange=\"divrep('"+getNodeID()+"', null, $(this).val());\"/>");	
 			
 			//setup the datepicker
@@ -282,7 +282,7 @@ public class ResourceDowntimeEditor extends DivRepFormElement {
 			hour.addEventListener(new DivRepEventListener() {
 				public void handleEvent(DivRepEvent e) {
 					Integer h = Integer.valueOf((String)e.value);
-					value.set(Calendar.HOUR_OF_DAY, h);
+					getValue().set(Calendar.HOUR_OF_DAY, h);
 					notifyListener(e);
 				}});
 			hour.setHasNull(false);
@@ -295,20 +295,20 @@ public class ResourceDowntimeEditor extends DivRepFormElement {
 			min.addEventListener(new DivRepEventListener() {
 				public void handleEvent(DivRepEvent e) {
 					Integer m = Integer.valueOf((String)e.value);
-					value.set(Calendar.MINUTE, m);
+					getValue().set(Calendar.MINUTE, m);
 					notifyListener(e);
 				}});
 			min.setHasNull(false);
-			value = Calendar.getInstance(timezone);
+			setValue(Calendar.getInstance(timezone));
 			
 			//reset to 0:0AM
-			value.set(Calendar.HOUR_OF_DAY, 0);
-			value.set(Calendar.MINUTE, 0);
+			getValue().set(Calendar.HOUR_OF_DAY, 0);
+			getValue().set(Calendar.MINUTE, 0);
 		}
 
 		public void render(PrintWriter out) {				
-			hour.setValue(value.get(Calendar.HOUR_OF_DAY));
-			min.setValue(value.get(Calendar.MINUTE));
+			hour.setValue(getValue().get(Calendar.HOUR_OF_DAY));
+			min.setValue(getValue().get(Calendar.MINUTE));
 			
 			out.write("<table id=\""+getNodeID()+"\"><tr><td>");
 			hour.render(out);
@@ -320,15 +320,15 @@ public class ResourceDowntimeEditor extends DivRepFormElement {
 		}
 
 		public void setValue(Date time) {
-			value.setTime(time);
+			getValue().setTime(time);
 		}
 		public Integer getHour()
 		{
-			return value.get(Calendar.HOUR_OF_DAY);
+			return getValue().get(Calendar.HOUR_OF_DAY);
 		}
 		public Integer getMin()
 		{
-			return value.get(Calendar.MINUTE);
+			return getValue().get(Calendar.MINUTE);
 		}
 	
 		protected void onEvent(DivRepEvent e) {
@@ -387,10 +387,13 @@ public class ResourceDowntimeEditor extends DivRepFormElement {
 			}
 			new DivRepStaticContent(this, "&nbsp;<strong>("+timezone.getID()+")</strong></td></tr></table>");
 		}
-		public void validate()
+		public boolean validate()
 		{
-			valid = true;
+			//super.validate(); //nothing to validate
+			error.redraw();
+			boolean valid = true;
 			
+			//extra validation
 			Date start = getStartTime();
 			Date end = getEndTime();
 			Date end_limit = new Date(Calendar.getInstance().getTimeInMillis() - 1000L * 3600 * 24 * StaticConfig.getDowntimeEditableEndDays());
@@ -405,7 +408,9 @@ public class ResourceDowntimeEditor extends DivRepFormElement {
 					error.set(null);	
 				}
 			}
-			error.redraw();
+			
+			setValid(valid);
+			return valid;
 		}
 		public Date getStartTime()
 		{
@@ -427,9 +432,9 @@ public class ResourceDowntimeEditor extends DivRepFormElement {
 			out.print("<div ");
 			renderClass(out);
 			out.write("id=\""+getNodeID()+"\">");
-			if(!hidden) {
-				if(label != null) {
-					out.print("<label>"+StringEscapeUtils.escapeHtml(label)+"</label><br/>");
+			if(!isHidden()) {
+				if(getLabel() != null) {
+					out.print("<label>"+StringEscapeUtils.escapeHtml(getLabel())+"</label><br/>");
 				}
 				
 				out.write("<table><tr><td>");
@@ -587,7 +592,7 @@ public class ResourceDowntimeEditor extends DivRepFormElement {
 		return downtime;
 	}
 
-	public void validate()
+	public boolean validate()
 	{
 		super.validate();
 		
@@ -599,14 +604,14 @@ public class ResourceDowntimeEditor extends DivRepFormElement {
 			}
 		}
 		if(service_count == 0) {
-			valid = false;
+			setValid(false);
 			error.set("Please select at least one affected service.");
-			error.redraw();
-			return;
 		} else {
 			error.set(null);
-			error.redraw();
 		}
+		
+		error.redraw();
+		return getValid();
 	}
 
 	protected void onEvent(DivRepEvent e) {

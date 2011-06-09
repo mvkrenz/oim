@@ -256,29 +256,28 @@ public class ResourceServices extends DivRepFormElement {
 
 	}
 	
-	public void validate()
+	public boolean validate()
 	{
-		boolean original = valid;
+		error.redraw();
+		boolean valid = true;
 		
-		//validate all services
-		redraw();
-		valid = true;
+		//validate each services
 		for(ServiceEditor service : services) {
-			if(!service.isValid()) {
+			if(!service.validate()) {
 				error.set(null);//child element should show error message
 				valid = false;
 			}
 		}
 		
-		if(required && services.size() == 0) {
-			error.set("Please specify at least one service.");
-			valid = false;
+		if(valid) {
+			if(isRequired() && services.size() == 0) {
+				error.set("Please specify at least one service.");
+				valid = false;
+			}		
 		}
 		
-		//why valid == false? because sometime error message can change to something else while it's set to true
-		if(original != valid || valid == false) {
-			error.redraw();
-		}
+		setValid(valid);
+		return valid;
 	}
 	
 	public Boolean isValidResourceFQDN(String url)

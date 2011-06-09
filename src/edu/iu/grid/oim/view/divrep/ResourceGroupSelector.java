@@ -68,6 +68,7 @@ public class ResourceGroupSelector extends DivRepFormElement<Integer> {
 						resource_group.setNullLabel("(Please Select Site First)");
 						resource_group.setValue(null);
 						resource_group.setValues(new LinkedHashMap<Integer, String>());
+						resource_group.validate();
 						resource_group.redraw();
 					} else {
 						setValue(site.getValue(), null);
@@ -151,9 +152,12 @@ public class ResourceGroupSelector extends DivRepFormElement<Integer> {
 			e.printStackTrace();
 		}
     }
+    public Integer getValue() { 
+    	return resource_group.getValue();
+    }
     
 	public void setRequired(Boolean b) { 
-		super.setRequired(b);
+		//super.setRequired(b);//don't set required on super.. we don't have any associated with it
 		site.setRequired(b);
 		resource_group.setRequired(b);
 	}

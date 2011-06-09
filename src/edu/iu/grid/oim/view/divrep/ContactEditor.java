@@ -27,7 +27,7 @@ public class ContactEditor extends DivRepFormElement<HashMap<ContactEditor.Rank,
 	static Logger log = Logger.getLogger(ContactEditor.class);
 	
 	public enum Rank {PRIMARY, SECONDARY, TERTIARY };
-	private HashMap<Rank/*rank_id*/, ArrayList<ContactDE>> selected = new HashMap();
+	private HashMap<Rank/*rank_id*/, ArrayList<ContactDE>> selected;
 	
 	// Default max contact limits - can be overridden 
 	private int max_primary = 1;
@@ -71,7 +71,8 @@ public class ContactEditor extends DivRepFormElement<HashMap<ContactEditor.Rank,
 	public ContactEditor(DivRep parent, ContactModel pmodel, Boolean _has_secondary, Boolean _has_tertiary) {
 		super(parent);
 		
-		value = selected;
+		selected = new HashMap<Rank/*rank_id*/, ArrayList<ContactDE>>();
+		super.setValue(selected);//I need to do this so that DivRepFormElement correctly fire MinValidator
 		
 		has_secondary = _has_secondary;
 		has_tertiary = _has_tertiary;
@@ -89,10 +90,18 @@ public class ContactEditor extends DivRepFormElement<HashMap<ContactEditor.Rank,
 		}
 	}
 	
+	
 	@Deprecated
 	public void setValue(HashMap<ContactEditor.Rank, ArrayList<ContactEditor.ContactDE>> value)
 	{
 		//depricated
+	}
+	
+	@Deprecated
+	public HashMap<ContactEditor.Rank, ArrayList<ContactEditor.ContactDE>> getValue()
+	{
+		//depricated
+		return null;
 	}
 	
 	class MinValidator implements DivRepIValidator<HashMap<ContactEditor.Rank, ArrayList<ContactDE>>>

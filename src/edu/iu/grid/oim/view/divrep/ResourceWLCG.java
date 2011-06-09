@@ -43,6 +43,35 @@ public class ResourceWLCG extends DivRepFormElement {
 			super(parent);
 			myself = this;
 			
+			/*
+			 * I believe http://lcg-bdii-conf.cern.ch/bdii-conf/bdii.conf is generated via MyOSG which
+			 * relies on these flags
+			 */
+			interop_bdii = new DivRepCheckBox(this);
+			interop_bdii.setLabel("Forward BDII data to WLCG Interop BDII (for lcg-bdii.cern.ch)");
+
+			interop_monitoring = new DivRepCheckBox(this);
+			interop_monitoring.setLabel("Forward RSV data to WLCG Interop Monitoring (for SAM/GridView)");
+
+			interop_accounting = new DivRepCheckBox(this);
+			interop_accounting.setLabel("Forward Accounting Data (OIM Capacity and Benchmarking) to WLCG Interop Accounting");
+			interop_accounting.addEventListener(new DivRepEventListener() {
+				public void handleEvent(DivRepEvent e) {	
+					if(((String)e.value).compareTo("true") == 0) {
+						hideWLCGAccountingName(false);
+					} else {
+						hideWLCGAccountingName(true);
+					}
+				}
+			});
+			wlcg_accounting_name = new DivRepTextBox(this);
+			wlcg_accounting_name.addClass("divrep_indent");//make it look like it's part of above checkbox
+			wlcg_accounting_name.setLabel("WLCG Accounting Name");
+			wlcg_accounting_name.setSampleValue("ABC Accounting");
+			wlcg_accounting_name.setRequired(true);
+			
+			new DivRepStaticContent(this, "<br>");
+			
 			ksi2k_minimum = new DivRepTextBox(this);
 			ksi2k_minimum.setLabel("KSI2K Minimum");
 			ksi2k_minimum.addValidator(DivRepDoubleValidator.getInstance());
@@ -77,36 +106,6 @@ public class ResourceWLCG extends DivRepFormElement {
 			tape_capacity.setLabel("Tape Capacity (in TeraBytes)");
 			tape_capacity.addValidator(DivRepDoubleValidator.getInstance());
 			tape_capacity.setSampleValue("5.5");
-			
-			
-			/*
-			 * We need to add detailed explanation of what happens when user click on one of these things..
-			 *
-			 * I believe http://lcg-bdii-conf.cern.ch/bdii-conf/bdii.conf is generated via MyOSG which
-			 * relies on these flags
-			 */
-			interop_bdii = new DivRepCheckBox(this);
-			interop_bdii.setLabel("Forward BDII data to WLCG Interop BDII (for lcg-bdii.cern.ch)");
-
-			interop_monitoring = new DivRepCheckBox(this);
-			interop_monitoring.setLabel("Forward RSV data to WLCG Interop Monitoring (for SAM/GridView)");
-
-			interop_accounting = new DivRepCheckBox(this);
-			interop_accounting.setLabel("Forward Gratia data to WLCG Interop Accounting (https://twiki.grid.iu.edu/bin/view/Interoperability/AccountingAndWLCG)");
-			interop_accounting.addEventListener(new DivRepEventListener() {
-				public void handleEvent(DivRepEvent e) {	
-					if(((String)e.value).compareTo("true") == 0) {
-						hideWLCGAccountingName(false);
-					} else {
-						hideWLCGAccountingName(true);
-					}
-				}
-			});
-			wlcg_accounting_name = new DivRepTextBox(this);
-			wlcg_accounting_name.addClass("divrep_indent");//make it look like it's part of above checkbox
-			wlcg_accounting_name.setLabel("WLCG Accounting Name");
-			wlcg_accounting_name.setSampleValue("ABC Accounting");
-			wlcg_accounting_name.setRequired(true);
 			
 			hideWLCGAccountingName(true);
 			
@@ -214,19 +213,21 @@ public class ResourceWLCG extends DivRepFormElement {
 		// TODO Auto-generated method stub
 	}
 	
-	public void validate()
+	public boolean validate()
 	{
 		//validate WLCG interop selections
 		redraw();
-		valid = true;
-		if(!editor.isValid()) {
+		boolean valid = true;
+		if(!editor.validate()) {
 			valid = false;
 		}
+		setValid(valid);
+		return valid;
 	}
 
 	public void render(PrintWriter out) {
 		out.print("<div id=\""+getNodeID()+"\" class=\"indent\">");
-		if (!hidden) {
+		if (!isHidden()) {
 			editor.render(out);
 		}
 		out.print("</div>");
