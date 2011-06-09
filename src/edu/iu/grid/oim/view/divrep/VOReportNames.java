@@ -198,11 +198,11 @@ public class VOReportNames extends DivRepFormElement {
 		});
 	}
 
-	public void validate()
+	public boolean validate()
 	{
 		super.validate();
-
 		validate_count();
+		return getValid();
 	}
 	public boolean hasDuplicateName(VOReportNameEditor that)
 	{
@@ -226,7 +226,7 @@ public class VOReportNames extends DivRepFormElement {
 			}
 		}
 		if(report_count == 0) {
-			valid = false;
+			setValid(false);
 			error.set("Please provide at least one VO Report");
 			error.redraw();
 			return;

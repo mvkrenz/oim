@@ -39,10 +39,10 @@ public class AUPConfirmation extends DivRepFormElement {
 	}
 
 	//aup is invalid if user don't check it
-	public void validate()
+	public boolean validate()
 	{
-		super.validate();
-		boolean original = valid;
+		boolean previous_valid = super.validate();
+		boolean valid = previous_valid;
 		
 		if(valid) {	
 			if(!check.getValue()) {
@@ -52,8 +52,11 @@ public class AUPConfirmation extends DivRepFormElement {
 		}
 		
 		//why valid == false? because sometime error message can change to something else while it's set to true
-		if(original != valid || valid == false) {
+		if(previous_valid != valid || valid == false) {
 			error.redraw();
 		}
+		
+		setValid(valid);
+		return valid;
 	}
 }

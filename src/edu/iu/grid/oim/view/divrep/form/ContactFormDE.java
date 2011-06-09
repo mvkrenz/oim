@@ -209,7 +209,7 @@ public class ContactFormDE extends DivRepForm
 		
 		public void render(PrintWriter out) {
 			out.print("<div class=\"indent\" id=\""+getNodeID()+"\">");	
-			if(!hidden) {
+			if(!isHidden()) {
 				for(DivRep child : childnodes) {
 					if(child instanceof DivRepFormElement) {
 						out.print("<div class=\"divrep_form_element\">");
@@ -264,9 +264,12 @@ public class ContactFormDE extends DivRepForm
 		public String getValue() {
 			return url.getValue();
 		}
+		/*
 		public Boolean isValid() { 
-			return url.isValid();
+			url.validate();
+			return url.getValid();
 		}
+		*/
 		public void setLabel(String label) {
 			url.setLabel(label);
 		}
@@ -281,7 +284,7 @@ public class ContactFormDE extends DivRepForm
 			out.print("<div ");
 			renderClass(out);
 			out.write("id=\""+getNodeID()+"\">");
-			if(!hidden) {
+			if(!isHidden()) {
 				url.render(out);
 				out.write("<img class=\"avatar_preview\" src=\""+img+"\"/>");
 			}

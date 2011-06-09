@@ -246,7 +246,7 @@ public class ResourceFormDE extends DivRepForm
 		}
 		
 		new DivRepStaticContent(this, "<h2>WLCG Interoperability Information (If Applicable)</h2>");
-		new DivRepStaticContent(this, "<p>By enabling this section you agree to publish Resource Information (GLUE via BDII), Monitoring Data (RSV), and Accounting Data (OIM Capacity and Benchmarking) to the WLCG and/or EGI.</p>");
+		//new DivRepStaticContent(this, "<p>By enabling this section you agree to publish Resource Information (GLUE via BDII), Monitoring Data (RSV), and Accounting Data (OIM Capacity and Benchmarking) to the WLCG and/or EGI.</p>");
 
 		wlcg = new DivRepCheckBox(this);
 		wlcg.setLabel("This is a WLCG resource");
