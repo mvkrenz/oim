@@ -80,6 +80,8 @@
             <a target="_blank" href="http://software.grid.iu.edu/">Software Cache</a> |
             <a target="_blank" href="http://is.grid.iu.edu/documentation.html">BDII</a> |
             <a target="_blank" href="https://twiki.grid.iu.edu/">TWiki</a> |
+            <a target="_blank" href="http://blogs.grid.iu.edu/">Blogs</a> |
+            <a target="_blank" href="http://display.grid.iu.edu/">Display</a> |
             <a target="_blank" href="http://osggoc.blogspot.com/">News</a>
         </p>
         
