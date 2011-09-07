@@ -14,7 +14,7 @@ import org.xml.sax.InputSource;
 
 //we now have *dynamic* configuration (ConfigModel) now.. use it instead
 public class StaticConfig {
-	static public String getVersion() { return "2.38"; } //version shouldn't be configurable.
+	static public String getVersion() { return "2.39"; } //version shouldn't be configurable.
 	
 	static Logger log = Logger.getLogger(StaticConfig.class);  
     
