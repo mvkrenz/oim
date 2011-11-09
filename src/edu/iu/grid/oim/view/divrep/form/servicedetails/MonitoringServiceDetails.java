@@ -8,9 +8,9 @@ import com.divrep.DivRepEvent;
 
 import edu.iu.grid.oim.model.db.record.ServiceRecord;
 
-public class CentralServiceDetails extends ServiceDetailsContent {
+public class MonitoringServiceDetails extends ServiceDetailsContent {
 
-	public CentralServiceDetails(DivRep _parent, ServiceRecord srec) {
+	public MonitoringServiceDetails(DivRep _parent, ServiceRecord srec) {
 		super(_parent);
 		// TODO Auto-generated constructor stub
 	}
@@ -18,7 +18,7 @@ public class CentralServiceDetails extends ServiceDetailsContent {
 	@Override
 	public void render(PrintWriter out) {
 		out.write("<div id=\""+getNodeID()+"\"");
-		out.write("<p>This is a central service.</p>");
+		out.write("<p>No custom parameters requested for Monitoring service group yet. This is usually a central service.</p>");
 		out.write("</div>");
 	}
 

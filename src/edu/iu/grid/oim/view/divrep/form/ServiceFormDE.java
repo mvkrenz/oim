@@ -101,7 +101,7 @@ public class ServiceFormDE extends DivRepForm
 		
 		type = new DivRepTextBox(this);
 		type.setLabel("GUI Type");
-		type.setValue(rec.type);
+		//type.setValue(rec.type);
 		type.setRequired(true);
 	}
 	
@@ -131,7 +131,7 @@ public class ServiceFormDE extends DivRepForm
 			}
 			rec.description = description.getValue();
 			rec.service_group_id = service_group_id.getValue();
-			rec.type = type.getValue();
+			//rec.type = type.getValue();
 			
 			ServiceModel model = new ServiceModel(context);
 			if(rec.id == null) {

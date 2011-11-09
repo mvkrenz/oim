@@ -10,7 +10,7 @@ public class ServiceRecord extends RecordBase {
 	public String description;
 	public Integer port;
 	public Integer service_group_id;
-	public String type;
+	//public String type;
 	
 	//load from existing record
 	public ServiceRecord(ResultSet rs) throws SQLException { super(rs); }

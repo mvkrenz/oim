@@ -62,6 +62,22 @@ public class ServiceDetails extends DivRepFormElement {
 				//pull service details
 				ServiceModel smodel = new ServiceModel(context);
 				ServiceRecord srec = smodel.get(service_id);
+				switch(srec.service_group_id) {
+				case 1: content = new GridServiceDetails(this, srec); break;
+				case 101: content = new AuthServiceDetails(this, srec); break;
+				case 201: content = new InformationServiceDetails(this, srec); break;
+				case 301: content = new MonitoringServiceDetails(this, srec); break;
+				case 401: content = new VOServiceDetails(this, srec); break;
+				case 501: content = new AccountingServiceDetails(this, srec); break;
+				case 1001: content = new SecurityMonitoringServiceDetails(this, srec); break;
+				case 1002: content = new SquidServiceDetails(this, srec); break;
+				//others
+				case 1000: break; 
+				default: 
+					log.warn("Unknown service group id for service " + srec.name);
+				}
+				/*
+				}
 				if(srec.type.equals("GRID")) {
 					content = new GridServiceDetails(this, srec);
 				} else if(srec.type.equals("CENTRAL")) {
@@ -69,6 +85,7 @@ public class ServiceDetails extends DivRepFormElement {
 				} else {
 					log.warn("Unknown service type for " + srec.type);
 				}
+				*/
  				
 				//content = new VMHostServiceDetails(this); break;
 			} catch (SQLException e) {
