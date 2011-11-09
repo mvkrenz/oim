@@ -174,7 +174,7 @@ public abstract class SmallTableModelBase<T extends RecordBase> extends ModelBas
 	    	String keysql = "";
 	    	for(Field key : rec.getRecordKeys()) {
 	    		if(keysql.length() != 0) keysql += " and ";
-	    		keysql += key.getName() + "=?";
+	    		keysql += "`"+key.getName()+"`" + "=?";
 	    	}
 			String sql = "DELETE FROM "+table_name+" where " + keysql;
 			Connection conn = connectOIM();
@@ -211,7 +211,7 @@ public abstract class SmallTableModelBase<T extends RecordBase> extends ModelBas
     			fields += ", ";
     			values += ", ";
     		}
-    		fields += field.getName();
+    		fields += "`"+field.getName()+"`";
     		values += "?";
     	}
 		String sql = "INSERT INTO "+table_name+" ("+fields+") VALUES ("+values+")";
@@ -278,7 +278,7 @@ public abstract class SmallTableModelBase<T extends RecordBase> extends ModelBas
     	String keysql = "";
     	for(Field key : oldrec.getRecordKeys()) {
     		if(keysql.length() != 0) keysql += " and ";
-    		keysql += key.getName() + "=?";
+    		keysql += "`"+key.getName()+"`" + "=?";
     	}
     	String sql = "UPDATE " + table_name + " SET " + values + " WHERE " + keysql;
     	PreparedStatement stmt;

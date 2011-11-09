@@ -21,6 +21,7 @@ public class SCRecord extends ConfirmableRecord {
 	public Boolean active;
 	public Boolean disable;
 	public String footprints_id;
+	public String external_assignment_id;
 	
 	//load from existing record
 	public SCRecord(ResultSet rs) throws SQLException { super(rs); }

@@ -44,6 +44,7 @@ public class SCFormDE extends DivRepForm
 	private DivRepTextArea description;
 	private DivRepTextArea community;
 	private DivRepTextBox footprints_id;
+	private DivRepTextBox external_assignment_id;
 	private DivRepCheckBox active;
 	private DivRepCheckBox disable;
 	private Confirmation confirmation;
@@ -100,7 +101,15 @@ public class SCFormDE extends DivRepForm
 		community.setLabel("Enter the Community this SC supports");
 		community.setValue(rec.community);
 		community.setRequired(true);
+		
+		new DivRepStaticContent(this, "<h2>Ticket Exchange</h2>");
+		new DivRepStaticContent(this, "<p>GOC-TX uses this information to populate necessary fields on the destination ticketing system for tickets sent to this support center.</p>");
 
+		external_assignment_id = new DivRepTextBox(this);
+		external_assignment_id.setLabel("External Assignment ID");
+		external_assignment_id.setValue(rec.external_assignment_id);
+
+		
 		new DivRepStaticContent(this, "<h2>Contact Information</h2>");
 		HashMap<Integer/*contact_type_id*/, ArrayList<SCContactRecord>> scclist_grouped = null;
 		if(id != null) {
@@ -257,6 +266,7 @@ public class SCFormDE extends DivRepForm
 		rec.description = description.getValue();
 		rec.community = community.getValue();
 		rec.footprints_id = footprints_id.getValue();
+		rec.external_assignment_id = external_assignment_id.getValue();
 		rec.disable = disable.getValue();
 		if (rec.disable == true) {
 			rec.active = false; // not using real active value, instead defaulting based on disable value

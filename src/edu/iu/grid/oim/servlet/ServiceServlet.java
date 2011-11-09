@@ -84,6 +84,7 @@ public class ServiceServlet extends ServletBase implements Servlet {
 			contentview.add(table);
 			table.addRow("Name", rec.name);
 			table.addRow("Description", rec.description);
+			table.addRow("Service Type", rec.type);
 			if (rec.port != null) {
 				table.addRow("Port", rec.port.toString());	
 			}

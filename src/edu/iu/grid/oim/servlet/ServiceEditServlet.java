@@ -56,6 +56,7 @@ public class ServiceEditServlet extends ServletBase implements Servlet {
 			title = "Update Service";
 		} else {
 			rec = new ServiceRecord();
+			rec.type = "CENTRAL";//not sure if this is a good default..
 			title = "New Service";	
 		}
 	
