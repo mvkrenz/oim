@@ -27,6 +27,7 @@ import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.ResourceAliasModel;
 import edu.iu.grid.oim.model.db.ResourceContactModel;
 import edu.iu.grid.oim.model.db.ResourceGroupModel;
+import edu.iu.grid.oim.model.db.ResourceServiceDetailModel;
 import edu.iu.grid.oim.model.db.ResourceServiceModel;
 import edu.iu.grid.oim.model.db.ResourceWLCGModel;
 import edu.iu.grid.oim.model.db.SCModel;
@@ -41,6 +42,7 @@ import edu.iu.grid.oim.model.db.record.ResourceAliasRecord;
 import edu.iu.grid.oim.model.db.record.ResourceContactRecord;
 import edu.iu.grid.oim.model.db.record.ResourceGroupRecord;
 import edu.iu.grid.oim.model.db.record.ResourceRecord;
+import edu.iu.grid.oim.model.db.record.ResourceServiceDetailRecord;
 import edu.iu.grid.oim.model.db.record.ResourceServiceRecord;
 import edu.iu.grid.oim.model.db.record.ResourceWLCGRecord;
 import edu.iu.grid.oim.model.db.record.SCRecord;
@@ -162,15 +164,19 @@ public class ResourceFormDE extends DivRepForm
 		new DivRepStaticContent(this, "<h2>Resource Services</h2>");
 		new DivRepStaticContent(this, "<p>Add, remove, modify services associated with your resource. For example, a CE or an SRM.</p>");
 		ServiceModel smodel = new ServiceModel(context);
-		resource_services = new ResourceServices(this, context, smodel.getAll());
+		resource_services = new ResourceServices(this, context/*, smodel.getAll()*/);
+
 		ResourceServiceModel rsmodel = new ResourceServiceModel(context);
 		if(id != null) {
+			ResourceServiceDetailModel rsdmodel = new ResourceServiceDetailModel(context);
+			ArrayList<ResourceServiceDetailRecord> details = rsdmodel.getAllByResourceID(id);
+			
 			for(ResourceServiceRecord rarec : rsmodel.getAllByResourceID(id)) {
-				resource_services.addService(rarec);
+				resource_services.addService(rarec, details);
 			}
 		} else {
 			//add new one
-			resource_services.addService(new ResourceServiceRecord());
+			resource_services.addService(new ResourceServiceRecord(), null);
 		}
 		resource_services.setRequired(true);
 
@@ -275,7 +281,6 @@ public class ResourceFormDE extends DivRepForm
 				hideWLCGElement(false);				
 			}
 		}
-		//new DivRepStaticContent(this, "</div>");
 		
 		new DivRepStaticContent(this, "<h2>Confirmation</h2>");
 		confirmation = new Confirmation(this, rec, auth);
@@ -368,6 +373,7 @@ public class ResourceFormDE extends DivRepForm
 						getContactRecordsFromEditor(), 
 						wrec,
 						resource_services.getResourceServiceRecords(),
+						resource_services.getResourceServiceDetailsRecords(),
 						owners.getOwners());
 				
 				try {
@@ -409,6 +415,7 @@ public class ResourceFormDE extends DivRepForm
 						getContactRecordsFromEditor(),
 						wrec,
 						resource_services.getResourceServiceRecords(),
+						resource_services.getResourceServiceDetailsRecords(),
 						owners.getOwners());
 			}
 		} catch (Exception e) {

@@ -30,6 +30,7 @@ import edu.iu.grid.oim.model.db.ResourceContactModel;
 import edu.iu.grid.oim.model.db.ResourceDowntimeServiceModel;
 import edu.iu.grid.oim.model.db.ResourceGroupModel;
 import edu.iu.grid.oim.model.db.ResourceModel;
+import edu.iu.grid.oim.model.db.ResourceServiceDetailModel;
 import edu.iu.grid.oim.model.db.ResourceServiceModel;
 import edu.iu.grid.oim.model.db.ResourceWLCGModel;
 import edu.iu.grid.oim.model.db.SCModel;
@@ -46,6 +47,7 @@ import edu.iu.grid.oim.model.db.record.ResourceContactRecord;
 import edu.iu.grid.oim.model.db.record.ResourceDowntimeServiceRecord;
 import edu.iu.grid.oim.model.db.record.ResourceGroupRecord;
 import edu.iu.grid.oim.model.db.record.ResourceRecord;
+import edu.iu.grid.oim.model.db.record.ResourceServiceDetailRecord;
 import edu.iu.grid.oim.model.db.record.ResourceServiceRecord;
 import edu.iu.grid.oim.model.db.record.ResourceWLCGRecord;
 import edu.iu.grid.oim.model.db.record.SCRecord;
@@ -192,9 +194,18 @@ public class ResourceServlet extends ServletBase implements Servlet {
 					//Resource Services
 					ResourceServiceModel rsmodel = new ResourceServiceModel(context);
 					ArrayList<ResourceServiceRecord> services = rsmodel.getAllByResourceID(rec.id);
+					ResourceServiceDetailModel rsdmodel = new ResourceServiceDetailModel(context);
+					ArrayList<ResourceServiceDetailRecord> details = rsdmodel.getAllByResourceID(rec.id);
 					GenericView services_view = new GenericView();
 					for(ResourceServiceRecord rsrec : services) {
-						services_view.add(createServiceView(rsrec));
+						//pull service details for this service
+						HashMap<String, String> values = new HashMap<String, String>();
+						for(ResourceServiceDetailRecord drec : details) {
+							if(drec.service_id.equals(rsrec.service_id)) {
+								values.put(drec.key, drec.value);
+							}
+						}
+						services_view.add(createServiceView(rsrec, values));
 					}
 					table.addRow("Services", services_view);
 					
@@ -322,7 +333,7 @@ public class ResourceServlet extends ServletBase implements Servlet {
 		return view;
 	}
 	
-	private IView createServiceView(ResourceServiceRecord rec)
+	private IView createServiceView(ResourceServiceRecord rec, HashMap<String, String> details)
 	{
 		GenericView view = new GenericView();
 		
@@ -333,9 +344,17 @@ public class ResourceServlet extends ServletBase implements Servlet {
 
 			RecordTableView table = new RecordTableView("inner_table");
 			table.addHeaderRow(srec.description);
+			/*
 			table.addRow("Hidden Service?", rec.hidden);
 			table.addRow("Central Service?", rec.central);
 			table.addRow("ServiceURI Override", rec.endpoint_override);
+			*/
+			//TODO - should I do something more human friendly things?
+			for(String key : details.keySet()) {
+				String value = details.get(key);
+				table.addRow(key, value);
+			}
+			
 			view.add(table);
 
 		} catch (SQLException e) {

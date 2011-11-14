@@ -124,6 +124,7 @@ public class SCServlet extends ServletBase implements Servlet {
 				 	table.addRow("Long Name", rec.long_name);
 					table.addRow("Description", rec.description);
 					table.addRow("Community", rec.community);
+					table.addRow("Ex. Assignment ID", rec.external_assignment_id);
 
 					ContactTypeModel ctmodel = new ContactTypeModel(context);
 					ContactRankModel crmodel = new ContactRankModel(context);

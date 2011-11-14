@@ -15,10 +15,12 @@ public class ResourceServiceRecord extends RecordBase {
 
 	@Key public Integer service_id;
 	@Key public Integer resource_id;
+	/*
 	public String endpoint_override;
 	public Boolean hidden;
 	public Boolean central;
 	public String server_list_regex;
+	*/
 	
 	//load from existing record
 	public ResourceServiceRecord(ResultSet rs) throws SQLException { super(rs); }

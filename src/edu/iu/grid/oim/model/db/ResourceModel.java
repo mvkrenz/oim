@@ -19,6 +19,7 @@ import edu.iu.grid.oim.model.db.record.ResourceAliasRecord;
 import edu.iu.grid.oim.model.db.record.ResourceContactRecord;
 import edu.iu.grid.oim.model.db.record.ResourceGroupRecord;
 import edu.iu.grid.oim.model.db.record.ResourceRecord;
+import edu.iu.grid.oim.model.db.record.ResourceServiceDetailRecord;
 import edu.iu.grid.oim.model.db.record.ResourceServiceRecord;
 import edu.iu.grid.oim.model.db.record.ResourceWLCGRecord;
 import edu.iu.grid.oim.model.db.record.VOContactRecord;
@@ -155,6 +156,7 @@ public class ResourceModel extends SmallTableModelBase<ResourceRecord> {
 			ArrayList<ResourceContactRecord> contacts,
 			ResourceWLCGRecord wrec,
 			ArrayList<ResourceServiceRecord> resource_services,
+			ArrayList<ResourceServiceDetailRecord> resource_service_details,
 			ArrayList<VOResourceOwnershipRecord> owners) throws Exception
 	{
 		Connection conn = null;
@@ -183,6 +185,13 @@ public class ResourceModel extends SmallTableModelBase<ResourceRecord> {
 				list.add(rarec);
 			}
 			ramodel.insert(list);		
+			
+			//process resource service details
+			for(ResourceServiceDetailRecord rsdrec : resource_service_details) {
+				rsdrec.resource_id = rec.id;
+			}
+			ResourceServiceDetailModel rsdmodel = new ResourceServiceDetailModel(context);
+			rsdmodel.insert(resource_service_details);		
 			
 			//process resource services
 			for(ResourceServiceRecord rsrec : resource_services) {
@@ -226,6 +235,7 @@ public class ResourceModel extends SmallTableModelBase<ResourceRecord> {
 			ArrayList<ResourceContactRecord> contacts,
 			ResourceWLCGRecord wrec,
 			ArrayList<ResourceServiceRecord> resource_services,
+			ArrayList<ResourceServiceDetailRecord> resource_service_details,
 			ArrayList<VOResourceOwnershipRecord> owners) throws Exception
 	{
 		Connection conn = null;
@@ -252,7 +262,14 @@ public class ResourceModel extends SmallTableModelBase<ResourceRecord> {
 				list.add(rarec);
 			}
 			ramodel.update(ramodel.getAllByResourceID(rec.id), list);	
-		
+
+			//process resource service details
+			for(ResourceServiceDetailRecord rsdrec : resource_service_details) {
+				rsdrec.resource_id = rec.id;
+			}
+			ResourceServiceDetailModel rsdmodel = new ResourceServiceDetailModel(context);
+			rsdmodel.update(rsdmodel.getAllByResourceID(rec.id), resource_service_details);
+			
 			//process resource services
 			for(ResourceServiceRecord rsrec : resource_services) {
 				rsrec.resource_id = rec.id;
@@ -266,7 +283,6 @@ public class ResourceModel extends SmallTableModelBase<ResourceRecord> {
 			}
 			VOResourceOwnershipModel voresowner_model = new VOResourceOwnershipModel(context);
 			voresowner_model.update(voresowner_model.getAllByResourceID(rec.id), owners);
-			
 			
 			//process WLCG Record
 			ResourceWLCGModel wmodel = new ResourceWLCGModel(context);

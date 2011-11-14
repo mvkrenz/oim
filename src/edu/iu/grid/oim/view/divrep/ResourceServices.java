@@ -1,7 +1,6 @@
 package edu.iu.grid.oim.view.divrep;
 
 import java.io.PrintWriter;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -9,18 +8,16 @@ import com.divrep.DivRep;
 import com.divrep.DivRepEvent;
 import com.divrep.DivRepEventListener;
 import com.divrep.common.DivRepButton;
-import com.divrep.common.DivRepCheckBox;
 import com.divrep.common.DivRepFormElement;
-import com.divrep.common.DivRepSelectBox;
-import com.divrep.common.DivRepTextBox;
 import com.divrep.i18n.Labels;
 import com.divrep.validator.DivRepIValidator;
-import com.divrep.validator.DivRepUrlValidator;
 
 import edu.iu.grid.oim.model.Context;
+import edu.iu.grid.oim.model.db.record.ResourceServiceDetailRecord;
 import edu.iu.grid.oim.model.db.record.ResourceServiceRecord;
 import edu.iu.grid.oim.model.db.record.ServiceRecord;
 import edu.iu.grid.oim.view.divrep.form.ResourceFormDE;
+import edu.iu.grid.oim.view.divrep.form.servicedetails.ServiceDetails;
 
 public class ResourceServices extends DivRepFormElement {
 	Labels lab = Labels.getInstance();
@@ -45,15 +42,19 @@ public class ResourceServices extends DivRepFormElement {
 	{
 		//service details
 		private ServiceSelector service;
+		/*
 		private DivRepTextBox endpoint_override;
 		private DivRepCheckBox hidden;
 		private DivRepCheckBox central;
 		private DivRepTextBox server_list_regex;
+		*/
+		private ServiceDetails details;
 		
 		private DivRepButton remove_button;
 		private ResourceServices parent;
 		
-		protected ServiceEditor(ResourceServices _parent, ResourceServiceRecord rec, ArrayList<ServiceRecord> service_recs) {
+		protected ServiceEditor(ResourceServices _parent, ResourceServiceRecord rec, 
+				final ArrayList<ResourceServiceDetailRecord> details_recs) {
 			super(_parent);
 			parent = _parent;
 			
@@ -69,11 +70,21 @@ public class ResourceServices extends DivRepFormElement {
 						return false;
 					}
 					return true;
-				}});
+				}
+			});
+			service.addEventListener(new DivRepEventListener() {
+				public void handleEvent(DivRepEvent e) {
+					details.setService(service.getValue(), details_recs);
+				}
+			});
+			
+			details = new ServiceDetails(context, this);
 			if(rec != null) {
 				service.setValue(rec.service_id);
+				details.setService(rec.service_id, details_recs);
 			}
 
+			/*
 			// TODO These lines look a bit ugly -- needs clean up -agopu
 			hidden = new DivRepCheckBox(this);
 			hidden.setLabel("Is this a Hidden Service? (for eg., an internal gatekeeper inaccessible to the outside world; If you are not sure, leave it unchecked)");
@@ -125,6 +136,7 @@ public class ResourceServices extends DivRepFormElement {
 					
 					return true;
 				}});
+				
 
 			// Hiding this for now. Only Brian B knows how to use it.
 			server_list_regex = new DivRepTextBox(this);
@@ -133,6 +145,7 @@ public class ResourceServices extends DivRepFormElement {
 				server_list_regex.setValue(rec.server_list_regex.toString());
 			}
 			server_list_regex.setHidden(true);
+			*/
 			
 			remove_button = new DivRepButton(this, "images/delete.png");
 			remove_button.setStyle(DivRepButton.Style.IMAGE);
@@ -143,7 +156,7 @@ public class ResourceServices extends DivRepFormElement {
 				}
 			});
 		}
-
+		
 		public void addServiceEventListener(DivRepEventListener listener) {
 			service.addEventListener(listener);
 		}
@@ -190,12 +203,17 @@ public class ResourceServices extends DivRepFormElement {
 			ResourceServiceRecord rec = new ResourceServiceRecord();
 
 			rec.service_id = service.getValue();
+			/*
 			rec.endpoint_override = endpoint_override.getValue();
 			rec.hidden = hidden.getValue();
 			rec.central = central.getValue();
 			rec.server_list_regex = server_list_regex.getValue();
-					
+			*/
 			return rec;
+		}
+		
+		public ArrayList<ResourceServiceDetailRecord> getServiceDetailsRecords() {
+			return details.getServiceDetailsRecords();
 		}
 	}
 	
@@ -211,8 +229,8 @@ public class ResourceServices extends DivRepFormElement {
 		redraw();
 	}
 	
-	public void addService(ResourceServiceRecord rec) { 
-		ServiceEditor service = new ServiceEditor(this, rec, service_recs);
+	public void addService(ResourceServiceRecord rec, ArrayList<ResourceServiceDetailRecord> details_recs) { 
+		ServiceEditor service = new ServiceEditor(this, rec, details_recs);
 		services.add(service);
 		modified(true);
 		redraw();
@@ -226,21 +244,21 @@ public class ResourceServices extends DivRepFormElement {
 		*/
 	}
 	
-	public ResourceServices(ResourceFormDE _parent, Context _context, ArrayList<ServiceRecord> _service_recs) {
+	public ResourceServices(ResourceFormDE _parent, Context _context/*, ArrayList<ServiceRecord> _service_recs*/) {
 		super(_parent);
 		parent = _parent;
 		context = _context;
-		service_recs = _service_recs;
+		//service_recs = _service_recs;
 		
 		add_button = new DivRepButton(this, "Add New Service");
 		add_button.setStyle(DivRepButton.Style.ALINK);
 		add_button.addEventListener(new DivRepEventListener() {
 			public void handleEvent(DivRepEvent e) {
-				addService(new ResourceServiceRecord());
+				addService(new ResourceServiceRecord(), null);
 			}
 		});
 	}
-
+	
 	public ArrayList<ResourceServiceRecord> getResourceServiceRecords()
 	{
 		ArrayList<ResourceServiceRecord> service_recs = new ArrayList<ResourceServiceRecord>();
@@ -249,6 +267,15 @@ public class ResourceServices extends DivRepFormElement {
 		}
 		return service_recs;
 	}
+	public ArrayList<ResourceServiceDetailRecord> getResourceServiceDetailsRecords()
+	{
+		ArrayList<ResourceServiceDetailRecord> details_recs = new ArrayList<ResourceServiceDetailRecord>();
+		for(ServiceEditor service : services) {
+			details_recs.addAll(service.getServiceDetailsRecords());
+		}
+		return details_recs;
+	}
+
 
 	@Override
 	protected void onEvent(DivRepEvent e) {
