@@ -145,6 +145,8 @@ public class VOServlet extends ServletBase implements Servlet {
 					}
 					table.addRow("Description", rec.description);
 					table.addRow("Community", rec.community);
+					table.addRow("Ex. Assignment ID", rec.external_assignment_id);
+					
 					//pull parent vo
 					VOModel model = new VOModel(context);
 					VORecord parent_vo_rec = model.getParentVO(rec.id);
