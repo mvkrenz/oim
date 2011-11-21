@@ -25,7 +25,7 @@ public class GridServiceDetails extends ServiceDetailsContent {
 		uri_override = new DivRepTextBox(this);
 		uri_override.setLabel("Service URI Override");
 		uri_override.setSampleValue("some.host.edu:"+srec.port);
-		uri_override.setRequired(true);
+		//uri_override.setRequired(true);
 		uri_override.addValidator(new DivRepIValidator<String>() {
 			String message;
 			public String getErrorMessage() {
