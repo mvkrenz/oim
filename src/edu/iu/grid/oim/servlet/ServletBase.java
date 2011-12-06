@@ -80,12 +80,12 @@ public class ServletBase extends HttpServlet {
 				doGet(req, resp);
 			}
 		} catch (AuthorizationException e) {
+			log.warn("Unauthorized access to " + req.getRequestURI(), e);
+			
+			//try to redirect
 			try {
-				String request_uri = context.getRequestURL();
-				if(request_uri != null) {
-					request_uri = URLEncoder.encode(request_uri, "UTF-8");
-					req.getSession().setAttribute("request_uri", request_uri);
-				}
+				String request_uri = URLEncoder.encode(req.getRequestURI(), "UTF-8");
+				req.getSession().setAttribute("request_uri", request_uri);
 			} catch (UnsupportedEncodingException e1) {
 				log.error(e);
 			} 

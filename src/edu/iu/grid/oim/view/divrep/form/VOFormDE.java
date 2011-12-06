@@ -71,6 +71,7 @@ public class VOFormDE extends DivRepForm
 	private DivRepTextArea description;
 	private DivRepTextArea community;
 	private DivRepTextBox footprints_id;
+	private DivRepTextBox external_assignment_id;
 	private DivRepSelectBox sc_id;
 	private DivRepCheckBox active;
 	private DivRepCheckBox disable;
@@ -479,6 +480,13 @@ public class VOFormDE extends DivRepForm
 		community.setRequired(true);
 		community.setSampleValue("The Collider Detector at Fermilab (CDF) experimental collaboration is committed to studying high energy particle collisions");
 
+		
+		new DivRepStaticContent(this, "<h2>Ticket Exchange</h2>");
+		new DivRepStaticContent(this, "<p>GOC-TX uses this information to populate necessary fields on the destination ticketing system for tickets sent to this VO</p>");
+		external_assignment_id = new DivRepTextBox(this);
+		external_assignment_id.setLabel("External Assignment ID");
+		external_assignment_id.setValue(rec.external_assignment_id);
+		
 		new DivRepStaticContent(this, "<h2>Additional Information for VOs that include OSG Users</h2>");
 		new DivRepStaticContent(this, "<p>Uncheck the checkbox below if your VO does <strong>not</strong> intend to use any OSG resources, and just wants to provide services to the OSG.</p>");
 		science_vo = new DivRepCheckBox(this);
@@ -721,6 +729,7 @@ public class VOFormDE extends DivRepForm
 		rec.community = community.getValue();
 		rec.sc_id = sc_id.getValue();
 		rec.footprints_id = footprints_id.getValue();
+		rec.external_assignment_id = external_assignment_id.getValue();
 		rec.confirmed = confirmation.getTimestamp();
 		rec.active = active.getValue();
 		rec.disable = disable.getValue();
