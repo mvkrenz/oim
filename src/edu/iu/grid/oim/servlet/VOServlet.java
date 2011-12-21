@@ -25,6 +25,7 @@ import edu.iu.grid.oim.model.db.ContactRankModel;
 import edu.iu.grid.oim.model.db.ContactTypeModel;
 import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.FieldOfScienceModel;
+import edu.iu.grid.oim.model.db.ResourceModel;
 import edu.iu.grid.oim.model.db.VOReportNameModel;
 import edu.iu.grid.oim.model.db.VOReportNameFqanModel;
 import edu.iu.grid.oim.model.db.SCModel;
@@ -36,6 +37,7 @@ import edu.iu.grid.oim.model.db.record.ContactRankRecord;
 import edu.iu.grid.oim.model.db.record.ContactTypeRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.FieldOfScienceRecord;
+import edu.iu.grid.oim.model.db.record.ResourceRecord;
 import edu.iu.grid.oim.model.db.record.VOReportNameRecord;
 import edu.iu.grid.oim.model.db.record.VOReportNameFqanRecord;
 import edu.iu.grid.oim.model.db.record.SCRecord;
@@ -43,11 +45,13 @@ import edu.iu.grid.oim.model.db.record.VOContactRecord;
 import edu.iu.grid.oim.model.db.record.VOFieldOfScienceRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
 import edu.iu.grid.oim.model.db.record.VOReportContactRecord;
+import edu.iu.grid.oim.view.BreadCrumbView;
 import edu.iu.grid.oim.view.ContentView;
 import edu.iu.grid.oim.view.DivRepWrapper;
 import edu.iu.grid.oim.view.GenericView;
 import edu.iu.grid.oim.view.HtmlView;
 import edu.iu.grid.oim.view.IView;
+import edu.iu.grid.oim.view.ItemTableView;
 import edu.iu.grid.oim.view.MenuView;
 import edu.iu.grid.oim.view.Page;
 import edu.iu.grid.oim.view.RecordTableView;
@@ -73,8 +77,31 @@ public class VOServlet extends ServletBase implements Servlet {
 		try {	
 			//construct view
 			MenuView menuview = new MenuView(context, "vo");
-			ContentView contentview = createContentView();
-			Page page = new Page(context, menuview, contentview, createSideView());
+			ContentView contentview = null;
+			//display either list, or a single resource
+			VORecord rec = null;
+			String vo_id_str = request.getParameter("id");
+			if(vo_id_str != null) {
+				Integer vo_id = Integer.parseInt(vo_id_str);
+				VOModel model = new VOModel(context);
+				rec = model.get(vo_id);
+				contentview = new ContentView();
+				
+				// setup crumbs
+				BreadCrumbView bread_crumb = new BreadCrumbView();
+				// bread_crumb.addCrumb("Administration", "admin");
+				bread_crumb.addCrumb("Virtual Organization", "vo");
+				bread_crumb.addCrumb(rec.name, null);
+				contentview.setBreadCrumb(bread_crumb);
+
+				contentview.add(new HtmlView("<h2>"+StringEscapeUtils.escapeHtml(rec.name)+"</h2>"));	
+				contentview.add(createVOContent(rec, false)); //false = no edit button	
+
+			} else {
+				contentview = createListContentView();
+			}
+			
+			Page page = new Page(context, menuview, contentview, createSideView(rec));
 			page.render(response.getWriter());			
 		} catch (SQLException e) {
 			log.error(e);
@@ -82,7 +109,7 @@ public class VOServlet extends ServletBase implements Servlet {
 		}
 	}
 	
-	protected ContentView createContentView() 
+	protected ContentView createListContentView() 
 		throws ServletException, SQLException
 	{
 
@@ -105,154 +132,182 @@ public class VOServlet extends ServletBase implements Servlet {
 		}
 		
 		ContentView contentview = new ContentView();
-		contentview.add(new HtmlView("<h1>Virtual Organizations I am authorized to edit</h1>"));
+		contentview.add(new HtmlView("<h2>My Virtual Organizations</h2>"));
 		if(editable_vos.size() == 0) {
 			contentview.add(new HtmlView("<p>You currently are not listed as a contact of any contact type (exept submitter) on any virtual organization - therefore you are not authorized to edit any VOs.</p>"));
 		}
-		for(VORecord rec : editable_vos) {
+		ItemTableView table = new ItemTableView(6);
+		for(final VORecord rec : editable_vos) {
 			String name = rec.name;
-			contentview.add(new HtmlView("<h2>"+StringEscapeUtils.escapeHtml(name)+"</h2>"));
-			contentview.add(showVO(rec, true)); //true = show edit button
+			String disable_css = "";
+			String tag = "";
+			if(rec.disable) {
+				disable_css += " disabled";
+				tag += " (Disabled)";
+			}
+			if(!rec.active) {
+				disable_css += " inactive";
+				tag += " (Inactive)";
+			}
+			table.add(new HtmlView("<a class=\""+disable_css+"\" title=\""+StringEscapeUtils.escapeHtml(rec.long_name)+"\" href=\""+StaticConfig.getApplicationBase()+"/voedit?id="+rec.id+"\">"+StringEscapeUtils.escapeHtml(name)+tag+"</a>"));
+			/*
+			contentview.add(new DivRepToggler(context.getPageRoot()) {
+				@Override
+				public DivRep createContent() {
+					return createVOContent(rec, true);
+				}
+				//contentview.add(showResource(rec, false)); //false = no edit button
+			}); //true = show edit button
+			*/
 		}
+		contentview.add(table);
 		
 		if(readonly_vos.size() != 0) {
-			contentview.add(new HtmlView("<br/><h1>Read-Only Virtual Organizations</h1>"));
-			contentview.add(new HtmlView("<p>Following are the currently registered virtual organizations on OIM - you do not have edit access on these records.</p>"));
+			contentview.add(new HtmlView("<h2>Read-Only Virtual Organizations</h2>"));
+			//contentview.add(new HtmlView("<p>Following are the currently registered virtual organizations on OIM - you do not have edit access on these records.</p>"));
 	
-			for(VORecord rec : readonly_vos) {
+			table = new ItemTableView(5);
+			for(final VORecord rec : readonly_vos) {
 				String name = rec.name;
-				contentview.add(new HtmlView("<h2>"+StringEscapeUtils.escapeHtml(name)+"</h2>"));
-				contentview.add(showVO(rec, false)); //false = no edit button
+				GenericView vo = new GenericView();		
+				String disable_css = "";
+				String tag = "";
+				if(rec.disable) {
+					disable_css += " disabled";
+					tag += " (Disabled)";
+				}
+				if(!rec.active) {
+					disable_css += " inactive";
+					tag += " (Inactive)";
+				}
+				vo.add(new HtmlView("<a class=\""+disable_css+"\" title=\""+StringEscapeUtils.escapeHtml(rec.long_name)+"\" href=\""+StaticConfig.getApplicationBase()+"/vo?id="+rec.id+"\">"+StringEscapeUtils.escapeHtml(name)+tag+"</a>"));
+				//vo.add(new HtmlView("<p>"+StringEscapeUtils.escapeHtml(rec.long_name)+"</p>"));
+				table.add(vo);
+				/*
+				contentview.add(new DivRepToggler(context.getPageRoot()) {
+					@Override
+					public DivRep createContent() {
+						return createVOContent(rec, false);
+					}
+					//contentview.add(showResource(rec, false)); //false = no edit button
+				}); //true = show edit button
+				*/
 			}
+			contentview.add(table);
 		}
 		
 		return contentview;
 	}
-	
-	private DivRepToggler showVO(final VORecord rec, final boolean show_edit_button)
-	{
-		DivRepToggler toggler = new DivRepToggler(context.getPageRoot()) {
-			public DivRep createContent() {
-				RecordTableView table = new RecordTableView();
-				try {	
-	
-					table.addRow("Long Name", rec.long_name);
-					if (rec.science_vo) {
-						table.addRow("VO Type", "OSG User and Resource Provider (Provides services to the OSG and has/will have users who do OSG-dependent scientific research)");
-					}
-					else {
-						table.addRow("VO Type", "Resource Provider Only (Provides services to the OSG but does not have users who do OSG-dependent scientific research)");
-					}
-					table.addRow("Description", rec.description);
-					table.addRow("Community", rec.community);
-					table.addRow("Ex. Assignment ID", rec.external_assignment_id);
-					
-					//pull parent vo
-					VOModel model = new VOModel(context);
-					VORecord parent_vo_rec = model.getParentVO(rec.id);
-					String parent_vo_name = null;
-					if(parent_vo_rec != null) {
-						parent_vo_name = parent_vo_rec.name;
-					}
-					else {
-						parent_vo_name = "N/A";
-					}
-					ToolTip parent_vo_tip = new ToolTip("Sometimes a project grows large enough to include several offshoot projects in it. When this happens, such a VO would want to be its own registration but would want to cite the parent project on its registration. This item helps a VO manager make such a mapping.");
-					table.addRow("Parent VO " + parent_vo_tip.render() + " ", parent_vo_name);
-					table.addRow("Support Center", getSCName(rec.sc_id));
-/*
-					// Display order for contact types  
-					final Integer contact_types[] = {
-						1, //submitter
-						6, //vo manager
-						3, //admin contact       -- Formerly operations contact for VOs
-						2, //security contact
-						5, //misc contact
-					};
-*/
-					ContactTypeModel ctmodel = new ContactTypeModel(context);
-					ContactRankModel crmodel = new ContactRankModel(context);
-					ContactModel pmodel = new ContactModel(context);
-					
-					//contacts (only shows contacts that are filled out)
-					VOContactModel vocmodel = new VOContactModel(context);
-					ArrayList<VOContactRecord> voclist = vocmodel.getByVOID(rec.id);
-					HashMap<Integer, ArrayList<VOContactRecord>> voclist_grouped = vocmodel.groupByContactTypeID(voclist);
 
-					for(ContactTypeRecord.Info contact_type : VOFormDE.ContactTypes) {
-						if(voclist_grouped.containsKey(contact_type.id)) {
-							ContactTypeRecord ctrec = ctmodel.get(contact_type.id);
+	public DivRep createVOContent(final VORecord rec, final boolean show_edit_button) {
+		RecordTableView table = new RecordTableView();
+		try {	
 
-							ArrayList<VOContactRecord> clist = voclist_grouped.get(contact_type.id);
-							Collections.sort(clist, new Comparator<VOContactRecord> (){
-								public int compare(VOContactRecord a, VOContactRecord b) {
-									if (a.getRank() > b.getRank()) // We are comparing based on rank id 
-										return 1; 
-									return 0;
-								}
-							});
-							String cliststr = "";
-	
-							for(VOContactRecord vcrec : clist) {
-								ContactRecord person = pmodel.get(vcrec.contact_id);
-								ContactRankRecord rank = crmodel.get(vcrec.contact_rank_id);
-			
-								cliststr += "<div class='contact_rank contact_"+rank.name+"'>";
-								cliststr += person.name;
-								cliststr += "</div>";
-							}
-							ToolTip tip = new ToolTip(contact_type.desc);
-							table.addRow(ctrec.name + " " + tip.render(), new HtmlView(cliststr));
-						}
-					}			
-					if (rec.science_vo) {
-						table.addRow("App Description", rec.app_description);
-						ToolTip field_of_science_tip = new ToolTip("VOs are often associated with one or more scientific fields. ");
-						table.addRow("Field of Science " +field_of_science_tip.render()+ " ", getFieldOfScience(rec.id));
-						table.addRow("Primary URL", new URLView(rec.primary_url));
-						table.addRow("AUP URL", new URLView(rec.aup_url));
-						table.addRow("Membership Services URL", new URLView(rec.membership_services_url));
-						table.addRow("Purpose URL", new URLView(rec.purpose_url));
-						table.addRow("Support URL", new URLView(rec.support_url));
-	
-						//VO Report Names
-						VOReportNameModel vorepname_model = new VOReportNameModel(context);
-						ArrayList<VOReportNameRecord> vorepname_records = vorepname_model.getAllByVOID(rec.id);
-						GenericView vorepname_view = new GenericView();
-						for(VOReportNameRecord vorepname_record : vorepname_records) {
-							vorepname_view.add(createVOReportNameView(vorepname_record));
-						}
-						table.addRow("Reports", vorepname_view);
-					}
-					
-					if(auth.allows("admin")) {
-						table.addRow("Footprints ID", rec.footprints_id);
-					}
-					table.addRow("Active", rec.active);
-					table.addRow("Disable", rec.disable);
-							
-					if(show_edit_button) {
-						class EditButtonDE extends DivRepButton
-						{
-							String url;
-							public EditButtonDE(DivRep parent, String _url)
-							{
-								super(parent, "Edit");
-								url = _url;
-							}
-							protected void onEvent(DivRepEvent e) {
-								redirect(url);
-							}
-						};
-						table.add(new DivRepWrapper(new EditButtonDE(context.getPageRoot(), StaticConfig.getApplicationBase()+"/voedit?id=" + rec.id)));
-					}
-				} catch (SQLException e) {
-					return new DivRepStaticContent(this, e.toString());
-				}
-				return new ViewWrapper(context.getPageRoot(), table);
+			table.addRow("Long Name", rec.long_name);
+			if (rec.science_vo) {
+				table.addRow("VO Type", "OSG User and Resource Provider (Provides services to the OSG and has/will have users who do OSG-dependent scientific research)");
 			}
-		};
-		return toggler;
+			else {
+				table.addRow("VO Type", "Resource Provider Only (Provides services to the OSG but does not have users who do OSG-dependent scientific research)");
+			}
+			table.addRow("Description", rec.description);
+			table.addRow("Community", rec.community);
+			table.addRow("Ex. Assignment ID", rec.external_assignment_id);
+			
+			//pull parent vo
+			VOModel model = new VOModel(context);
+			VORecord parent_vo_rec = model.getParentVO(rec.id);
+			String parent_vo_name = null;
+			if(parent_vo_rec != null) {
+				parent_vo_name = parent_vo_rec.name;
+			}
+			else {
+				parent_vo_name = "N/A";
+			}
+			ToolTip parent_vo_tip = new ToolTip("Sometimes a project grows large enough to include several offshoot projects in it. When this happens, such a VO would want to be its own registration but would want to cite the parent project on its registration. This item helps a VO manager make such a mapping.");
+			table.addRow("Parent VO " + parent_vo_tip.render() + " ", parent_vo_name);
+			table.addRow("Support Center", getSCName(rec.sc_id));
+
+			ContactTypeModel ctmodel = new ContactTypeModel(context);
+			ContactRankModel crmodel = new ContactRankModel(context);
+			ContactModel pmodel = new ContactModel(context);
+			
+			//contacts (only shows contacts that are filled out)
+			VOContactModel vocmodel = new VOContactModel(context);
+			ArrayList<VOContactRecord> voclist = vocmodel.getByVOID(rec.id);
+			HashMap<Integer, ArrayList<VOContactRecord>> voclist_grouped = vocmodel.groupByContactTypeID(voclist);
+
+			for(ContactTypeRecord.Info contact_type : VOFormDE.ContactTypes) {
+				if(voclist_grouped.containsKey(contact_type.id)) {
+					ContactTypeRecord ctrec = ctmodel.get(contact_type.id);
+
+					ArrayList<VOContactRecord> clist = voclist_grouped.get(contact_type.id);
+					Collections.sort(clist, new Comparator<VOContactRecord> (){
+						public int compare(VOContactRecord a, VOContactRecord b) {
+							if (a.getRank() > b.getRank()) // We are comparing based on rank id 
+								return 1; 
+							return 0;
+						}
+					});
+					String cliststr = "";
+
+					for(VOContactRecord vcrec : clist) {
+						ContactRecord person = pmodel.get(vcrec.contact_id);
+						ContactRankRecord rank = crmodel.get(vcrec.contact_rank_id);
+	
+						cliststr += "<div class='contact_rank contact_"+rank.name+"'>";
+						cliststr += person.name;
+						cliststr += "</div>";
+					}
+					ToolTip tip = new ToolTip(contact_type.desc);
+					table.addRow(ctrec.name + " " + tip.render(), new HtmlView(cliststr));
+				}
+			}			
+			if (rec.science_vo) {
+				table.addRow("App Description", rec.app_description);
+				ToolTip field_of_science_tip = new ToolTip("VOs are often associated with one or more scientific fields. ");
+				table.addRow("Field of Science " +field_of_science_tip.render()+ " ", getFieldOfScience(rec.id));
+				table.addRow("Primary URL", new URLView(rec.primary_url));
+				table.addRow("AUP URL", new URLView(rec.aup_url));
+				table.addRow("Membership Services URL", new URLView(rec.membership_services_url));
+				table.addRow("Purpose URL", new URLView(rec.purpose_url));
+				table.addRow("Support URL", new URLView(rec.support_url));
+
+				//VO Report Names
+				VOReportNameModel vorepname_model = new VOReportNameModel(context);
+				ArrayList<VOReportNameRecord> vorepname_records = vorepname_model.getAllByVOID(rec.id);
+				GenericView vorepname_view = new GenericView();
+				for(VOReportNameRecord vorepname_record : vorepname_records) {
+					vorepname_view.add(createVOReportNameView(vorepname_record));
+				}
+				table.addRow("Reports", vorepname_view);
+			}
+			
+			if(auth.allows("admin")) {
+				table.addRow("Footprints ID", rec.footprints_id);
+			}
+			table.addRow("Active", rec.active);
+			table.addRow("Disable", rec.disable);
+					
+			if(show_edit_button) {
+				class EditButtonDE extends DivRepButton
+				{
+					String url;
+					public EditButtonDE(DivRep parent, String _url)
+					{
+						super(parent, "Edit");
+						url = _url;
+					}
+					protected void onEvent(DivRepEvent e) {
+						redirect(url);
+					}
+				};
+				table.add(new DivRepWrapper(new EditButtonDE(context.getPageRoot(), StaticConfig.getApplicationBase()+"/voedit?id=" + rec.id)));
+			}
+		} catch (SQLException e) {
+			return new DivRepStaticContent(context.getPageRoot(), e.toString());
+		}
+		return new ViewWrapper(context.getPageRoot(), table);
 	}
 	
 	private String getSCName(Integer sc_id) throws SQLException
@@ -307,7 +362,7 @@ public class VOServlet extends ServletBase implements Servlet {
 				// AG: Remove rank from VORC
 				ContactRankRecord rank = crmodel.get(vrc_record.contact_rank_id);
 				cliststr += "<div class='contact_rank contact_"+rank.name+"'>";
-				cliststr += person.name;
+				cliststr += StringEscapeUtils.escapeHtml(person.name);
 				cliststr += "</div>";
 			}
 			table.addRow("Report Subscribers", new HtmlView(cliststr));
@@ -339,26 +394,19 @@ public class VOServlet extends ServletBase implements Servlet {
 		return table;
 	}
 
-	private SideContentView createSideView()
+	private SideContentView createSideView(VORecord rec)
 	{
 		SideContentView view = new SideContentView();
 		
-		class NewButtonDE extends DivRepButton
-		{
-			String url;
-			public NewButtonDE(DivRep parent, String _url)
-			{
-				super(parent, "Add New Virtual Organization");
-				url = _url;
-			}
-			protected void onEvent(DivRepEvent e) {
-				redirect(url);
-			}
-		};
-		view.add("Operation", new NewButtonDE(context.getPageRoot(), "voedit"));
-		//view.add("About", new HtmlView("This page shows a list of Virtual Organization that you have access to edit."));		
-		view.addContactLegend();
-		
+		if(rec == null) {
+			view.add(new HtmlView("<h3>Other Actions</h3>"));
+			view.add(new HtmlView("<div class=\"indent\">"));
+			view.add(new HtmlView("<p><a href=\""+StaticConfig.getApplicationBase()+"/voedit\">Register New Virtual Organization</a></p>"));
+			view.add(new HtmlView("</div>"));
+			//view.add("About", new HtmlView("This page shows a list of Virtual Organization that you have access to edit."));		
+		} else {
+			view.addContactLegend();
+		}
 		return view;
 	}
 }

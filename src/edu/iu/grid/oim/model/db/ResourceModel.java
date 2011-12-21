@@ -275,7 +275,7 @@ public class ResourceModel extends SmallTableModelBase<ResourceRecord> {
 				rsrec.resource_id = rec.id;
 			}
 			ResourceServiceModel rsmodel = new ResourceServiceModel(context);
-			rsmodel.update(rsmodel.getAllByResourceID(rec.id), resource_services);
+			rsmodel.update(rsmodel.getByResourceID(rec.id), resource_services);
 			
 			//process resource owners
 			for(VOResourceOwnershipRecord owner_rec : owners) {

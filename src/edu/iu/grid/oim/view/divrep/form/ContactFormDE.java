@@ -19,6 +19,7 @@ import com.divrep.common.DivRepSelectBox;
 import com.divrep.common.DivRepStaticContent;
 import com.divrep.common.DivRepTextArea;
 import com.divrep.common.DivRepTextBox;
+import com.divrep.common.DivRepToggler;
 import com.divrep.validator.DivRepEmailValidator;
 import com.divrep.validator.DivRepIValidator;
 import com.divrep.validator.DivRepUniqueValidator;
@@ -31,7 +32,9 @@ import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.DNModel;
 import edu.iu.grid.oim.model.db.record.DNRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
+import edu.iu.grid.oim.view.ContactAssociationView;
 import edu.iu.grid.oim.view.divrep.Confirmation;
+import edu.iu.grid.oim.view.divrep.ViewWrapper;
 
 //alter table contact add column timezone varchar(16) default value "UTC";
 
@@ -304,7 +307,7 @@ public class ContactFormDE extends DivRepForm
 		personal_info.redraw();
 	}
 	
-	public ContactFormDE(Context _context, ContactRecord rec, String origin_url,
+	public ContactFormDE(Context _context, final ContactRecord rec, String origin_url,
 			boolean profileEdit) //, boolean newRegistration)
 	{	
 		super(_context.getPageRoot(), origin_url);
@@ -397,9 +400,31 @@ public class ContactFormDE extends DivRepForm
 		
 		new DivRepStaticContent(this, "<h2>Confirmation</h2>");
 		confirmation = new Confirmation(this, rec, auth);
+
+		new DivRepStaticContent(this, "<h2>Contact Association</h2>");
+		new DivRep(this) {
+			ContactAssociationView view;
+			@Override
+			public void render(PrintWriter out) {
+				out.write("<div id=\""+getNodeID()+"\">");
+				try {
+					view = new ContactAssociationView(context, rec.id);
+					view.render(out);
+				} catch (SQLException e) {
+					out.write(e.toString());
+				}
+				out.write("</div>");
+			}
+
+			@Override
+			protected void onEvent(DivRepEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+		};
 		
 		if(auth.allows("admin")) {
-			new DivRepStaticContent(this, "<h2>Administrative Tasks</h2>");
+			new DivRepStaticContent(this, "<h2>Administrative</h2>");
 		}
 
 		//create DN selector

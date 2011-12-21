@@ -11,6 +11,15 @@ border: none;
 vertical-align: middle;
 }
 
+a.inactive {
+color: #aaa;
+}
+a.disabled {
+color: #888;
+background-color: #ddd;
+}
+
+
 table.contact_table
 {
 width: 100%;
@@ -206,7 +215,8 @@ p
 padding-bottom: 10px;
 }
 
-h2
+h2,
+.round4
 {
 -moz-border-radius-topleft: 4px;
 -moz-border-radius-topright: 4px;
@@ -413,4 +423,8 @@ margin-bottom: 5px;
 
 .ui-widget {
 font-size: 0.9em !important;
+}
+
+input[type=button] {
+height: 25px;
 }

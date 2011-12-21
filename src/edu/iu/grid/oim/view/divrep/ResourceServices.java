@@ -42,12 +42,6 @@ public class ResourceServices extends DivRepFormElement {
 	{
 		//service details
 		private ServiceSelector service;
-		/*
-		private DivRepTextBox endpoint_override;
-		private DivRepCheckBox hidden;
-		private DivRepCheckBox central;
-		private DivRepTextBox server_list_regex;
-		*/
 		private ServiceDetails details;
 		
 		private DivRepButton remove_button;
@@ -83,69 +77,6 @@ public class ResourceServices extends DivRepFormElement {
 				service.setValue(rec.service_id);
 				details.setService(rec.service_id, details_recs);
 			}
-
-			/*
-			// TODO These lines look a bit ugly -- needs clean up -agopu
-			hidden = new DivRepCheckBox(this);
-			hidden.setLabel("Is this a Hidden Service? (for eg., an internal gatekeeper inaccessible to the outside world; If you are not sure, leave it unchecked)");
-			if(rec != null) {
-				hidden.setValue(rec.hidden);
-			}
-			
-			central = new DivRepCheckBox(this);
-			central.setLabel("Is this a Centralized Service? (for eg., an infrastructure service like a BDII or an accounting server? If you are not sure, leave it unchecked)");
-			if(rec != null) {
-				central.setValue(rec.central);
-			}
-			
-			endpoint_override = new DivRepTextBox(this);
-			endpoint_override.setLabel("Service URI Override (FQDN[:port])");
-			endpoint_override.setSampleValue("research.iu.edu:2812");
-			if(rec != null) {
-				endpoint_override.setValue(rec.endpoint_override);
-			}
-			endpoint_override.addValidator(new DivRepIValidator<String>() {
-				String message;
-				public String getErrorMessage() {
-					return message;
-				}
-				public Boolean isValid(String value) {
-					//split the value into 2 segments
-					String[]parts = value.split(":");
-					if(parts.length != 1 && parts.length != 2) {
-						message = "Please enter override in the form such as \"resource123.iu.edu:2119\"";
-						return false;
-					}
-					
-					//validate the url
-					String url = parts[0];
-					if(!parent.isValidResourceFQDN(url)) {
-						message = "Please use FQDN of this resource, or one of FQDN aliases.";
-						return false;
-					}
-					
-					//validate port
-					if(parts.length == 2) {
-						try {
-							Integer port = Integer.parseInt(parts[1]);
-						} catch (NumberFormatException e) {
-							message = "The port number is invalid.";
-							return false;
-						}
-					}
-					
-					return true;
-				}});
-				
-
-			// Hiding this for now. Only Brian B knows how to use it.
-			server_list_regex = new DivRepTextBox(this);
-			server_list_regex.setLabel("Server List RegEx");
-			if(rec != null && rec.server_list_regex != null) {
-				server_list_regex.setValue(rec.server_list_regex.toString());
-			}
-			server_list_regex.setHidden(true);
-			*/
 			
 			remove_button = new DivRepButton(this, "images/delete.png");
 			remove_button.setStyle(DivRepButton.Style.IMAGE);
@@ -153,6 +84,7 @@ public class ResourceServices extends DivRepFormElement {
 			remove_button.addEventListener(new DivRepEventListener() {
 				public void handleEvent(DivRepEvent e) {
 					removeService(ServiceEditor.this);	
+					modified(true);
 				}
 			});
 		}
@@ -203,12 +135,7 @@ public class ResourceServices extends DivRepFormElement {
 			ResourceServiceRecord rec = new ResourceServiceRecord();
 
 			rec.service_id = service.getValue();
-			/*
-			rec.endpoint_override = endpoint_override.getValue();
-			rec.hidden = hidden.getValue();
-			rec.central = central.getValue();
-			rec.server_list_regex = server_list_regex.getValue();
-			*/
+
 			return rec;
 		}
 		
@@ -225,14 +152,14 @@ public class ResourceServices extends DivRepFormElement {
 	public void removeService(ServiceEditor service)
 	{
 		services.remove(service);
-		modified(true);
+		//modified(true);
 		redraw();
 	}
 	
 	public void addService(ResourceServiceRecord rec, ArrayList<ResourceServiceDetailRecord> details_recs) { 
 		ServiceEditor service = new ServiceEditor(this, rec, details_recs);
 		services.add(service);
-		modified(true);
+		//modified(true);
 		redraw();
 		
 		/*
@@ -255,6 +182,7 @@ public class ResourceServices extends DivRepFormElement {
 		add_button.addEventListener(new DivRepEventListener() {
 			public void handleEvent(DivRepEvent e) {
 				addService(new ResourceServiceRecord(), null);
+				modified(true);
 			}
 		});
 	}

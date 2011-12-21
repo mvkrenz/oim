@@ -31,7 +31,7 @@ import edu.iu.grid.oim.view.divrep.form.FacilityFormDE;
 public class FacilityEditServlet extends ServletBase implements Servlet {
 	private static final long serialVersionUID = 1L;
 	static Logger log = Logger.getLogger(FacilityEditServlet.class);  
-	private String parent_page = "facility";	
+	private String parent_page = "topology";	
 
     public FacilityEditServlet() {
         super();
@@ -75,7 +75,7 @@ public class FacilityEditServlet extends ServletBase implements Servlet {
 			// setup crumbs
 			BreadCrumbView bread_crumb = new BreadCrumbView();
 			// bread_crumb.addCrumb("Administration", "admin");
-			bread_crumb.addCrumb("Facility", parent_page);
+			bread_crumb.addCrumb("Topology", parent_page);
 			bread_crumb.addCrumb(rec.name, null);
 			contentview.setBreadCrumb(bread_crumb);
 

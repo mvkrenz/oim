@@ -63,7 +63,7 @@ public class FacilityServlet extends ServletBase implements Servlet {
 			//setup crumbs
 			BreadCrumbView bread_crumb = new BreadCrumbView();
 			//bread_crumb.addCrumb("Administration",  "admin");
-			bread_crumb.addCrumb("Facility",  null);
+			bread_crumb.addCrumb("Topology", "topology");
 			contentview.setBreadCrumb(bread_crumb);
 			
 			Page page = new Page(context, menuview, contentview, createSideView());

@@ -28,6 +28,8 @@ public class MenuView implements IView {
 			menu.add(new MenuItem("Register", "register"));
 		}
 		
+		menu.add(new MenuItem("Topology", "topology"));
+		
 		if(auth.allows("edit_my_vo")) {
 			menu.add(new MenuItem("Virtual Organizations", "vo"));
 		}
@@ -36,14 +38,17 @@ public class MenuView implements IView {
 			menu.add(new MenuItem("Support Centers", "sc"));
 		}
 
+		/*
 		if(auth.allows("edit_my_resource")) {
 			menu.add(new MenuItem("Resources", "resource"));
 		}
+		*/
 		
 		if(auth.allows("edit_my_resource")) {
 			menu.add(new MenuItem("Downtimes", "resourcedowntime"));
 		}
 		
+		/*
 		// Do we need auth checks for these given we will allow anyone to edit? I guess not .. -agopu
 		if(auth.allows("edit_all_resource_group")) {
 			menu.add(new MenuItem("Resource Groups", "resourcegroup"));	
@@ -54,12 +59,13 @@ public class MenuView implements IView {
 		if(auth.allows("edit_all_facility")) {
 			menu.add(new MenuItem("Facilities", "facility"));	
 		}
+		*/
+		
 		if(auth.allows("edit_my_contact")) {
 			menu.add(new MenuItem("Contacts", "contact"));
 		}
-		
 		if (auth.getDNID() != null) {
-			menu.add(new MenuItem("Profile", "profileedit"));
+			menu.add(new MenuItem("My Profile", "profileedit"));
 		}
 		if ((auth.getDNID() != null) && (!auth.isDisabled())) {
 			menu.add(new MenuItem("Logs", "log", "?type=1&start_type=2&end_type=1&transaction_1=on&transaction_2=on&transaction_3=on&model_1=on&model_2=on&model_3=on&model_4=on&model_5=on&model_6=on&model_7=on&"));
@@ -71,7 +77,7 @@ public class MenuView implements IView {
 			menu.add(new MenuItem("Admin", "admin"));	
 		}
 		
-		menu.add(new MenuItem("Help", "help"));
+		//menu.add(new MenuItem("Help", "help"));
 
 		current = _current;
 	}

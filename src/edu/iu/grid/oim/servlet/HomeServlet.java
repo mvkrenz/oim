@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.log4j.Logger;
 import com.divrep.DivRep;
 import com.divrep.DivRepEvent;
+import com.divrep.common.DivRepButton;
 
 import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.model.Context;
@@ -18,6 +19,7 @@ import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.view.ContactAssociationView;
 import edu.iu.grid.oim.view.ContentView;
 import edu.iu.grid.oim.view.DivRepWrapper;
+import edu.iu.grid.oim.view.ExternalLinkView;
 import edu.iu.grid.oim.view.HtmlView;
 import edu.iu.grid.oim.view.MenuView;
 import edu.iu.grid.oim.view.Page;
@@ -86,21 +88,52 @@ public class HomeServlet extends ServletBase  {
 			}
 		}
 		
-		//show oim hierarchy doc
-		ToolTip tip = new ToolTip("The following slideshow presentation walks you through various entities in the OSG topology used by OIM, and describes the relationships between those entities. If you are new to the OSG and/or OIM, we strongly urge you to take a few minutes to go through this slideshow!");
-		contentview.add(new HtmlView("<h2>OSG Topology Slideshow "+tip.render()+"</h2>"));
-		contentview.add(new HtmlView("<iframe src=\"https://docs.google.com/present/embed?id=ddtgc5bt_113fp3fmvgp&size=l\" frameborder=\"0\" width=\"700\" height=\"559\"></iframe>"));
-
 		return contentview;
 	}
 	
 	private SideContentView createSideView()
 	{
-		SideContentView view = new SideContentView();
+		SideContentView contentview = new SideContentView();
+		contentview.add(new HtmlView("<h3>Definitions</h3>"));
+		contentview.add(new HtmlView("<div class=\"indent\">"));
+			contentview.add(new ExternalLinkView("https://twiki.grid.iu.edu/twiki/bin/view/Operations/OIMTermDefinition", "Basic OIM Definitions"));
+			contentview.add(new HtmlView("<br/>"));
+			contentview.add(new HtmlView("<a href=\"https://docs.google.com/present/view?id=ddtgc5bt_113fp3fmvgp\">OSG Topology Slideshow</a>"));
+			contentview.add(new HtmlView(""));
+		contentview.add(new HtmlView("</div>"));
+
+		contentview.add(new HtmlView("<h3>New Registration Help</h3>"));
+		contentview.add(new HtmlView("<div class=\"indent\">"));
+			contentview.add(new ExternalLinkView("https://twiki.grid.iu.edu/twiki/bin/view/Operations/OIMRegistrationInstructions#Resource_or_Service_Registration", "Resource/Service Registration"));
+			contentview.add(new HtmlView("<br/>"));
+			contentview.add(new ExternalLinkView("https://twiki.grid.iu.edu/twiki/bin/view/Operations/OIMRegistrationInstructions#Support_Center_Registration", "Support Center (SC) Registration"));
+			contentview.add(new HtmlView("<br/>"));
+			contentview.add(new ExternalLinkView("https://twiki.grid.iu.edu/twiki/bin/view/Operations/OIMRegistrationInstructions#VO_Registration", "Virtual Organization (VO) Registration"));
+		contentview.add(new HtmlView("</div>"));
+			
+		contentview.add(new HtmlView("<h3>Resource/Service Maintenance</h3>"));
+		contentview.add(new HtmlView("<div class=\"indent\">"));
+			contentview.add(new ExternalLinkView("https://twiki.grid.iu.edu/twiki/bin/view/Operations/OIMMaintTool#Adding_a_New_Maintenance_Window", "Schedule Resource Maintenance"));
+			contentview.add(new HtmlView("<br/>"));
+			contentview.add(new ExternalLinkView("https://twiki.grid.iu.edu/twiki/bin/view/Operations/OIMMaintTool#Modifying_a_Maintenance_Window", "Modify Existing Maintenance"));
+			contentview.add(new HtmlView("<br/>"));
+			contentview.add(new ExternalLinkView("https://twiki.grid.iu.edu/twiki/bin/view/Operations/OIMMaintTool#Deleting_a_Maintenance_Window", "Cancel Existing Maintenance"));
+		contentview.add(new HtmlView("</div>"));
+		
+		contentview.add(new HtmlView("<h3>Standard Operating Procedures</h3>"));
+		contentview.add(new HtmlView("<div class=\"indent\">"));
+			contentview.add(new ExternalLinkView("https://twiki.grid.iu.edu/twiki/bin/view/Operations/OIMStandardOperatingProcedures#Resource_Registration_in_OIM", "Resources/Services"));
+			contentview.add(new HtmlView("<br/>"));
+			contentview.add(new ExternalLinkView("https://twiki.grid.iu.edu/twiki/bin/view/Operations/OIMStandardOperatingProcedures#Support_Center_Registration_in_O", "Support Centers (SC)"));
+			contentview.add(new HtmlView("<br/>"));
+			contentview.add(new ExternalLinkView("https://twiki.grid.iu.edu/twiki/bin/view/Operations/OIMStandardOperatingProcedures#Virtual_Organization_Registratio", "Virtual Organizations (VO)"));
+		contentview.add(new HtmlView("</div>"));
+		
 		if(auth.isOIMUser()) {
-			view.addContactLegend();
+			contentview.addContactLegend();
 		}
-		return view;
+		
+		return contentview;
 	}
 	
 	class Confirmation extends DivRep
@@ -125,13 +158,13 @@ public class HomeServlet extends ServletBase  {
 		public void render(PrintWriter out) {
 			if(crec.isConfirmationExpired()) {
 				out.write("<div id=\""+getNodeID()+"\">");
-				out.write("<h3>Content Confirmation</h3>");
+				out.write("<h2>Content Confirmation</h2>");
 			
 				out.write("<p class=\"divrep_round divrep_elementerror\">You have not recently confirmed that your information in OIM is current</p>");
 		
 				out.write("<p>The last time you confirmed your profile information was "+crec.confirmed.toString()+"</p>");
 				out.write("<p>Please go to the ");
-				out.write("<a href=\""+StaticConfig.getApplicationBase()+"/profileedit"+"\">profile</a>");
+				out.write("<a href=\""+StaticConfig.getApplicationBase()+"/profileedit"+"\">My Profile</a>");
 				out.write(" page to check your profile information</p>");
 				out.write("</div>");
 			}

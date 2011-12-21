@@ -1,0 +1,99 @@
+div.hierarchy_facility {
+padding: 5px 15px 5px 25px;
+margin-bottom: 5px;
+background:#c96 url(images/database.png) no-repeat 5px 5px;
+box-shadow: 2px 2px 5px #ccc;
+color: white;
+}
+
+div.hierarchy_site {
+margin: 5px 0px;
+padding: 5px 10px 5px 25px;
+background:#9c6 url(images/house.png) no-repeat 5px 5px;
+border: 1px solid #473;
+color: white;
+}
+h4.resource_groups_header {
+border-bottom: none;
+color: #594;
+}
+
+div.hierarchy_sitesc {
+float: right;
+margin-right: 10px;
+}
+
+div.hierarchy_rg {
+margin-right: 10px;
+margin-bottom: 5px;
+padding: 7px;
+background-color:#666;
+box-shadow: 1px 1px 2px #473;
+border: 1px solid #444;
+color: white;
+}
+div.hierarchy_r {
+margin: 5px 0px;
+padding: 5px;
+background-color:#ddd;
+color: black;
+}
+span.hierarchy_service {
+margin: 2px;
+padding: 2px 4px;
+background-color: #fff;
+color: black;
+float: right;
+top: -4px;
+position: relative;
+}
+
+table.plain,
+table.plain tr,
+table.plain td {
+padding: 0px;
+margin: 0px;
+border: none;
+}
+
+div.hierarchy_sc {
+margin-left: 5px;
+padding: 5px;
+background-color: #693;
+color: white;
+}
+
+div.hierarchy_supports {
+border-bottom: 3px solid black;
+border-right: 3px solid black;
+text-align: center;
+width: 70%;
+-moz-border-radius-bottomright:4px;
+-webkit-border-bottom-right-radius: 4px;
+position: relative;
+right: 10px;
+}
+
+div.hierarchy_supports .arrowhead {
+position: absolute;
+left: -2px;
+top: 11px;
+}
+.rg_disabled {
+color: #888 !important;
+background-color: #444 !important;
+}
+.r_disabled {
+background-color: #bbb !important;
+}
+.r_inactive {
+color: #888 !important;
+}
+
+.hierarchy_facility a {
+color: inherit;
+text-decoration: none;
+}
+.hierarchy_facility a:hover {
+text-decoration: underline;
+}

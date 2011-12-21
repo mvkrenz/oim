@@ -98,7 +98,7 @@ public class ResourceGroupFormDE extends DivRepForm
 		osg_grid_type_id = new DivRepSelectBox(this, gridtype_kv);
 		osg_grid_type_id.setLabel("OSG Grid Type");
 		osg_grid_type_id.setRequired(true);
-		if(id != null) {
+		if(rec.osg_grid_type_id != null) {
 			osg_grid_type_id.setValue(rec.osg_grid_type_id);
 		}
 

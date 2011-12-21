@@ -64,9 +64,10 @@ public class Footprint
 	{
 		log.debug("createNewResourceTicket .. beginning");
 		
+		HtmlFileView description = new HtmlFileView(config.ResourceFPTemplate.get());
 		HashMap<String, String> params = new HashMap<String, String>();
 		params.put("##RESOURCE_NAME##", resource_name);
-		HtmlFileView description = new HtmlFileView(config.ResourceFPTemplate.get(), params);
+		description.applyParams(params);
 		
 		try
         {
@@ -236,9 +237,10 @@ public class Footprint
 	
 	public void createNewSCTicket(String sc_name)
 	{		
+		HtmlFileView description = new HtmlFileView(config.SCFPTemplate.get());
 		HashMap<String, String> params = new HashMap<String, String>();
 		params.put("##SC_NAME##", sc_name);
-		HtmlFileView description = new HtmlFileView(config.SCFPTemplate.get(), params);
+		description.applyParams(params);
 		
 		try
         {
@@ -400,9 +402,10 @@ public class Footprint
 	
 	public void createNewVOTicket(String vo_name, String sc_footprint_id)
 	{	
+		HtmlFileView description = new HtmlFileView(config.VOFPTemplate.get());	
 		HashMap<String, String> params = new HashMap<String, String>();
 		params.put("##VO_NAME##", vo_name);
-		HtmlFileView description = new HtmlFileView(config.VOFPTemplate.get(), params);	
+		description.applyParams(params);
 		
 		try
         {

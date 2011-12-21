@@ -33,7 +33,7 @@ import edu.iu.grid.oim.view.divrep.form.SiteFormDE;
 public class ResourceGroupEditServlet extends ServletBase implements Servlet {
 	private static final long serialVersionUID = 1L;
 	static Logger log = Logger.getLogger(ResourceGroupEditServlet.class);  
-	private String parent_page = "resourcegroup";	
+	private String parent_page = "topology";	
 	
     public ResourceGroupEditServlet() {
         super();
@@ -61,6 +61,16 @@ public class ResourceGroupEditServlet extends ServletBase implements Servlet {
 			} else {
 				rec = new ResourceGroupRecord();
 				title = "New Resource Group";	
+				
+				String gridtype_id_str = request.getParameter("gridtype_id");
+				if(gridtype_id_str != null) {
+					rec.osg_grid_type_id = Integer.parseInt(gridtype_id_str);
+				}
+				String site_id_str = request.getParameter("site_id");
+				if(site_id_str != null) {
+					rec.site_id = Integer.parseInt(site_id_str);
+				}
+				
 			}
 
 			ResourceGroupFormDE form = new ResourceGroupFormDE(context, rec, StaticConfig.getApplicationBase()+"/"+parent_page);
@@ -72,11 +82,11 @@ public class ResourceGroupEditServlet extends ServletBase implements Servlet {
 			
 			//setup crumbs
 			BreadCrumbView bread_crumb = new BreadCrumbView();
-			bread_crumb.addCrumb("Resource Group",  parent_page);
+			bread_crumb.addCrumb("Toplogy",  parent_page);
 			bread_crumb.addCrumb(rec.name,  null);
 			contentview.setBreadCrumb(bread_crumb);
 			
-			Page page = new Page(context, new MenuView(context, "resourcegroup"), contentview, createSideView());
+			Page page = new Page(context, new MenuView(context, parent_page), contentview, createSideView());
 			
 			page.render(response.getWriter());	
 		} catch (SQLException e) {

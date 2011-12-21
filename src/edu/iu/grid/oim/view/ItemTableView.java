@@ -6,6 +6,8 @@ import java.util.ArrayList;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 
+import com.divrep.DivRep;
+
 import edu.iu.grid.oim.servlet.LogServlet;
 
 public class ItemTableView extends GenericView {
@@ -15,8 +17,11 @@ public class ItemTableView extends GenericView {
 	public ItemTableView(int cols) {
 		this.cols = cols;
 	}
-	public void addView(IView view) {
+	public void add(IView view) {
 		views.add(view);
+	}
+	public void add(DivRep div) {
+		add(new DivRepWrapper(div));
 	}
 	public void render(PrintWriter out)
 	{

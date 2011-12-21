@@ -17,6 +17,7 @@ import edu.iu.grid.oim.lib.StaticConfig;
 
 import edu.iu.grid.oim.model.db.SiteModel;
 import edu.iu.grid.oim.model.db.record.SiteRecord;
+import edu.iu.grid.oim.view.BreadCrumbView;
 import edu.iu.grid.oim.view.ContentView;
 import edu.iu.grid.oim.view.DivRepWrapper;
 import edu.iu.grid.oim.view.HtmlView;
@@ -29,7 +30,7 @@ import edu.iu.grid.oim.view.divrep.form.SiteFormDE;
 public class SiteEditServlet extends ServletBase implements Servlet {
 	private static final long serialVersionUID = 1L;
 	static Logger log = Logger.getLogger(SiteEditServlet.class);  
-	private String parent_page = "site";	
+	private String parent_page = "topology";	
 
     public SiteEditServlet() {
         super();
@@ -60,8 +61,20 @@ public class SiteEditServlet extends ServletBase implements Servlet {
 			} else {
 				rec = new SiteRecord();
 				title = "New Site";	
+				
+				String facility_id_str = request.getParameter("facility_id");
+				if(facility_id_str != null) {
+					rec.facility_id = Integer.parseInt(facility_id_str);
+				}
 			}
-	
+			
+			// setup crumbs
+			BreadCrumbView bread_crumb = new BreadCrumbView();
+			// bread_crumb.addCrumb("Administration", "admin");
+			bread_crumb.addCrumb("Topology", parent_page);
+			bread_crumb.addCrumb(rec.name, null);
+			contentview.setBreadCrumb(bread_crumb);
+			
 			String origin_url = StaticConfig.getApplicationBase()+"/"+parent_page;
 			SiteFormDE form = new SiteFormDE(context, rec, origin_url);
 			contentview.add(new HtmlView("<h1>"+title+"</h1>"));	

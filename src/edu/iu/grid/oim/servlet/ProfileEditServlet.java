@@ -61,7 +61,7 @@ public class ProfileEditServlet extends ServletBase implements Servlet {
 			
 			//put the form in a view and display
 			ContentView contentview = new ContentView();
-			contentview.add(new HtmlView("<h1>Edit Your User Profile</h1>"));	
+			contentview.add(new HtmlView("<h1>My Profile</h1>"));	
 			if(auth.isDisabledOIMUser()) {
 				contentview.add(new HtmlView(auth.getDisabledUserWarning()));
 			} 

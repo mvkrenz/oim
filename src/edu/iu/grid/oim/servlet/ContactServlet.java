@@ -39,11 +39,13 @@ import edu.iu.grid.oim.model.db.record.SCContactRecord;
 import edu.iu.grid.oim.model.db.record.SCRecord;
 import edu.iu.grid.oim.model.db.record.VOContactRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
+import edu.iu.grid.oim.view.BreadCrumbView;
 import edu.iu.grid.oim.view.ContactAssociationView;
 import edu.iu.grid.oim.view.ContentView;
 import edu.iu.grid.oim.view.DivRepWrapper;
 import edu.iu.grid.oim.view.GenericView;
 import edu.iu.grid.oim.view.HtmlView;
+import edu.iu.grid.oim.view.ItemTableView;
 import edu.iu.grid.oim.view.MenuView;
 import edu.iu.grid.oim.view.Page;
 import edu.iu.grid.oim.view.RecordTableView;
@@ -62,14 +64,39 @@ public class ContactServlet extends ServletBase implements Servlet {
 	{	
 		auth.check("edit_my_contact");
 
-		//pull list of all contacts
-		ContactModel model = new ContactModel(context);
 		try {
 		
 			//construct view
+			//MenuView menuview = new MenuView(context, "contact");
+			//ContentView contentview = createContentView();
+			
 			MenuView menuview = new MenuView(context, "contact");
-			ContentView contentview = createContentView();
-			Page page = new Page(context, menuview, contentview, createSideView());
+			ContentView contentview = null;
+			//display either list, or a single resource
+			ContactRecord rec = null;
+			String contact_id_str = request.getParameter("id");
+			if(contact_id_str != null) {
+				Integer contact_id = Integer.parseInt(contact_id_str);
+				ContactModel model = new ContactModel(context);
+				rec = model.get(contact_id);
+				contentview = new ContentView();
+				
+				// setup crumbs
+				BreadCrumbView bread_crumb = new BreadCrumbView();
+				// bread_crumb.addCrumb("Administration", "admin");
+				bread_crumb.addCrumb("Contact", "contact");
+				bread_crumb.addCrumb(rec.name, null);
+				contentview.setBreadCrumb(bread_crumb);
+
+				contentview.add(new HtmlView("<h2>"+StringEscapeUtils.escapeHtml(rec.name)+"</h2>"));	
+				contentview.add(createContent(rec, false)); //false = no edit button	
+
+			} else {
+				//pull list of all contacts
+				contentview = createContentView();
+			}
+			
+			Page page = new Page(context, menuview, contentview, createSideView(rec));
 			page.render(response.getWriter());			
 		} catch (SQLException e) {
 			log.error(e);
@@ -126,40 +153,46 @@ public class ContactServlet extends ServletBase implements Servlet {
 			Collection<ContactRecord> readonly_contacts) 
 		throws ServletException, SQLException
 	{  
-		contentview.add(new HtmlView("<h1>Contacts</h1>"));
+		contentview.add(new HtmlView("<h2>My Contacts</h2>"));
 		if(editable_contacts.size() == 0) {
 			contentview.add(new HtmlView("<p>There are currently no contacts that you submitted (and therefore would have been able to edit).</p>"));
 		} else {
 			contentview.add(new HtmlView("<p>Here are the contacts you submitted, and therefore are able to edit.</p>"));
 		}
+		ItemTableView table = new ItemTableView(4);
 		for(ContactRecord rec : editable_contacts) {
-			contentview.add(new HtmlView(getContactHeader(rec)));
-			contentview.add(showContact(rec, true)); //true = show edit button
+			table.add(new HtmlView(getContactHeader(rec, true)));
+			//contentview.add(showContact(rec, true)); //true = show edit button
 		}
+		contentview.add(table);
 
 		if(editable_disabled_contacts.size() != 0) {
-			contentview.add(new HtmlView("<br/><h1>Disabled Contacts</h1>"));
+			contentview.add(new HtmlView("<h2>Disabled Contacts</h2>"));
 			contentview.add(new HtmlView("<p>Following are the contact that are currently disabled.</p>"));
 	
+			table = new ItemTableView(4);
 			for(ContactRecord rec : editable_disabled_contacts) {
-				contentview.add(new HtmlView(getContactHeader(rec)));
-				contentview.add(showContact(rec, true)); //true = show edit button
+				table.add(new HtmlView(getContactHeader(rec, true)));
+				//contentview.add(showContact(rec, true)); //true = show edit button
 			}
+			contentview.add(table);
 		}	
 
 		if(readonly_contacts.size() != 0) {
-			contentview.add(new HtmlView("<br/><h1>Read-Only Contacts</h1>"));
+			contentview.add(new HtmlView("<h2>Read-Only Contacts</h2>"));
 			contentview.add(new HtmlView("<p>Following are the contact that are currently registered at OIM that you do not have edit access.</p>"));
 	
+			table = new ItemTableView(4);
 			for(ContactRecord rec : readonly_contacts) {
-				contentview.add(new HtmlView(getContactHeader(rec)));
-				contentview.add(showContact(rec, false)); //false = no edit button
+				table.add(new HtmlView(getContactHeader(rec, false)));
+				//contentview.add(showContact(rec, false)); //false = no edit button
 			}
+			contentview.add(table);
 		}
 		
 		return contentview;
 	}
-	private String getContactHeader(ContactRecord rec)
+	private String getContactHeader(ContactRecord rec, boolean edit)
 	{
 		String image, name_to_display;
 		if(rec.person == true) {
@@ -167,128 +200,119 @@ public class ContactServlet extends ServletBase implements Servlet {
 		} else {
 			image = "<img align=\"top\" src=\""+StaticConfig.getApplicationBase()+"/images/group.png\"/> "; 
 		}
-		if(rec.disable == false) {
-			name_to_display = "<h2>"+image+StringEscapeUtils.escapeHtml(rec.name)+"</h2>";
+		String url = "";
+		if(edit) {
+			url = StaticConfig.getApplicationBase()+"/contactedit?id="+rec.id;
 		} else {
-			name_to_display = "<h2 class=\"disabled\">"+image+StringEscapeUtils.escapeHtml(rec.name)+"</h2>";
+			url = StaticConfig.getApplicationBase()+"/contact?id="+rec.id;
 		}
-			return name_to_display;
+		if(rec.disable == false) {
+			name_to_display = "<a href=\""+url+"\">"+image+StringEscapeUtils.escapeHtml(rec.name)+"</a>";
+		} else {
+			name_to_display = "<a href=\""+url+"\" class=\"disabled\">"+image+StringEscapeUtils.escapeHtml(rec.name)+"</a>";
+		}
+		return name_to_display;
 	}
 	
-	private DivRepToggler showContact(final ContactRecord rec, final boolean show_edit_button)
-	{
-		final DNModel dnmodel = new DNModel(context);
-		
-		DivRepToggler toggler = new DivRepToggler(context.getPageRoot()) {
-			public DivRep createContent() {
-				RecordTableView table = new RecordTableView();
-				try {	
-					table.addRow("Primary Email", new HtmlView("<a class=\"mailto\" href=\"mailto:"+rec.primary_email+"\">"+StringEscapeUtils.escapeHtml(rec.primary_email)+"</a>"));
-					table.addRow("Secondary Email", rec.secondary_email);
-		
-					table.addRow("Primary Phone", rec.primary_phone);
-					table.addRow("Primary Phone Ext", rec.primary_phone_ext);
-		
-					table.addRow("Secondary Phone", rec.secondary_phone);
-					table.addRow("Secondary Phone Ext", rec.secondary_phone_ext);
-					
-					table.addRow("SMS Address", rec.sms_address);
-					
-					if(rec.person == false) {
-						table.addRow("Personal Information", new HtmlView("(Not a personal contact)"));
-					} else {
-						RecordTableView personal_table = new RecordTableView("inner_table");
-						table.addRow("Personal Information", personal_table);
+	public DivRep createContent(final ContactRecord rec, final boolean show_edit_button) {
+		RecordTableView table = new RecordTableView();
+		try {	
+			table.addRow("Primary Email", new HtmlView("<a class=\"mailto\" href=\"mailto:"+rec.primary_email+"\">"+StringEscapeUtils.escapeHtml(rec.primary_email)+"</a>"));
+			table.addRow("Secondary Email", rec.secondary_email);
+
+			table.addRow("Primary Phone", rec.primary_phone);
+			table.addRow("Primary Phone Ext", rec.primary_phone_ext);
+
+			table.addRow("Secondary Phone", rec.secondary_phone);
+			table.addRow("Secondary Phone Ext", rec.secondary_phone_ext);
 			
-						personal_table.addRow("Address Line 1", rec.address_line_1);
-						personal_table.addRow("Address Line 2", rec.address_line_2);
-						personal_table.addRow("City", rec.city);
-						personal_table.addRow("State", rec.state);
-						personal_table.addRow("ZIP Code", rec.zipcode);
-						personal_table.addRow("Country", rec.country);
-						personal_table.addRow("Instant Messaging", rec.im);
+			table.addRow("SMS Address", rec.sms_address);
 			
-						String img = rec.photo_url;
-						if(rec.photo_url == null || rec.photo_url.length() == 0) {
-							img = StaticConfig.getApplicationBase() + "/images/noavatar.gif";
-						} 
-						personal_table.addRow("Photo", new HtmlView("<img class=\"avatar\" src=\""+img+"\"/>"));
-						personal_table.addRow("Contact Preference", rec.contact_preference);	
-						personal_table.addRow("Time Zone", rec.timezone);
-						personal_table.addRow("Profile", new HtmlView("<div>"+StringEscapeUtils.escapeHtml(rec.profile)+"</div>"));
-						personal_table.addRow("Use TWiki", rec.use_twiki);
-						personal_table.addRow("TWiki ID", rec.twiki_id);
-					}
-					
-					//only show contact association information for admin - it display links that user might not have access to
-					if(auth.allows("admin")) {
-						table.addRow("Contact Associations", new ContactAssociationView(context, rec.id));
-					}
-					
-					//table.addRow("Active", rec.active);
-					table.addRow("Disable", rec.disable);
-					
-					if(auth.allows("admin")) {
-						String submitter_dn = null;
-						if(rec.submitter_dn_id != null) {
-							DNRecord dn = dnmodel.get(rec.submitter_dn_id);
-							submitter_dn = dn.dn_string;
-						}
-						table.addRow("Submitter DN", submitter_dn);
-					}
-		
-					if(auth.allows("admin")) {
-						String dn_string = null;
-						DNRecord dnrec = dnmodel.getByContactID(rec.id);
-						if(dnrec != null) {
-							dn_string = dnrec.dn_string;
-						}
-						table.addRow("Associated DN", dn_string);		
-					}
-		
-					if(show_edit_button) {
-						class EditButtonDE extends DivRepButton
-						{
-							String url;
-							public EditButtonDE(DivRep parent, String _url)
-							{
-								super(parent, "Edit");
-								url = _url;
-							}
-							protected void onEvent(DivRepEvent e) {
-								redirect(url);
-							}
-						};
-						table.add(new DivRepWrapper(new EditButtonDE(context.getPageRoot(), StaticConfig.getApplicationBase()+"/contactedit?id=" + rec.id)));
-					}
-				} catch (SQLException e) {
-					return new DivRepStaticContent(this, e.toString());
-				}
-				return new ViewWrapper(context.getPageRoot(), table);
+			if(rec.person == false) {
+				table.addRow("Personal Information", new HtmlView("(Not a personal contact)"));
+			} else {
+				RecordTableView personal_table = new RecordTableView("inner_table");
+				table.addRow("Personal Information", personal_table);
+	
+				personal_table.addRow("Address Line 1", rec.address_line_1);
+				personal_table.addRow("Address Line 2", rec.address_line_2);
+				personal_table.addRow("City", rec.city);
+				personal_table.addRow("State", rec.state);
+				personal_table.addRow("ZIP Code", rec.zipcode);
+				personal_table.addRow("Country", rec.country);
+				personal_table.addRow("Instant Messaging", rec.im);
+	
+				String img = rec.photo_url;
+				if(rec.photo_url == null || rec.photo_url.length() == 0) {
+					img = StaticConfig.getApplicationBase() + "/images/noavatar.gif";
+				} 
+				personal_table.addRow("Photo", new HtmlView("<img class=\"avatar\" src=\""+img+"\"/>"));
+				personal_table.addRow("Contact Preference", rec.contact_preference);	
+				personal_table.addRow("Time Zone", rec.timezone);
+				personal_table.addRow("Profile", new HtmlView("<div>"+StringEscapeUtils.escapeHtml(rec.profile)+"</div>"));
+				personal_table.addRow("Use TWiki", rec.use_twiki);
+				personal_table.addRow("TWiki ID", rec.twiki_id);
 			}
-		};
-		return toggler;
+			
+			table.addRow("Contact Associations", new ContactAssociationView(context, rec.id));
+			
+			//table.addRow("Active", rec.active);
+			table.addRow("Disable", rec.disable);
+			
+			DNModel dnmodel = new DNModel(context);
+			if(auth.allows("admin")) {
+				String submitter_dn = null;
+				if(rec.submitter_dn_id != null) {
+					DNRecord dn = dnmodel.get(rec.submitter_dn_id);
+					submitter_dn = dn.dn_string;
+				}
+				table.addRow("Submitter DN", submitter_dn);
+			}
+
+			if(auth.allows("admin")) {
+				String dn_string = null;
+				DNRecord dnrec = dnmodel.getByContactID(rec.id);
+				if(dnrec != null) {
+					dn_string = dnrec.dn_string;
+				}
+				table.addRow("Associated DN", dn_string);		
+			}
+
+			if(show_edit_button) {
+				class EditButtonDE extends DivRepButton
+				{
+					String url;
+					public EditButtonDE(DivRep parent, String _url)
+					{
+						super(parent, "Edit");
+						url = _url;
+					}
+					protected void onEvent(DivRepEvent e) {
+						redirect(url);
+					}
+				};
+				table.add(new DivRepWrapper(new EditButtonDE(context.getPageRoot(), StaticConfig.getApplicationBase()+"/contactedit?id=" + rec.id)));
+			}
+		} catch (SQLException e) {
+			return new DivRepStaticContent(context.getPageRoot(), e.toString());
+		}
+		return new ViewWrapper(context.getPageRoot(), table);
 	}
 	
-	private SideContentView createSideView()
+	private SideContentView createSideView(ContactRecord rec)
 	{
 		SideContentView view = new SideContentView();
 		
-		class NewButtonDE extends DivRepButton
-		{
-			String url;
-			public NewButtonDE(DivRep parent, String _url)
-			{
-				super(parent, "Add New Contact");
-				url = _url;
-			}
-			protected void onEvent(DivRepEvent e) {
-				redirect(url);
-			}
-		};
-		view.add("Operation", new NewButtonDE(context.getPageRoot(), "contactedit"));
-		view.add("About", new HtmlView("This page shows a list of contacts on OIM. Contacts can be a person or a mailing list or a service that needs to be registered on OIM to access privileged information on other OSG services. <p><br/> You as a registered OIM user will be able to edit any contact you added. GOC staff are able to edit all contacts including previous de-activated ones. <p><br/> If you want to map a certain person or group contact (and their email/phone number) to a resource, VO, SC, etc. but cannot find that contact already in OIM, then you can add a new contact. <p><br/>  Note that if you add a person as a new contact, that person will still not be able to perform any actions inside OIM until they register their X509 certificate on OIM."));		
-		view.addContactGroupFlagLegend();
+		if(rec == null) {
+			view.add(new HtmlView("<h3>Other Actions</h3>"));
+			view.add(new HtmlView("<div class=\"indent\">"));
+			view.add(new HtmlView("<p><a href=\""+StaticConfig.getApplicationBase()+"/contactedit\">Register New Contact</a></p>"));
+			view.add(new HtmlView("</div>"));
+			view.add("About", new HtmlView("This page shows a list of contacts on OIM. Contacts can be a person or a mailing list or a service that needs to be registered on OIM to access privileged information on other OSG services. <p><br/> You as a registered OIM user will be able to edit any contact you added. GOC staff are able to edit all contacts including previous de-activated ones. <p><br/> If you want to map a certain person or group contact (and their email/phone number) to a resource, VO, SC, etc. but cannot find that contact already in OIM, then you can add a new contact. <p><br/>  Note that if you add a person as a new contact, that person will still not be able to perform any actions inside OIM until they register their X509 certificate on OIM."));		
+			view.addContactGroupFlagLegend();
+		} else {
+			//view.addContactLegend();
+		}
 		return view;
 	}
 }

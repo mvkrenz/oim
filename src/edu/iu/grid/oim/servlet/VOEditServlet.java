@@ -45,7 +45,8 @@ public class VOEditServlet extends ServletBase implements Servlet {
 			int vo_id = Integer.parseInt(vo_id_str);
 			VOModel model = new VOModel(context);
 			if(!model.canEdit(vo_id)) {
-				throw new AuthorizationException("Sorry, you don't have permission to edit VO ID:" + vo_id);
+				//throw new AuthorizationException("Sorry, you don't have permission to edit VO ID:" + vo_id);
+				response.sendRedirect( StaticConfig.getApplicationBase()+"/vo?id="+vo_id);
 			}
 			
 			try {

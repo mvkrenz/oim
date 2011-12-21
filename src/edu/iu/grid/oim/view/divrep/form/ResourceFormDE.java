@@ -134,7 +134,7 @@ public class ResourceFormDE extends DivRepForm
 
 		resource_group_id = new ResourceGroupSelector(this, context);
 		resource_group_id.setRequired(true);
-		if(id != null) {
+		if(rec.resource_group_id != null) {
 			resource_group_id.setValue(rec.resource_group_id);
 		}
 
@@ -171,7 +171,7 @@ public class ResourceFormDE extends DivRepForm
 			ResourceServiceDetailModel rsdmodel = new ResourceServiceDetailModel(context);
 			ArrayList<ResourceServiceDetailRecord> details = rsdmodel.getAllByResourceID(id);
 			
-			for(ResourceServiceRecord rarec : rsmodel.getAllByResourceID(id)) {
+			for(ResourceServiceRecord rarec : rsmodel.getByResourceID(id)) {
 				resource_services.addService(rarec, details);
 			}
 		} else {

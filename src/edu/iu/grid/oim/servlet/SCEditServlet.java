@@ -50,7 +50,8 @@ public class SCEditServlet extends ServletBase implements Servlet {
 			int sc_id = Integer.parseInt(sc_id_str);
 			SCModel model = new SCModel(context);			
 			if(!model.canEdit(sc_id)) {
-				throw new AuthorizationException("Sorry, you don't have permission to edit this SC ID:" + sc_id);
+				//throw new AuthorizationException("Sorry, you don't have permission to edit this SC ID:" + sc_id);
+				response.sendRedirect(StaticConfig.getApplicationBase()+"/sc?id="+sc_id);
 			}
 			
 			try {

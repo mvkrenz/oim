@@ -64,12 +64,12 @@ public class SiteModel extends SmallTableModelBase<SiteRecord> {
 		keyrec.id = id;
 		return get(keyrec);
 	}
-	public ArrayList<SiteRecord> getByFacilityID(int facility_id) throws SQLException
+	public ArrayList<SiteRecord> getByFacilityID(Integer facility_id) throws SQLException
 	{
 		ArrayList<SiteRecord> list = new ArrayList<SiteRecord>();
 		for(RecordBase rec : getCache()) {
 			SiteRecord srec = (SiteRecord)rec;
-			if(srec.facility_id.compareTo(facility_id) == 0) list.add(srec);
+			if(srec.facility_id.equals(facility_id)) list.add(srec);
 		}
 		return list;
 	}

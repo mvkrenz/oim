@@ -161,7 +161,7 @@ public class ResourceDowntimeEditor extends DivRepFormElement {
 		
 		new DivRepStaticContent(this, "<h3>Affected Services</h3>");
 		ResourceServiceModel rsmodel = new ResourceServiceModel(context);
-		Collection<ResourceServiceRecord> rsrecs = rsmodel.getAllByResourceID(rec.resource_id);
+		Collection<ResourceServiceRecord> rsrecs = rsmodel.getByResourceID(rec.resource_id);
 		for(ResourceServiceRecord rsrec : rsrecs) {
 			addService(rsrec.service_id);
 		}

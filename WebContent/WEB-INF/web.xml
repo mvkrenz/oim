@@ -381,6 +381,13 @@
 		<servlet-name>HelpServlet</servlet-name>
 		<servlet-class>edu.iu.grid.oim.servlet.HelpServlet</servlet-class>
 	</servlet>
+	<servlet>
+		<description>
+		</description>
+		<display-name>TopologyServlet</display-name>
+		<servlet-name>TopologyServlet</servlet-name>
+		<servlet-class>edu.iu.grid.oim.servlet.TopologyServlet</servlet-class>
+	</servlet>
 
 	<servlet-mapping>
 		<servlet-name>DivRepServlet</servlet-name>
@@ -587,6 +594,11 @@
 	<servlet-mapping>
 		<servlet-name>NeedcertServlet</servlet-name>
 		<url-pattern>/needcert</url-pattern>
+	</servlet-mapping>
+	
+	<servlet-mapping>
+		<servlet-name>TopologyServlet</servlet-name>
+		<url-pattern>/topology</url-pattern>
 	</servlet-mapping>
 		
 	<servlet>

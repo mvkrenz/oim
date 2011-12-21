@@ -8,19 +8,15 @@ import edu.iu.grid.oim.lib.ResourceReader;
 public class HtmlFileView implements IView 
 {
 	StringBuilder content;
-	
-	
-	public HtmlFileView(String template, HashMap<String, String> params) {
+	public HtmlFileView(String template) {
 		content = new StringBuilder(template);
-		applyTemplate(params);
 	}
 	
-	public HtmlFileView(InputStream is, HashMap<String, String> params) {
+	public HtmlFileView(InputStream is) {
 		content = ResourceReader.loadContent(is);
-		applyTemplate(params);
 	}
-	
-	private void applyTemplate(HashMap<String, String> params) {
+
+	public void applyParams(HashMap<String, String> params) {
 		//replace templates
 		for(String key : params.keySet()) {
 			String value = params.get(key);
@@ -38,7 +34,6 @@ public class HtmlFileView implements IView
 
 	public void render(PrintWriter out) {
 		out.print(content);
-		
 	}
 	
 }

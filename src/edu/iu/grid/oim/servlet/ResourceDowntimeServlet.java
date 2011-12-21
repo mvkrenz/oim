@@ -88,7 +88,7 @@ public class ResourceDowntimeServlet extends ServletBase implements Servlet {
 		});
 
 		ContentView contentview = new ContentView();	
-		contentview.add(new HtmlView("<h1>Resource Downtime</h1>"));
+		//contentview.add(new HtmlView("<h1>Resource Downtime</h1>"));
 	
 		if(resources.size() == 0) {
 			contentview.add(new HtmlView("<p>You currently don't have any resources that list your contact in any of the contact types.</p>"));

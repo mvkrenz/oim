@@ -72,15 +72,19 @@ public class ContactAssociationView extends GenericView {
 						
 			//view.add(new HtmlView("<table width=\"100%\"><tr><td width=\"33%\">"));
 			
+			if(show_new_buttons) {
+				view.add(new HtmlView("<a class=\"right\" href=\""+StaticConfig.getApplicationBase()+"/topology"+"\">View all Resources</a>"));
+			}
+			
 			view.add(new HtmlView("<h3>Resource</h3>"));
 			ArrayList<ResourceContactRecord> rcrecs = rcontactmodel.getByContactID(contactid);
 			HashMap<Integer, String> resourceassoc = new HashMap<Integer, String>();
 			for(ResourceContactRecord rcrec : rcrecs) {
 				ResourceRecord rrec = rmodel.get(rcrec.resource_id);
 				//if(rrec.active && !rrec.disable) {
-				if(rmodel.canEdit(rrec.id)) {
+				//if(rmodel.canEdit(rrec.id)) {
 					resourceassoc.put(rrec.id, rrec.name);
-				}
+				//}
 			}
 			
 			ItemTableView table = new ItemTableView(3);
@@ -99,7 +103,7 @@ public class ContactAssociationView extends GenericView {
 					}
 				}
 	
-				table.addView(tview);
+				table.add(tview);
 			}
 			view.add(table);	
 			if(resourceassoc.size() == 0) {
@@ -121,17 +125,21 @@ public class ContactAssociationView extends GenericView {
 					}
 				};
 				view.add(new NewResourceButtonDE(context.getPageRoot(), "resourceedit"));
-			} 
-		
+				view.add(new HtmlView("<br><br>"));
+			}
+			
+			if(show_new_buttons) {
+				view.add(new HtmlView("<a class=\"right\" href=\""+StaticConfig.getApplicationBase()+"/vo"+"\">View all Virtual Organizations</a>"));
+			}
 			view.add(new HtmlView("<h3>Virtual Organization</h3>"));
 			ArrayList<VOContactRecord> vocrecs = vocontactmodel.getByContactID(contactid);
 			HashMap<Integer, String> voassoc = new HashMap<Integer, String>();
 			for(VOContactRecord vocrec : vocrecs) {
 				VORecord vorec = vomodel.get(vocrec.vo_id);
 				//if(vorec.active && !vorec.disable) {
-				if(vomodel.canEdit(vorec.id)) {
+				//if(vomodel.canEdit(vorec.id)) {
 					voassoc.put(vorec.id, vorec.name);
-				}	
+				//}	
 			}
 			
 			table = new ItemTableView(3);
@@ -149,7 +157,7 @@ public class ContactAssociationView extends GenericView {
 						tview.add(new HtmlView("<div class=\"contact_rank contact_"+rank+"\">"+ctrec.name+"</div>"));
 					}
 				}
-				table.addView(tview);
+				table.add(tview);
 			}
 			view.add(table);	
 			if(voassoc.size() == 0) {
@@ -171,17 +179,20 @@ public class ContactAssociationView extends GenericView {
 					}
 				};
 				view.add(new NewVOButtonDE(context.getPageRoot(), "voedit"));
-			}	
-			
+				view.add(new HtmlView("<br><br>"));
+			}
+			if(show_new_buttons) {
+				view.add(new HtmlView("<a class=\"right\" href=\""+StaticConfig.getApplicationBase()+"/sc"+"\">View all Support Centers</a>"));
+			}
 			view.add(new HtmlView("<h3>Support Center</h3>"));
 			ArrayList<SCContactRecord> sccrecs = sccontactmodel.getByContactID(contactid);
 			HashMap<Integer, String> scassoc = new HashMap<Integer, String>();
 			for(SCContactRecord sccrec : sccrecs) {
 				SCRecord screc = scmodel.get(sccrec.sc_id);
 				//if(screc.active && !screc.disable) {
-				if(scmodel.canEdit(screc.id)) {
+				//if(scmodel.canEdit(screc.id)) {
 					scassoc.put(screc.id, screc.name);
-				}
+				//}
 			}
 			
 			table = new ItemTableView(3);
@@ -199,7 +210,7 @@ public class ContactAssociationView extends GenericView {
 						tview.add(new HtmlView("<div class=\"contact_rank contact_"+rank+"\">"+ctrec.name+"</div>"));
 					}
 				}
-				table.addView(tview);
+				table.add(tview);
 			}
 			view.add(table);		
 			if(scassoc.size() == 0) {
@@ -221,6 +232,7 @@ public class ContactAssociationView extends GenericView {
 					}
 				};
 				view.add(new NewSCButtonDE(context.getPageRoot(), "scedit"));
+	
 			}
 			
 			//view.add(new HtmlView("<br style=\"clear:both;\" />"));
