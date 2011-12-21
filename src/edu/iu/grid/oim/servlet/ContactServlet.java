@@ -207,9 +207,9 @@ public class ContactServlet extends ServletBase implements Servlet {
 			url = StaticConfig.getApplicationBase()+"/contact?id="+rec.id;
 		}
 		if(rec.disable == false) {
-			name_to_display = "<a href=\""+url+"\">"+image+StringEscapeUtils.escapeHtml(rec.name)+"</a>";
+			name_to_display = image+"<a href=\""+url+"\">"+StringEscapeUtils.escapeHtml(rec.name)+"</a>";
 		} else {
-			name_to_display = "<a href=\""+url+"\" class=\"disabled\">"+image+StringEscapeUtils.escapeHtml(rec.name)+"</a>";
+			name_to_display = image+"<a href=\""+url+"\" class=\"disabled\">"+StringEscapeUtils.escapeHtml(rec.name)+"</a>";
 		}
 		return name_to_display;
 	}
