@@ -120,7 +120,7 @@ public class TopologyServlet extends ServletBase implements Servlet {
 		
 		for(FacilityRecord frec : frecs) {
 			contentview.add(new HtmlView("<div class=\"hierarchy_facility round4\">"));
-			contentview.add(new HtmlView("<a href=\""+StaticConfig.getStaticBase()+"/facilityedit?facility_id="+frec.id+"\"><b>"+StringEscapeUtils.escapeHtml(frec.name)+"</b> <span>Facility</span></a>"));
+			contentview.add(new HtmlView("<a href=\""+StaticConfig.getApplicationBase()+"/facilityedit?facility_id="+frec.id+"\"><b>"+StringEscapeUtils.escapeHtml(frec.name)+"</b> <span>Facility</span></a>"));
 					//"<span class=\"edit facility_edit\" onclick=\"document.location='"+StaticConfig.getStaticBase()+"/facilityedit?facility_id="+frec.id+"';\">Edit</span>"));
 			
 			ArrayList<SiteRecord> srecs = smodel.getByFacilityID(frec.id);
@@ -132,9 +132,9 @@ public class TopologyServlet extends ServletBase implements Servlet {
 			for(SiteRecord srec : srecs) {
 				contentview.add(new HtmlView("<div class=\"hierarchy_site round4\">"));
 				SCRecord screc = scmodel.get(srec.sc_id);
-				contentview.add(new HtmlView("<div class=\"hierarchy_sitesc\">Supported by <a href=\""+StaticConfig.getStaticBase()+"/scedit?id="+screc.id+"\"><b>"+StringEscapeUtils.escapeHtml(screc.name)+"</b></a></div>"));
+				contentview.add(new HtmlView("<div class=\"hierarchy_sitesc\">Supported by <a href=\""+StaticConfig.getApplicationBase()+"/scedit?id="+screc.id+"\"><b>"+StringEscapeUtils.escapeHtml(screc.name)+"</b></a></div>"));
 				
-				contentview.add(new HtmlView("<a href=\""+StaticConfig.getStaticBase()+"/siteedit?site_id="+srec.id+"\"><b>"+StringEscapeUtils.escapeHtml(srec.name)+"</b> <span>Site</span></a>"));
+				contentview.add(new HtmlView("<a href=\""+StaticConfig.getApplicationBase()+"/siteedit?site_id="+srec.id+"\"><b>"+StringEscapeUtils.escapeHtml(srec.name)+"</b> <span>Site</span></a>"));
 						//"<span class=\"edit site_edit\" onclick=\"document.location='"+StaticConfig.getStaticBase()+"/siteedit?site_id="+srec.id+"';\">Edit</span>"));
 				
 				//put all production on the right, and itb on the left
@@ -157,7 +157,7 @@ public class TopologyServlet extends ServletBase implements Servlet {
 						tag += "(Disabled)";
 					}
 					rg.add(new HtmlView("<div class=\"hierarchy_rg round4"+disable_css+"\">"));
-					rg.add(new HtmlView("<a href=\""+StaticConfig.getStaticBase()+"/resourcegroupedit?id="+rgrec.id+"\"><b>"+StringEscapeUtils.escapeHtml(rgrec.name)+"</b> "+tag+"</a>"));
+					rg.add(new HtmlView("<a href=\""+StaticConfig.getApplicationBase()+"/resourcegroupedit?id="+rgrec.id+"\"><b>"+StringEscapeUtils.escapeHtml(rgrec.name)+"</b> "+tag+"</a>"));
 					//"<span class=\"edit rg_edit\" onclick=\"document.location='"+StaticConfig.getStaticBase()+"/resourcegroupedit?id="+rgrec.id+"';\">Edit</span>"));
 				
 					ArrayList<ResourceRecord> rrecs = rmodel.getByGroupID(rgrec.id);
@@ -184,7 +184,7 @@ public class TopologyServlet extends ServletBase implements Servlet {
 							ServiceRecord servicerec = servicemodel.get(rsrec.service_id);
 							rg.add(new HtmlView("<span class=\"hierarchy_service\">"+StringEscapeUtils.escapeHtml(servicerec.name)+"</span>"));
 						}	
-						rg.add(new HtmlView("<a href=\""+StaticConfig.getStaticBase()+"/resourceedit?id="+rrec.id+"\"><b>"+StringEscapeUtils.escapeHtml(rrec.name)+"</b> <span class=\"fqdn\">"+StringEscapeUtils.escapeHtml(rrec.fqdn)+"</span> "+tag + "</a>"));
+						rg.add(new HtmlView("<a href=\""+StaticConfig.getApplicationBase()+"/resourceedit?id="+rrec.id+"\"><b>"+StringEscapeUtils.escapeHtml(rrec.name)+"</b> <span class=\"fqdn\">"+StringEscapeUtils.escapeHtml(rrec.fqdn)+"</span> "+tag + "</a>"));
 								//"<span class=\"edit r_edit\" onclick=\"document.location='"+StaticConfig.getStaticBase()+"/resourceedit?resource_id="+rrec.id+"';\">Edit</span>"));
 
 						rg.add(new HtmlView("</div>"));//resource
@@ -192,7 +192,7 @@ public class TopologyServlet extends ServletBase implements Servlet {
 					if(rrecs.size() == 0) {
 						rg.add(new HtmlView("<br>"));
 					}
-					rg.add(new HtmlView("<a href=\""+StaticConfig.getStaticBase()+"/resourceedit?rg_id="+rgrec.id+"\">Add New Resource</a>"));
+					rg.add(new HtmlView("<a href=\""+StaticConfig.getApplicationBase()+"/resourceedit?rg_id="+rgrec.id+"\">Add New Resource</a>"));
 
 					rg.add(new HtmlView("</div>"));//resource_group
 
@@ -202,8 +202,8 @@ public class TopologyServlet extends ServletBase implements Servlet {
 						itb.add(rg);
 					}
 				}	
-				prod.add(new HtmlView("<a href=\""+StaticConfig.getStaticBase()+"/resourcegroupedit?gridtype_id=1&site_id="+srec.id+"\">Add New Production Resource Group</a>"));
-				itb.add(new HtmlView("<a href=\""+StaticConfig.getStaticBase()+"/resourcegroupedit?gridtype_id=2&site_id="+srec.id+"\">Add New ITB Resource Group</a>"));
+				prod.add(new HtmlView("<a href=\""+StaticConfig.getApplicationBase()+"/resourcegroupedit?gridtype_id=1&site_id="+srec.id+"\">Add New Production Resource Group</a>"));
+				itb.add(new HtmlView("<a href=\""+StaticConfig.getApplicationBase()+"/resourcegroupedit?gridtype_id=2&site_id="+srec.id+"\">Add New ITB Resource Group</a>"));
 				
 				ItemTableView table = new ItemTableView(2);
 				table.add(prod);
@@ -212,11 +212,11 @@ public class TopologyServlet extends ServletBase implements Servlet {
 				
 				contentview.add(new HtmlView("</div>"));//site
 			}	
-			contentview.add(new HtmlView("<a href=\""+StaticConfig.getStaticBase()+"/siteedit?facility_id="+frec.id+"\">Add New Site</a>"));
+			contentview.add(new HtmlView("<a href=\""+StaticConfig.getApplicationBase()+"/siteedit?facility_id="+frec.id+"\">Add New Site</a>"));
 				
 			contentview.add(new HtmlView("</div>"));//facility
 		}
-		contentview.add(new HtmlView("<a href=\""+StaticConfig.getStaticBase()+"/facilityedit\">Add New Facility</a>"));
+		contentview.add(new HtmlView("<a href=\""+StaticConfig.getApplicationBase()+"/facilityedit\">Add New Facility</a>"));
 		
 		
 		return contentview;
