@@ -8,7 +8,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.log4j.Logger;
 
-import edu.iu.grid.oim.lib.AuthorizationException;
 import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.model.db.VOModel;
 import edu.iu.grid.oim.model.db.record.VORecord;
@@ -35,7 +34,7 @@ public class VOEditServlet extends ServletBase implements Servlet {
 		auth.check("edit_my_vo");		
 		
 		VORecord rec;
-		String title;
+		//String title;
 
 		//if vo_id is provided then we are doing update, otherwise do new.
 		String vo_id_str = request.getParameter("id");
@@ -56,10 +55,10 @@ public class VOEditServlet extends ServletBase implements Servlet {
 			} catch (SQLException e) {
 				throw new ServletException(e);
 			}	
-			title = "Virtual Organization Update";
+			//title = "Virtual Organization Update";
 		} else {
 			rec = new VORecord();
-			title = "New Virtual Organization";	
+			//title = "New Virtual Organization";	
 		}
 	
 		VOFormDE form;
@@ -72,7 +71,7 @@ public class VOEditServlet extends ServletBase implements Servlet {
 		
 		//put the form in a view and display
 		ContentView contentview = new ContentView();
-		contentview.add(new HtmlView("<h1>"+title+"</h1>"));	
+		//contentview.add(new HtmlView("<h1>"+title+"</h1>"));	
 		contentview.add(new DivRepWrapper(form));
 		
 		//setup crumbs

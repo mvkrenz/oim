@@ -45,7 +45,7 @@ public class ResourceGroupEditServlet extends ServletBase implements Servlet {
 		auth.check("edit_all_resource_group");
 		
 		ResourceGroupRecord rec;
-		String title;
+		//String title;
 
 		try {
 			//if site_id is provided then we are doing update, otherwise do new.
@@ -57,10 +57,10 @@ public class ResourceGroupEditServlet extends ServletBase implements Servlet {
 				ResourceGroupRecord keyrec = new ResourceGroupRecord();
 				keyrec.id = id;
 				rec = model.get(keyrec);
-				title = "Update Resource Group";
+				//title = "Update Resource Group";
 			} else {
 				rec = new ResourceGroupRecord();
-				title = "New Resource Group";	
+				//title = "New Resource Group";	
 				
 				String gridtype_id_str = request.getParameter("gridtype_id");
 				if(gridtype_id_str != null) {
@@ -77,7 +77,7 @@ public class ResourceGroupEditServlet extends ServletBase implements Servlet {
 			
 			//put the form in a view and display
 			ContentView contentview = new ContentView();
-			contentview.add(new HtmlView("<h1>"+title+"</h1>"));	
+			//contentview.add(new HtmlView("<h1>"+title+"</h1>"));	
 			contentview.add(new DivRepWrapper(form));
 			
 			//setup crumbs

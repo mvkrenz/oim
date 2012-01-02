@@ -90,7 +90,7 @@ public class ResourceServlet extends ServletBase implements Servlet {
 		try {
 			//construct view
 			ContentView contentview = null;
-			MenuView menuview = new MenuView(context, "resource");
+			MenuView menuview = new MenuView(context, "topology");
 			
 			//display either list, or a single resource
 			String resource_id_str = request.getParameter("id");

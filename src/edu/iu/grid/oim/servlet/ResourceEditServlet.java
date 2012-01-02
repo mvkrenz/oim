@@ -45,7 +45,7 @@ public class ResourceEditServlet extends ServletBase implements Servlet {
 		auth.check("edit_my_resource");
 
 		ResourceRecord rec;
-		String title;
+		//String title;
 		
 		String resource_id_str = request.getParameter("id");
 		if(resource_id_str != null) {
@@ -63,10 +63,10 @@ public class ResourceEditServlet extends ServletBase implements Servlet {
 			} catch (SQLException e) {
 				throw new ServletException(e);
 			}	
-			title = "Resource Update";
+			//title = "Resource Update";
 		} else {
 			rec = new ResourceRecord();
-			title = "New Resource";	
+			//title = "New Resource";	
 			
 			String rg_id_str = request.getParameter("rg_id");
 			if(rg_id_str != null) {
@@ -84,7 +84,7 @@ public class ResourceEditServlet extends ServletBase implements Servlet {
 
 		//put the form in a view and display
 		ContentView contentview = new ContentView();
-		contentview.add(new HtmlView("<h1>"+title+"</h1>"));	
+		//contentview.add(new HtmlView("<h1>"+title+"</h1>"));	
 		contentview.add(new DivRepWrapper(form));
 
 		//setup crumbs

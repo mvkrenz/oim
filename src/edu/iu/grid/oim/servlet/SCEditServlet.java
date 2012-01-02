@@ -41,7 +41,7 @@ public class SCEditServlet extends ServletBase implements Servlet {
 		auth.check("edit_my_sc");
 		
 		SCRecord rec;
-		String title;
+		//String title;
 
 		//if sc_id is provided then we are doing update, otherwise do new.
 		String sc_id_str = request.getParameter("id");
@@ -61,10 +61,10 @@ public class SCEditServlet extends ServletBase implements Servlet {
 			} catch (SQLException e) {
 				throw new ServletException(e);
 			}	
-			title = "Update Support Center";
+			//title = "Update Support Center";
 		} else {
 			rec = new SCRecord();
-			title = "New Support Center";	
+			//title = "New Support Center";	
 		}
 	
 		SCFormDE form;
@@ -77,7 +77,7 @@ public class SCEditServlet extends ServletBase implements Servlet {
 		
 		//put the form in a view and display
 		ContentView contentview = new ContentView();
-		contentview.add(new HtmlView("<h1>"+title+"</h1>"));	
+		//contentview.add(new HtmlView("<h1>"+title+"</h1>"));	
 		contentview.add(new DivRepWrapper(form));
 		
 		//setup crumbs
