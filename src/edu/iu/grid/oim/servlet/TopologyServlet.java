@@ -382,7 +382,7 @@ public class TopologyServlet extends ServletBase implements Servlet {
 						}
 						rg.add(new HtmlView("<div class=\"hierarchy_r round4"+disable_css+"\">"));
 
-						ArrayList<ResourceServiceRecord> rsrecs = rsmodel.getByResourceID(rgrec.id);
+						ArrayList<ResourceServiceRecord> rsrecs = rsmodel.getByResourceID(rrec.id);
 						for(ResourceServiceRecord rsrec : rsrecs) {
 							ServiceRecord servicerec = servicemodel.get(rsrec.service_id);
 							rg.add(new HtmlView("<span class=\"hierarchy_service\">"+StringEscapeUtils.escapeHtml(servicerec.name)+"</span>"));
