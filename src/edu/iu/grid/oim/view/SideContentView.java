@@ -38,7 +38,7 @@ public class SideContentView implements IView {
 	
 	public void addContactNote () {
 		//TODO agopu need external link icon in CSS
-		add("Note about Contacts", new HtmlView("<p>The contact boxes allow you to search and assign contacts.</p><p>When assigning various contacts on this form, if you do not find the contact you are searching for, then <a href=\"contactedit\" target=\"_blank\">click here to add a new contact</a> first [opens in a new tab]."));		
+		add("Contacts", new HtmlView("<p>The contact editor allow you to search and assign contacts.</p><p>When assigning various contacts on this form, if you do not find the contact you are searching for, then <a href=\"contactedit\" target=\"_blank\">add a new contact</a> first."));		
 	}
 	public void addContactLegend () {
 		add("Contact Rank Legend", new HtmlView("<p>Contacts are flagged by their rank:</p><p><div class=\'contact_rank contact_Primary\'>Primary</div></p><p><div class=\'contact_rank contact_Secondary\'>Secondary</div></p><p><div class=\'contact_rank contact_Tertiary\'>Tertiary</div></p>"));		

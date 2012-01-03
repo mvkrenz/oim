@@ -120,8 +120,9 @@ public class VOFormDE extends DivRepForm
 		
 		ScienceVOInfo(DivRep _parent, VORecord rec) {
 			super(_parent);
-			
-			new DivRepStaticContent(this, "<h3>More Extended Descriptions including URLs</h3>");
+
+			//new DivRepStaticContent(this, "<div class=\"indent\">");
+			//new DivRepStaticContent(this, "<h3>More Extended Descriptions including URLs</h3>");
 
 			app_description = new DivRepTextArea(this);
 			app_description.setLabel("Enter an Application Description");
@@ -169,6 +170,7 @@ public class VOFormDE extends DivRepForm
 				e.printStackTrace();
 			}
 		
+			//new DivRepStaticContent(this, "</div>");
 		}
 		
 		public void render(PrintWriter out) {
@@ -409,16 +411,34 @@ public class VOFormDE extends DivRepForm
 		
 		new DivRepStaticContent(this, "<h2>Basic VO Information</h2>");
 		
-		//new DivRepStaticContent(this, "<h2>Sub-VO Mapping</h2>");
-		new DivRepStaticContent(this, "<p>Check  if this VO is a sub-VO of an existing VO. For example, FermilabMinos is a sub VO of the Fermilab VO.</p>");
-		child_vo = new DivRepCheckBox(this);
-		child_vo.setLabel("This is a sub-VO");
-
 		//pull vos for unique validator
 		LinkedHashMap<Integer, String> vos = getVONames();
 		if(id != null) { //if doing update, remove my own name (I can't use my own name)
 			vos.remove(id);
 		}
+		name = new DivRepTextBox(this);
+		name.setLabel("Name");
+		name.setValue(rec.name);
+		name.addValidator(new DivRepUniqueValidator<String>(vos.values()));
+		name.setRequired(true);
+		name.setSampleValue("CDF");
+
+		long_name = new DivRepTextBox(this);
+		long_name.setLabel("Enter the Long Name for this VO");
+		long_name.setValue(rec.long_name);
+		long_name.setRequired(true); // TODO: agopu should this be required?
+		long_name.setSampleValue("Collider Detector at Fermilab");
+
+		sc_id = new DivRepSelectBox(this, getSCNames());
+		sc_id.setLabel("Select a Support Center that supports your users and applications");
+		sc_id.setValue(rec.sc_id);
+		sc_id.setRequired(true);
+		
+		//new DivRepStaticContent(this, "<h2>Sub-VO Mapping</h2>");
+		//new DivRepStaticContent(this, "<p>Check if this VO is a sub-VO of an existing VO. For example, FermilabMinos is a sub VO of the Fermilab VO.</p>");
+		child_vo = new DivRepCheckBox(this);
+		child_vo.setLabel("This is a sub-VO of an existing VO (ex. FermilabMinos is a sub VO of the Fermilab VO)");
+
 		parent_vo = new DivRepSelectBox(this, vos);
 		parent_vo.setLabel("Select a Parent VO");
 		parent_vo.addClass("indent");
@@ -447,27 +467,9 @@ public class VOFormDE extends DivRepForm
 			public void handleEvent(DivRepEvent e) {
 				handleParentVOSelection(Integer.parseInt((String)e.value));
 			}
-		});
+		});		
 
-		name = new DivRepTextBox(this);
-		name.setLabel("Name");
-		name.setValue(rec.name);
-		name.addValidator(new DivRepUniqueValidator<String>(vos.values()));
-		name.setRequired(true);
-		name.setSampleValue("CDF");
-
-		long_name = new DivRepTextBox(this);
-		long_name.setLabel("Enter the Long Name for this VO");
-		long_name.setValue(rec.long_name);
-		long_name.setRequired(true); // TODO: agopu should this be required?
-		long_name.setSampleValue("Collider Detector at Fermilab");
-
-		sc_id = new DivRepSelectBox(this, getSCNames());
-		sc_id.setLabel("Select a Support Center that supports your users and applications");
-		sc_id.setValue(rec.sc_id);
-		sc_id.setRequired(true);
-
-		new DivRepStaticContent(this, "<h3>Extended Descriptions</h3>");
+		//new DivRepStaticContent(this, "<h3>Extended Descriptions</h3>");
 		description = new DivRepTextArea(this);
 		description.setLabel("Enter a Description for this VO");
 		description.setValue(rec.description);
@@ -489,11 +491,13 @@ public class VOFormDE extends DivRepForm
 		*/
 		
 		new DivRepStaticContent(this, "<h2>Additional Information for VOs that include OSG Users</h2>");
-		new DivRepStaticContent(this, "<p>Uncheck the checkbox below if your VO does <strong>not</strong> intend to use any OSG resources, and just wants to provide services to the OSG.</p>");
+		
+		ToolTip tip = new ToolTip("Uncheck this checkbox if your VO does not intend to use any OSG resources, and just wants to provide services to the OSG.");
+		new DivRepStaticContent(this, "<span class=\"right\">"+tip.render()+"</span>");
 		science_vo = new DivRepCheckBox(this);
-		science_vo.setLabel("This VO has or will have users who do OSG-dependent scientific research.");
+		science_vo.setLabel("This VO has users who do OSG-dependent scientific research.");
 		science_vo.setValue(rec.science_vo);
-				
+		
 		science_vo_info = new ScienceVOInfo(this, rec);
 		science_vo.addEventListener(new DivRepEventListener() {
 			public void handleEvent(DivRepEvent e) {
@@ -552,7 +556,7 @@ public class VOFormDE extends DivRepForm
 		}
 		ContactTypeModel ctmodel = new ContactTypeModel(context);
 		for(ContactTypeRecord.Info contact_type : ContactTypes) {
-			ToolTip tip = new ToolTip(contact_type.desc);
+			tip = new ToolTip(contact_type.desc);
 			ContactEditor editor = createContactEditor(voclist_grouped, ctmodel.get(contact_type.id), tip);
 			//disable submitter editor if needed
 			if(!auth.allows("admin")) {

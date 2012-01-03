@@ -331,6 +331,8 @@ public class ContactFormDE extends DivRepForm
 			}
 		}
 
+		new DivRepStaticContent(this, "<h2>Basic Information</h2>");
+		
 		name = new DivRepTextBox(this);
 		name.setLabel("Full Name");
 		name.setValue(rec.name);
@@ -401,7 +403,15 @@ public class ContactFormDE extends DivRepForm
 		new DivRepStaticContent(this, "<h2>Confirmation</h2>");
 		confirmation = new Confirmation(this, rec, auth);
 
-		new DivRepStaticContent(this, "<h2>Contact Association</h2>");
+		if(rec.id != null) {
+			new DivRepStaticContent(this, "<h2>Contact Association</h2>");
+			try {
+				ContactAssociationView view = new ContactAssociationView(context, rec.id);
+			} catch (SQLException e1) {
+				log.error("SQLError while renderiring contact association", e1);
+			}
+		}
+		/*
 		new DivRep(this) {
 			ContactAssociationView view;
 			@Override
@@ -422,6 +432,7 @@ public class ContactFormDE extends DivRepForm
 				
 			}
 		};
+		*/
 		
 		if(auth.allows("admin")) {
 			new DivRepStaticContent(this, "<h2>Administrative</h2>");
