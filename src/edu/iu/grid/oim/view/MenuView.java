@@ -30,6 +30,10 @@ public class MenuView implements IView {
 		
 		menu.add(new MenuItem("Topology", "topology"));
 		
+		if(auth.allows("edit_my_resource")) {
+			menu.add(new MenuItem("Downtimes", "resourcedowntime"));
+		}
+		
 		if(auth.allows("edit_my_vo")) {
 			menu.add(new MenuItem("Virtual Organizations", "vo"));
 		}
@@ -43,10 +47,6 @@ public class MenuView implements IView {
 			menu.add(new MenuItem("Resources", "resource"));
 		}
 		*/
-		
-		if(auth.allows("edit_my_resource")) {
-			menu.add(new MenuItem("Downtimes", "resourcedowntime"));
-		}
 		
 		/*
 		// Do we need auth checks for these given we will allow anyone to edit? I guess not .. -agopu
