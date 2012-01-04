@@ -73,6 +73,9 @@ public class MenuView implements IView {
 		if (auth.allows("edit_measurement")) {
 			menu.add(new MenuItem("CPU Info", "cpuinfo"));	
 		}
+		if (auth.allows("read_report")) {
+			menu.add(new MenuItem("Reports", "report"));	
+		}
 		if (auth.allows("admin")) {
 			menu.add(new MenuItem("Admin", "admin"));	
 		}

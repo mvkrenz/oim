@@ -54,7 +54,7 @@ public class ReportConfirmationServlet extends ServletBase implements Servlet {
 	{	
 		if(!auth.isLocal()) {
 			//allow cron to access
-			auth.check("admin");
+			auth.check("read_report");
 		}
 		
 		try {
@@ -77,12 +77,12 @@ public class ReportConfirmationServlet extends ServletBase implements Servlet {
 				} 
 			} else {
 				//construct html view
-				MenuView menuview = new MenuView(context, "admin");
+				MenuView menuview = new MenuView(context, "report");
 				ContentView contentview = createContentView(expired_recs);
 			
 				//set crumbs
 				BreadCrumbView bread_crumb = new BreadCrumbView();
-				bread_crumb.addCrumb("Administration",  "admin");
+				bread_crumb.addCrumb("Reports",  "report");
 				bread_crumb.addCrumb("Confirmation Report",  null);
 				contentview.setBreadCrumb(bread_crumb);
 				

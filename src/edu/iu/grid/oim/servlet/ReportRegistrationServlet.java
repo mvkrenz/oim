@@ -71,7 +71,7 @@ public class ReportRegistrationServlet extends ServletBase implements Servlet {
 	{	
 		if(!auth.isLocal()) {
 			//allow cron to access
-			auth.check("admin");
+			auth.check("read_report");
 		}
 		
 		try {
@@ -81,7 +81,7 @@ public class ReportRegistrationServlet extends ServletBase implements Servlet {
 			}
 			
 			//construct view
-			MenuView menuview = new MenuView(context, "admin");
+			MenuView menuview = new MenuView(context, "report");
 			ContentView contentview = createContentView();
 		
 			PrintWriter out = response.getWriter();
@@ -90,7 +90,7 @@ public class ReportRegistrationServlet extends ServletBase implements Servlet {
 			} else {
 				//set crumbs
 				BreadCrumbView bread_crumb = new BreadCrumbView();
-				bread_crumb.addCrumb("Administration",  "admin");
+				bread_crumb.addCrumb("Reports",  "report");
 				bread_crumb.addCrumb("Registration Report",  null);
 				contentview.setBreadCrumb(bread_crumb);
 				

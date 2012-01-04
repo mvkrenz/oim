@@ -90,12 +90,14 @@ public class AdminServlet extends ServletBase  {
 			contentview.add(new InternalLinkView("fptemplates", "Footprints Ticket Templates"));
 			contentview.add(new HtmlView("<br/>"));
 			
+			/*
 			contentview.add(new HtmlView("<br/>"));
 			contentview.add(new HtmlView("<h3>Reports</h3>"));
 			contentview.add(new InternalLinkView("reportregistration", "Registration"));
 			contentview.add(new HtmlView("<br/>"));
 			contentview.add(new InternalLinkView("reportconfirmation", "Confirmation"));
 			contentview.add(new HtmlView("<br/>"));
+			*/
 		}
 		
 		return contentview;

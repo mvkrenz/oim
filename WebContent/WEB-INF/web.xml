@@ -634,10 +634,22 @@
 		<servlet-name>FPTemplatesServlet</servlet-name>
 		<servlet-class>edu.iu.grid.oim.servlet.FPTemplatesServlet</servlet-class>
 	</servlet>
-
+	
 	<servlet-mapping>
 		<servlet-name>FPTemplatesServlet</servlet-name>
 		<url-pattern>/fptemplates</url-pattern>
+	</servlet-mapping>	
+
+	<servlet>
+		<description>
+		</description>
+		<display-name>ReportsServlet</display-name>
+		<servlet-name>ReportsServlet</servlet-name>
+		<servlet-class>edu.iu.grid.oim.servlet.ReportsServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>ReportsServlet</servlet-name>
+		<url-pattern>/report</url-pattern>
 	</servlet-mapping>	
 
 	<welcome-file-list>
