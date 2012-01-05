@@ -94,6 +94,10 @@ color: #888 !important;
 color: inherit;
 text-decoration: none;
 }
+a.new {
+text-decoration: underline;
+}
+
 .hierarchy_facility a:hover {
 text-decoration: underline;
 }

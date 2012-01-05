@@ -91,8 +91,9 @@ public class FacilityEditServlet extends ServletBase implements Servlet {
 	private SideContentView createSideView()
 	{
 		SideContentView view = new SideContentView();
-		view.add("About", new HtmlView("This form allows you to edit this support center's registration information.</p>"));		
-		view.addContactNote();		
+		view.add("About", new HtmlView("<p>A facility represents an instituition (like BNL, Fermilab, etc.) or a university.</p>"));
+//				new HtmlView("This form allows you to edit this support center's registration information.</p>"));		
+		//view.addContactNote();		
 		// view.addContactLegent();		
 		return view;
 	}

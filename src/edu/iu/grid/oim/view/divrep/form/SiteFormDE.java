@@ -60,7 +60,6 @@ public class SiteFormDE extends DivRepForm
 		id = rec.id;
 		
 		new DivRepStaticContent(this, "<h2>Site Information</h2>");
-		new DivRepStaticContent(this, "<p>Add/modify basic information about this site.<br>NOTE: A site represents a department or a sub-organization within a an instituition (like BNL, Fermilab, etc.) or a university, referred to as facility.</p>");
 
 		//pull sites for unique validator
 		LinkedHashMap<Integer, String> sites = getSites();

@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.log4j.Logger;
 
 import com.divrep.DivRepRoot;
+import com.divrep.common.DivRepStaticContent;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.StaticConfig;
@@ -91,8 +92,9 @@ public class SiteEditServlet extends ServletBase implements Servlet {
 	private SideContentView createSideView()
 	{
 		SideContentView view = new SideContentView();
-		view.add("About", new HtmlView("This form allows you to edit this administrative site's (a.k.a deparment's) registration information.</p>"));		
-		view.addContactNote();		
+		view.add("About", new HtmlView("A site represents a department or a sub-organization within a an instituition (like BNL, Fermilab, etc.) or a university, referred to as facility."));		
+
+		//view.addContactNote();		
 		// view.addContactLegent();		
 		return view;
 	}

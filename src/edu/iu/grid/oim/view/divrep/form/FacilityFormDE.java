@@ -58,7 +58,6 @@ public class FacilityFormDE extends DivRepForm
 		}
 
 		new DivRepStaticContent(this, "<h2>Facility Information</h2>");
-		new DivRepStaticContent(this, "<p>Add/modify basic information about this facility.<br>NOTE: A facility represents an instituition (like BNL, Fermilab, etc.) or a university.</p>");
 		name = new DivRepTextBox(this);
 		name.setLabel("Facility Name");
 		name.setValue(rec.name);

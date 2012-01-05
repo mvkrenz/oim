@@ -312,6 +312,8 @@ public class TopologyServlet extends ServletBase implements Servlet {
 		contentview.add(new HtmlView("</div>"));
 		*/
 		
+		contentview.add(new HtmlView("<div id=\"topology\">"));
+		
 		for(FacilityRecord frec : frecs) {
 			if(facility_id != null && !frec.id.equals(facility_id)) continue;
 			
@@ -395,8 +397,10 @@ public class TopologyServlet extends ServletBase implements Servlet {
 					if(rrecs.size() == 0) {
 						rg.add(new HtmlView("<br>"));
 					}
-					rg.add(new HtmlView("<a href=\""+StaticConfig.getApplicationBase()+"/resourceedit?rg_id="+rgrec.id+"\">Add New Resource</a>"));
-
+					//rg.add(new HtmlView("<div class=\"hierarchy_r round4 new\" style=\"width: 110px;\">"));
+					rg.add(new HtmlView("<a class=\"new\" href=\""+StaticConfig.getApplicationBase()+"/resourceedit?rg_id="+rgrec.id+"\">Add New Resource</a>"));
+					//rg.add(new HtmlView("</div>"));//resource_group
+					
 					rg.add(new HtmlView("</div>"));//resource_group
 
 					if(rgrec.osg_grid_type_id == 1) {
@@ -405,8 +409,13 @@ public class TopologyServlet extends ServletBase implements Servlet {
 						itb.add(rg);
 					}
 				}	
-				prod.add(new HtmlView("<a href=\""+StaticConfig.getApplicationBase()+"/resourcegroupedit?gridtype_id=1&site_id="+srec.id+"\">Add New Production Resource Group</a>"));
-				itb.add(new HtmlView("<a href=\""+StaticConfig.getApplicationBase()+"/resourcegroupedit?gridtype_id=2&site_id="+srec.id+"\">Add New ITB Resource Group</a>"));
+				//prod.add(new HtmlView("<div class=\"hierarchy_rg round4 new\" style=\"width: 250px;\">"));
+				prod.add(new HtmlView("<a class=\"new\" href=\""+StaticConfig.getApplicationBase()+"/resourcegroupedit?gridtype_id=1&site_id="+srec.id+"\">Add New Production Resource Group</a>"));
+				//prod.add(new HtmlView("</div>"));
+				
+				//itb.add(new HtmlView("<div class=\"hierarchy_rg round4 new\" style=\"width: 250px;\">"));
+				itb.add(new HtmlView("<a class=\"new\" href=\""+StaticConfig.getApplicationBase()+"/resourcegroupedit?gridtype_id=2&site_id="+srec.id+"\">Add New ITB Resource Group</a>"));
+				//itb.add(new HtmlView("</div>"));
 				
 				ItemTableView table = new ItemTableView(2);
 				table.add(prod);
@@ -415,12 +424,15 @@ public class TopologyServlet extends ServletBase implements Servlet {
 				
 				contentview.add(new HtmlView("</div>"));//site
 			}	
-			contentview.add(new HtmlView("<a href=\""+StaticConfig.getApplicationBase()+"/siteedit?facility_id="+frec.id+"\">Add New Site</a>"));
-				
+			
+			//contentview.add(new HtmlView("<div class=\"hierarchy_site round4 new\" style=\"width: 90px;\">"));
+			contentview.add(new HtmlView("&nbsp;<a class=\"new\" href=\""+StaticConfig.getApplicationBase()+"/siteedit?facility_id="+frec.id+"\">Add New Site</a>"));
+			//contentview.add(new HtmlView("</div>"));	
+			
 			contentview.add(new HtmlView("</div>"));//facility
 		}
-		contentview.add(new HtmlView("<a href=\""+StaticConfig.getApplicationBase()+"/facilityedit\">Add New Facility</a>"));
-		
+		//contentview.add(new HtmlView("<a href=\""+StaticConfig.getApplicationBase()+"/facilityedit\">Add New Facility</a>"));
+		contentview.add(new HtmlView("</div>"));//topology
 		
 		return contentview;
 	}
@@ -444,7 +456,13 @@ public class TopologyServlet extends ServletBase implements Servlet {
 		};
 		*/
 		//view.add("Operation", new NewButtonDE(context.getPageRoot(), "resourceedit"));	
+		//view.add(new HtmlView("<h3>Other Actions</h3>"));
+		view.add(new HtmlView("<br><br><div class=\"indent\">"));
+		view.add(new HtmlView("<p><a href=\""+StaticConfig.getApplicationBase()+"/facilityedit\">Add New Facility</a></p>"));
+		//view.add(new HtmlView("<p><a href=\""+StaticConfig.getApplicationBase()+"/siteedit\">Add New Site</a></p>"));
 		view.add(new HtmlView("<p>Click on entity names to view/edit.</p>"));
+		view.add(new HtmlView("</div>"));
+
 		
 	
 		return view;
