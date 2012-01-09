@@ -5,6 +5,8 @@ import java.io.PrintWriter;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 
 import javax.servlet.ServletException;
@@ -33,6 +35,7 @@ import edu.iu.grid.oim.model.db.VOModel;
 import edu.iu.grid.oim.model.db.record.ActionRecord;
 import edu.iu.grid.oim.model.db.record.AuthorizationTypeActionRecord;
 import edu.iu.grid.oim.model.db.record.AuthorizationTypeRecord;
+import edu.iu.grid.oim.model.db.record.SiteRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
 import edu.iu.grid.oim.view.BreadCrumbView;
 import edu.iu.grid.oim.view.ContentView;
@@ -67,7 +70,13 @@ public class AuthorizationMatrixServlet extends ServletBase  {
 				out.print("</tr>");
 				
 				//now display all of our check boxes
-				for(ActionRecord action : actionmodel.getAll()) {
+				ArrayList<ActionRecord> actions = actionmodel.getAll();
+				Collections.sort(actions, new Comparator<ActionRecord> () {
+					public int compare(ActionRecord a, ActionRecord b) {
+						return a.name.compareToIgnoreCase(b.name);
+					}
+				});
+				for(ActionRecord action : actions) {
 					
 					String tooltip = StringEscapeUtils.escapeHtml(action.description);
 					if(tooltip.length() == 0) {

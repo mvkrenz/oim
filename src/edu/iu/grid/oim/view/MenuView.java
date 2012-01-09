@@ -28,7 +28,9 @@ public class MenuView implements IView {
 			menu.add(new MenuItem("Register", "register"));
 		}
 		
-		menu.add(new MenuItem("Topology", "topology"));
+		if(auth.allows("view_topology")) {
+			menu.add(new MenuItem("Topology", "topology"));
+		}
 		
 		if(auth.allows("edit_my_resource")) {
 			menu.add(new MenuItem("Downtimes", "resourcedowntime"));
