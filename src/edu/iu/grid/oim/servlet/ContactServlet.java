@@ -166,9 +166,9 @@ public class ContactServlet extends ServletBase implements Servlet {
 		}
 		contentview.add(table);
 
-		if(editable_disabled_contacts.size() != 0) {
-			contentview.add(new HtmlView("<h2>Disabled Contacts</h2>"));
-			contentview.add(new HtmlView("<p>Following are the contact that are currently disabled.</p>"));
+		if(auth.allows("admin") && editable_disabled_contacts.size() != 0) {
+			contentview.add(new HtmlView("<h2>Disabled Contacts (Admin Only)</h2>"));
+			contentview.add(new HtmlView("<p>Following are the contacts that are currently disabled.</p>"));
 	
 			table = new ItemTableView(4);
 			for(ContactRecord rec : editable_disabled_contacts) {
