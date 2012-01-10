@@ -11,7 +11,7 @@ import org.apache.log4j.Logger;
 public class StaticConfig {
 	public static Properties conf = new Properties();
 	
-	static public String getVersion() { return "2.41"; } //version shouldn't be configurable.
+	static public String getVersion() { return "2.42"; } //version shouldn't be configurable.
 	
 	static Logger log = Logger.getLogger(StaticConfig.class);  
     
