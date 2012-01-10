@@ -8,12 +8,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.HashMap;
 
 import org.apache.log4j.Logger;
-
-import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.servlet.ServletBase;
 
 public abstract class RecordBase implements Comparable<RecordBase> {
@@ -177,27 +174,5 @@ public abstract class RecordBase implements Comparable<RecordBase> {
 		ArrayList<String> lables = new ArrayList();
 		return lables;
 	}
-	/*
-    public Object clone() {
-    	
-    	//deep copy all fields
-    	try {
-			Object rec = getClass().newInstance();
-			ArrayList<Field> fields = getRecordFields();
-			for(Field fld : fields) {
-				Cloneable value = (Cloneable)fld.get(this);
-				fld.set(rec, value);
-			}
-			return rec;
-		} catch (InstantiationException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		return null;
-    }
-    */
+
 }

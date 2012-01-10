@@ -14,6 +14,7 @@ import javax.xml.xpath.XPathExpressionException;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 
+import edu.iu.grid.oim.lib.EventPublisher;
 import edu.iu.grid.oim.model.Context;
 import edu.iu.grid.oim.model.db.record.LogRecord;
 
@@ -94,6 +95,10 @@ public class LogModel extends ModelBase {
 		int logid = ids.getInt(1);
 		
 		stmt.close();
+		
+		//also publish it to event server
+		EventPublisher publisher = new EventPublisher();
+		publisher.publishLog(type, model, xml);
 		
 		return logid;
     }
