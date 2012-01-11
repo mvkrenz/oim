@@ -157,7 +157,7 @@ public class Authorization {
 				addr = InetAddress.getLocalHost();
 		        String hostname = addr.getHostName();
 				log.debug("Server on localhost." +hostname);			
-		        if(hostname.compareTo("d830") == 0) {
+		        if(hostname.equals("d830") || hostname.equals("t520")) {
 					log.debug("Server on localhost. Overriding the DN to Soichi's");
 					//user_dn = null; user_cn = null;//browser didn't give us any dn
 					user_dn = "/DC=org/DC=doegrids/OU=People/CN=Soichi Hayashi 461343";	
