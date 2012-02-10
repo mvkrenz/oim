@@ -11,6 +11,8 @@ import java.util.Collection;
 
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathExpressionException;
+
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 
@@ -97,8 +99,9 @@ public class LogModel extends ModelBase {
 		stmt.close();
 		
 		//also publish it to event server
+		String event_xml = "<OIMEvent><DNID>"+auth.getDNID()+"</DNID><Comment>"+StringEscapeUtils.escapeXml(context.getComment())+"</Comment>"+xml+"</OIMEvent>";
 		EventPublisher publisher = new EventPublisher();
-		publisher.publishLog(type, model, xml);
+		publisher.publishLog(type, model, event_xml);
 		
 		return logid;
     }
