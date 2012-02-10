@@ -32,6 +32,7 @@ public class EventPublisher {
 			
 			//public message
 			String exchange = StaticConfig.conf.getProperty("rabbitmq.exchange");
+	        channel.exchangeDeclare(exchange, "topic");
 			String [] model = model_full.split("\\.");
 			String routing_key = model[model.length-1] + "." + type;
 			channel.basicPublish(exchange, routing_key, null, xml.getBytes());
