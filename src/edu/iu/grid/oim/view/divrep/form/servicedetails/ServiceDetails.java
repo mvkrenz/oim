@@ -47,8 +47,10 @@ public class ServiceDetails extends DivRepFormElement {
 	public boolean validate()
 	{	
 		boolean valid = true;
-		if(content == null || !content.validate()) {
-			valid = false;
+		if(content != null) {
+			if(!content.validate()) {
+				valid = false;
+			}
 		}
 		redraw();
 		return valid;
@@ -69,10 +71,9 @@ public class ServiceDetails extends DivRepFormElement {
 				case 301: content = new MonitoringServiceDetails(this, srec); break;
 				case 401: content = new VOServiceDetails(this, srec); break;
 				case 501: content = new AccountingServiceDetails(this, srec); break;
+				case 1000: content = new MiscServiceDetails(this, srec); break;
 				case 1001: content = new SecurityMonitoringServiceDetails(this, srec); break;
 				case 1002: content = new SquidServiceDetails(this, srec); break;
-				//others
-				case 1000: break; 
 				default: 
 					log.warn("Unknown service group id for service " + srec.name);
 				}
@@ -110,18 +111,18 @@ public class ServiceDetails extends DivRepFormElement {
 	}
 
 	public ArrayList<ResourceServiceDetailRecord> getServiceDetailsRecords() {
-		if(content == null) return null;
-		
 		ArrayList<ResourceServiceDetailRecord> recs = new ArrayList<ResourceServiceDetailRecord>();
-		HashMap<String, String> values = content.getValues();
-		if(values != null) {
-			for(String key : values.keySet()) {
-				String value = values.get(key);
-				ResourceServiceDetailRecord rec = new ResourceServiceDetailRecord();
-				rec.service_id = service_id;
-				rec.key = key;
-				rec.value = value;
-				recs.add(rec);
+		if(content != null) {
+			HashMap<String, String> values = content.getValues();
+			if(values != null) {
+				for(String key : values.keySet()) {
+					String value = values.get(key);
+					ResourceServiceDetailRecord rec = new ResourceServiceDetailRecord();
+					rec.service_id = service_id;
+					rec.key = key;
+					rec.value = value;
+					recs.add(rec);
+				}
 			}
 		}
 		return recs;
