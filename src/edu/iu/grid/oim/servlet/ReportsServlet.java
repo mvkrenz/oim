@@ -62,6 +62,11 @@ public class ReportsServlet extends ServletBase  {
 		contentview.add(new InternalLinkView("reportconfirmation", "Confirmation"));
 		contentview.add(new HtmlView("<br/>"));
 		
+		if(auth.allows("read_report.error")) {
+			contentview.add(new InternalLinkView("reportdata", "Data Issues"));
+			contentview.add(new HtmlView("<br/>"));		
+		}
+		
 		return contentview;
 	}
 	

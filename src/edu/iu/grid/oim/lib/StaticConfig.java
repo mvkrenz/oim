@@ -1,13 +1,12 @@
 package edu.iu.grid.oim.lib;
 
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
-//we now have *dynamic* configuration (ConfigModel) now.. use it instead
+//we now have *db* configuration (ConfigModel) now.. use it instead
 public class StaticConfig {
 	public static Properties conf = new Properties();
 	

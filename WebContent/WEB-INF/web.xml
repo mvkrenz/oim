@@ -634,7 +634,6 @@
 		<servlet-name>FPTemplatesServlet</servlet-name>
 		<servlet-class>edu.iu.grid.oim.servlet.FPTemplatesServlet</servlet-class>
 	</servlet>
-	
 	<servlet-mapping>
 		<servlet-name>FPTemplatesServlet</servlet-name>
 		<url-pattern>/fptemplates</url-pattern>
@@ -650,6 +649,18 @@
 	<servlet-mapping>
 		<servlet-name>ReportsServlet</servlet-name>
 		<url-pattern>/report</url-pattern>
+	</servlet-mapping>	
+	
+	<servlet>
+		<description>
+		</description>
+		<display-name>ReportDataServlet</display-name>
+		<servlet-name>ReportDataServlet</servlet-name>
+		<servlet-class>edu.iu.grid.oim.servlet.ReportDataServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>ReportDataServlet</servlet-name>
+		<url-pattern>/reportdata</url-pattern>
 	</servlet-mapping>	
 
 	<welcome-file-list>
