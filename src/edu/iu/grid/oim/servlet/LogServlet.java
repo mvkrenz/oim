@@ -239,6 +239,14 @@ public class LogServlet extends ServletBase  {
 	    			case 5: pattern = ".Site"; break;
 	    			case 6: pattern = ".Facility"; break;
 	    			case 7: pattern = ".ResourceWLCG"; break;
+	    			
+	    			case 8: pattern = ".Action"; break;
+	    			case 9: pattern = ".Authorization"; break;
+	    			case 10: pattern = ".DN"; break;
+	    			case 11: pattern = ".CpuInfo"; break;
+	    			case 12: pattern = ".FieldOfScience"; break;
+	    			case 13: pattern = ".Metric"; break;
+	    			case 14: pattern = ".Service"; break;
 	    			}
 	    			if(model.contains(pattern)) {
 		    			return true;
@@ -415,6 +423,41 @@ public class LogServlet extends ServletBase  {
         	item.setLabel("ResourceWLCG");
     		if(request.getParameter("model_7") != null) {item.setValue(true);}
         	models.put(7, item); 
+
+        	item = new DivRepCheckBox(this);
+        	item.setLabel("Action");
+    		if(request.getParameter("model_8") != null) {item.setValue(true);}
+        	models.put(8, item); 
+        	
+        	item = new DivRepCheckBox(this);
+        	item.setLabel("Authorization");
+    		if(request.getParameter("model_9") != null) {item.setValue(true);}
+        	models.put(9, item); 
+        	
+        	item = new DivRepCheckBox(this);
+        	item.setLabel("DN");
+    		if(request.getParameter("model_10") != null) {item.setValue(true);}
+        	models.put(10, item); 
+        	
+        	item = new DivRepCheckBox(this);
+        	item.setLabel("CPU Info");
+    		if(request.getParameter("model_11") != null) {item.setValue(true);}
+        	models.put(11, item); 
+        	
+        	item = new DivRepCheckBox(this);
+        	item.setLabel("Fields Of Science");
+    		if(request.getParameter("model_12") != null) {item.setValue(true);}
+        	models.put(12, item); 
+        	
+        	item = new DivRepCheckBox(this);
+        	item.setLabel("Metric");
+    		if(request.getParameter("model_13") != null) {item.setValue(true);}
+        	models.put(13, item); 
+        	
+        	item = new DivRepCheckBox(this);
+        	item.setLabel("Service");
+    		if(request.getParameter("model_14") != null) {item.setValue(true);}
+        	models.put(14, item); 
         	
     		update = new DivRepButton(this, "Update Page");
     		update.addEventListener(new DivRepEventListener() {
