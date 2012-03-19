@@ -405,34 +405,29 @@ public class ContactFormDE extends DivRepForm
 
 		if(rec.id != null) {
 			new DivRepStaticContent(this, "<h2>Contact Association</h2>");
-			try {
-				ContactAssociationView view = new ContactAssociationView(context, rec.id);
-			} catch (SQLException e1) {
-				log.error("SQLError while renderiring contact association", e1);
-			}
-		}
-		/*
-		new DivRep(this) {
-			ContactAssociationView view;
-			@Override
-			public void render(PrintWriter out) {
-				out.write("<div id=\""+getNodeID()+"\">");
-				try {
-					view = new ContactAssociationView(context, rec.id);
-					view.render(out);
-				} catch (SQLException e) {
-					out.write(e.toString());
+			//ContactAssociationView is GenericView, so I have to wrap it
+			new DivRep(this) {
+				ContactAssociationView view;
+				@Override
+				public void render(PrintWriter out) {
+					out.write("<div id=\""+getNodeID()+"\">");
+					try {
+						view = new ContactAssociationView(context, rec.id);
+						view.render(out);
+					} catch (SQLException e) {
+						out.write(e.toString());
+					}
+					out.write("</div>");
 				}
-				out.write("</div>");
-			}
 
-			@Override
-			protected void onEvent(DivRepEvent e) {
-				// TODO Auto-generated method stub
-				
-			}
-		};
-		*/
+				@Override
+				protected void onEvent(DivRepEvent e) {
+					// TODO Auto-generated method stub
+					
+				}
+			};
+		}
+
 		
 		if(auth.allows("admin")) {
 			new DivRepStaticContent(this, "<h2>Administrative</h2>");
