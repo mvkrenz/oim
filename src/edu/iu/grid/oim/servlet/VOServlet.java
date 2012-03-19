@@ -95,7 +95,7 @@ public class VOServlet extends ServletBase implements Servlet {
 				contentview.setBreadCrumb(bread_crumb);
 
 				contentview.add(new HtmlView("<h2>"+StringEscapeUtils.escapeHtml(rec.name)+"</h2>"));	
-				contentview.add(createVOContent(rec, false)); //false = no edit button	
+				contentview.add(createVOContent(rec, model.canEdit(vo_id))); //false = no edit button	
 
 			} else {
 				contentview = createListContentView();

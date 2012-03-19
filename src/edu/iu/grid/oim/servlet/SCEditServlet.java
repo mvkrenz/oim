@@ -86,14 +86,19 @@ public class SCEditServlet extends ServletBase implements Servlet {
 		bread_crumb.addCrumb(rec.name,  null);
 		contentview.setBreadCrumb(bread_crumb);
 		
-		Page page = new Page(context, new MenuView(context, parent_page), contentview, createSideView());		
+		Page page = new Page(context, new MenuView(context, parent_page), contentview, createSideView(rec));		
 		page.render(response.getWriter());	
 	}
 	
-	private SideContentView createSideView()
+	private SideContentView createSideView(SCRecord rec)
 	{
 		SideContentView view = new SideContentView();
+		
 		view.add("About", new HtmlView("This form allows you to edit this support center's registration information.</p>"));		
+		view.add(new HtmlView("<h3>Other Actions</h3>"));
+		view.add(new HtmlView("<div class=\"indent\">"));
+		view.add(new HtmlView("<p><a href=\""+StaticConfig.getApplicationBase()+"/sc?id="+rec.id+"\">Show readonly view</a></p>"));
+		view.add(new HtmlView("</div>"));
 		view.addContactNote();		
 		// view.addContactLegent();		
 		return view;

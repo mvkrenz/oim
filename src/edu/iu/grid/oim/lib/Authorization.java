@@ -160,12 +160,12 @@ public class Authorization {
 		        if(hostname.equals("d830") || hostname.equals("t520")) {
 					log.debug("Server on localhost. Overriding the DN to Soichi's");
 					//user_dn = null; user_cn = null;//browser didn't give us any dn
-					user_dn = "/DC=org/DC=doegrids/OU=People/CN=Soichi Hayashi 461343";	
+					//user_dn = "/DC=org/DC=doegrids/OU=People/CN=Soichi Hayashi 461343";	
 					//user_dn = "/DC=org/DC=doegrids/OU=People/CN=Kyle A. Gross 453426";
 					//user_dn = "/DC=org/DC=doegrids/OU=People/CN=Horst Severini 926890";
 					//user_dn = "/DC=org/DC=doegrids/OU=People/CN=Carl Lundstedt 229191";
 					//user_dn = "/DC=org/DC=doegrids/OU=People/CN=Tim Silvers 993975";
-					//user_dn = "/DC=org/DC=doegrids/OU=People/CN=Alain Roy 424511";
+					user_dn = "/DC=org/DC=doegrids/OU=People/CN=Alain Roy 424511";
 					//user_dn = "/DC=org/DC=doegrids/OU=People/CN=Tiberiu Stef-Praun 764752";
 					//user_cn = null;
 					//user_dn = "/DC=org/DC=doegrids/OU=People/CN=Marco Mambelli 325802";

@@ -108,7 +108,7 @@ public class ResourceServlet extends ServletBase implements Servlet {
 				contentview.setBreadCrumb(bread_crumb);
 
 				contentview.add(new HtmlView("<h2>"+rec.name+"</h2>"));	
-				contentview.add(createResourceContent(rec, false)); //false = no edit button	
+				contentview.add(createResourceContent(rec, model.canEdit(resource_id))); //false = no edit button
 
 			} else {
 				contentview = createListContentView();

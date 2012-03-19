@@ -107,6 +107,7 @@ public class ResourceEditServlet extends ServletBase implements Servlet {
 			view.add(new HtmlView("<p><a href=\""+StaticConfig.getApplicationBase()+"/resourcedowntimeedit?rid="+rec.id+"\">Add New Downtime</a></p>"));
 		}
 		view.add(new HtmlView("<p><a href=\""+StaticConfig.getApplicationBase()+"/resourcegroupedit\">Register New Resource Group</a></p>"));
+		view.add(new HtmlView("<p><a href=\""+StaticConfig.getApplicationBase()+"/resource?id="+rec.id+"\">Show readonly view</a></p>"));
 		view.add(new HtmlView("</div>"));
 		
 		view.addContactNote();		

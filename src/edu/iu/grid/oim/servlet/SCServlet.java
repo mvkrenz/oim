@@ -86,7 +86,7 @@ public class SCServlet extends ServletBase implements Servlet {
 				contentview.setBreadCrumb(bread_crumb);
 
 				contentview.add(new HtmlView("<h2>"+StringEscapeUtils.escapeHtml(rec.name)+"</h2>"));	
-				contentview.add(createSCContent(rec, false)); //false = no edit button	
+				contentview.add(createSCContent(rec, model.canEdit(sc_id))); //false = no edit button	
 
 			} else {
 				contentview = createListContent();

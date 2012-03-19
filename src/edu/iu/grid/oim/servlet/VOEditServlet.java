@@ -10,6 +10,7 @@ import org.apache.log4j.Logger;
 
 import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.model.db.VOModel;
+import edu.iu.grid.oim.model.db.record.ResourceRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
 import edu.iu.grid.oim.view.BreadCrumbView;
 import edu.iu.grid.oim.view.ContentView;
@@ -80,13 +81,18 @@ public class VOEditServlet extends ServletBase implements Servlet {
 		bread_crumb.addCrumb(rec.name,  null);
 		contentview.setBreadCrumb(bread_crumb);
 		
-		Page page = new Page(context, new MenuView(context, parent_page), contentview, createSideView());
+		Page page = new Page(context, new MenuView(context, parent_page), contentview, createSideView(rec));
 		page.render(response.getWriter());	
 	}
 	
-	private SideContentView createSideView()
+	private SideContentView createSideView(VORecord rec)
 	{
 		SideContentView view = new SideContentView();
+		view.add(new HtmlView("<h3>Other Actions</h3>"));
+		view.add(new HtmlView("<div class=\"indent\">"));
+		view.add(new HtmlView("<p><a href=\""+StaticConfig.getApplicationBase()+"/vo?id="+rec.id+"\">Show readonly view</a></p>"));
+		view.add(new HtmlView("</div>"));
+		
 		//view.add("About", new HtmlView("This form allows you to edit this VO's registration information.</p>"));		
 		view.addContactNote();		
 		// view.addContactLegent();		
