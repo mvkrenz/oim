@@ -293,6 +293,11 @@ public class LogServlet extends ServletBase  {
     		lists.put(1, new AllList(this, request));
     		lists.put(2, new ActivationList(this, request));   	
     		lists.put(3, new SpecificList(this, request));  
+    		/*
+    		lists.put(4, new ResourceHistory(this, request));  
+    		lists.put(5, new VOHistory(this, request));  
+    		lists.put(6, new SCHistory(this, request));  
+    		*/
     		
         	LinkedHashMap<Integer, String> list_kv = new LinkedHashMap<Integer, String>();
         	for(Integer id : lists.keySet()) {

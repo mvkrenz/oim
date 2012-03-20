@@ -245,15 +245,16 @@ public class SCServlet extends ServletBase implements Servlet {
 	{
 		SideContentView view = new SideContentView();
 		
-		if(rec == null) {
-			view.add(new HtmlView("<h3>Other Actions</h3>"));
-			view.add(new HtmlView("<div class=\"indent\">"));
-			view.add(new HtmlView("<p><a href=\""+StaticConfig.getApplicationBase()+"/scedit\">Register New Support Center</a></p>"));
-			view.add(new HtmlView("</div>"));
-			//view.add("About", new HtmlView("This page shows a list of Virtual Organization that you have access to edit."));		
-		} else {
-			view.addContactLegend();
+		view.add(new HtmlView("<h3>Other Actions</h3>"));
+		view.add(new HtmlView("<div class=\"indent\">"));
+		view.add(new HtmlView("<p><a href=\""+StaticConfig.getApplicationBase()+"/scedit\">Register New Support Center</a></p>"));
+		/*
+		if(rec != null) {
+			view.add(new HtmlView("<p><a href=\""+StaticConfig.getApplicationBase()+"/log?type=6&id="+rec.id+"\">View Update History</a></p>"));
 		}
+		*/
+		view.add(new HtmlView("</div>"));
+		view.addContactLegend();
 		return view;
 	}
 }

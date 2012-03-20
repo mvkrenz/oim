@@ -88,10 +88,14 @@ public class VOEditServlet extends ServletBase implements Servlet {
 	private SideContentView createSideView(VORecord rec)
 	{
 		SideContentView view = new SideContentView();
-		view.add(new HtmlView("<h3>Other Actions</h3>"));
-		view.add(new HtmlView("<div class=\"indent\">"));
-		view.add(new HtmlView("<p><a href=\""+StaticConfig.getApplicationBase()+"/vo?id="+rec.id+"\">Show readonly view</a></p>"));
-		view.add(new HtmlView("</div>"));
+		if(rec.id != null) {
+			view.add(new HtmlView("<h3>Other Actions</h3>"));
+			view.add(new HtmlView("<div class=\"indent\">"));
+			view.add(new HtmlView("<p><a href=\""+StaticConfig.getApplicationBase()+"/vo?id="+rec.id+"\">Show readonly view</a></p>"));
+			//view.add(new HtmlView("<p><a href=\""+StaticConfig.getApplicationBase()+"/log?type=5&id="+rec.id+"\">View Update History</a></p>"));
+			view.add(new HtmlView("</div>"));
+		}
+
 		
 		//view.add("About", new HtmlView("This form allows you to edit this VO's registration information.</p>"));		
 		view.addContactNote();		

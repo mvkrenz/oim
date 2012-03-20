@@ -94,11 +94,15 @@ public class SCEditServlet extends ServletBase implements Servlet {
 	{
 		SideContentView view = new SideContentView();
 		
-		view.add("About", new HtmlView("This form allows you to edit this support center's registration information.</p>"));		
-		view.add(new HtmlView("<h3>Other Actions</h3>"));
-		view.add(new HtmlView("<div class=\"indent\">"));
-		view.add(new HtmlView("<p><a href=\""+StaticConfig.getApplicationBase()+"/sc?id="+rec.id+"\">Show readonly view</a></p>"));
-		view.add(new HtmlView("</div>"));
+		//view.add("About", new HtmlView("This form allows you to edit this support center's registration information.</p>"));
+		if(rec.id != null) {
+			view.add(new HtmlView("<h3>Other Actions</h3>"));
+			view.add(new HtmlView("<div class=\"indent\">"));
+			view.add(new HtmlView("<p><a href=\""+StaticConfig.getApplicationBase()+"/scedit\">Register New Support Center</a></p>"));
+			view.add(new HtmlView("<p><a href=\""+StaticConfig.getApplicationBase()+"/sc?id="+rec.id+"\">Show readonly view</a></p>"));
+			//view.add(new HtmlView("<p><a href=\""+StaticConfig.getApplicationBase()+"/log?type=6&id="+rec.id+"\">View Update History</a></p>"));
+			view.add(new HtmlView("</div>"));
+		}
 		view.addContactNote();		
 		// view.addContactLegent();		
 		return view;

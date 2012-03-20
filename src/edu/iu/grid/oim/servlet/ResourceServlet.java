@@ -91,13 +91,14 @@ public class ResourceServlet extends ServletBase implements Servlet {
 			//construct view
 			ContentView contentview = null;
 			MenuView menuview = new MenuView(context, "topology");
+			ResourceRecord rec = null;
 			
 			//display either list, or a single resource
 			String resource_id_str = request.getParameter("id");
 			if(resource_id_str != null) {
 				Integer resource_id = Integer.parseInt(resource_id_str);
 				ResourceModel model = new ResourceModel(context);
-				ResourceRecord rec = model.get(resource_id);
+				rec = model.get(resource_id);
 				contentview = new ContentView();
 				
 				// setup crumbs
@@ -114,7 +115,7 @@ public class ResourceServlet extends ServletBase implements Servlet {
 				contentview = createListContentView();
 			}
 			
-			Page page = new Page(context, menuview, contentview, createSideView());
+			Page page = new Page(context, menuview, contentview, createSideView(rec));
 			page.render(response.getWriter());			
 		} catch (SQLException e) {
 			log.error(e);
@@ -436,13 +437,18 @@ public class ResourceServlet extends ServletBase implements Servlet {
 		return new HtmlView("<img src=\""+url+"\"/>");
 	}
 
-	private SideContentView createSideView()
+	private SideContentView createSideView(ResourceRecord rec)
 	{
 		SideContentView view = new SideContentView();
 				
 		view.add(new HtmlView("<h3>Other Actions</h3>"));
 		view.add(new HtmlView("<div class=\"indent\">"));
 		view.add(new HtmlView("<p><a href=\""+StaticConfig.getApplicationBase()+"/resourceedit\">Register New Resource</a></p>"));
+		/*
+		if(rec != null) {
+			view.add(new HtmlView("<p><a href=\""+StaticConfig.getApplicationBase()+"/log?type=4&id="+rec.id+"\">View Update History</a></p>"));
+		}
+		*/
 		view.add(new HtmlView("</div>"));
 		
 		view.addContactLegend();

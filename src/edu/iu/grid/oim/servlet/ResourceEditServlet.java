@@ -101,14 +101,15 @@ public class ResourceEditServlet extends ServletBase implements Servlet {
 	{
 		SideContentView view = new SideContentView();
 		
-		view.add(new HtmlView("<h3>Other Actions</h3>"));
-		view.add(new HtmlView("<div class=\"indent\">"));
-		if(rec.id != null) {	
+		if(rec.id != null) {
+			view.add(new HtmlView("<h3>Other Actions</h3>"));
+			view.add(new HtmlView("<div class=\"indent\">"));
+			view.add(new HtmlView("<p><a href=\""+StaticConfig.getApplicationBase()+"/resourcegroupedit\">Register New Resource Group</a></p>"));
 			view.add(new HtmlView("<p><a href=\""+StaticConfig.getApplicationBase()+"/resourcedowntimeedit?rid="+rec.id+"\">Add New Downtime</a></p>"));
+			view.add(new HtmlView("<p><a href=\""+StaticConfig.getApplicationBase()+"/resource?id="+rec.id+"\">Show readonly view</a></p>"));
+			//view.add(new HtmlView("<p><a href=\""+StaticConfig.getApplicationBase()+"/log?type=4&id="+rec.id+"\">View Update History</a></p>"));
+			view.add(new HtmlView("</div>"));
 		}
-		view.add(new HtmlView("<p><a href=\""+StaticConfig.getApplicationBase()+"/resourcegroupedit\">Register New Resource Group</a></p>"));
-		view.add(new HtmlView("<p><a href=\""+StaticConfig.getApplicationBase()+"/resource?id="+rec.id+"\">Show readonly view</a></p>"));
-		view.add(new HtmlView("</div>"));
 		
 		view.addContactNote();		
 		return view;
