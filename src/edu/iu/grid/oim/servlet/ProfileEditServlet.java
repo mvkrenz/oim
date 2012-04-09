@@ -62,9 +62,11 @@ public class ProfileEditServlet extends ServletBase implements Servlet {
 			//put the form in a view and display
 			ContentView contentview = new ContentView();
 			contentview.add(new HtmlView("<h1>My Profile</h1>"));	
-			if(auth.isDisabledOIMUser()) {
+			/*
+			if(auth.isDisabled()) {
 				contentview.add(new HtmlView(auth.getDisabledUserWarning()));
 			} 
+			*/
 			contentview.add(new DivRepWrapper(form));
 			
 			Page page = new Page(context, new MenuView(context, "profileedit"), contentview, createSideView());

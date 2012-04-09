@@ -23,9 +23,9 @@ public class SideContentView implements IView {
 	}
 	public void add(String title, IView v) {
 		children.add(new HtmlView("<h3>"+title+"</h3>"));
-		children.add(new HtmlView("<div class=\"indent\">"));
+		children.add(new HtmlView("<p>"));
 		children.add(v);
-		children.add(new HtmlView("</div>"));
+		children.add(new HtmlView("</p>"));
 	}
 	
 	public void add(String title, DivRep de) {
@@ -38,13 +38,13 @@ public class SideContentView implements IView {
 	
 	public void addContactNote () {
 		//TODO agopu need external link icon in CSS
-		add("Contacts", new HtmlView("<p>The contact editor allow you to search and assign contacts.</p><p>When assigning various contacts on this form, if you do not find the contact you are searching for, then <a href=\"contactedit\" target=\"_blank\">add a new contact</a> first."));		
+		add("Contacts", new HtmlView("The contact editor allow you to search and assign contacts. When assigning various contacts on this form, if you do not find the contact you are searching for, then <a href=\"contactedit\" target=\"_blank\">add a new contact</a> first."));		
 	}
 	public void addContactLegend () {
-		add("Contact Rank Legend", new HtmlView("<p>Contacts are flagged by their rank:</p><p><div class=\'contact_rank contact_Primary\'>Primary</div></p><p><div class=\'contact_rank contact_Secondary\'>Secondary</div></p><p><div class=\'contact_rank contact_Tertiary\'>Tertiary</div></p>"));		
+		add("Contact Rank Legend", new HtmlView("Contacts are flagged by their rank<br><div class=\'contact_rank contact_Primary\'>Primary</div><div class=\'contact_rank contact_Secondary\'>Secondary</div><div class=\'contact_rank contact_Tertiary\'>Tertiary</div>"));		
 	}
 	public void addContactGroupFlagLegend () {
-		add("Contact Grouping Legend", new HtmlView("<p>Contacts are flagged based on whether they are tagged as a group contact or not:</p><p><div class=\'contact_rank contact_flag_Group\'>Group Contact (Mailing list, etc.)</div></p><p><div class=\'contact_rank contact_flag_Person\'>Non-Group Contact (Human user or Service-cert. mapped user)</div></p>"));		
+		add("Contact Grouping Legend", new HtmlView("Contacts are flagged based on whether they are tagged as a group contact or not:</p><p><div class=\'contact_rank contact_flag_Group\'>Group Contact (Mailing list, etc.)</div><div class=\'contact_rank contact_flag_Person\'>Non-Group Contact (Human user or Service-cert. mapped user)</div>"));		
 	}
 	public void render(PrintWriter out)
 	{

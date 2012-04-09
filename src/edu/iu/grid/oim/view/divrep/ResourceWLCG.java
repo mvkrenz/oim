@@ -47,17 +47,18 @@ public class ResourceWLCG extends DivRepFormElement {
 			 * I believe http://lcg-bdii-conf.cern.ch/bdii-conf/bdii.conf is generated via MyOSG which
 			 * relies on these flags
 			 */
+			
 			interop_bdii = new DivRepCheckBox(this);
 			interop_bdii.setLabel("Enable Interop BDII");
-			new DivRepStaticContent(this, "<p class=\"info\">Enable this check box to forward this resource's BDII data to WLCG BDII server (lcg-bdii.cern.ch)</p>");
+			new DivRepStaticContent(this, "<p class=\"help-block\">Forward this resource's BDII data to WLCG BDII server (lcg-bdii.cern.ch)</p>");
 			
 			interop_monitoring = new DivRepCheckBox(this);
 			interop_monitoring.setLabel("Enable Interop Monitoring");
-			new DivRepStaticContent(this, "<p class=\"info\">Enable this check box to forward this resource's RSV data to WLCG Monitoring system (<a href=\"http://gridview.cern.ch/GRIDVIEW/ace_index.php\">SAM/GridView</a>)</p>");
+			new DivRepStaticContent(this, "<p class=\"help-block\"> Forward this resource's RSV data to WLCG Monitoring system (<a href=\"http://gridview.cern.ch/GRIDVIEW/ace_index.php\" target=\"_blank\">SAM/GridView</a> )</p>");
 
 			interop_accounting = new DivRepCheckBox(this);
-			interop_accounting.setLabel("Enable Interop Accounting");
-			new DivRepStaticContent(this, "<p class=\"info\">Enable this check box to forward Gratia Accounting Data to WLCG Accounting. Also, this resource will be included in <b>Capacity and Benchmarking Report</b> sent to [osg-wlcg-reports@OPENSCIENCEGRID.ORG]. Please check this only if your site is MOU agreed Tier 1/2 sites.</p>");
+			interop_accounting.setLabel("Enable Interop Accounting - Forward Gratia Accounting Data to WLCG Accounting");
+			new DivRepStaticContent(this, "<p class=\"help-block\">Included this resource in <b>Capacity and Benchmarking Report</b> sent to [osg-wlcg-reports@OPENSCIENCEGRID.ORG]. Please check this only if your site is MOU agreed Tier 1/2 sites.</p>");
 			interop_accounting.addEventListener(new DivRepEventListener() {
 				public void handleEvent(DivRepEvent e) {	
 					if(((String)e.value).compareTo("true") == 0) {
@@ -72,8 +73,6 @@ public class ResourceWLCG extends DivRepFormElement {
 			wlcg_accounting_name.setLabel("WLCG Accounting Name");
 			wlcg_accounting_name.setSampleValue("ABC Accounting");
 			wlcg_accounting_name.setRequired(true);
-			
-			new DivRepStaticContent(this, "<br>");
 			
 			ksi2k_minimum = new DivRepTextBox(this);
 			ksi2k_minimum.setLabel("KSI2K Minimum");

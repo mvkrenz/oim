@@ -16,10 +16,13 @@ import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.model.Context;
 import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
+import edu.iu.grid.oim.view.BootMenuView;
+import edu.iu.grid.oim.view.BootPage;
 import edu.iu.grid.oim.view.ContactAssociationView;
 import edu.iu.grid.oim.view.ContentView;
 import edu.iu.grid.oim.view.DivRepWrapper;
 import edu.iu.grid.oim.view.ExternalLinkView;
+import edu.iu.grid.oim.view.GenericView;
 import edu.iu.grid.oim.view.HtmlView;
 import edu.iu.grid.oim.view.MenuView;
 import edu.iu.grid.oim.view.Page;
@@ -37,10 +40,17 @@ public class HomeServlet extends ServletBase  {
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{
-		MenuView menuview = new MenuView(context, "home");
+		BootMenuView menuview = new BootMenuView(context, "home");
 		ContentView contentview;
 		contentview = createContentView();
-		Page page = new Page(context, menuview, contentview, createSideView());
+		BootPage page = new BootPage(context, menuview, contentview, createSideView());
+
+		GenericView header = new GenericView();
+		header.add(new HtmlView("<h1>OSG Information Management System</h1>"));
+		header.add(new HtmlView("<p class=\"lead\">Defines the topology used by various OSG services based on the <a target=\"_blank\" href=\"http://osg-docdb.opensciencegrid.org/cgi-bin/ShowDocument?docid=18\">OSG Blueprint Document</a></p>"));
+
+		page.setPageHeader(header);
+		
 		page.render(response.getWriter());
 	}
 	
@@ -51,36 +61,38 @@ public class HomeServlet extends ServletBase  {
 		//contentview.add(new HtmlView("<h1>OIM</h1>"));
 
 		// TODO agopu: need to clean this up with some divs etc. Nicer font, etc.
-		String welcome_string = "<p>OIM defines the topology used by various OSG systems and services based on the <a target=\"_blank\" href=\"http://osg-docdb.opensciencegrid.org/cgi-bin/ShowDocument?docid=18\">OSG Blueprint Document</a></p>";
+		String welcome_string = "";
+		/*
 		if(auth.isGuest()) {
 			welcome_string += auth.getNoDNWarning(); 		
 		}
-		else if(!auth.isOIMUser()) {
-			if(auth.isDisabledOIMUser()) {
+		else if(!auth.isUser()) {
+			if(auth.isDisabled()) {
 				welcome_string += auth.getDisabledUserWarning();		
 			} else {
 				welcome_string += auth.getUnregisteredUserWarning();		
 			}
 		}
+		*/
 		
 		//welcome_string += "<p>Please see Help page for more information.</p>";
 		contentview.add(new HtmlView(welcome_string));
 	
 		//add confirmation button
-		if(auth.isOIMUser()) {
+		if(auth.isUser()) {
 			try {
-				contentview.add(new DivRepWrapper(new Confirmation(auth.getContactID(), context)));
+				contentview.add(new DivRepWrapper(new Confirmation(auth.getContact().id, context)));
 			} catch (SQLException e) {
 				log.error(e);
 			}				
 		}
 		
 		//show entities that this user is associated
-		if(auth.isOIMUser()) {
-			ToolTip tip = new ToolTip("Your account is associated with the following entities, and therefore allows you to modify their content.");
-			contentview.add(new HtmlView("<h2>Your OSG Entities "+tip.render()+"</h2>"));
+		if(auth.isUser()) {
+			//ToolTip tip = new ToolTip("Your account is associated with the following entities, and therefore allows you to modify their content.");
+			//contentview.add(new HtmlView("<h2>Your OSG Entities "+tip.render()+"</h2>"));
 			try {
-				ContactAssociationView caview = new ContactAssociationView(context, auth.getContactID());
+				ContactAssociationView caview = new ContactAssociationView(context, auth.getContact().id);
 				caview.showNewButtons(true);
 				contentview.add(caview);
 			} catch (SQLException e) {
@@ -129,7 +141,7 @@ public class HomeServlet extends ServletBase  {
 			contentview.add(new ExternalLinkView("https://twiki.grid.iu.edu/twiki/bin/view/Operations/OIMStandardOperatingProcedures#Virtual_Organization_Registratio", "Virtual Organizations (VO)"));
 		contentview.add(new HtmlView("</div>"));
 		
-		if(auth.isOIMUser()) {
+		if(auth.isUser()) {
 			contentview.addContactLegend();
 		}
 		

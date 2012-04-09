@@ -61,6 +61,8 @@ import edu.iu.grid.oim.model.db.record.SiteRecord;
 import edu.iu.grid.oim.model.db.record.VOContactRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
 import edu.iu.grid.oim.model.db.record.VOResourceOwnershipRecord;
+import edu.iu.grid.oim.view.BootMenuView;
+import edu.iu.grid.oim.view.BootPage;
 import edu.iu.grid.oim.view.ContentView;
 import edu.iu.grid.oim.view.DivRepWrapper;
 import edu.iu.grid.oim.view.GenericView;
@@ -93,7 +95,7 @@ public class TopologyServlet extends ServletBase implements Servlet {
 		
 		try {
 			//construct view
-			MenuView menuview = new MenuView(context, "topology");
+			BootMenuView menuview = new BootMenuView(context, "topology");
 			String facility_id_str = request.getParameter("facility_id");
 			Integer facility_id = null;
 			if(facility_id_str != null) {
@@ -101,7 +103,7 @@ public class TopologyServlet extends ServletBase implements Servlet {
 			}
 			ContentView contentview = createContentView(facility_id);
 			
-			Page page = new Page(context, menuview, contentview, createSideView());
+			BootPage page = new BootPage(context, menuview, contentview, null);
 			page.addCSS("hierarchy.css");
 			page.render(response.getWriter());			
 		} catch (SQLException e) {
@@ -267,28 +269,33 @@ public class TopologyServlet extends ServletBase implements Servlet {
 			}
 		});
 		
+		if(auth.allows("edit_all_facility")) {
+			contentview.add(new HtmlView("<p><a class=\"btn pull-right\" href=\""+StaticConfig.getApplicationBase()+"/facilityedit\">Add New Facility</a></p>"));
+		}
+		
 		//display facility selector
 		LinkedHashMap<Integer, String> keyvalues = new LinkedHashMap<Integer, String>();
 		for(FacilityRecord rec : frecs) {
 			keyvalues.put(rec.id, rec.name);
 		}
 		final DivRepSelectBox facility_selector = new DivRepSelectBox(context.getPageRoot(), keyvalues);
-		facility_selector.setNullLabel("(Show All)");
+		facility_selector.setNullLabel("(Show All Facilities)");
 		facility_selector.setValue(facility_id);
+		facility_selector.addClass("inline-block");
 		facility_selector.addEventListener(new DivRepEventListener() {
 
 			@Override
 			public void handleEvent(DivRepEvent e) {
 				if(e.value.length() != 0) {
-					facility_selector.redirect("?facility_id="+e.value);
+					facility_selector.redirect("topology?facility_id="+e.value);
 				} else {
-					facility_selector.redirect("?");
+					facility_selector.redirect("topology");
 				}
 			}
 		});
-		contentview.add(new HtmlView("<table><tr><td>Facility Filter: </td><td>"));
+		//contentview.add(new HtmlView("Facility  "));
 		contentview.add(facility_selector);
-		contentview.add(new HtmlView("</td></tr></table>"));
+		//contentview.add(new HtmlView("</td></tr></table>"));
 	
 		/*
 		LinkedHashMap<Integer, String> keyvalues = new LinkedHashMap<Integer, String>();
@@ -326,8 +333,13 @@ public class TopologyServlet extends ServletBase implements Servlet {
 				disable_css += " rg_disabled";
 				tag += "(Disabled)";
 			}
-			
-			contentview.add(new HtmlView("<div class=\"hierarchy_facility round4 "+disable_css+"\">"));
+
+			contentview.add(new HtmlView("<div class=\"hierarchy_facility round4 well "+disable_css+"\">"));
+			if(auth.allows("edit_all_site")) {
+				//contentview.add(new HtmlView("<div class=\"hierarchy_site round4 new\" style=\"width: 90px;\">"));
+				contentview.add(new HtmlView("&nbsp;<a class=\"new pull-right\" href=\""+StaticConfig.getApplicationBase()+"/siteedit?facility_id="+frec.id+"\">Add New Site</a>"));
+				//contentview.add(new HtmlView("</div>"));	
+			}
 			if(auth.allows("edit_all_facility")) {
 				contentview.add(new HtmlView("<a href=\""+StaticConfig.getApplicationBase()+"/facilityedit?facility_id="+frec.id+"\"><b>"+StringEscapeUtils.escapeHtml(frec.name)+"</b> <span>Facility "+tag+"</span></a>"));
 					//"<span class=\"edit facility_edit\" onclick=\"document.location='"+StaticConfig.getStaticBase()+"/facilityedit?facility_id="+frec.id+"';\">Edit</span>"));
@@ -373,6 +385,10 @@ public class TopologyServlet extends ServletBase implements Servlet {
 					}
 					rg.add(new HtmlView("<div class=\"hierarchy_rg round4"+disable_css+"\">"));
 					
+					if(auth.allows("edit_my_resource")) {
+						rg.add(new HtmlView("<a class=\"new pull-right\" href=\""+StaticConfig.getApplicationBase()+"/resourceedit?rg_id="+rgrec.id+"\">Add New Resource</a>"));
+						//rg.add(new HtmlView("</div>"));//resource_group
+					}
 					if(auth.allows("edit_all_resource_group")) {
 						rg.add(new HtmlView("<a href=\""+StaticConfig.getApplicationBase()+"/resourcegroupedit?id="+rgrec.id+"\"><b>"+StringEscapeUtils.escapeHtml(rgrec.name)+"</b> "+tag+"</a>"));
 						//"<span class=\"edit rg_edit\" onclick=\"document.location='"+StaticConfig.getStaticBase()+"/resourcegroupedit?id="+rgrec.id+"';\">Edit</span>"));
@@ -417,10 +433,6 @@ public class TopologyServlet extends ServletBase implements Servlet {
 						rg.add(new HtmlView("<br>"));
 					}
 					//rg.add(new HtmlView("<div class=\"hierarchy_r round4 new\" style=\"width: 110px;\">"));
-					if(auth.allows("edit_my_resource")) {
-						rg.add(new HtmlView("<a class=\"new\" href=\""+StaticConfig.getApplicationBase()+"/resourceedit?rg_id="+rgrec.id+"\">Add New Resource</a>"));
-						//rg.add(new HtmlView("</div>"));//resource_group
-					}
 					
 					rg.add(new HtmlView("</div>"));//resource_group
 
@@ -450,12 +462,6 @@ public class TopologyServlet extends ServletBase implements Servlet {
 				contentview.add(new HtmlView("</div>"));//site
 			}	
 			
-			if(auth.allows("edit_all_site")) {
-				//contentview.add(new HtmlView("<div class=\"hierarchy_site round4 new\" style=\"width: 90px;\">"));
-				contentview.add(new HtmlView("&nbsp;<a class=\"new\" href=\""+StaticConfig.getApplicationBase()+"/siteedit?facility_id="+frec.id+"\">Add New Site</a>"));
-				//contentview.add(new HtmlView("</div>"));	
-			}
-			
 			contentview.add(new HtmlView("</div>"));//facility
 		}
 		//contentview.add(new HtmlView("<a href=\""+StaticConfig.getApplicationBase()+"/facilityedit\">Add New Facility</a>"));
@@ -464,36 +470,24 @@ public class TopologyServlet extends ServletBase implements Servlet {
 		return contentview;
 	}
 
-	
+/*	
 	private SideContentView createSideView()
 	{
 		SideContentView view = new SideContentView();
-		/*
-		class NewButtonDE extends DivRepButton
-		{
-			String url;
-			public NewButtonDE(DivRep parent, String _url)
-			{
-				super(parent, "Add New Resource");
-				url = _url;
-			}
-			protected void onEvent(DivRepEvent e) {
-				redirect(url);
-			}
-		};
-		*/
+
 		//view.add("Operation", new NewButtonDE(context.getPageRoot(), "resourceedit"));	
 		//view.add(new HtmlView("<h3>Other Actions</h3>"));
-		view.add(new HtmlView("<br><br><div class=\"indent\">"));
+		//view.add(new HtmlView("<br><br><div class=\"indent\">"));
 		if(auth.allows("edit_all_facility")) {
-			view.add(new HtmlView("<p><a href=\""+StaticConfig.getApplicationBase()+"/facilityedit\">Add New Facility</a></p>"));
+			view.add(new HtmlView("<p><a class=\"btn\" href=\""+StaticConfig.getApplicationBase()+"/facilityedit\">Add New Facility</a></p>"));
 		}
 		//view.add(new HtmlView("<p><a href=\""+StaticConfig.getApplicationBase()+"/siteedit\">Add New Site</a></p>"));
 		view.add(new HtmlView("<p>Click on entity names to view/edit.</p>"));
-		view.add(new HtmlView("</div>"));
+		//view.add(new HtmlView("</div>"));
 
 		
 	
 		return view;
 	}
+*/
 }

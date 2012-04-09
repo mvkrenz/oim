@@ -133,7 +133,7 @@ public class SCFormDE extends DivRepForm
 			//prepopulate submitter
 			ArrayList<SCContactRecord> submitter_list = new ArrayList<SCContactRecord>();
 			SCContactRecord submitter = new SCContactRecord();
-			submitter.contact_id = auth.getContactID();
+			submitter.contact_id = auth.getContact().id;
 			submitter.contact_rank_id = 1;//primary
 			submitter.contact_type_id = 1;//submitter
 			submitter_list.add(submitter);
@@ -142,7 +142,7 @@ public class SCFormDE extends DivRepForm
 			//prepopulate operations contact
 			ArrayList<SCContactRecord> operation_list = new ArrayList<SCContactRecord>();
 			SCContactRecord operation = new SCContactRecord();
-			operation.contact_id = auth.getContactID();
+			operation.contact_id = auth.getContact().id;
 			operation.contact_rank_id = 1;//primary
 			operation.contact_type_id = 4;//operations
 			operation_list.add(operation);
@@ -151,7 +151,7 @@ public class SCFormDE extends DivRepForm
 			//prepopulate notification contact
 			ArrayList<SCContactRecord> notification_list = new ArrayList<SCContactRecord>();
 			SCContactRecord notification = new SCContactRecord();
-			notification.contact_id = auth.getContactID();
+			notification.contact_id = auth.getContact().id;
 			notification.contact_rank_id = 1;//primary
 			notification.contact_type_id = 7;//operations
 			notification_list.add(notification);
@@ -160,7 +160,7 @@ public class SCFormDE extends DivRepForm
 			//security contact
 			ArrayList<SCContactRecord> security_list = new ArrayList<SCContactRecord>();
 			SCContactRecord security = new SCContactRecord();
-			security.contact_id = auth.getContactID();
+			security.contact_id = auth.getContact().id;
 			security.contact_rank_id = 1;//primary
 			security.contact_type_id = 2;//security
 			security_list.add(security);

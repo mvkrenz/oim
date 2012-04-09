@@ -89,6 +89,7 @@ public class VOFormDE extends DivRepForm
 		ContactTypes.add(new ContactTypeRecord.Info(3, "Retained for legacy reasons. Purposes unknown"));
 		ContactTypes.add(new ContactTypeRecord.Info(2, "Security notifications sent out by the OSG security team are sent to primary and secondary virtual organization security contacts"));
 		ContactTypes.add(new ContactTypeRecord.Info(5, "Contacts who do not fall under any of the above types but would like to be able to edit this virtual organization can be added as miscellaneous contact"));
+		ContactTypes.add(new ContactTypeRecord.Info(11, "RA (Registration Authority) agent who can approve certificate requests."));
 	}
 	
 	private HashMap<Integer, ContactEditor> contact_editors = new HashMap();
@@ -205,10 +206,14 @@ public class VOFormDE extends DivRepForm
 			
 			new_fs = new DivRepTextBox(this);
 			new_fs.setLabel("Or, you can add a new field of science");
+			new_fs.addClass("inline-block");
 			new_fs.setWidth(230);
 			
 			add_fs = new DivRepButton(this, "Add");
-			add_fs.setStyle(DivRepButton.Style.ALINK);
+			add_fs.setStyle(DivRepButton.Style.BUTTON);
+			add_fs.addClass("inline-block");
+			add_fs.addClass("btn");
+			add_fs.addClass("margin-bottom9");
 			add_fs.addEventListener(new DivRepEventListener() {
 				public void handleEvent(DivRepEvent e) {
 					String name = new_fs.getValue();
@@ -287,10 +292,9 @@ public class VOFormDE extends DivRepForm
 			
 			out.write("<h3>Field of Science</h3>");
 	
-			
 			out.write("<p>Select Field Of Science(s) applicable to this VO</p>");
 			
-			out.write("<table width=\"100%\"><tr><td width=\"33%\">");
+			out.write("<table class=\"layout\"><tr><td width=\"33%\">");
 			//sort the field_of_science by name and render
 			TreeSet<DivRepCheckBox> sorted = new TreeSet<DivRepCheckBox>(new Comparator<DivRepCheckBox>() {
 				public int compare(DivRepCheckBox o1,
@@ -310,11 +314,8 @@ public class VOFormDE extends DivRepForm
 			}
 			out.write("</td></tr></table>");
 		
-			out.write("<table><tr><td>");
 			new_fs.render(out);
-			out.write("</td><td valign=\"bottom\">&nbsp;");
 			add_fs.render(out);
-			out.write("</td></tr></table>");
 
 			out.write("<br/>");
 			out.write("</div>");
@@ -469,7 +470,6 @@ public class VOFormDE extends DivRepForm
 			}
 		});		
 
-		//new DivRepStaticContent(this, "<h3>Extended Descriptions</h3>");
 		description = new DivRepTextArea(this);
 		description.setLabel("Enter a Description for this VO");
 		description.setValue(rec.description);
@@ -481,14 +481,6 @@ public class VOFormDE extends DivRepForm
 		community.setValue(rec.community);
 		community.setRequired(true);
 		community.setSampleValue("The Collider Detector at Fermilab (CDF) experimental collaboration is committed to studying high energy particle collisions");
-
-		/*
-		new DivRepStaticContent(this, "<h2>Ticket Exchange</h2>");
-		new DivRepStaticContent(this, "<p>GOC-TX uses this information to populate necessary fields on the destination ticketing system for tickets sent to this VO</p>");
-		external_assignment_id = new DivRepTextBox(this);
-		external_assignment_id.setLabel("External Assignment ID");
-		external_assignment_id.setValue(rec.external_assignment_id);
-		*/
 		
 		new DivRepStaticContent(this, "<h2>Additional Information for VOs that include OSG Users</h2>");
 		
@@ -523,7 +515,7 @@ public class VOFormDE extends DivRepForm
 
 			ArrayList<VOContactRecord> submitter_list = new ArrayList<VOContactRecord>();
 			VOContactRecord submitter = new VOContactRecord();
-			submitter.contact_id = auth.getContactID();
+			submitter.contact_id = auth.getContact().id;
 			submitter.contact_rank_id = 1;//primary
 			submitter.contact_type_id = 1;//submitter
 			submitter_list.add(submitter);
@@ -532,7 +524,7 @@ public class VOFormDE extends DivRepForm
 			// Should we make a function for these steps and call it 4 times? -agopu
 			ArrayList<VOContactRecord> manager_list = new ArrayList<VOContactRecord>();
 			VOContactRecord manager = new VOContactRecord();
-			manager.contact_id = auth.getContactID();
+			manager.contact_id = auth.getContact().id;
 			manager.contact_rank_id = 1;//primary
 			manager.contact_type_id = 6;//manager
 			manager_list.add(manager);
@@ -540,7 +532,7 @@ public class VOFormDE extends DivRepForm
 
 			ArrayList<VOContactRecord> admin_contact_list = new ArrayList<VOContactRecord>();
 			VOContactRecord primary_admin = new VOContactRecord();
-			primary_admin.contact_id = auth.getContactID();
+			primary_admin.contact_id = auth.getContact().id;
 			primary_admin.contact_rank_id = 1;//primary
 			primary_admin.contact_type_id = 3;//admin
 			admin_contact_list.add(primary_admin);
@@ -548,11 +540,19 @@ public class VOFormDE extends DivRepForm
 		
 			ArrayList<VOContactRecord> security_contact_list = new ArrayList<VOContactRecord>();
 			VOContactRecord primary_security_contact= new VOContactRecord();
-			primary_security_contact.contact_id = auth.getContactID();
+			primary_security_contact.contact_id = auth.getContact().id;
 			primary_security_contact.contact_rank_id = 1;//primary
 			primary_security_contact.contact_type_id = 2;//security_contact
 			security_contact_list.add(primary_security_contact);
 			voclist_grouped.put(2/*security_contact*/, security_contact_list);
+			
+			ArrayList<VOContactRecord> ra_list = new ArrayList<VOContactRecord>();
+			VOContactRecord ra = new VOContactRecord();
+			submitter.contact_id = auth.getContact().id;
+			submitter.contact_rank_id = 1;//primary
+			submitter.contact_type_id = 11;//vo_ra
+			submitter_list.add(submitter);
+			voclist_grouped.put(11/*vo ra*/, ra_list);
 		}
 		ContactTypeModel ctmodel = new ContactTypeModel(context);
 		for(ContactTypeRecord.Info contact_type : ContactTypes) {
@@ -560,11 +560,11 @@ public class VOFormDE extends DivRepForm
 			ContactEditor editor = createContactEditor(voclist_grouped, ctmodel.get(contact_type.id), tip);
 			//disable submitter editor if needed
 			if(!auth.allows("admin")) {
-				if(contact_type.id == 1) { //1 = Submitter Contact
+				if(contact_type.id == 1 || contact_type.id == 11) { //1 = Submitter Contact, 11=ra
 					editor.setDisabled(true);
 				}
 			}
-			if(contact_type.id != 5 && contact_type.id != 10) { //5 = misc, 9 = resource report
+			if(contact_type.id != 5 && contact_type.id != 10 && contact_type.id != 11) { //5 = misc, 9 = resource report, 11 = ra agent
 				editor.setMinContacts(Rank.PRIMARY, 1);
 			}
 			contact_editors.put(contact_type.id, editor);
@@ -672,24 +672,6 @@ public class VOFormDE extends DivRepForm
 		VOModel model = new VOModel (context);
 		try {
 			VORecord parent_vo_rec = model.get(parent_vo_id);
-
-			/*
-			if ((urls.primary_url.getValue() == null) || (urls.primary_url.getValue().length() == 0)) {
-				urls.primary_url.setValue(parent_vo_rec.primary_url);
-			}
-			if ((urls.aup_url.getValue() == null) || (urls.aup_url.getValue().length() == 0)) {
-				urls.aup_url.setValue(parent_vo_rec.aup_url);
-			}
-			if ((urls.membership_services_url.getValue() == null) || (urls.membership_services_url.getValue().length() == 0)) {
-				urls.membership_services_url.setValue(parent_vo_rec.membership_services_url);
-			}
-			if ((urls.purpose_url.getValue() == null) || (urls.purpose_url.getValue().length() == 0)) {
-				urls.purpose_url.setValue(parent_vo_rec.purpose_url);
-			}
-			if ((urls.support_url.getValue() == null) || (urls.support_url.getValue().length() == 0)) {
-				urls.support_url.setValue(parent_vo_rec.support_url);
-			}
-			 */
 			if ((primary_url.getValue() == null) || (primary_url.getValue().length() == 0)) {
 				primary_url.setValue(parent_vo_rec.primary_url);
 			}

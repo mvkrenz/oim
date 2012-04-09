@@ -21,6 +21,9 @@ import edu.iu.grid.oim.model.Context;
 import edu.iu.grid.oim.model.db.ResourceModel;
 import edu.iu.grid.oim.model.db.record.ResourceRecord;
 import edu.iu.grid.oim.model.db.record.ResourceWLCGRecord;
+import edu.iu.grid.oim.view.BootBreadCrumbView;
+import edu.iu.grid.oim.view.BootMenuView;
+import edu.iu.grid.oim.view.BootPage;
 import edu.iu.grid.oim.view.BreadCrumbView;
 import edu.iu.grid.oim.view.ContentView;
 import edu.iu.grid.oim.view.DivRepWrapper;
@@ -88,12 +91,12 @@ public class ResourceEditServlet extends ServletBase implements Servlet {
 		contentview.add(new DivRepWrapper(form));
 
 		//setup crumbs
-		BreadCrumbView bread_crumb = new BreadCrumbView();
+		BootBreadCrumbView bread_crumb = new BootBreadCrumbView();
 		bread_crumb.addCrumb("Topology", parent_page);
 		bread_crumb.addCrumb(rec.name,  null);
 		contentview.setBreadCrumb(bread_crumb);
 
-		Page page = new Page(context, new MenuView(context, parent_page), contentview, createSideView(rec));
+		BootPage page = new BootPage(context, new BootMenuView(context, parent_page), contentview, createSideView(rec));
 		page.render(response.getWriter());
 	}
 	
@@ -102,13 +105,11 @@ public class ResourceEditServlet extends ServletBase implements Servlet {
 		SideContentView view = new SideContentView();
 		
 		if(rec.id != null) {
-			view.add(new HtmlView("<h3>Other Actions</h3>"));
-			view.add(new HtmlView("<div class=\"indent\">"));
+			view.add(new HtmlView("<h2>Other Actions</h2>"));
 			view.add(new HtmlView("<p><a href=\""+StaticConfig.getApplicationBase()+"/resourcegroupedit\">Register New Resource Group</a></p>"));
 			view.add(new HtmlView("<p><a href=\""+StaticConfig.getApplicationBase()+"/resourcedowntimeedit?rid="+rec.id+"\">Add New Downtime</a></p>"));
 			view.add(new HtmlView("<p><a href=\""+StaticConfig.getApplicationBase()+"/resource?id="+rec.id+"\">Show readonly view</a></p>"));
 			//view.add(new HtmlView("<p><a href=\""+StaticConfig.getApplicationBase()+"/log?type=4&id="+rec.id+"\">View Update History</a></p>"));
-			view.add(new HtmlView("</div>"));
 		}
 		
 		view.addContactNote();		

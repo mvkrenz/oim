@@ -166,7 +166,9 @@ public class ContactEditor extends DivRepFormElement<HashMap<ContactEditor.Rank,
 		protected void onRequest(HttpServletRequest request, HttpServletResponse response)
 		{
 			try {
-				String query = itrim(request.getParameter("q").toLowerCase());
+				
+				//support both new & old version of autocomplete
+				String query = itrim(request.getParameter("q"));				
 				int limit = Integer.parseInt(request.getParameter("limit")); //only returns records upto requested limit
 				Collection<ContactRecord> all = pmodel.getAllNonDisabled();
 				HashMap<Integer, ContactRecord> persons = new HashMap();
@@ -221,10 +223,17 @@ public class ContactEditor extends DivRepFormElement<HashMap<ContactEditor.Rank,
 					}					
 				}
 	
-				String out = "";
+				String out = "[";
+				boolean first = true;
 				for(ContactRecord rec : persons.values()) {
-					out += rec.id+"|"+itrim(rec.name)+"|"+rec.primary_email+"\n";
+					if(first) {
+						first = false;
+					} else {
+						out += ",";
+					}
+					out += "{\"id\":"+rec.id+", \"name\":\""+itrim(rec.name)+"\", \"email\":\""+rec.primary_email+"\"}\n";
 				}
+				out += "]";
 				response.setContentType("text/javascript");
 				response.getOutputStream().print(out);
 			

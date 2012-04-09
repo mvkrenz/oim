@@ -662,6 +662,30 @@
 		<servlet-name>ReportDataServlet</servlet-name>
 		<url-pattern>/reportdata</url-pattern>
 	</servlet-mapping>	
+	
+	<servlet>
+		<description>
+		</description>
+		<display-name>CertificateServlet</display-name>
+		<servlet-name>CertificateServlet</servlet-name>
+		<servlet-class>edu.iu.grid.oim.servlet.CertificateServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>CertificateServlet</servlet-name>
+		<url-pattern>/certificate</url-pattern>
+	</servlet-mapping>	
+
+	<servlet>
+		<description>
+		</description>
+		<display-name>CertificateRequestServlet</display-name>
+		<servlet-name>CertificateRequestServlet</servlet-name>
+		<servlet-class>edu.iu.grid.oim.servlet.CertificateRequestServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>CertificateRequestServlet</servlet-name>
+		<url-pattern>/certificaterequest</url-pattern>
+	</servlet-mapping>	
 
 	<welcome-file-list>
 		<welcome-file>index.jsp</welcome-file>

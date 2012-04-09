@@ -34,18 +34,13 @@ public class Confirmation extends DivRepFormElement
 		rec = _rec.clone();//I need to clone so that user updating the form won't update the cache
 		
 		dformat = DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.SHORT);
-		TimeZone timezone;
-		try {
-			timezone = TimeZone.getTimeZone(auth.getContact().timezone);
-			dformat.setTimeZone(timezone);
-		} catch (SQLException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
+		TimeZone timezone = auth.getTimeZone();
 		timestamp = rec.confirmed;
 		
 		update = new DivRepButton(this, "Update Confirmation Date");
 		update.setStyle(Style.BUTTON);
+		update.addClass("pull-top");
+		update.addClass("btn");
 		update.addEventListener(new DivRepEventListener() {
 			public void handleEvent(DivRepEvent e) {
 				Calendar cal = Calendar.getInstance();
@@ -64,7 +59,7 @@ public class Confirmation extends DivRepFormElement
 	public void render(PrintWriter out) {
 		out.print("<div class=\"divrep_form_element\" id=\""+getNodeID()+"\">");	
 		
-		out.write("The date when the information on this page was last reviewed<br/>");
+		out.write("<p>The date when the information on this page was last reviewed</p>");
 		out.write("<input style=\"width: 200px\" type=\"text\" value=\""+dformat.format(timestamp)+"\" disabled > ");//<b>"+dformat.format(timestamp) + " " + "</b></p>");
 		update.render(out);
 		

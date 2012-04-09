@@ -4,8 +4,8 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 
 public class ContentView extends GenericView {
-	BreadCrumbView bread_crumb;
-	public void setBreadCrumb(BreadCrumbView _crumb)
+	IView bread_crumb;
+	public void setBreadCrumb(IView _crumb)
 	{
 		bread_crumb = _crumb;
 	}

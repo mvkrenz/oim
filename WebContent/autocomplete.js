@@ -1,25 +1,42 @@
 
 function setAutocomplete(node)
 {
-    node.each(function(i, dom) {
-
-    	$(dom).autocomplete("divrep?action=request&nodeid=" + dom.parentNode.id, {
-	        mustMatch: true,
-	        matchContains: true,
-	        width: 300,
-	        delay: 300,
-			formatItem: function(item) {
-				return item[1] + "<br/>Email: " + item[2];
-			},
-			formatResult: function(item) {
-				return " ";
-			}
-    	}); 
-    });
-    
-    node.result(function(event, item) {
-    	if(item != null) {
-    		divrep(this.parentNode.id, "change", item[0]);
-    	}
-    });
+	$( node ).autocomplete({
+		source: function( request, response ) {
+			parent_id = node[0].parentNode.id;
+			$.ajax({
+				url: "divrep?action=request&nodeid=" + parent_id,
+				dataType: "json",
+				data: {
+					limit: 12,
+					q: request.term
+				},
+				success: function( data ) {
+					response( $.map( data, function( item ) {
+						return {
+							label: item.name + " <" + item.email + ">",
+							value: item.name,
+							id: item.id
+						}
+					}));
+				}
+			});
+		},
+		minLength: 2,
+		select: function( event, ui ) {
+			parent_id = node[0].parentNode.id;
+			divrep(parent_id, "change", ui.item.id);
+			/*
+			log( ui.item ?
+				"Selected: " + ui.item.label :
+				"Nothing selected, input was " + this.value);
+			*/
+		},
+		open: function() {
+			$( this ).removeClass( "ui-corner-all" ).addClass( "ui-corner-top" );
+		},
+		close: function() {
+			$( this ).removeClass( "ui-corner-top" ).addClass( "ui-corner-all" );
+		}
+	}).blur(function() {$(this).val("");});
 }

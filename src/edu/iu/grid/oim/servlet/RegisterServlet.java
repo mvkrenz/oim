@@ -53,7 +53,7 @@ public class RegisterServlet extends ServletBase  {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{
 		Authorization auth = context.getAuthorization();
-		if(auth.getDNID() != null || auth.getUserDN() == null || auth.getUserCN() == null) {
+		if(auth.isUnregistered()) {
 			//user don't meet the requirement to register. send it to home
 			response.sendRedirect(StaticConfig.getApplicationBase()+ "/home");
 			return;
@@ -71,16 +71,16 @@ public class RegisterServlet extends ServletBase  {
 		
 		contentview.add(new HtmlView("<h1>OIM Registration</h1>"));
 		
-		contentview.add(new HtmlView("<p>Your certificate DN is not registered on OIM. </p>"));
+		contentview.add(new HtmlView("<p>Your X509 certificate is not registered on OIM. </p>"));
 		contentview.add(new HtmlView("<p>To register and gain access to OIM, please register now by submitting following form.</p>"));			
-		EnterEmailPage form = new EnterEmailPage(context, context.getPageRoot());
+		RegistraitonForm form = new RegistraitonForm(context, context.getPageRoot());
 		contentview.add(new DivRepWrapper(form));
 	
 		
 		return contentview;
 	}
 
-	class EnterEmailPage extends DivRepForm
+	class RegistraitonForm extends DivRepForm
  	{
 		private Context context;
 		private DivRepTextBox name;
@@ -100,7 +100,7 @@ public class RegisterServlet extends ServletBase  {
 		private DivRepCheckBox use_twiki;
 		private DivRepTextBox twiki_id;
 		
-		public EnterEmailPage(Context _context, DivRepPage page_root) {
+		public RegistraitonForm(Context _context, DivRepPage page_root) {
 			
 			super(page_root, origin_url);
 			context = _context;

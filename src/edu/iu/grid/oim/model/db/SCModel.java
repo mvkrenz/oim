@@ -73,7 +73,7 @@ public class SCModel extends SmallTableModelBase<SCRecord> {
 		String sql = "SELECT * FROM sc_contact WHERE contact_id = ?";
 		Connection conn = connectOIM();
 		stmt = conn.prepareStatement(sql); 
-		stmt.setInt(1, auth.getContactID());
+		stmt.setInt(1, auth.getContact().id);
 
 		rs = stmt.executeQuery();
 		while(rs.next()) {

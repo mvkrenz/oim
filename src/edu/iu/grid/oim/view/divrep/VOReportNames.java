@@ -125,7 +125,7 @@ public class VOReportNames extends DivRepFormElement {
 		}
 
 		public void render(PrintWriter out) {
-			out.write("<div id=\""+getNodeID()+"\" class=\"vo_report_name_editor\">");
+			out.write("<div id=\""+getNodeID()+"\" class=\"well\">");
 			
 			out.write("<span class=\"right\">");
 			remove_button.render(out);

@@ -26,6 +26,7 @@ public class Context {
 	private Authorization auth = new Authorization();
 	private String request_url;
 	private HttpSession session;
+	private String remote_addr;
 	
 	//DB connection that we will reuse everywhere... it's OIM DB 100% of the time..
 	private Connection connection = null;
@@ -35,6 +36,7 @@ public class Context {
 	private String comment;
 	public void setComment(String _comment) { comment = _comment; }
 	public String getComment() { return comment; }
+	public String getRemoteAddr() { return remote_addr; }
 	
 	public Context(HttpServletRequest request) throws AuthorizationException
 	{	
@@ -46,6 +48,7 @@ public class Context {
 		setRequestURL(request);
 		divrep_root = DivRepRoot.getInstance(request.getSession());
 		divrep_pageroot = divrep_root.initPage(request.getRequestURI() + request.getQueryString());
+		remote_addr = request.getRemoteAddr();
 	}
 	
 	protected void finalize() throws Throwable {

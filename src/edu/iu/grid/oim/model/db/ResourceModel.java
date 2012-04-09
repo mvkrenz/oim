@@ -109,7 +109,7 @@ public class ResourceModel extends SmallTableModelBase<ResourceRecord> {
 		// First, add all resources someone is contact for
 		HashSet<Integer> list = new HashSet<Integer>();
 		ResourceContactModel model = new ResourceContactModel(context);
-		Collection<ResourceContactRecord> rrecs = model.getByContactID(auth.getContactID());
+		Collection<ResourceContactRecord> rrecs = model.getByContactID(auth.getContact().id);
 		for(ResourceContactRecord rec : rrecs) {
 			if(rec.contact_type_id == 1) continue; //submitter contact can't edit.
 			list.add(rec.resource_id);
@@ -117,7 +117,7 @@ public class ResourceModel extends SmallTableModelBase<ResourceRecord> {
 		
 		// Second, find VOs that this person is a VO Manager of..
 		VOContactModel voc_model = new VOContactModel(context);
-		Collection<VOContactRecord> voc_recs = voc_model.getByContactID(auth.getContactID());
+		Collection<VOContactRecord> voc_recs = voc_model.getByContactID(auth.getContact().id);
 		HashSet<Integer> voids = new HashSet<Integer>();
 		for (VOContactRecord voc_rec: voc_recs) {
 			//Is contact_type_id 6 (VO Manager)?

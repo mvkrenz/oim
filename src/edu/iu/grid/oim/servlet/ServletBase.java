@@ -23,6 +23,7 @@ import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.lib.AuthorizationException;
 import edu.iu.grid.oim.model.Context;
 import edu.iu.grid.oim.model.MenuItem;
+import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.view.MenuView;
 
 public class ServletBase extends HttpServlet {
@@ -38,22 +39,7 @@ public class ServletBase extends HttpServlet {
 	
 	protected TimeZone getTimeZone()
 	{
-		if(timezone == null) {
-			//load timezone
-	    	try {
-	    		String id = auth.getContact().timezone;
-	    		if(id != null) {
-	    			timezone = TimeZone.getTimeZone(id);
-	    		}
-	    	} catch (SQLException e) {
-	    		log.error(e.toString());
-	    	}
-	    	if(timezone == null) {
-	    		timezone = TimeZone.getDefault();
-	    	}
-		}
-    	
-    	return timezone;
+    	return auth.getTimeZone();
 	}
 
 	protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException
@@ -63,16 +49,18 @@ public class ServletBase extends HttpServlet {
 			auth = context.getAuthorization();
 			timezone = null; //force to reload the timezone in case user updates it
 			
+			/*
 			log.info(req.getRequestURI() + "?" + req.getQueryString());
 			if(auth.getDNID() == null) {
 				String path = req.getServletPath();
-				if(/*auth.isLocal() ||*/ path.equals("/home") || path.equals("/help")) {
+				if(path.equals("/home") || path.equals("/help")) {
 					//certain pages can be displayed without DN (TODO - need a better way to do this)
 				} else if(!path.equals("/register")) {
 					resp.sendRedirect(StaticConfig.getApplicationBase()+"/register");
 					return;
 				}
 			}
+			*/
 			
 			String method = req.getMethod();
 			if(method.equals("GET")) {

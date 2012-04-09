@@ -80,7 +80,7 @@ public class VOModel extends SmallTableModelBase<VORecord>
 	{
 		HashSet<Integer> list = new HashSet<Integer>();
 		VOContactModel model = new VOContactModel(context);
-		Collection<VOContactRecord> vcrecs = model.getByContactID(auth.getContactID());
+		Collection<VOContactRecord> vcrecs = model.getByContactID(auth.getContact().id);
 		for(VOContactRecord rec : vcrecs) {
 			if(rec.contact_type_id == 1) continue; //submitter contact can't edit.
 			list.add(rec.vo_id);

@@ -17,7 +17,7 @@ import org.apache.log4j.Logger;
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.AuthorizationException;
 import edu.iu.grid.oim.lib.StaticConfig;
-import edu.iu.grid.oim.lib.SendMail;
+import edu.iu.grid.oim.lib.SendMail_deprecated;
 import edu.iu.grid.oim.model.Context;
 import edu.iu.grid.oim.view.ContentView;
 import edu.iu.grid.oim.view.HtmlView;

@@ -43,7 +43,12 @@ public class Page implements IView {
 
 	public void render(PrintWriter out)
 	{
-		params.put("__STATICBASE__", StaticConfig.getStaticBase());
+		//params.put("__STATICBASE__", StaticConfig.getStaticBase());
+		if(context.getAuthorization().isGuest()) {
+			params.put("__BASE__", StaticConfig.conf.getProperty("application.guestbase"));	
+		} else {
+			params.put("__BASE__", StaticConfig.getApplicationBase());
+		}
 		params.put("__APPNAME__", StaticConfig.getApplicationName());
 		params.put("__VERSION__", StaticConfig.getVersion());
 		
@@ -61,7 +66,7 @@ public class Page implements IView {
 
 		if(context.getAuthorization().isGuest()) {
 			params.put("__DN__", "Guest");
-		} else if(!context.getAuthorization().isOIMUser()) {
+		} else if(context.getAuthorization().isUnregistered()) {
 			params.put("__DN__", "Unregistered DN (" + context.getAuthorization().getUserDN() + ")");
 		} else {
 			params.put("__DN__", context.getAuthorization().getUserDN());
@@ -69,7 +74,7 @@ public class Page implements IView {
 		
 		String exhead = new String();
 		for(String css : this.css) {
-			exhead += "<link href=\""+StaticConfig.getStaticBase()+"/css/"+css+"\" rel=\"stylesheet\" type=\"text/css\"/>\n";
+			exhead += "<link href=\"css/"+css+"\" rel=\"stylesheet\" type=\"text/css\"/>\n";
 		}
 		params.put("__EXHEAD__", exhead);
 		

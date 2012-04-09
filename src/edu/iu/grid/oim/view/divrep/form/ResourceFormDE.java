@@ -109,7 +109,7 @@ public class ResourceFormDE extends DivRepForm
 		id = rec.id;
 		
 		new DivRepStaticContent(this, "<h2>Basic Resource Information</h2>");
-		new DivRepStaticContent(this, "<p>Add/modify basic information about this resource.</p>");
+		//new DivRepStaticContent(this, "<p class=\"help-block\">Add/modify basic information about this resource.</p>");
 		
 		//pull vos for unique validator
 		HashMap<Integer, String> resources = getResources();
@@ -162,7 +162,7 @@ public class ResourceFormDE extends DivRepForm
 		}
 		
 		new DivRepStaticContent(this, "<h2>Resource Services</h2>");
-		new DivRepStaticContent(this, "<p>Add, remove, modify services associated with your resource. For example, a CE or an SRM.</p>");
+		//new DivRepStaticContent(this, "<p>Add, remove, modify services associated with your resource. For example, a CE or an SRM.</p>");
 		ServiceModel smodel = new ServiceModel(context);
 		resource_services = new ResourceServices(this, context/*, smodel.getAll()*/);
 
@@ -181,8 +181,8 @@ public class ResourceFormDE extends DivRepForm
 		resource_services.setRequired(true);
 
 		// Resource ownership stuff
-		new DivRepStaticContent(this, "<h2>VO Owners</h2>");
-		new DivRepStaticContent(this, "<p>Add/modify VO ownership of this resource.</p>");
+		new DivRepStaticContent(this, "<h2>Resource Ownership</h2>");
+		//new DivRepStaticContent(this, "<p>Add/modify VO ownership of this resource.</p>");
 		VOModel vo_model = new VOModel(context);
 		owners = new VOResourceOwnership(this, vo_model.getAll());
 		VOResourceOwnershipModel voresowner_model = new VOResourceOwnershipModel(context);
@@ -211,7 +211,7 @@ public class ResourceFormDE extends DivRepForm
 			//prepopulate submitter
 			ArrayList<ResourceContactRecord> submitter_list = new ArrayList<ResourceContactRecord>();
 			ResourceContactRecord submitter = new ResourceContactRecord();
-			submitter.contact_id = auth.getContactID();
+			submitter.contact_id = auth.getContact().id;
 			submitter.contact_rank_id = 1;//primary
 			submitter.contact_type_id = 1;//submitter
 			submitter_list.add(submitter);
@@ -220,7 +220,7 @@ public class ResourceFormDE extends DivRepForm
 			//prepopulatee admin contact
 			ArrayList<ResourceContactRecord> admin_list = new ArrayList<ResourceContactRecord>();
 			ResourceContactRecord admin = new ResourceContactRecord();
-			admin.contact_id = auth.getContactID();
+			admin.contact_id = auth.getContact().id;
 			admin.contact_rank_id = 1;//primary
 			admin.contact_type_id = 3;//admin
 			admin_list.add(admin);
@@ -229,7 +229,7 @@ public class ResourceFormDE extends DivRepForm
 			//security contact
 			ArrayList<ResourceContactRecord> security_list = new ArrayList<ResourceContactRecord>();
 			ResourceContactRecord security = new ResourceContactRecord();
-			security.contact_id = auth.getContactID();
+			security.contact_id = auth.getContact().id;
 			security.contact_rank_id = 1;//primary
 			security.contact_type_id = 2;//security
 			security_list.add(security);
@@ -310,6 +310,7 @@ public class ResourceFormDE extends DivRepForm
 		comment.setLabel("Update Comment");
 		comment.setSampleValue("Please provide a reason for this update.");
 		
+		submitbutton.addClass("btn");
 	}
 	
 	private void hideWLCGElement(Boolean b)

@@ -51,7 +51,7 @@ public class VOResourceOwnership extends DivRepFormElement {
 			}
 			
 			vo = new DivRepSelectBox(this, kv);
-			vo.setLabel("Select a VO Owner");
+			vo.setLabel("Virtual Organization");
 			vo.setRequired(true);
 			if (rec.vo_id != null) {
 				vo.setValue(rec.vo_id);

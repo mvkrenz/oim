@@ -2,30 +2,49 @@
 	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
+  	<base href="__BASE__/" />    
+  	<!--[if IE]>
+    <script type="text/javascript">
+        //fix ie's broken base href handling
+        function toAbsURL(s) {
+         var l = location, h, p, f, i;
+         if (/^\w+:/.test(s)) { return s; }
+         h = l.protocol + '//' + l.host + (l.port!=''?(':' + l.port):'');
+         if (s.indexOf('/') == 0) { return h + s; }
+         p = l.pathname.replace(/\/[^\/]*$/, '');
+         f = s.match(/\.\.\//g);
+         if (f) {
+           s = s.substring(f.length * 3);
+           for (i = f.length; i--;) { p = p.substring(0, p.lastIndexOf('/')); }
+         }
+         return h + p + '/' + s;
+       }
+    var base = document.getElementsByTagName('base')[0];
+    base.href = toAbsURL(base.href);
+    </script>
+    <![endif]-->
 	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
 
 	<title>__APPNAME__</title>
-	<link href="__STATICBASE__/images/potato.png" rel="icon" type="image/png" />
-	<link href="__STATICBASE__/css/oim.css" rel="stylesheet" type="text/css" />	
-	<link href="__STATICBASE__/css/emerald/default.css" rel="stylesheet" type="text/css" />
+	<link href="images/potato.png" rel="icon" type="image/png" />
+	<link href="css/oim.css" rel="stylesheet" type="text/css" />	
+	<link href="css/emerald/default.css" rel="stylesheet" type="text/css" />
 
-	<link href="__STATICBASE__/css/smoothness/jquery-ui-1.8.1.custom.css" rel="stylesheet" type="text/css" />
-	<script src="__STATICBASE__/jquery/jquery-1.4.2.min.js" type="text/javascript"></script>
-	<script src="__STATICBASE__/jquery/jquery-ui-1.8.1.custom.min.js" type="text/javascript"></script>	
+	<link href="css/smoothness-1.8.18/jquery-ui-1.8.18.custom.css" rel="stylesheet" type="text/css" />
+	<script src="jquery/jquery-1.7.1.min.js" type="text/javascript"></script>
+	<script src="jquery/jquery-ui-1.8.18.custom.min.js" type="text/javascript"></script>	
 	
-	<link href="__STATICBASE__/css/divrep.css" rel="stylesheet" type="text/css" />
-	<script src="__STATICBASE__/divrep.js" type="text/javascript"></script>
+	<link href="css/divrep.css" rel="stylesheet" type="text/css" />
+	<script src="divrep.js" type="text/javascript"></script>
 
-	<link href="__STATICBASE__/jquery/plugin/jquery.autocomplete.css" rel="stylesheet" type="text/css"/>
-	<script src="__STATICBASE__/jquery/plugin/jquery.autocomplete.min.js" type="text/javascript"></script>
-	<script src="__STATICBASE__/autocomplete.js" type="text/javascript"></script>
+<!--
+	<link href="jquery/plugin/jquery.autocomplete.css" rel="stylesheet" type="text/css"/>
+	<script src="jquery/plugin/jquery.autocomplete.min.js" type="text/javascript"></script>
+-->
+	<script src="autocomplete.js" type="text/javascript"></script>
 
-	<link href="__STATICBASE__/jquery/plugin/tinytips/jquery.tinytips.css" rel="stylesheet" type="text/css"/>
-	<script src="__STATICBASE__/jquery/plugin/tinytips/jquery.tinytips.js" type="text/javascript"></script>
-
-	<!--[if lt IE 8]>
-	<script src="__STATICBASE__/IE8.js" type="text/javascript"></script>
-	<![endif]-->
+	<link href="jquery/plugin/tinytips/jquery.tinytips.css" rel="stylesheet" type="text/css"/>
+	<script src="jquery/plugin/tinytips/jquery.tinytips.js" type="text/javascript"></script>
 	
 	__EXHEAD__
 	
@@ -65,7 +84,7 @@
 </head>
 <body>
     <div id="header">
-        <a href="http://www.opensciencegrid.org"><img id="logo" src="__STATICBASE__/images/osglogo.png" alt="OSG"/></a>
+        <a href="http://www.opensciencegrid.org"><img id="logo" src="images/osglogo.png" alt="OSG"/></a>
         <h1><a href="">__APPNAME__</a></h1>
         <h2>by Grid Operations Center</h2>
         
