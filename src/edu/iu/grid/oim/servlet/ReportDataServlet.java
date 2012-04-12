@@ -118,7 +118,7 @@ public class ReportDataServlet extends ServletBase implements Servlet {
 		    Scanner scan = new Scanner(fstream);  
 		    scan.useDelimiter("\\Z");  
 		    String content = scan.next();  
-		    contentview.add(new HtmlView("<pre>"+content+"</pre>"));
+		    contentview.add(new HtmlView(content));
 		} catch (FileNotFoundException e) {
 			log.error("Failed to load data issue report" ,e);
 			contentview.add(new HtmlView("<div class=\"alert\">Data issue report is not available.</div>"));
