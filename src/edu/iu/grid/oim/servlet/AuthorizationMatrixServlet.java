@@ -37,6 +37,9 @@ import edu.iu.grid.oim.model.db.record.AuthorizationTypeActionRecord;
 import edu.iu.grid.oim.model.db.record.AuthorizationTypeRecord;
 import edu.iu.grid.oim.model.db.record.SiteRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
+import edu.iu.grid.oim.view.BootBreadCrumbView;
+import edu.iu.grid.oim.view.BootMenuView;
+import edu.iu.grid.oim.view.BootPage;
 import edu.iu.grid.oim.view.BreadCrumbView;
 import edu.iu.grid.oim.view.ContentView;
 import edu.iu.grid.oim.view.DivRepWrapper;
@@ -78,14 +81,15 @@ public class AuthorizationMatrixServlet extends ServletBase  {
 				});
 				for(ActionRecord action : actions) {
 					
+					/*
 					String tooltip = StringEscapeUtils.escapeHtml(action.description);
 					if(tooltip.length() == 0) {
 						tooltip = "(No Description given for this action)";
 					}
+					*/
 					
 					//name & check boxes
-					out.print("<tr class=\"checklist\"><td class=\"tooltip\" tooltip=\""+tooltip+"\">"
-							+StringEscapeUtils.escapeHtml(action.name)+"</td>");
+					out.print("<tr class=\"checklist\"><td>"+StringEscapeUtils.escapeHtml(action.name)+"</td>");
 					for(AuthorizationTypeRecord type : authtypes) {
 						HashMap<Integer/*type_id*/, DivRepCheckBox> clist = matrix.get(action.id);
 						out.print("<td>");
@@ -189,19 +193,19 @@ public class AuthorizationMatrixServlet extends ServletBase  {
 		auth.check("admin_authorization");
 
 		//construct view
-		MenuView menuview = new MenuView(context, "admin");
+		BootMenuView menuview = new BootMenuView(context, "admin");
 		ContentView contentview;
 		
 		try {
 			contentview = createContentView();
 			
 			//setup crumbs
-			BreadCrumbView bread_crumb = new BreadCrumbView();
+			BootBreadCrumbView bread_crumb = new BootBreadCrumbView();
 			bread_crumb.addCrumb("Administration",  "admin");
 			bread_crumb.addCrumb("Authorization Matrix",  null);
 			contentview.setBreadCrumb(bread_crumb);
 			
-			Page page = new Page(context, menuview, contentview, createSideView());
+			BootPage page = new BootPage(context, menuview, contentview, null);
 			page.render(response.getWriter());
 		} catch (SQLException e) {
 			throw new ServletException(e);
@@ -212,16 +216,16 @@ public class AuthorizationMatrixServlet extends ServletBase  {
 	protected ContentView createContentView() throws SQLException
 	{			
 		ContentView contentview = new ContentView();
-		contentview.add(new HtmlView("<h1>Authorization Matrix</h1>"));
+		//contentview.add(new HtmlView("<h1>Authorization Matrix</h1>"));
 		DivRepForm form = new AuthMatrixFormDE(context.getPageRoot(), "admin");
 		contentview.add(new DivRepWrapper(form));
 		return contentview;
 	}
-	
+	/*
 	private SideContentView createSideView()
 	{
 		SideContentView view = new SideContentView();
 		return view;
 	}
-
+	 */
 }

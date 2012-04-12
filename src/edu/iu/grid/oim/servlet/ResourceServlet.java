@@ -57,6 +57,9 @@ import edu.iu.grid.oim.model.db.record.SiteRecord;
 import edu.iu.grid.oim.model.db.record.VOContactRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
 import edu.iu.grid.oim.model.db.record.VOResourceOwnershipRecord;
+import edu.iu.grid.oim.view.BootBreadCrumbView;
+import edu.iu.grid.oim.view.BootMenuView;
+import edu.iu.grid.oim.view.BootPage;
 import edu.iu.grid.oim.view.BreadCrumbView;
 import edu.iu.grid.oim.view.ContentView;
 import edu.iu.grid.oim.view.DivRepWrapper;
@@ -85,12 +88,12 @@ public class ResourceServlet extends ServletBase implements Servlet {
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{	
-		auth.check("edit_my_resource");
+		//auth.check("edit_my_resource");
 		
 		try {
 			//construct view
 			ContentView contentview = null;
-			MenuView menuview = new MenuView(context, "topology");
+			BootMenuView menuview = new BootMenuView(context, "topology");
 			ResourceRecord rec = null;
 			
 			//display either list, or a single resource
@@ -102,20 +105,26 @@ public class ResourceServlet extends ServletBase implements Servlet {
 				contentview = new ContentView();
 				
 				// setup crumbs
-				BreadCrumbView bread_crumb = new BreadCrumbView();
+				BootBreadCrumbView bread_crumb = new BootBreadCrumbView();
 				// bread_crumb.addCrumb("Administration", "admin");
 				bread_crumb.addCrumb("Topology", "topology");
-				bread_crumb.addCrumb("Resource", null);
+				bread_crumb.addCrumb("Resource " + rec.name, null);
 				contentview.setBreadCrumb(bread_crumb);
 
-				contentview.add(new HtmlView("<h2>"+rec.name+"</h2>"));	
+				//contentview.add(new HtmlView("<h2>"+rec.name+"</h2>"));	
+				if(rec.active == false) {
+					contentview.add(new HtmlView("<div class=\"alert\">This resource is currently inactive.</div>"));
+				}
+				if(rec.disable == true) {
+					contentview.add(new HtmlView("<div class=\"alert\">This resource is currently disabled.</div>"));
+				}
 				contentview.add(createResourceContent(rec, model.canEdit(resource_id))); //false = no edit button
 
 			} else {
 				contentview = createListContentView();
 			}
 			
-			Page page = new Page(context, menuview, contentview, createSideView(rec));
+			BootPage page = new BootPage(context, menuview, contentview, createSideView(rec));
 			page.render(response.getWriter());			
 		} catch (SQLException e) {
 			log.error(e);
@@ -309,6 +318,7 @@ public class ResourceServlet extends ServletBase implements Servlet {
 			r = table.addRow(new HtmlView("Disable" + tip.render()), rec.disable);
 
 			if(show_edit_button) {
+				/*
 				class EditButtonDE extends DivRepButton
 				{
 					String url;
@@ -321,8 +331,9 @@ public class ResourceServlet extends ServletBase implements Servlet {
 						redirect(url);
 					}
 				};
-				table.add(new DivRepWrapper(new EditButtonDE(context.getPageRoot(), 
-						StaticConfig.getApplicationBase()+"/resourceedit?id=" + rec.id)));
+				table.add(new DivRepWrapper(new EditButtonDE(context.getPageRoot(), StaticConfig.getApplicationBase()+"/resourceedit?id=" + rec.id)));
+				*/
+				table.add(new HtmlView("<a class=\"btn\" href=\"resourceedit?id=" + rec.id+"\">Edit</a>"));
 			}
 		} catch (SQLException e) {
 			return new DivRepStaticContent(context.getPageRoot(), e.toString());
@@ -441,15 +452,17 @@ public class ResourceServlet extends ServletBase implements Servlet {
 	{
 		SideContentView view = new SideContentView();
 				
-		view.add(new HtmlView("<h3>Other Actions</h3>"));
-		view.add(new HtmlView("<div class=\"indent\">"));
-		view.add(new HtmlView("<p><a href=\""+StaticConfig.getApplicationBase()+"/resourceedit\">Register New Resource</a></p>"));
+		//view.add(new HtmlView("<h3>Other Actions</h3>"));
+		//view.add(new HtmlView("<div class=\"indent\">"));
+		if(auth.isUser()) {
+			view.add(new HtmlView("<p><a class=\"btn\" href=\""+StaticConfig.getApplicationBase()+"/resourceedit\">Register New Resource</a></p>"));
+		}
 		/*
 		if(rec != null) {
 			view.add(new HtmlView("<p><a href=\""+StaticConfig.getApplicationBase()+"/log?type=4&id="+rec.id+"\">View Update History</a></p>"));
 		}
 		*/
-		view.add(new HtmlView("</div>"));
+		//view.add(new HtmlView("</div>"));
 		
 		view.addContactLegend();
 		return view;

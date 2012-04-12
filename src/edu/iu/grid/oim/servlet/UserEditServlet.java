@@ -19,6 +19,9 @@ import edu.iu.grid.oim.model.db.DNModel;
 import edu.iu.grid.oim.model.db.SiteModel;
 import edu.iu.grid.oim.model.db.record.DNRecord;
 import edu.iu.grid.oim.model.db.record.SiteRecord;
+import edu.iu.grid.oim.view.BootBreadCrumbView;
+import edu.iu.grid.oim.view.BootMenuView;
+import edu.iu.grid.oim.view.BootPage;
 import edu.iu.grid.oim.view.BreadCrumbView;
 import edu.iu.grid.oim.view.ContentView;
 import edu.iu.grid.oim.view.DivRepWrapper;
@@ -71,7 +74,7 @@ public class UserEditServlet extends ServletBase implements Servlet {
 				contentview.add(new DivRepWrapper(form));
 				
 				//setup crumbs
-				BreadCrumbView bread_crumb = new BreadCrumbView();
+				BootBreadCrumbView bread_crumb = new BootBreadCrumbView();
 				bread_crumb.addCrumb("Administration",  "admin");
 				bread_crumb.addCrumb("Users",  "user");
 				bread_crumb.addCrumb(rec.dn_string, null);
@@ -83,7 +86,7 @@ public class UserEditServlet extends ServletBase implements Servlet {
 			}
 		
 			
-			Page page = new Page(context, new MenuView(context, "admin"), contentview, createSideView());			
+			BootPage page = new BootPage(context, new BootMenuView(context, "admin"), contentview, createSideView());			
 			page.render(response.getWriter());	
 		} catch (SQLException e) {
 			throw new ServletException(e);
@@ -93,7 +96,7 @@ public class UserEditServlet extends ServletBase implements Servlet {
 	private SideContentView createSideView()
 	{
 		SideContentView view = new SideContentView();
-		view.add("TODO", new HtmlView("Whatever"));
+		//view.add("TODO", new HtmlView("Whatever"));
 		return view;
 	}
 }

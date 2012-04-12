@@ -56,6 +56,9 @@ import edu.iu.grid.oim.model.db.record.CpuInfoRecord;
 import edu.iu.grid.oim.model.db.record.LogRecord;
 import edu.iu.grid.oim.model.db.record.SCRecord;
 
+import edu.iu.grid.oim.view.BootBreadCrumbView;
+import edu.iu.grid.oim.view.BootMenuView;
+import edu.iu.grid.oim.view.BootPage;
 import edu.iu.grid.oim.view.BreadCrumbView;
 import edu.iu.grid.oim.view.ContentView;
 import edu.iu.grid.oim.view.DivRepWrapper;
@@ -82,7 +85,7 @@ public class FPTemplatesServlet extends ServletBase implements Servlet {
 	
 		try {			
 			//construct view
-			MenuView menuview = new MenuView(context, "admin");
+			BootMenuView menuview = new BootMenuView(context, "admin");
 			ContentView contentview = createContentView();
 		
 			PrintWriter out = response.getWriter();
@@ -90,12 +93,12 @@ public class FPTemplatesServlet extends ServletBase implements Servlet {
 				contentview.render(out);
 			} else {
 				//set crumbs
-				BreadCrumbView bread_crumb = new BreadCrumbView();
+				BootBreadCrumbView bread_crumb = new BootBreadCrumbView();
 				bread_crumb.addCrumb("Administration",  "admin");
 				bread_crumb.addCrumb("Footprints Ticket Templates",  null);
 				contentview.setBreadCrumb(bread_crumb);
 				
-				Page page = new Page(context, menuview, contentview, createSideView());
+				BootPage page = new BootPage(context, menuview, contentview, null);
 				page.render(out);			
 			}
 		} catch (SQLException e) {
@@ -108,7 +111,7 @@ public class FPTemplatesServlet extends ServletBase implements Servlet {
 		throws ServletException, SQLException
 	{	
 		ContentView contentview = new ContentView();	
-		contentview.add(new HtmlView("<h1>Footprints Ticket Templates</h1>"));
+		//contentview.add(new HtmlView("<h1>Footprints Ticket Templates</h1>"));
 		contentview.add(new HtmlView("<p>Following templates will be used to generate Footprints tickets after each Resource, VO, and SC registrartion.</p>"));
 		
 		DivRepPage page = context.getPageRoot();
@@ -118,32 +121,6 @@ public class FPTemplatesServlet extends ServletBase implements Servlet {
 		return contentview;
 	}
 	
-	private SideContentView createSideView()
-	{
-		SideContentView view = new SideContentView();
-
-		/*
-    	view.add(new HtmlView("<h3>Time Period</h3>"));
-    	view.add(new HtmlView("<div class=\"indent\">"));
-    	LinkedHashMap<Integer, String> keyvalues = new LinkedHashMap<Integer, String>();
-		keyvalues.put(7, "Last 7 days");
-		keyvalues.put(14, "Last 14 days");
-		keyvalues.put(30, "Last 30 days");
-		keyvalues.put(365, "Last 365 days");
-		final DivRepSelectBox select = new DivRepSelectBox(context.getPageRoot(), keyvalues);
-		select.setLabel("Show Registration For");
-		select.setValue(days);
-		select.addEventListener(new DivRepEventListener(){
-			public void handleEvent(DivRepEvent e) {
-				String days = (String)e.value;
-				select.redirect(StaticConfig.getApplicationBase() + "/reportregistration?days=" + days);
-			}});
-		view.add(new DivRepWrapper(select));		
-		view.add(new HtmlView("</div>"));
-		*/
-		
-		return view;
-	}
 	
 	class FPTemplatesForm extends DivRepForm {
 	

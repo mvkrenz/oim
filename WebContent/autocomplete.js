@@ -4,6 +4,7 @@ function setAutocomplete(node)
 	$( node ).autocomplete({
 		source: function( request, response ) {
 			parent_id = node[0].parentNode.id;
+			//$(node[0]).parents(".contact_editor").addClass("autocomplete_loading");
 			$.ajax({
 				url: "divrep?action=request&nodeid=" + parent_id,
 				dataType: "json",
@@ -23,6 +24,7 @@ function setAutocomplete(node)
 			});
 		},
 		minLength: 2,
+		delay: 300,
 		select: function( event, ui ) {
 			parent_id = node[0].parentNode.id;
 			divrep(parent_id, "change", ui.item.id);

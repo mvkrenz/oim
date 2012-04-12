@@ -21,6 +21,8 @@ import edu.iu.grid.oim.lib.Footprint;
 import edu.iu.grid.oim.lib.AuthorizationException;
 import edu.iu.grid.oim.model.MenuItem;
 import edu.iu.grid.oim.model.db.SmallTableModelBase;
+import edu.iu.grid.oim.view.BootMenuView;
+import edu.iu.grid.oim.view.BootPage;
 import edu.iu.grid.oim.view.ContentView;
 import edu.iu.grid.oim.view.GenericView;
 import edu.iu.grid.oim.view.HtmlView;
@@ -45,9 +47,9 @@ public class AdminServlet extends ServletBase  {
 	{
 		auth.check("admin");
 
-		MenuView menuview = new MenuView(context, "admin");
+		BootMenuView menuview = new BootMenuView(context, "admin");
 		ContentView contentview = createContentView();
-		Page page = new Page(context, menuview, contentview, createSideView());
+		BootPage page = new BootPage(context, menuview, contentview, createSideView());
 		page.render(response.getWriter());	
 	}
 	
@@ -55,7 +57,7 @@ public class AdminServlet extends ServletBase  {
 	{
 		ContentView contentview = new ContentView();
 		
-		contentview.add(new HtmlView("<h1>OIM Administration</h1>"));
+		contentview.add(new HtmlView("<h2>Administration</h2>"));
 		if(auth.allows("admin")) {
 			contentview.add(new HtmlView("<h3>Authentication / Authorization</h3>"));
 			contentview.add(new InternalLinkView("action", "Actions"));
@@ -67,7 +69,7 @@ public class AdminServlet extends ServletBase  {
 			contentview.add(new InternalLinkView("authmatrix", "Action/Authorization Matrix" ));
 			contentview.add(new HtmlView("<br/>"));
 			
-			contentview.add(new InternalLinkView("user", "Person Contacts - Authorization Type mapping" ));
+			contentview.add(new InternalLinkView("user", "DN/AuthType Mapping" ));
 			contentview.add(new HtmlView("<br/>"));
 			
 			contentview.add(new HtmlView("<br/>"));
@@ -108,10 +110,10 @@ public class AdminServlet extends ServletBase  {
 		SideContentView view = new SideContentView();
 		GenericView operations = new GenericView();
 		
-		view.add("Operation", operations);
 		if(!auth.allows("admin")) return view;
 		
 		final DivRepButton clear_button = new DivRepButton(context.getPageRoot(), "Clear All Cache");
+		clear_button.addClass("btn");
 		clear_button.addEventListener(new DivRepEventListener() {
 			public void handleEvent(DivRepEvent e) {
 				SmallTableModelBase.emptyAllCache();
@@ -119,27 +121,8 @@ public class AdminServlet extends ServletBase  {
 			}
 		});
 		operations.add(clear_button);
-		
-		/*
-		final DivRepButton fptest_button = new DivRepButton(context.getPageRoot(), "Test FP Ticket");
-		fptest_button.addEventListener(new DivRepEventListener() {
-			public void handleEvent(DivRepEvent e) {
-				Footprint ticket = new Footprint(context);
-				ticket.createNewResourceTicket("test_resource");
-				
-				fptest_button.alert("Done!");
-			}
-		});
-		operations.add(fptest_button);
+		view.add(operations);
 
-		final DivRepButton error_button = new DivRepButton(context.getPageRoot(), "Simulate Servlet Error");
-		error_button.addEventListener(new DivRepEventListener() {
-			public void handleEvent(DivRepEvent e) {
-				error_button.redirect(StaticConfig.getApplicationBase() + "/simulateerror");
-			}
-		});
-		operations.add(error_button);
-		*/
 		return view;
 	}
 

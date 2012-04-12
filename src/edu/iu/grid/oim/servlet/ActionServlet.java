@@ -27,6 +27,9 @@ import edu.iu.grid.oim.model.db.CpuInfoModel;
 import edu.iu.grid.oim.model.db.record.ActionRecord;
 import edu.iu.grid.oim.model.db.record.CpuInfoRecord;
 
+import edu.iu.grid.oim.view.BootBreadCrumbView;
+import edu.iu.grid.oim.view.BootMenuView;
+import edu.iu.grid.oim.view.BootPage;
 import edu.iu.grid.oim.view.BreadCrumbView;
 import edu.iu.grid.oim.view.ContentView;
 import edu.iu.grid.oim.view.DivRepWrapper;
@@ -50,16 +53,16 @@ public class ActionServlet extends ServletBase implements Servlet {
 		
 		try {
 			//construct view
-			MenuView menuview = new MenuView(context, "admin");
+			BootMenuView menuview = new BootMenuView(context, "admin");
 			ContentView contentview = createContentView();
 			
 			//setup crumbs
-			BreadCrumbView bread_crumb = new BreadCrumbView();
+			BootBreadCrumbView bread_crumb = new BootBreadCrumbView();
 			bread_crumb.addCrumb("Administration",  "admin");
 			bread_crumb.addCrumb("Action",  null);
 			contentview.setBreadCrumb(bread_crumb);
 			
-			Page page = new Page(context, menuview, contentview, createSideView());
+			BootPage page = new BootPage(context, menuview, contentview, createSideView());
 			page.render(response.getWriter());				
 		} catch (SQLException e) {
 			log.error(e);
@@ -74,7 +77,7 @@ public class ActionServlet extends ServletBase implements Servlet {
 		Collection<ActionRecord> recs = model.getAll();
 		
 		ContentView contentview = new ContentView();	
-		contentview.add(new HtmlView("<h1>Action</h1>"));
+		//contentview.add(new HtmlView("<h1>Action</h1>"));
 	
 		for(ActionRecord rec : recs) {
 			contentview.add(new HtmlView("<h2>"+StringEscapeUtils.escapeHtml(rec.name)+"</h2>"));
@@ -84,7 +87,7 @@ public class ActionServlet extends ServletBase implements Servlet {
 
 		 	table.addRow("Name", rec.name);
 			table.addRow("Description", rec.description);
-	
+			/*
 			class EditButtonDE extends DivRepButton
 			{
 				String url;
@@ -98,6 +101,9 @@ public class ActionServlet extends ServletBase implements Servlet {
 				}
 			};
 			table.add(new DivRepWrapper(new EditButtonDE(context.getPageRoot(), StaticConfig.getApplicationBase()+"/actionedit?id=" + rec.id)));
+			*/
+			table.add(new HtmlView("<a class=\"btn\" href=\"actionedit?id=" + rec.id + "\">Edit</a>"));
+			
 		}
 		
 		return contentview;
@@ -106,7 +112,7 @@ public class ActionServlet extends ServletBase implements Servlet {
 	private SideContentView createSideView()
 	{
 		SideContentView view = new SideContentView();
-		
+		/*
 		class NewButtonDE extends DivRepButton
 		{
 			String url;
@@ -120,7 +126,8 @@ public class ActionServlet extends ServletBase implements Servlet {
 			}
 		};
 		view.add("Operation", new NewButtonDE(context.getPageRoot(), "actionedit"));
-		
+		*/
+		view.add("<a class=\"btn\" href=\"actionedit\">Add New Action</a>");
 		return view;
 	}
 }

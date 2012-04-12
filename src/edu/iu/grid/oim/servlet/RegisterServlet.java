@@ -33,6 +33,8 @@ import edu.iu.grid.oim.model.db.DNModel;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.DNAuthorizationTypeRecord;
 import edu.iu.grid.oim.model.db.record.DNRecord;
+import edu.iu.grid.oim.view.BootMenuView;
+import edu.iu.grid.oim.view.BootPage;
 import edu.iu.grid.oim.view.ContentView;
 import edu.iu.grid.oim.view.DivRepWrapper;
 import edu.iu.grid.oim.view.HtmlView;
@@ -53,15 +55,15 @@ public class RegisterServlet extends ServletBase  {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{
 		Authorization auth = context.getAuthorization();
-		if(auth.isUnregistered()) {
+		if(!auth.isUnregistered()) {
 			//user don't meet the requirement to register. send it to home
 			response.sendRedirect(StaticConfig.getApplicationBase()+ "/home");
 			return;
 		}
 		
-		MenuView menuview = new MenuView(context, "register");
+		BootMenuView menuview = new BootMenuView(context, "register");
 		ContentView contentview = createContentView();
-		Page page = new Page(context, menuview, contentview, new SideContentView());
+		BootPage page = new BootPage(context, menuview, contentview, new SideContentView());
 		page.render(response.getWriter());	
 	}
 	

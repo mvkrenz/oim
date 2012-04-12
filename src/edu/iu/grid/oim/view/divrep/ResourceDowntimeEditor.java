@@ -97,6 +97,7 @@ public class ResourceDowntimeEditor extends DivRepFormElement {
 		
 		new DivRepStaticContent(this, "<h3>Duration ("+timezone.getID()+")</h3>");
 		duration = new DurationDR(this, rec);
+		duration.addClass("duration");
 		
 		new DivRepStaticContent(this, "<h3>Detail</h3>");
 		summary = new DivRepTextArea(this);
@@ -285,6 +286,7 @@ public class ResourceDowntimeEditor extends DivRepFormElement {
 					getValue().set(Calendar.HOUR_OF_DAY, h);
 					notifyListener(e);
 				}});
+			hour.addClass("duration_hour");
 			hour.setHasNull(false);
 			
 			LinkedHashMap<Integer, String> mins = new LinkedHashMap<Integer, String>();	
@@ -298,6 +300,7 @@ public class ResourceDowntimeEditor extends DivRepFormElement {
 					getValue().set(Calendar.MINUTE, m);
 					notifyListener(e);
 				}});
+			min.addClass("duration_minute");
 			min.setHasNull(false);
 			setValue(Calendar.getInstance(timezone));
 			
@@ -349,7 +352,7 @@ public class ResourceDowntimeEditor extends DivRepFormElement {
 			new DivRepStaticContent(this, "<table><tr><td>");
 			
 			start_date = new DateDE(this);
-			start_date.setMinDate(new Date());				
+			start_date.setMinDate(new Date());		
 			start_date.addEventListener(new DivRepEventListener() {
 				public void handleEvent(DivRepEvent e) {
 					DurationDR.this.validate();
@@ -504,7 +507,7 @@ public class ResourceDowntimeEditor extends DivRepFormElement {
 	}
 	
 	public void render(PrintWriter out) {
-		out.write("<div class=\"downtime_editor\" id=\""+getNodeID()+"\">");	
+		out.write("<div id=\""+getNodeID()+"\">");	
 		/*
 		out.write("<span class=\"right\">");
 		remove_button.render(out);

@@ -18,6 +18,9 @@ import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.model.db.SCModel;
 import edu.iu.grid.oim.model.db.record.SCRecord;
 import edu.iu.grid.oim.view.divrep.form.SCFormDE;
+import edu.iu.grid.oim.view.BootBreadCrumbView;
+import edu.iu.grid.oim.view.BootMenuView;
+import edu.iu.grid.oim.view.BootPage;
 import edu.iu.grid.oim.view.BreadCrumbView;
 import edu.iu.grid.oim.view.ContentView;
 import edu.iu.grid.oim.view.DivRepWrapper;
@@ -51,7 +54,7 @@ public class SCEditServlet extends ServletBase implements Servlet {
 			SCModel model = new SCModel(context);			
 			if(!model.canEdit(sc_id)) {
 				//throw new AuthorizationException("Sorry, you don't have permission to edit this SC ID:" + sc_id);
-				response.sendRedirect(StaticConfig.getApplicationBase()+"/sc?id="+sc_id);
+				response.sendRedirect("sc?id="+sc_id);
 			}
 			
 			try {
@@ -68,9 +71,8 @@ public class SCEditServlet extends ServletBase implements Servlet {
 		}
 	
 		SCFormDE form;
-		String origin_url = StaticConfig.getApplicationBase()+"/"+parent_page;
 		try {
-			form = new SCFormDE(context, rec, origin_url);
+			form = new SCFormDE(context, rec, parent_page);
 		} catch (SQLException e) {
 			throw new ServletException(e);
 		}
@@ -78,15 +80,22 @@ public class SCEditServlet extends ServletBase implements Servlet {
 		//put the form in a view and display
 		ContentView contentview = new ContentView();
 		//contentview.add(new HtmlView("<h1>"+title+"</h1>"));	
+		if(rec.active != null && rec.active == false) {
+			contentview.add(new HtmlView("<div class=\"alert\">This Support Center is currently inactive.</div>"));
+		}
+		if(rec.disable != null && rec.disable == true) {
+			contentview.add(new HtmlView("<div class=\"alert\">This Support Center is currently disabled.</div>"));
+		}
 		contentview.add(new DivRepWrapper(form));
 		
 		//setup crumbs
-		BreadCrumbView bread_crumb = new BreadCrumbView();
+		BootBreadCrumbView bread_crumb = new BootBreadCrumbView();
 		bread_crumb.addCrumb("Support Center",  parent_page);
 		bread_crumb.addCrumb(rec.name,  null);
 		contentview.setBreadCrumb(bread_crumb);
 		
-		Page page = new Page(context, new MenuView(context, parent_page), contentview, createSideView(rec));		
+		
+		BootPage page = new BootPage(context, new BootMenuView(context, parent_page), contentview, createSideView(rec));		
 		page.render(response.getWriter());	
 	}
 	
@@ -96,12 +105,12 @@ public class SCEditServlet extends ServletBase implements Servlet {
 		
 		//view.add("About", new HtmlView("This form allows you to edit this support center's registration information.</p>"));
 		if(rec.id != null) {
-			view.add(new HtmlView("<h3>Other Actions</h3>"));
-			view.add(new HtmlView("<div class=\"indent\">"));
-			view.add(new HtmlView("<p><a href=\""+StaticConfig.getApplicationBase()+"/scedit\">Register New Support Center</a></p>"));
-			view.add(new HtmlView("<p><a href=\""+StaticConfig.getApplicationBase()+"/sc?id="+rec.id+"\">Show readonly view</a></p>"));
+			//view.add(new HtmlView("<h3>Other Actions</h3>"));
+			//view.add(new HtmlView("<div class=\"indent\">"));
+			view.add(new HtmlView("<p><a class=\"btn\" href=\"scedit\">Register New Support Center</a></p>"));
+			view.add(new HtmlView("<p><a class=\"btn\" href=\"sc?id="+rec.id+"\">Show readonly view</a></p>"));
 			//view.add(new HtmlView("<p><a href=\""+StaticConfig.getApplicationBase()+"/log?type=6&id="+rec.id+"\">View Update History</a></p>"));
-			view.add(new HtmlView("</div>"));
+			//view.add(new HtmlView("</div>"));
 		}
 		view.addContactNote();		
 		// view.addContactLegent();		

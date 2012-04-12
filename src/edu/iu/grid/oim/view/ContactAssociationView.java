@@ -54,6 +54,7 @@ public class ContactAssociationView extends GenericView {
 	{
 		GenericView view = new GenericView();
 		view.add(new HtmlView("<div class=\"contact_association\">"));
+		//view.add(new HtmlView("<p>Your are listed inside contact information for following entities."));
 		
 		try {
 			ResourceModel rmodel = new ResourceModel(context);
@@ -94,7 +95,17 @@ public class ContactAssociationView extends GenericView {
 			for(Integer rid : resourceassoc.keySet()) {
 				String name = resourceassoc.get(rid);
 				GenericView tview = new GenericView();
-				tview.add(new HtmlView("<div class=\"well\">"));
+				String cls = "";
+				ResourceRecord rrec = rmodel.get(rid);
+				if(rrec.active == false) {
+					cls += " well_inactive";
+					name += "&nbsp;<span class=\"pull-right label\">Inactive</span>";
+				}
+				if(rrec.disable == true) {
+					cls += " well_disabled";
+					name += "&nbsp;<span class=\"pull-right label\">Disabled</span>";
+				}
+				tview.add(new HtmlView("<div class=\"well "+cls+"\">"));
 				tview.add(new HtmlView("<a href=\""+StaticConfig.getApplicationBase()+"/resourceedit?id="+rid+"\">"+name+"</a><br>"));
 				
 				//show which contact types the user is associated with
@@ -140,7 +151,17 @@ public class ContactAssociationView extends GenericView {
 			for(Integer vo_id : voassoc.keySet()) {
 				String name = voassoc.get(vo_id);
 				GenericView tview = new GenericView();
-				tview.add(new HtmlView("<div class=\"well\">"));
+				VORecord vorec = vomodel.get(vo_id);
+				String cls = "";
+				if(vorec.active == false) {
+					cls += " well_inactive";
+					name += "<span class=\"pull-right label\">Inactive</span>";
+				}
+				if(vorec.disable == true) {
+					cls += " well_disabled";
+					name += "<span class=\"pull-right label\">Disabled</span>";
+				}
+				tview.add(new HtmlView("<div class=\"well "+cls+"\">"));
 				tview.add(new HtmlView("<a href=\""+StaticConfig.getApplicationBase()+"/voedit?id="+vo_id+"\">"+name+"</a>"));
 				
 				//show which contact types the user is associated with
@@ -187,7 +208,17 @@ public class ContactAssociationView extends GenericView {
 			for(Integer scid : scassoc.keySet()) {
 				String name = scassoc.get(scid);
 				GenericView tview = new GenericView();
-				tview.add(new HtmlView("<div class=\"well\">"));
+				SCRecord screc = scmodel.get(scid);
+				String cls = "";
+				if(screc.active == false) {
+					cls += " well_inactive";
+					name += "<span class=\"pull-right label\">Inactive</span>";
+				}
+				if(screc.disable == true) {
+					cls += " well_disabled";
+					name += "<span class=\"pull-right label\">Disabled</span>";
+				}
+				tview.add(new HtmlView("<div class=\"well "+cls+"\">"));
 				tview.add(new HtmlView("<a href=\""+StaticConfig.getApplicationBase()+"/scedit?id="+scid+"\">"+name+"</a>"));
 				
 				//show which contact types the user is associated with

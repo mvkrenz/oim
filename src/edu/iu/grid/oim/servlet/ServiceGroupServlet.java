@@ -17,6 +17,9 @@ import com.divrep.common.DivRepButton;
 import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.model.db.ServiceGroupModel;
 import edu.iu.grid.oim.model.db.record.ServiceGroupRecord;
+import edu.iu.grid.oim.view.BootBreadCrumbView;
+import edu.iu.grid.oim.view.BootMenuView;
+import edu.iu.grid.oim.view.BootPage;
 import edu.iu.grid.oim.view.BreadCrumbView;
 import edu.iu.grid.oim.view.ContentView;
 import edu.iu.grid.oim.view.DivRepWrapper;
@@ -42,16 +45,16 @@ public class ServiceGroupServlet extends ServletBase implements Servlet
 		
 		try {
 			//construct view
-			MenuView menuview = new MenuView(context, "admin");
+			BootMenuView menuview = new BootMenuView(context, "admin");
 			ContentView contentview = createContentView();
 
 			//setup crumbs
-			BreadCrumbView bread_crumb = new BreadCrumbView();
+			BootBreadCrumbView bread_crumb = new BootBreadCrumbView();
 			bread_crumb.addCrumb("Administration",  "admin");
 			bread_crumb.addCrumb("Service Group",  null);
 			contentview.setBreadCrumb(bread_crumb);
 			
-			Page page = new Page(context, menuview, contentview, createSideView());
+			BootPage page = new BootPage(context, menuview, contentview, createSideView());
 			page.render(response.getWriter());			
 		} catch (SQLException e) {
 			log.error(e);
@@ -63,7 +66,7 @@ public class ServiceGroupServlet extends ServletBase implements Servlet
 		throws ServletException, SQLException
 	{
 		ContentView contentview = new ContentView();	
-		contentview.add(new HtmlView("<h1>Resource Groups</h1>"));
+		//contentview.add(new HtmlView("<h1>Resource Groups</h1>"));
 	
 		ServiceGroupModel model = new ServiceGroupModel(context);
 		Collection<ServiceGroupRecord> rgs = model.getAll();
@@ -75,7 +78,7 @@ public class ServiceGroupServlet extends ServletBase implements Servlet
 
 			table.addRow("Name", rec.name);
 			table.addRow("Description", rec.description);
-			
+			/*
 			class EditButtonDE extends DivRepButton
 			{
 				String url;
@@ -89,6 +92,8 @@ public class ServiceGroupServlet extends ServletBase implements Servlet
 				}
 			};
 			table.add(new DivRepWrapper(new EditButtonDE(context.getPageRoot(), StaticConfig.getApplicationBase()+"/servicegroupedit?id=" + rec.id)));
+			*/
+			table.add(new HtmlView("<a class=\"btn\" href=\"servicegroupedit?id=" + rec.id +"\">Edit</a>"));
 		}
 		
 		return contentview;
@@ -97,7 +102,7 @@ public class ServiceGroupServlet extends ServletBase implements Servlet
 	private SideContentView createSideView()
 	{
 		SideContentView view = new SideContentView();
-		
+		/*
 		class NewButtonDE extends DivRepButton
 		{
 			String url;
@@ -111,7 +116,10 @@ public class ServiceGroupServlet extends ServletBase implements Servlet
 			}
 		};
 		view.add("Operation", new NewButtonDE(context.getPageRoot(), "servicegroupedit"));
-		view.add("About", new HtmlView("This page shows a list of Service Groups that you have access to edit."));		
+		*/
+		view.add(new HtmlView("<a class=\"btn\" href=\"servicegroupedit\">Add New Service Group</a>"));		
+		
+		//view.add("About", new HtmlView("This page shows a list of Service Groups that you have access to edit."));		
 		return view;
 	}
 }

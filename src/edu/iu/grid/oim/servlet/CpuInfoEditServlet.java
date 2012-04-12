@@ -18,6 +18,9 @@ import edu.iu.grid.oim.model.db.CpuInfoModel;
 import edu.iu.grid.oim.model.db.record.CpuInfoRecord;
 import edu.iu.grid.oim.view.divrep.form.CpuInfoFormDE;
 
+import edu.iu.grid.oim.view.BootBreadCrumbView;
+import edu.iu.grid.oim.view.BootMenuView;
+import edu.iu.grid.oim.view.BootPage;
 import edu.iu.grid.oim.view.BreadCrumbView;
 import edu.iu.grid.oim.view.ContentView;
 import edu.iu.grid.oim.view.DivRepWrapper;
@@ -63,9 +66,8 @@ public class CpuInfoEditServlet extends ServletBase implements Servlet {
 		}
 	
 		CpuInfoFormDE form;
-		String origin_url = StaticConfig.getApplicationBase()+"/"+current_page;
 		try {
-			form = new CpuInfoFormDE(context, rec, origin_url);
+			form = new CpuInfoFormDE(context, rec, current_page);
 		} catch (SQLException e) {
 			throw new ServletException(e);
 		}
@@ -76,20 +78,20 @@ public class CpuInfoEditServlet extends ServletBase implements Servlet {
 		contentview.add(new DivRepWrapper(form));
 		
 		//setup crumbs
-		BreadCrumbView bread_crumb = new BreadCrumbView();
+		BootBreadCrumbView bread_crumb = new BootBreadCrumbView();
 		bread_crumb.addCrumb("CPU Information",  "cpuinfo");
 		bread_crumb.addCrumb(rec.name,  null);
 
 		contentview.setBreadCrumb(bread_crumb);
 		
-		Page page = new Page(context, new MenuView(context, "cpuinfo"), contentview, createSideView());	
+		BootPage page = new BootPage(context, new BootMenuView(context, "cpuinfo"), contentview, createSideView());	
 		page.render(response.getWriter());	
 	}
 	
 	private SideContentView createSideView()
 	{
 		SideContentView view = new SideContentView();
-		view.add("Misc-no-op", new HtmlView("Misc-no-op"));
+		//view.add("Misc-no-op", new HtmlView("Misc-no-op"));
 		return view;
 	}
 }

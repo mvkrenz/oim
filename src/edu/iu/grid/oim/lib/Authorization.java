@@ -31,9 +31,6 @@ public class Authorization {
 	//internal states
 	private String user_dn = null;
 	private String user_cn = null;
-	//private String client_verify = null;
-	//private Integer dn_id = null;
-    //private Integer contact_id = null;
 	private DNRecord dnrec = null;
     private ContactRecord contact = null;
     public String getUserDN() { return user_dn; }
@@ -47,10 +44,6 @@ public class Authorization {
     //public Integer getContactID() { return contact_id; }
     public ContactRecord getContact() 
     {
-    	/*
-    	ContactModel model = new ContactModel(guest_context);
-    	return model.get(contact_id);
-    	*/
     	return contact;
     }
     
@@ -138,6 +131,7 @@ public class Authorization {
 			debugAuthOverride(request);
 		}
 		
+		
 		//figure out usertype
 		String client_verify = (String)request.getAttribute("SSL_CLIENT_VERIFY");
 		if(client_verify != null && !client_verify.equals("none")) {
@@ -171,6 +165,7 @@ public class Authorization {
 						
 						if(dnrec == null) {
 							usertype = UserType.UNREGISTERED;
+							loadGuestAction();
 						} else {
 							//check for disabled contact
 							ContactModel cmodel = new ContactModel(guest_context);
@@ -178,9 +173,10 @@ public class Authorization {
 							if (contact.isDisabled()) {
 								log.info("The DN found in \"dn\" table but is mapped to disabled contact. Set isDisabled to true.");
 								usertype = UserType.DISABLED;
+								loadGuestAction(); //disabled user can still access guest content
 							} else {
-								initAction(dnrec);
 								usertype = UserType.USER;
+								initAction(dnrec);
 							}
 						}
 					} catch (SQLException e) {
@@ -192,11 +188,15 @@ public class Authorization {
 		} else {
 			//user is mostlikely accessing via http
 			usertype = UserType.GUEST;
-			try {
-				loadActions(0);//load guest actions
-			} catch (SQLException e) {
-				throw new AuthorizationException("Authorization check failed due to " + e.getMessage());
-			}
+			loadGuestAction();
+		}
+	}
+	
+	private void loadGuestAction() throws AuthorizationException {
+		try {
+			loadActions(0);//load guest actions
+		} catch (SQLException e) {
+			throw new AuthorizationException("Authorization check failed due to " + e.getMessage());
 		}
 	}
 
@@ -213,8 +213,9 @@ public class Authorization {
 					//user_dn = "/DC=org/DC=doegrids/OU=People/CN=Soichi Hayashi 461343";	
 					//user_dn = "/DC=org/DC=doegrids/OU=People/CN=Kyle A. Gross 453426";
 					//user_dn = "/DC=org/DC=doegrids/OU=People/CN=Horst Severini 926890";
-					//user_dn = "/DC=org/DC=doegrids/OU=People/CN=Alain Roy 424511";
 					request.setAttribute("SSL_CLIENT_S_DN", "/DC=org/DC=doegrids/OU=People/CN=Soichi Hayashi 461343");
+					//request.setAttribute("SSL_CLIENT_S_DN", "/DC=org/DC=doegrids/OU=People/CN=Soichi Hayashi new");
+					//request.setAttribute("SSL_CLIENT_S_DN", "/DC=org/DC=doegrids/OU=People/CN=Alain Roy 424511");
 					request.setAttribute("SSL_CLIENT_I_DN_CN", StaticConfig.getDOECN());
 				} else {
 					request.setAttribute("SSL_CLIENT_VERIFY", null);

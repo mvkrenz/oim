@@ -19,6 +19,9 @@ import com.divrep.common.DivRepButton;
 import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.model.db.AuthorizationTypeModel;
 import edu.iu.grid.oim.model.db.record.AuthorizationTypeRecord;
+import edu.iu.grid.oim.view.BootBreadCrumbView;
+import edu.iu.grid.oim.view.BootMenuView;
+import edu.iu.grid.oim.view.BootPage;
 import edu.iu.grid.oim.view.BreadCrumbView;
 import edu.iu.grid.oim.view.ContentView;
 import edu.iu.grid.oim.view.DivRepWrapper;
@@ -43,16 +46,16 @@ public class AuthtypeServlet extends ServletBase implements Servlet {
 		try {
 
 			//construct view
-			MenuView menuview = new MenuView(context, "admin");;
+			BootMenuView menuview = new BootMenuView(context, "admin");;
 			ContentView contentview = createContentView();
 			
 			//setup crumbs
-			BreadCrumbView bread_crumb = new BreadCrumbView();
+			BootBreadCrumbView bread_crumb = new BootBreadCrumbView();
 			bread_crumb.addCrumb("Administration",  "admin");
 			bread_crumb.addCrumb("Authorization Type",  null);
 			contentview.setBreadCrumb(bread_crumb);
 			
-			Page page = new Page(context, menuview, contentview, createSideView());
+			BootPage page = new BootPage(context, menuview, contentview, createSideView());
 			page.render(response.getWriter());				
 		} catch (SQLException e) {
 			log.error(e);
@@ -67,7 +70,7 @@ public class AuthtypeServlet extends ServletBase implements Servlet {
 		Collection<AuthorizationTypeRecord> recs = model.getAll();
 		
 		ContentView contentview = new ContentView();	
-		contentview.add(new HtmlView("<h1>Authorization Type</h1>"));
+		//contentview.add(new HtmlView("<h1>Authorization Type</h1>"));
 	
 		for(AuthorizationTypeRecord rec : recs) {
 			contentview.add(new HtmlView("<h2>"+StringEscapeUtils.escapeHtml(rec.name)+"</h2>"));
@@ -76,7 +79,7 @@ public class AuthtypeServlet extends ServletBase implements Servlet {
 			contentview.add(table);
 
 		 	table.addRow("Name", rec.name);
-	
+		 	/*
 			class EditButtonDE extends DivRepButton
 			{
 				String url;
@@ -90,6 +93,8 @@ public class AuthtypeServlet extends ServletBase implements Servlet {
 				}
 			};
 			table.add(new DivRepWrapper(new EditButtonDE(context.getPageRoot(), StaticConfig.getApplicationBase()+"/authtypeedit?id=" + rec.id)));
+			*/
+		 	table.add(new HtmlView("<a class=\"btn\" href=\"authtypeedit?id="+rec.id+"\">Edit</a>"));
 		}
 		
 		return contentview;
@@ -98,7 +103,7 @@ public class AuthtypeServlet extends ServletBase implements Servlet {
 	private SideContentView createSideView()
 	{
 		SideContentView view = new SideContentView();
-		
+		/*
 		class NewButtonDE extends DivRepButton
 		{
 			String url;
@@ -112,7 +117,8 @@ public class AuthtypeServlet extends ServletBase implements Servlet {
 			}
 		};
 		view.add("Operation", new NewButtonDE(context.getPageRoot(), "authtypeedit"));
-		
+		*/
+		view.add(new HtmlView("<a class=\"btn\" href=\"authtypeedit\">Add New AuthorizationType</a>"));
 		return view;
 	}
 }

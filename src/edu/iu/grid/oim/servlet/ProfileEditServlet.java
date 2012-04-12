@@ -30,6 +30,8 @@ import edu.iu.grid.oim.model.Context;
 import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.view.divrep.form.ContactFormDE;
+import edu.iu.grid.oim.view.BootMenuView;
+import edu.iu.grid.oim.view.BootPage;
 import edu.iu.grid.oim.view.ContentView;
 import edu.iu.grid.oim.view.DivRepWrapper;
 import edu.iu.grid.oim.view.HtmlView;
@@ -56,8 +58,8 @@ public class ProfileEditServlet extends ServletBase implements Servlet {
 		try {
 			rec = auth.getContact();
 				
-			String origin_url = StaticConfig.getApplicationBase()+"/"+parent_page;
-			form = new ContactFormDE(context, rec, origin_url, true);
+			//String origin_url = StaticConfig.getApplicationBase()+"/"+parent_page;
+			form = new ContactFormDE(context, rec, parent_page, true);
 			
 			//put the form in a view and display
 			ContentView contentview = new ContentView();
@@ -69,7 +71,7 @@ public class ProfileEditServlet extends ServletBase implements Servlet {
 			*/
 			contentview.add(new DivRepWrapper(form));
 			
-			Page page = new Page(context, new MenuView(context, "profileedit"), contentview, createSideView());
+			BootPage page = new BootPage(context, new BootMenuView(context, "profileedit"), contentview, createSideView());
 			page.render(response.getWriter());	
 			
 		} catch (SQLException e) {
@@ -80,22 +82,25 @@ public class ProfileEditServlet extends ServletBase implements Servlet {
 	private SideContentView createSideView() throws SQLException
 	{
 		SideContentView view = new SideContentView();
-
+		/*
 		view.add("About", new HtmlView("<p>This page lets you edit your OIM profile.</p>"+
 				"<p>On your OIM profile, you can set contact information like email, phone number and extension, an email address for SMS text messages, and postal address (only applicable to human contacts).</p>"+
 				"<p>You can also set your local timezone so other applications like GOCTicket and MyOSG can display timestamps in your local timezone.</p>"+
 				"<p>You can also provide a link to an image that you would like to use as your profile picture!</p>"));
-
+		*/
 		HashSet<String> auth_types = auth.getAuthorizationTypesForCurrentDN();
+		view.add("<h3>Your Authentication Types</h3>");
 		if(auth_types.size() > 0) {
 			//compose list of auth types
 			StringBuffer auth_type_string = new StringBuffer();
+			auth_type_string.append("<ul>");
 			for (String auth_type: auth_types) {
-				auth_type_string.append("<p>" + auth_type + "</p>");
+				auth_type_string.append("<li>" + auth_type + "</li>");
 			}
-			view.add("Auth Types For Your Profile", new HtmlView(auth_type_string.toString()));	
+			auth_type_string.append("</ul>");
+			view.add(new HtmlView(auth_type_string.toString()));	
 		} else {
-			view.add("Auth Types For Your Profile", new HtmlView("N/A (Your account is de-activated)"));		
+			view.add(new HtmlView("N/A (Your account is de-activated)"));		
 		}
 		
 		return view;

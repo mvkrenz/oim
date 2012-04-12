@@ -38,6 +38,8 @@ import edu.iu.grid.oim.model.db.record.ResourceDowntimeServiceRecord;
 import edu.iu.grid.oim.model.db.record.ServiceRecord;
 import edu.iu.grid.oim.model.db.record.ResourceRecord;
 
+import edu.iu.grid.oim.view.BootMenuView;
+import edu.iu.grid.oim.view.BootPage;
 import edu.iu.grid.oim.view.ContentView;
 import edu.iu.grid.oim.view.DivRepWrapper;
 import edu.iu.grid.oim.view.GenericView;
@@ -60,15 +62,15 @@ public class ResourceDowntimeServlet extends ServletBase implements Servlet {
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{	
-		auth.check("edit_my_resource");
+		//auth.check("edit_my_resource");
 		
 		remove_downtime_dialog = new RemoveDowntimeDialog(context.getPageRoot(), context);
 		
 		try {			
 			//construct view
-			MenuView menuview =new MenuView(context, "resourcedowntime");
+			BootMenuView menuview = new BootMenuView(context, "resourcedowntime");
 			ContentView contentview = createContentView();
-			Page page = new Page(context, menuview, contentview, createSideView());
+			BootPage page = new BootPage(context, menuview, contentview, createSideView());
 			page.render(response.getWriter());			
 		} catch (SQLException e) {
 			log.error(e);
@@ -92,40 +94,38 @@ public class ResourceDowntimeServlet extends ServletBase implements Servlet {
 	
 		if(resources.size() == 0) {
 			contentview.add(new HtmlView("<p>You currently don't have any resources that list your contact in any of the contact types.</p>"));
+		} else {
+
+			contentview.add(new HtmlView("<table class=\"table nohover\">"));
+			contentview.add(new HtmlView("<thead><tr><th>Resource Name</th><th>Downtimes</th></tr></thead>"));
+
+			contentview.add(new HtmlView("<tbody>"));
+			for(ResourceRecord rec : resources) {
+				contentview.add(new HtmlView("<tr>"));
+				contentview.add(new HtmlView("<td>"+StringEscapeUtils.escapeHtml(rec.name)+"</td>"));
+		
+				//downtimes
+				contentview.add(new HtmlView("<td>"));
+				GenericView downtime_view = new GenericView();
+				ResourceDowntimeModel dmodel = new ResourceDowntimeModel(context);
+				Collection <ResourceDowntimeRecord> dt_records = dmodel.getRecentDowntimesByResourceID(rec.id, StaticConfig.getDowntimeEditableEndDays());
+				for(ResourceDowntimeRecord drec : dt_records) {
+					downtime_view.add(createDowntimeView(drec));
+				}
+				if (dt_records.isEmpty()) {
+					contentview.add(new HtmlView("No scheduled downtime"));
+				} else {
+					contentview.add(downtime_view);
+				}
+				contentview.add(new HtmlView("<a class=\"btn pull-right\" href=\"resourcedowntimeedit?rid=" + rec.id + "\">Add New Downtime</a>"));
+				contentview.add(new HtmlView("</td>"));
+				
+				contentview.add(new HtmlView("</tr>"));
+			}
+			contentview.add(new HtmlView("</tbody></table>"));	
 		}
 		
-		for(ResourceRecord rec : resources) {
 
-			String name = rec.name;
-
-			contentview.add(new HtmlView("<h2>"+StringEscapeUtils.escapeHtml(name)+"</h2>"));
-	
-			//downtime
-			GenericView downtime_view = new GenericView();
-			ResourceDowntimeModel dmodel = new ResourceDowntimeModel(context);
-			Collection <ResourceDowntimeRecord> dt_records = dmodel.getRecentDowntimesByResourceID(rec.id, StaticConfig.getDowntimeEditableEndDays());
-			for(ResourceDowntimeRecord drec : dt_records) {
-				downtime_view.add(createDowntimeView(drec));
-			}
-			if (dt_records.isEmpty()) {
-				downtime_view.add(new HtmlView("No scheduled downtime"));
-			}
-			contentview.add(downtime_view);
-		
-			class NewButtonDE extends DivRepButton
-			{
-				String url;
-				public NewButtonDE(DivRep parent, String _url)
-				{
-					super(parent, "Add New Downtime");
-					url = _url;
-				}
-				protected void onEvent(DivRepEvent e) {
-					redirect(url);
-				}
-			};
-			contentview.add(new DivRepWrapper(new NewButtonDE(context.getPageRoot(), StaticConfig.getApplicationBase()+"/resourcedowntimeedit?rid=" + rec.id)));
-		}
 		
 		contentview.add(new DivRepWrapper(remove_downtime_dialog));
 		
@@ -136,7 +136,7 @@ public class ResourceDowntimeServlet extends ServletBase implements Servlet {
 	{
 		GenericView view = new GenericView();
 		
-		view.add(new HtmlView("<div class=\"downtime\">"));
+		view.add(new HtmlView("<div class=\"well\">"));
 		
 		class RemoveButtonDE extends DivRepButton
 		{
@@ -179,20 +179,7 @@ public class ResourceDowntimeServlet extends ServletBase implements Servlet {
 		
 		view.add(table);
 		
-		class EditButtonDE extends DivRepButton
-		{
-			String url;
-			public EditButtonDE(DivRep parent, String _url)
-			{
-				super(parent, "Edit");
-				url = _url;
-			}
-			protected void onEvent(DivRepEvent e) {
-				redirect(url);
-			}
-		};
-		table.add(new DivRepWrapper(new EditButtonDE(context.getPageRoot(), StaticConfig.getApplicationBase()+"/resourcedowntimeedit?rid=" + rec.resource_id + "&did=" + rec.id)));
-
+		table.add(new HtmlView("<a class=\"btn\" href=\"resourcedowntimeedit?rid=" + rec.resource_id + "&did=" + rec.id + "\">Edit</a>"));
 		view.add(new HtmlView("</div>"));
 		
 		return view;
@@ -217,7 +204,7 @@ public class ResourceDowntimeServlet extends ServletBase implements Servlet {
 	{
 		SideContentView view = new SideContentView();
 		
-		view.add("About", new HtmlView("<p>This page allows you to schedule maintenance (downtime) for resources you are listed as a contact for, and therefore are authorized to edit.</p><p>Non-Active or Disabled Resources are filtered out.</p><p>This page only shows downtimes that end within the previous "+StaticConfig.getDowntimeEditableEndDays()+" days.</p>"));		
+		view.add(new HtmlView("<p>This page allows you to schedule maintenance (downtime) for resources you are listed as a contact for, and therefore are authorized to edit.</p><p>Non-Active or Disabled Resources are filtered out.</p><p>This page only shows downtimes that end within the previous "+StaticConfig.getDowntimeEditableEndDays()+" days.</p>"));		
 		return view;
 	}
 }

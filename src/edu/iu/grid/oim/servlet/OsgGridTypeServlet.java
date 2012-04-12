@@ -23,6 +23,9 @@ import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.model.db.OsgGridTypeModel;
 import edu.iu.grid.oim.model.db.record.OsgGridTypeRecord;
 import edu.iu.grid.oim.model.db.record.RecordBase;
+import edu.iu.grid.oim.view.BootBreadCrumbView;
+import edu.iu.grid.oim.view.BootMenuView;
+import edu.iu.grid.oim.view.BootPage;
 import edu.iu.grid.oim.view.BreadCrumbView;
 import edu.iu.grid.oim.view.ContentView;
 import edu.iu.grid.oim.view.DivRepWrapper;
@@ -48,16 +51,16 @@ public class OsgGridTypeServlet extends ServletBase implements Servlet {
 
 		try {
 			//construct view
-			MenuView menuview = new MenuView(context, "admin");
+			BootMenuView menuview = new BootMenuView(context, "admin");
 			ContentView contentview = createContentView();
 			
 			//setup crumbs
-			BreadCrumbView bread_crumb = new BreadCrumbView();
+			BootBreadCrumbView bread_crumb = new BootBreadCrumbView();
 			bread_crumb.addCrumb("Administration",  "admin");
 			bread_crumb.addCrumb("OSG Grid Types",  null);
 			contentview.setBreadCrumb(bread_crumb);
 			
-			Page page = new Page(context, menuview, contentview, createSideView());
+			BootPage page = new BootPage(context, menuview, contentview, createSideView());
 			page.render(response.getWriter());			
 		} catch (SQLException e) {
 			log.error(e);
@@ -72,7 +75,7 @@ public class OsgGridTypeServlet extends ServletBase implements Servlet {
 		Collection<OsgGridTypeRecord> ogts = model.getAll();
 		
 		ContentView contentview = new ContentView();	
-		contentview.add(new HtmlView("<h1>OSG Grid Types</h1>"));
+		//contentview.add(new HtmlView("<h1>OSG Grid Types</h1>"));
 		
 		for(OsgGridTypeRecord rec : ogts) {
 			contentview.add(new HtmlView("<h2>"+StringEscapeUtils.escapeHtml(rec.name)+"</h2>"));
@@ -80,7 +83,7 @@ public class OsgGridTypeServlet extends ServletBase implements Servlet {
 			RecordTableView table = new RecordTableView();
 			contentview.add(table);
 			table.addRow("Description", rec.description);
-			
+			/*
 			class EditButtonDE extends DivRepButton
 			{
 				String url;
@@ -94,6 +97,8 @@ public class OsgGridTypeServlet extends ServletBase implements Servlet {
 				}
 			};
 			table.add(new DivRepWrapper(new EditButtonDE(context.getPageRoot(), StaticConfig.getApplicationBase()+"/osggridtypeedit?osg_grid_type_id=" + rec.id)));
+			*/
+			table.add(new HtmlView("<a class=\"btn\" href=\"osggridtypeedit?osg_grid_type_id=" + rec.id + "\">Edit</a>"));
 		}
 		return contentview;
 	}
@@ -102,7 +107,7 @@ public class OsgGridTypeServlet extends ServletBase implements Servlet {
 	private SideContentView createSideView()
 	{
 		SideContentView view = new SideContentView();
-		
+		/*
 		class NewButtonDE extends DivRepButton
 		{
 			String url;
@@ -116,8 +121,9 @@ public class OsgGridTypeServlet extends ServletBase implements Servlet {
 			}
 		};
 		view.add("Operation", new NewButtonDE(context.getPageRoot(), "osggridtypeedit"));
+		*/
 		
-		
+		view.add(new HtmlView("<a class=\"btn\" href=\"osggridtypeedit\">Add New OSG Grid Type</a>"));
 		
 		return view;
 	}

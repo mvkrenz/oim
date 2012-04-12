@@ -35,6 +35,8 @@ import edu.iu.grid.oim.model.db.record.SCRecord;
 import edu.iu.grid.oim.model.db.record.VOContactRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
 
+import edu.iu.grid.oim.view.BootMenuView;
+import edu.iu.grid.oim.view.BootPage;
 import edu.iu.grid.oim.view.BreadCrumbView;
 import edu.iu.grid.oim.view.ContentView;
 import edu.iu.grid.oim.view.HtmlView;
@@ -77,16 +79,17 @@ public class ReportConfirmationServlet extends ServletBase implements Servlet {
 				} 
 			} else {
 				//construct html view
-				MenuView menuview = new MenuView(context, "report");
+				BootMenuView menuview = new BootMenuView(context, "reportconfirmation");
 				ContentView contentview = createContentView(expired_recs);
-			
+				/*
 				//set crumbs
-				BreadCrumbView bread_crumb = new BreadCrumbView();
+				BootBreadCrumbView bread_crumb = new BootBreadCrumbView();
 				bread_crumb.addCrumb("Reports",  "report");
 				bread_crumb.addCrumb("Confirmation Report",  null);
 				contentview.setBreadCrumb(bread_crumb);
+				*/
 				
-				Page page = new Page(context, menuview, contentview, createSideView());
+				BootPage page = new BootPage(context, menuview, contentview, createSideView());
 				PrintWriter out = response.getWriter();
 				page.render(out);			
 			}
@@ -174,23 +177,26 @@ public class ReportConfirmationServlet extends ServletBase implements Servlet {
 	{	
 		ContentView contentview = new ContentView();	
 		contentview.add(new HtmlView("<h1>Confirmation Report</h1>"));
-		contentview.add(new HtmlView("<p>This pages shows lists of contacts who have not confirmed the content of OIM for more than "+StaticConfig.getConfirmationExpiration()+" days</p>"));
-		contentview.add(new HtmlView("<p>This list only contains personal contact, and contact that are not disabled.</p>"));
-
+		
 		ArrayList<ContactRecord> normal_list = new ArrayList<ContactRecord>();
 		ArrayList<ContactRecord> critical_list = new ArrayList<ContactRecord>();
 		HashMap<Integer, ArrayList<String>> critical_details = new HashMap<Integer, ArrayList<String>>();
 		createReport(expired_recs, normal_list, critical_list, critical_details);
 				
-		contentview.add(new HtmlView("<h2>Contacts who are not security contact</h2>"));
+		contentview.add(new HtmlView("<div class=\"row-fluid\">"));
+		
+		contentview.add(new HtmlView("<div class=\"span6\">"));
+		contentview.add(new HtmlView("<h2>Non-Security Contacts</h2>"));
 		for(ContactRecord rec : normal_list) {
 			contentview.add(new HtmlView("<b>"+rec.name + "</b><br/>"));
 			contentview.add(new HtmlView("<div class=\"divrep_indent\">"));
 			contentview.add(new HtmlView(rec.primary_email+"<br/>"+rec.primary_phone));
 			contentview.add(new HtmlView("</div>"));
 		}
+		contentview.add(new HtmlView("</div>"));//span6
 		
-		contentview.add(new HtmlView("<br/><h2>Contacts who are security contact</h2>"));
+		contentview.add(new HtmlView("<div class=\"span6\">"));
+		contentview.add(new HtmlView("<h2>Security Contacts</h2>"));
 		for(ContactRecord rec : critical_list) {
 			contentview.add(new HtmlView("<b>"+rec.name + "</b><br/>"));
 			contentview.add(new HtmlView("<div class=\"divrep_indent\">"));
@@ -203,6 +209,9 @@ public class ReportConfirmationServlet extends ServletBase implements Servlet {
 			contentview.add(new HtmlView(details_str.toString()));
 			contentview.add(new HtmlView("</div>"));
 		}	
+		contentview.add(new HtmlView("</div>"));//span6
+		
+		contentview.add(new HtmlView("</div>")); //end row
 		
 		return contentview;
 	}
@@ -272,8 +281,11 @@ public class ReportConfirmationServlet extends ServletBase implements Servlet {
 	private SideContentView createSideView()
 	{
 		SideContentView view = new SideContentView();
-		String export = "<a href=\""+StaticConfig.getApplicationBase()+"/reportconfirmation?excel\">Excel</a>";
-		view.add("Export", export);
+		//String export = "<a class=\"btn\" href=\""+StaticConfig.getApplicationBase()+"/reportconfirmation?excel\">Export to Excel Format</a>";
+		view.add(new HtmlView("<p><a class=\"btn\" href=\"reportconfirmation?excel\">Export to Excel Format</a></p>"));
+		view.add(new HtmlView("<p>This pages shows lists of contacts who have not confirmed the content of OIM for more than "+StaticConfig.getConfirmationExpiration()+" days</p>"));
+		view.add(new HtmlView("<p>This list only contains personal contact, and contact that are not disabled.</p>"));
+
 		return view;
 	}
 }

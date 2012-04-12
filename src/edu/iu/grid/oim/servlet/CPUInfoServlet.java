@@ -28,6 +28,8 @@ import edu.iu.grid.oim.model.db.CpuInfoModel;
 import edu.iu.grid.oim.model.db.record.CpuInfoRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
 
+import edu.iu.grid.oim.view.BootMenuView;
+import edu.iu.grid.oim.view.BootPage;
 import edu.iu.grid.oim.view.BreadCrumbView;
 import edu.iu.grid.oim.view.ContentView;
 import edu.iu.grid.oim.view.DivRepWrapper;
@@ -36,6 +38,7 @@ import edu.iu.grid.oim.view.MenuView;
 import edu.iu.grid.oim.view.Page;
 import edu.iu.grid.oim.view.RecordTableView;
 import edu.iu.grid.oim.view.SideContentView;
+import edu.iu.grid.oim.view.TableView;
 
 public class CPUInfoServlet extends ServletBase implements Servlet {
 	private static final long serialVersionUID = 1L;
@@ -47,14 +50,14 @@ public class CPUInfoServlet extends ServletBase implements Servlet {
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{	
-		auth.check("edit_measurement"); 
+		//auth.check("edit_measurement"); 
 		
 		try {
 			//construct view
-			MenuView menuview = new MenuView(context, "cpuinfo");;
+			BootMenuView menuview = new BootMenuView(context, "cpuinfo");;
 			ContentView contentview = createContentView();
 			
-			Page page = new Page(context, menuview, contentview, createSideView());
+			BootPage page = new BootPage(context, menuview, contentview, null);
 			page.render(response.getWriter());				
 		} catch (SQLException e) {
 			log.error(e);
@@ -74,33 +77,35 @@ public class CPUInfoServlet extends ServletBase implements Servlet {
 		});
 
 		ContentView contentview = new ContentView();	
-		contentview.add(new HtmlView("<h1>CPU Information</h1>"));
-	
-		for(CpuInfoRecord rec : cpus) {
-			contentview.add(new HtmlView("<h2>"+StringEscapeUtils.escapeHtml(rec.name)+"</h2>"));
-				
-			RecordTableView table = new RecordTableView();
-			contentview.add(table);
-
-		 	table.addRow("Name", rec.name);
-			table.addRow("Normalization Constant", rec.normalization_constant.toString());
-			table.addRow("HEPSPEC Normalization Constant", rec.hepspec_normalization_constant.toString());
-			table.addRow("Notes", rec.notes);
-	
-			class EditButtonDE extends DivRepButton
-			{
-				String url;
-				public EditButtonDE(DivRep parent, String _url)
-				{
-					super(parent, "Edit");
-					url = _url;
-				}
-				protected void onEvent(DivRepEvent e) {
-					redirect(url);
-				}
-			};
-			table.add(new DivRepWrapper(new EditButtonDE(context.getPageRoot(), StaticConfig.getApplicationBase()+"/cpuinfoedit?cpu_info_id=" + rec.id)));
+		contentview.add(new HtmlView("<h2>CPU Information</h2>"));
+		if(auth.isUser()) {
+			contentview.add(new HtmlView("<a class=\"btn pull-right\" href=\"cpuinfoedit\">Add New CPU Info</a>"));
 		}
+		
+		contentview.add(new HtmlView("<table class=\"table\">"));
+		contentview.add(new HtmlView("<thead><tr><th>Name</th><th>Normalization&nbsp;Constant</th><th>HEPSPEC&nbsp;Normalization&nbsp;Constant</th><th>Notes</th><th></th></tr></thead>"));	
+
+		contentview.add(new HtmlView("<tbody>"));
+		for(CpuInfoRecord rec : cpus) {
+			//contentview.add(new HtmlView("<h2>"+StringEscapeUtils.escapeHtml(rec.name)+"</h2>"));
+				
+			contentview.add(new HtmlView("<tr>"));	
+			contentview.add(new HtmlView("<td>"+StringEscapeUtils.escapeHtml(rec.name)+"</td>"));	
+			contentview.add(new HtmlView("<td>"+rec.normalization_constant.toString()+"</td>"));	
+			contentview.add(new HtmlView("<td>"+rec.hepspec_normalization_constant.toString()+"</td>"));	
+			contentview.add(new HtmlView("<td>"+StringEscapeUtils.escapeHtml(rec.notes)+"</td>"));	
+			
+			contentview.add(new HtmlView("<td>"));
+			if(auth.isUser()) {
+				contentview.add(new HtmlView("<a class=\"btn\" href=\"cpuinfoedit?cpu_info_id="+rec.id+"\">Edit</a>"));
+			}
+			contentview.add(new HtmlView("</td>"));
+			
+			contentview.add(new HtmlView("</tr>"));	
+
+		}
+		contentview.add(new HtmlView("</tbody>"));
+		contentview.add(new HtmlView("</table>"));
 		
 		return contentview;
 	}
@@ -108,7 +113,7 @@ public class CPUInfoServlet extends ServletBase implements Servlet {
 	private SideContentView createSideView()
 	{
 		SideContentView view = new SideContentView();
-		
+		/*
 		class NewButtonDE extends DivRepButton
 		{
 			String url;
@@ -122,7 +127,7 @@ public class CPUInfoServlet extends ServletBase implements Servlet {
 			}
 		};
 		view.add("Operation", new NewButtonDE(context.getPageRoot(), "cpuinfoedit"));
-		
+		*/
 		return view;
 	}
 }

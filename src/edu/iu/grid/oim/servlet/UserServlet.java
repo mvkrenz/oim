@@ -22,6 +22,9 @@ import edu.iu.grid.oim.model.db.DNModel;
 import edu.iu.grid.oim.model.db.record.AuthorizationTypeRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.DNRecord;
+import edu.iu.grid.oim.view.BootBreadCrumbView;
+import edu.iu.grid.oim.view.BootMenuView;
+import edu.iu.grid.oim.view.BootPage;
 import edu.iu.grid.oim.view.BreadCrumbView;
 import edu.iu.grid.oim.view.ContentView;
 import edu.iu.grid.oim.view.DivRepWrapper;
@@ -46,16 +49,16 @@ public class UserServlet extends ServletBase implements Servlet {
 		
 		try {	
 			//construct view
-			MenuView menuview = new MenuView(context, "admin");
+			BootMenuView menuview = new BootMenuView(context, "admin");
 			ContentView contentview = createContentView();
 			
 			//setup crumbs
-			BreadCrumbView bread_crumb = new BreadCrumbView();
+			BootBreadCrumbView bread_crumb = new BootBreadCrumbView();
 			bread_crumb.addCrumb("Administration",  "admin");
-			bread_crumb.addCrumb("Users",  null);
+			bread_crumb.addCrumb("DN/AuthType Mapping",  null);
 			contentview.setBreadCrumb(bread_crumb);
 			
-			Page page = new Page(context, menuview, contentview, createSideView());
+			BootPage page = new BootPage(context, menuview, contentview, createSideView());
 			page.render(response.getWriter());			
 		} catch (SQLException e) {
 			log.error(e);
@@ -67,7 +70,7 @@ public class UserServlet extends ServletBase implements Servlet {
 		throws ServletException, SQLException
 	{
 		ContentView contentview = new ContentView();	
-		contentview.add(new HtmlView("<h1>Users/Contacts with DN mappings (Non-Group Contacts) </h1>"));
+		//contentview.add(new HtmlView("<h2>DN/AuthType Mapping</h2>"));
 
 		//pull list of all DNs
 		DNModel model = new DNModel(context);
@@ -86,13 +89,15 @@ public class UserServlet extends ServletBase implements Servlet {
  		 	table.addRow("Contact", contact);
 	
 			Collection<Integer/*auth_type*/> types = dnauthmodel.getAuthorizationTypesByDNID(rec.id);
-			String auth_html = "";
+			String auth_html = "<ul>";
 			for(Integer auth_type : types) {
 				AuthorizationTypeRecord auth_rec = authmodel.get(auth_type);
-			 	auth_html += StringEscapeUtils.escapeHtml(auth_rec.name) + "<br/>";
+			 	auth_html += "<li>"+StringEscapeUtils.escapeHtml(auth_rec.name) + "</li>";
 			}
+			auth_html += "</ul>";
+			
 			table.addRow("Authorization Types", new HtmlView(auth_html));
-		 	
+		 	/*
 			class EditButtonDE extends DivRepButton
 			{
 				String url;
@@ -106,6 +111,8 @@ public class UserServlet extends ServletBase implements Servlet {
 				}
 			};
 			table.add(new DivRepWrapper(new EditButtonDE(context.getPageRoot(), StaticConfig.getApplicationBase()+"/useredit?id=" + rec.id)));
+			*/
+			table.add(new HtmlView("<a class=\"btn\" href=\"useredit?id="+rec.id+"\">Edit</a>"));
 		}
 		
 		return contentview;
@@ -115,6 +122,7 @@ public class UserServlet extends ServletBase implements Servlet {
 	{
 		SideContentView view = new SideContentView();
 
+		/*
 		class NewButtonDE extends DivRepButton
 		{
 			String url;
@@ -127,9 +135,11 @@ public class UserServlet extends ServletBase implements Servlet {
 				redirect(url);
 			}
 		};
-		
 		view.add("Operation", new NewButtonDE(context.getPageRoot(), "useredit"));
-		view.add("About", new HtmlView("This page shows a list of DN entries with associated user and authorization type mappings.<p><br/> You can modify an existing entry to correct wrong mapping of a user or auth-type. <p><br/> You can also add a new DN for an existing contact without a DN, and map that DN to various auth-types."));		
+		*/
+		view.add(new HtmlView("<p><a class=\"btn\" href=\"useredit\">Add DN/AuthType Mapping</a></p>"));		
+	
+		//view.add(new HtmlView("This page shows a list of DN entries with associated user and authorization type mappings.<p><br/> You can modify an existing entry to correct wrong mapping of a user or auth-type. <p><br/> You can also add a new DN for an existing contact without a DN, and map that DN to various auth-types."));		
 		return view;
 	}
 }

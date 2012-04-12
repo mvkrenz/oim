@@ -15,6 +15,9 @@ import com.divrep.DivRepRoot;
 import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.model.db.ServiceModel;
 import edu.iu.grid.oim.model.db.record.ServiceRecord;
+import edu.iu.grid.oim.view.BootBreadCrumbView;
+import edu.iu.grid.oim.view.BootMenuView;
+import edu.iu.grid.oim.view.BootPage;
 import edu.iu.grid.oim.view.BreadCrumbView;
 import edu.iu.grid.oim.view.ContentView;
 import edu.iu.grid.oim.view.DivRepWrapper;
@@ -53,41 +56,41 @@ public class ServiceEditServlet extends ServletBase implements Servlet {
 			} catch (SQLException e) {
 				throw new ServletException(e);
 			}	
-			title = "Update Service";
+			title = "Update " + rec.name;
 		} else {
 			rec = new ServiceRecord();
 			//rec.type = "CENTRAL";//not sure if this is a good default..
-			title = "New Service";	
+			title = "New";	
 		}
 	
 		ServiceFormDE form;
-		String origin_url = StaticConfig.getApplicationBase()+"/"+parent_page;
+		//String origin_url = StaticConfig.getApplicationBase()+"/"+parent_page;
 		try {
-			form = new ServiceFormDE(context, rec, origin_url);
+			form = new ServiceFormDE(context, rec, parent_page);
 		} catch (SQLException e) {
 			throw new ServletException(e);
 		}
 		
 		//put the form in a view and display
 		ContentView contentview = new ContentView();
-		contentview.add(new HtmlView("<h1>"+title+"</h1>"));	
+		//contentview.add(new HtmlView("<h1>"+title+"</h1>"));	
 		contentview.add(new DivRepWrapper(form));
 		
 		//setup crumbs
-		BreadCrumbView bread_crumb = new BreadCrumbView();
+		BootBreadCrumbView bread_crumb = new BootBreadCrumbView();
 		bread_crumb.addCrumb("Administration",  "admin");
 		bread_crumb.addCrumb("Service",  parent_page);
-		bread_crumb.addCrumb(rec.name, null);
+		bread_crumb.addCrumb(title, null);
 		contentview.setBreadCrumb(bread_crumb);
 		
-		Page page = new Page(context, new MenuView(context, "admin"), contentview, createSideView());	
+		BootPage page = new BootPage(context, new BootMenuView(context, "admin"), contentview, createSideView());	
 		page.render(response.getWriter());	
 	}
 	
 	private SideContentView createSideView()
 	{
 		SideContentView view = new SideContentView();
-		view.add("Misc-no-op", new HtmlView("Misc-no-op"));
+		//view.add("Misc-no-op", new HtmlView("Misc-no-op"));
 		return view;
 	}
 }

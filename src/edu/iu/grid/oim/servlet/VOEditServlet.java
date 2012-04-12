@@ -49,7 +49,7 @@ public class VOEditServlet extends ServletBase implements Servlet {
 			VOModel model = new VOModel(context);
 			if(!model.canEdit(vo_id)) {
 				//throw new AuthorizationException("Sorry, you don't have permission to edit VO ID:" + vo_id);
-				response.sendRedirect( StaticConfig.getApplicationBase()+"/vo?id="+vo_id);
+				response.sendRedirect("vo?id="+vo_id);
 			}
 			
 			try {
@@ -66,9 +66,8 @@ public class VOEditServlet extends ServletBase implements Servlet {
 		}
 	
 		VOFormDE form;
-		String origin_url = StaticConfig.getApplicationBase()+"/"+parent_page;
 		try {
-			form = new VOFormDE(context, rec, origin_url);
+			form = new VOFormDE(context, rec, parent_page);
 		} catch (SQLException e) {
 			throw new ServletException(e);
 		}
@@ -76,6 +75,12 @@ public class VOEditServlet extends ServletBase implements Servlet {
 		//put the form in a view and display
 		ContentView contentview = new ContentView();
 		//contentview.add(new HtmlView("<h1>"+title+"</h1>"));	
+		if(rec.active != null && rec.active == false) {
+			contentview.add(new HtmlView("<div class=\"alert\">This Virtual Organization is currently inactive.</div>"));
+		}
+		if(rec.disable != null && rec.disable == true) {
+			contentview.add(new HtmlView("<div class=\"alert\">This Virtual Organization is currently disabled.</div>"));
+		}
 		contentview.add(new DivRepWrapper(form));
 		
 		//setup crumbs
@@ -94,7 +99,7 @@ public class VOEditServlet extends ServletBase implements Servlet {
 		if(rec.id != null) {
 			//view.add(new HtmlView("<h3>Other Actions</h3>"));
 			//view.add(new HtmlView("<div class=\"indent\">"));
-			view.add(new HtmlView("<p><a class=\"btn\" href=\""+StaticConfig.getApplicationBase()+"/vo?id="+rec.id+"\">Show Readonly View</a></p>"));
+			view.add(new HtmlView("<p><a class=\"btn\" href=\"vo?id="+rec.id+"\">Show Readonly View</a></p>"));
 			//view.add(new HtmlView("<p><a href=\""+StaticConfig.getApplicationBase()+"/log?type=5&id="+rec.id+"\">View Update History</a></p>"));
 			//view.add(new HtmlView("</div>"));
 		}

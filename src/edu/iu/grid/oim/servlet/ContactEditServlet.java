@@ -15,6 +15,9 @@ import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.view.divrep.form.ContactFormDE;
+import edu.iu.grid.oim.view.BootBreadCrumbView;
+import edu.iu.grid.oim.view.BootMenuView;
+import edu.iu.grid.oim.view.BootPage;
 import edu.iu.grid.oim.view.BreadCrumbView;
 import edu.iu.grid.oim.view.ContentView;
 import edu.iu.grid.oim.view.DivRepWrapper;
@@ -56,28 +59,28 @@ public class ContactEditServlet extends ServletBase implements Servlet {
 			} catch (SQLException e) {
 				throw new ServletException(e);
 			}	
-			title = "Update Contact";
+			title = rec.name;
 		} else {
 			rec = new ContactRecord();
 			rec.submitter_dn_id = auth.getDNID();
 			title = "New Contact";	
 		}
 
-		String origin_url = StaticConfig.getApplicationBase()+"/"+parent_page;
-		ContactFormDE form = new ContactFormDE(context, rec, origin_url, false);
+		//String origin_url = StaticConfig.getApplicationBase()+"/"+parent_page;
+		ContactFormDE form = new ContactFormDE(context, rec, parent_page, false);
 		
 		//put the form in a view and display
 		ContentView contentview = new ContentView();
-		contentview.add(new HtmlView("<h1>"+title+"</h1>"));	
+		//contentview.add(new HtmlView("<h1>"+title+"</h1>"));	
 		contentview.add(new DivRepWrapper(form));
 		
 		//setup crumbs
-		BreadCrumbView bread_crumb = new BreadCrumbView();
-		bread_crumb.addCrumb("Contact",  parent_page);
-		bread_crumb.addCrumb(rec.name,  null);
+		BootBreadCrumbView bread_crumb = new BootBreadCrumbView();
+		bread_crumb.addCrumb("OSG Contact",  parent_page);
+		bread_crumb.addCrumb(title,  null);
 		contentview.setBreadCrumb(bread_crumb);
 		
-		Page page = new Page(context, new MenuView(context, parent_page), contentview, createSideView());
+		BootPage page = new BootPage(context, new BootMenuView(context, parent_page), contentview, createSideView());
 		page.render(response.getWriter());	
 	}
 	

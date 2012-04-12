@@ -25,6 +25,9 @@ import edu.iu.grid.oim.model.db.record.MetricServiceRecord;
 import edu.iu.grid.oim.model.db.record.ResourceDowntimeRecord;
 import edu.iu.grid.oim.model.db.record.ServiceRecord;
 
+import edu.iu.grid.oim.view.BootBreadCrumbView;
+import edu.iu.grid.oim.view.BootMenuView;
+import edu.iu.grid.oim.view.BootPage;
 import edu.iu.grid.oim.view.BreadCrumbView;
 import edu.iu.grid.oim.view.ContentView;
 import edu.iu.grid.oim.view.DivRepWrapper;
@@ -51,16 +54,16 @@ public class ServiceServlet extends ServletBase implements Servlet {
 		
 		try {	
 			//construct view
-			MenuView menuview = new MenuView(context, "admin");
+			BootMenuView menuview = new BootMenuView(context, "admin");
 			ContentView contentview = createContentView();
 			
 			//setup crumbs
-			BreadCrumbView bread_crumb = new BreadCrumbView();
+			BootBreadCrumbView bread_crumb = new BootBreadCrumbView();
 			bread_crumb.addCrumb("Administration",  "admin");
 			bread_crumb.addCrumb("Service",  null);
 			contentview.setBreadCrumb(bread_crumb);
 			
-			Page page = new Page(context, menuview, contentview, createSideView());
+			BootPage page = new BootPage(context, menuview, contentview, createSideView());
 			page.render(response.getWriter());			
 		} catch (SQLException e) {
 			log.error(e);
@@ -72,7 +75,7 @@ public class ServiceServlet extends ServletBase implements Servlet {
 		throws ServletException, SQLException
 	{
 		ContentView contentview = new ContentView();	
-		contentview.add(new HtmlView("<h1>Service</h1>"));
+		//contentview.add(new HtmlView("<h1>Service</h1>"));
 
 		ServiceModel model = new ServiceModel(context);
 		ServiceGroupModel sgmodel = new ServiceGroupModel(context);
@@ -99,7 +102,7 @@ public class ServiceServlet extends ServletBase implements Servlet {
 			}
 			table.addRow("Metrics", metric_view);
 		
-		 	
+		 	/*
 			class EditButtonDE extends DivRepButton
 			{
 				String url;
@@ -113,6 +116,8 @@ public class ServiceServlet extends ServletBase implements Servlet {
 				}
 			};
 			table.add(new DivRepWrapper(new EditButtonDE(context.getPageRoot(), StaticConfig.getApplicationBase()+"/serviceedit?id=" + rec.id)));
+			*/
+			table.add(new HtmlView("<a class=\"btn\" href=\"serviceedit?id=" + rec.id +"\">Edit</a>"));
 		}
 		
 		return contentview;
@@ -142,7 +147,7 @@ public class ServiceServlet extends ServletBase implements Servlet {
 	private SideContentView createSideView()
 	{
 		SideContentView view = new SideContentView();
-		
+		/*
 		class NewButtonDE extends DivRepButton
 		{
 			String url;
@@ -156,7 +161,10 @@ public class ServiceServlet extends ServletBase implements Servlet {
 			}
 		};
 		view.add("Operation", new NewButtonDE(context.getPageRoot(), "serviceedit"));
-		view.add("About", new HtmlView("Todo.."));		
+		*/
+		view.add(new HtmlView("<a class=\"btn\" href=\"serviceedit\">Add New Service</a>"));		
+
+		//view.add("About", new HtmlView("Todo.."));		
 		return view;
 	}
 }

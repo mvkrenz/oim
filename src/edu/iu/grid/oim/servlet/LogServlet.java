@@ -48,6 +48,8 @@ import edu.iu.grid.oim.model.db.LogModel;
 import edu.iu.grid.oim.model.db.ModelBase;
 import edu.iu.grid.oim.model.db.record.DNRecord;
 import edu.iu.grid.oim.model.db.record.LogRecord;
+import edu.iu.grid.oim.view.BootMenuView;
+import edu.iu.grid.oim.view.BootPage;
 import edu.iu.grid.oim.view.ContentView;
 import edu.iu.grid.oim.view.DivRepWrapper;
 import edu.iu.grid.oim.view.HtmlView;
@@ -304,7 +306,7 @@ public class LogServlet extends ServletBase  {
         		list_kv.put(id, lists.get(id).title);
         	}
         	listtype = new DivRepSelectBox(this, list_kv);
-        	listtype.setLabel("Log Type");
+        	listtype.setLabel("Display");
         	listtype.setValue(1);
         	listtype.setHasNull(false);
     		String str = request.getParameter("type");
@@ -465,9 +467,10 @@ public class LogServlet extends ServletBase  {
         	models.put(14, item); 
         	
     		update = new DivRepButton(this, "Update Page");
+    		update.addClass("btn");
     		update.addEventListener(new DivRepEventListener() {
 				public void handleEvent(DivRepEvent e) {
-					redirect("?" + getParameters());
+					redirect("log?" + getParameters());
 				}});
     	}
     	
@@ -524,53 +527,32 @@ public class LogServlet extends ServletBase  {
 		public void render(PrintWriter out) {
 			out.write("<div id=\""+getNodeID()+"\">");
 
-			out.write("<h3>Logs to display</h3>");
-	    	out.write("<div class=\"indent\">");
-				listtype.render(out);
-				out.write("<div class=\"indent\">");
-					getCurrentList().render(out);
-				out.write("</div>");
-				
-				out.write("<br/>");
-				start_type.render(out);
-				
-				//out.write("<div class=\"indent\">");
-				start_date.render(out);
-				//out.write("</div>");
-				
-				end_type.render(out);
-				
-				//out.write("<div class=\"indent\">");
-				end_date.render(out);
-				//out.write("</div>");
-				
-				out.write("<br/>");
+			listtype.render(out);
+			getCurrentList().render(out);
 
-				out.write("<p class=\"info\">Please select at least one item from both Transaction Type and Model Type.</p>");
+			start_type.render(out);
+			start_date.render(out);
+			end_type.render(out);
+			end_date.render(out);
 
-	    	
-		    	out.write("<b>Transaction Type</b>");
-				for(DivRepCheckBox transaction : transactions.values()) {
-					transaction.render(out);
-				}
-				out.write("<br/>");
-				
-		    	out.write("<b>Model Type</b>");
-				for(DivRepCheckBox model : models.values()) {
-					model.render(out);
-				}
-				out.write("<br/>");
+	    	out.write("<p><b>Transaction Type</b>");
+			for(DivRepCheckBox transaction : transactions.values()) {
+				transaction.render(out);
+			}
+			out.write("</p>");
 			
-			
-			out.write("</div>");
-			
-			out.write("<br/>");
+	    	out.write("<p><b>Model Type</b>");
+			for(DivRepCheckBox model : models.values()) {
+				model.render(out);
+			}
+			out.write("</p>");
+
+			out.write("<p>");
 			update.render(out);
+			out.write("</p>");
 			
 			out.write("<h3>Subscribe</h3>");
-	    	out.write("<div class=\"indent\">");
-		    	out.write("<a target=\"_blank\" href=\"?xml=true&"+getParameters()+"\">XML</a>");			
-			out.write("</div>");
+		    out.write("<a target=\"_blank\" class=\"btn\" href=\"log?xml=true&"+getParameters()+"\">XML</a>");			
 			
 			out.write("</div>");
 		}
@@ -599,9 +581,9 @@ public class LogServlet extends ServletBase  {
 		try {
 			if(request.getParameter("xml") == null) {
 				//construct HTML
-				MenuView menuview = new MenuView(context, "log");
+				BootMenuView menuview = new BootMenuView(context, "log");
 				ContentView contentview = createContentView(params);
-				Page page = new Page(context, menuview, contentview, createSideView());
+				BootPage page = new BootPage(context, menuview, contentview, createSideView());
 				page.render(response.getWriter());		
 			} else {
 				//construct XML
@@ -678,7 +660,7 @@ public class LogServlet extends ServletBase  {
 	protected ContentView createContentView(Parameters params) throws ServletException, SQLException
 	{
 		ContentView view = new ContentView();	
-		view.add(new HtmlView("<h1>"+params.getTitle()+"</h1>"));    	
+		view.add(new HtmlView("<h2>"+params.getTitle()+"</h2>"));    	
     	
 		try {
 	    	DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -716,7 +698,7 @@ public class LogServlet extends ServletBase  {
 								dn_string_to_print = dnrec.dn_string;
 							}
 						}
-						view.add(new HtmlView("<h2>" + somemodel.getName() + " ("+rec.type+")<a href=\"?type=3&id="+rec.id+"\" class=\"sidenote\">"+rec.id+"</a></h2>"));
+						view.add(new HtmlView("<h3 class=\"logheader\">" + somemodel.getName() + " ("+rec.type+")<a href=\"log?type=3&id="+rec.id+"\" class=\"sidenote\">"+rec.id+"</a></h3>"));
 						
 						view.add(new HtmlView("<div class=\"sidenote\">By "+dn_string_to_print+"<br/>"+dformat.format(rec.timestamp)+ " (" + getTimeZone().getID() + ")</div>"));
 						if(rec.comment != null) {

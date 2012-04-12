@@ -45,6 +45,9 @@ import edu.iu.grid.oim.model.db.record.VOContactRecord;
 import edu.iu.grid.oim.model.db.record.VOFieldOfScienceRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
 import edu.iu.grid.oim.model.db.record.VOReportContactRecord;
+import edu.iu.grid.oim.view.BootBreadCrumbView;
+import edu.iu.grid.oim.view.BootMenuView;
+import edu.iu.grid.oim.view.BootPage;
 import edu.iu.grid.oim.view.BreadCrumbView;
 import edu.iu.grid.oim.view.ContentView;
 import edu.iu.grid.oim.view.DivRepWrapper;
@@ -72,14 +75,15 @@ public class VOServlet extends ServletBase implements Servlet {
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{		
-		auth.check("edit_my_vo");
+		//auth.check("edit_my_vo");
 		
 		try {	
 			//construct view
-			MenuView menuview = new MenuView(context, "vo");
+			BootMenuView menuview = new BootMenuView(context, "vo");
 			ContentView contentview = null;
 			//display either list, or a single resource
 			VORecord rec = null;
+			SideContentView sideview = null;
 			String vo_id_str = request.getParameter("id");
 			if(vo_id_str != null) {
 				Integer vo_id = Integer.parseInt(vo_id_str);
@@ -88,20 +92,28 @@ public class VOServlet extends ServletBase implements Servlet {
 				contentview = new ContentView();
 				
 				// setup crumbs
-				BreadCrumbView bread_crumb = new BreadCrumbView();
+				BootBreadCrumbView bread_crumb = new BootBreadCrumbView();
 				// bread_crumb.addCrumb("Administration", "admin");
 				bread_crumb.addCrumb("Virtual Organization", "vo");
 				bread_crumb.addCrumb(rec.name, null);
 				contentview.setBreadCrumb(bread_crumb);
 
-				contentview.add(new HtmlView("<h2>"+StringEscapeUtils.escapeHtml(rec.name)+"</h2>"));	
+				//contentview.add(new HtmlView("<h2>"+StringEscapeUtils.escapeHtml(rec.name)+"</h2>"));	
+				if(rec.active == false) {
+					contentview.add(new HtmlView("<div class=\"alert\">This Virtual Organization is currently inactive.</div>"));
+				}
+				if(rec.disable == true) {
+					contentview.add(new HtmlView("<div class=\"alert\">This Virtual Organization is currently disabled.</div>"));
+				}
 				contentview.add(createVOContent(rec, model.canEdit(vo_id))); //false = no edit button	
+				
+				sideview = createSideView();
 
 			} else {
 				contentview = createListContentView();
 			}
 			
-			Page page = new Page(context, menuview, contentview, createSideView(rec));
+			BootPage page = new BootPage(context, menuview, contentview, sideview);
 			page.render(response.getWriter());			
 		} catch (SQLException e) {
 			log.error(e);
@@ -132,41 +144,36 @@ public class VOServlet extends ServletBase implements Servlet {
 		}
 		
 		ContentView contentview = new ContentView();
-		contentview.add(new HtmlView("<h2>My Virtual Organizations</h2>"));
-		if(editable_vos.size() == 0) {
-			contentview.add(new HtmlView("<p>You currently are not listed as a contact of any contact type (exept submitter) on any virtual organization - therefore you are not authorized to edit any VOs.</p>"));
-		}
-		ItemTableView table = new ItemTableView(6);
-		for(final VORecord rec : editable_vos) {
-			String name = rec.name;
-			String disable_css = "";
-			String tag = "";
-			if(rec.disable) {
-				disable_css += " disabled";
-				tag += " (Disabled)";
+		
+		if(auth.isUser()) {
+			contentview.add(new HtmlView("<h2>My Virtual Organizations</h2>"));
+			if(editable_vos.size() == 0) {
+				contentview.add(new HtmlView("<p>You currently are not listed as a contact of any contact type (exept submitter) on any virtual organization - therefore you are not authorized to edit any VOs.</p>"));
 			}
-			if(!rec.active) {
-				disable_css += " inactive";
-				tag += " (Inactive)";
-			}
-			table.add(new HtmlView("<a class=\""+disable_css+"\" title=\""+StringEscapeUtils.escapeHtml(rec.long_name)+"\" href=\""+StaticConfig.getApplicationBase()+"/voedit?id="+rec.id+"\">"+StringEscapeUtils.escapeHtml(name)+tag+"</a>"));
-			/*
-			contentview.add(new DivRepToggler(context.getPageRoot()) {
-				@Override
-				public DivRep createContent() {
-					return createVOContent(rec, true);
+			ItemTableView table = new ItemTableView(6);
+			for(final VORecord rec : editable_vos) {
+				String name = rec.name;
+				String disable_css = "";
+				String tag = "";
+				if(rec.disable) {
+					disable_css += " disabled";
+					tag += " (Disabled)";
 				}
-				//contentview.add(showResource(rec, false)); //false = no edit button
-			}); //true = show edit button
-			*/
+				if(!rec.active) {
+					disable_css += " inactive";
+					tag += " (Inactive)";
+				}
+				table.add(new HtmlView("<a class=\""+disable_css+"\" title=\""+StringEscapeUtils.escapeHtml(rec.long_name)+"\" href=\"voedit?id="+rec.id+"\">"+StringEscapeUtils.escapeHtml(name)+tag+"</a>"));
+			}
+			contentview.add(table);
+			contentview.add(new HtmlView("<a href=\"voedit\" class=\"btn pull-right\">Add New Virtual Organization</a><br clear=\"all\">"));
 		}
-		contentview.add(table);
 		
 		if(readonly_vos.size() != 0) {
-			contentview.add(new HtmlView("<h2>Read-Only Virtual Organizations</h2>"));
+			contentview.add(new HtmlView("<h2>Virtual Organizations</h2>"));
 			//contentview.add(new HtmlView("<p>Following are the currently registered virtual organizations on OIM - you do not have edit access on these records.</p>"));
 	
-			table = new ItemTableView(5);
+			ItemTableView table = new ItemTableView(5);
 			for(final VORecord rec : readonly_vos) {
 				String name = rec.name;
 				GenericView vo = new GenericView();		
@@ -180,18 +187,10 @@ public class VOServlet extends ServletBase implements Servlet {
 					disable_css += " inactive";
 					tag += " (Inactive)";
 				}
-				vo.add(new HtmlView("<a class=\""+disable_css+"\" title=\""+StringEscapeUtils.escapeHtml(rec.long_name)+"\" href=\""+StaticConfig.getApplicationBase()+"/vo?id="+rec.id+"\">"+StringEscapeUtils.escapeHtml(name)+tag+"</a>"));
+				vo.add(new HtmlView("<a class=\""+disable_css+"\" title=\""+StringEscapeUtils.escapeHtml(rec.long_name)+"\" href=\"vo?id="+rec.id+"\">"+StringEscapeUtils.escapeHtml(name)+tag+"</a>"));
 				//vo.add(new HtmlView("<p>"+StringEscapeUtils.escapeHtml(rec.long_name)+"</p>"));
 				table.add(vo);
-				/*
-				contentview.add(new DivRepToggler(context.getPageRoot()) {
-					@Override
-					public DivRep createContent() {
-						return createVOContent(rec, false);
-					}
-					//contentview.add(showResource(rec, false)); //false = no edit button
-				}); //true = show edit button
-				*/
+
 			}
 			contentview.add(table);
 		}
@@ -290,6 +289,7 @@ public class VOServlet extends ServletBase implements Servlet {
 			table.addRow("Disable", rec.disable);
 					
 			if(show_edit_button) {
+				/*
 				class EditButtonDE extends DivRepButton
 				{
 					String url;
@@ -303,6 +303,9 @@ public class VOServlet extends ServletBase implements Servlet {
 					}
 				};
 				table.add(new DivRepWrapper(new EditButtonDE(context.getPageRoot(), StaticConfig.getApplicationBase()+"/voedit?id=" + rec.id)));
+				*/
+				table.add(new HtmlView("<a class=\"btn\" href=\"voedit?id=" + rec.id + "\">Edit</a>"));
+
 			}
 		} catch (SQLException e) {
 			return new DivRepStaticContent(context.getPageRoot(), e.toString());
@@ -327,12 +330,14 @@ public class VOServlet extends ServletBase implements Servlet {
 		}
 		String out = "";
 		FieldOfScienceModel fmodel = new FieldOfScienceModel(context);
+		out += "<ul>";
 		for(VOFieldOfScienceRecord rec : list) {
 			FieldOfScienceRecord keyrec = new FieldOfScienceRecord();
 			keyrec.id = rec.field_of_science_id;
 			FieldOfScienceRecord frec = fmodel.get(keyrec);
-			out += frec.name + "<br/>";
+			out += "<li>" + frec.name + "</li>";
 		}
+		out += "</ul>";
 		return new HtmlView(out);
 	}
 
@@ -394,19 +399,23 @@ public class VOServlet extends ServletBase implements Servlet {
 		return table;
 	}
 
-	private SideContentView createSideView(VORecord rec)
+	private SideContentView createSideView()
 	{
 		SideContentView view = new SideContentView();
 		
-		view.add(new HtmlView("<h3>Other Actions</h3>"));
-		view.add(new HtmlView("<div class=\"indent\">"));
-		view.add(new HtmlView("<p><a href=\""+StaticConfig.getApplicationBase()+"/voedit\">Register New Virtual Organization</a></p>"));
+		//view.add(new HtmlView("<h3>Other Actions</h3>"));
+		//view.add(new HtmlView("<div class=\"indent\">"));
+		if(auth.isUser()) {
+			view.add(new HtmlView("<p>"));
+			view.add(new HtmlView("<a class=\"btn\" href=\"voedit\">Register New Virtual Organization</a>"));
+			view.add(new HtmlView("</p>"));
+		}
 		/*
 		if(rec != null) {
 			view.add(new HtmlView("<p><a href=\""+StaticConfig.getApplicationBase()+"/log?type=5&id="+rec.id+"\">View Update History</a></p>"));
 		}
 		*/
-		view.add(new HtmlView("</div>"));
+		//view.add(new HtmlView("</div>"));
 		//view.add("About", new HtmlView("This page shows a list of Virtual Organization that you have access to edit."));		
 
 		view.addContactLegend();

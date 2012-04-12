@@ -39,6 +39,9 @@ import edu.iu.grid.oim.model.db.record.SCContactRecord;
 import edu.iu.grid.oim.model.db.record.SCRecord;
 import edu.iu.grid.oim.model.db.record.VOContactRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
+import edu.iu.grid.oim.view.BootBreadCrumbView;
+import edu.iu.grid.oim.view.BootMenuView;
+import edu.iu.grid.oim.view.BootPage;
 import edu.iu.grid.oim.view.BreadCrumbView;
 import edu.iu.grid.oim.view.ContactAssociationView;
 import edu.iu.grid.oim.view.ContentView;
@@ -70,7 +73,7 @@ public class ContactServlet extends ServletBase implements Servlet {
 			//MenuView menuview = new MenuView(context, "contact");
 			//ContentView contentview = createContentView();
 			
-			MenuView menuview = new MenuView(context, "contact");
+			BootMenuView menuview = new BootMenuView(context, "contact");
 			ContentView contentview = null;
 			//display either list, or a single resource
 			ContactRecord rec = null;
@@ -82,7 +85,7 @@ public class ContactServlet extends ServletBase implements Servlet {
 				contentview = new ContentView();
 				
 				// setup crumbs
-				BreadCrumbView bread_crumb = new BreadCrumbView();
+				BootBreadCrumbView bread_crumb = new BootBreadCrumbView();
 				// bread_crumb.addCrumb("Administration", "admin");
 				bread_crumb.addCrumb("Contact", "contact");
 				bread_crumb.addCrumb(rec.name, null);
@@ -96,7 +99,7 @@ public class ContactServlet extends ServletBase implements Servlet {
 				contentview = createContentView();
 			}
 			
-			Page page = new Page(context, menuview, contentview, createSideView(rec));
+			BootPage page = new BootPage(context, menuview, contentview, createSideView(rec));
 			page.render(response.getWriter());			
 		} catch (SQLException e) {
 			log.error(e);
@@ -153,42 +156,42 @@ public class ContactServlet extends ServletBase implements Servlet {
 			Collection<ContactRecord> readonly_contacts) 
 		throws ServletException, SQLException
 	{  
-		contentview.add(new HtmlView("<h2>My Contacts</h2>"));
-		if(editable_contacts.size() == 0) {
-			contentview.add(new HtmlView("<p>There are currently no contacts that you submitted (and therefore would have been able to edit).</p>"));
-		} else {
-			contentview.add(new HtmlView("<p>Here are the contacts you submitted, and therefore are able to edit.</p>"));
-		}
-		ItemTableView table = new ItemTableView(4);
-		for(ContactRecord rec : editable_contacts) {
-			table.add(new HtmlView(getContactHeader(rec, true)));
-			//contentview.add(showContact(rec, true)); //true = show edit button
-		}
-		contentview.add(table);
-
-		if(auth.allows("admin") && editable_disabled_contacts.size() != 0) {
-			contentview.add(new HtmlView("<h2>Disabled Contacts (Admin Only)</h2>"));
-			contentview.add(new HtmlView("<p>Following are the contacts that are currently disabled.</p>"));
+		contentview.add(new HtmlView("<h1>OSG Contacts</h1>"));
+		if(editable_contacts.size() != 0) {
+			contentview.add(new HtmlView("<h2>Editable</h2>"));
+			contentview.add(new HtmlView("<p>You have edit access to following contacts</p>"));
 	
-			table = new ItemTableView(4);
-			for(ContactRecord rec : editable_disabled_contacts) {
+			ItemTableView table = new ItemTableView(4);
+			for(ContactRecord rec : editable_contacts) {
 				table.add(new HtmlView(getContactHeader(rec, true)));
 				//contentview.add(showContact(rec, true)); //true = show edit button
 			}
 			contentview.add(table);
-		}	
+		}
 
 		if(readonly_contacts.size() != 0) {
-			contentview.add(new HtmlView("<h2>Read-Only Contacts</h2>"));
+			contentview.add(new HtmlView("<h2>Read-Only</h2>"));
 			contentview.add(new HtmlView("<p>Following are the contact that are currently registered at OIM that you do not have edit access.</p>"));
 	
-			table = new ItemTableView(4);
+			ItemTableView table = new ItemTableView(4);
 			for(ContactRecord rec : readonly_contacts) {
 				table.add(new HtmlView(getContactHeader(rec, false)));
 				//contentview.add(showContact(rec, false)); //false = no edit button
 			}
 			contentview.add(table);
 		}
+		
+		if(auth.allows("admin") && editable_disabled_contacts.size() != 0) {
+			contentview.add(new HtmlView("<h2>Disabled (Admin Only)</h2>"));
+			contentview.add(new HtmlView("<p>Following are the contacts that are currently disabled.</p>"));
+	
+			ItemTableView table = new ItemTableView(4);
+			for(ContactRecord rec : editable_disabled_contacts) {
+				table.add(new HtmlView(getContactHeader(rec, true)));
+				//contentview.add(showContact(rec, true)); //true = show edit button
+			}
+			contentview.add(table);
+		}	
 		
 		return contentview;
 	}
@@ -304,11 +307,11 @@ public class ContactServlet extends ServletBase implements Servlet {
 		SideContentView view = new SideContentView();
 		
 		if(rec == null) {
-			view.add(new HtmlView("<h3>Other Actions</h3>"));
-			view.add(new HtmlView("<div class=\"indent\">"));
-			view.add(new HtmlView("<p><a href=\""+StaticConfig.getApplicationBase()+"/contactedit\">Register New Contact</a></p>"));
-			view.add(new HtmlView("</div>"));
-			view.add("About", new HtmlView("This page shows a list of contacts on OIM. Contacts can be a person or a mailing list or a service that needs to be registered on OIM to access privileged information on other OSG services. <p><br/> You as a registered OIM user will be able to edit any contact you added. GOC staff are able to edit all contacts including previous de-activated ones. <p><br/> If you want to map a certain person or group contact (and their email/phone number) to a resource, VO, SC, etc. but cannot find that contact already in OIM, then you can add a new contact. <p><br/>  Note that if you add a person as a new contact, that person will still not be able to perform any actions inside OIM until they register their X509 certificate on OIM."));		
+			//view.add(new HtmlView("<h3>Other Actions</h3>"));
+			//view.add(new HtmlView("<div class=\"indent\">"));
+			view.add(new HtmlView("<p><a class=\"btn\" href=\""+StaticConfig.getApplicationBase()+"/contactedit\">Register New Contact</a></p>"));
+			//view.add(new HtmlView("</div>"));
+			view.add(new HtmlView("This page shows a list of contacts on OIM. Contacts can be a person or a mailing list or a service that needs to be registered on OIM to access privileged information on other OSG services. <p><br/> You as a registered OIM user will be able to edit any contact you added. GOC staff are able to edit all contacts including previous de-activated ones. <p><br/> If you want to map a certain person or group contact (and their email/phone number) to a resource, VO, SC, etc. but cannot find that contact already in OIM, then you can add a new contact. <p><br/>  Note that if you add a person as a new contact, that person will still not be able to perform any actions inside OIM until they register their X509 certificate on OIM."));		
 			view.addContactGroupFlagLegend();
 		} else {
 			//view.addContactLegend();

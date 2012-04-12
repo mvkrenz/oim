@@ -108,7 +108,7 @@ public class ResourceFormDE extends DivRepForm
 		
 		id = rec.id;
 		
-		new DivRepStaticContent(this, "<h2>Basic Resource Information</h2>");
+		new DivRepStaticContent(this, "<h2>Resource Information</h2>");
 		//new DivRepStaticContent(this, "<p class=\"help-block\">Add/modify basic information about this resource.</p>");
 		
 		//pull vos for unique validator
@@ -170,7 +170,6 @@ public class ResourceFormDE extends DivRepForm
 		if(id != null) {
 			ResourceServiceDetailModel rsdmodel = new ResourceServiceDetailModel(context);
 			ArrayList<ResourceServiceDetailRecord> details = rsdmodel.getAllByResourceID(id);
-			
 			for(ResourceServiceRecord rarec : rsmodel.getByResourceID(id)) {
 				resource_services.addService(rarec, details);
 			}

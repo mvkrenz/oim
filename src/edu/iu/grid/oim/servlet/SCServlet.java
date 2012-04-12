@@ -34,6 +34,9 @@ import edu.iu.grid.oim.model.db.record.ContactTypeRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.VOContactRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
+import edu.iu.grid.oim.view.BootBreadCrumbView;
+import edu.iu.grid.oim.view.BootMenuView;
+import edu.iu.grid.oim.view.BootPage;
 import edu.iu.grid.oim.view.BreadCrumbView;
 import edu.iu.grid.oim.view.ContentView;
 import edu.iu.grid.oim.view.DivRepWrapper;
@@ -59,7 +62,7 @@ public class SCServlet extends ServletBase implements Servlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{	
 		//setContext(request);
-		auth.check("edit_my_sc");
+		//auth.check("edit_my_sc");
 		
 		try {		
 			//construct view
@@ -67,8 +70,9 @@ public class SCServlet extends ServletBase implements Servlet {
 			//ContentView contentview = createContentView();
 			
 			//construct view
-			MenuView menuview = new MenuView(context, "sc");
+			BootMenuView menuview = new BootMenuView(context, "sc");
 			ContentView contentview = null;
+			SideContentView sideview = null;
 			//display either list, or a single resource
 			SCRecord rec = null;
 			String sc_id_str = request.getParameter("id");
@@ -79,20 +83,26 @@ public class SCServlet extends ServletBase implements Servlet {
 				contentview = new ContentView();
 				
 				// setup crumbs
-				BreadCrumbView bread_crumb = new BreadCrumbView();
+				BootBreadCrumbView bread_crumb = new BootBreadCrumbView();
 				// bread_crumb.addCrumb("Administration", "admin");
 				bread_crumb.addCrumb("Support Center", "sc");
 				bread_crumb.addCrumb(rec.name, null);
 				contentview.setBreadCrumb(bread_crumb);
 
-				contentview.add(new HtmlView("<h2>"+StringEscapeUtils.escapeHtml(rec.name)+"</h2>"));	
+				//contentview.add(new HtmlView("<h2>"+StringEscapeUtils.escapeHtml(rec.name)+"</h2>"));	
+				if(rec.active == false) {
+					contentview.add(new HtmlView("<div class=\"alert\">This Support Center is currently inactive.</div>"));
+				}
+				if(rec.disable == true) {
+					contentview.add(new HtmlView("<div class=\"alert\">This Support Center is currently disabled.</div>"));
+				}
 				contentview.add(createSCContent(rec, model.canEdit(sc_id))); //false = no edit button	
-
+				sideview = createSideView();
 			} else {
 				contentview = createListContent();
 			}
 			
-			Page page = new Page(context, menuview, contentview, createSideView(rec));
+			BootPage page = new BootPage(context, menuview, contentview, sideview);
 			page.render(response.getWriter());			
 		} catch (SQLException e) {
 			log.error(e);
@@ -121,34 +131,38 @@ public class SCServlet extends ServletBase implements Servlet {
 		}
 		
 		ContentView contentview = new ContentView();
-		contentview.add(new HtmlView("<h2>My Support Centers</h2>"));
-		if(editable_scs.size() == 0) {
-			contentview.add(new HtmlView("<p>You currently are not listed as a contact of any contact type (except submitter) on any support center - therefore you are not authorized to edit any SCs.</p>"));
-		}
-		ItemTableView table = new ItemTableView(5);
-		for(SCRecord rec : editable_scs) {
-			String name = rec.name;
-			String disable_css = "";
-			String tag = "";
-			if(rec.disable) {
-				disable_css += " disabled";
-				tag += " (Disabled)";
+		if(auth.isUser()) {
+			contentview.add(new HtmlView("<h2>My Support Centers</h2>"));
+			if(editable_scs.size() == 0) {
+				contentview.add(new HtmlView("<p>You currently are not listed as a contact of any contact type (except submitter) on any support center - therefore you are not authorized to edit any SCs.</p>"));
 			}
-			if(!rec.active) {
-				disable_css += " inactive";
-				tag += " (Inactive)";
+			
+			ItemTableView table = new ItemTableView(5);
+			for(SCRecord rec : editable_scs) {
+				String name = rec.name;
+				String disable_css = "";
+				String tag = "";
+				if(rec.disable) {
+					disable_css += " disabled";
+					tag += " (Disabled)";
+				}
+				if(!rec.active) {
+					disable_css += " inactive";
+					tag += " (Inactive)";
+				}
+				table.add(new HtmlView("<a class=\""+disable_css+"\" title=\""+StringEscapeUtils.escapeHtml(rec.long_name)+"\" href=\"scedit?id="+rec.id+"\">"+StringEscapeUtils.escapeHtml(name)+tag+"</a>"));
+	
+				//contentview.add(new HtmlView("<h2>"+StringEscapeUtils.escapeHtml(name)+"</h2>"));
+				//contentview.add(showSC(rec, true)); //true = show edit button
 			}
-			table.add(new HtmlView("<a class=\""+disable_css+"\" title=\""+StringEscapeUtils.escapeHtml(rec.long_name)+"\" href=\""+StaticConfig.getApplicationBase()+"/scedit?id="+rec.id+"\">"+StringEscapeUtils.escapeHtml(name)+tag+"</a>"));
-
-			//contentview.add(new HtmlView("<h2>"+StringEscapeUtils.escapeHtml(name)+"</h2>"));
-			//contentview.add(showSC(rec, true)); //true = show edit button
+			contentview.add(table);
+			contentview.add(new HtmlView("<a href=\"scedit\" class=\"btn pull-right\">Add New Support Center</a><br clear=\"all\">"));
 		}
-		contentview.add(table);
-		
+			
 		if(readonly_scs.size() != 0) {
-			contentview.add(new HtmlView("<h2>Read-Only Support Centers</h2>"));
+			contentview.add(new HtmlView("<h2>Support Centers</h2>"));
 			//contentview.add(new HtmlView("<p>Following are the currently registered support centers on OIM - you do not have edit access on these records.</p>"));
-			table = new ItemTableView(5);
+			ItemTableView table = new ItemTableView(5);
 			for(SCRecord rec : readonly_scs) {
 				String name = rec.name;
 				String disable_css = "";
@@ -161,7 +175,7 @@ public class SCServlet extends ServletBase implements Servlet {
 					disable_css += " inactive";
 					tag += " (Inactive)";
 				}
-				table.add(new HtmlView("<a class=\""+disable_css+"\" title=\""+StringEscapeUtils.escapeHtml(rec.long_name)+"\" href=\""+StaticConfig.getApplicationBase()+"/sc?id="+rec.id+"\">"+StringEscapeUtils.escapeHtml(name)+tag+"</a>"));
+				table.add(new HtmlView("<a class=\""+disable_css+"\" title=\""+StringEscapeUtils.escapeHtml(rec.long_name)+"\" href=\"sc?id="+rec.id+"\">"+StringEscapeUtils.escapeHtml(name)+tag+"</a>"));
 
 				//contentview.add(new HtmlView("<h2>"+StringEscapeUtils.escapeHtml(name)+"</h2>"));
 				//contentview.add(showSC(rec, false)); //false = no edit button
@@ -221,6 +235,7 @@ public class SCServlet extends ServletBase implements Servlet {
 			table.addRow("Disable", rec.disable);
 		
 			if(show_edit_button) {
+				/*
 				class EditButtonDE extends DivRepButton
 				{
 					String url;
@@ -234,6 +249,9 @@ public class SCServlet extends ServletBase implements Servlet {
 					}
 				};
 				table.add(new DivRepWrapper(new EditButtonDE(context.getPageRoot(), StaticConfig.getApplicationBase()+"/scedit?id=" + rec.id)));
+				*/
+				table.add(new HtmlView("<a class=\"btn\" href=\"scedit?id=" + rec.id + "\">Edit</a>"));
+
 			}
 		} catch (SQLException e) {
 			return new DivRepStaticContent(context.getPageRoot(), e.toString());
@@ -241,19 +259,23 @@ public class SCServlet extends ServletBase implements Servlet {
 		return new ViewWrapper(context.getPageRoot(), table);
 	}
 	
-	private SideContentView createSideView(SCRecord rec)
+	private SideContentView createSideView()
 	{
 		SideContentView view = new SideContentView();
 		
-		view.add(new HtmlView("<h3>Other Actions</h3>"));
-		view.add(new HtmlView("<div class=\"indent\">"));
-		view.add(new HtmlView("<p><a href=\""+StaticConfig.getApplicationBase()+"/scedit\">Register New Support Center</a></p>"));
+		//view.add(new HtmlView("<h3>Other Actions</h3>"));
+		//view.add(new HtmlView("<div class=\"indent\">"));
+		//view.add(new HtmlView("<div class=\"indent\">"));
+		if(auth.isUser()) {
+			view.add(new HtmlView("<p><a class=\"btn\" href=\"scedit\">Register New Support Center</a></p>"));
+		}
 		/*
+		 *
 		if(rec != null) {
 			view.add(new HtmlView("<p><a href=\""+StaticConfig.getApplicationBase()+"/log?type=6&id="+rec.id+"\">View Update History</a></p>"));
 		}
 		*/
-		view.add(new HtmlView("</div>"));
+		//view.add(new HtmlView("</div>"));
 		view.addContactLegend();
 		return view;
 	}

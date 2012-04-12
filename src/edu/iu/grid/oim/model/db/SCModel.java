@@ -66,22 +66,24 @@ public class SCModel extends SmallTableModelBase<SCRecord> {
 	private HashSet<Integer> getEditableIDs() throws SQLException
 	{
 		HashSet<Integer> list = new HashSet<Integer>();
-		ResultSet rs = null;
-
-		PreparedStatement stmt = null;
-
-		String sql = "SELECT * FROM sc_contact WHERE contact_id = ?";
-		Connection conn = connectOIM();
-		stmt = conn.prepareStatement(sql); 
-		stmt.setInt(1, auth.getContact().id);
-
-		rs = stmt.executeQuery();
-		while(rs.next()) {
-			SCContactRecord rec = new SCContactRecord(rs);
-			if(rec.contact_type_id == 1) continue; //submitter contact can't edit.
-			list.add(rec.sc_id);
+		if(auth.getContact() != null) {	
+			ResultSet rs = null;
+	
+			PreparedStatement stmt = null;
+	
+			String sql = "SELECT * FROM sc_contact WHERE contact_id = ?";
+			Connection conn = connectOIM();
+			stmt = conn.prepareStatement(sql); 
+			stmt.setInt(1, auth.getContact().id);
+	
+			rs = stmt.executeQuery();
+			while(rs.next()) {
+				SCContactRecord rec = new SCContactRecord(rs);
+				if(rec.contact_type_id == 1) continue; //submitter contact can't edit.
+				list.add(rec.sc_id);
+			}
+			stmt.close();
 		}
-		stmt.close();
 		
 		return list;
 	}

@@ -23,7 +23,7 @@ public class BootBreadCrumbView implements IView {
 				out.write("</li>");
 			} else {
 				//out.write("<a href=\""+url+"\">"+StringEscapeUtils.escapeHtml(title)+"</a>");
-				out.write("<li><a href=\""+url+"\">"+StringEscapeUtils.escapeHtml(title)+"</a> <span class=\"divider\">/</span></li>");
+				out.write("<li><a href=\""+url+"\">"+StringEscapeUtils.escapeHtml(title)+"</a><span class=\"divider\">/</span></li>");
 			}
 		}
 	}

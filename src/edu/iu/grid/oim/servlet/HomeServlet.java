@@ -106,26 +106,29 @@ public class HomeServlet extends ServletBase  {
 	private SideContentView createSideView()
 	{
 		SideContentView contentview = new SideContentView();
-		contentview.add(new HtmlView("<h3>Definitions</h3>"));
-		contentview.add(new HtmlView("<div class=\"indent\">"));
-			contentview.add(new ExternalLinkView("https://twiki.grid.iu.edu/twiki/bin/view/Operations/OIMTermDefinition", "Basic OIM Definitions"));
-			contentview.add(new HtmlView("<br/>"));
-			contentview.add(new HtmlView("<a href=\"https://docs.google.com/present/view?id=ddtgc5bt_113fp3fmvgp\">OSG Topology Slideshow</a>"));
-			contentview.add(new HtmlView(""));
-		contentview.add(new HtmlView("</div>"));
+		contentview.add(new HtmlView("<h3>Documentations</h3>"));
+		contentview.add(new ExternalLinkView("https://twiki.grid.iu.edu/twiki/bin/view/Operations/OIMTermDefinition", "OIM Definitions"));
+		contentview.add(new ExternalLinkView("https://twiki.grid.iu.edu/twiki/bin/view/Operations/OIMRegistrationInstructions", "Registration"));
+		contentview.add(new ExternalLinkView("https://twiki.grid.iu.edu/twiki/bin/view/Operations/OIMMaintTool", "Resource Downtime"));
+		contentview.add(new ExternalLinkView("https://twiki.grid.iu.edu/twiki/bin/view/Operations/OIMStandardOperatingProcedures", "Operating Procedures"));
+		/*
+		//contentview.add(new HtmlView("<h3>Definitions</h3>"));
+		//contentview.add(new HtmlView("<div class=\"indent\">"));
+			//contentview.add(new HtmlView("<br/>"));
+			//contentview.add(new HtmlView("<a href=\"https://docs.google.com/present/view?id=ddtgc5bt_113fp3fmvgp\">OSG Topology Slideshow</a>"));
+			//contentview.add(new HtmlView(""));
+		//contentview.add(new HtmlView("</div>"));
 
-		contentview.add(new HtmlView("<h3>New Registration Help</h3>"));
-		contentview.add(new HtmlView("<div class=\"indent\">"));
-			contentview.add(new ExternalLinkView("https://twiki.grid.iu.edu/twiki/bin/view/Operations/OIMRegistrationInstructions#Resource_or_Service_Registration", "Resource/Service Registration"));
-			contentview.add(new HtmlView("<br/>"));
-			contentview.add(new ExternalLinkView("https://twiki.grid.iu.edu/twiki/bin/view/Operations/OIMRegistrationInstructions#Support_Center_Registration", "Support Center (SC) Registration"));
-			contentview.add(new HtmlView("<br/>"));
-			contentview.add(new ExternalLinkView("https://twiki.grid.iu.edu/twiki/bin/view/Operations/OIMRegistrationInstructions#VO_Registration", "Virtual Organization (VO) Registration"));
-		contentview.add(new HtmlView("</div>"));
+		//contentview.add(new HtmlView("<h3>New Registration Help</h3>"));
+		//contentview.add(new HtmlView("<div class=\"indent\">"));
+			//contentview.add(new ExternalLinkView("https://twiki.grid.iu.edu/twiki/bin/view/Operations/OIMRegistrationInstructions#Resource_or_Service_Registration", "Resource/Service Registration"));
+			//contentview.add(new HtmlView("<br/>"));
+			//contentview.add(new ExternalLinkView("https://twiki.grid.iu.edu/twiki/bin/view/Operations/OIMRegistrationInstructions#Support_Center_Registration", "Support Center (SC) Registration"));
+			//contentview.add(new HtmlView("<br/>"));
+			//contentview.add(new HtmlView("</div>"));
 			
 		contentview.add(new HtmlView("<h3>Resource/Service Maintenance</h3>"));
 		contentview.add(new HtmlView("<div class=\"indent\">"));
-			contentview.add(new ExternalLinkView("https://twiki.grid.iu.edu/twiki/bin/view/Operations/OIMMaintTool#Adding_a_New_Maintenance_Window", "Schedule Resource Maintenance"));
 			contentview.add(new HtmlView("<br/>"));
 			contentview.add(new ExternalLinkView("https://twiki.grid.iu.edu/twiki/bin/view/Operations/OIMMaintTool#Modifying_a_Maintenance_Window", "Modify Existing Maintenance"));
 			contentview.add(new HtmlView("<br/>"));
@@ -140,7 +143,7 @@ public class HomeServlet extends ServletBase  {
 			contentview.add(new HtmlView("<br/>"));
 			contentview.add(new ExternalLinkView("https://twiki.grid.iu.edu/twiki/bin/view/Operations/OIMStandardOperatingProcedures#Virtual_Organization_Registratio", "Virtual Organizations (VO)"));
 		contentview.add(new HtmlView("</div>"));
-		
+		*/
 		if(auth.isUser()) {
 			contentview.addContactLegend();
 		}

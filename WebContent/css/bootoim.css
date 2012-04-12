@@ -85,6 +85,7 @@ text-align: left;
 width: 220px;
 border-bottom: 1px solid #ddd;
 padding-left: 5px;
+vertical-align: top;
 }
 tr.header
 {
@@ -106,7 +107,7 @@ table.inner_table th, table.inner_table tr.header td
 padding-left: 10px;
 width: 50%;
 }
-/*
+
 table.fqan_table
 {
 width: 100%;
@@ -123,12 +124,16 @@ padding-left: 10px;
 font-size: 8pt;
 font-family: Courier New;
 }
-*/
+
 
 .fqdn {
 font-family: Courier New;
 }
 
+h3.logheader {
+background-color: #eee;
+padding: 0px 5px;
+}
 table.log_table
 {
 margin-top: 5px;
@@ -143,7 +148,7 @@ width: 200px;
 }
 table.log_table tr.top
 {
-background-color: #ccc;
+color: #999;
 }
 table.log_table tr
 {
@@ -166,13 +171,13 @@ padding-bottom: 3px;
 {
 font-weight: bold;
 }
-.service_editor, .downtime_editor, .metric_service_editor, .vo_report_name_fqan, .owner_editor
+.vo_report_name_fqan
 {
 	background-color: #eee;
 	margin-bottom: 5px;
 	padding: 10px;
 	padding-left: 20px;
-	    border-top: #aaa solid 1px;
+	   border-top: #aaa solid 1px;
     border-bottom: #aaa solid 1px;
 }
 .vo_report_name_fqan
@@ -211,7 +216,11 @@ border: none;
 border-radius: 0px;
 box-shadow: none;
 }
-
+input.ui-autocomplete-loading {
+background-image:url(../images/loading.gif);
+background-repeat:no-repeat;
+background-position: right;
+}
 
 .form textarea
 {
@@ -498,4 +507,24 @@ cursor: pointer;
 }
 tr.latest {
 background-color: #CDE;
+}
+.duration_hour select{
+width: 100px;
+}
+.duration_minute select {
+width: 60px;
+}
+.duration .ui-datepicker-trigger {
+height: 28px;
+position: relative;
+top: -4px;
+}
+div.well_inactive {
+background-color: #ccc;
+}
+div.well_disabled {
+background-color: #999;
+}
+table.nohover tbody tr:hover td {
+background-color: inherit;
 }

@@ -64,7 +64,7 @@ public class ServiceGroupFormDE extends DivRepForm
 		
 		id = rec.id;
 		
-		new DivRepStaticContent(this, "<h2>Details</h2>");
+		//new DivRepStaticContent(this, "<h2>Details</h2>");
 		
 		//pull vos for unique validator
 		HashMap<Integer, String> resource_groups = getResourceGroups();

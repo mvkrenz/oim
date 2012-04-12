@@ -395,7 +395,7 @@ public class ContactEditor extends DivRepFormElement<HashMap<ContactEditor.Rank,
 			out.print("</div></td>");
 		} else {
 			//user can add more contact
-			out.print("<td style=\"border: 1px solid #ccc; background-color: white;\"><div class=\"contact_editor\" onclick=\"$(this).find('.ac_input').focus(); return false;\">");
+			out.print("<td style=\"border: 1px solid #ccc; background-color: white;\"><div class=\"contact_editor\" onclick=\"$(this).find('.autocomplete').focus(); return false;\">");
 			for(ContactDE contact : selected) {
 				contact.render(out);
 			}

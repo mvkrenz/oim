@@ -331,8 +331,8 @@ public class ContactFormDE extends DivRepForm
 			}
 		}
 
-		new DivRepStaticContent(this, "<h2>Basic Information</h2>");
-		
+		new DivRepStaticContent(this, "<h2>Contact Information</h2>");
+	
 		name = new DivRepTextBox(this);
 		name.setLabel("Full Name");
 		name.setValue(rec.name);

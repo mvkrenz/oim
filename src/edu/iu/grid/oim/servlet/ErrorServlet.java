@@ -19,6 +19,8 @@ import edu.iu.grid.oim.lib.AuthorizationException;
 import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.lib.SendMail_deprecated;
 import edu.iu.grid.oim.model.Context;
+import edu.iu.grid.oim.view.BootMenuView;
+import edu.iu.grid.oim.view.BootPage;
 import edu.iu.grid.oim.view.ContentView;
 import edu.iu.grid.oim.view.HtmlView;
 import edu.iu.grid.oim.view.MenuView;
@@ -39,9 +41,9 @@ public class ErrorServlet extends HttpServlet {
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{
-		MenuView menuview = new MenuView(Context.getGuestContext(), "_error_");
+		BootMenuView menuview = new BootMenuView(Context.getGuestContext(), "_error_");
 		ContentView contentview = createContentView(request);		
-		Page page = new Page(Context.getGuestContext(), menuview, contentview, new SideContentView());
+		BootPage page = new BootPage(Context.getGuestContext(), menuview, contentview, new SideContentView());
 		page.render(response.getWriter());	
 	}
 	
@@ -64,21 +66,20 @@ public class ErrorServlet extends HttpServlet {
 	    	}
 	    }
 
-		
 	    if(throwable instanceof AuthorizationException) {
 	    	String request_uri = "n/a";
 	    	if(request.getSession().getAttribute("request_uri") != null) {
 	    		request_uri = request.getSession().getAttribute("request_uri").toString();
 	    	}
 			contentview.add(new HtmlView("<h2>Authorization Error</h2>"));
-			contentview.add(new HtmlView("<p>You are not authorized to access this page. Click <string>Home</string> on the above menu for more information.</p>"));
-			contentview.add(new HtmlView("<p>"+throwable.getMessage()+"</p>"));
-			contentview.add(new HtmlView("<p>If you believe you should have an access this  page, then please open <a target=\"_blank\" href=\"https://ticket.grid.iu.edu/goc/oim?ref="+request_uri+"\">a ticket</a> with the OSG Grid Operations Center (GOC).</p>"));
+			contentview.add(new HtmlView("<div class=\"alert\"><p>You are not authorized to access this page. Click <string>Home</string> on the above menu for more information.</p>"));
+			contentview.add(new HtmlView("<p>Detail: "+throwable.getMessage()+"</p>"));
+			contentview.add(new HtmlView("<p>If you believe you should have an access this page, <a target=\"_blank\" href=\"https://ticket.grid.iu.edu/goc/oim?ref="+request_uri+"\">Open GOC ticket</a></p></div>"));
 	    } else {
 			contentview.add(new HtmlView("<h2>Oops!</h2>"));
-			contentview.add(new HtmlView("<p>Sorry, OIM has encountered a problem. </p>"));
-			contentview.add(new HtmlView("<p>"+throwable.getMessage()+"</p>"));
-			contentview.add(new HtmlView("<p>The GOC has been notified about this error; please feel free to additionally open <a target=\"_blank\" href=\"https://ticket.grid.iu.edu/goc/oim\">a ticket</a> with the OSG Grid Operations Center (GOC).</p>"));
+			contentview.add(new HtmlView("<div class=\"alert\"><p>Sorry, OIM has encountered a problem. </p>"));
+			contentview.add(new HtmlView("<p>Detail: "+throwable.getMessage()+"</p></div>"));
+			contentview.add(new HtmlView("<p>The GOC has been notified about this error, however, you can also <a target=\"_blank\" href=\"https://ticket.grid.iu.edu/goc/oim\">Open GOC ticket</a></p>"));
 		
 			//reportError(contentview, message);
 			//dump(request, throwable);

@@ -44,6 +44,9 @@ import edu.iu.grid.oim.model.db.record.SiteRecord;
 import edu.iu.grid.oim.model.db.record.FacilityRecord;
 import edu.iu.grid.oim.model.db.record.DNRecord;
 
+import edu.iu.grid.oim.view.BootBreadCrumbView;
+import edu.iu.grid.oim.view.BootMenuView;
+import edu.iu.grid.oim.view.BootPage;
 import edu.iu.grid.oim.view.BreadCrumbView;
 import edu.iu.grid.oim.view.ContentView;
 import edu.iu.grid.oim.view.DivRepWrapper;
@@ -72,16 +75,16 @@ public class MetricServlet extends ServletBase implements Servlet {
 		
 		try {	
 			//construct view
-			MenuView menuview = new MenuView(context, "admin");
+			BootMenuView menuview = new BootMenuView(context, "admin");
 			ContentView contentview = createContentView();
 			
 			//setup crumbs
-			BreadCrumbView bread_crumb = new BreadCrumbView();
+			BootBreadCrumbView bread_crumb = new BootBreadCrumbView();
 			bread_crumb.addCrumb("Administration",  "admin");
 			bread_crumb.addCrumb("RSV Metric",  null);
 			contentview.setBreadCrumb(bread_crumb);
 			
-			Page page = new Page(context, menuview, contentview, createSideView());
+			BootPage page = new BootPage(context, menuview, contentview, createSideView());
 			page.render(response.getWriter());			
 		} catch (SQLException e) {
 			log.error(e);
@@ -93,7 +96,7 @@ public class MetricServlet extends ServletBase implements Servlet {
 		throws ServletException, SQLException
 	{
 		ContentView contentview = new ContentView();	
-		contentview.add(new HtmlView("<h1>RSV Metric</h1>"));
+		//contentview.add(new HtmlView("<h1>RSV Metric</h1>"));
 
 		MetricModel model = new MetricModel(context);
 		
@@ -109,7 +112,7 @@ public class MetricServlet extends ServletBase implements Servlet {
 			table.addRow("Fresh For", rec.fresh_for.toString() + " Seconds");
 			table.addRow("Help URL", rec.help_url);
 			table.addRow("WLCG Metric Type", rec.wlcg_metric_type);
-		 	
+		 	/*
 			class EditButtonDE extends DivRepButton
 			{
 				String url;
@@ -123,6 +126,8 @@ public class MetricServlet extends ServletBase implements Servlet {
 				}
 			};
 			table.add(new DivRepWrapper(new EditButtonDE(context.getPageRoot(), StaticConfig.getApplicationBase()+"/metricedit?id=" + rec.id)));
+			*/
+			table.add(new HtmlView("<a class=\"btn\" href=\"metricedit?id=" + rec.id +"\">Edit</a>"));
 		}
 		
 		return contentview;
@@ -131,6 +136,7 @@ public class MetricServlet extends ServletBase implements Servlet {
 	private SideContentView createSideView()
 	{
 		SideContentView view = new SideContentView();
+		/*
 		class NewButtonDE extends DivRepButton
 		{
 			String url;
@@ -144,7 +150,9 @@ public class MetricServlet extends ServletBase implements Servlet {
 			}
 		};
 		view.add("Operation", new NewButtonDE(context.getPageRoot(), "metricedit"));
-		view.add("About", new HtmlView("Todo.."));		
+		*/
+		view.add(new HtmlView("<a class=\"btn\" href=\"metricedit\">Add New Metric</a>"));
+		//view.add("About", new HtmlView("Todo.."));		
 		return view;
 	}
 }

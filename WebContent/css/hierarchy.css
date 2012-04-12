@@ -23,10 +23,13 @@ color: gray;
 
 div.hierarchy_site {
 margin: 5px 0px;
-padding: 5px 10px 5px 25px;
+padding: 5px 10px;
 background:#9c6 url(images/house.png) no-repeat 5px 5px;
 border: 1px solid #473;
 color: white;
+}
+div.hierarchy_site .site_name {
+padding-left: 15px;
 }
 h4.resource_groups_header {
 border-bottom: none;
@@ -35,11 +38,9 @@ color: #594;
 
 div.hierarchy_sitesc {
 float: right;
-margin-right: 10px;
 }
 
 div.hierarchy_rg {
-margin-right: 10px;
 margin-bottom: 5px;
 padding: 5px;
 background-color:#666;
@@ -97,6 +98,11 @@ top: 11px;
 .rg_disabled {
 color: #888 !important;
 background-color: #444 !important;
+}
+.site_disabled {
+background-color: #463 !important;
+border: none !important;
+color: #999 !important;
 }
 .r_disabled {
 background-color: #bbb !important;

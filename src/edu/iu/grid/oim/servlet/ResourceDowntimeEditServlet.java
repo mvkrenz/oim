@@ -21,6 +21,9 @@ import edu.iu.grid.oim.model.db.ResourceDowntimeModel;
 import edu.iu.grid.oim.model.db.ResourceModel;
 import edu.iu.grid.oim.model.db.record.ResourceDowntimeRecord;
 import edu.iu.grid.oim.model.db.record.ResourceRecord;
+import edu.iu.grid.oim.view.BootBreadCrumbView;
+import edu.iu.grid.oim.view.BootMenuView;
+import edu.iu.grid.oim.view.BootPage;
 import edu.iu.grid.oim.view.BreadCrumbView;
 import edu.iu.grid.oim.view.ContentView;
 import edu.iu.grid.oim.view.DivRepWrapper;
@@ -73,23 +76,23 @@ public class ResourceDowntimeEditServlet extends ServletBase implements Servlet 
 			downtime_id = Integer.parseInt(did_str);
 		}
 		
-		String origin_url = StaticConfig.getApplicationBase()+"/"+parent_page;
+		//String origin_url = StaticConfig.getApplicationBase()+"/"+parent_page;
 		try {
-			form = new ResourceDowntimeFormDE(context, origin_url, resource_id, downtime_id, getTimeZone());
+			form = new ResourceDowntimeFormDE(context, parent_page, resource_id, downtime_id, getTimeZone());
 			
 			//put the form in a view and display
 			ContentView contentview = new ContentView();
 
-			contentview.add(new HtmlView("<h1>"+title+"</h1>"));	
+			//contentview.add(new HtmlView("<h2>"+title+"</h2>"));	
 			contentview.add(new DivRepWrapper(form));
 			
 			//setup crumbs
-			BreadCrumbView bread_crumb = new BreadCrumbView();
+			BootBreadCrumbView bread_crumb = new BootBreadCrumbView();
 			bread_crumb.addCrumb("Resource Downtime", parent_page);
 			bread_crumb.addCrumb(rec.name,  null);
 			contentview.setBreadCrumb(bread_crumb);
 			
-			Page page = new Page(context, new MenuView(context, parent_page), contentview, createSideView());
+			BootPage page = new BootPage(context, new BootMenuView(context, parent_page), contentview, createSideView());
 			page.render(response.getWriter());	
 			
 		} catch (SQLException e) {
@@ -100,7 +103,7 @@ public class ResourceDowntimeEditServlet extends ServletBase implements Servlet 
 	private SideContentView createSideView()
 	{
 		SideContentView view = new SideContentView();
-		view.add("Class", new HtmlView(
+		view.add("<h3>Downtime Class</h3>", new HtmlView(
 				"<p><b>SCHEDULED</b></p><p>Downtimes that has been scheduled long before the acutual downtime.</p>" + 
 				"<p><b>UNSCHEDULED</b></p><p>Downtimes that has occured due to an event such as a sudden hardware failure, or any unforseen circumstances.</p>"));		
 		return view;

@@ -105,7 +105,7 @@ public class ResourceServices extends DivRepFormElement {
 		}
 
 		public void render(PrintWriter out) {
-			out.write("<div id=\""+getNodeID()+"\" class=\"service_editor\">");
+			out.write("<div id=\""+getNodeID()+"\" class=\"well\">");
 			
 			out.write("<span class=\"right\">");
 			remove_button.render(out);

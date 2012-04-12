@@ -111,143 +111,7 @@ public class TopologyServlet extends ServletBase implements Servlet {
 			throw new ServletException(e);
 		}
 	}
-	
-	/*
-	class FacilityViewDE extends DivRep {
-		Integer facility_id;
-		public FacilityViewDE(DivRep _parent, Integer facility_id) {
-			super(_parent);
-			this.facility_id = facility_id;
-		}
-
-		@Override
-		public void render(PrintWriter out) {
-			out.write("<div id=\""+getNodeID()+"\">");
-			
-			FacilityModel fmodel = new FacilityModel(context);
-			SiteModel smodel = new SiteModel(context);
-			SCModel scmodel = new SCModel(context);
-			ResourceGroupModel rgmodel = new ResourceGroupModel(context);
-			ResourceModel rmodel = new ResourceModel(context);
-			ResourceServiceModel rsmodel = new ResourceServiceModel(context);
-			ServiceModel servicemodel = new ServiceModel(context);
-			
-			if(facility_id != null) {
-				try {
-					FacilityRecord frec = fmodel.get(facility_id);
-					
-					//out.write("<a href=\""+StaticConfig.getApplicationBase()+"/facilityedit?facility_id="+frec.id+"\"><b>"+StringEscapeUtils.escapeHtml(frec.name)+"</b> <span>Facility</span></a>");
-					//out.write("<p>"+frec.description+"</p>");
-					
-					ArrayList<SiteRecord> srecs = smodel.getByFacilityID(frec.id);
-					Collections.sort(srecs, new Comparator<SiteRecord> () {
-						public int compare(SiteRecord a, SiteRecord b) {
-							return a.getName().compareToIgnoreCase(b.getName());
-						}
-					});
-					for(SiteRecord srec : srecs) {
-						out.write("<div class=\"hierarchy_site round4\">");
-						SCRecord screc = scmodel.get(srec.sc_id);
-						out.write("<div class=\"hierarchy_sitesc\">Supported by <a href=\""+StaticConfig.getApplicationBase()+"/scedit?id="+screc.id+"\"><b>"+StringEscapeUtils.escapeHtml(screc.name)+"</b></a></div>");
-						
-						out.write("<a href=\""+StaticConfig.getApplicationBase()+"/siteedit?site_id="+srec.id+"\"><b>"+StringEscapeUtils.escapeHtml(srec.name)+"</b> <span>Site</span></a>");
-						if(srec.description != null && srec.description.trim().length() != 0) {
-							out.write("<p>"+StringEscapeUtils.escapeHtml(srec.description)+"</p>");
-						}
-						
-						//put all production on the right, and itb on the left
-						ArrayList<ResourceGroupRecord> rgrecs = rgmodel.getBySiteID(srec.id);
-						Collections.sort(rgrecs, new Comparator<ResourceGroupRecord> () {
-							public int compare(ResourceGroupRecord a, ResourceGroupRecord b) {
-								return a.getName().compareToIgnoreCase(b.getName());
-							}
-						});
-						GenericView prod = new GenericView();
-						prod.add(new HtmlView("<h4 class=\"resource_groups_header\">Production Resource Groups</h4>"));
-						GenericView itb = new GenericView();
-						itb.add(new HtmlView("<h4 class=\"resource_groups_header\">ITB Resource Groups</h4>"));
-						for(ResourceGroupRecord rgrec : rgrecs) {
-							GenericView rg = new GenericView();
-							String disable_css = "";
-							String tag = "";
-							if(rgrec.disable) {
-								disable_css += " rg_disabled";
-								tag += "(Disabled)";
-							}
-							rg.add(new HtmlView("<div class=\"hierarchy_rg round4"+disable_css+"\">"));
-							rg.add(new HtmlView("<a href=\""+StaticConfig.getApplicationBase()+"/resourcegroupedit?id="+rgrec.id+"\"><b>"+StringEscapeUtils.escapeHtml(rgrec.name)+"</b> "+tag+"</a>"));
-							if(rgrec.description != null && rgrec.description.trim().length() != 0) {
-								rg.add(new HtmlView("<p>"+StringEscapeUtils.escapeHtml(rgrec.description)+"</p>"));
-							}
-							ArrayList<ResourceRecord> rrecs = rmodel.getByGroupID(rgrec.id);
-							Collections.sort(rrecs, new Comparator<ResourceRecord> () {
-								public int compare(ResourceRecord a, ResourceRecord b) {
-									return a.getName().compareToIgnoreCase(b.getName());
-								}
-							});
-							for(ResourceRecord rrec : rrecs) {
-								disable_css = "";
-								tag = "";
-								if(rrec.disable) {
-									disable_css += " r_disabled";
-									tag += "(Disabled)";
-								}
-								if(!rrec.active) {
-									disable_css += " r_inactive";
-									tag += " (Inactive)";
-								}
-								rg.add(new HtmlView("<div class=\"hierarchy_r round4"+disable_css+"\">"));
 		
-								ArrayList<ResourceServiceRecord> rsrecs = rsmodel.getByResourceID(rgrec.id);
-								for(ResourceServiceRecord rsrec : rsrecs) {
-									ServiceRecord servicerec = servicemodel.get(rsrec.service_id);
-									rg.add(new HtmlView("<span class=\"hierarchy_service\">"+StringEscapeUtils.escapeHtml(servicerec.name)+"</span>"));
-								}	
-								rg.add(new HtmlView("<a href=\""+StaticConfig.getApplicationBase()+"/resourceedit?id="+rrec.id+"\" title=\""+StringEscapeUtils.escapeHtml(rrec.description)+"\">"+
-										"<b>"+StringEscapeUtils.escapeHtml(rrec.name)+"</b> <span class=\"fqdn\">"+StringEscapeUtils.escapeHtml(rrec.fqdn)+"</span> "+tag + "</a>"));
-		
-								rg.add(new HtmlView("</div>"));//resource
-							}	
-							if(rrecs.size() == 0) {
-								rg.add(new HtmlView("<br>"));
-							}
-							rg.add(new HtmlView("<a href=\""+StaticConfig.getApplicationBase()+"/resourceedit?rg_id="+rgrec.id+"\">Add New Resource</a>"));
-		
-							rg.add(new HtmlView("</div>"));//resource_group
-		
-							if(rgrec.osg_grid_type_id == 1) {
-								prod.add(rg);
-							} else {
-								itb.add(rg);
-							}
-						}	
-						prod.add(new HtmlView("<a href=\""+StaticConfig.getApplicationBase()+"/resourcegroupedit?gridtype_id=1&site_id="+srec.id+"\">Add New Production Resource Group</a>"));
-						itb.add(new HtmlView("<a href=\""+StaticConfig.getApplicationBase()+"/resourcegroupedit?gridtype_id=2&site_id="+srec.id+"\">Add New ITB Resource Group</a>"));
-						
-						ItemTableView table = new ItemTableView(2);
-						table.add(prod);
-						table.add(itb);
-						table.render(out);
-						
-						out.write("</div>");//site
-					}	
-					out.write("<a href=\""+StaticConfig.getApplicationBase()+"/siteedit?facility_id="+frec.id+"\">Add New Site</a>");
-				} catch (SQLException e) {
-					log.error("SQLError while rendering facility: " + facility_id, e);
-				}
-			}
-
-			out.write("</div>");
-		} 
-
-		@Override
-		protected void onEvent(DivRepEvent e) {
-			// TODO Auto-generated method stub
-			
-		}
-	}
-	*/
-	
 	protected ContentView createContentView(Integer facility_id) 
 		throws ServletException, SQLException
 	{
@@ -270,7 +134,7 @@ public class TopologyServlet extends ServletBase implements Servlet {
 		});
 		
 		if(auth.allows("edit_all_facility")) {
-			contentview.add(new HtmlView("<p><a class=\"btn pull-right\" href=\""+StaticConfig.getApplicationBase()+"/facilityedit\">Add New Facility</a></p>"));
+			contentview.add(new HtmlView("<p><a class=\"btn pull-right\" href=\"facilityedit\">Add New Facility</a></p>"));
 		}
 		
 		//display facility selector
@@ -296,31 +160,7 @@ public class TopologyServlet extends ServletBase implements Servlet {
 		//contentview.add(new HtmlView("Facility  "));
 		contentview.add(facility_selector);
 		//contentview.add(new HtmlView("</td></tr></table>"));
-	
-		/*
-		LinkedHashMap<Integer, String> keyvalues = new LinkedHashMap<Integer, String>();
-		for(FacilityRecord rec : frecs) {
-			keyvalues.put(rec.id, rec.name);
-		}
-		DivRepSelectBox facility_selector = new DivRepSelectBox(context.getPageRoot(), keyvalues);
-		facility_selector.setLabel("Facility");
-		facility_selector.setValue(facility_id);
-		final FacilityViewDE facility_view = new FacilityViewDE(context.getPageRoot(), facility_id);
-		facility_selector.addEventListener(new DivRepEventListener() {
 
-			@Override
-			public void handleEvent(DivRepEvent e) {
-				if(e.value.length() != 0) {
-					facility_view.redirect("?facility_id="+e.value);
-				}
-			}
-		});
-		
-		contentview.add(new HtmlView("<div class=\"hierarchy_facility round4\">"));
-		contentview.add(facility_selector);
-		contentview.add(facility_view);
-		contentview.add(new HtmlView("</div>"));
-		*/
 		
 		contentview.add(new HtmlView("<div id=\"topology\">"));
 		
@@ -337,11 +177,11 @@ public class TopologyServlet extends ServletBase implements Servlet {
 			contentview.add(new HtmlView("<div class=\"hierarchy_facility round4 well "+disable_css+"\">"));
 			if(auth.allows("edit_all_site")) {
 				//contentview.add(new HtmlView("<div class=\"hierarchy_site round4 new\" style=\"width: 90px;\">"));
-				contentview.add(new HtmlView("&nbsp;<a class=\"new pull-right\" href=\""+StaticConfig.getApplicationBase()+"/siteedit?facility_id="+frec.id+"\">Add New Site</a>"));
+				contentview.add(new HtmlView("&nbsp;<a class=\"new pull-right\" href=\"siteedit?facility_id="+frec.id+"\">Add New Site</a>"));
 				//contentview.add(new HtmlView("</div>"));	
 			}
 			if(auth.allows("edit_all_facility")) {
-				contentview.add(new HtmlView("<a href=\""+StaticConfig.getApplicationBase()+"/facilityedit?facility_id="+frec.id+"\"><b>"+StringEscapeUtils.escapeHtml(frec.name)+"</b> <span>Facility "+tag+"</span></a>"));
+				contentview.add(new HtmlView("<a href=\"facilityedit?facility_id="+frec.id+"\"><b>"+StringEscapeUtils.escapeHtml(frec.name)+"</b> <span>Facility "+tag+"</span></a>"));
 					//"<span class=\"edit facility_edit\" onclick=\"document.location='"+StaticConfig.getStaticBase()+"/facilityedit?facility_id="+frec.id+"';\">Edit</span>"));
 			} else {
 				contentview.add(new HtmlView("<b>"+StringEscapeUtils.escapeHtml(frec.name)+"</b> <span>Facility "+tag+"</span>"));
@@ -354,15 +194,22 @@ public class TopologyServlet extends ServletBase implements Servlet {
 				}
 			});
 			for(SiteRecord srec : srecs) {
-				contentview.add(new HtmlView("<div class=\"hierarchy_site round4\">"));
+				disable_css = "";
+				tag = "";
+				if(srec.disable) {
+					disable_css += " site_disabled";
+					tag += "(Disabled)";
+				}
+				
+				contentview.add(new HtmlView("<div class=\"hierarchy_site round4 "+disable_css+"\">"));
 				SCRecord screc = scmodel.get(srec.sc_id);
-				contentview.add(new HtmlView("<div class=\"hierarchy_sitesc\">Supported by <a href=\""+StaticConfig.getApplicationBase()+"/scedit?id="+screc.id+"\"><b>"+StringEscapeUtils.escapeHtml(screc.name)+"</b></a></div>"));
+				contentview.add(new HtmlView("<div class=\"hierarchy_sitesc\">Supported by <a href=\"sc?id="+screc.id+"\"><b>"+StringEscapeUtils.escapeHtml(screc.name)+"</b></a></div>"));
 				
 				if(auth.allows("edit_all_site")) {
-					contentview.add(new HtmlView("<a href=\""+StaticConfig.getApplicationBase()+"/siteedit?site_id="+srec.id+"\"><b>"+StringEscapeUtils.escapeHtml(srec.name)+"</b> <span>Site</span></a>"));
+					contentview.add(new HtmlView("<a href=\"siteedit?site_id="+srec.id+"\"><b class=\"site_name\">"+StringEscapeUtils.escapeHtml(srec.name)+"</b> <span>Site "+tag+"</span></a>"));
 							//"<span class=\"edit site_edit\" onclick=\"document.location='"+StaticConfig.getStaticBase()+"/siteedit?site_id="+srec.id+"';\">Edit</span>"));
 				} else {
-					contentview.add(new HtmlView("<b>"+StringEscapeUtils.escapeHtml(srec.name)+"</b> <span>Site</span>"));					
+					contentview.add(new HtmlView("<a href=\"site?site_id="+srec.id+"\"><b class=\"site_name\">"+StringEscapeUtils.escapeHtml(srec.name)+"</b> <span>Site "+tag+"</span></a>"));					
 				}
 				//put all production on the right, and itb on the left
 				ArrayList<ResourceGroupRecord> rgrecs = rgmodel.getBySiteID(srec.id);
@@ -386,11 +233,11 @@ public class TopologyServlet extends ServletBase implements Servlet {
 					rg.add(new HtmlView("<div class=\"hierarchy_rg round4"+disable_css+"\">"));
 					
 					if(auth.allows("edit_my_resource")) {
-						rg.add(new HtmlView("<a class=\"new pull-right\" href=\""+StaticConfig.getApplicationBase()+"/resourceedit?rg_id="+rgrec.id+"\">Add New Resource</a>"));
+						rg.add(new HtmlView("<a class=\"new pull-right\" href=\"resourceedit?rg_id="+rgrec.id+"\">Add New Resource</a>"));
 						//rg.add(new HtmlView("</div>"));//resource_group
 					}
 					if(auth.allows("edit_all_resource_group")) {
-						rg.add(new HtmlView("<a href=\""+StaticConfig.getApplicationBase()+"/resourcegroupedit?id="+rgrec.id+"\"><b>"+StringEscapeUtils.escapeHtml(rgrec.name)+"</b> "+tag+"</a>"));
+						rg.add(new HtmlView("<a href=\"resourcegroupedit?id="+rgrec.id+"\"><b>"+StringEscapeUtils.escapeHtml(rgrec.name)+"</b> "+tag+"</a>"));
 						//"<span class=\"edit rg_edit\" onclick=\"document.location='"+StaticConfig.getStaticBase()+"/resourcegroupedit?id="+rgrec.id+"';\">Edit</span>"));
 					} else {
 						rg.add(new HtmlView("<b>"+StringEscapeUtils.escapeHtml(rgrec.name)+"</b> "+tag));						
@@ -421,10 +268,10 @@ public class TopologyServlet extends ServletBase implements Servlet {
 							rg.add(new HtmlView("<span class=\"hierarchy_service\">"+StringEscapeUtils.escapeHtml(servicerec.name)+"</span>"));
 						}	
 						if(auth.allows("edit_my_resource")) {
-							rg.add(new HtmlView("<a href=\""+StaticConfig.getApplicationBase()+"/resourceedit?id="+rrec.id+"\"><b>"+StringEscapeUtils.escapeHtml(rrec.name)+"</b> <span class=\"fqdn\">"+StringEscapeUtils.escapeHtml(rrec.fqdn)+"</span> "+tag + "</a>"));
+							rg.add(new HtmlView("<a href=\"resourceedit?id="+rrec.id+"\"><b>"+StringEscapeUtils.escapeHtml(rrec.name)+"</b> <span class=\"fqdn\">"+StringEscapeUtils.escapeHtml(rrec.fqdn)+"</span> "+tag + "</a>"));
 									//"<span class=\"edit r_edit\" onclick=\"document.location='"+StaticConfig.getStaticBase()+"/resourceedit?resource_id="+rrec.id+"';\">Edit</span>"));
 						} else {
-							rg.add(new HtmlView("<b>"+StringEscapeUtils.escapeHtml(rrec.name)+"</b> <span class=\"fqdn\">"+StringEscapeUtils.escapeHtml(rrec.fqdn)+"</span> "+tag));
+							rg.add(new HtmlView("<a href=\"resource?id="+rrec.id+"\"><b>"+StringEscapeUtils.escapeHtml(rrec.name)+"</b> <span class=\"fqdn\">"+StringEscapeUtils.escapeHtml(rrec.fqdn)+"</span> "+tag + "</a>"));
 						}
 						
 						rg.add(new HtmlView("</div>"));//resource
@@ -444,20 +291,24 @@ public class TopologyServlet extends ServletBase implements Servlet {
 				}	
 				//prod.add(new HtmlView("<div class=\"hierarchy_rg round4 new\" style=\"width: 250px;\">"));
 				if(auth.allows("edit_all_resource_group")) {
-					prod.add(new HtmlView("<a class=\"new\" href=\""+StaticConfig.getApplicationBase()+"/resourcegroupedit?gridtype_id=1&site_id="+srec.id+"\">Add New Production Resource Group</a>"));
+					prod.add(new HtmlView("<a class=\"new\" href=\"resourcegroupedit?gridtype_id=1&site_id="+srec.id+"\">Add New Production Resource Group</a>"));
 					//prod.add(new HtmlView("</div>"));
 				}
 				
 				if(auth.allows("edit_all_resource_group")) {
 					//itb.add(new HtmlView("<div class=\"hierarchy_rg round4 new\" style=\"width: 250px;\">"));
-					itb.add(new HtmlView("<a class=\"new\" href=\""+StaticConfig.getApplicationBase()+"/resourcegroupedit?gridtype_id=2&site_id="+srec.id+"\">Add New ITB Resource Group</a>"));
+					itb.add(new HtmlView("<a class=\"new\" href=\"resourcegroupedit?gridtype_id=2&site_id="+srec.id+"\">Add New ITB Resource Group</a>"));
 					//itb.add(new HtmlView("</div>"));
 				}
 				
-				ItemTableView table = new ItemTableView(2);
-				table.add(prod);
-				table.add(itb);
-				contentview.add(table);
+				contentview.add(new HtmlView("<div class=\"row-fluid\">"));
+				contentview.add(new HtmlView("<div class=\"span6\">"));
+				contentview.add(prod);
+				contentview.add(new HtmlView("</div>"));
+				contentview.add(new HtmlView("<div class=\"span6\">"));
+				contentview.add(itb);
+				contentview.add(new HtmlView("</div>"));
+				contentview.add(new HtmlView("</div>"));
 				
 				contentview.add(new HtmlView("</div>"));//site
 			}	
@@ -469,25 +320,4 @@ public class TopologyServlet extends ServletBase implements Servlet {
 		
 		return contentview;
 	}
-
-/*	
-	private SideContentView createSideView()
-	{
-		SideContentView view = new SideContentView();
-
-		//view.add("Operation", new NewButtonDE(context.getPageRoot(), "resourceedit"));	
-		//view.add(new HtmlView("<h3>Other Actions</h3>"));
-		//view.add(new HtmlView("<br><br><div class=\"indent\">"));
-		if(auth.allows("edit_all_facility")) {
-			view.add(new HtmlView("<p><a class=\"btn\" href=\""+StaticConfig.getApplicationBase()+"/facilityedit\">Add New Facility</a></p>"));
-		}
-		//view.add(new HtmlView("<p><a href=\""+StaticConfig.getApplicationBase()+"/siteedit\">Add New Site</a></p>"));
-		view.add(new HtmlView("<p>Click on entity names to view/edit.</p>"));
-		//view.add(new HtmlView("</div>"));
-
-		
-	
-		return view;
-	}
-*/
 }

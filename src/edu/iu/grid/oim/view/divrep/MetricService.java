@@ -78,7 +78,7 @@ public class MetricService extends DivRepFormElement {
 		}
 
 		public void render(PrintWriter out) {
-			out.write("<div id=\""+getNodeID()+"\" class=\"metric_service_editor\">");
+			out.write("<div id=\""+getNodeID()+"\" class=\"well\">");
 			out.write("<span class=\"right\">");
 			remove_button.render(out);
 			out.write("</span>");

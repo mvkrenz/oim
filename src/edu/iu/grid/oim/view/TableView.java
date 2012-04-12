@@ -146,12 +146,6 @@ public class TableView extends GenericView {
 		}
 			
 		out.print("</table>");	
-		
-		/*
-		out.print("<script type=\"text/javascript\">");
-		out.print("$('#table_"+id+" .tinytip').tinyTips('title');");
-		out.print("</script>");
-		*/
 	}
 
 }

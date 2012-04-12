@@ -693,7 +693,7 @@
 
 	<error-page>
 		<error-code>404</error-code>
-		<location>/404</location>
+		<location>/home</location>
 	</error-page>
 	<error-page>
 		<error-code>500</error-code>

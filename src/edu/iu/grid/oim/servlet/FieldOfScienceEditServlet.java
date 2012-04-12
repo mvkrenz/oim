@@ -9,6 +9,9 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.log4j.Logger;
 import edu.iu.grid.oim.lib.StaticConfig;
 
+import edu.iu.grid.oim.view.BootBreadCrumbView;
+import edu.iu.grid.oim.view.BootMenuView;
+import edu.iu.grid.oim.view.BootPage;
 import edu.iu.grid.oim.view.BreadCrumbView;
 import edu.iu.grid.oim.view.ContentView;
 import edu.iu.grid.oim.view.DivRepWrapper;
@@ -48,41 +51,41 @@ public class FieldOfScienceEditServlet extends ServletBase implements Servlet {
 			} catch (SQLException e) {
 				throw new ServletException(e);
 			}	
-			title = "Update Field Of Science";
+			title = "Update " + rec.name;
 		} else {
 			rec = new FieldOfScienceRecord();
-			title = "New Field Of Science";	
+			title = "New";	
 		}
 	
 		FieldOfScienceFormDE form;
-		String origin_url = StaticConfig.getApplicationBase()+"/"+current_page;
+		//String origin_url = StaticConfig.getApplicationBase()+"/"+current_page;
 		try {
-			form = new FieldOfScienceFormDE(context, rec, origin_url);
+			form = new FieldOfScienceFormDE(context, rec, current_page);
 		} catch (SQLException e) {
 			throw new ServletException(e);
 		}
 		
 		//put the form in a view and display
 		ContentView contentview = new ContentView();
-		contentview.add(new HtmlView("<h1>"+title+"</h1>"));	
+		//contentview.add(new HtmlView("<h1>"+title+"</h1>"));	
 		contentview.add(new DivRepWrapper(form));
 		
 		//setup crumbs
-		BreadCrumbView bread_crumb = new BreadCrumbView();
+		BootBreadCrumbView bread_crumb = new BootBreadCrumbView();
 		bread_crumb.addCrumb("Administration",  "admin");
 		bread_crumb.addCrumb("Field Of Science",  "fieldofscience");
-		bread_crumb.addCrumb(rec.name,  null);
+		bread_crumb.addCrumb(title,  null);
 
 		contentview.setBreadCrumb(bread_crumb);
 		
-		Page page = new Page(context, new MenuView(context, "admin"), contentview, createSideView());	
+		BootPage page = new BootPage(context, new BootMenuView(context, "admin"), contentview, createSideView());	
 		page.render(response.getWriter());	
 	}
 	
 	private SideContentView createSideView()
 	{
 		SideContentView view = new SideContentView();
-		view.add("Misc-no-op", new HtmlView("Misc-no-op"));
+		//view.add("Misc-no-op", new HtmlView("Misc-no-op"));
 		return view;
 	}
 }

@@ -15,11 +15,13 @@ public class LinkView implements IView {
 		external = _external;
 	}
 	public void render(PrintWriter out) {
+		out.write("<p>");
 		if(external) {
 			out.write("<a target=\"_blank\" href=\""+url+"\">"+StringEscapeUtils.escapeHtml(title)+"</a>");	
 		} else {
 			out.write("<a href=\""+url+"\">"+StringEscapeUtils.escapeHtml(title)+"</a>");
 		}
+		out.write("</p>");
 	}
 
 }

@@ -48,7 +48,7 @@ public class ResourceEditServlet extends ServletBase implements Servlet {
 		auth.check("edit_my_resource");
 
 		ResourceRecord rec;
-		//String title;
+		String title;
 		
 		String resource_id_str = request.getParameter("id");
 		if(resource_id_str != null) {
@@ -66,34 +66,40 @@ public class ResourceEditServlet extends ServletBase implements Servlet {
 			} catch (SQLException e) {
 				throw new ServletException(e);
 			}	
-			//title = "Resource Update";
+			title = "Edit Resource " + rec.name;
 		} else {
 			rec = new ResourceRecord();
-			//title = "New Resource";	
+			title = "New Resource";	
 			
 			String rg_id_str = request.getParameter("rg_id");
 			if(rg_id_str != null) {
 				rec.resource_group_id = Integer.parseInt(rg_id_str);
 			}
 		}
-
+		
+		
 		DivRepForm form;
-		String origin_url = StaticConfig.getApplicationBase()+"/"+parent_page;
+		//String origin_url = StaticConfig.getApplicationBase()+"/"+parent_page;
 		try {
-			form = new ResourceFormDE(context, rec, origin_url);
+			form = new ResourceFormDE(context, rec, parent_page);
 		} catch (SQLException e) {
 			throw new ServletException(e);
 		}
 
 		//put the form in a view and display
 		ContentView contentview = new ContentView();
-		//contentview.add(new HtmlView("<h1>"+title+"</h1>"));	
+		if(rec.active != null && rec.active == false) {
+			contentview.add(new HtmlView("<div class=\"alert\">This resource is currently inactive.</div>"));
+		}
+		if(rec.active != null && rec.disable == true) {
+			contentview.add(new HtmlView("<div class=\"alert\">This resource is currently disabled.</div>"));
+		}
 		contentview.add(new DivRepWrapper(form));
 
 		//setup crumbs
 		BootBreadCrumbView bread_crumb = new BootBreadCrumbView();
 		bread_crumb.addCrumb("Topology", parent_page);
-		bread_crumb.addCrumb(rec.name,  null);
+		bread_crumb.addCrumb(title,  null);
 		contentview.setBreadCrumb(bread_crumb);
 
 		BootPage page = new BootPage(context, new BootMenuView(context, parent_page), contentview, createSideView(rec));
@@ -105,10 +111,10 @@ public class ResourceEditServlet extends ServletBase implements Servlet {
 		SideContentView view = new SideContentView();
 		
 		if(rec.id != null) {
-			view.add(new HtmlView("<h2>Other Actions</h2>"));
-			view.add(new HtmlView("<p><a href=\""+StaticConfig.getApplicationBase()+"/resourcegroupedit\">Register New Resource Group</a></p>"));
-			view.add(new HtmlView("<p><a href=\""+StaticConfig.getApplicationBase()+"/resourcedowntimeedit?rid="+rec.id+"\">Add New Downtime</a></p>"));
-			view.add(new HtmlView("<p><a href=\""+StaticConfig.getApplicationBase()+"/resource?id="+rec.id+"\">Show readonly view</a></p>"));
+			//view.add(new HtmlView("<h2>Other Actions</h2>"));
+			//view.add(new HtmlView("<p><a class=\"btn\" href=\""+StaticConfig.getApplicationBase()+"/resourcegroupedit\">Register New Resource Group</a></p>"));
+			view.add(new HtmlView("<p><a class=\"btn\" href=\""+StaticConfig.getApplicationBase()+"/resourcedowntimeedit?rid="+rec.id+"\">Add New Downtime</a></p>"));
+			view.add(new HtmlView("<p><a class=\"btn\" href=\""+StaticConfig.getApplicationBase()+"/resource?id="+rec.id+"\">Show Read-only View</a></p>"));
 			//view.add(new HtmlView("<p><a href=\""+StaticConfig.getApplicationBase()+"/log?type=4&id="+rec.id+"\">View Update History</a></p>"));
 		}
 		

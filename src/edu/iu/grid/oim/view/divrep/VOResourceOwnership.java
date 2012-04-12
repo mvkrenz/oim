@@ -113,7 +113,7 @@ public class VOResourceOwnership extends DivRepFormElement {
 		}
 		
 		public void render(PrintWriter out) {
-			out.write("<div id=\""+getNodeID()+"\" class=\"owner_editor\">");
+			out.write("<div id=\""+getNodeID()+"\" class=\"well\">");
 			
 			out.write("<span class=\"right\">");
 			remove_button.render(out);

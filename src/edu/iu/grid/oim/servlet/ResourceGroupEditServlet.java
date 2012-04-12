@@ -19,6 +19,9 @@ import edu.iu.grid.oim.model.db.ResourceGroupModel;
 import edu.iu.grid.oim.model.db.SiteModel;
 import edu.iu.grid.oim.model.db.record.ResourceGroupRecord;
 import edu.iu.grid.oim.model.db.record.SiteRecord;
+import edu.iu.grid.oim.view.BootBreadCrumbView;
+import edu.iu.grid.oim.view.BootMenuView;
+import edu.iu.grid.oim.view.BootPage;
 import edu.iu.grid.oim.view.BreadCrumbView;
 import edu.iu.grid.oim.view.ContentView;
 import edu.iu.grid.oim.view.DivRepWrapper;
@@ -45,9 +48,10 @@ public class ResourceGroupEditServlet extends ServletBase implements Servlet {
 		auth.check("edit_all_resource_group");
 		
 		ResourceGroupRecord rec;
-		//String title;
 
 		try {
+			String title;
+			
 			//if site_id is provided then we are doing update, otherwise do new.
 			String id_str = request.getParameter("id");
 			if(id_str != null) {
@@ -57,10 +61,10 @@ public class ResourceGroupEditServlet extends ServletBase implements Servlet {
 				ResourceGroupRecord keyrec = new ResourceGroupRecord();
 				keyrec.id = id;
 				rec = model.get(keyrec);
-				//title = "Update Resource Group";
+				title = "Edit Resource Group " + rec.name;
 			} else {
 				rec = new ResourceGroupRecord();
-				//title = "New Resource Group";	
+				title = "New Resource Group";	
 				
 				String gridtype_id_str = request.getParameter("gridtype_id");
 				if(gridtype_id_str != null) {
@@ -77,16 +81,19 @@ public class ResourceGroupEditServlet extends ServletBase implements Servlet {
 			
 			//put the form in a view and display
 			ContentView contentview = new ContentView();
-			//contentview.add(new HtmlView("<h1>"+title+"</h1>"));	
+			//contentview.add(new HtmlView("<h1>"+title+"</h1>"));
+			if(rec.disable != null && rec.disable == true) {
+				contentview.add(new HtmlView("<div class=\"alert\">This Resource Group is currently disabled.</div>"));
+			}
 			contentview.add(new DivRepWrapper(form));
 			
 			//setup crumbs
-			BreadCrumbView bread_crumb = new BreadCrumbView();
-			bread_crumb.addCrumb("Toplogy",  parent_page);
-			bread_crumb.addCrumb(rec.name,  null);
+			BootBreadCrumbView bread_crumb = new BootBreadCrumbView();
+			bread_crumb.addCrumb("Topology",  parent_page);
+			bread_crumb.addCrumb(title,  null);
 			contentview.setBreadCrumb(bread_crumb);
 			
-			Page page = new Page(context, new MenuView(context, parent_page), contentview, createSideView());
+			BootPage page = new BootPage(context, new BootMenuView(context, parent_page), contentview, createSideView());
 			
 			page.render(response.getWriter());	
 		} catch (SQLException e) {
@@ -97,8 +104,8 @@ public class ResourceGroupEditServlet extends ServletBase implements Servlet {
 	private SideContentView createSideView()
 	{
 		SideContentView view = new SideContentView();
-		view.add("About", new HtmlView("This form allows you to edit this resource_group's registration information.</p>"));		
-		view.addContactNote();		
+		//view.add("About", new HtmlView("This form allows you to edit this resource_group's registration information.</p>"));		
+		//view.addContactNote();		
 		// view.addContactLegent();		
 		return view;
 	}

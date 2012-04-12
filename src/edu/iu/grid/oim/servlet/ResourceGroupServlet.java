@@ -24,6 +24,9 @@ import edu.iu.grid.oim.model.db.ResourceGroupModel;
 import edu.iu.grid.oim.model.db.SiteModel;
 import edu.iu.grid.oim.model.db.record.ResourceGroupRecord;
 
+import edu.iu.grid.oim.view.BootBreadCrumbView;
+import edu.iu.grid.oim.view.BootMenuView;
+import edu.iu.grid.oim.view.BootPage;
 import edu.iu.grid.oim.view.BreadCrumbView;
 import edu.iu.grid.oim.view.ContentView;
 import edu.iu.grid.oim.view.DivRepWrapper;
@@ -44,19 +47,19 @@ public class ResourceGroupServlet extends ServletBase implements Servlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{	
 		//setContext(request);
-		auth.check("edit_all_resource_group");
+		//auth.check("edit_all_resource_group");
 		
 		try {
 			//construct view
-			MenuView menuview = new MenuView(context, "resourcegroup");
+			BootMenuView menuview = new BootMenuView(context, "resourcegroup");
 			ContentView contentview = createContentView();
-			
+			/*
 			//setup crumbs
-			BreadCrumbView bread_crumb = new BreadCrumbView();
+			BootBreadCrumbView bread_crumb = new BootBreadCrumbView();
 			bread_crumb.addCrumb("Resource Group",  null);
 			contentview.setBreadCrumb(bread_crumb);
-			
-			Page page = new Page(context, menuview, contentview, createSideView());
+			*/
+			BootPage page = new BootPage(context, menuview, contentview, createSideView());
 			page.render(response.getWriter());			
 		} catch (SQLException e) {
 			log.error(e);
@@ -68,7 +71,7 @@ public class ResourceGroupServlet extends ServletBase implements Servlet {
 		throws ServletException, SQLException
 	{
 		ContentView contentview = new ContentView();	
-		contentview.add(new HtmlView("<h1>Resource Group</h1>"));
+		contentview.add(new HtmlView("<h1>Resource Groups</h1>"));
 	
 		ResourceGroupModel model = new ResourceGroupModel(context);
 		SiteModel site_model = new SiteModel (context);
@@ -91,7 +94,7 @@ public class ResourceGroupServlet extends ServletBase implements Servlet {
 			table.addRow("OSG Grid Type", ogt_model.get(rec.osg_grid_type_id).name);
 			//table.addRow("Active", rec.active);
 			table.addRow("Disable", rec.disable);
-
+			/*
 			class EditButtonDE extends DivRepButton
 			{
 				String url;
@@ -105,6 +108,10 @@ public class ResourceGroupServlet extends ServletBase implements Servlet {
 				}
 			};
 			table.add(new DivRepWrapper(new EditButtonDE(context.getPageRoot(), StaticConfig.getApplicationBase()+"/resourcegroupedit?id=" + rec.id)));
+			*/
+			if(auth.allows("edit_all_resource_group")) {
+				table.add(new HtmlView("<a class=\"btn\" href=\"resourcegroupedit?id="+rec.id+"\">Edit</a>"));
+			}
 		}
 		
 		return contentview;
@@ -114,6 +121,7 @@ public class ResourceGroupServlet extends ServletBase implements Servlet {
 	{
 		SideContentView view = new SideContentView();
 		
+		/*
 		class NewButtonDE extends DivRepButton
 		{
 			String url;
@@ -126,8 +134,11 @@ public class ResourceGroupServlet extends ServletBase implements Servlet {
 				redirect(url);
 			}
 		};
-		view.add("Operation", new NewButtonDE(context.getPageRoot(), "resourcegroupedit"));
-		view.add("About", new HtmlView("This page shows a list of Resource Groups that that all registered OIM users are able to edit. We ask that you please refrain from editing resource groups that are not directly related to you unless there is a specific reason to do so! All changes are audited by GOC staff."));		
+		*/
+		if(auth.isUser()) {
+			view.add(new HtmlView("<a class=\"btn\" href=\"resourcegroupedit\">Add New Resource Group</a>"));
+		}
+		//view.add("About", new HtmlView("This page shows a list of Resource Groups that that all registered OIM users are able to edit. We ask that you please refrain from editing resource groups that are not directly related to you unless there is a specific reason to do so! All changes are audited by GOC staff."));		
 		return view;
 	}
 }

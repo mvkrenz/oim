@@ -50,6 +50,8 @@ import edu.iu.grid.oim.model.db.record.ActionRecord;
 import edu.iu.grid.oim.model.db.record.CpuInfoRecord;
 import edu.iu.grid.oim.model.db.record.LogRecord;
 
+import edu.iu.grid.oim.view.BootMenuView;
+import edu.iu.grid.oim.view.BootPage;
 import edu.iu.grid.oim.view.BreadCrumbView;
 import edu.iu.grid.oim.view.ContentView;
 import edu.iu.grid.oim.view.DivRepWrapper;
@@ -80,20 +82,21 @@ public class ReportDataServlet extends ServletBase implements Servlet {
 			}
 			
 			//construct view
-			MenuView menuview = new MenuView(context, "report");
+			BootMenuView menuview = new BootMenuView(context, "reportdata");
 			ContentView contentview = createContentView();
 		
 			PrintWriter out = response.getWriter();
 			if(request.getParameter("plain") != null) {
 				contentview.render(out);
 			} else {
+				/*
 				//set crumbs
 				BreadCrumbView bread_crumb = new BreadCrumbView();
 				bread_crumb.addCrumb("Reports",  "report");
 				bread_crumb.addCrumb("Data Issues",  null);
 				contentview.setBreadCrumb(bread_crumb);
-				
-				Page page = new Page(context, menuview, contentview, createSideView());
+				*/
+				BootPage page = new BootPage(context, menuview, contentview, createSideView());
 				page.render(out);			
 			}
 		} catch (SQLException e) {
@@ -106,8 +109,8 @@ public class ReportDataServlet extends ServletBase implements Servlet {
 		throws ServletException, SQLException
 	{	
 		ContentView contentview = new ContentView();	
-		contentview.add(new HtmlView("<h1>Data Issues</h1>"));
-		contentview.add(new HtmlView("<p>* This report is generated daily and cached.</p>"));
+		contentview.add(new HtmlView("<h2>Data Issues</h2>"));
+		contentview.add(new HtmlView("<p class=\"help-block\">This report is generated daily and cached.</p>"));
 		
 		try {
 			String filename = StaticConfig.conf.getProperty("path.error_report");
@@ -118,7 +121,7 @@ public class ReportDataServlet extends ServletBase implements Servlet {
 		    contentview.add(new HtmlView("<pre>"+content+"</pre>"));
 		} catch (FileNotFoundException e) {
 			log.error("Failed to load data issue report" ,e);
-			contentview.add(new HtmlView("Data issue report is not available."));
+			contentview.add(new HtmlView("<div class=\"alert\">Data issue report is not available.</div>"));
 		}
 		
 		return contentview;

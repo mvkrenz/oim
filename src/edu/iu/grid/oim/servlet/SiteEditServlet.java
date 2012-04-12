@@ -18,6 +18,9 @@ import edu.iu.grid.oim.lib.StaticConfig;
 
 import edu.iu.grid.oim.model.db.SiteModel;
 import edu.iu.grid.oim.model.db.record.SiteRecord;
+import edu.iu.grid.oim.view.BootBreadCrumbView;
+import edu.iu.grid.oim.view.BootMenuView;
+import edu.iu.grid.oim.view.BootPage;
 import edu.iu.grid.oim.view.BreadCrumbView;
 import edu.iu.grid.oim.view.ContentView;
 import edu.iu.grid.oim.view.DivRepWrapper;
@@ -43,12 +46,12 @@ public class SiteEditServlet extends ServletBase implements Servlet {
 		auth.check("edit_all_site");
 		
 		SiteRecord rec;
-		String title;
 
 		ContentView contentview = new ContentView();
 		contentview.add(new HtmlView("<script src=\"http://maps.google.com/maps?file=api&v=2&key="+StaticConfig.getGMapAPIKey()+"\" type=\"text/javascript\"></script>"));
-
 		try {
+			String title;
+			
 			//if site_id is provided then we are doing update, otherwise do new.
 			String site_id_str = request.getParameter("site_id");
 			if(site_id_str != null) {
@@ -58,7 +61,7 @@ public class SiteEditServlet extends ServletBase implements Servlet {
 				SiteRecord keyrec = new SiteRecord();
 				keyrec.id = site_id;
 				rec = model.get(keyrec);
-				title = "Update Site";
+				title = "Edit Site " + rec.name;
 			} else {
 				rec = new SiteRecord();
 				title = "New Site";	
@@ -70,18 +73,22 @@ public class SiteEditServlet extends ServletBase implements Servlet {
 			}
 			
 			// setup crumbs
-			BreadCrumbView bread_crumb = new BreadCrumbView();
+			BootBreadCrumbView bread_crumb = new BootBreadCrumbView();
 			// bread_crumb.addCrumb("Administration", "admin");
 			bread_crumb.addCrumb("Topology", parent_page);
-			bread_crumb.addCrumb(rec.name, null);
+			bread_crumb.addCrumb(title, null);
 			contentview.setBreadCrumb(bread_crumb);
+			if(rec.disable != null && rec.disable == true) {
+				contentview.add(new HtmlView("<div class=\"alert\">This site is currently disabled.</div>"));
+			}
 			
-			String origin_url = StaticConfig.getApplicationBase()+"/"+parent_page;
-			SiteFormDE form = new SiteFormDE(context, rec, origin_url);
-			contentview.add(new HtmlView("<h1>"+title+"</h1>"));	
+			//String origin_url = StaticConfig.getApplicationBase()+"/"+parent_page;
+			SiteFormDE form = new SiteFormDE(context, rec, parent_page);
+			//contentview.add(new HtmlView("<h1>"+title+"</h1>"));	
+
 			contentview.add(new DivRepWrapper(form));
 			
-			Page page = new Page(context, new MenuView(context, parent_page), contentview, createSideView());
+			BootPage page = new BootPage(context, new BootMenuView(context, parent_page), contentview, createSideView());
 			
 			page.render(response.getWriter());	
 		} catch (SQLException e) {
@@ -92,7 +99,7 @@ public class SiteEditServlet extends ServletBase implements Servlet {
 	private SideContentView createSideView()
 	{
 		SideContentView view = new SideContentView();
-		view.add("About", new HtmlView("A site represents a department or a sub-organization within a an instituition (like BNL, Fermilab, etc.) or a university, referred to as facility."));		
+		//view.add(new HtmlView("A site represents a department or a sub-organization within a an instituition (like BNL, Fermilab, etc.) or a university, referred to as facility."));		
 
 		//view.addContactNote();		
 		// view.addContactLegent();		

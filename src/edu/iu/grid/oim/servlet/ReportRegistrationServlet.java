@@ -47,6 +47,8 @@ import edu.iu.grid.oim.model.db.record.ActionRecord;
 import edu.iu.grid.oim.model.db.record.CpuInfoRecord;
 import edu.iu.grid.oim.model.db.record.LogRecord;
 
+import edu.iu.grid.oim.view.BootMenuView;
+import edu.iu.grid.oim.view.BootPage;
 import edu.iu.grid.oim.view.BreadCrumbView;
 import edu.iu.grid.oim.view.ContentView;
 import edu.iu.grid.oim.view.DivRepWrapper;
@@ -81,20 +83,22 @@ public class ReportRegistrationServlet extends ServletBase implements Servlet {
 			}
 			
 			//construct view
-			MenuView menuview = new MenuView(context, "report");
+			BootMenuView menuview = new BootMenuView(context, "reportregistration");
 			ContentView contentview = createContentView();
 		
 			PrintWriter out = response.getWriter();
 			if(request.getParameter("plain") != null) {
 				contentview.render(out);
 			} else {
+				/*
 				//set crumbs
 				BreadCrumbView bread_crumb = new BreadCrumbView();
 				bread_crumb.addCrumb("Reports",  "report");
 				bread_crumb.addCrumb("Registration Report",  null);
 				contentview.setBreadCrumb(bread_crumb);
+				*/
 				
-				Page page = new Page(context, menuview, contentview, createSideView());
+				BootPage page = new BootPage(context, menuview, contentview, createSideView());
 				page.render(out);			
 			}
 		} catch (SQLException e) {
@@ -224,8 +228,8 @@ public class ReportRegistrationServlet extends ServletBase implements Servlet {
 	{
 		SideContentView view = new SideContentView();
 
-    	view.add(new HtmlView("<h3>Time Period</h3>"));
-    	view.add(new HtmlView("<div class=\"indent\">"));
+    	//view.add(new HtmlView("<h3>Time Period</h3>"));
+    	//view.add(new HtmlView("<div class=\"indent\">"));
     	LinkedHashMap<Integer, String> keyvalues = new LinkedHashMap<Integer, String>();
 		keyvalues.put(7, "Last 7 days");
 		keyvalues.put(14, "Last 14 days");
@@ -240,7 +244,7 @@ public class ReportRegistrationServlet extends ServletBase implements Servlet {
 				select.redirect(StaticConfig.getApplicationBase() + "/reportregistration?days=" + days);
 			}});
 		view.add(new DivRepWrapper(select));		
-		view.add(new HtmlView("</div>"));
+		//view.add(new HtmlView("</div>"));
 
 		
 		return view;
