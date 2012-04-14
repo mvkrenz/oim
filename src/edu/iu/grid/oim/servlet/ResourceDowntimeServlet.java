@@ -90,8 +90,6 @@ public class ResourceDowntimeServlet extends ServletBase implements Servlet {
 		});
 
 		ContentView contentview = new ContentView();	
-		//contentview.add(new HtmlView("<h1>Resource Downtime</h1>"));
-	
 		if(resources.size() == 0) {
 			contentview.add(new HtmlView("<p>You currently don't have any resources that list your contact in any of the contact types.</p>"));
 		} else {
@@ -106,6 +104,7 @@ public class ResourceDowntimeServlet extends ServletBase implements Servlet {
 		
 				//downtimes
 				contentview.add(new HtmlView("<td>"));
+				contentview.add(new HtmlView("<a class=\"btn pull-right\" href=\"resourcedowntimeedit?rid=" + rec.id + "\"><i class=\"icon-plus-sign\"></i> Add New Downtime</a>"));
 				GenericView downtime_view = new GenericView();
 				ResourceDowntimeModel dmodel = new ResourceDowntimeModel(context);
 				Collection <ResourceDowntimeRecord> dt_records = dmodel.getRecentDowntimesByResourceID(rec.id, StaticConfig.getDowntimeEditableEndDays());
@@ -115,9 +114,9 @@ public class ResourceDowntimeServlet extends ServletBase implements Servlet {
 				if (dt_records.isEmpty()) {
 					contentview.add(new HtmlView("No scheduled downtime"));
 				} else {
+					contentview.add(new HtmlView("<br clear=\"all\">"));
 					contentview.add(downtime_view);
 				}
-				contentview.add(new HtmlView("<a class=\"btn pull-right\" href=\"resourcedowntimeedit?rid=" + rec.id + "\">Add New Downtime</a>"));
 				contentview.add(new HtmlView("</td>"));
 				
 				contentview.add(new HtmlView("</tr>"));
@@ -136,7 +135,7 @@ public class ResourceDowntimeServlet extends ServletBase implements Servlet {
 	{
 		GenericView view = new GenericView();
 		
-		view.add(new HtmlView("<div class=\"well\">"));
+		view.add(new HtmlView("<div class=\"well downtime_detail\">"));
 		
 		class RemoveButtonDE extends DivRepButton
 		{
@@ -147,39 +146,44 @@ public class ResourceDowntimeServlet extends ServletBase implements Servlet {
 				addClass("right");
 			}
 			protected void onEvent(DivRepEvent e) {
-				//remove_downtime_dialog.summary.setHtml("<br/><b>Summary</b><br/><i>"+rec.downtime_summary + "</i>");
-				//remove_downtime_dialog.summary.redraw();
 				remove_downtime_dialog.setRecord(rec);
 				remove_downtime_dialog.open();	
 			}
 		};
 		view.add(new DivRepWrapper(new RemoveButtonDE(context.getPageRoot())));
 		
-		RecordTableView table = new RecordTableView();
-		table.addRow("Summary", rec.downtime_summary);
+		view.add(new HtmlView("<a class=\"btn\" href=\"resourcedowntimeedit?rid=" + rec.resource_id + "&did=" + rec.id + "\">Edit</a>"));
+		
+		//RecordTableView table = new RecordTableView();
+		view.add(new HtmlView("<table class=\"table\">"));
+		view.add(new HtmlView("<thead><tr><th>Summary</th><td>"+rec.downtime_summary+"</td></tr></thead>"));
 
 		DateFormat dformat = DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.SHORT);
 		String start = "";
 		dformat.setTimeZone(getTimeZone());
 		start += dformat.format(rec.start_time) + " (" + getTimeZone().getID() + ")";
-		table.addRow("Start Time", new HtmlView(start));
+		view.add(new HtmlView("<tr><th>Start Time</th><td>"+start+"</td></tr>"));
 		
-		table.addRow("End Time", dformat.format(rec.end_time) + " (" + getTimeZone().getID() + ")");
+		String end = dformat.format(rec.end_time) + " (" + getTimeZone().getID() + ")";
+		view.add(new HtmlView("<tr><th>End Time</th><td>"+end+"</td></tr>"));
 		
 		DowntimeClassModel dtcmodel = new DowntimeClassModel(context);
-		table.addRow("Downtime Class", dtcmodel.get(rec.downtime_class_id).name);
+		view.add(new HtmlView("<tr><th>Downtime&nbsp;Class</th><td>"+dtcmodel.get(rec.downtime_class_id).name+"</td></tr>"));
+		//table.addRow("Downtime Class", dtcmodel.get(rec.downtime_class_id).name);
 		
 		DowntimeSeverityModel dtsmodel = new DowntimeSeverityModel(context);
-		table.addRow("Downtime Severity", dtsmodel.get(rec.downtime_severity_id).name);
+		view.add(new HtmlView("<tr><th>Downtime&nbsp;Severity</th><td>"+dtsmodel.get(rec.downtime_severity_id).name+"</td></tr>"));
+		//table.addRow("Downtime Severity", dtsmodel.get(rec.downtime_severity_id).name);
 		
-		table.addRow("Affected Services", createAffectedServices(rec.id));
+		view.add(new HtmlView("<tr><th>Affected&nbsp;Services</th><td>"+createAffectedServices(rec.id)+"</td></tr>"));
+		//table.addRow("Affected Services", createAffectedServices(rec.id));
 		
 		DNModel dnmodel = new DNModel(context);
-		table.addRow("DN", dnmodel.get(rec.dn_id).dn_string);
+		view.add(new HtmlView("<tr><th>DN</th><td>"+dnmodel.get(rec.dn_id).dn_string+"</td></tr>"));
+		//table.addRow("DN", dnmodel.get(rec.dn_id).dn_string);
 		
-		view.add(table);
-		
-		table.add(new HtmlView("<a class=\"btn\" href=\"resourcedowntimeedit?rid=" + rec.resource_id + "&did=" + rec.id + "\">Edit</a>"));
+		view.add(new HtmlView("</table>"));
+	
 		view.add(new HtmlView("</div>"));
 		
 		return view;

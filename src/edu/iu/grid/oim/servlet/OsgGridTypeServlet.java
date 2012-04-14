@@ -21,6 +21,7 @@ import com.divrep.common.DivRepButton;
 
 import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.model.db.OsgGridTypeModel;
+import edu.iu.grid.oim.model.db.record.AuthorizationTypeRecord;
 import edu.iu.grid.oim.model.db.record.OsgGridTypeRecord;
 import edu.iu.grid.oim.model.db.record.RecordBase;
 import edu.iu.grid.oim.view.BootBreadCrumbView;
@@ -77,29 +78,34 @@ public class OsgGridTypeServlet extends ServletBase implements Servlet {
 		ContentView contentview = new ContentView();	
 		//contentview.add(new HtmlView("<h1>OSG Grid Types</h1>"));
 		
+		/*
 		for(OsgGridTypeRecord rec : ogts) {
 			contentview.add(new HtmlView("<h2>"+StringEscapeUtils.escapeHtml(rec.name)+"</h2>"));
 			
 			RecordTableView table = new RecordTableView();
 			contentview.add(table);
 			table.addRow("Description", rec.description);
-			/*
-			class EditButtonDE extends DivRepButton
-			{
-				String url;
-				public EditButtonDE(DivRep parent, String _url)
-				{
-					super(parent, "Edit");
-					url = _url;
-				}
-				protected void onEvent(DivRepEvent e) {
-					redirect(url);
-				}
-			};
-			table.add(new DivRepWrapper(new EditButtonDE(context.getPageRoot(), StaticConfig.getApplicationBase()+"/osggridtypeedit?osg_grid_type_id=" + rec.id)));
-			*/
 			table.add(new HtmlView("<a class=\"btn\" href=\"osggridtypeedit?osg_grid_type_id=" + rec.id + "\">Edit</a>"));
 		}
+		*/
+		
+		contentview.add(new HtmlView("<table class=\"table nohover\">"));
+		contentview.add(new HtmlView("<thead><tr><th>Name</th><th>Description</th><th></th></tr></thead>"));	
+
+		contentview.add(new HtmlView("<tbody>"));
+		for(OsgGridTypeRecord rec : ogts) {
+			contentview.add(new HtmlView("<tr>"));	
+			contentview.add(new HtmlView("<td>"+StringEscapeUtils.escapeHtml(rec.name)+"</td>"));		
+			contentview.add(new HtmlView("<td>"+StringEscapeUtils.escapeHtml(rec.description)+"</td>"));				
+			contentview.add(new HtmlView("<td>"));
+			contentview.add(new HtmlView("<a class=\"btn\" href=\"osggridtypeedit?osg_grid_type_id="+rec.id+"\">Edit</a>"));
+			contentview.add(new HtmlView("</td>"));
+			
+			contentview.add(new HtmlView("</tr>"));	
+
+		}
+		contentview.add(new HtmlView("</tbody>"));
+		contentview.add(new HtmlView("</table>"));			
 		return contentview;
 	}
 

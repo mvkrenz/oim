@@ -179,7 +179,7 @@ public class HomeServlet extends ServletBase  {
 		
 				out.write("<p>The last time you confirmed your profile information was "+crec.confirmed.toString()+"</p>");
 				out.write("<p>Please go to the ");
-				out.write("<a href=\""+StaticConfig.getApplicationBase()+"/profileedit"+"\">My Profile</a>");
+				out.write("<a href=\"profileedit\">My Profile</a>");
 				out.write(" page to check your profile information</p>");
 				out.write("</div>");
 			}

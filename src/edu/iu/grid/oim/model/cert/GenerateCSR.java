@@ -63,6 +63,7 @@ public class GenerateCSR {
     
     public GenerateCSR(X500Name x500Name) throws Exception {
     	//generate public/private key pair
+    
         try {
             keyGen = KeyPairGenerator.getInstance("RSA");
         } catch (NoSuchAlgorithmException e) {

@@ -45,7 +45,7 @@ import edu.iu.grid.oim.view.SideContentView;
 public class RegisterServlet extends ServletBase  {
 	private static final long serialVersionUID = 1L;
     static Logger log = Logger.getLogger(RegisterServlet.class);  
-    private String origin_url = StaticConfig.getApplicationBase() + "/home";
+    private String origin_url = "home";
     
     public RegisterServlet() {
         super();
@@ -57,7 +57,7 @@ public class RegisterServlet extends ServletBase  {
 		Authorization auth = context.getAuthorization();
 		if(!auth.isUnregistered()) {
 			//user don't meet the requirement to register. send it to home
-			response.sendRedirect(StaticConfig.getApplicationBase()+ "/home");
+			response.sendRedirect("home");
 			return;
 		}
 		
@@ -316,7 +316,7 @@ public class RegisterServlet extends ServletBase  {
 				dnauthmodel.insert(dnauthrec);
 				
 				//jump to profile page for more details
-				redirect(StaticConfig.getApplicationBase()+"/profileedit");
+				redirect("profileedit");
 				
 			} catch (SQLException e) {
 				alert(e.toString());

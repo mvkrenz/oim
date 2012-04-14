@@ -67,7 +67,7 @@ public class UserEditServlet extends ServletBase implements Servlet {
 			ContentView contentview = new ContentView();
 			
 			if(rec != null) {
-				UserFormDE form = new UserFormDE(context, rec, StaticConfig.getApplicationBase()+"/"+current_page);
+				UserFormDE form = new UserFormDE(context, rec, current_page);
 				
 				//put the form in a view and display
 				contentview.add(new HtmlView("<h1>"+title+"</h1>"));	

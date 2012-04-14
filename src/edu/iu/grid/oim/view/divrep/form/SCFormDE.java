@@ -13,7 +13,7 @@ import com.divrep.common.DivRepTextBox;
 import com.divrep.validator.DivRepUniqueValidator;
 
 import edu.iu.grid.oim.lib.Authorization;
-import edu.iu.grid.oim.lib.Footprint;
+import edu.iu.grid.oim.lib.Footprints;
 import edu.iu.grid.oim.lib.AuthorizationException;
 import edu.iu.grid.oim.model.Context;
 import edu.iu.grid.oim.model.db.ContactTypeModel;
@@ -286,7 +286,7 @@ public class SCFormDE extends DivRepForm
 				
 				try {
 					//create footprint ticket
-					Footprint fp = new Footprint(context);
+					Footprints fp = new Footprints(context);
 					fp.createNewSCTicket(rec.name);
 				} catch (Exception fpe) {
 					log.error("Failed to open footprints ticket: ", fpe);

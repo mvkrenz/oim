@@ -455,7 +455,7 @@ public class ResourceServlet extends ServletBase implements Servlet {
 		//view.add(new HtmlView("<h3>Other Actions</h3>"));
 		//view.add(new HtmlView("<div class=\"indent\">"));
 		if(auth.isUser()) {
-			view.add(new HtmlView("<p><a class=\"btn\" href=\""+StaticConfig.getApplicationBase()+"/resourceedit\">Register New Resource</a></p>"));
+			view.add(new HtmlView("<p><a class=\"btn\" href=\"resourceedit\">Register New Resource</a></p>"));
 		}
 		/*
 		if(rec != null) {

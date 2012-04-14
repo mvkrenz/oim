@@ -58,9 +58,9 @@ public class ActionEditServlet extends ServletBase implements Servlet {
 		}
 	
 		ActionFormDE form;
-		String origin_url = StaticConfig.getApplicationBase()+"/"+current_page;
+		//String origin_url = StaticConfig.getApplicationBase()+"/"+current_page;
 		try {
-			form = new ActionFormDE(context, rec, origin_url);
+			form = new ActionFormDE(context, rec, current_page);
 		} catch (SQLException e) {
 			throw new ServletException(e);
 		}

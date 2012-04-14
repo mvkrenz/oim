@@ -1,11 +1,6 @@
 package edu.iu.grid.oim.model.cert;
 
-import java.io.File;
-import java.io.FileReader;
-import java.util.Scanner;
-
 import edu.iu.grid.oim.model.cert.ICertificateSigner.CertificateProviderException;
-
 import sun.security.x509.X500Name;
 
 public class CertificateManager {
@@ -40,18 +35,7 @@ public class CertificateManager {
 	
     public static void main(String[] args) throws Exception {
   	  
-    	CertificateManager m = new CertificateManager();
-    	
-    	/*
-    	//load existing csr
-    	//Scanner scan = new Scanner(new File("c:/trash/jeremy.csr"));  
-    	Scanner scan = new Scanner(new File("c:/trash/request.csr"));  
-    	scan.useDelimiter("\\Z");  
-    	String csr = scan.next();  
-  
-    	m.signCertificate(csr, "soichi.grid.iu.edu");
-    	*/
-    	
+    	CertificateManager m = new CertificateManager();    	
     	X500Name name = new X500Name(
         		"soichi.grid.iu.edu/emailAddress=hayashis@iu.edu", //CN common name
         		"PKITesting", //Organization unit

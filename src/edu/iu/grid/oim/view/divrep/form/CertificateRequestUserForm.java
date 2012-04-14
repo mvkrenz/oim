@@ -1,7 +1,9 @@
 package edu.iu.grid.oim.view.divrep.form;
 
 import java.io.IOException;
+import java.util.Date;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -29,19 +31,21 @@ import com.divrep.validator.DivRepIValidator;
 import com.divrep.validator.DivRepLengthValidator;
 
 import edu.iu.grid.oim.lib.Authorization;
+import edu.iu.grid.oim.lib.Footprints;
+import edu.iu.grid.oim.lib.Footprints.FPTicket;
 import edu.iu.grid.oim.lib.HashHelper;
 import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.model.Context;
 import edu.iu.grid.oim.model.cert.CertificateManager;
 import edu.iu.grid.oim.model.cert.GenerateCSR;
 import edu.iu.grid.oim.model.cert.ICertificateSigner;
-import edu.iu.grid.oim.model.db.CertificateModel;
+import edu.iu.grid.oim.model.db.CertificateRequestUserModel;
 import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.DNAuthorizationTypeModel;
 import edu.iu.grid.oim.model.db.DNModel;
 import edu.iu.grid.oim.model.db.VOContactModel;
 import edu.iu.grid.oim.model.db.VOModel;
-import edu.iu.grid.oim.model.db.record.CertificateRecord;
+import edu.iu.grid.oim.model.db.record.CertificateRequestUserRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.DNAuthorizationTypeRecord;
 import edu.iu.grid.oim.model.db.record.DNRecord;
@@ -57,22 +61,24 @@ import edu.iu.grid.oim.view.Page;
 import edu.iu.grid.oim.view.SideContentView;
 import edu.iu.grid.oim.view.divrep.VOResourceOwnership;
 
-public class UserCertificateRequestForm extends DivRepForm
+public class CertificateRequestUserForm extends DivRepForm
 {
-    static Logger log = Logger.getLogger(UserCertificateRequestForm.class);
+    static Logger log = Logger.getLogger(CertificateRequestUserForm.class);
 	private Context context;
 	private Authorization auth;
 	
 	//subscriber identify
 	private DivRepTextBox fullname;
-	private DivRepTextBox primary_email;
-	private DivRepTextBox orgunit, orgname;
+	private DivRepTextBox email;
+	private DivRepTextBox phone;
+	//private DivRepTextBox orgunit, orgname;
 	//private DivRepTextBox address_line_1, address_line_2;
 	private DivRepTextBox city, state, country;
 	
 	private DivRepPassword passphrase; //for guest
+	private DivRepCheckBox agreement;
 	
-	private DivRepSelectBox vo, sponsor;
+	private DivRepSelectBox vo;//, sponsor;
 	
 	/*
 	//oim profile
@@ -89,14 +95,14 @@ public class UserCertificateRequestForm extends DivRepForm
 	private DivRepTextBox twiki_id;
 	*/
 	
-	public UserCertificateRequestForm(Context _context, DivRepPage page_root, String origin_url) {
+	public CertificateRequestUserForm(Context _context, DivRepPage page_root, String origin_url) {
 		
 		super(page_root, origin_url);
 		context = _context;
 		auth = context.getAuthorization();
 		ContactRecord contact = auth.getContact();
 		
-		new DivRepStaticContent(this, "<h2>Identify Information</h2>");
+		new DivRepStaticContent(this, "<h2>Identity Information</h2>");
 		new DivRepStaticContent(this, "<p class=\"help-block\">This information will be used to generate your CSR (PKCS10).</p>");
 				
 		fullname = new DivRepTextBox(this);
@@ -106,12 +112,20 @@ public class UserCertificateRequestForm extends DivRepForm
 			fullname.setValue(contact.name);
 		}
 		
-		primary_email = new DivRepTextBox(this);
-		primary_email.setLabel("Email");
-		primary_email.setRequired(true);
+		email = new DivRepTextBox(this);
+		email.setLabel("Email");
+		email.setRequired(true);
 		if(contact != null) {
-			primary_email.setValue(contact.primary_email);
+			email.setValue(contact.primary_email);
 		}
+		
+		phone = new DivRepTextBox(this);
+		phone.setLabel("Phone");
+		phone.setRequired(true);
+		if(contact != null) {
+			phone.setValue(contact.primary_phone);
+		}
+		new DivRepStaticContent(this, "<p class=\"help-block\">* Used for certificate sponsors to contact you via GOC Ticket</p>");
 		
 		/*
 		class CheckValidator implements DivRepIValidator
@@ -134,7 +148,7 @@ public class UserCertificateRequestForm extends DivRepForm
 		primary_email_check.setRequired(true);
 		primary_email_check.addValidator(new CheckValidator(primary_email));
 		*/
-		
+		/*
 		orgunit = new DivRepTextBox(this);
 		orgunit.setLabel("Organization Unit");
 		orgunit.setRequired(true);
@@ -145,7 +159,7 @@ public class UserCertificateRequestForm extends DivRepForm
 		orgname.setRequired(true);
 		orgname.setValue("OSG");
 		orgname.setDisabled(true);
-
+		*/
 		
 		/*
 		address_line_1 = new DivRepTextBox(this);
@@ -183,15 +197,31 @@ public class UserCertificateRequestForm extends DivRepForm
 		}
 		
 		new DivRepStaticContent(this, "<h2>Passphrase</h2>");
-		new DivRepStaticContent(this, "<p class=\"help-block\">Please pick a passphrase to encrypt your private key.</p>");
+		new DivRepStaticContent(this, "<p class=\"help-block\">Please pick a passphrase to retrieve your certificate once issued.</p>");
 		if(auth.isGuest()) {
-			new DivRepStaticContent(this, "<p class=\"help-block\">This password is also used to retreive your certificate once it's issued</p>");
+			new DivRepStaticContent(this, "<p class=\"help-block\">This passphrase will also be used to encrypt your certificate.</p>");
 		}
 		passphrase = new DivRepPassword(this);
 		passphrase.addValidator(new DivRepLengthValidator(5, 100));
 		//passphrase.setLabel("Passphrase");
 		passphrase.setRequired(true);
 		
+		new DivRepStaticContent(this, "<h2>DigiCert Policy Agreement</h2>");
+		new DivRepStaticContent(this, "<div class=\"well\">TBD... we display Digicert policy here for user to read..</div>");
+		agreement = new DivRepCheckBox(this);
+		agreement.setLabel("I agree with above policies");
+		agreement.setRequired(true);
+		agreement.addValidator(new DivRepIValidator<Boolean>(){
+
+			@Override
+			public Boolean isValid(Boolean value) {
+				return value;
+			}
+
+			@Override
+			public String getErrorMessage() {
+				return "You must agree to these policies";
+			}});
 		
 		new DivRepStaticContent(this, "<h2>Sponsor</h2>");
 		new DivRepStaticContent(this, "<p class=\"help-block\">Please select VO and sponsor who should approve your request.</p>");
@@ -211,6 +241,7 @@ public class UserCertificateRequestForm extends DivRepForm
 			vo = new DivRepSelectBox(this, kv);
 			vo.setLabel("Virtual Organization");
 			vo.setRequired(true);
+			/*
 			vo.addEventListener(new DivRepEventListener() {
 				@Override
 				public void handleEvent(DivRepEvent e) {
@@ -246,6 +277,7 @@ public class UserCertificateRequestForm extends DivRepForm
 			sponsor.setLabel("Sponsor");
 			sponsor.setRequired(true);
 			sponsor.setHidden(true);
+			*/
 			
 		} catch (SQLException e) {
 			log.error("Failed to load vo list while constructing certificat request form", e);
@@ -363,6 +395,7 @@ public class UserCertificateRequestForm extends DivRepForm
 	protected Boolean doSubmit() {
 		Boolean ret = true;
 		
+		/*
 		//Generate CSR
 		GenerateCSR gcsr = null;
 		try {
@@ -382,35 +415,93 @@ public class UserCertificateRequestForm extends DivRepForm
 			alert("Sorry.. Failed to generate your CSR");
 			ret = false;
 		}
+		*/
+		CertificateRequestUserRecord rec = new CertificateRequestUserRecord();
+		Footprints fp = new Footprints(context);
+		FPTicket ticket = fp.new FPTicket();
 		
-		if(gcsr != null) {
-			//insert record
-			try {
-				CertificateModel model = new CertificateModel(context);
-				CertificateRecord rec = new CertificateRecord();
-				rec.csr = gcsr.getCSR();
-				rec.type = "USER";
-				if(auth.isGuest()) {
-					rec.guest_name = fullname.getValue();
-				} else {
-					rec.requester_contact_id = auth.getContact().id;
-				}
-				rec.sponsor_contact_id = sponsor.getValue();
-				rec.status = "REQUESTED";
-				rec.privatekey = gcsr.getEncryptedPrivateKey(passphrase.getValue());
-				rec.passphrase_hash = HashHelper.sha1(passphrase.getValue());
-				if(!model.request(rec)) {
-					ret = false;
-				}
-			} catch (Exception e) {
-				log.error("Failed to encrypt privatekey", e);
-				alert("sorry, Failed to encrypt privatekey");
-				ret = false;
-			}
+		try {
+			//generate DN
+			String cn = fullname.getValue() + "/emailAddress=" + email.getValue();
+			X500Name x500 = new X500Name(
+					cn, 
+					"PKITesting", //org unit
+					"OSG", //osg name
+					city.getValue(), state.getValue(), country.getValue()
+			);
+			rec.dn = x500.toString(); //RFC1779
+		} catch (IOException e1) {
+			log.error("Failed to create x500Name objct", e1);
 		}
 		
+		if(auth.isGuest()) {
+			//only needed if user has no csr
+			rec.requester_passphrase = HashHelper.sha1(passphrase.getValue());
+		} else {
+			rec.requester_contact_id = auth.getContact().id;
+		}
 		
+		Date current = new Date();
+		rec.request_time = new Timestamp(current.getTime());
+		rec.requester_name = fullname.getValue();
+		rec.status = "REQUESTED";
 		
+		//find RA information
+		VOContactModel model = new VOContactModel(context);
+		ContactModel cmodel = new ContactModel(context);
+		ArrayList<VOContactRecord> crecs;
+		try {
+			crecs = model.getByVOID(vo.getValue());
+			for(VOContactRecord crec : crecs) {
+				if(crec.contact_type_id.equals(11) && crec.contact_rank_id.equals(1)) { //primary
+					rec.ra_contact_id = crec.contact_id;
+				}
+				if(crec.contact_type_id.equals(11) && crec.contact_rank_id.equals(3)) { //sponsor
+					ContactRecord contactrec = cmodel.get(crec.contact_id);
+					ticket.ccs.add(contactrec.primary_email);
+				}
+			}
+		} catch (SQLException e1) {
+			log.error("Failed to lookup RA/sponsor information", e1);
+		}
+		
+		if(rec.ra_contact_id == null) {
+			rec.ra_contact_id = 623; //Alian D. .. - if no RA is set for VO, who should I assign?
+		}
+		try {
+			ContactRecord contactrec = cmodel.get(rec.ra_contact_id);
+			ticket.ccs.add(contactrec.primary_email);
+		} catch (SQLException e1) {
+			log.error("Failed to lookup ra contact information for ID" + rec.ra_contact_id, e1);
+		}
+		
+		try {
+			//insert request record
+			CertificateRequestUserModel certmodel = new CertificateRequestUserModel(context);
+			Integer request_id = certmodel.insert(rec);
+			if(request_id == null) {
+				ret = false;
+			} else {
+				//submit goc ticket
+				ticket.title = "User Certificate Request #" + request_id;
+				ticket.description = rec.requester_name + " has requested user certificate. \n";
+				ticket.name = rec.requester_name;
+				ticket.email = email.getValue();
+				ticket.phone = phone.getValue();
+				ticket.assignees.add("hayashis");
+				ticket.nextaction = "Sponsors to verify requester";
+				String ticket_id = fp.open(ticket);
+
+				//update goc ticket id
+				rec.goc_ticket_id = ticket_id;
+				certmodel.update(certmodel.get(request_id), rec);
+			}
+		} catch (Exception e) {
+			log.error("Failed to submit request..", e);
+			alert("Sorry, failed to submit request..");
+			ret = false;
+		}
+
 		/*
 		ContactModel model = new ContactModel(context);
 		DNModel dnmodel = new DNModel(context);

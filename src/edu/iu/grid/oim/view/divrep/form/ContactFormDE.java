@@ -281,7 +281,7 @@ public class ContactFormDE extends DivRepForm
 		public void render(PrintWriter out) {
 			String img = url.getValue();
 			if(img == null || img.length() == 0) {
-				img = StaticConfig.getApplicationBase() + "/images/noavatar.gif";
+				img = "images/noavatar.gif";
 			}
 			
 			out.print("<div ");
@@ -444,6 +444,7 @@ public class ContactFormDE extends DivRepForm
 			log.error(e);
 		}
 		submitter_dn = new DivRepSelectBox(this, dns);
+		submitter_dn.addClass("dn_selecter");
 		submitter_dn.setLabel("Submitter DN");
 		submitter_dn.setValue(rec.submitter_dn_id);
 		if(!auth.allows("admin")) {

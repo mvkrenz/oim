@@ -21,7 +21,7 @@ import com.divrep.validator.DivRepUniqueValidator;
 import com.divrep.validator.DivRepUrlValidator;
 
 import edu.iu.grid.oim.lib.Authorization;
-import edu.iu.grid.oim.lib.Footprint;
+import edu.iu.grid.oim.lib.Footprints;
 import edu.iu.grid.oim.lib.AuthorizationException;
 import edu.iu.grid.oim.model.Context;
 import edu.iu.grid.oim.model.db.AuthorizationTypeModel;
@@ -79,6 +79,7 @@ public class UserFormDE extends DivRepForm
 		AuthorizationTypeModel atmodel = new AuthorizationTypeModel(context);
 		DNAuthorizationTypeModel dnatmodel = new DNAuthorizationTypeModel(context);
 		for(AuthorizationTypeRecord atrec : atmodel.getAll()) {
+			if(atrec.id == 0) continue; //ignore guest
 			DivRepCheckBox elem = new DivRepCheckBox(this);
 			elem.setLabel(atrec.name);
 			auth_types.put(atrec.id, elem);
@@ -124,7 +125,7 @@ public class UserFormDE extends DivRepForm
 			if(rec.id == null) {
 				model.insertDetail(rec, auths);
 				//create footprint ticket
-				Footprint fp = new Footprint(context);
+				Footprints fp = new Footprints(context);
 			} else {
 				model.updateDetail(rec, auths);
 			}

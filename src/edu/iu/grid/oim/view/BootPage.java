@@ -60,8 +60,14 @@ public class BootPage implements IView {
 		} else {
 			params.put("__BASE__", StaticConfig.getApplicationBase());
 		}
-		params.put("__APPNAME__", StaticConfig.getApplicationName());
+		
+		if(StaticConfig.isDebug()) {
+			params.put("__APPNAME__", StaticConfig.getApplicationName() + " (Debug)");
+		} else {
+			params.put("__APPNAME__", StaticConfig.getApplicationName());
+		}
 		params.put("__VERSION__", StaticConfig.getVersion());
+		log.debug(StaticConfig.conf.getProperty("debug"));
 		
 		try {
 			String request_uri = context.getRequestURL();
@@ -74,20 +80,10 @@ public class BootPage implements IView {
 		} catch (UnsupportedEncodingException e) {
 			log.error(e);
 		} 
-
-		/*
-		if(auth.isGuest()) {
-			params.put("__DN__", "Guest");
-		} else if(auth.isUnregistered()) {
-			params.put("__DN__", "Unregistered DN (" + context.getAuthorization().getUserDN() + ")");
-		} else {
-			params.put("__DN__", context.getAuthorization().getUserDN());
-		}
-		*/		
 		
 		String exhead = new String();
 		for(String css : this.css) {
-			exhead += "<link href=\""+StaticConfig.getApplicationBase()+"/css/"+css+"\" rel=\"stylesheet\" type=\"text/css\"/>\n";
+			exhead += "<link href=\"css/"+css+"\" rel=\"stylesheet\" type=\"text/css\"/>\n";
 		}
 		params.put("__EXHEAD__", exhead);
 		

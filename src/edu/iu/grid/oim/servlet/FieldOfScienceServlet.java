@@ -30,7 +30,9 @@ import edu.iu.grid.oim.view.RecordTableView;
 import edu.iu.grid.oim.view.SideContentView;
 
 import edu.iu.grid.oim.model.db.FieldOfScienceModel;
+import edu.iu.grid.oim.model.db.ServiceGroupModel;
 import edu.iu.grid.oim.model.db.record.FieldOfScienceRecord;
+import edu.iu.grid.oim.model.db.record.ServiceGroupRecord;
 
 public class FieldOfScienceServlet extends ServletBase implements Servlet {
 	private static final long serialVersionUID = 1L;
@@ -73,6 +75,7 @@ public class FieldOfScienceServlet extends ServletBase implements Servlet {
 		ContentView contentview = new ContentView();	
 		//contentview.add(new HtmlView("<h1>Field Of Science VOs can be associated with</h1>"));
 	
+		/*
 		for(FieldOfScienceRecord rec : recs) {
 			contentview.add(new HtmlView("<h2>"+StringEscapeUtils.escapeHtml(rec.name)+"</h2>"));
 				
@@ -80,23 +83,25 @@ public class FieldOfScienceServlet extends ServletBase implements Servlet {
 			contentview.add(table);
 
 		 	table.addRow("Name", rec.name);
-		 	/*
-			class EditButtonDE extends DivRepButton
-			{
-				String url;
-				public EditButtonDE(DivRep parent, String _url)
-				{
-					super(parent, "Edit");
-					url = _url;
-				}
-				protected void onEvent(DivRepEvent e) {
-					redirect(url);
-				}
-			};
-			table.add(new DivRepWrapper(new EditButtonDE(context.getPageRoot(), StaticConfig.getApplicationBase()+"/fieldofscienceedit?id=" + rec.id)));
-			*/
 		 	table.add(new HtmlView("<a class=\"btn\" href=\"fieldofscienceedit?id="+rec.id+"\">Edit</a>"));
+		}*/
+		
+		contentview.add(new HtmlView("<table class=\"table nohover\">"));
+		contentview.add(new HtmlView("<thead><tr><th>Name</th><th></th></tr></thead>"));	
+
+		contentview.add(new HtmlView("<tbody>"));
+		for(FieldOfScienceRecord rec : recs) {
+			contentview.add(new HtmlView("<tr>"));	
+			contentview.add(new HtmlView("<td>"+StringEscapeUtils.escapeHtml(rec.name)+"</td>"));		
+			contentview.add(new HtmlView("<td>"));
+			contentview.add(new HtmlView("<a class=\"btn\" href=\"fieldofscienceedit?id="+rec.id+"\">Edit</a>"));
+			contentview.add(new HtmlView("</td>"));
+			
+			contentview.add(new HtmlView("</tr>"));	
+
 		}
+		contentview.add(new HtmlView("</tbody>"));
+		contentview.add(new HtmlView("</table>"));	
 		
 		return contentview;
 	}

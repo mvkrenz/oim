@@ -66,9 +66,9 @@ public class OsgGridTypeEditServlet extends ServletBase implements Servlet {
 		}
 	
 		OsgGridTypeFormDE form;
-		String origin_url = StaticConfig.getApplicationBase()+"/"+parent_page;
+		//String origin_url = StaticConfig.getApplicationBase()+"/"+parent_page;
 		try {
-			form = new OsgGridTypeFormDE(context, rec, origin_url);
+			form = new OsgGridTypeFormDE(context, rec, parent_page);
 		} catch (SQLException e) {
 			throw new ServletException(e);
 		}

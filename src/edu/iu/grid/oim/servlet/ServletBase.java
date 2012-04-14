@@ -79,7 +79,7 @@ public class ServletBase extends HttpServlet {
 			} 
 			
 			req.getSession().setAttribute("exception", e);
-			resp.sendRedirect(StaticConfig.getApplicationBase()+"/error");
+			resp.sendRedirect("error");
 		}
 		
 		context.close();

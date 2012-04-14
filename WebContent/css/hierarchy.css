@@ -1,14 +1,7 @@
 
 div.hierarchy_facility {
-	/*
-padding: 5px 15px 5px 25px;
-margin-bottom: 5px;
-background:#c96 url(images/database.png) no-repeat 5px 5px;
-box-shadow: 2px 2px 5px #ccc;
-color: gray;
-*/
   min-height: 20px;
-  padding: 10px 15px 5px 15px;
+  padding: 7px 15px 5px 15px;
   margin-bottom: 10px;
   background:#f5f5f5;
   border: 1px solid #eee;

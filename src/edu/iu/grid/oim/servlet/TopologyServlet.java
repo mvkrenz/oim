@@ -134,7 +134,7 @@ public class TopologyServlet extends ServletBase implements Servlet {
 		});
 		
 		if(auth.allows("edit_all_facility")) {
-			contentview.add(new HtmlView("<p><a class=\"btn pull-right\" href=\"facilityedit\">Add New Facility</a></p>"));
+			contentview.add(new HtmlView("<p><a class=\"btn pull-right\" href=\"facilityedit\"><i class=\"icon-plus-sign\"></i> Add Facility</a></p>"));
 		}
 		
 		//display facility selector
@@ -177,7 +177,7 @@ public class TopologyServlet extends ServletBase implements Servlet {
 			contentview.add(new HtmlView("<div class=\"hierarchy_facility round4 well "+disable_css+"\">"));
 			if(auth.allows("edit_all_site")) {
 				//contentview.add(new HtmlView("<div class=\"hierarchy_site round4 new\" style=\"width: 90px;\">"));
-				contentview.add(new HtmlView("&nbsp;<a class=\"new pull-right\" href=\"siteedit?facility_id="+frec.id+"\">Add New Site</a>"));
+				contentview.add(new HtmlView("&nbsp;<a class=\"new pull-right\" href=\"siteedit?facility_id="+frec.id+"\"><i class=\"icon-plus-sign\"></i> Add Site</a>"));
 				//contentview.add(new HtmlView("</div>"));	
 			}
 			if(auth.allows("edit_all_facility")) {
@@ -219,8 +219,17 @@ public class TopologyServlet extends ServletBase implements Servlet {
 					}
 				});
 				GenericView prod = new GenericView();
+				if(auth.allows("edit_all_resource_group")) {
+					prod.add(new HtmlView("<a class=\"new pull-right\" href=\"resourcegroupedit?gridtype_id=1&site_id="+srec.id+"\"><i class=\"icon-plus-sign icon-white\"></i> Add Production Resource Group</a>"));
+					//prod.add(new HtmlView("</div>"));
+				}
 				prod.add(new HtmlView("<h4 class=\"resource_groups_header\">Production Resource Groups</h4>"));
 				GenericView itb = new GenericView();
+				if(auth.allows("edit_all_resource_group")) {
+					//itb.add(new HtmlView("<div class=\"hierarchy_rg round4 new\" style=\"width: 250px;\">"));
+					itb.add(new HtmlView("<a class=\"new pull-right\" href=\"resourcegroupedit?gridtype_id=2&site_id="+srec.id+"\"><i class=\"icon-plus-sign icon-white\"></i> Add ITB Resource Group</a>"));
+					//itb.add(new HtmlView("</div>"));
+				}
 				itb.add(new HtmlView("<h4 class=\"resource_groups_header\">ITB Resource Groups</h4>"));
 				for(ResourceGroupRecord rgrec : rgrecs) {
 					GenericView rg = new GenericView();
@@ -233,7 +242,7 @@ public class TopologyServlet extends ServletBase implements Servlet {
 					rg.add(new HtmlView("<div class=\"hierarchy_rg round4"+disable_css+"\">"));
 					
 					if(auth.allows("edit_my_resource")) {
-						rg.add(new HtmlView("<a class=\"new pull-right\" href=\"resourceedit?rg_id="+rgrec.id+"\">Add New Resource</a>"));
+						rg.add(new HtmlView("<a class=\"new pull-right\" href=\"resourceedit?rg_id="+rgrec.id+"\"><i class=\"icon-plus-sign icon-white\"></i> Add Resource</a>"));
 						//rg.add(new HtmlView("</div>"));//resource_group
 					}
 					if(auth.allows("edit_all_resource_group")) {
@@ -290,16 +299,7 @@ public class TopologyServlet extends ServletBase implements Servlet {
 					}
 				}	
 				//prod.add(new HtmlView("<div class=\"hierarchy_rg round4 new\" style=\"width: 250px;\">"));
-				if(auth.allows("edit_all_resource_group")) {
-					prod.add(new HtmlView("<a class=\"new\" href=\"resourcegroupedit?gridtype_id=1&site_id="+srec.id+"\">Add New Production Resource Group</a>"));
-					//prod.add(new HtmlView("</div>"));
-				}
-				
-				if(auth.allows("edit_all_resource_group")) {
-					//itb.add(new HtmlView("<div class=\"hierarchy_rg round4 new\" style=\"width: 250px;\">"));
-					itb.add(new HtmlView("<a class=\"new\" href=\"resourcegroupedit?gridtype_id=2&site_id="+srec.id+"\">Add New ITB Resource Group</a>"));
-					//itb.add(new HtmlView("</div>"));
-				}
+
 				
 				contentview.add(new HtmlView("<div class=\"row-fluid\">"));
 				contentview.add(new HtmlView("<div class=\"span6\">"));

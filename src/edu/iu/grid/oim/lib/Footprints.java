@@ -1,46 +1,48 @@
 package edu.iu.grid.oim.lib;
 
-import java.sql.SQLException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 
-import javax.naming.NamingException;
-import javax.xml.soap.*;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.log4j.Logger;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 import edu.iu.grid.oim.model.Context;
 import edu.iu.grid.oim.model.db.ConfigModel;
-import edu.iu.grid.oim.model.db.GOCTicket;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.view.HtmlFileView;
 
-public class Footprint 
+public class Footprints 
 {
-    static Logger log = Logger.getLogger(Footprint.class); 
+    static Logger log = Logger.getLogger(Footprints.class); 
     
-	Context context;
-	
+	Authorization auth;
+	ConfigModel config;
+	/*
 	SOAPBody body;
 	SOAPEnvelope env;
 	SOAPConnection connection;
 	SOAPMessage msg;
-	
-	ConfigModel config;
-	
-	public Footprint(Context context)
+	*/
+
+	public Footprints(Context context)
 	{
-		this.context = context;
-		
-		//using program listed here > http://blogs.sun.com/andreas/entry/no_more_unable_to_find
-		//to create the trusted keystore
-		System.setProperty("javax.net.ssl.trustStore", StaticConfig.getSSLTrustStorePath());
-		
+		auth = context.getAuthorization();
 		config = new ConfigModel(context);
 		
+		/*
+		//using program listed here > http://blogs.sun.com/andreas/entry/no_more_unable_to_find to create the trusted keystore
+		System.setProperty("javax.net.ssl.trustStore", StaticConfig.getSSLTrustStorePath());
         //Init SOAP
 		try {
 			SOAPConnectionFactory scf = SOAPConnectionFactory.newInstance();
@@ -58,8 +60,10 @@ public class Footprint
 		} catch (SOAPException e) {
 			log.error("Failed to initialize Footprint object", e);
 		}
+		*/
 	}
-
+	
+	/*
 	public void createNewResourceTicket(String resource_name, String sc_footprint_id, String vo_name)
 	{
 		log.debug("createNewResourceTicket .. beginning");
@@ -234,7 +238,8 @@ public class Footprint
 		}
 		log.debug("createNewResourceTicket .. ending");
 	}
-	
+	*/
+	/*
 	public void createNewSCTicket(String sc_name)
 	{		
 		HtmlFileView description = new HtmlFileView(config.SCFPTemplate.get());
@@ -327,23 +332,6 @@ public class Footprint
     	            arg4_5_2.addTextNode("echism");    			
     		}
             	           
-    		/*
-            SOAPElement ccs = args.addChildElement( env.createName("permanentCCs") );
-            ccs.addAttribute( env.createName("type","xsi",""), "SOAP-ENC:Array" );
-            ccs.addAttribute( env.createName("arrayType","SOAP-ENC",""), "xsd:string[3]" );//CHANGE [1] to [n] based on the number of items
-            
-	            SOAPElement cc1 = ccs.addChildElement( env.createName("item") );
-	            cc1.addAttribute( env.createName("type","xsi",""), "xsd:string" );
-	            cc1.addTextNode("oim-dev@OPENSCIENCEGRID.ORG");
-	            
-	            SOAPElement cc2 = ccs.addChildElement( env.createName("item") );
-	            cc2.addAttribute( env.createName("type","xsi",""), "xsd:string" );
-	            cc2.addTextNode("rquick@iu.edu");
-	            
-	            SOAPElement cc3 = ccs.addChildElement( env.createName("item") );
-	            cc3.addAttribute( env.createName("type","xsi",""), "xsd:string" );
-	            cc3.addTextNode("ruth@fnal.gov");   	     
-	        */
     		if(StaticConfig.isDebug()) {
     			log.debug("DEBUG: following people would have been CC-ed in production mode: oim-dev@, rquick@iu.edu, ruth@fnal.gov");
     		} else {
@@ -399,7 +387,9 @@ public class Footprint
 			log.error("Failed to create sc ticket: ", ex);
         } 
 	}
+	*/
 	
+	/*
 	public void createNewVOTicket(String vo_name, String sc_footprint_id)
 	{	
 		HtmlFileView description = new HtmlFileView(config.VOFPTemplate.get());	
@@ -599,12 +589,6 @@ public class Footprint
 	
 	void call() throws SOAPException
 	{
-		/*
- 		if(StaticConfig.isDebug()) {
- 			System.out.println("Dumpging request soap body");
- 			DumpSOAPElement(msg.getSOAPBody(), 0);
- 		}
- 		*/
  		
 		log.debug("Calling : " + StaticConfig.getFootprintsUrl());
         SOAPMessage reply = connection.call(msg, StaticConfig.getFootprintsUrl());
@@ -639,5 +623,209 @@ public class Footprint
         } else {
         	log.error("SOAP did not return anything at all...");
         }
+	}
+	*/
+	
+	public class FPTicket {
+		public String title;
+		public String description;
+		public String nextaction;
+		public String name;
+		public String phone;
+		public String email;
+		public ArrayList<String> ccs = new ArrayList<String>();
+		public ArrayList<String> assignees = new ArrayList<String>();
+		public HashMap<String, String> metadata = new HashMap<String, String>();
+	}
+	
+	private Document parseXML(InputStream in) throws ParserConfigurationException, SAXException, IOException {
+		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+		DocumentBuilder db = dbf.newDocumentBuilder();
+		return db.parse(in);
+	}
+	
+	//returns ticket id if successful. null if not
+	public String open(FPTicket ticket) {
+		HttpClient cl = new HttpClient();
+	    //cl.getParams().setParameter("http.useragent", "OIM (OSG Information Management System)");
+		PostMethod post = new PostMethod("http://soichi.grid.iu.edu/ticket/rest/open");
+
+		post.addParameter("title", ticket.title);
+		post.setParameter("description", ticket.description);
+		post.setParameter("name", ticket.name);
+		post.setParameter("phone", ticket.phone);
+		post.setParameter("email", ticket.email);
+		post.setParameter("nextaction", ticket.nextaction);
+		for(int i = 0; i < ticket.ccs.size(); ++i) {
+			post.setParameter("cc["+i+"]", ticket.ccs.get(i));
+		}
+		for(int i = 0; i < ticket.assignees.size(); ++i) {
+			post.setParameter("assignee["+i+"]", ticket.assignees.get(i));
+		}
+		int i = 0;
+		for(String key : ticket.metadata.keySet()) {
+			String value = ticket.metadata.get(key);
+			post.setParameter("metadata["+i+"]", key + "=" + value);
+			i++;
+		}
+		
+		try {
+			cl.executeMethod(post);
+			Document ret = parseXML(post.getResponseBodyAsStream());
+			NodeList status_nl = ret.getElementsByTagName("Status");
+			Element status = (Element)status_nl.item(0);
+			if(status.getTextContent().equals("success")) {
+				Element ticket_id_e = (Element) ret.getElementsByTagName("TicketID").item(0);
+				return ticket_id_e.getTextContent();
+			}
+			log.error("Unknown return code from goc ticket");
+		} catch (IOException e) {
+			log.error("Failed to make open request" ,e);
+		} catch (ParserConfigurationException e) {
+			log.error("Failed to parse returned message" ,e);
+		} catch (SAXException e) {
+			log.error("Failed to parse returned message" ,e);
+		}
+		
+		return null;
+	}
+	
+	//return true if successful
+	public Boolean update(FPTicket ticket, String ticket_id) {
+		HttpClient cl = new HttpClient();
+	    //cl.getParams().setParameter("http.useragent", "OIM (OSG Information Management System)");
+		PostMethod post = new PostMethod("http://soichi.grid.iu.edu/ticket/rest/update?id="+ticket_id);
+		//TODO - right now, REST API only supports adding new description
+		post.setParameter("description", ticket.description);
+	
+		try {
+			cl.executeMethod(post);
+			Document ret = parseXML(post.getResponseBodyAsStream());
+			NodeList status_nl = ret.getElementsByTagName("Status");
+			Element status = (Element)status_nl.item(0);
+			if(status.getTextContent().equals("success")) {
+				return true;
+			}
+			log.error("Unknown return code from goc ticket");
+		} catch (IOException e) {
+			log.error("Failed to make open request" ,e);
+		} catch (ParserConfigurationException e) {
+			log.error("Failed to parse returned message" ,e);
+		} catch (SAXException e) {
+			log.error("Failed to parse returned message" ,e);
+		}
+		
+		return false;
+	}
+	
+	public void createNewResourceTicket(String resource_name, String sc_footprint_id)
+	{
+		FPTicket ticket = new FPTicket();
+		
+		//create description
+		HtmlFileView description = new HtmlFileView(config.ResourceFPTemplate.get());
+		HashMap<String, String> params = new HashMap<String, String>();
+		params.put("##RESOURCE_NAME##", resource_name);
+		description.applyParams(params);
+		ticket.description = description.toString();
+		
+        ContactRecord contact = auth.getContact();
+        ticket.name = contact.name;
+        ticket.phone = contact.primary_phone;
+        ticket.email = contact.primary_email;
+        ticket.nextaction = "Verify Information and Add to Ops Meeting Agenda";
+        ticket.title = "OIM Resource Registration - " + resource_name;
+		ticket.metadata.put("SUBMITTER_NAME", contact.getFirstName() + " " + contact.getLastName());
+		ticket.metadata.put("SUBMITTER_DN", auth.getUserDN());
+		ticket.metadata.put("SUBMITTED_VIA", "OIM/registration");
+		
+		if(StaticConfig.isDebug()) {
+			ticket.assignees.add("hayashis");
+		} else {
+			ticket.assignees.add("echism");
+			ticket.assignees.add("kagross");
+            ticket.ccs.add("rquick@iu.edu");
+            ticket.ccs.add("ruth@fnal.gov");
+            if(sc_footprint_id != null) {
+            	ticket.assignees.add(sc_footprint_id);
+            }
+		}
+		
+		String id = open(ticket);
+		if(id != null) {
+			log.info("Created GOC ticket with ID: " + id);
+		}
+	}
+	
+	public void createNewSCTicket(String sc_name)
+	{
+		FPTicket ticket = new FPTicket();
+		
+		//create description
+		HtmlFileView description = new HtmlFileView(config.SCFPTemplate.get());
+		HashMap<String, String> params = new HashMap<String, String>();
+		params.put("##SC_NAME##", sc_name);
+		description.applyParams(params);
+		ticket.description = description.toString();
+		
+        ContactRecord contact = auth.getContact();
+        ticket.name = contact.name;
+        ticket.phone = contact.primary_phone;
+        ticket.email = contact.primary_email;
+        ticket.nextaction = "Verify Information and Add to Ops Meeting Agenda";
+        ticket.title = "OIM Support Center Registration - " + sc_name;
+		ticket.metadata.put("SUBMITTER_NAME", contact.getFirstName() + " " + contact.getLastName());
+		ticket.metadata.put("SUBMITTER_DN", auth.getUserDN());
+		ticket.metadata.put("SUBMITTED_VIA", "OIM/registration");
+		
+		if(StaticConfig.isDebug()) {
+			ticket.assignees.add("hayashis");
+            ticket.ccs.add("soichih@gmail.com");
+		} else {
+			ticket.assignees.add("echism");
+			ticket.assignees.add("kagross");
+            ticket.ccs.add("rquick@iu.edu");
+            ticket.ccs.add("ruth@fnal.gov");
+		}
+		
+		String id = open(ticket);
+		if(id != null) {
+			log.info("Created GOC ticket with ID: " + id);
+		}
+	}
+	
+	public void createNewVOTicket(String vo_name, String sc_footprint_id) {
+		FPTicket ticket = new FPTicket();
+		
+		//create description
+		HtmlFileView description = new HtmlFileView(config.VOFPTemplate.get());	
+		HashMap<String, String> params = new HashMap<String, String>();
+		params.put("##VO_NAME##", vo_name);
+		description.applyParams(params);
+		ticket.description = description.toString();
+		
+        ContactRecord contact = auth.getContact();
+        ticket.name = contact.name;
+        ticket.phone = contact.primary_phone;
+        ticket.email = contact.primary_email;
+        ticket.nextaction = "Verify Information and Add to Ops Meeting Agenda";
+        ticket.title = "OIM Virtual Organization Registration - " + vo_name;
+		ticket.metadata.put("SUBMITTER_NAME", contact.getFirstName() + " " + contact.getLastName());
+		ticket.metadata.put("SUBMITTER_DN", auth.getUserDN());
+		ticket.metadata.put("SUBMITTED_VIA", "OIM/registration");
+		
+		if(StaticConfig.isDebug()) {
+			ticket.assignees.add("hayashis");
+		} else {
+			ticket.assignees.add("echism");
+			ticket.assignees.add("kagross");
+            ticket.ccs.add("rquick@iu.edu");
+            ticket.ccs.add("ruth@fnal.gov");
+		}
+		
+		String id = open(ticket);
+		if(id != null) {
+			log.info("Created GOC ticket with ID: " + id);
+		}		
 	}
 }

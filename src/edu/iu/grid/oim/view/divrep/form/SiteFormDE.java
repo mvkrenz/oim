@@ -17,7 +17,7 @@ import com.divrep.common.DivRepTextBox;
 import com.divrep.validator.DivRepUniqueValidator;
 
 import edu.iu.grid.oim.lib.Authorization;
-import edu.iu.grid.oim.lib.Footprint;
+import edu.iu.grid.oim.lib.Footprints;
 import edu.iu.grid.oim.lib.AuthorizationException;
 import edu.iu.grid.oim.lib.StaticConfig;
 
@@ -128,7 +128,7 @@ public class SiteFormDE extends DivRepForm
 		country.setRequired(true);
 		
 		//latlng = new LatLngSelector(this);
-		latlng = new DivRepLocationSelector(this, StaticConfig.getApplicationBase()+"/images/target.png");
+		latlng = new DivRepLocationSelector(this, "images/target.png");
 		latlng.setLabel("Latitude / Longitude");
 		int zoom = 10;
 		if(rec.latitude == null || rec.longitude == null) {
@@ -242,7 +242,7 @@ public class SiteFormDE extends DivRepForm
 				model.insert(rec);
 				
 				//create footprint ticket
-				Footprint fp = new Footprint(context);
+				Footprints fp = new Footprints(context);
 			} else {
 				model.update(model.get(rec), rec);
 			}

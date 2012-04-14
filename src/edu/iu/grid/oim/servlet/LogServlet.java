@@ -754,7 +754,7 @@ public class LogServlet extends ServletBase  {
 			} catch (NullPointerException e) {
 				human_value = value + " (Record no longer exists)";
 			}
-			row.addHeaderCell(new HtmlView("<img align=\"top\" src=\""+StaticConfig.getApplicationBase()+"/images/key.png\" /> "+name));
+			row.addHeaderCell(new HtmlView("<img align=\"top\" src=\"images/key.png\" /> "+name));
 			row.addCell(new HtmlView(StringEscapeUtils.escapeHtml(human_value)));
 			if(type.compareTo("Update") == 0) {
 				row.addCell(new HtmlView(""));

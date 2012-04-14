@@ -57,7 +57,7 @@ public class ResourceEditServlet extends ServletBase implements Servlet {
 			ResourceModel model = new ResourceModel(context);
 			if(!model.canEdit(resource_id)) {
 				//throw new AuthorizationException("You can't edit this resource ID:" + resource_id_str);
-				response.sendRedirect( StaticConfig.getApplicationBase()+"/resource?id="+resource_id);
+				response.sendRedirect("resource?id="+resource_id);
 			}
 			try {
 				ResourceRecord keyrec = new ResourceRecord();
@@ -113,8 +113,8 @@ public class ResourceEditServlet extends ServletBase implements Servlet {
 		if(rec.id != null) {
 			//view.add(new HtmlView("<h2>Other Actions</h2>"));
 			//view.add(new HtmlView("<p><a class=\"btn\" href=\""+StaticConfig.getApplicationBase()+"/resourcegroupedit\">Register New Resource Group</a></p>"));
-			view.add(new HtmlView("<p><a class=\"btn\" href=\""+StaticConfig.getApplicationBase()+"/resourcedowntimeedit?rid="+rec.id+"\">Add New Downtime</a></p>"));
-			view.add(new HtmlView("<p><a class=\"btn\" href=\""+StaticConfig.getApplicationBase()+"/resource?id="+rec.id+"\">Show Read-only View</a></p>"));
+			view.add(new HtmlView("<p><a class=\"btn\" href=\"resourcedowntimeedit?rid="+rec.id+"\">Add New Downtime</a></p>"));
+			view.add(new HtmlView("<p><a class=\"btn\" href=\"resource?id="+rec.id+"\">Show Read-only View</a></p>"));
 			//view.add(new HtmlView("<p><a href=\""+StaticConfig.getApplicationBase()+"/log?type=4&id="+rec.id+"\">View Update History</a></p>"));
 		}
 		

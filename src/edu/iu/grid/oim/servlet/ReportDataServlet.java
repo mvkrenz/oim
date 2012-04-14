@@ -179,7 +179,7 @@ public class ReportDataServlet extends ServletBase implements Servlet {
 	private SideContentView createSideView()
 	{
 		SideContentView view = new SideContentView();
-
+		/*
     	view.add(new HtmlView("<h3>Time Period</h3>"));
     	view.add(new HtmlView("<div class=\"indent\">"));
     	LinkedHashMap<Integer, String> keyvalues = new LinkedHashMap<Integer, String>();
@@ -197,7 +197,7 @@ public class ReportDataServlet extends ServletBase implements Servlet {
 			}});
 		view.add(new DivRepWrapper(select));		
 		view.add(new HtmlView("</div>"));
-
+		*/
 		
 		return view;
 	}

@@ -70,7 +70,10 @@ public class BootMenuView implements IView {
 		if(current.equals("certificate")) {
 			out.println("<li class=\"active\"><a href=\"certificate\">Certificate</a></li>");
 		} else {
-			//out.println("<li><a href=\"certificate\">Certificate</a></li>");	
+			//for now, only show if it's debug
+			if(StaticConfig.isDebug()) {
+				out.println("<li><a href=\"certificate\">Certificate</a></li>");	
+			}
 		}
 		if(current.equals("topology")) {
 			out.println("<li class=\"active\"><a href=\"topology\">Topology</a></li>");

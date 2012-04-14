@@ -16,7 +16,6 @@ public class StaticConfig {
     
 	//just use getProperty() directly.. exists for backward compatibility and to reduce error
 	static public String getApplicationBase() { return conf.getProperty("application.base"); }
-	//static public String getStaticBase() { return conf.getProperty("application.static_base"); }
 	static public String getApplicationName() { return conf.getProperty("application.name"); }
 	static public Boolean isDebug() { return conf.getProperty("debug").equals("true"); }	
 	static public String getGMapAPIKey() { return conf.getProperty("gmapapikey"); }

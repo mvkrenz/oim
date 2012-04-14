@@ -66,7 +66,7 @@ public class ServiceGroupEditServlet extends ServletBase implements Servlet {
 				title = "New";	
 			}
 
-			ServiceGroupFormDE form = new ServiceGroupFormDE(context, rec, StaticConfig.getApplicationBase()+"/"+parent_page);
+			ServiceGroupFormDE form = new ServiceGroupFormDE(context, rec, parent_page);
 			
 			//put the form in a view and display
 			ContentView contentview = new ContentView();

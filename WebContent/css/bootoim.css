@@ -228,8 +228,6 @@ width: 400px;
 height: 80px;
 }
 
-
-
 .round4
 {
 -moz-border-radius-topleft: 4px;
@@ -461,6 +459,7 @@ margin-bottom: 10px;
 .contact_association h3 {
 border-bottom: 1px solid #eee;
 margin-bottom: 10px;
+padding-bottom: 5px;
 }
 
 /*comform to current oim style*/
@@ -527,4 +526,24 @@ background-color: #999;
 }
 table.nohover tbody tr:hover td {
 background-color: inherit;
+}
+div.downtime_detail {
+padding: 10px;
+margin-bottom: 0px;
+margin-top: 10px;
+}
+div.downtime_detail table.table {
+margin-bottom: 0px;
+}
+.fptemplate textarea {
+width: 100% !important;
+}
+input[type=button].divrep_processing {
+background-image:url(../images/loading.gif);
+background-repeat:no-repeat;
+background-position: 5px;
+padding-left: 13px;
+}
+.dn_selecter select {
+width: 100%;
 }

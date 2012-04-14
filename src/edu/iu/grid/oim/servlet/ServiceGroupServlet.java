@@ -16,6 +16,7 @@ import com.divrep.common.DivRepButton;
 
 import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.model.db.ServiceGroupModel;
+import edu.iu.grid.oim.model.db.record.OsgGridTypeRecord;
 import edu.iu.grid.oim.model.db.record.ServiceGroupRecord;
 import edu.iu.grid.oim.view.BootBreadCrumbView;
 import edu.iu.grid.oim.view.BootMenuView;
@@ -68,6 +69,7 @@ public class ServiceGroupServlet extends ServletBase implements Servlet
 		ContentView contentview = new ContentView();	
 		//contentview.add(new HtmlView("<h1>Resource Groups</h1>"));
 	
+		/*
 		ServiceGroupModel model = new ServiceGroupModel(context);
 		Collection<ServiceGroupRecord> rgs = model.getAll();
 		for(ServiceGroupRecord rec : rgs) {
@@ -78,23 +80,29 @@ public class ServiceGroupServlet extends ServletBase implements Servlet
 
 			table.addRow("Name", rec.name);
 			table.addRow("Description", rec.description);
-			/*
-			class EditButtonDE extends DivRepButton
-			{
-				String url;
-				public EditButtonDE(DivRep parent, String _url)
-				{
-					super(parent, "Edit");
-					url = _url;
-				}
-				protected void onEvent(DivRepEvent e) {
-					redirect(url);
-				}
-			};
-			table.add(new DivRepWrapper(new EditButtonDE(context.getPageRoot(), StaticConfig.getApplicationBase()+"/servicegroupedit?id=" + rec.id)));
-			*/
 			table.add(new HtmlView("<a class=\"btn\" href=\"servicegroupedit?id=" + rec.id +"\">Edit</a>"));
 		}
+		*/
+		
+		contentview.add(new HtmlView("<table class=\"table nohover\">"));
+		contentview.add(new HtmlView("<thead><tr><th>Name</th><th>Description</th><th></th></tr></thead>"));	
+
+		contentview.add(new HtmlView("<tbody>"));
+		ServiceGroupModel model = new ServiceGroupModel(context);
+		Collection<ServiceGroupRecord> rgs = model.getAll();
+		for(ServiceGroupRecord rec : rgs) {
+			contentview.add(new HtmlView("<tr>"));	
+			contentview.add(new HtmlView("<td>"+StringEscapeUtils.escapeHtml(rec.name)+"</td>"));		
+			contentview.add(new HtmlView("<td>"+StringEscapeUtils.escapeHtml(rec.description)+"</td>"));				
+			contentview.add(new HtmlView("<td>"));
+			contentview.add(new HtmlView("<a class=\"btn\" href=\"servicegroupedit?id="+rec.id+"\">Edit</a>"));
+			contentview.add(new HtmlView("</td>"));
+			
+			contentview.add(new HtmlView("</tr>"));	
+
+		}
+		contentview.add(new HtmlView("</tbody>"));
+		contentview.add(new HtmlView("</table>"));	
 		
 		return contentview;
 	}

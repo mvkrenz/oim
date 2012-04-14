@@ -130,7 +130,7 @@ public class FPTemplatesServlet extends ServletBase implements Servlet {
 
 		public FPTemplatesForm(DivRepPage page, Context context) throws AuthorizationException, SQLException
 		{	
-			super(page, StaticConfig.getApplicationBase()+"/admin");
+			super(page, "admin");
 
 			ConfigModel config = new ConfigModel(context);
 			ContactModel contactmodel = new ContactModel(context);
@@ -139,7 +139,7 @@ public class FPTemplatesServlet extends ServletBase implements Servlet {
 			new DivRepStaticContent(this, "<p><b>##RESOURCE_NAME##</b> will be replaced by the actual resource name registered.</p>");
 			resource_template = new DivRepTextArea(this);
 			resource_template.setValue(config.ResourceFPTemplate.get());
-			resource_template.setWidth(1000);
+			resource_template.addClass("fptemplate");
 			resource_template.setHeight(200);
 			
 			/*
@@ -155,7 +155,7 @@ public class FPTemplatesServlet extends ServletBase implements Servlet {
 			new DivRepStaticContent(this, "<p><b>##VO_NAME##</b> will be replaced by the actual VO name registered.</p>");
 			vo_template = new DivRepTextArea(this);
 			vo_template.setValue(config.VOFPTemplate.get());
-			vo_template.setWidth(1000);
+			vo_template.addClass("fptemplate");
 			vo_template.setHeight(200);
 
 			/*
@@ -172,7 +172,7 @@ public class FPTemplatesServlet extends ServletBase implements Servlet {
 
 			sc_template = new DivRepTextArea(this);
 			sc_template.setValue(config.SCFPTemplate.get());
-			sc_template.setWidth(1000);
+			sc_template.addClass("fptemplate");
 			sc_template.setHeight(200);
 			
 			/*

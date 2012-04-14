@@ -110,7 +110,7 @@ public class FacilityServlet extends ServletBase implements Servlet {
 					redirect(url);
 				}
 			};
-			table.add(new DivRepWrapper(new EditButtonDE(context.getPageRoot(), StaticConfig.getApplicationBase()+"/facilityedit?facility_id=" + rec.id)));
+			table.add(new DivRepWrapper(new EditButtonDE(context.getPageRoot(), "facilityedit?facility_id=" + rec.id)));
 		}
 		
 		return contentview;

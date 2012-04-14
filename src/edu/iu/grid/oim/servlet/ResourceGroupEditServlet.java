@@ -77,7 +77,7 @@ public class ResourceGroupEditServlet extends ServletBase implements Servlet {
 				
 			}
 
-			ResourceGroupFormDE form = new ResourceGroupFormDE(context, rec, StaticConfig.getApplicationBase()+"/"+parent_page);
+			ResourceGroupFormDE form = new ResourceGroupFormDE(context, rec, parent_page);
 			
 			//put the form in a view and display
 			ContentView contentview = new ContentView();

@@ -19,6 +19,7 @@ import edu.iu.grid.oim.model.db.AuthorizationTypeModel;
 import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.DNAuthorizationTypeModel;
 import edu.iu.grid.oim.model.db.DNModel;
+import edu.iu.grid.oim.model.db.record.ActionRecord;
 import edu.iu.grid.oim.model.db.record.AuthorizationTypeRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.DNRecord;
@@ -58,7 +59,7 @@ public class UserServlet extends ServletBase implements Servlet {
 			bread_crumb.addCrumb("DN/AuthType Mapping",  null);
 			contentview.setBreadCrumb(bread_crumb);
 			
-			BootPage page = new BootPage(context, menuview, contentview, createSideView());
+			BootPage page = new BootPage(context, menuview, contentview, null);
 			page.render(response.getWriter());			
 		} catch (SQLException e) {
 			log.error(e);
@@ -71,12 +72,13 @@ public class UserServlet extends ServletBase implements Servlet {
 	{
 		ContentView contentview = new ContentView();	
 		//contentview.add(new HtmlView("<h2>DN/AuthType Mapping</h2>"));
-
+		contentview.add(new HtmlView("<p><a class=\"btn pull-right\" href=\"useredit\">Add DN/AuthType Mapping</a></p>"));		
+		
 		//pull list of all DNs
 		DNModel model = new DNModel(context);
 		DNAuthorizationTypeModel dnauthmodel = new DNAuthorizationTypeModel(context);
 		AuthorizationTypeModel authmodel = new AuthorizationTypeModel(context);
-		
+		/*
 		for(DNRecord rec : model.getAll()) {
 			contentview.add(new HtmlView("<h2>"+StringEscapeUtils.escapeHtml(rec.dn_string)+"</h2>"));
 	
@@ -88,7 +90,7 @@ public class UserServlet extends ServletBase implements Servlet {
 			String contact = crec.name + " <" + crec.primary_email + ">";
  		 	table.addRow("Contact", contact);
 	
-			Collection<Integer/*auth_type*/> types = dnauthmodel.getAuthorizationTypesByDNID(rec.id);
+			Collection<Integer> types = dnauthmodel.getAuthorizationTypesByDNID(rec.id);
 			String auth_html = "<ul>";
 			for(Integer auth_type : types) {
 				AuthorizationTypeRecord auth_rec = authmodel.get(auth_type);
@@ -97,23 +99,42 @@ public class UserServlet extends ServletBase implements Servlet {
 			auth_html += "</ul>";
 			
 			table.addRow("Authorization Types", new HtmlView(auth_html));
-		 	/*
-			class EditButtonDE extends DivRepButton
-			{
-				String url;
-				public EditButtonDE(DivRep parent, String _url)
-				{
-					super(parent, "Edit");
-					url = _url;
-				}
-				protected void onEvent(DivRepEvent e) {
-					redirect(url);
-				}
-			};
-			table.add(new DivRepWrapper(new EditButtonDE(context.getPageRoot(), StaticConfig.getApplicationBase()+"/useredit?id=" + rec.id)));
-			*/
 			table.add(new HtmlView("<a class=\"btn\" href=\"useredit?id="+rec.id+"\">Edit</a>"));
 		}
+		*/
+		contentview.add(new HtmlView("<table class=\"table nohover\">"));
+		contentview.add(new HtmlView("<thead><tr><th>DN</th><th>Contact</th><th>Authorizatoin Types</th><th></th></tr></thead>"));	
+
+		contentview.add(new HtmlView("<tbody>"));
+		for(DNRecord rec : model.getAll()) {
+			contentview.add(new HtmlView("<tr>"));	
+			contentview.add(new HtmlView("<td>"+StringEscapeUtils.escapeHtml(rec.dn_string)+"</td>"));	
+			
+			
+			ContactModel cmodel = new ContactModel(context);
+			ContactRecord crec = cmodel.get(rec.contact_id);
+			String contact = crec.name + " <" + crec.primary_email + ">";
+			contentview.add(new HtmlView("<td>"+StringEscapeUtils.escapeHtml(contact)+"</td>"));	
+			
+			Collection<Integer> types = dnauthmodel.getAuthorizationTypesByDNID(rec.id);
+			String auth_html = "<ul>";
+			for(Integer auth_type : types) {
+				AuthorizationTypeRecord auth_rec = authmodel.get(auth_type);
+			 	auth_html += "<li>"+StringEscapeUtils.escapeHtml(auth_rec.name) + "</li>";
+			}
+			auth_html += "</ul>";
+			contentview.add(new HtmlView("<td>"+auth_html+"</td>"));	
+			
+			contentview.add(new HtmlView("<td>"));
+			contentview.add(new HtmlView("<a class=\"btn\" href=\"useredit?id="+rec.id+"\">Edit</a>"));
+			contentview.add(new HtmlView("</td>"));
+			
+			contentview.add(new HtmlView("</tr>"));	
+
+		}
+		contentview.add(new HtmlView("</tbody>"));
+		contentview.add(new HtmlView("</table>"));		
+	
 		
 		return contentview;
 	}
@@ -137,8 +158,7 @@ public class UserServlet extends ServletBase implements Servlet {
 		};
 		view.add("Operation", new NewButtonDE(context.getPageRoot(), "useredit"));
 		*/
-		view.add(new HtmlView("<p><a class=\"btn\" href=\"useredit\">Add DN/AuthType Mapping</a></p>"));		
-	
+
 		//view.add(new HtmlView("This page shows a list of DN entries with associated user and authorization type mappings.<p><br/> You can modify an existing entry to correct wrong mapping of a user or auth-type. <p><br/> You can also add a new DN for an existing contact without a DN, and map that DN to various auth-types."));		
 		return view;
 	}

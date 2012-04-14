@@ -146,6 +146,7 @@ public class VOServlet extends ServletBase implements Servlet {
 		ContentView contentview = new ContentView();
 		
 		if(auth.isUser()) {
+			contentview.add(new HtmlView("<a href=\"voedit\" class=\"btn pull-right\"><i class=\"icon-plus-sign\"></i> Add New Virtual Organization</a>"));
 			contentview.add(new HtmlView("<h2>My Virtual Organizations</h2>"));
 			if(editable_vos.size() == 0) {
 				contentview.add(new HtmlView("<p>You currently are not listed as a contact of any contact type (exept submitter) on any virtual organization - therefore you are not authorized to edit any VOs.</p>"));
@@ -166,7 +167,6 @@ public class VOServlet extends ServletBase implements Servlet {
 				table.add(new HtmlView("<a class=\""+disable_css+"\" title=\""+StringEscapeUtils.escapeHtml(rec.long_name)+"\" href=\"voedit?id="+rec.id+"\">"+StringEscapeUtils.escapeHtml(name)+tag+"</a>"));
 			}
 			contentview.add(table);
-			contentview.add(new HtmlView("<a href=\"voedit\" class=\"btn pull-right\">Add New Virtual Organization</a><br clear=\"all\">"));
 		}
 		
 		if(readonly_vos.size() != 0) {

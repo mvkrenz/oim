@@ -54,8 +54,7 @@ public class ContactAssociationView extends GenericView {
 	{
 		GenericView view = new GenericView();
 		view.add(new HtmlView("<div class=\"contact_association\">"));
-		//view.add(new HtmlView("<p>Your are listed inside contact information for following entities."));
-		
+
 		try {
 			ResourceModel rmodel = new ResourceModel(context);
 			ResourceContactModel rcontactmodel = new ResourceContactModel(context);
@@ -71,24 +70,16 @@ public class ContactAssociationView extends GenericView {
 			HashMap<Integer, ContactTypeRecord> ctlist = ctmodel.getAll();
 			ContactRankModel crmodel = new ContactRankModel(context);
 			HashMap<Integer, ContactRankRecord> crlist = crmodel.getAll();
-						
-			//view.add(new HtmlView("<table width=\"100%\"><tr><td width=\"33%\">"));
 			
-			/*
 			if(show_new_buttons) {
-				view.add(new HtmlView("<a class=\"right\" href=\""+StaticConfig.getApplicationBase()+"/topology"+"\">View all Resources</a>"));
+				view.add(new HtmlView("<a href=\"resourceedit\" class=\"btn pull-right\"><i class=\"icon-plus-sign\"></i> Register New Resource</a>"));
 			}
-			*/
-			
 			view.add(new HtmlView("<h3>My Resources</h3>"));
 			ArrayList<ResourceContactRecord> rcrecs = rcontactmodel.getByContactID(contactid);
 			HashMap<Integer, String> resourceassoc = new HashMap<Integer, String>();
 			for(ResourceContactRecord rcrec : rcrecs) {
 				ResourceRecord rrec = rmodel.get(rcrec.resource_id);
-				//if(rrec.active && !rrec.disable) {
-				//if(rmodel.canEdit(rrec.id)) {
-					resourceassoc.put(rrec.id, rrec.name);
-				//}
+				resourceassoc.put(rrec.id, rrec.name);
 			}
 			
 			BootItemTableView table = new BootItemTableView(3);
@@ -106,7 +97,7 @@ public class ContactAssociationView extends GenericView {
 					name += "&nbsp;<span class=\"pull-right label\">Disabled</span>";
 				}
 				tview.add(new HtmlView("<div class=\"well "+cls+"\">"));
-				tview.add(new HtmlView("<a href=\""+StaticConfig.getApplicationBase()+"/resourceedit?id="+rid+"\">"+name+"</a><br>"));
+				tview.add(new HtmlView("<a href=\"resourceedit?id="+rid+"\">"+name+"</a><br>"));
 				
 				//show which contact types the user is associated with
 				ArrayList<ResourceContactRecord> recs = rcontactmodel.getByResourceID(rid);
@@ -121,30 +112,20 @@ public class ContactAssociationView extends GenericView {
 				table.add(tview);
 			}
 			view.add(table);	
-			if(show_new_buttons) {
-				view.add(new HtmlView("<a href=\"resourceedit\" class=\"btn pull-right\">Add New Resource</a>"));
-			}
 			if(resourceassoc.size() == 0) {
 				view.add(new HtmlView("<p>None</p>"));
 			}
 			view.add(new HtmlView("<br clear=\"all\">"));
 			
-			
-			/*
 			if(show_new_buttons) {
-				view.add(new HtmlView("<a class=\"right\" href=\""+StaticConfig.getApplicationBase()+"/vo"+"\">View all Virtual Organizations</a>"));
+				view.add(new HtmlView("<a href=\"voedit\" class=\"btn pull-right\"><i class=\"icon-plus-sign\"></i> Register New Virtual Organization</a>"));
 			}
-			*/
-			
 			view.add(new HtmlView("<h3>My Virtual Organizations</h3>"));
 			ArrayList<VOContactRecord> vocrecs = vocontactmodel.getByContactID(contactid);
 			HashMap<Integer, String> voassoc = new HashMap<Integer, String>();
 			for(VOContactRecord vocrec : vocrecs) {
 				VORecord vorec = vomodel.get(vocrec.vo_id);
-				//if(vorec.active && !vorec.disable) {
-				//if(vomodel.canEdit(vorec.id)) {
-					voassoc.put(vorec.id, vorec.name);
-				//}	
+				voassoc.put(vorec.id, vorec.name);
 			}
 			
 			table = new BootItemTableView(3);
@@ -162,7 +143,7 @@ public class ContactAssociationView extends GenericView {
 					name += "<span class=\"pull-right label\">Disabled</span>";
 				}
 				tview.add(new HtmlView("<div class=\"well "+cls+"\">"));
-				tview.add(new HtmlView("<a href=\""+StaticConfig.getApplicationBase()+"/voedit?id="+vo_id+"\">"+name+"</a>"));
+				tview.add(new HtmlView("<a href=\"voedit?id="+vo_id+"\">"+name+"</a>"));
 				
 				//show which contact types the user is associated with
 				ArrayList<VOContactRecord> recs = vocontactmodel.getByVOID(vo_id);
@@ -177,21 +158,14 @@ public class ContactAssociationView extends GenericView {
 				table.add(tview);
 			}
 			view.add(table);	
-			if(show_new_buttons) {
-				view.add(new HtmlView("<a href=\"voedit\" class=\"btn pull-right\">Add New Virtual Organization</a>"));
-			}
 			if(voassoc.size() == 0) {
 				view.add(new HtmlView("<p>None</p>"));
 			}
 			view.add(new HtmlView("<br clear=\"all\">"));
 			
-			
-			/*
 			if(show_new_buttons) {
-				view.add(new HtmlView("<a class=\"right\" href=\""+StaticConfig.getApplicationBase()+"/sc"+"\">View all Support Centers</a>"));
+				view.add(new HtmlView("<a href=\"scedit\" class=\"btn pull-right\"><i class=\"icon-plus-sign\"></i> Register New Support Center</a>"));
 			}
-			*/
-			
 			view.add(new HtmlView("<h3>My Support Centers</h3>"));
 			ArrayList<SCContactRecord> sccrecs = sccontactmodel.getByContactID(contactid);
 			HashMap<Integer, String> scassoc = new HashMap<Integer, String>();
@@ -219,7 +193,7 @@ public class ContactAssociationView extends GenericView {
 					name += "<span class=\"pull-right label\">Disabled</span>";
 				}
 				tview.add(new HtmlView("<div class=\"well "+cls+"\">"));
-				tview.add(new HtmlView("<a href=\""+StaticConfig.getApplicationBase()+"/scedit?id="+scid+"\">"+name+"</a>"));
+				tview.add(new HtmlView("<a href=\"scedit?id="+scid+"\">"+name+"</a>"));
 				
 				//show which contact types the user is associated with
 				ArrayList<SCContactRecord> recs = sccontactmodel.getBySCID(scid);
@@ -234,9 +208,6 @@ public class ContactAssociationView extends GenericView {
 				table.add(tview);
 			}
 			view.add(table);		
-			if(show_new_buttons) {
-				view.add(new HtmlView("<a href=\"scedit\" class=\"btn pull-right\">Add New Support Center</a>"));
-			}
 			if(scassoc.size() == 0) {
 				view.add(new HtmlView("<p>None</p>"));
 			}

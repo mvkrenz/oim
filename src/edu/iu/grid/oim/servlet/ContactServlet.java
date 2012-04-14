@@ -199,15 +199,15 @@ public class ContactServlet extends ServletBase implements Servlet {
 	{
 		String image, name_to_display;
 		if(rec.person == true) {
-			image = "<img align=\"top\" src=\""+StaticConfig.getApplicationBase()+"/images/user.png\"/> ";
+			image = "<img align=\"top\" src=\"images/user.png\"/> ";
 		} else {
-			image = "<img align=\"top\" src=\""+StaticConfig.getApplicationBase()+"/images/group.png\"/> "; 
+			image = "<img align=\"top\" src=\"images/group.png\"/> "; 
 		}
 		String url = "";
 		if(edit) {
-			url = StaticConfig.getApplicationBase()+"/contactedit?id="+rec.id;
+			url = "contactedit?id="+rec.id;
 		} else {
-			url = StaticConfig.getApplicationBase()+"/contact?id="+rec.id;
+			url = "contact?id="+rec.id;
 		}
 		if(rec.disable == false) {
 			name_to_display = image+"<a href=\""+url+"\">"+StringEscapeUtils.escapeHtml(rec.name)+"</a>";
@@ -247,7 +247,7 @@ public class ContactServlet extends ServletBase implements Servlet {
 	
 				String img = rec.photo_url;
 				if(rec.photo_url == null || rec.photo_url.length() == 0) {
-					img = StaticConfig.getApplicationBase() + "/images/noavatar.gif";
+					img = "images/noavatar.gif";
 				} 
 				personal_table.addRow("Photo", new HtmlView("<img class=\"avatar\" src=\""+img+"\"/>"));
 				personal_table.addRow("Contact Preference", rec.contact_preference);	
@@ -294,7 +294,7 @@ public class ContactServlet extends ServletBase implements Servlet {
 						redirect(url);
 					}
 				};
-				table.add(new DivRepWrapper(new EditButtonDE(context.getPageRoot(), StaticConfig.getApplicationBase()+"/contactedit?id=" + rec.id)));
+				table.add(new DivRepWrapper(new EditButtonDE(context.getPageRoot(), "contactedit?id=" + rec.id)));
 			}
 		} catch (SQLException e) {
 			return new DivRepStaticContent(context.getPageRoot(), e.toString());
@@ -309,7 +309,7 @@ public class ContactServlet extends ServletBase implements Servlet {
 		if(rec == null) {
 			//view.add(new HtmlView("<h3>Other Actions</h3>"));
 			//view.add(new HtmlView("<div class=\"indent\">"));
-			view.add(new HtmlView("<p><a class=\"btn\" href=\""+StaticConfig.getApplicationBase()+"/contactedit\">Register New Contact</a></p>"));
+			view.add(new HtmlView("<p><a class=\"btn\" href=\"contactedit\">Register New Contact</a></p>"));
 			//view.add(new HtmlView("</div>"));
 			view.add(new HtmlView("This page shows a list of contacts on OIM. Contacts can be a person or a mailing list or a service that needs to be registered on OIM to access privileged information on other OSG services. <p><br/> You as a registered OIM user will be able to edit any contact you added. GOC staff are able to edit all contacts including previous de-activated ones. <p><br/> If you want to map a certain person or group contact (and their email/phone number) to a resource, VO, SC, etc. but cannot find that contact already in OIM, then you can add a new contact. <p><br/>  Note that if you add a person as a new contact, that person will still not be able to perform any actions inside OIM until they register their X509 certificate on OIM."));		
 			view.addContactGroupFlagLegend();

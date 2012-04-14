@@ -27,7 +27,7 @@ import com.divrep.validator.DivRepUniqueValidator;
 import com.divrep.validator.DivRepUrlValidator;
 
 import edu.iu.grid.oim.lib.Authorization;
-import edu.iu.grid.oim.lib.Footprint;
+import edu.iu.grid.oim.lib.Footprints;
 import edu.iu.grid.oim.lib.AuthorizationException;
 import edu.iu.grid.oim.model.Context;
 import edu.iu.grid.oim.model.db.ContactTypeModel;
@@ -750,7 +750,7 @@ public class VOFormDE extends DivRepForm
 					SCRecord screc = scmodel.get(rec.sc_id);
 					
 					//create footprint ticket
-					Footprint fp = new Footprint(context);
+					Footprints fp = new Footprints(context);
 					fp.createNewVOTicket(rec.name, screc.footprints_id);
 				} catch (Exception fpe) {
 					log.error("Failed to open footprints ticket: ", fpe);

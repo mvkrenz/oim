@@ -57,9 +57,9 @@ public class AuthtypeEditServlet extends ServletBase implements Servlet {
 		}
 	
 		AuthtypeFormDE form;
-		String origin_url = StaticConfig.getApplicationBase()+"/"+current_page;
+		//String origin_url = StaticConfig.getApplicationBase()+"/"+current_page;
 		try {
-			form = new AuthtypeFormDE(context, rec, origin_url);
+			form = new AuthtypeFormDE(context, rec, current_page);
 		} catch (SQLException e) {
 			throw new ServletException(e);
 		}

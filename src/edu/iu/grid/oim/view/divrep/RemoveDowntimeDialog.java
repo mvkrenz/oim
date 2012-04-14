@@ -42,6 +42,6 @@ public class RemoveDowntimeDialog extends DivRepDialog {
 			alert(e.toString());
 			log.error("Failed to remove", e);
 		}
-		redirect(StaticConfig.getApplicationBase()+"/resourcedowntime");
+		redirect("resourcedowntime");
 	}
 }

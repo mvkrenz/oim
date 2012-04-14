@@ -24,8 +24,13 @@ public class HashHelper {
         return byteArray2Hex(hash);
     }*/
 
-    public static String sha1(String input) throws NoSuchAlgorithmException {
-        MessageDigest sha1 = MessageDigest.getInstance("SHA1");
+    public static String sha1(String input) {
+        MessageDigest sha1;
+		try {
+			sha1 = MessageDigest.getInstance("SHA1");
+		} catch (NoSuchAlgorithmException e) {
+			return null;
+		}
         //not sure what encoding is used in input..
         byte[] ret = sha1.digest(input.getBytes());
         return byteArray2Hex(ret);

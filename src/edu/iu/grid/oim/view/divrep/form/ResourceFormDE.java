@@ -19,7 +19,7 @@ import com.divrep.validator.DivRepUniqueValidator;
 import com.divrep.validator.DivRepUrlValidator;
 
 import edu.iu.grid.oim.lib.Authorization;
-import edu.iu.grid.oim.lib.Footprint;
+import edu.iu.grid.oim.lib.Footprints;
 import edu.iu.grid.oim.lib.AuthorizationException;
 import edu.iu.grid.oim.model.Context;
 import edu.iu.grid.oim.model.db.ContactTypeModel;
@@ -385,6 +385,7 @@ public class ResourceFormDE extends DivRepForm
 					SCModel scmodel = new SCModel(context);
 					SCRecord screc = scmodel.get(srec.sc_id);
 					
+					/*
 					//find VO that owns this resource
 					VOResourceOwnershipModel voromodel = new VOResourceOwnershipModel(context);
 					Collection<VOResourceOwnershipRecord> list = voromodel.getAllByResourceID(rec.id);
@@ -402,10 +403,11 @@ public class ResourceFormDE extends DivRepForm
 						VORecord vorec = vomodel.get(max_vo_id);
 						vo_name = vorec.footprints_id;
 					}
+					*/
 					
 					//create footprint ticket
-					Footprint fp = new Footprint(context);
-					fp.createNewResourceTicket(rec.name, screc.footprints_id, vo_name);
+					Footprints fp = new Footprints(context);
+					fp.createNewResourceTicket(rec.name, screc.footprints_id);//, vo_name);
 				} catch (Exception fpe) {
 					log.error("Failed to open footprints ticket: ", fpe);
 				}

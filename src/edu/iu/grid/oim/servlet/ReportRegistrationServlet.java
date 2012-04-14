@@ -150,19 +150,19 @@ public class ReportRegistrationServlet extends ServletBase implements Servlet {
 			}
 			
 			contentview.add(new HtmlView("<h2>Resource Registration</h2>"));
-			contentview.add(buildList(StaticConfig.getApplicationBase() + "/resourceedit", 
+			contentview.add(buildList("resourceedit", 
 					resource_recs, "name", "description"));
 			
 			contentview.add(new HtmlView("<h2>Support Center Registration</h2>"));
-			contentview.add(buildList(StaticConfig.getApplicationBase() + "/scedit", 
+			contentview.add(buildList("scedit", 
 					sc_recs, "name", "description"));
 			
 			contentview.add(new HtmlView("<h2>VO Registration</h2>"));
-			contentview.add(buildList(StaticConfig.getApplicationBase() + "/voedit", 
+			contentview.add(buildList("voedit", 
 					vo_recs, "name", "description"));
 			
 			contentview.add(new HtmlView("<h2>User Registration</h2>"));
-			contentview.add(buildList(StaticConfig.getApplicationBase() + "/contactedit", 
+			contentview.add(buildList("contactedit", 
 					user_recs, "name", "primary_email"));
 			
 		} catch(SQLException e) {
@@ -241,7 +241,7 @@ public class ReportRegistrationServlet extends ServletBase implements Servlet {
 		select.addEventListener(new DivRepEventListener(){
 			public void handleEvent(DivRepEvent e) {
 				String days = (String)e.value;
-				select.redirect(StaticConfig.getApplicationBase() + "/reportregistration?days=" + days);
+				select.redirect("reportregistration?days=" + days);
 			}});
 		view.add(new DivRepWrapper(select));		
 		//view.add(new HtmlView("</div>"));

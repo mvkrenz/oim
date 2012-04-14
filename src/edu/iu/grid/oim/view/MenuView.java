@@ -73,7 +73,7 @@ public class MenuView implements IView {
 	    		cls = "selected";
 	    	}
 	    	//out.println("<span class=\""+ cls +"\"><a href=\""+ StaticConfig.getApplicationBase() + "/" + item.url+"\">"+StringEscapeUtils.escapeHtml(item.name)+"</a></span>");
-	    	String url = StaticConfig.getApplicationBase() + "/" + item.url;
+	    	String url = item.url;
 	    	if(item.param != null) {
 	    		url += item.param;
 	    	}

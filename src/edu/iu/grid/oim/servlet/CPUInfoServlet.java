@@ -77,10 +77,10 @@ public class CPUInfoServlet extends ServletBase implements Servlet {
 		});
 
 		ContentView contentview = new ContentView();	
-		contentview.add(new HtmlView("<h2>CPU Information</h2>"));
 		if(auth.isUser()) {
-			contentview.add(new HtmlView("<a class=\"btn pull-right\" href=\"cpuinfoedit\">Add New CPU Info</a>"));
+			contentview.add(new HtmlView("<a class=\"btn pull-right\" href=\"cpuinfoedit\"><i class=\"icon-plus-sign\"></i> Add New CPU Info</a>"));
 		}
+		contentview.add(new HtmlView("<h2>CPU Information</h2>"));
 		
 		contentview.add(new HtmlView("<table class=\"table\">"));
 		contentview.add(new HtmlView("<thead><tr><th>Name</th><th>Normalization&nbsp;Constant</th><th>HEPSPEC&nbsp;Normalization&nbsp;Constant</th><th>Notes</th><th></th></tr></thead>"));	

@@ -18,6 +18,7 @@ import com.divrep.common.DivRepButton;
 
 import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.model.db.AuthorizationTypeModel;
+import edu.iu.grid.oim.model.db.record.ActionRecord;
 import edu.iu.grid.oim.model.db.record.AuthorizationTypeRecord;
 import edu.iu.grid.oim.view.BootBreadCrumbView;
 import edu.iu.grid.oim.view.BootMenuView;
@@ -72,30 +73,23 @@ public class AuthtypeServlet extends ServletBase implements Servlet {
 		ContentView contentview = new ContentView();	
 		//contentview.add(new HtmlView("<h1>Authorization Type</h1>"));
 	
-		for(AuthorizationTypeRecord rec : recs) {
-			contentview.add(new HtmlView("<h2>"+StringEscapeUtils.escapeHtml(rec.name)+"</h2>"));
-				
-			RecordTableView table = new RecordTableView();
-			contentview.add(table);
+		contentview.add(new HtmlView("<table class=\"table nohover\">"));
+		contentview.add(new HtmlView("<thead><tr><th>Name</th><th></th></tr></thead>"));	
 
-		 	table.addRow("Name", rec.name);
-		 	/*
-			class EditButtonDE extends DivRepButton
-			{
-				String url;
-				public EditButtonDE(DivRep parent, String _url)
-				{
-					super(parent, "Edit");
-					url = _url;
-				}
-				protected void onEvent(DivRepEvent e) {
-					redirect(url);
-				}
-			};
-			table.add(new DivRepWrapper(new EditButtonDE(context.getPageRoot(), StaticConfig.getApplicationBase()+"/authtypeedit?id=" + rec.id)));
-			*/
-		 	table.add(new HtmlView("<a class=\"btn\" href=\"authtypeedit?id="+rec.id+"\">Edit</a>"));
+		contentview.add(new HtmlView("<tbody>"));
+		for(AuthorizationTypeRecord rec : recs) {
+			contentview.add(new HtmlView("<tr>"));	
+			contentview.add(new HtmlView("<td>"+StringEscapeUtils.escapeHtml(rec.name)+"</td>"));		
+			
+			contentview.add(new HtmlView("<td>"));
+			contentview.add(new HtmlView("<a class=\"btn\" href=\"authtypeedit?id="+rec.id+"\">Edit</a>"));
+			contentview.add(new HtmlView("</td>"));
+			
+			contentview.add(new HtmlView("</tr>"));	
+
 		}
+		contentview.add(new HtmlView("</tbody>"));
+		contentview.add(new HtmlView("</table>"));				
 		
 		return contentview;
 	}

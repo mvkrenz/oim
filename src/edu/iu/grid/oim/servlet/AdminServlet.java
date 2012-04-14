@@ -17,7 +17,7 @@ import com.divrep.DivRepRoot;
 import com.divrep.common.DivRepButton;
 
 import edu.iu.grid.oim.lib.StaticConfig;
-import edu.iu.grid.oim.lib.Footprint;
+import edu.iu.grid.oim.lib.Footprints;
 import edu.iu.grid.oim.lib.AuthorizationException;
 import edu.iu.grid.oim.model.MenuItem;
 import edu.iu.grid.oim.model.db.SmallTableModelBase;
@@ -61,36 +61,36 @@ public class AdminServlet extends ServletBase  {
 		if(auth.allows("admin")) {
 			contentview.add(new HtmlView("<h3>Authentication / Authorization</h3>"));
 			contentview.add(new InternalLinkView("action", "Actions"));
-			contentview.add(new HtmlView("<br/>"));
+			//contentview.add(new HtmlView("<br/>"));
 			
 			contentview.add(new InternalLinkView("authtype", "Authorization Types"));
-			contentview.add(new HtmlView("<br/>"));
+			//contentview.add(new HtmlView("<br/>"));
 			
 			contentview.add(new InternalLinkView("authmatrix", "Action/Authorization Matrix" ));
-			contentview.add(new HtmlView("<br/>"));
+			//contentview.add(new HtmlView("<br/>"));
 			
 			contentview.add(new InternalLinkView("user", "DN/AuthType Mapping" ));
-			contentview.add(new HtmlView("<br/>"));
+			//contentview.add(new HtmlView("<br/>"));
 			
-			contentview.add(new HtmlView("<br/>"));
+			//contentview.add(new HtmlView("<br/>"));
 			contentview.add(new HtmlView("<h3>GOC Administration</h3>"));
 			contentview.add(new InternalLinkView("osggridtype", "OSG Grid Types"));
-			contentview.add(new HtmlView("<br/>"));
+			//contentview.add(new HtmlView("<br/>"));
 			
 			contentview.add(new InternalLinkView("servicegroup", "Service Groups"));
-			contentview.add(new HtmlView("<br/>"));
+			//contentview.add(new HtmlView("<br/>"));
 			
 			contentview.add(new InternalLinkView("service", "Services")); //service table, metric_service table
-			contentview.add(new HtmlView("<br/>"));
+			//contentview.add(new HtmlView("<br/>"));
 			
 			contentview.add(new InternalLinkView("metric", "RSV Metrics"));
-			contentview.add(new HtmlView("<br/>"));
+			//contentview.add(new HtmlView("<br/>"));
 			
 			contentview.add(new InternalLinkView("fieldofscience", "Fields of Science (associated with VOs)"));
-			contentview.add(new HtmlView("<br/>"));
+			//contentview.add(new HtmlView("<br/>"));
 
 			contentview.add(new InternalLinkView("fptemplates", "Footprints Ticket Templates"));
-			contentview.add(new HtmlView("<br/>"));
+			//contentview.add(new HtmlView("<br/>"));
 			
 			/*
 			contentview.add(new HtmlView("<br/>"));

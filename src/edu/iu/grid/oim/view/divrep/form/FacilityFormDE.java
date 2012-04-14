@@ -21,7 +21,7 @@ import com.divrep.validator.DivRepUniqueValidator;
 import com.divrep.validator.DivRepUrlValidator;
 
 import edu.iu.grid.oim.lib.Authorization;
-import edu.iu.grid.oim.lib.Footprint;
+import edu.iu.grid.oim.lib.Footprints;
 import edu.iu.grid.oim.lib.AuthorizationException;
 import edu.iu.grid.oim.model.Context;
 import edu.iu.grid.oim.model.db.FacilityModel;
@@ -121,7 +121,7 @@ public class FacilityFormDE extends DivRepForm
 			if(rec.id == null) {
 				model.insert(rec);
 				//create footprint ticket
-				Footprint fp = new Footprint(context);
+				Footprints fp = new Footprints(context);
 			} else {
 				model.update(model.get(rec), rec);
 			}

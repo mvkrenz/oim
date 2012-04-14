@@ -11,6 +11,7 @@ import javax.sql.DataSource;
 import org.apache.log4j.Logger;
 import edu.iu.grid.oim.lib.StaticConfig;
 
+@Deprecated
 public class GOCTicket {
     static Logger log = Logger.getLogger(GOCTicket.class); 
     
