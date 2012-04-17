@@ -77,17 +77,17 @@ public class HomeServlet extends ServletBase  {
 		} else {
 			//default... just show some info
 			v.add(new HtmlView("<div class=\"row-fluid\">"));
-			v.add(new HtmlView("<div class=\"span4\">"));
+			v.add(new HtmlView("<div class=\"span4 hotlink\" onclick=\"document.location='topology';\">"));
 			v.add(new HtmlView("<h2>Topology</h2>"));
 			v.add(new HtmlView("<p>Defines resource hierarchy</p>"));
 			v.add(new HtmlView("<img src=\"images/topology.png\">"));
 			v.add(new HtmlView("</div>"));
-			v.add(new HtmlView("<div class=\"span4\">"));
+			v.add(new HtmlView("<div class=\"span4 hotlink\" onclick=\"document.location='vo';\">"));
 			v.add(new HtmlView("<h2>Virtual Organization</h2>"));
 			v.add(new HtmlView("<p>Defines access for group of users</p>"));
 			v.add(new HtmlView("<img src=\"images/voicon.png\">"));
 			v.add(new HtmlView("</div>"));
-			v.add(new HtmlView("<div class=\"span4\">"));
+			v.add(new HtmlView("<div class=\"span4 hotlink\" onclick=\"document.location='sc';\">"));
 			v.add(new HtmlView("<h2>Support Centers</h2>"));
 			v.add(new HtmlView("<p>Defines who supports virtual organization</p>"));
 			v.add(new HtmlView("<img src=\"images/scicon.png\">"));
@@ -112,9 +112,6 @@ public class HomeServlet extends ServletBase  {
 		
 		}
 		if(auth.isGuest()) {
-			//contentview.add(new HtmlView("<div class=\"row-fluid\">"));
-			//contentview.add(new HtmlView("<div class=\"span6\">"));
-			//contentview.add(new HtmlView("<h2>Certificate</h2>"));
 			String text = "<p>OIM requires an X509 certificate issued by an <a target=\"_blank\" href='http://software.grid.iu.edu/cadist/'>OSG-approved Certifying Authority (CA)</a> to authenticate.</p>"+
 					"<p><a class=\"btn btn-info\" target=\"blank\" href=\"http://pki1.doegrids.org/ca/\">Request New Certificate</a></p>"+
 					"If you already have a certificate installed on your browser, please login.</p><p><a class=\"btn btn-info\" href=\""+StaticConfig.getApplicationBase()+"/oim\">Login</a></p>";
@@ -128,39 +125,7 @@ public class HomeServlet extends ServletBase  {
 		contentview.add(new ExternalLinkView("https://twiki.grid.iu.edu/twiki/bin/view/Operations/OIMRegistrationInstructions", "Registration"));
 		contentview.add(new ExternalLinkView("https://twiki.grid.iu.edu/twiki/bin/view/Operations/OIMMaintTool", "Resource Downtime"));
 		contentview.add(new ExternalLinkView("https://twiki.grid.iu.edu/twiki/bin/view/Operations/OIMStandardOperatingProcedures", "Operating Procedures"));
-		/*
-		//contentview.add(new HtmlView("<h3>Definitions</h3>"));
-		//contentview.add(new HtmlView("<div class=\"indent\">"));
-			//contentview.add(new HtmlView("<br/>"));
-			//contentview.add(new HtmlView("<a href=\"https://docs.google.com/present/view?id=ddtgc5bt_113fp3fmvgp\">OSG Topology Slideshow</a>"));
-			//contentview.add(new HtmlView(""));
-		//contentview.add(new HtmlView("</div>"));
 
-		//contentview.add(new HtmlView("<h3>New Registration Help</h3>"));
-		//contentview.add(new HtmlView("<div class=\"indent\">"));
-			//contentview.add(new ExternalLinkView("https://twiki.grid.iu.edu/twiki/bin/view/Operations/OIMRegistrationInstructions#Resource_or_Service_Registration", "Resource/Service Registration"));
-			//contentview.add(new HtmlView("<br/>"));
-			//contentview.add(new ExternalLinkView("https://twiki.grid.iu.edu/twiki/bin/view/Operations/OIMRegistrationInstructions#Support_Center_Registration", "Support Center (SC) Registration"));
-			//contentview.add(new HtmlView("<br/>"));
-			//contentview.add(new HtmlView("</div>"));
-			
-		contentview.add(new HtmlView("<h3>Resource/Service Maintenance</h3>"));
-		contentview.add(new HtmlView("<div class=\"indent\">"));
-			contentview.add(new HtmlView("<br/>"));
-			contentview.add(new ExternalLinkView("https://twiki.grid.iu.edu/twiki/bin/view/Operations/OIMMaintTool#Modifying_a_Maintenance_Window", "Modify Existing Maintenance"));
-			contentview.add(new HtmlView("<br/>"));
-			contentview.add(new ExternalLinkView("https://twiki.grid.iu.edu/twiki/bin/view/Operations/OIMMaintTool#Deleting_a_Maintenance_Window", "Cancel Existing Maintenance"));
-		contentview.add(new HtmlView("</div>"));
-		
-		contentview.add(new HtmlView("<h3>Standard Operating Procedures</h3>"));
-		contentview.add(new HtmlView("<div class=\"indent\">"));
-			contentview.add(new ExternalLinkView("https://twiki.grid.iu.edu/twiki/bin/view/Operations/OIMStandardOperatingProcedures#Resource_Registration_in_OIM", "Resources/Services"));
-			contentview.add(new HtmlView("<br/>"));
-			contentview.add(new ExternalLinkView("https://twiki.grid.iu.edu/twiki/bin/view/Operations/OIMStandardOperatingProcedures#Support_Center_Registration_in_O", "Support Centers (SC)"));
-			contentview.add(new HtmlView("<br/>"));
-			contentview.add(new ExternalLinkView("https://twiki.grid.iu.edu/twiki/bin/view/Operations/OIMStandardOperatingProcedures#Virtual_Organization_Registratio", "Virtual Organizations (VO)"));
-		contentview.add(new HtmlView("</div>"));
-		*/
 		if(auth.isUser()) {
 			contentview.addContactLegend();
 		}
