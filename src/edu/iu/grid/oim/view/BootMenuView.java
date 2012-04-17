@@ -71,9 +71,9 @@ public class BootMenuView implements IView {
 			out.println("<li class=\"active\"><a href=\"certificate\">Certificate</a></li>");
 		} else {
 			//for now, only show if it's debug
-			if(StaticConfig.isDebug()) {
-				out.println("<li><a href=\"certificate\">Certificate</a></li>");	
-			}
+			//if(StaticConfig.isDebug()) {
+			//out.println("<li><a href=\"certificate\">Certificate</a></li>");	
+			//}
 		}
 		if(current.equals("topology")) {
 			out.println("<li class=\"active\"><a href=\"topology\">Topology</a></li>");
@@ -99,12 +99,6 @@ public class BootMenuView implements IView {
 			out.println("<li class=\"active\"><a href=\"sc\">Support Centers</a></li>");
 		} else {
 			out.println("<li><a href=\"sc\">Support Centers</a></li>");	
-		}
-	
-		if(current.equals("cpuinfo")) {
-			out.println("<li class=\"active\"><a href=\"cpuinfo\">CPU Info</a></li>");
-		} else {
-			out.println("<li><a href=\"cpuinfo\">CPU Info</a></li>");	
 		}
 				
 		out.println("</ul>");//end of left items
@@ -142,6 +136,15 @@ public class BootMenuView implements IView {
 					out.println("<li>");		
 				}
 				out.println("<a href=\"contact\">OSG Contacts</a></li>");
+				
+				if (auth.allows("edit_measurement")) {
+					if(current.equals("cpuinfo")) {
+						out.println("<li class=\"active\">");
+					} else {
+						out.println("<li>");		
+					}
+					out.println("<a href=\"cpuinfo\">CPU Info</a></li>");	
+				}
 				
 				if (auth.allows("read_report")) {
 					out.println("<li class=\"divider\"></li>");
@@ -190,7 +193,18 @@ public class BootMenuView implements IView {
 		} else if(auth.isGuest()){
 			out.println("<li><a href=\""+StaticConfig.conf.getProperty("application.base")+"\">Login</a></li>");	
 		} else if(auth.isUnregistered()) {
-			out.println("<li><a href=\"register\">Register</a></li>");		
+			if(current.equals("register")) {
+				out.println("<li class=\"active\">");
+			} else {
+				out.println("<li>");		
+			}	
+			out.println("<a href=\"register\">Register</a></li>");
+			
+			String httpurl = StaticConfig.conf.getProperty("application.guestbase");
+			out.println("<li><a href=\""+httpurl+"\">Logoff</a></li>");
+		} else if(auth.isDisabled()) {			
+			String httpurl = StaticConfig.conf.getProperty("application.guestbase");
+			out.println("<li><a href=\""+httpurl+"\">Logoff</a></li>");
 		}
 		
 		out.println("</ul>");//nav (pull-right)

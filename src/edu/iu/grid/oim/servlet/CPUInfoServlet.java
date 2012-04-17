@@ -50,7 +50,7 @@ public class CPUInfoServlet extends ServletBase implements Servlet {
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{	
-		//auth.check("edit_measurement"); 
+		auth.check("edit_measurement"); 
 		
 		try {
 			//construct view

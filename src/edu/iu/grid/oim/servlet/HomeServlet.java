@@ -56,57 +56,74 @@ public class HomeServlet extends ServletBase  {
 	
 	protected ContentView createContentView() throws ServletException
 	{
-		ContentView contentview = new ContentView();
+		ContentView v = new ContentView();
 		
-		//contentview.add(new HtmlView("<h1>OIM</h1>"));
-
-		// TODO agopu: need to clean this up with some divs etc. Nicer font, etc.
-		String welcome_string = "";
-		/*
-		if(auth.isGuest()) {
-			welcome_string += auth.getNoDNWarning(); 		
-		}
-		else if(!auth.isUser()) {
-			if(auth.isDisabled()) {
-				welcome_string += auth.getDisabledUserWarning();		
-			} else {
-				welcome_string += auth.getUnregisteredUserWarning();		
-			}
-		}
-		*/
-		
-		//welcome_string += "<p>Please see Help page for more information.</p>";
-		contentview.add(new HtmlView(welcome_string));
-	
-		//add confirmation button
 		if(auth.isUser()) {
+			//add confirmation button
 			try {
-				contentview.add(new DivRepWrapper(new Confirmation(auth.getContact().id, context)));
+				v.add(new DivRepWrapper(new Confirmation(auth.getContact().id, context)));
 			} catch (SQLException e) {
 				log.error(e);
 			}				
-		}
-		
-		//show entities that this user is associated
-		if(auth.isUser()) {
-			//ToolTip tip = new ToolTip("Your account is associated with the following entities, and therefore allows you to modify their content.");
-			//contentview.add(new HtmlView("<h2>Your OSG Entities "+tip.render()+"</h2>"));
+
+			//show entities that this user is associated
 			try {
 				ContactAssociationView caview = new ContactAssociationView(context, auth.getContact().id);
 				caview.showNewButtons(true);
-				contentview.add(caview);
+				v.add(caview);
 			} catch (SQLException e) {
 				throw new ServletException(e);
 			}
+		} else {
+			//default... just show some info
+			v.add(new HtmlView("<div class=\"row-fluid\">"));
+			v.add(new HtmlView("<div class=\"span4\">"));
+			v.add(new HtmlView("<h2>Topology</h2>"));
+			v.add(new HtmlView("<p>Defines resource hierarchy</p>"));
+			v.add(new HtmlView("<img src=\"images/topology.png\">"));
+			v.add(new HtmlView("</div>"));
+			v.add(new HtmlView("<div class=\"span4\">"));
+			v.add(new HtmlView("<h2>Virtual Organization</h2>"));
+			v.add(new HtmlView("<p>Defines access for group of users</p>"));
+			v.add(new HtmlView("<img src=\"images/voicon.png\">"));
+			v.add(new HtmlView("</div>"));
+			v.add(new HtmlView("<div class=\"span4\">"));
+			v.add(new HtmlView("<h2>Support Centers</h2>"));
+			v.add(new HtmlView("<p>Defines who supports virtual organization</p>"));
+			v.add(new HtmlView("<img src=\"images/scicon.png\">"));
+			v.add(new HtmlView("</div>"));
+			v.add(new HtmlView("</div>"));
 		}
 		
-		return contentview;
+		return v;
 	}
 	
 	private SideContentView createSideView()
 	{
 		SideContentView contentview = new SideContentView();
-		contentview.add(new HtmlView("<h3>Documentations</h3>"));
+	
+		
+		if(auth.isUnregistered()) {
+			contentview.add(new HtmlView("<div class=\"alert alert-info\"><p>Your certificate is not yet registered with OIM.</p><p><a class=\"btn btn-info\" href=\"register\">Register</a></p></div>"));
+		}
+		
+		if(auth.isDisabled()) {
+			contentview.add(new HtmlView("<div class=\"alert alert-danger\"><p>Your contact is disabled. Please contact GOC for more information.</p><a class=\"btn btn-danger\" href=\"https://ticket.grid.iu.edu\">Contact GOC</a></p></div>"));
+		
+		}
+		if(auth.isGuest()) {
+			//contentview.add(new HtmlView("<div class=\"row-fluid\">"));
+			//contentview.add(new HtmlView("<div class=\"span6\">"));
+			//contentview.add(new HtmlView("<h2>Certificate</h2>"));
+			String text = "<p>OIM requires an X509 certificate issued by an <a target=\"_blank\" href='http://software.grid.iu.edu/cadist/'>OSG-approved Certifying Authority (CA)</a> to authenticate.</p>"+
+					"<p><a class=\"btn btn-info\" target=\"blank\" href=\"http://pki1.doegrids.org/ca/\">Request New Certificate</a></p>"+
+					"If you already have a certificate installed on your browser, please login.</p><p><a class=\"btn btn-info\" href=\""+StaticConfig.getApplicationBase()+"/oim\">Login</a></p>";
+			
+			//If you are not sure how to register, or have any questions, please open <a target=\"_blank\" href=\"https://ticket.grid.iu.edu/goc/oim\">a ticket</a> with the OSG Grid Operations Center (GOC).";
+			contentview.add(new HtmlView("<div class=\"alert alert-info\"><p>"+text+"</p></div>"));
+		}
+		
+		contentview.add(new HtmlView("<h2>Documentations</h2>"));
 		contentview.add(new ExternalLinkView("https://twiki.grid.iu.edu/twiki/bin/view/Operations/OIMTermDefinition", "OIM Definitions"));
 		contentview.add(new ExternalLinkView("https://twiki.grid.iu.edu/twiki/bin/view/Operations/OIMRegistrationInstructions", "Registration"));
 		contentview.add(new ExternalLinkView("https://twiki.grid.iu.edu/twiki/bin/view/Operations/OIMMaintTool", "Resource Downtime"));
