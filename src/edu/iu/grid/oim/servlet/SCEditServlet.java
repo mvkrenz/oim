@@ -107,8 +107,8 @@ public class SCEditServlet extends ServletBase implements Servlet {
 		if(rec.id != null) {
 			//view.add(new HtmlView("<h3>Other Actions</h3>"));
 			//view.add(new HtmlView("<div class=\"indent\">"));
-			view.add(new HtmlView("<p><a class=\"btn\" href=\"scedit\">Register New Support Center</a></p>"));
-			view.add(new HtmlView("<p><a class=\"btn\" href=\"sc?id="+rec.id+"\">Show readonly view</a></p>"));
+			//view.add(new HtmlView("<p><a class=\"btn\" href=\"scedit\">Register New Support Center</a></p>"));
+			view.add(new HtmlView("<p><a class=\"btn\" href=\"sc?id="+rec.id+"\">Show Readonly View</a></p>"));
 			//view.add(new HtmlView("<p><a href=\""+StaticConfig.getApplicationBase()+"/log?type=6&id="+rec.id+"\">View Update History</a></p>"));
 			//view.add(new HtmlView("</div>"));
 		}
