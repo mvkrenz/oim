@@ -648,7 +648,7 @@ public class Footprints
 	public String open(FPTicket ticket) {
 		HttpClient cl = new HttpClient();
 	    //cl.getParams().setParameter("http.useragent", "OIM (OSG Information Management System)");
-		PostMethod post = new PostMethod("http://soichi.grid.iu.edu/ticket/rest/open");
+		PostMethod post = new PostMethod(StaticConfig.conf.getProperty("api.gocticket")+"/rest/open");
 
 		post.addParameter("title", ticket.title);
 		post.setParameter("description", ticket.description);
@@ -694,7 +694,7 @@ public class Footprints
 	public Boolean update(FPTicket ticket, String ticket_id) {
 		HttpClient cl = new HttpClient();
 	    //cl.getParams().setParameter("http.useragent", "OIM (OSG Information Management System)");
-		PostMethod post = new PostMethod("http://soichi.grid.iu.edu/ticket/rest/update?id="+ticket_id);
+		PostMethod post = new PostMethod(StaticConfig.conf.getProperty("api.gocticket")+"/rest/update?id="+ticket_id);
 		//TODO - right now, REST API only supports adding new description
 		post.setParameter("description", ticket.description);
 	

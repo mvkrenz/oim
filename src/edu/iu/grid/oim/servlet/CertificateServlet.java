@@ -10,6 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.log4j.Logger;
 
 import edu.iu.grid.oim.lib.Authorization;
+import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.model.db.CertificateRequestUserModel;
 import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.record.CertificateRequestUserRecord;
@@ -185,7 +186,7 @@ public class CertificateServlet extends ServletBase  {
 			v.add(new HtmlView("<td>USER"+rec.id+"</td>"));
 			v.add(new HtmlView("<td>"+rec.status+"</td>"));
 			//TODO - use configured goc ticket URL
-			v.add(new HtmlView("<td><a target=\"_blank\" href=\"https://soichi.grid.iu.edu/ticket/"+rec.goc_ticket_id+"\">"+rec.goc_ticket_id+"</a></td>"));
+			v.add(new HtmlView("<td><a target=\"_blank\" href=\""+StaticConfig.conf.getProperty("url.gocticket")+"/"+rec.goc_ticket_id+"\">"+rec.goc_ticket_id+"</a></td>"));
 			v.add(new HtmlView("<td>"+rec.dn+"</td>"));
 			ContactRecord ra;
 			try {
