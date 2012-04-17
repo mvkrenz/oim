@@ -122,8 +122,8 @@ public class Authorization {
 			log.info(request.getRequestURI() + "?" + request.getQueryString());
 			log.info("Authenticated User DN: "+user_dn + " SSL_CLIENT_I_DN_CN: " + user_cn);
 			
-			if(user_cn == null) {
-				log.info("SSL_CLIENT_I_DN_CN is not set. Logging in as guest.");
+			if(user_dn == null || user_cn == null) {
+				log.info("SSL_CLIENT_S_DN or SSL_CLIENT_I_DN_CN is not set. Logging in as guest.");
 			} else {
 				if(client_verify == null || !(client_verify.equals("SUCCESS"))) {
 					log.info("SSL_DN / CN is set, but CLIENT_VERIFY has failed :: "+client_verify+". Logging in as guest");
@@ -187,10 +187,10 @@ public class Authorization {
 					//user_dn = "/DC=org/DC=doegrids/OU=People/CN=Kyle A. Gross 453426";
 					//user_dn = "/DC=org/DC=doegrids/OU=People/CN=Horst Severini 926890";
 					//request.setAttribute("SSL_CLIENT_S_DN", "/DC=org/DC=doegrids/OU=People/CN=christopher pipes 556895"); //disabled
-					//request.setAttribute("SSL_CLIENT_S_DN", "/DC=org/DC=doegrids/OU=People/CN=Soichi Hayashi 461343");
+					request.setAttribute("SSL_CLIENT_S_DN", "/DC=org/DC=doegrids/OU=People/CN=Soichi Hayashi 461343");
 					//request.setAttribute("SSL_CLIENT_S_DN", "/DC=org/DC=doegrids/OU=People/CN=Soichi Hayashi new2");
-					request.setAttribute("SSL_CLIENT_S_DN", "/DC=org/DC=doegrids/OU=People/CN=Alain Roy 424511");
-					request.setAttribute("SSL_CLIENT_I_DN_CN", StaticConfig.getDOECN());
+					//request.setAttribute("SSL_CLIENT_S_DN", "/DC=org/DC=doegrids/OU=People/CN=Alain Roy 424511");
+					request.setAttribute("SSL_CLIENT_I_DN_CN", "Test CA");
 				} else {
 					request.setAttribute("SSL_CLIENT_VERIFY", null);
 				}
