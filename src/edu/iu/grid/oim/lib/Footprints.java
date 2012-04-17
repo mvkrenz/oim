@@ -821,6 +821,7 @@ public class Footprints
 			ticket.assignees.add("kagross");
             ticket.ccs.add("rquick@iu.edu");
             ticket.ccs.add("ruth@fnal.gov");
+            ticket.ccs.add("osg-security-team@OPENSCIENCEGRID.ORG");
 		}
 		
 		String id = open(ticket);

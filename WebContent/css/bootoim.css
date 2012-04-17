@@ -547,3 +547,6 @@ padding-left: 13px;
 .dn_selecter select {
 width: 100%;
 }
+div.hotlink {
+cursor: pointer;
+}
