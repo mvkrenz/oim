@@ -10,7 +10,7 @@ import org.apache.log4j.Logger;
 public class StaticConfig {
 	public static Properties conf = new Properties();
 	
-	static public String getVersion() { return "3.0"; } //version should be hardcoded.
+	static public String getVersion() { return "3.1"; } //version should be hardcoded.
 	
 	static Logger log = Logger.getLogger(StaticConfig.class);  
     
