@@ -18,7 +18,7 @@ public class CertificateRequestUserRecord extends RecordBase {
 	public Timestamp request_time;
 	//public Timestamp update_time;
 	public String status;
-	public Integer ra_contact_id;
+	public Integer vo_id;
 	public String goc_ticket_id;
 	
 	//load from existing record

@@ -67,7 +67,7 @@ public class BootPage implements IView {
 			params.put("__APPNAME__", StaticConfig.getApplicationName());
 		}
 		params.put("__VERSION__", StaticConfig.getVersion());
-		log.debug(StaticConfig.conf.getProperty("debug"));
+		//log.debug(StaticConfig.conf.getProperty("debug"));
 		
 		try {
 			String request_uri = context.getRequestURL();

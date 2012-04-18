@@ -196,15 +196,17 @@ public class CertificateRequestUserForm extends DivRepForm
 			country.setValue(contact.country);
 		}
 		
-		new DivRepStaticContent(this, "<h2>Passphrase</h2>");
-		new DivRepStaticContent(this, "<p class=\"help-block\">Please pick a passphrase to retrieve your certificate once issued.</p>");
 		if(auth.isGuest()) {
-			new DivRepStaticContent(this, "<p class=\"help-block\">This passphrase will also be used to encrypt your certificate.</p>");
+			new DivRepStaticContent(this, "<h2>Passphrase</h2>");
+			new DivRepStaticContent(this, "<p class=\"help-block\">Please pick a passphrase to retrieve your certificate once issued.</p>");
+			if(auth.isGuest()) {
+				new DivRepStaticContent(this, "<p class=\"help-block\">This passphrase will also be used to encrypt your certificate.</p>");
+			}
+			passphrase = new DivRepPassword(this);
+			passphrase.addValidator(new DivRepLengthValidator(5, 100));
+			//passphrase.setLabel("Passphrase");
+			passphrase.setRequired(true);
 		}
-		passphrase = new DivRepPassword(this);
-		passphrase.addValidator(new DivRepLengthValidator(5, 100));
-		//passphrase.setLabel("Passphrase");
-		passphrase.setRequired(true);
 		
 		new DivRepStaticContent(this, "<h2>DigiCert Policy Agreement</h2>");
 		new DivRepStaticContent(this, "<div class=\"well\">TBD... we display Digicert policy here for user to read..</div>");
@@ -416,90 +418,36 @@ public class CertificateRequestUserForm extends DivRepForm
 			ret = false;
 		}
 		*/
-		CertificateRequestUserRecord rec = new CertificateRequestUserRecord();
-		Footprints fp = new Footprints(context);
-		FPTicket ticket = fp.new FPTicket();
-		
+
+		X500Name x500 = null;//only uesd for non-csr request
 		try {
 			//generate DN
 			String cn = fullname.getValue() + "/emailAddress=" + email.getValue();
-			X500Name x500 = new X500Name(
+			x500 = new X500Name(
 					cn, 
 					"PKITesting", //org unit
 					"OSG", //osg name
 					city.getValue(), state.getValue(), country.getValue()
 			);
-			rec.dn = x500.toString(); //RFC1779
 		} catch (IOException e1) {
 			log.error("Failed to create x500Name objct", e1);
 		}
 		
-		if(auth.isGuest()) {
-			//only needed if user has no csr
-			rec.requester_passphrase = HashHelper.sha1(passphrase.getValue());
-		} else {
-			rec.requester_contact_id = auth.getContact().id;
-		}
-		
-		Date current = new Date();
-		rec.request_time = new Timestamp(current.getTime());
-		rec.requester_name = fullname.getValue();
-		rec.status = "REQUESTED";
-		
-		//find RA information
-		VOContactModel model = new VOContactModel(context);
-		ContactModel cmodel = new ContactModel(context);
-		ArrayList<VOContactRecord> crecs;
 		try {
-			crecs = model.getByVOID(vo.getValue());
-			for(VOContactRecord crec : crecs) {
-				if(crec.contact_type_id.equals(11) && crec.contact_rank_id.equals(1)) { //primary
-					rec.ra_contact_id = crec.contact_id;
-				}
-				if(crec.contact_type_id.equals(11) && crec.contact_rank_id.equals(3)) { //sponsor
-					ContactRecord contactrec = cmodel.get(crec.contact_id);
-					ticket.ccs.add(contactrec.primary_email);
-				}
-			}
-		} catch (SQLException e1) {
-			log.error("Failed to lookup RA/sponsor information", e1);
-		}
-		
-		if(rec.ra_contact_id == null) {
-			rec.ra_contact_id = 623; //Alian D. .. - if no RA is set for VO, who should I assign?
-		}
-		try {
-			ContactRecord contactrec = cmodel.get(rec.ra_contact_id);
-			ticket.ccs.add(contactrec.primary_email);
-		} catch (SQLException e1) {
-			log.error("Failed to lookup ra contact information for ID" + rec.ra_contact_id, e1);
-		}
-		
-		try {
-			//insert request record
 			CertificateRequestUserModel certmodel = new CertificateRequestUserModel(context);
-			Integer request_id = certmodel.insert(rec);
-			if(request_id == null) {
-				ret = false;
+			if(auth.isGuest()) {
+				String requester_passphrase = HashHelper.sha1(passphrase.getValue());
+				ret = certmodel.requestGuestWithX500(vo.getValue(), x500, requester_passphrase, fullname.getValue(), email.getValue(), phone.getValue());
 			} else {
-				//submit goc ticket
-				ticket.title = "User Certificate Request #" + request_id;
-				ticket.description = rec.requester_name + " has requested user certificate. \n";
-				ticket.name = rec.requester_name;
-				ticket.email = email.getValue();
-				ticket.phone = phone.getValue();
-				ticket.assignees.add("hayashis");
-				ticket.nextaction = "Sponsors to verify requester";
-				String ticket_id = fp.open(ticket);
-
-				//update goc ticket id
-				rec.goc_ticket_id = ticket_id;
-				certmodel.update(certmodel.get(request_id), rec);
+				ret = certmodel.requestWithX500(vo.getValue(), x500);
 			}
 		} catch (Exception e) {
 			log.error("Failed to submit request..", e);
-			alert("Sorry, failed to submit request..");
 			ret = false;
+		}
+		
+		if(!ret) {
+			alert("Sorry, failed to submit request..");
 		}
 
 		/*

@@ -2,19 +2,25 @@ package edu.iu.grid.oim.servlet;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 
 import edu.iu.grid.oim.lib.Authorization;
+import edu.iu.grid.oim.lib.AuthorizationException;
 import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.model.db.CertificateRequestUserModel;
 import edu.iu.grid.oim.model.db.ContactModel;
+import edu.iu.grid.oim.model.db.VOModel;
 import edu.iu.grid.oim.model.db.record.CertificateRequestUserRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
+import edu.iu.grid.oim.model.db.record.VORecord;
 import edu.iu.grid.oim.view.BootBreadCrumbView;
 import edu.iu.grid.oim.view.BootMenuView;
 import edu.iu.grid.oim.view.BootPage;
@@ -34,14 +40,24 @@ public class CertificateServlet extends ServletBase  {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{
 		BootMenuView menuview = new BootMenuView(context, "certificate");
-		ContentView content;
+		ContentView content = null;
 		
 		String dirty_id = request.getParameter("id");
 		if(dirty_id != null) {
 			int id = Integer.parseInt(dirty_id);
-			
-			//TODO - Access control for this certificateid
-			content = createCertificateView(id);
+		
+			try {
+				CertificateRequestUserModel model = new CertificateRequestUserModel(context);
+				CertificateRequestUserRecord rec = model.get(id);
+				if(!model.canView(rec)) {
+					throw new AuthorizationException("You don't have access to view this certificate");
+				}
+				ArrayList<CertificateRequestUserModel.Log> logs = model.getLogs(id);
+				content = createCertificateView(rec, logs);
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
 		} else {
 			content = createIndexView();
 		}
@@ -50,47 +66,99 @@ public class CertificateServlet extends ServletBase  {
 		page.render(response.getWriter());
 	}
 	
-	protected ContentView createCertificateView(int id) throws ServletException
+	protected ContentView createCertificateView(CertificateRequestUserRecord rec, ArrayList<CertificateRequestUserModel.Log> logs) throws ServletException
 	{
 		ContentView v = new ContentView();
 		//setup crumbs
 		BootBreadCrumbView bread_crumb = new BootBreadCrumbView();
 		bread_crumb.addCrumb("Certificat Requests", "certificate");
-		bread_crumb.addCrumb(Integer.toString(id),  null);
+		bread_crumb.addCrumb(Integer.toString(rec.id),  null);
 		v.setBreadCrumb(bread_crumb);
 		
+		//details
 		v.add(new HtmlView("<h2>Details</h2>"));
-		v.add(new HtmlView("<p class=\"help-block\">TODO</p>"));
-		
-		v.add(new HtmlView("<h2>Activity Log</h2>"));
 		v.add(new HtmlView("<table class=\"table\">"));
-		v.add(new HtmlView("<thead><tr><th>By</th><th>Status</th><th>Note</th><th>Timestamp</th></tr></thead>"));
-		
+	
 		v.add(new HtmlView("<tbody>"));
 		
-		v.add(new HtmlView("<tr class=\"latest\">"));
-		v.add(new HtmlView("<td>Digicert</td>"));
-		v.add(new HtmlView("<td>ISSUED</td>"));
-		v.add(new HtmlView("<td>Certificate Signer has issued certificate</td>"));
-		v.add(new HtmlView("<td>04/03/2012 12:43 UTC</td>"));
-		v.add(new HtmlView("</tr>"));	
+		/*
+		v.add(new HtmlView("<tr>"));
+		v.add(new HtmlView("<th>ID</th>"));
+		v.add(new HtmlView("<td>"+rec.id.toString()+"</td>"));
+		v.add(new HtmlView("</tr>"));
+		*/
 		
 		v.add(new HtmlView("<tr>"));
-		v.add(new HtmlView("<td>John Foo</td>"));
-		v.add(new HtmlView("<td>APPROVED</td>"));
-		v.add(new HtmlView("<td>Certificate Request was apporved by RA</td>"));
-		v.add(new HtmlView("<td>04/02/2012 12:43 UTC</td>"));
-		v.add(new HtmlView("</tr>"));	
+		v.add(new HtmlView("<th>Requester Name</th>"));
+		String auth_status = "(Unauthenticated)";
+		if(rec.requester_contact_id != null) {
+			auth_status = "(OIM Authenticated)";
+		}
+		v.add(new HtmlView("<td>"+StringEscapeUtils.escapeHtml(rec.requester_name)+" " +  auth_status+ "</td>"));
+		v.add(new HtmlView("</tr>"));
+		
+		/*
+		v.add(new HtmlView("<tr>"));
+		v.add(new HtmlView("<th>Status</th>"));
+		v.add(new HtmlView("<td>"+StringEscapeUtils.escapeHtml(rec.status)+"</td>"));
+		v.add(new HtmlView("</tr>"));
+		*/
 		
 		v.add(new HtmlView("<tr>"));
-		v.add(new HtmlView("<td>Soichi Hayashi</td>"));
-		v.add(new HtmlView("<td>REQUESTED</td>"));
-		v.add(new HtmlView("<td>Submitted user certificate request</td>"));
-		v.add(new HtmlView("<td>04/01/2012 12:43 UTC</td>"));
-		v.add(new HtmlView("</tr>"));	
+		v.add(new HtmlView("<th>GOC Ticket</th>"));
+		v.add(new HtmlView("<td><a target=\"_blank\" href=\""+StaticConfig.conf.getProperty("url.gocticket")+"/"+rec.goc_ticket_id+"\">"+rec.goc_ticket_id+"</a></td>"));
+		v.add(new HtmlView("</tr>"));
+		
+		v.add(new HtmlView("<tr>"));
+		v.add(new HtmlView("<th>DN</th>"));
+		v.add(new HtmlView("<td>"+StringEscapeUtils.escapeHtml(rec.dn)+"</td>"));
+		v.add(new HtmlView("</tr>"));
+		
+		v.add(new HtmlView("<tr>"));
+		v.add(new HtmlView("<th>VO</th>"));
+		VOModel vmodel = new VOModel(context);
+		VORecord vo;
+		try {
+			vo = vmodel.get(rec.vo_id);
+			v.add(new HtmlView("<td>"+StringEscapeUtils.escapeHtml(vo.name)+"</td>"));
+		} catch (SQLException e) {
+			log.error("Failed to find vo information for certificate view", e);
+			v.add(new HtmlView("<td>N/A</td>"));
+		}
+		v.add(new HtmlView("</tr>"));
 		
 		v.add(new HtmlView("</tbody>"));
 		
+		v.add(new HtmlView("</table>"));
+		
+		//logs
+		v.add(new HtmlView("<h2>Activity Log</h2>"));
+		v.add(new HtmlView("<table class=\"table\">"));
+		v.add(new HtmlView("<thead><tr><th>By</th><th>IP</th><th>Status</th><th>Note</th><th>Timestamp</th></tr></thead>"));
+		
+		v.add(new HtmlView("<tbody>"));
+		
+		SimpleDateFormat dformat = new SimpleDateFormat();
+		boolean latest = true;
+		for(CertificateRequestUserModel.Log log : logs) {
+			if(latest) {
+				v.add(new HtmlView("<tr class=\"latest\">"));
+				latest = false;
+			} else {
+				v.add(new HtmlView("<tr>"));
+			}
+			if(log.contact != null) {
+				v.add(new HtmlView("<td>"+StringEscapeUtils.escapeHtml(log.contact.name)+"</td>"));
+			} else {
+				v.add(new HtmlView("<td>(Guest)</td>"));
+			}
+			v.add(new HtmlView("<td>"+log.ip+"</td>"));
+			v.add(new HtmlView("<td>"+log.status+"</td>"));
+			v.add(new HtmlView("<td>"+StringEscapeUtils.escapeHtml(log.comment)+"</td>"));
+			v.add(new HtmlView("<td>"+dformat.format(log.time)+"</td>"));
+			v.add(new HtmlView("</tr>"));			
+		}
+		v.add(new HtmlView("</tbody>"));
 		v.add(new HtmlView("</table>"));
 		return v;
 	}
@@ -117,7 +185,13 @@ public class CertificateServlet extends ServletBase  {
 						
 			//load my host certificate requests
 		} else {
-			//load guest certificate requests
+			//load guest user certificate requests
+			try {
+				ArrayList<CertificateRequestUserRecord> recs = usermodel.getGuest();
+				v.add(createGuestUserCertList(recs));
+			} catch (SQLException e) {
+				v.add(new HtmlView("<div class=\"alert\">Failed to load your user certificate requests</div>"));
+			}
 
 			//load guest host certificate requests
 		}
@@ -175,11 +249,9 @@ public class CertificateServlet extends ServletBase  {
 		GenericView v = new GenericView();	
 		v.add(new HtmlView("<h2>My User Certificate Requests</h2>"));
 		v.add(new HtmlView("<table class=\"table certificate\">"));
-		v.add(new HtmlView("<thead><tr><th>ID</th><th>Status</th><th>GOC Ticket</th><th>DN</th><th>RA</th></tr></thead>"));
+		v.add(new HtmlView("<thead><tr><th>ID</th><th>Status</th><th>GOC Ticket</th><th>DN</th><th>VO</th></tr></thead>"));
 		
 		v.add(new HtmlView("<tbody>"));
-		
-		ContactModel cmodel = new ContactModel(context);
 		
 		for(CertificateRequestUserRecord rec : recs) {
 			v.add(new HtmlView("<tr onclick=\"document.location='certificate?id="+rec.id+"&type=user';\">"));
@@ -188,10 +260,10 @@ public class CertificateServlet extends ServletBase  {
 			//TODO - use configured goc ticket URL
 			v.add(new HtmlView("<td><a target=\"_blank\" href=\""+StaticConfig.conf.getProperty("url.gocticket")+"/"+rec.goc_ticket_id+"\">"+rec.goc_ticket_id+"</a></td>"));
 			v.add(new HtmlView("<td>"+rec.dn+"</td>"));
-			ContactRecord ra;
 			try {
-				ra = cmodel.get(rec.ra_contact_id);
-				v.add(new HtmlView("<td>"+ra.name+"</td>"));
+				VOModel vomodel = new VOModel(context);
+				VORecord vo = vomodel.get(rec.vo_id);
+				v.add(new HtmlView("<td>"+vo.name+"</td>"));
 			} catch (SQLException e) {
 				v.add(new HtmlView("<td>sql error</td>"));
 			}
@@ -202,37 +274,34 @@ public class CertificateServlet extends ServletBase  {
 		v.add(new HtmlView("</table>"));
 		return v;
 	}
-	protected GenericView createMyCertificateList() {
-		
-		
-		GenericView v = new GenericView();
-		
-		v.add(new HtmlView("<h2>Certificate Requests</h2>"));
+	protected GenericView createGuestUserCertList(ArrayList<CertificateRequestUserRecord> recs) {
+		GenericView v = new GenericView();	
+		v.add(new HtmlView("<h2>My User Certificate Requests</h2>"));
 		v.add(new HtmlView("<table class=\"table certificate\">"));
-		v.add(new HtmlView("<thead><tr><th>ID</th><th>Title</th><th>Requester</th><th>RA / GridAdmin</th><th>Status</th></tr></thead>"));
+		v.add(new HtmlView("<thead><tr><th>ID</th><th>Requester</th><th>Status</th><th>GOC Ticket</th><th>DN</th><th>VO</th></tr></thead>"));
 		
 		v.add(new HtmlView("<tbody>"));
 		
-		v.add(new HtmlView("<tr onclick=\"document.location='certificate?id=123';\">"));
-		v.add(new HtmlView("<td>USER123</td>"));
-		v.add(new HtmlView("<td>User certificate for Soichi Hayashi"));
-		v.add(new HtmlView("<td>Soichi Hayashi</td>"));
-		v.add(new HtmlView("<td>John Foo</td>"));
-		v.add(new HtmlView("<td>REQUESTED</td>"));
-		v.add(new HtmlView("</tr>"));	
-		
-		v.add(new HtmlView("<tr onclick=\"document.location='certificate?id=234';\">"));
-		v.add(new HtmlView("<td>HOST234</td>"));
-		v.add(new HtmlView("<td>Host certificate for soichi.grid.iu.edu</td>"));
-		v.add(new HtmlView("<td>Soichi Hayashi</td>"));
-		v.add(new HtmlView("<td>John Foo</td>"));
-		v.add(new HtmlView("<td>REQUESTED</td>"));
-		v.add(new HtmlView("</tr>"));	
-		
+		for(CertificateRequestUserRecord rec : recs) {
+			v.add(new HtmlView("<tr onclick=\"document.location='certificate?id="+rec.id+"&type=user';\">"));
+			v.add(new HtmlView("<td>USER"+rec.id+"</td>"));
+			v.add(new HtmlView("<td>"+rec.requester_name+"</td>"));
+			v.add(new HtmlView("<td>"+rec.status+"</td>"));
+			//TODO - use configured goc ticket URL
+			v.add(new HtmlView("<td><a target=\"_blank\" href=\""+StaticConfig.conf.getProperty("url.gocticket")+"/"+rec.goc_ticket_id+"\">"+rec.goc_ticket_id+"</a></td>"));
+			v.add(new HtmlView("<td>"+rec.dn+"</td>"));
+			try {
+				VOModel vomodel = new VOModel(context);
+				VORecord vo = vomodel.get(rec.vo_id);
+				v.add(new HtmlView("<td>"+vo.name+"</td>"));
+			} catch (SQLException e) {
+				v.add(new HtmlView("<td>sql error</td>"));
+			}
+			v.add(new HtmlView("</tr>"));	
+		}
 		v.add(new HtmlView("</tbody>"));
 		
 		v.add(new HtmlView("</table>"));
-		
 		return v;
 	}
 	

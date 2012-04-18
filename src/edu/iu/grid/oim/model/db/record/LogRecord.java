@@ -14,6 +14,7 @@ public class LogRecord extends RecordBase {
 	public String comment;
 	public String ip;
 	public String key;
+	public Integer contact_id;
 	
 	//load from existing record
 	public LogRecord(ResultSet rs) throws SQLException { super(rs); }

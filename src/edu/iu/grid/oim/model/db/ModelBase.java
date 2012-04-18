@@ -246,7 +246,7 @@ public abstract class ModelBase<T extends RecordBase> {
 	    	xml += "</Log>";
 	    	
 			LogModel lmodel = new LogModel(context);
-			int logid = lmodel.insert("insert", getClass().getName(), xml, keystr);	    
+			int logid = lmodel.insert("insert", getClass(), xml, keystr);	    
 
 		} catch (IllegalArgumentException e) {
 			throw new SQLException(e);
@@ -299,7 +299,7 @@ public abstract class ModelBase<T extends RecordBase> {
 	    	xml += "</Fields>\n";
 	    	xml += "</Log>";
 			LogModel lmodel = new LogModel(context);
-			int logid = lmodel.insert("remove", getClass().getName(), xml, keystr);	  
+			int logid = lmodel.insert("remove", getClass(), xml, keystr);	  
 		} catch (IllegalArgumentException e) {
 			throw new SQLException(e);
 		} catch (IllegalAccessException e) {
@@ -352,7 +352,7 @@ public abstract class ModelBase<T extends RecordBase> {
 	    	xml += "</Fields>\n";
 	    	xml += "</Log>";
 			LogModel lmodel = new LogModel(context);
-			int logid = lmodel.insert("update", getClass().getName(), xml, keystr);
+			int logid = lmodel.insert("update", getClass(), xml, keystr);
 
 		} catch (IllegalArgumentException e) {
 			throw new SQLException(e);

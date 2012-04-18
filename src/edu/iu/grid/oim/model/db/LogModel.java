@@ -38,7 +38,7 @@ public class LogModel extends ModelBase {
     {
     	//no auth check -- client needs to figure out if the log is accessible to the user or not
     	
-    	ArrayList<LogRecord> recs = new ArrayList<LogRecord>();
+    	//ArrayList<LogRecord> recs = new ArrayList<LogRecord>();
 
     	String sql = "SELECT * FROM log WHERE id = ?";
     	Connection conn = connectOIM();
@@ -64,22 +64,42 @@ public class LogModel extends ModelBase {
 		stmt.setTimestamp(2, end);
 		ResultSet rs = stmt.executeQuery();
 		while(rs.next()) {
-			LogRecord rec = new LogRecord(rs);
+			//LogRecord rec = new LogRecord(rs);
+			recs.add(new LogRecord(rs));
+		}
+		stmt.close();
+		return recs;
+    }
+    public Collection<LogRecord> getByModel(Class model, String keystr) throws SQLException {
+    	ArrayList<LogRecord> recs = new ArrayList<LogRecord>();
+    	Connection conn = connectOIM();
+    	PreparedStatement stmt;
+       	if(keystr == null) {
+    		stmt = conn.prepareStatement("SELECT * FROM log WHERE model = ? ORDER BY timestamp DESC"); 
+    		stmt.setString(1, model.getName());
+       	} else {
+    		stmt = conn.prepareStatement("SELECT * FROM log WHERE model = ? AND `key` LIKE ? ORDER BY timestamp DESC"); 
+    		stmt.setString(1, model.getName());
+    		stmt.setString(2, keystr);
+       	}
+
+		ResultSet rs = stmt.executeQuery();
+		while(rs.next()) {
 			recs.add(new LogRecord(rs));
 		}
 		stmt.close();
 		return recs;
     }
     
-    public int insert(String type, String model, String xml, String key) throws SQLException
+    public int insert(String type, Class model, String xml, String key) throws SQLException
     {
     	//no auth check... accessing log table is non-auth action
     	
-		String sql = "INSERT INTO log (`type`, `model`, `xml`, `dn_id`, `comment`, `ip`,  `key`) VALUES (?, ?, ?, ?, ?, ?,?)";
+		String sql = "INSERT INTO log (`type`, `model`, `xml`, `dn_id`, `comment`, `ip`,  `key`, `contact_id`) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 		Connection conn = connectOIM();
 		PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS); 
 		stmt.setString(1, type);
-		stmt.setString(2, model);
+		stmt.setString(2, model.getName());
 		stmt.setString(3, xml);
 		Integer dn_id = auth.getDNID();
 		if(dn_id == null) {
@@ -90,6 +110,11 @@ public class LogModel extends ModelBase {
 		stmt.setString(5, context.getComment());
 		stmt.setString(6, context.getRemoteAddr());
 		stmt.setString(7, key);
+		if(auth.isUser()) {
+			stmt.setInt(8, auth.getContact().id);
+		} else {
+			stmt.setNull(8, java.sql.Types.INTEGER);
+		} 
 		stmt.executeUpdate(); 
 		
 		ResultSet ids = stmt.getGeneratedKeys();  
@@ -103,7 +128,7 @@ public class LogModel extends ModelBase {
 		//also publish it to event server
 		String event_xml = "<OIMEvent><LogID>"+logid+"</LogID><DNID>"+auth.getDNID()+"</DNID><Comment>"+StringEscapeUtils.escapeXml(context.getComment())+"</Comment>"+xml+"</OIMEvent>";
 		EventPublisher publisher = new EventPublisher();
-		publisher.publishLog(type, model, event_xml);
+		publisher.publishLog(type, model.getName(), event_xml);
 		
 		return logid;
     }
