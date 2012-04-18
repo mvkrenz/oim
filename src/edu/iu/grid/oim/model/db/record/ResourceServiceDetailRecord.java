@@ -13,8 +13,8 @@ import edu.iu.grid.oim.model.db.ServiceModel;
 
 public class ResourceServiceDetailRecord extends RecordBase {
 
-	@Key public Integer service_id;
 	@Key public Integer resource_id;
+	@Key public Integer service_id;
 	@Key public String key;
 	public String value;
 	

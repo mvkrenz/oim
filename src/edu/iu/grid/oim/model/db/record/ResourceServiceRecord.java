@@ -13,8 +13,8 @@ import edu.iu.grid.oim.model.db.ServiceModel;
 
 public class ResourceServiceRecord extends RecordBase {
 
-	@Key public Integer service_id;
 	@Key public Integer resource_id;
+	@Key public Integer service_id;
 	/*
 	public String endpoint_override;
 	public Boolean hidden;

@@ -13,10 +13,10 @@ import edu.iu.grid.oim.model.db.SCModel;
 
 public class ResourceContactRecord extends RecordBase {
 
-	@Key public Integer contact_id;
 	@Key public Integer resource_id;
 	@Key public Integer contact_type_id;
 	@Key public Integer contact_rank_id;
+	@Key public Integer contact_id;
 	
 	//load from existing record
 	public ResourceContactRecord(ResultSet rs) throws SQLException { super(rs); }

@@ -4,6 +4,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
+//TODO - why can't this be just a field in VO table?
 public class VOVORecord extends RecordBase 
 {
 	@Key public Integer child_vo_id;
@@ -13,12 +14,4 @@ public class VOVORecord extends RecordBase
 	public VOVORecord(ResultSet rs) throws SQLException { super(rs); }
 	//for creating new record
 	public VOVORecord() {}
-	/*
-	public int compareKeysTo(RecordBase o) {
-		if(this == o) return 0;
-		VOVORecord you = (VOVORecord)o;
-		if(child_vo_id.compareTo(you.child_vo_id) == 0) return 0;
-		return 1;
-	}
-	*/
 }

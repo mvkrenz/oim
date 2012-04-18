@@ -178,7 +178,7 @@ public class Authorization {
 		try {
 			InetAddress addr = InetAddress.getLocalHost();
 	        String hostname = addr.getHostName();
-			if(hostname.equals("t520")) {
+			if(hostname.equals("t520") || hostname.equals("d830")) {
 				if(request.isSecure()) {
 					request.setAttribute("SSL_CLIENT_VERIFY", "SUCCESS");
 			

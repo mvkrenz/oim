@@ -12,10 +12,10 @@ import edu.iu.grid.oim.model.db.SCModel;
 import edu.iu.grid.oim.model.db.VOModel;
 
 public class SCContactRecord extends RecordBase {
-	@Key public Integer contact_id;
 	@Key public Integer sc_id;
 	@Key public Integer contact_type_id;
 	@Key public Integer contact_rank_id;
+	@Key public Integer contact_id;
 	
 	//load from existing record
 	public SCContactRecord(ResultSet rs) throws SQLException { super(rs); }

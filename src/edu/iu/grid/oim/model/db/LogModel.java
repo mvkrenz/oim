@@ -71,11 +71,11 @@ public class LogModel extends ModelBase {
 		return recs;
     }
     
-    public int insert(String type, String model, String xml) throws SQLException
+    public int insert(String type, String model, String xml, String key) throws SQLException
     {
     	//no auth check... accessing log table is non-auth action
     	
-		String sql = "INSERT INTO log (`type`, `model`, `xml`, `dn_id`, `comment`) VALUES (?, ?, ?, ?, ?)";
+		String sql = "INSERT INTO log (`type`, `model`, `xml`, `dn_id`, `comment`, `ip`,  `key`) VALUES (?, ?, ?, ?, ?, ?,?)";
 		Connection conn = connectOIM();
 		PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS); 
 		stmt.setString(1, type);
@@ -88,6 +88,8 @@ public class LogModel extends ModelBase {
 			stmt.setInt(4, dn_id);
 		}
 		stmt.setString(5, context.getComment());
+		stmt.setString(6, context.getRemoteAddr());
+		stmt.setString(7, key);
 		stmt.executeUpdate(); 
 		
 		ResultSet ids = stmt.getGeneratedKeys();  

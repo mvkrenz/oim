@@ -215,13 +215,20 @@ public abstract class ModelBase<T extends RecordBase> {
     		//show key fields
 	    	xml += "<Keys>\n";
 	    	ArrayList<Field> keys = rec.getRecordKeys();
+	    	String keystr = "";
 	    	for(Field key : keys) {
 	    		String name = key.getName();
-	    		Object value = (Object) key.get(rec);   		
+	    		Object value = (Object) key.get(rec);   
+	    		String svalue = formatValue(value);
 	    		xml += "<Key>\n";
 	    		xml += "\t<Name>" + StringEscapeUtils.escapeXml(name) + "</Name>\n";
-	    		xml += "\t<Value>" + formatValue(value) + "</Value>\n";
+	    		xml += "\t<Value>" + svalue + "</Value>\n";
 	    		xml += "</Key>\n";
+	    		
+	    		if(keystr.length() > 0) {
+	    			keystr += ".";
+	    		}
+	    		keystr += svalue;
 	    	}
 	    	xml += "</Keys>\n";
 	    	xml += "<Fields>\n";
@@ -239,7 +246,7 @@ public abstract class ModelBase<T extends RecordBase> {
 	    	xml += "</Log>";
 	    	
 			LogModel lmodel = new LogModel(context);
-			int logid = lmodel.insert("insert", getClass().getName(), xml);	    
+			int logid = lmodel.insert("insert", getClass().getName(), xml, keystr);	    
 
 		} catch (IllegalArgumentException e) {
 			throw new SQLException(e);
@@ -258,20 +265,23 @@ public abstract class ModelBase<T extends RecordBase> {
         	xml += "<Type>Remove</Type>\n";
 	    	
     		//show key fields
-	    	//plog += "<table width=\"100%\">";
 	    	xml += "<Keys>\n";
 	    	ArrayList<Field> keys = rec.getRecordKeys();
+	    	String keystr = "";
 	    	for(Field key : keys) {
 	    		String name = key.getName();
 	    		Object value = (Object) key.get(rec);
-	    		/*
-	    		plog += "<tr><th>"+StringEscapeUtils.escapeHtml(name)+"</th>"+
-	    			"<td>"+StringEscapeUtils.escapeHtml(rec.toString(key, auth))+"</td></tr>";
-	    		*/
+	    		String svalue = formatValue(value);
+
 	    		xml += "<Key>\n";
 	    		xml += "\t<Name>" + StringEscapeUtils.escapeXml(name) + "</Name>\n";
-	    		xml += "\t<Value>" + formatValue(value) + "</Value>\n";
+	    		xml += "\t<Value>" + svalue + "</Value>\n";
 	    		xml += "</Key>\n";
+	    		
+	    		if(keystr.length() > 0) {
+	    			keystr += ".";
+	    		}
+	    		keystr += svalue;
 	    	}
 	    	xml += "</Keys>\n";
 	    	xml += "<Fields>\n";
@@ -284,34 +294,12 @@ public abstract class ModelBase<T extends RecordBase> {
 	    		xml += "\t<Name>" + StringEscapeUtils.escapeXml(name) + "</Name>\n";
 	    		xml += "\t<Value>" + formatValue(value) + "</Value>\n";
 	    		xml += "</Field>\n";
-	    		/*
-	    		if(rec.isRestricted(f)) {
-	    			value = NonPublicInformation;
-	    		}
-	    		*/
-	    		/*
-    			plog += "<tr><th>"+StringEscapeUtils.escapeHtml(name)+"</th>"+
-    			"<td>"+StringEscapeUtils.escapeHtml(rec.toString(f, auth))+"</td></tr>";
-    			*/
 	    	}
 	    	//plog += "</table>";
 	    	xml += "</Fields>\n";
 	    	xml += "</Log>";
 			LogModel lmodel = new LogModel(context);
-			int logid = lmodel.insert("remove", getClass().getName(), xml);	  
-			/*
-			plog += "Log ID " + logid;
-			
-			try {
-				PublicNotification.publish("Removed " + rec.getTitle(), plog, rec.getLables());
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (ServiceException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			*/
+			int logid = lmodel.insert("remove", getClass().getName(), xml, keystr);	  
 		} catch (IllegalArgumentException e) {
 			throw new SQLException(e);
 		} catch (IllegalAccessException e) {
@@ -329,24 +317,23 @@ public abstract class ModelBase<T extends RecordBase> {
         	xml += "<Type>Update</Type>\n";
 	    	
     		//show key fields
-        	//plog += "<table width=\"100%\"><tr><th>Updated Field</th><th>Old Value</th><th>New Value</th></tr>";
 	    	xml += "<Keys>\n";
+	    	String keystr = "";
 	    	for(Field key : oldrec.getRecordKeys()) {
 	    		String name = key.getName();
 	    		Object value = (Object) key.get(oldrec);
-	    		
-	    		//don't need to show the record key for updates
-	    		/*	
-	    		plog += "<tr>";
-	    		plog += "<th>"+StringEscapeUtils.escapeHtml(name)+"</th>"+
-    			"<td>"+StringEscapeUtils.escapeHtml(oldrec.toString(value, auth))+"</td>";
-	    		plog += "<td></td></tr>";
-	    		*/
-	    		
+	    		String svalue = formatValue(value);
+
 	    		xml += "<Key>\n";
 	    		xml += "\t<Name>" + StringEscapeUtils.escapeXml(name) + "</Name>\n";
-	    		xml += "\t<Value>" + formatValue(value) + "</Value>\n";
+	    		xml += "\t<Value>" + svalue + "</Value>\n";
 	    		xml += "</Key>\n";
+	    		
+	    		if(keystr.length() > 0) {
+	    			keystr += ".";
+	    		}
+	    		keystr += svalue;
+	 
 	    	}
 	    	xml += "</Keys>\n";
 	    	xml += "<Fields>\n";
@@ -360,35 +347,13 @@ public abstract class ModelBase<T extends RecordBase> {
 	    		xml += "\t<OldValue>" + formatValue(oldvalue) + "</OldValue>\n";
 	    		xml += "\t<NewValue>" + formatValue(newvalue) + "</NewValue>\n";
 	    		xml += "</Field>\n";
-	    		/*
-	    		if(oldrec.isRestricted(f)) {
-	    			oldvalue = NonPublicInformation;
-	    			newvalue = NonPublicInformation;
-	    		}
-	    		*/
-	    		/*
-	    		plog += "<tr><th>"+StringEscapeUtils.escapeHtml(name)+"</th>"+
-    			"<td>"+StringEscapeUtils.escapeHtml(oldrec.toString(f, auth))+"</td>" +
-    			"<td>"+StringEscapeUtils.escapeHtml(newrec.toString(f, auth))+"</td></tr>";
-    			*/
 	    	}
 	    	//plog += "</table>";
 	    	xml += "</Fields>\n";
 	    	xml += "</Log>";
 			LogModel lmodel = new LogModel(context);
-			int logid = lmodel.insert("update", getClass().getName(), xml);
-			/*
-			plog += "Log ID " + logid;
-			try {
-				PublicNotification.publish("Updated " + oldrec.getTitle(), plog, oldrec.getLables());
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (ServiceException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			*/
+			int logid = lmodel.insert("update", getClass().getName(), xml, keystr);
+
 		} catch (IllegalArgumentException e) {
 			throw new SQLException(e);
 		} catch (IllegalAccessException e) {
