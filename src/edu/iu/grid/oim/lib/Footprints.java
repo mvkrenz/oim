@@ -20,6 +20,7 @@ import org.xml.sax.SAXException;
 import edu.iu.grid.oim.model.Context;
 import edu.iu.grid.oim.model.db.ConfigModel;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
+import edu.iu.grid.oim.model.db.record.SCRecord;
 import edu.iu.grid.oim.view.HtmlFileView;
 
 public class Footprints 
@@ -718,7 +719,7 @@ public class Footprints
 		return false;
 	}
 	
-	public void createNewResourceTicket(String resource_name, String sc_footprint_id)
+	public void createNewResourceTicket(String resource_name, SCRecord sc)
 	{
 		FPTicket ticket = new FPTicket();
 		
@@ -746,8 +747,9 @@ public class Footprints
 			ticket.assignees.add("kagross");
             ticket.ccs.add("rquick@iu.edu");
             ticket.ccs.add("ruth@fnal.gov");
-            if(sc_footprint_id != null) {
-            	ticket.assignees.add(sc_footprint_id);
+            if(sc != null && sc.footprints_id != null) {
+            	ticket.assignees.add(sc.footprints_id);
+            	ticket.metadata.put("SUPPORTING_SC_ID", sc.id.toString());
             }
 		}
 		
@@ -794,7 +796,7 @@ public class Footprints
 		}
 	}
 	
-	public void createNewVOTicket(String vo_name, String sc_footprint_id) {
+	public void createNewVOTicket(String vo_name, SCRecord sc) {
 		FPTicket ticket = new FPTicket();
 		
 		//create description
@@ -822,6 +824,10 @@ public class Footprints
             ticket.ccs.add("rquick@iu.edu");
             ticket.ccs.add("ruth@fnal.gov");
             ticket.ccs.add("osg-security-team@OPENSCIENCEGRID.ORG");
+            if(sc != null && sc.footprints_id != null) {
+            	ticket.assignees.add(sc.footprints_id);
+            	ticket.metadata.put("SUPPORTING_SC_ID", sc.id.toString());
+            }
 		}
 		
 		String id = open(ticket);

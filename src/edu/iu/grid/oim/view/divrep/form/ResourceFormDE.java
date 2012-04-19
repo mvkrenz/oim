@@ -407,7 +407,7 @@ public class ResourceFormDE extends DivRepForm
 					
 					//create footprint ticket
 					Footprints fp = new Footprints(context);
-					fp.createNewResourceTicket(rec.name, screc.footprints_id);//, vo_name);
+					fp.createNewResourceTicket(rec.name, screc);//, vo_name);
 				} catch (Exception fpe) {
 					log.error("Failed to open footprints ticket: ", fpe);
 				}

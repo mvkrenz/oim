@@ -751,7 +751,7 @@ public class VOFormDE extends DivRepForm
 					
 					//create footprint ticket
 					Footprints fp = new Footprints(context);
-					fp.createNewVOTicket(rec.name, screc.footprints_id);
+					fp.createNewVOTicket(rec.name, screc);
 				} catch (Exception fpe) {
 					log.error("Failed to open footprints ticket: ", fpe);
 				}
