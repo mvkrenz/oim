@@ -197,7 +197,11 @@ public class ResourceDowntimeEditor extends DivRepFormElement {
 		String minDate = null;
 		protected DateDE(DivRep parent) {
 			super(parent);
-			setValue(new Date());//today
+			Calendar cal = Calendar.getInstance();
+			TimeZone z = auth.getTimeZone();
+		    int offset = z.getRawOffset();
+		    cal.add(Calendar.MILLISECOND, offset);
+			setValue(cal.getTime());
 			getValue().setTime((getValue().getTime() / (1000L*60)) * (1000L*60)); //round to nearest minute
 		}
 
