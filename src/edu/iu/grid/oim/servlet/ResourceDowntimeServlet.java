@@ -189,7 +189,7 @@ public class ResourceDowntimeServlet extends ServletBase implements Servlet {
 		return view;
 	}
 	
-	private IView createAffectedServices(int downtime_id) throws SQLException
+	private String createAffectedServices(int downtime_id) throws SQLException
 	{
 		String html = "";
 		ResourceDowntimeServiceModel model = new ResourceDowntimeServiceModel(context);
@@ -201,7 +201,7 @@ public class ResourceDowntimeServlet extends ServletBase implements Servlet {
 			ServiceRecord rec = smodel.get(service.service_id);
 			html += rec.name + "<br/>";
 		}
-		return new HtmlView(html);
+		return html;
 	}
 			
 	private SideContentView createSideView()
