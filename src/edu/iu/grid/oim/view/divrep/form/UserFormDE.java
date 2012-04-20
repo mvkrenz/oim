@@ -23,7 +23,7 @@ import com.divrep.validator.DivRepUrlValidator;
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Footprints;
 import edu.iu.grid.oim.lib.AuthorizationException;
-import edu.iu.grid.oim.model.Context;
+import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.AuthorizationTypeModel;
 import edu.iu.grid.oim.model.db.ContactTypeModel;
 import edu.iu.grid.oim.model.db.ContactModel;
@@ -45,7 +45,7 @@ public class UserFormDE extends DivRepForm
 {
     static Logger log = Logger.getLogger(UserFormDE.class); 
     
-    private Context context;
+    private UserContext context;
 	private Authorization auth;
 	private Integer id;
 	
@@ -53,7 +53,7 @@ public class UserFormDE extends DivRepForm
 	private ContactEditor contact;
 	private HashMap<Integer/*auth_type*/, DivRepCheckBox> auth_types = new HashMap();
 	
-	public UserFormDE(Context _context, DNRecord rec, String origin_url) throws AuthorizationException, SQLException
+	public UserFormDE(UserContext _context, DNRecord rec, String origin_url) throws AuthorizationException, SQLException
 	{	
 		super(_context.getPageRoot(), origin_url);
 		context = _context;
@@ -134,7 +134,7 @@ public class UserFormDE extends DivRepForm
 			alert(e.getMessage());
 			ret = false;
 		}
-		context.close();
+		//context.close();
 		return ret;
 	}
 

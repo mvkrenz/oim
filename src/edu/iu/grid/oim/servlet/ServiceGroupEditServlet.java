@@ -15,6 +15,7 @@ import com.divrep.DivRepRoot;
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.StaticConfig;
 
+import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.ServiceGroupModel;
 import edu.iu.grid.oim.model.db.SiteModel;
 import edu.iu.grid.oim.model.db.record.ServiceGroupRecord;
@@ -37,14 +38,11 @@ public class ServiceGroupEditServlet extends ServletBase implements Servlet {
 	private static final long serialVersionUID = 1L;
 	static Logger log = Logger.getLogger(ServiceGroupEditServlet.class);  
 	private String parent_page = "servicegroup";	
-	
-    public ServiceGroupEditServlet() {
-        super();
-    }
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{
-		//setContext(request);
+		UserContext context = new UserContext(request);
+		Authorization auth = context.getAuthorization();
 		auth.check("admin");
 		
 		ServiceGroupRecord rec;

@@ -25,7 +25,9 @@ import com.divrep.common.DivRepSelectBox;
 import com.divrep.common.DivRepStaticContent;
 import com.divrep.common.DivRepToggler;
 
+import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.StaticConfig;
+import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.ContactRankModel;
 import edu.iu.grid.oim.model.db.ContactTypeModel;
 import edu.iu.grid.oim.model.db.ContactModel;
@@ -83,14 +85,11 @@ import edu.iu.grid.oim.view.divrep.form.SCFormDE;
 public class TopologyServlet extends ServletBase implements Servlet {
 	private static final long serialVersionUID = 1L;
 	static Logger log = Logger.getLogger(TopologyServlet.class);  
-	
-    public TopologyServlet() {
-        // TODO Auto-generated constructor stub
-    }
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{			
-		
+		UserContext context = new UserContext(request);
+		Authorization auth = context.getAuthorization();
 		auth.check("view_topology");
 		
 		try {
@@ -101,7 +100,7 @@ public class TopologyServlet extends ServletBase implements Servlet {
 			if(facility_id_str != null) {
 				facility_id = Integer.parseInt(facility_id_str);
 			}
-			ContentView contentview = createContentView(facility_id);
+			ContentView contentview = createContentView(context, facility_id);
 			
 			BootPage page = new BootPage(context, menuview, contentview, null);
 			page.addCSS("hierarchy.css");
@@ -110,11 +109,14 @@ public class TopologyServlet extends ServletBase implements Servlet {
 			log.error(e);
 			throw new ServletException(e);
 		}
+		
+		//context.storeDivRepSession();
 	}
 		
-	protected ContentView createContentView(Integer facility_id) 
+	protected ContentView createContentView(UserContext context, Integer facility_id) 
 		throws ServletException, SQLException
 	{
+		Authorization auth = context.getAuthorization();
 		ContentView contentview = new ContentView();
 		//contentview.add(new HtmlView("<h1>OSG Topology</h1>"));
 		
@@ -142,6 +144,7 @@ public class TopologyServlet extends ServletBase implements Servlet {
 		for(FacilityRecord rec : frecs) {
 			keyvalues.put(rec.id, rec.name);
 		}
+		
 		final DivRepSelectBox facility_selector = new DivRepSelectBox(context.getPageRoot(), keyvalues);
 		facility_selector.setNullLabel("(Show All Facilities)");
 		facility_selector.setValue(facility_id);

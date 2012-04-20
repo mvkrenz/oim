@@ -9,7 +9,7 @@ import javax.xml.xpath.XPathExpressionException;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 
-import edu.iu.grid.oim.model.Context;
+import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.record.AuthorizationTypeRecord;
 import edu.iu.grid.oim.model.db.record.DNRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
@@ -18,7 +18,7 @@ import edu.iu.grid.oim.model.db.record.VOVORecord;
 public class VOVOModel extends SmallTableModelBase<VOVORecord> {
     static Logger log = Logger.getLogger(VOVOModel.class);  
 	
-    public VOVOModel(Context context) 
+    public VOVOModel(UserContext context) 
     {
     	super(context, "vo_vo");
     }

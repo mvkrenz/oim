@@ -16,17 +16,20 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 
+import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.EventPublisher;
-import edu.iu.grid.oim.model.Context;
+import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.record.LogRecord;
 
 public class LogModel extends ModelBase {
     static Logger log = Logger.getLogger(LogModel.class); 
     public static String NULL_TOKEN = "##null##";
         
-    public LogModel(Context context) 
+    UserContext context;
+    public LogModel(UserContext context) 
     {
     	super(context, "log");
+    	this.context = context;
     }
     
     LogRecord createRecord() throws SQLException
@@ -48,9 +51,11 @@ public class LogModel extends ModelBase {
 		if(rs.next()) {
 			LogRecord rec = new LogRecord(rs);
 			stmt.close();
+			conn.close();
 			return rec;
 		}
 		stmt.close();
+		conn.close();
 		return null;
     }
         
@@ -68,6 +73,7 @@ public class LogModel extends ModelBase {
 			recs.add(new LogRecord(rs));
 		}
 		stmt.close();
+		conn.close();
 		return recs;
     }
     public Collection<LogRecord> getByModel(Class model, String keystr) throws SQLException {
@@ -88,11 +94,14 @@ public class LogModel extends ModelBase {
 			recs.add(new LogRecord(rs));
 		}
 		stmt.close();
+		conn.close();
 		return recs;
     }
     
     public int insert(String type, Class model, String xml, String key) throws SQLException
     {
+    	Authorization auth = context.getAuthorization();
+    	
     	//no auth check... accessing log table is non-auth action
     	
 		String sql = "INSERT INTO log (`type`, `model`, `xml`, `dn_id`, `comment`, `ip`,  `key`, `contact_id`) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
@@ -119,17 +128,19 @@ public class LogModel extends ModelBase {
 		
 		ResultSet ids = stmt.getGeneratedKeys();  
 		if(!ids.next()) {
+			conn.close();
 			throw new SQLException("didn't get a new log id");
 		}
 		int logid = ids.getInt(1);
 		
 		stmt.close();
+		conn.close();
 		
 		//also publish it to event server
 		String event_xml = "<OIMEvent><LogID>"+logid+"</LogID><DNID>"+auth.getDNID()+"</DNID><Comment>"+StringEscapeUtils.escapeXml(context.getComment())+"</Comment>"+xml+"</OIMEvent>";
 		EventPublisher publisher = new EventPublisher();
 		publisher.publishLog(type, model.getName(), event_xml);
-		
+	
 		return logid;
     }
     public String getName()

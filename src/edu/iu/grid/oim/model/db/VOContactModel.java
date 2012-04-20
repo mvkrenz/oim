@@ -8,7 +8,7 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
-import edu.iu.grid.oim.model.Context;
+import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.record.ContactRankRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.ContactTypeRecord;
@@ -20,7 +20,7 @@ import edu.iu.grid.oim.model.db.record.VOReportNameRecord;
 public class VOContactModel extends SmallTableModelBase<VOContactRecord> {
     static Logger log = Logger.getLogger(VOContactModel.class); 
 	
-	public VOContactModel(Context context) {
+	public VOContactModel(UserContext context) {
 		super(context, "vo_contact");
 	}
 	VOContactRecord createRecord() throws SQLException

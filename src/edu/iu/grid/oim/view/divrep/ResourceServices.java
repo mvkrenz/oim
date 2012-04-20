@@ -12,7 +12,7 @@ import com.divrep.common.DivRepFormElement;
 import com.divrep.i18n.Labels;
 import com.divrep.validator.DivRepIValidator;
 
-import edu.iu.grid.oim.model.Context;
+import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.record.ResourceServiceDetailRecord;
 import edu.iu.grid.oim.model.db.record.ResourceServiceRecord;
 import edu.iu.grid.oim.model.db.record.ServiceRecord;
@@ -25,7 +25,7 @@ public class ResourceServices extends DivRepFormElement {
 	ArrayList<ServiceEditor> services = new ArrayList<ServiceEditor>();
 	ArrayList<Integer> service_id_taken = new ArrayList<Integer>();
 	private DivRepButton add_button;
-	private Context context;
+	private UserContext context;
 	private ArrayList<ServiceRecord> service_recs;
 	
 	private ResourceFormDE parent;
@@ -171,7 +171,7 @@ public class ResourceServices extends DivRepFormElement {
 		*/
 	}
 	
-	public ResourceServices(ResourceFormDE _parent, Context _context/*, ArrayList<ServiceRecord> _service_recs*/) {
+	public ResourceServices(ResourceFormDE _parent, UserContext _context/*, ArrayList<ServiceRecord> _service_recs*/) {
 		super(_parent);
 		parent = _parent;
 		context = _context;

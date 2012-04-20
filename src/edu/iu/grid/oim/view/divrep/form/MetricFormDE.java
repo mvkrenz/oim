@@ -23,7 +23,7 @@ import com.divrep.validator.DivRepUrlValidator;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.AuthorizationException;
-import edu.iu.grid.oim.model.Context;
+import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.ContactTypeModel;
 import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.MetricModel;
@@ -41,7 +41,7 @@ public class MetricFormDE extends DivRepForm
 {
     static Logger log = Logger.getLogger(MetricFormDE.class); 
     
-    private Context context;
+    private UserContext context;
     private Authorization auth;
 	private Integer id;
 	
@@ -55,7 +55,7 @@ public class MetricFormDE extends DivRepForm
 	private DivRepTextBox wlcg_metric_type;
 	
 	
-	public MetricFormDE(Context _context, MetricRecord rec, String origin_url) throws AuthorizationException, SQLException
+	public MetricFormDE(UserContext _context, MetricRecord rec, String origin_url) throws AuthorizationException, SQLException
 	{	
 		super(_context.getPageRoot(), origin_url);
 		context = _context;
@@ -167,7 +167,7 @@ public class MetricFormDE extends DivRepForm
 			alert(e.getMessage());
 			ret = false;
 		}
-		context.close();
+		//context.close();
 		return ret;
 	}
 

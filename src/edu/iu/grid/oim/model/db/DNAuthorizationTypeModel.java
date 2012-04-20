@@ -11,7 +11,7 @@ import javax.xml.xpath.XPathExpressionException;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 
-import edu.iu.grid.oim.model.Context;
+import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.record.AuthorizationTypeRecord;
 import edu.iu.grid.oim.model.db.record.DNAuthorizationTypeRecord;
 import edu.iu.grid.oim.model.db.record.DNRecord;
@@ -21,7 +21,7 @@ import edu.iu.grid.oim.model.db.record.RecordBase;
 public class DNAuthorizationTypeModel extends SmallTableModelBase<DNAuthorizationTypeRecord> {
     static Logger log = Logger.getLogger(AuthorizationTypeModel.class);  
     
-    public DNAuthorizationTypeModel(Context context) 
+    public DNAuthorizationTypeModel(UserContext context) 
     {
     	super(context, "dn_authorization_type");
     }

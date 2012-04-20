@@ -10,8 +10,10 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
 
+import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.AuthorizationException;
 import edu.iu.grid.oim.lib.StaticConfig;
+import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.view.divrep.form.ContactFormDE;
@@ -31,13 +33,10 @@ public class ContactEditServlet extends ServletBase implements Servlet {
 	static Logger log = Logger.getLogger(ContactEditServlet.class);  
 	private String parent_page = "contact";	
 
-    public ContactEditServlet() {
-        super();
-    }
-
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{
-		//setContext(request);
+		UserContext context = new UserContext(request);
+		Authorization auth = context.getAuthorization();
 		auth.check("edit_my_contact");
 		
 		ContactRecord rec;

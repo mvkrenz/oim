@@ -12,7 +12,7 @@ import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 
 import edu.iu.grid.oim.lib.Authorization;
-import edu.iu.grid.oim.model.Context;
+import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.record.OsgGridTypeRecord;
 import edu.iu.grid.oim.model.db.record.RecordBase;
 import edu.iu.grid.oim.model.db.record.ResourceAliasRecord;
@@ -23,7 +23,7 @@ import edu.iu.grid.oim.model.db.record.SCRecord;
 public class ResourceAliasModel extends SmallTableModelBase<ResourceAliasRecord> {
     static Logger log = Logger.getLogger(ResourceAliasModel.class); 
 
-	public ResourceAliasModel(Context context) {
+	public ResourceAliasModel(UserContext context) {
 		super(context, "resource_alias");
 	}
 	ResourceAliasRecord createRecord() throws SQLException

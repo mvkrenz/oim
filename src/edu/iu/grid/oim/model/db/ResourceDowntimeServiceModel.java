@@ -11,7 +11,7 @@ import javax.xml.xpath.XPathExpressionException;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 
-import edu.iu.grid.oim.model.Context;
+import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.record.DNRecord;
 import edu.iu.grid.oim.model.db.record.DowntimeClassRecord;
 import edu.iu.grid.oim.model.db.record.DowntimeSeverityRecord;
@@ -24,7 +24,7 @@ import edu.iu.grid.oim.model.db.record.ServiceRecord;
 public class ResourceDowntimeServiceModel extends SmallTableModelBase<ResourceDowntimeServiceRecord> {
     static Logger log = Logger.getLogger(ResourceDowntimeServiceModel.class); 
 
-	public ResourceDowntimeServiceModel(Context context) {
+	public ResourceDowntimeServiceModel(UserContext context) {
 		super(context, "resource_downtime_service");
 	}
 	ResourceDowntimeServiceRecord createRecord() throws SQLException

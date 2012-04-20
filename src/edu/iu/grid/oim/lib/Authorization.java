@@ -10,7 +10,7 @@ import java.util.TimeZone;
 import javax.servlet.http.HttpServletRequest;
 import org.apache.log4j.Logger;
 
-import edu.iu.grid.oim.model.Context;
+import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.ActionModel;
 import edu.iu.grid.oim.model.db.AuthorizationTypeActionModel;
 import edu.iu.grid.oim.model.db.AuthorizationTypeModel;
@@ -26,7 +26,7 @@ import java.util.TimeZone;
 public class Authorization {
 	static Logger log = Logger.getLogger(Authorization.class);  
 	
-	private Context guest_context; //used to access DB befort auth/context is fully constructed (avoid chicken/egg)
+	private UserContext guest_context; //used to access DB befort auth/context is fully constructed (avoid chicken/egg)
 	
 	//internal states
 	private String user_dn = null;
@@ -47,6 +47,8 @@ public class Authorization {
     	return contact;
     }
     
+    
+    //it really doesn't make sense that this belongs in Authorization, but since Authorization holds the Contact record..
     public TimeZone getTimeZone() {
 		//load timezone
 		if(contact != null) {
@@ -95,7 +97,7 @@ public class Authorization {
 	//pull user_dn from Apache's SSL_CLIENT_S_DN
 	public Authorization(HttpServletRequest request) throws AuthorizationException 
 	{		
-		guest_context = Context.getGuestContext();
+		guest_context = UserContext.getGuestContext();
 		usertype = UserType.GUEST;
 		
 		String localname = request.getLocalName();
@@ -191,10 +193,10 @@ public class Authorization {
 					//request.setAttribute("SSL_CLIENT_S_DN", "/DC=org/DC=doegrids/OU=People/CN=Soichi Hayashi new2");
 					//request.setAttribute("SSL_CLIENT_S_DN", "/DC=org/DC=doegrids/OU=People/CN=Alain Roy 424511");
 					request.setAttribute("SSL_CLIENT_I_DN_CN", "Test CA");
+					log.debug("Using debuggin credential");
 				} else {
 					request.setAttribute("SSL_CLIENT_VERIFY", null);
 				}
-				log.debug("Using debuggin credential");
 			}
 		} catch (UnknownHostException e) {
 			log.error("Couldn't figure out debug user hostname",e);

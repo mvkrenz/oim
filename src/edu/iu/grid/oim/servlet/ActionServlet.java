@@ -21,7 +21,9 @@ import com.divrep.DivRepEvent;
 import com.divrep.DivRepRoot;
 import com.divrep.common.DivRepButton;
 
+import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.StaticConfig;
+import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.ActionModel;
 import edu.iu.grid.oim.model.db.CpuInfoModel;
 import edu.iu.grid.oim.model.db.record.ActionRecord;
@@ -42,19 +44,17 @@ import edu.iu.grid.oim.view.SideContentView;
 public class ActionServlet extends ServletBase implements Servlet {
 	private static final long serialVersionUID = 1L;
 	static Logger log = Logger.getLogger(ActionServlet.class);  
-	
-    public ActionServlet() {
-        // TODO Auto-generated constructor stub
-    }
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{	
+		UserContext context = new UserContext(request);
+		Authorization auth = context.getAuthorization();
 		auth.check("admin");
 		
 		try {
 			//construct view
 			BootMenuView menuview = new BootMenuView(context, "admin");
-			ContentView contentview = createContentView();
+			ContentView contentview = createContentView(context);
 			
 			//setup crumbs
 			BootBreadCrumbView bread_crumb = new BootBreadCrumbView();
@@ -70,7 +70,7 @@ public class ActionServlet extends ServletBase implements Servlet {
 		}
 	}
 	
-	protected ContentView createContentView() 
+	protected ContentView createContentView(UserContext context) 
 		throws ServletException, SQLException
 	{
 		ActionModel model = new ActionModel(context);

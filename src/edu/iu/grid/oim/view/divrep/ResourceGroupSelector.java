@@ -23,7 +23,7 @@ import com.divrep.common.DivRepToggler;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.StaticConfig;
-import edu.iu.grid.oim.model.Context;
+import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.FacilityModel;
 import edu.iu.grid.oim.model.db.ResourceGroupModel;
 import edu.iu.grid.oim.model.db.ResourceModel;
@@ -37,12 +37,12 @@ import edu.iu.grid.oim.model.db.record.VORecord;
 public class ResourceGroupSelector extends DivRepFormElement<Integer> {
 
 	static Logger log = Logger.getLogger(ResourceGroupSelector.class);  
-    private Context context;
+    private UserContext context;
     
     private DivRepSelectBox site;
     private DivRepSelectBox resource_group;
 
-    public ResourceGroupSelector(DivRep parent, Context _context) {
+    public ResourceGroupSelector(DivRep parent, UserContext _context) {
 		super(parent);
 		context = _context;
 		

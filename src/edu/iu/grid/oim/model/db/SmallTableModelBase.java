@@ -13,7 +13,7 @@ import java.util.TreeSet;
 import java.sql.PreparedStatement;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
-import edu.iu.grid.oim.model.Context;
+import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.record.RecordBase;
 
 public abstract class SmallTableModelBase<T extends RecordBase> extends ModelBase<T> {
@@ -23,9 +23,9 @@ public abstract class SmallTableModelBase<T extends RecordBase> extends ModelBas
     
     static private String NonPublicInformation = "(Non-public information)";
     
-    public SmallTableModelBase(Context _context, String _table_name) 
+    public SmallTableModelBase(UserContext user, String _table_name) 
     {
-    	super(_context, _table_name);
+    	super(user, _table_name);
     }    
     
 	protected class KeyComparator implements Comparator<RecordBase>
@@ -51,6 +51,7 @@ public abstract class SmallTableModelBase<T extends RecordBase> extends ModelBas
 				}
 		    }	
 		    stmt.close();
+		    conn.close();
 		    cache.put(table_name, list);
 		}
 	}
@@ -99,6 +100,7 @@ public abstract class SmallTableModelBase<T extends RecordBase> extends ModelBas
 				conn.rollback();
 				conn.setAutoCommit(true);
 			}
+			conn.close();
 			throw new SQLException(e);
 		}
 		
@@ -107,6 +109,7 @@ public abstract class SmallTableModelBase<T extends RecordBase> extends ModelBas
 			conn.setAutoCommit(true);
 		}
 		emptyCache();
+		conn.close();
     }
     
     //why does client need to supply oldrecs? because ModelBase doesn't know how the
@@ -155,6 +158,7 @@ public abstract class SmallTableModelBase<T extends RecordBase> extends ModelBas
 				conn.rollback();
 				conn.setAutoCommit(true);
 			}
+			conn.close();
 			throw new SQLException(e);
 		}
 		
@@ -163,6 +167,7 @@ public abstract class SmallTableModelBase<T extends RecordBase> extends ModelBas
 			conn.setAutoCommit(true);
 		}
 		emptyCache();
+		conn.close();
 	}
   
     public void remove(RecordBase rec) throws SQLException {

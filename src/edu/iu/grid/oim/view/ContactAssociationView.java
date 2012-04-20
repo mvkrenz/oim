@@ -12,7 +12,7 @@ import com.divrep.DivRepEvent;
 import com.divrep.common.DivRepButton;
 
 import edu.iu.grid.oim.lib.StaticConfig;
-import edu.iu.grid.oim.model.Context;
+import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.ContactRankModel;
 import edu.iu.grid.oim.model.db.ContactTypeModel;
 import edu.iu.grid.oim.model.db.ResourceContactModel;
@@ -35,11 +35,11 @@ public class ContactAssociationView extends GenericView {
     static Logger log = Logger.getLogger(ContactAssociationView.class);  
     
 	private GenericView view;
-	private Context context;
+	private UserContext context;
 	private boolean show_new_buttons;
 	private int contactid;
     
-	public ContactAssociationView(Context context, int contactid) throws SQLException
+	public ContactAssociationView(UserContext context, int contactid) throws SQLException
 	{
 		this.context = context;
 		this.contactid = contactid;

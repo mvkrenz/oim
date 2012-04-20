@@ -13,7 +13,7 @@ import javax.xml.xpath.XPathExpressionException;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 
-import edu.iu.grid.oim.model.Context;
+import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.RecordBase;
 import edu.iu.grid.oim.model.db.record.SCRecord;
@@ -35,7 +35,7 @@ public class VOModel extends SmallTableModelBase<VORecord>
     	public ArrayList<ContactRecord> contacts;
     }
 
-    public VOModel(Context context) 
+    public VOModel(UserContext context) 
     {
     	super(context, "vo");
     }

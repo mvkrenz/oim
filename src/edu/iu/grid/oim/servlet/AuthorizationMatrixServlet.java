@@ -25,8 +25,9 @@ import com.divrep.common.DivRepCheckBox;
 import com.divrep.common.DivRepForm;
 import com.divrep.common.DivRepFormElement;
 
+import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.AuthorizationException;
-import edu.iu.grid.oim.model.Context;
+import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.MenuItem;
 import edu.iu.grid.oim.model.db.ActionModel;
 import edu.iu.grid.oim.model.db.AuthorizationTypeActionModel;
@@ -105,7 +106,7 @@ public class AuthorizationMatrixServlet extends ServletBase  {
 			}
 		}
 		
-		public AuthMatrix(DivRep parent, Context context) throws SQLException 
+		public AuthMatrix(DivRep parent, UserContext context) throws SQLException 
 		{
 			super(parent);
 			
@@ -157,18 +158,18 @@ public class AuthorizationMatrixServlet extends ServletBase  {
     class AuthMatrixFormDE extends DivRepForm
     {
         private AuthMatrix matrix;
-		public AuthMatrixFormDE(DivRep parent, String _origin_url) throws SQLException {
-			super(parent, _origin_url);
-			
-			//pull action, auth_type, and matrix and construct matrix
-			matrix = new AuthMatrix(parent, context);
+        private UserContext context;
+		public AuthMatrixFormDE(UserContext context, String _origin_url) throws SQLException {
+			super(context.getPageRoot(), _origin_url);
+			this.context = context;
+			matrix = new AuthMatrix(this, context);
 			add(matrix);
 		}
 
 		protected Boolean doSubmit() {			
 			AuthorizationTypeActionModel atamodel = new AuthorizationTypeActionModel(context);
 			try {
-				auth.check("admin_authorization");
+				context.getAuthorization().check("admin_authorization");
 				atamodel.update(atamodel.getAll(), matrix.getMatrixRecords());
 			} catch (AuthorizationException e) {
 				alert(e.getMessage());
@@ -189,7 +190,8 @@ public class AuthorizationMatrixServlet extends ServletBase  {
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{
-		//setContext(request);
+		UserContext context = new UserContext(request);
+		Authorization auth = context.getAuthorization();
 		auth.check("admin_authorization");
 
 		//construct view
@@ -197,7 +199,7 @@ public class AuthorizationMatrixServlet extends ServletBase  {
 		ContentView contentview;
 		
 		try {
-			contentview = createContentView();
+			contentview = createContentView(context);
 			
 			//setup crumbs
 			BootBreadCrumbView bread_crumb = new BootBreadCrumbView();
@@ -213,11 +215,11 @@ public class AuthorizationMatrixServlet extends ServletBase  {
 			
 	}
 	
-	protected ContentView createContentView() throws SQLException
+	protected ContentView createContentView(UserContext context) throws SQLException
 	{			
 		ContentView contentview = new ContentView();
 		//contentview.add(new HtmlView("<h1>Authorization Matrix</h1>"));
-		DivRepForm form = new AuthMatrixFormDE(context.getPageRoot(), "admin");
+		DivRepForm form = new AuthMatrixFormDE(context, "admin");
 		contentview.add(new DivRepWrapper(form));
 		return contentview;
 	}

@@ -22,7 +22,9 @@ import com.divrep.common.DivRepButton;
 import com.divrep.common.DivRepStaticContent;
 import com.divrep.common.DivRepToggler;
 
+import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.StaticConfig;
+import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.DNModel;
 import edu.iu.grid.oim.model.db.ResourceContactModel;
@@ -58,13 +60,11 @@ import edu.iu.grid.oim.view.divrep.ViewWrapper;
 public class ContactServlet extends ServletBase implements Servlet {
 	private static final long serialVersionUID = 1L;
 	static Logger log = Logger.getLogger(ContactServlet.class);  
-	
-    public ContactServlet() {
-        // TODO Auto-generated constructor stub
-    }
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{	
+		UserContext context = new UserContext(request);
+		Authorization auth = context.getAuthorization();
 		auth.check("edit_my_contact");
 
 		try {
@@ -92,11 +92,11 @@ public class ContactServlet extends ServletBase implements Servlet {
 				contentview.setBreadCrumb(bread_crumb);
 
 				contentview.add(new HtmlView("<h2>"+StringEscapeUtils.escapeHtml(rec.name)+"</h2>"));	
-				contentview.add(createContent(rec, false)); //false = no edit button	
+				contentview.add(createContent(context, rec, false)); //false = no edit button	
 
 			} else {
 				//pull list of all contacts
-				contentview = createContentView();
+				contentview = createContentView(context);
 			}
 			
 			BootPage page = new BootPage(context, menuview, contentview, createSideView(rec));
@@ -107,7 +107,7 @@ public class ContactServlet extends ServletBase implements Servlet {
 		}
 	}
 	
-	protected ContentView createContentView() 
+	protected ContentView createContentView(UserContext context) 
 		throws ServletException, SQLException
 	{
 		ContactModel model = new ContactModel(context);
@@ -147,10 +147,10 @@ public class ContactServlet extends ServletBase implements Servlet {
 			}
 		}
 		
-		return createContentViewHelper (contentview, editable_contacts, editable_disabled_contacts, readonly_contacts);
+		return createContentViewHelper(context, contentview, editable_contacts, editable_disabled_contacts, readonly_contacts);
 	}
 
-	protected ContentView createContentViewHelper (ContentView contentview, 
+	protected ContentView createContentViewHelper (UserContext context, ContentView contentview, 
 			Collection<ContactRecord> editable_contacts, 
 			Collection<ContactRecord> editable_disabled_contacts, 
 			Collection<ContactRecord> readonly_contacts) 
@@ -181,7 +181,7 @@ public class ContactServlet extends ServletBase implements Servlet {
 			contentview.add(table);
 		}
 		
-		if(auth.allows("admin") && editable_disabled_contacts.size() != 0) {
+		if(context.getAuthorization().allows("admin") && editable_disabled_contacts.size() != 0) {
 			contentview.add(new HtmlView("<h2>Disabled (Admin Only)</h2>"));
 			contentview.add(new HtmlView("<p>Following are the contacts that are currently disabled.</p>"));
 	
@@ -217,7 +217,7 @@ public class ContactServlet extends ServletBase implements Servlet {
 		return name_to_display;
 	}
 	
-	public DivRep createContent(final ContactRecord rec, final boolean show_edit_button) {
+	public DivRep createContent(UserContext context, final ContactRecord rec, final boolean show_edit_button) {
 		RecordTableView table = new RecordTableView();
 		try {	
 			table.addRow("Primary Email", new HtmlView("<a class=\"mailto\" href=\"mailto:"+rec.primary_email+"\">"+StringEscapeUtils.escapeHtml(rec.primary_email)+"</a>"));
@@ -263,7 +263,7 @@ public class ContactServlet extends ServletBase implements Servlet {
 			table.addRow("Disable", rec.disable);
 			
 			DNModel dnmodel = new DNModel(context);
-			if(auth.allows("admin")) {
+			if(context.getAuthorization().allows("admin")) {
 				String submitter_dn = null;
 				if(rec.submitter_dn_id != null) {
 					DNRecord dn = dnmodel.get(rec.submitter_dn_id);
@@ -272,7 +272,7 @@ public class ContactServlet extends ServletBase implements Servlet {
 				table.addRow("Submitter DN", submitter_dn);
 			}
 
-			if(auth.allows("admin")) {
+			if(context.getAuthorization().allows("admin")) {
 				String dn_string = null;
 				DNRecord dnrec = dnmodel.getByContactID(rec.id);
 				if(dnrec != null) {

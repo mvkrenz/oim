@@ -9,14 +9,14 @@ import javax.xml.xpath.XPathExpressionException;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 
-import edu.iu.grid.oim.model.Context;
+import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.record.DowntimeSeverityRecord;
 import edu.iu.grid.oim.model.db.record.RecordBase;
 
 public class DowntimeSeverityModel extends SmallTableModelBase<DowntimeSeverityRecord> {
     static Logger log = Logger.getLogger(DowntimeSeverityModel.class);  
     
-    public DowntimeSeverityModel(Context context) 
+    public DowntimeSeverityModel(UserContext context) 
     {
     	super(context, "downtime_severity");
     }

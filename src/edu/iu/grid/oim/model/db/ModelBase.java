@@ -7,7 +7,12 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.TimeZone;
 
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+import javax.sql.DataSource;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathExpressionException;
 
@@ -16,26 +21,38 @@ import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 
 import edu.iu.grid.oim.lib.Authorization;
-import edu.iu.grid.oim.model.Context;
+import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.record.RecordBase;
 
 public abstract class ModelBase<T extends RecordBase> {
     static Logger log = Logger.getLogger(ModelBase.class); 
     
-    protected Context context;
+    protected UserContext context;
 	protected Authorization auth;
     protected String table_name;
     
-	protected ModelBase(Context _context, String _table_name)
+    
+	protected ModelBase(UserContext context, String _table_name)
 	{
-		context = _context;
-		auth = _context.getAuthorization();
-		
+		this.context = context;
+		this.auth = context.getAuthorization();
     	table_name = _table_name;
 	}
-	protected Connection connectOIM() throws SQLException
-	{
-		return context.connect("jdbc/oim");
+
+    private DataSource _oimds = null;
+	protected Connection connectOIM() throws SQLException {
+		if(_oimds == null) {
+		    try {
+		    	Context initContext = new InitialContext();
+		    	Context envContext  = (Context)initContext.lookup("java:/comp/env");
+		    	_oimds = (DataSource)envContext.lookup("jdbc/oim");
+		    } catch( NamingException ne ) {
+		    	throw new RuntimeException( "Unable to aquire data source", ne );
+		    }
+		}
+		
+		Connection conn = _oimds.getConnection();
+		return conn;
 	}
 	
 	//override this to provide human readable value
@@ -73,6 +90,7 @@ public abstract class ModelBase<T extends RecordBase> {
 			}
 			stmt.executeUpdate();
 			stmt.close();
+			conn.close();
 		} catch (IllegalArgumentException e) {
 			throw new SQLException(e);
 		} catch (IllegalAccessException e) {
@@ -143,6 +161,7 @@ public abstract class ModelBase<T extends RecordBase> {
 		
 		logInsert(rec);
 		stmt.close();
+		conn.close();
 		return a_id;
     }
     
@@ -204,6 +223,7 @@ public abstract class ModelBase<T extends RecordBase> {
 		}
 		
 		logUpdate(oldrec, newrec);
+		conn.close();
     }
     
     protected void logInsert(RecordBase rec) throws SQLException 

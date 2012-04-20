@@ -12,8 +12,9 @@ import com.divrep.DivRep;
 import com.divrep.DivRepEvent;
 import com.divrep.common.DivRepButton;
 
+import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.StaticConfig;
-import edu.iu.grid.oim.model.Context;
+import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.view.BootMenuView;
@@ -32,18 +33,16 @@ import edu.iu.grid.oim.view.ToolTip;
 public class HomeServlet extends ServletBase  {
 	private static final long serialVersionUID = 1L;
     static Logger log = Logger.getLogger(HomeServlet.class);  
-    
-    public HomeServlet() {
-        super();
-        // TODO Auto-generated constructor stub
-    }
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{
+		UserContext context = new UserContext(request);
+		Authorization auth = context.getAuthorization();
+		
 		BootMenuView menuview = new BootMenuView(context, "home");
 		ContentView contentview;
-		contentview = createContentView();
-		BootPage page = new BootPage(context, menuview, contentview, createSideView());
+		contentview = createContentView(context);
+		BootPage page = new BootPage(context, menuview, contentview, createSideView(context));
 
 		GenericView header = new GenericView();
 		header.add(new HtmlView("<h1>OSG Information Management System</h1>"));
@@ -54,14 +53,16 @@ public class HomeServlet extends ServletBase  {
 		page.render(response.getWriter());
 	}
 	
-	protected ContentView createContentView() throws ServletException
+	protected ContentView createContentView(UserContext context) throws ServletException
 	{
 		ContentView v = new ContentView();
 		
-		if(auth.isUser()) {
+		Authorization auth = context.getAuthorization();
+		if(context.getAuthorization().isUser()) {
 			//add confirmation button
 			try {
-				v.add(new DivRepWrapper(new Confirmation(auth.getContact().id, context)));
+				ContactRecord user = auth.getContact();
+				v.add(new DivRepWrapper(new Confirmation(user.id, context)));
 			} catch (SQLException e) {
 				log.error(e);
 			}				
@@ -98,10 +99,10 @@ public class HomeServlet extends ServletBase  {
 		return v;
 	}
 	
-	private SideContentView createSideView()
+	private SideContentView createSideView(UserContext context)
 	{
 		SideContentView contentview = new SideContentView();
-	
+		Authorization auth = context.getAuthorization();
 		
 		if(auth.isUnregistered()) {
 			contentview.add(new HtmlView("<div class=\"alert alert-info\"><p>Your certificate is not yet registered with OIM.</p><p><a class=\"btn btn-info\" href=\"register\">Register</a></p></div>"));
@@ -137,9 +138,9 @@ public class HomeServlet extends ServletBase  {
 	{
 		final ContactRecord crec;
 		final ContactModel cmodel;
-		final Context context;
+		final UserContext context;
 		
-		public Confirmation(Integer contact_id, Context _context) throws SQLException {
+		public Confirmation(Integer contact_id, UserContext _context) throws SQLException {
 			super(_context.getPageRoot());
 			
 	    	cmodel = new ContactModel(_context);

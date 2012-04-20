@@ -23,7 +23,9 @@ import com.divrep.DivRepEvent;
 import com.divrep.DivRepRoot;
 import com.divrep.common.DivRepButton;
 
+import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.StaticConfig;
+import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.CpuInfoModel;
 import edu.iu.grid.oim.model.db.record.CpuInfoRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
@@ -43,19 +45,18 @@ import edu.iu.grid.oim.view.TableView;
 public class CPUInfoServlet extends ServletBase implements Servlet {
 	private static final long serialVersionUID = 1L;
 	static Logger log = Logger.getLogger(CPUInfoServlet.class);  
-	
-    public CPUInfoServlet() {
-        // TODO Auto-generated constructor stub
-    }
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{	
+		
+		UserContext context = new UserContext(request);
+		Authorization auth = context.getAuthorization();
 		auth.check("edit_measurement"); 
 		
 		try {
 			//construct view
 			BootMenuView menuview = new BootMenuView(context, "cpuinfo");;
-			ContentView contentview = createContentView();
+			ContentView contentview = createContentView(context);
 			
 			BootPage page = new BootPage(context, menuview, contentview, null);
 			page.render(response.getWriter());				
@@ -65,7 +66,7 @@ public class CPUInfoServlet extends ServletBase implements Servlet {
 		}
 	}
 	
-	protected ContentView createContentView() 
+	protected ContentView createContentView(UserContext context) 
 		throws ServletException, SQLException
 	{
 		CpuInfoModel model = new CpuInfoModel(context);
@@ -77,7 +78,7 @@ public class CPUInfoServlet extends ServletBase implements Servlet {
 		});
 
 		ContentView contentview = new ContentView();	
-		if(auth.isUser()) {
+		if(context.getAuthorization().isUser()) {
 			contentview.add(new HtmlView("<a class=\"btn pull-right\" href=\"cpuinfoedit\"><i class=\"icon-plus-sign\"></i> Add New CPU Info</a>"));
 		}
 		contentview.add(new HtmlView("<h2>CPU Information</h2>"));
@@ -96,7 +97,7 @@ public class CPUInfoServlet extends ServletBase implements Servlet {
 			contentview.add(new HtmlView("<td>"+StringEscapeUtils.escapeHtml(rec.notes)+"</td>"));	
 			
 			contentview.add(new HtmlView("<td>"));
-			if(auth.isUser()) {
+			if(context.getAuthorization().isUser()) {
 				contentview.add(new HtmlView("<a class=\"btn\" href=\"cpuinfoedit?cpu_info_id="+rec.id+"\">Edit</a>"));
 			}
 			contentview.add(new HtmlView("</td>"));

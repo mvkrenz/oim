@@ -9,14 +9,14 @@ import javax.xml.xpath.XPathExpressionException;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 
-import edu.iu.grid.oim.model.Context;
+import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.record.CpuInfoRecord;
 import edu.iu.grid.oim.model.db.record.RecordBase;
 
 public class CpuInfoModel extends SmallTableModelBase<CpuInfoRecord> {
     static Logger log = Logger.getLogger(CpuInfoModel.class);  
 	
-    public CpuInfoModel(Context _context) 
+    public CpuInfoModel(UserContext _context) 
     {
     	super(_context, "cpu_info");
     }

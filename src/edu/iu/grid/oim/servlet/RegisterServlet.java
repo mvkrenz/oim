@@ -26,7 +26,7 @@ import com.divrep.validator.DivRepIValidator;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.StaticConfig;
-import edu.iu.grid.oim.model.Context;
+import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.DNAuthorizationTypeModel;
 import edu.iu.grid.oim.model.db.DNModel;
@@ -46,14 +46,10 @@ public class RegisterServlet extends ServletBase  {
 	private static final long serialVersionUID = 1L;
     static Logger log = Logger.getLogger(RegisterServlet.class);  
     private String origin_url = "home";
-    
-    public RegisterServlet() {
-        super();
-        // TODO Auto-generated constructor stub
-    }
-
+   
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{
+		UserContext context = new UserContext(request);
 		Authorization auth = context.getAuthorization();
 		if(!auth.isUnregistered()) {
 			//user don't meet the requirement to register. send it to home
@@ -62,19 +58,19 @@ public class RegisterServlet extends ServletBase  {
 		}
 		
 		BootMenuView menuview = new BootMenuView(context, "register");
-		ContentView contentview = createContentView();
+		ContentView contentview = createContentView(context);
 		BootPage page = new BootPage(context, menuview, contentview, new SideContentView());
 		page.render(response.getWriter());	
 	}
 	
-	protected ContentView createContentView()
+	protected ContentView createContentView(UserContext context)
 	{
 		ContentView contentview = new ContentView();
 		
 		contentview.add(new HtmlView("<h2>OIM Registration</h2>"));
 		//contentview.add(new HtmlView("<p>Your X509 certificate is not registered on OIM. </p>"));
 		contentview.add(new HtmlView("<p>You can register your certificate and gain access to OIM by submitting following form.</p>"));			
-		RegistraitonForm form = new RegistraitonForm(context, context.getPageRoot());
+		RegistraitonForm form = new RegistraitonForm(context);
 		contentview.add(new DivRepWrapper(form));
 	
 		
@@ -83,7 +79,7 @@ public class RegisterServlet extends ServletBase  {
 
 	class RegistraitonForm extends DivRepForm
  	{
-		private Context context;
+		private UserContext context;
 		private DivRepTextBox name;
 		private DivRepTextBox primary_email, secondary_email, primary_email_check ;
 		private DivRepTextBox primary_phone, secondary_phone;
@@ -101,10 +97,10 @@ public class RegisterServlet extends ServletBase  {
 		private DivRepCheckBox use_twiki;
 		private DivRepTextBox twiki_id;
 		
-		public RegistraitonForm(Context _context, DivRepPage page_root) {
+		public RegistraitonForm(final UserContext context) {
 			
-			super(page_root, origin_url);
-			context = _context;
+			super(context.getPageRoot(), origin_url);
+			this.context = context;
 
 			new DivRepStaticContent(this, "<div class=\"divrep_form_element\"><label>Your Certificate DN</label><br/><input type=\"text\" disabled=\"disabled\" style=\"width: 400px;\" value=\""+context.getAuthorization().getUserDN()+"\"/> * Required</div>");
 			
@@ -296,7 +292,7 @@ public class RegisterServlet extends ServletBase  {
 						//primary_email.setValue("");
 						//primary_email_check.setValue("");
 
-						context.close();
+						//context.close();
 						return false;
 					}
 				}
@@ -304,6 +300,7 @@ public class RegisterServlet extends ServletBase  {
 				//Then insert a new DN record
 				DNRecord dnrec = new DNRecord();
 				dnrec.contact_id = rec.id;
+				Authorization auth = context.getAuthorization();
 				dnrec.dn_string = auth.getUserDN();
 				dnmodel.insert(dnrec);
 				
@@ -323,7 +320,7 @@ public class RegisterServlet extends ServletBase  {
 				ret = false;
 			}
 			
-			context.close();
+			//context.close();
 			return ret;
 		}
 	}

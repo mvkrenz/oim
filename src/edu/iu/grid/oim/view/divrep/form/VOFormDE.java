@@ -29,7 +29,7 @@ import com.divrep.validator.DivRepUrlValidator;
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Footprints;
 import edu.iu.grid.oim.lib.AuthorizationException;
-import edu.iu.grid.oim.model.Context;
+import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.ContactTypeModel;
 import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.FieldOfScienceModel;
@@ -62,7 +62,7 @@ public class VOFormDE extends DivRepForm
 {
     static Logger log = Logger.getLogger(VOFormDE.class); 
    
-    private Context context;
+    private UserContext context;
 	private Authorization auth;
 	private Integer id;
 	
@@ -70,7 +70,7 @@ public class VOFormDE extends DivRepForm
 	private DivRepTextBox long_name;
 	private DivRepTextArea description;
 	private DivRepTextArea community;
-	private DivRepTextBox footprints_id;
+	//private DivRepTextBox footprints_id;
 	//private DivRepTextBox external_assignment_id;
 	private DivRepSelectBox sc_id;
 	private DivRepCheckBox active;
@@ -403,7 +403,7 @@ public class VOFormDE extends DivRepForm
 		science_vo_info.redraw();
 	}
 	
-	public VOFormDE(Context _context, VORecord rec, String origin_url) throws AuthorizationException, SQLException
+	public VOFormDE(UserContext _context, VORecord rec, String origin_url) throws AuthorizationException, SQLException
 	{	
 		super(_context.getPageRoot(), origin_url);
 		context = _context;
@@ -576,13 +576,16 @@ public class VOFormDE extends DivRepForm
 		if(auth.allows("admin")) {
 			new DivRepStaticContent(this, "<h2>Administrative Tasks</h2>");
 		}
+		
+		/*
 		footprints_id = new DivRepTextBox(this);
-		footprints_id.setLabel("Footprints ID");
+		footprints_id.setLabel("Footprints ID (deprecated - don't use this)");
 		footprints_id.setValue(rec.footprints_id);
 		footprints_id.setRequired(true);
 		if(!auth.allows("admin")) {
 			footprints_id.setHidden(true);
 		}
+		*/
 
 		active = new DivRepCheckBox(this);
 		active.setLabel("Active");
@@ -715,7 +718,7 @@ public class VOFormDE extends DivRepForm
 		rec.app_description = app_description.getValue();
 		rec.community = community.getValue();
 		rec.sc_id = sc_id.getValue();
-		rec.footprints_id = footprints_id.getValue();
+		//rec.footprints_id = footprints_id.getValue();
 		//rec.external_assignment_id = external_assignment_id.getValue();
 		rec.confirmed = confirmation.getTimestamp();
 		rec.active = active.getValue();
@@ -751,7 +754,7 @@ public class VOFormDE extends DivRepForm
 					
 					//create footprint ticket
 					Footprints fp = new Footprints(context);
-					fp.createNewVOTicket(rec.name, screc.footprints_id);
+					fp.createNewVOTicket(rec.name, screc);
 				} catch (Exception fpe) {
 					log.error("Failed to open footprints ticket: ", fpe);
 				}
@@ -767,7 +770,7 @@ public class VOFormDE extends DivRepForm
 			log.error("Failed to insert/update record", e);
 			ret = false;
 		}
-		context.close();
+		//context.close();
 		return ret;
 	}
 	

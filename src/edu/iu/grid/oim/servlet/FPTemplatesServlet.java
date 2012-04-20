@@ -42,9 +42,10 @@ import com.divrep.common.DivRepSelectBox;
 import com.divrep.common.DivRepStaticContent;
 import com.divrep.common.DivRepTextArea;
 
+import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.AuthorizationException;
 import edu.iu.grid.oim.lib.StaticConfig;
-import edu.iu.grid.oim.model.Context;
+import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.ActionModel;
 import edu.iu.grid.oim.model.db.ConfigModel;
 import edu.iu.grid.oim.model.db.ContactModel;
@@ -73,20 +74,17 @@ import edu.iu.grid.oim.view.divrep.ContactEditor;
 public class FPTemplatesServlet extends ServletBase implements Servlet {
 	private static final long serialVersionUID = 1L;
 	static Logger log = Logger.getLogger(FPTemplatesServlet.class);  
-	
-    public FPTemplatesServlet() {
-        // TODO Auto-generated constructor stub
-    }
-    
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{	
+		UserContext context = new UserContext(request);
+		Authorization auth = context.getAuthorization();
 		auth.check("admin");
 	
 		try {			
 			//construct view
 			BootMenuView menuview = new BootMenuView(context, "admin");
-			ContentView contentview = createContentView();
+			ContentView contentview = createContentView(context);
 		
 			PrintWriter out = response.getWriter();
 			if(request.getParameter("plain") != null) {
@@ -107,7 +105,7 @@ public class FPTemplatesServlet extends ServletBase implements Servlet {
 		}
 	}
 	
-	protected ContentView createContentView() 
+	protected ContentView createContentView(UserContext context) 
 		throws ServletException, SQLException
 	{	
 		ContentView contentview = new ContentView();	
@@ -128,11 +126,11 @@ public class FPTemplatesServlet extends ServletBase implements Servlet {
 		private DivRepTextArea vo_template;
 		private DivRepTextArea sc_template;
 
-		public FPTemplatesForm(DivRepPage page, Context context) throws AuthorizationException, SQLException
+		public FPTemplatesForm(DivRepPage page, UserContext context) throws AuthorizationException, SQLException
 		{	
 			super(page, "admin");
 
-			ConfigModel config = new ConfigModel(context);
+			ConfigModel config = new ConfigModel();
 			ContactModel contactmodel = new ContactModel(context);
 			
 			new DivRepStaticContent(this, "<h2>Resource Registration</h2>");
@@ -185,7 +183,7 @@ public class FPTemplatesServlet extends ServletBase implements Servlet {
 	
 		}
 		protected Boolean doSubmit() {
-			ConfigModel config = new ConfigModel(context);
+			ConfigModel config = new ConfigModel();
 			try {
 				config.ResourceFPTemplate.set(resource_template.getValue());
 				config.VOFPTemplate.set(vo_template.getValue());

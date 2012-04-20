@@ -13,7 +13,7 @@ import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 
 import edu.iu.grid.oim.lib.Authorization;
-import edu.iu.grid.oim.model.Context;
+import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.record.ActionRecord;
 import edu.iu.grid.oim.model.db.record.AuthorizationTypeActionRecord;
 import edu.iu.grid.oim.model.db.record.AuthorizationTypeRecord;
@@ -24,7 +24,7 @@ import edu.iu.grid.oim.model.db.record.ServiceRecord;
 public class AuthorizationTypeActionModel extends SmallTableModelBase<AuthorizationTypeActionRecord> {
     static Logger log = Logger.getLogger(AuthorizationTypeActionModel.class);  
     
-    public AuthorizationTypeActionModel(Context context) 
+    public AuthorizationTypeActionModel(UserContext context) 
     {
     	super(context, "authorization_type_action");
     }

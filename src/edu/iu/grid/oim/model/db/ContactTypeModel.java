@@ -9,7 +9,7 @@ import javax.xml.xpath.XPathExpressionException;
 
 import org.w3c.dom.Document;
 
-import edu.iu.grid.oim.model.Context;
+import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.record.ContactTypeRecord;
 import edu.iu.grid.oim.model.db.record.RecordBase;
 import edu.iu.grid.oim.model.db.record.ResourceContactRecord;
@@ -18,7 +18,7 @@ public class ContactTypeModel extends SmallTableModelBase<ContactTypeRecord> {
 
 	public static HashMap<Integer, ContactTypeRecord> cache = null;
 		
-	public ContactTypeModel(Context _context) {
+	public ContactTypeModel(UserContext _context) {
 		super(_context, "contact_type");
 	}
 	ContactTypeRecord createRecord() throws SQLException

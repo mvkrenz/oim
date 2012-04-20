@@ -38,7 +38,9 @@ import com.divrep.DivRepRoot;
 import com.divrep.common.DivRepButton;
 import com.divrep.common.DivRepSelectBox;
 
+import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.StaticConfig;
+import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.ActionModel;
 import edu.iu.grid.oim.model.db.CpuInfoModel;
 import edu.iu.grid.oim.model.db.DNModel;
@@ -63,14 +65,12 @@ public class ReportRegistrationServlet extends ServletBase implements Servlet {
 	private static final long serialVersionUID = 1L;
 	static Logger log = Logger.getLogger(ReportRegistrationServlet.class);  
 	
-    public ReportRegistrationServlet() {
-        // TODO Auto-generated constructor stub
-    }
-    
     Integer days = 7;
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{	
+		UserContext context = new UserContext(request);
+		Authorization auth = context.getAuthorization();
 		if(!auth.isLocal()) {
 			//allow cron to access
 			auth.check("read_report");
@@ -84,7 +84,7 @@ public class ReportRegistrationServlet extends ServletBase implements Servlet {
 			
 			//construct view
 			BootMenuView menuview = new BootMenuView(context, "reportregistration");
-			ContentView contentview = createContentView();
+			ContentView contentview = createContentView(context);
 		
 			PrintWriter out = response.getWriter();
 			if(request.getParameter("plain") != null) {
@@ -98,7 +98,7 @@ public class ReportRegistrationServlet extends ServletBase implements Servlet {
 				contentview.setBreadCrumb(bread_crumb);
 				*/
 				
-				BootPage page = new BootPage(context, menuview, contentview, createSideView());
+				BootPage page = new BootPage(context, menuview, contentview, createSideView(context));
 				page.render(out);			
 			}
 		} catch (SQLException e) {
@@ -107,7 +107,7 @@ public class ReportRegistrationServlet extends ServletBase implements Servlet {
 		}
 	}
 	
-	protected ContentView createContentView() 
+	protected ContentView createContentView(UserContext context) 
 		throws ServletException, SQLException
 	{	
 		ContentView contentview = new ContentView();	
@@ -224,7 +224,7 @@ public class ReportRegistrationServlet extends ServletBase implements Servlet {
 		return view;
 	}
 	
-	private SideContentView createSideView()
+	private SideContentView createSideView(UserContext context)
 	{
 		SideContentView view = new SideContentView();
 

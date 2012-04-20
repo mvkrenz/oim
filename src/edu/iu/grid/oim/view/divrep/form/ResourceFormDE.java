@@ -21,7 +21,7 @@ import com.divrep.validator.DivRepUrlValidator;
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Footprints;
 import edu.iu.grid.oim.lib.AuthorizationException;
-import edu.iu.grid.oim.model.Context;
+import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.ContactTypeModel;
 import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.ResourceAliasModel;
@@ -64,7 +64,7 @@ public class ResourceFormDE extends DivRepForm
 {
     static Logger log = Logger.getLogger(ResourceFormDE.class); 
    
-    private Context context;
+    private UserContext context;
     
 	protected Authorization auth;
 	private Integer id;
@@ -100,7 +100,7 @@ public class ResourceFormDE extends DivRepForm
 	
 	private HashMap<Integer, ContactEditor> contact_editors = new HashMap();
 	
-	public ResourceFormDE(Context _context, ResourceRecord rec, String origin_url) throws AuthorizationException, SQLException
+	public ResourceFormDE(UserContext _context, ResourceRecord rec, String origin_url) throws AuthorizationException, SQLException
 	{	
 		super(_context.getPageRoot(), origin_url);
 		context = _context;
@@ -407,7 +407,7 @@ public class ResourceFormDE extends DivRepForm
 					
 					//create footprint ticket
 					Footprints fp = new Footprints(context);
-					fp.createNewResourceTicket(rec.name, screc.footprints_id);//, vo_name);
+					fp.createNewResourceTicket(rec.name, screc);//, vo_name);
 				} catch (Exception fpe) {
 					log.error("Failed to open footprints ticket: ", fpe);
 				}
@@ -425,7 +425,7 @@ public class ResourceFormDE extends DivRepForm
 			log.error("Failed to insert/update record", e);
 			ret = false;
 		}
-		context.close();
+		//context.close();
 		return ret;
 	}
 	

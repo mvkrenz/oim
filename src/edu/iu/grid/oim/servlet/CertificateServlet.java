@@ -12,9 +12,14 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 
+import com.divrep.DivRepEvent;
+import com.divrep.DivRepEventListener;
+import com.divrep.common.DivRepButton;
+
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.AuthorizationException;
 import edu.iu.grid.oim.lib.StaticConfig;
+import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.CertificateRequestUserModel;
 import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.VOModel;
@@ -31,14 +36,12 @@ import edu.iu.grid.oim.view.HtmlView;
 public class CertificateServlet extends ServletBase  {
 	private static final long serialVersionUID = 1L;
     static Logger log = Logger.getLogger(CertificateServlet.class);  
-    
-    public CertificateServlet() {
-        super();
-        // TODO Auto-generated constructor stub
-    }
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{
+		UserContext context = new UserContext(request);
+		Authorization auth = context.getAuthorization();
+		
 		BootMenuView menuview = new BootMenuView(context, "certificate");
 		ContentView content = null;
 		
@@ -52,31 +55,132 @@ public class CertificateServlet extends ServletBase  {
 				if(!model.canView(rec)) {
 					throw new AuthorizationException("You don't have access to view this certificate");
 				}
+				//display certificate detail
 				ArrayList<CertificateRequestUserModel.Log> logs = model.getLogs(id);
-				content = createCertificateView(rec, logs);
+				content = createCertificateView(context, rec, logs);
+			
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		} else {
-			content = createIndexView();
+			content = createIndexView(context);
 		}
 		BootPage page = new BootPage(context, menuview, content, null);
 		//page.putSideViewLeft(true);
 		page.render(response.getWriter());
 	}
 	
-	protected ContentView createCertificateView(CertificateRequestUserRecord rec, ArrayList<CertificateRequestUserModel.Log> logs) throws ServletException
+	protected ContentView createCertificateView(final UserContext context, final CertificateRequestUserRecord rec, ArrayList<CertificateRequestUserModel.Log> logs) throws ServletException
 	{
+		Authorization auth = context.getAuthorization();
+		SimpleDateFormat dformat = new SimpleDateFormat();
+		dformat.setTimeZone(auth.getTimeZone());
+		
 		ContentView v = new ContentView();
 		//setup crumbs
 		BootBreadCrumbView bread_crumb = new BootBreadCrumbView();
 		bread_crumb.addCrumb("Certificat Requests", "certificate");
-		bread_crumb.addCrumb(Integer.toString(rec.id),  null);
+		bread_crumb.addCrumb("USER" + Integer.toString(rec.id),  null);
 		v.setBreadCrumb(bread_crumb);
 		
+		//guest
+		final DivRepButton guestbutton = new DivRepButton(context.getPageRoot(), "<button class=\"btn btn-primary\"><i class=\"icon-ok icon-white\"></i> Test</button>");
+		guestbutton.setStyle(DivRepButton.Style.HTML);
+		guestbutton.addClass("inline");
+		guestbutton.addEventListener(new DivRepEventListener() {
+            public void handleEvent(DivRepEvent e) {
+            	if(context.getAuthorization().isGuest()) {
+            		guestbutton.alert("You are guest");
+            	}
+            	if(context.getAuthorization().isUser()) {
+            		guestbutton.alert("Logged in");
+            	}
+            }
+        });
+		v.add(guestbutton);
+	
+		
+		//controls
+		final CertificateRequestUserModel model = new CertificateRequestUserModel(context);
+		v.add(new HtmlView("<p>"));
+		if(model.canApprove(rec)) {
+			final DivRepButton button = new DivRepButton(context.getPageRoot(), "<button class=\"btn btn-primary\"><i class=\"icon-ok icon-white\"></i> Approve</button>");
+			button.setStyle(DivRepButton.Style.HTML);
+			button.addClass("inline");
+			button.addEventListener(new DivRepEventListener() {
+                public void handleEvent(DivRepEvent e) {
+                	if(model.approve(rec)) {
+                		button.redirect("certificate");
+                	}
+                }
+            });
+			v.add(button);
+		}
+		if(model.canRequestRenew(rec)) {
+			final DivRepButton button = new DivRepButton(context.getPageRoot(), "<button class=\"btn btn-primary\"><i class=\"icon-refresh icon-white\"></i> Request Renew</button>");
+			button.setStyle(DivRepButton.Style.HTML);
+			button.addClass("inline");
+			button.addEventListener(new DivRepEventListener() {
+                public void handleEvent(DivRepEvent e) {
+                	button.alert("You clicked a normal button");
+                }
+            });
+			v.add(button);
+			//v.add(new HtmlView("<a href=\""+baseparam+"&action=request_renew\" class=\"btn btn-primary\"><i class=\"icon-ok icon-white\"></i> Request Renew</a>&nbsp;"));
+		}
+		if(model.canRequestRevoke(rec)) {
+			final DivRepButton button = new DivRepButton(context.getPageRoot(), "<button class=\"btn btn-primary\"><i class=\"icon-exclamation-sign icon-white\"></i> Request Revocation</button>");
+			button.setStyle(DivRepButton.Style.HTML);
+			button.addClass("inline");
+			button.addEventListener(new DivRepEventListener() {
+                public void handleEvent(DivRepEvent e) {
+                	button.alert("You clicked a normal button");
+                }
+            });
+			v.add(button);
+			//v.add(new HtmlView("<a href=\""+baseparam+"&action=request_revoke\" class=\"btn btn-primary\"><i class=\"icon-ok icon-white\"></i> Request Revocation</a>&nbsp;"));
+		}
+		if(model.canCancel(rec)) {
+			final DivRepButton button = new DivRepButton(context.getPageRoot(), "<button class=\"btn\">Cancel Request</button>");
+			button.setStyle(DivRepButton.Style.HTML);
+			button.addClass("inline");
+			button.addEventListener(new DivRepEventListener() {
+                public void handleEvent(DivRepEvent e) {
+                	button.alert("You clicked a normal button");
+                }
+            });
+			v.add(button);
+			//v.add(new HtmlView("<a href=\""+baseparam+"&action=cancel\"  class=\"btn\"><i class=\"icon-trash\"></i> Cancel Request</a>&nbsp;"));
+		}
+		if(model.canReject(rec)) {
+			final DivRepButton button = new DivRepButton(context.getPageRoot(), "<button class=\"btn btn-danger\"><i class=\"icon-remove icon-white\"></i> Reject Request</button>");
+			button.setStyle(DivRepButton.Style.HTML);
+			button.addClass("inline");
+			button.addEventListener(new DivRepEventListener() {
+                public void handleEvent(DivRepEvent e) {
+                	button.alert("You clicked a normal button");
+                }
+            });
+			v.add(button);
+			//v.add(new HtmlView("<a href=\""+baseparam+"&action=reject\"  class=\"btn btn-danger\"><i class=\"icon-remove icon-white\"></i> Reject Request</a>&nbsp;"));
+		}
+		if(model.canRevoke(rec)) {
+			final DivRepButton button = new DivRepButton(context.getPageRoot(), "<button class=\"btn btn-danger\"><i class=\"icon-exclamation-sign icon-white\"></i> Revoke</button>");
+			button.setStyle(DivRepButton.Style.HTML);
+			button.addClass("inline");
+			button.addEventListener(new DivRepEventListener() {
+                public void handleEvent(DivRepEvent e) {
+                	button.alert("You clicked a normal button");
+                }
+            });
+			v.add(button);
+			//v.add(new HtmlView("<a href=\""+baseparam+"&action=revoke\"  class=\"btn btn-warning\"><i class=\"icon-exclamation-sign icon-white\"></i> Revoke</a>&nbsp;"));
+		}
+		v.add(new HtmlView("</p>"));
+		
 		//details
-		v.add(new HtmlView("<h2>Details</h2>"));
+		//v.add(new HtmlView("<h2>Details</h2>"));
 		v.add(new HtmlView("<table class=\"table\">"));
 	
 		v.add(new HtmlView("<tbody>"));
@@ -105,6 +209,11 @@ public class CertificateServlet extends ServletBase  {
 		*/
 		
 		v.add(new HtmlView("<tr>"));
+		v.add(new HtmlView("<th>Requested Time</th>"));
+		v.add(new HtmlView("<td>"+dformat.format(rec.request_time)+"</td>"));
+		v.add(new HtmlView("</tr>"));
+		
+		v.add(new HtmlView("<tr>"));
 		v.add(new HtmlView("<th>GOC Ticket</th>"));
 		v.add(new HtmlView("<td><a target=\"_blank\" href=\""+StaticConfig.conf.getProperty("url.gocticket")+"/"+rec.goc_ticket_id+"\">"+rec.goc_ticket_id+"</a></td>"));
 		v.add(new HtmlView("</tr>"));
@@ -130,6 +239,7 @@ public class CertificateServlet extends ServletBase  {
 		v.add(new HtmlView("</tbody>"));
 		
 		v.add(new HtmlView("</table>"));
+	
 		
 		//logs
 		v.add(new HtmlView("<h2>Activity Log</h2>"));
@@ -138,7 +248,6 @@ public class CertificateServlet extends ServletBase  {
 		
 		v.add(new HtmlView("<tbody>"));
 		
-		SimpleDateFormat dformat = new SimpleDateFormat();
 		boolean latest = true;
 		for(CertificateRequestUserModel.Log log : logs) {
 			if(latest) {
@@ -163,7 +272,7 @@ public class CertificateServlet extends ServletBase  {
 		return v;
 	}
 	
-	protected ContentView createIndexView() throws ServletException
+	protected ContentView createIndexView(UserContext context) throws ServletException
 	{
 		ContentView v = new ContentView();
 	
@@ -178,7 +287,7 @@ public class CertificateServlet extends ServletBase  {
 			//load my user certificate requests
 			try {
 				ArrayList<CertificateRequestUserRecord> recs = usermodel.getMine(auth.getContact().id);
-				v.add(createMyUserCertList(recs));
+				v.add(createMyUserCertList(context, recs));
 			} catch (SQLException e) {
 				v.add(new HtmlView("<div class=\"alert\">Failed to load your user certificate requests</div>"));
 			}
@@ -188,7 +297,7 @@ public class CertificateServlet extends ServletBase  {
 			//load guest user certificate requests
 			try {
 				ArrayList<CertificateRequestUserRecord> recs = usermodel.getGuest();
-				v.add(createGuestUserCertList(recs));
+				v.add(createGuestUserCertList(context, recs));
 			} catch (SQLException e) {
 				v.add(new HtmlView("<div class=\"alert\">Failed to load your user certificate requests</div>"));
 			}
@@ -245,7 +354,7 @@ public class CertificateServlet extends ServletBase  {
 		return v;
 	}
 	
-	protected GenericView createMyUserCertList(ArrayList<CertificateRequestUserRecord> recs) {
+	protected GenericView createMyUserCertList(UserContext context, ArrayList<CertificateRequestUserRecord> recs) {
 		GenericView v = new GenericView();	
 		v.add(new HtmlView("<h2>My User Certificate Requests</h2>"));
 		v.add(new HtmlView("<table class=\"table certificate\">"));
@@ -274,7 +383,7 @@ public class CertificateServlet extends ServletBase  {
 		v.add(new HtmlView("</table>"));
 		return v;
 	}
-	protected GenericView createGuestUserCertList(ArrayList<CertificateRequestUserRecord> recs) {
+	protected GenericView createGuestUserCertList(UserContext context, ArrayList<CertificateRequestUserRecord> recs) {
 		GenericView v = new GenericView();	
 		v.add(new HtmlView("<h2>My User Certificate Requests</h2>"));
 		v.add(new HtmlView("<table class=\"table certificate\">"));

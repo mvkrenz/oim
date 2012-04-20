@@ -27,7 +27,7 @@ import com.divrep.validator.DivRepUrlValidator;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.StaticConfig;
-import edu.iu.grid.oim.model.Context;
+import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.DNModel;
 import edu.iu.grid.oim.model.db.record.DNRecord;
@@ -42,7 +42,7 @@ public class ContactFormDE extends DivRepForm
 {
     static Logger log = Logger.getLogger(ContactFormDE.class); 
 	
-    private Context context;
+    private UserContext context;
     private Authorization auth;
 	private Integer id;
 	
@@ -307,7 +307,7 @@ public class ContactFormDE extends DivRepForm
 		personal_info.redraw();
 	}
 	
-	public ContactFormDE(Context _context, final ContactRecord rec, String origin_url,
+	public ContactFormDE(UserContext _context, final ContactRecord rec, String origin_url,
 			boolean profileEdit) //, boolean newRegistration)
 	{	
 		super(_context.getPageRoot(), origin_url);
@@ -508,7 +508,7 @@ public class ContactFormDE extends DivRepForm
 			alert(e.getMessage());
 			ret = false;
 		}
-		context.close();
+		//context.close();
 		return ret;
 	}
 }

@@ -29,7 +29,7 @@ import com.divrep.validator.DivRepLengthValidator;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.StaticConfig;
-import edu.iu.grid.oim.model.Context;
+import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.DowntimeClassModel;
 import edu.iu.grid.oim.model.db.DowntimeSeverityModel;
 import edu.iu.grid.oim.model.db.ResourceDowntimeModel;
@@ -50,7 +50,7 @@ import edu.iu.grid.oim.view.DivRepWrapper;
 public class ResourceDowntimeEditor extends DivRepFormElement {
     static Logger log = Logger.getLogger(ResourceDowntimeEditor.class); 
 
-    private Context context;
+    private UserContext context;
 	private Authorization auth;
 	private TimeZone timezone;
    
@@ -81,7 +81,7 @@ public class ResourceDowntimeEditor extends DivRepFormElement {
 	
 	private HashMap<Integer/*service_id*/, DivRepCheckBox> affected_services = new HashMap<Integer, DivRepCheckBox>();	
 
-	public ResourceDowntimeEditor(DivRep parent, ResourceDowntimeRecord _rec, Context _context, Authorization _auth, TimeZone _timezone) throws SQLException {
+	public ResourceDowntimeEditor(DivRep parent, ResourceDowntimeRecord _rec, UserContext _context, Authorization _auth, TimeZone _timezone) throws SQLException {
 		super(parent);
 		
 		context = _context;

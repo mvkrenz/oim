@@ -11,7 +11,7 @@ import com.divrep.validator.DivRepUniqueValidator;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.AuthorizationException;
-import edu.iu.grid.oim.model.Context;
+import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.AuthorizationTypeModel;
 import edu.iu.grid.oim.model.db.record.AuthorizationTypeRecord;
 
@@ -19,13 +19,13 @@ public class AuthtypeFormDE extends DivRepForm
 {
     static Logger log = Logger.getLogger(AuthtypeFormDE.class); 
     
-    private Context context;
+    private UserContext context;
     private Authorization auth;
 	private Integer id;
 	
 	private DivRepTextBox name;
 	
-	public AuthtypeFormDE(Context _context, AuthorizationTypeRecord rec, String origin_url) throws AuthorizationException, SQLException
+	public AuthtypeFormDE(UserContext _context, AuthorizationTypeRecord rec, String origin_url) throws AuthorizationException, SQLException
 	{	
 		super(_context.getPageRoot(), origin_url);
 		context = _context;
@@ -78,7 +78,7 @@ public class AuthtypeFormDE extends DivRepForm
 			alert(e.getMessage());
 			ret = false;
 		}
-		context.close();
+		//context.close();
 		return ret;
 	}
 

@@ -7,7 +7,7 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
-import edu.iu.grid.oim.model.Context;
+import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.record.FieldOfScienceRecord;
 import edu.iu.grid.oim.model.db.record.RecordBase;
 import edu.iu.grid.oim.model.db.record.VORecord;
@@ -16,7 +16,7 @@ import edu.iu.grid.oim.model.db.record.VOReportNameRecord;
 public class VOReportNameModel extends SmallTableModelBase<VOReportNameRecord> {
     static Logger log = Logger.getLogger(VOReportNameModel.class); 
 
-	public VOReportNameModel(Context context) {
+	public VOReportNameModel(UserContext context) {
 		super(context, "vo_report_name");
 	}
 		VOReportNameRecord createRecord() throws SQLException

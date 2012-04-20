@@ -11,7 +11,7 @@ import com.divrep.validator.DivRepUniqueValidator;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.AuthorizationException;
-import edu.iu.grid.oim.model.Context;
+import edu.iu.grid.oim.model.UserContext;
 
 import edu.iu.grid.oim.model.db.FieldOfScienceModel;
 import edu.iu.grid.oim.model.db.record.FieldOfScienceRecord;
@@ -20,13 +20,13 @@ public class FieldOfScienceFormDE extends DivRepForm
 {
     static Logger log = Logger.getLogger(FieldOfScienceFormDE.class); 
     
-    private Context context;
+    private UserContext context;
     private Authorization auth;
 	private Integer id;
 	
 	private DivRepTextBox name;
 	
-	public FieldOfScienceFormDE(Context _context, FieldOfScienceRecord rec, String origin_url) throws AuthorizationException, SQLException
+	public FieldOfScienceFormDE(UserContext _context, FieldOfScienceRecord rec, String origin_url) throws AuthorizationException, SQLException
 	{	
 		super(_context.getPageRoot(), origin_url);
 		context = _context;
@@ -79,7 +79,7 @@ public class FieldOfScienceFormDE extends DivRepForm
 			alert(e.getMessage());
 			ret = false;
 		}
-		context.close();
+		//context.close();
 		return ret;
 	}
 

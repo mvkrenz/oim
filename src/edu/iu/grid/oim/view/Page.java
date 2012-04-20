@@ -11,12 +11,12 @@ import java.net.URLEncoder;
 import org.apache.log4j.Logger;
 
 import edu.iu.grid.oim.lib.StaticConfig;
-import edu.iu.grid.oim.model.Context;
+import edu.iu.grid.oim.model.UserContext;
 
 public class Page implements IView {
 	static Logger log = Logger.getLogger(Page.class);  
 	
-    protected Context context;
+    protected UserContext context;
 	private HashMap<String, String> params = new HashMap<String, String>();
 	private ArrayList<String> css = new ArrayList<String>();
     
@@ -30,7 +30,7 @@ public class Page implements IView {
 		css.add(path);
 	}
 	
-	public Page(Context _context, IView _menu, IView _content, IView _side)
+	public Page(UserContext _context, IView _menu, IView _content, IView _side)
 	{
 		context = _context;
 

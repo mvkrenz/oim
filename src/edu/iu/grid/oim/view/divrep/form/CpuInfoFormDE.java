@@ -14,7 +14,7 @@ import com.divrep.validator.DivRepUniqueValidator;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.AuthorizationException;
-import edu.iu.grid.oim.model.Context;
+import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.CpuInfoModel;
 import edu.iu.grid.oim.model.db.record.CpuInfoRecord;
 
@@ -22,7 +22,7 @@ public class CpuInfoFormDE extends DivRepForm
 {
     static Logger log = Logger.getLogger(CpuInfoFormDE.class); 
     
-    private Context context;
+    private UserContext context;
     private Authorization auth;
 	private Integer id;
 	
@@ -31,7 +31,7 @@ public class CpuInfoFormDE extends DivRepForm
 	private DivRepTextBox hepspec_normalization_constant;
 	private DivRepTextArea notes;
 	
-	public CpuInfoFormDE(Context _context, CpuInfoRecord rec, String origin_url) throws AuthorizationException, SQLException
+	public CpuInfoFormDE(UserContext _context, CpuInfoRecord rec, String origin_url) throws AuthorizationException, SQLException
 	{	
 		super(_context.getPageRoot(), origin_url);
 		context = _context;
@@ -105,7 +105,7 @@ public class CpuInfoFormDE extends DivRepForm
 			alert(e.getMessage());
 			ret = false;
 		}
-		context.close();
+		//context.close();
 		return ret;
 	}
 

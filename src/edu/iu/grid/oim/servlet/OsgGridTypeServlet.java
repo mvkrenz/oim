@@ -19,7 +19,9 @@ import com.divrep.DivRepEvent;
 import com.divrep.DivRepRoot;
 import com.divrep.common.DivRepButton;
 
+import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.StaticConfig;
+import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.OsgGridTypeModel;
 import edu.iu.grid.oim.model.db.record.AuthorizationTypeRecord;
 import edu.iu.grid.oim.model.db.record.OsgGridTypeRecord;
@@ -40,20 +42,17 @@ import edu.iu.grid.oim.view.Utils;
 public class OsgGridTypeServlet extends ServletBase implements Servlet {
 	private static final long serialVersionUID = 1L;
 	static Logger log = Logger.getLogger(OsgGridTypeServlet.class);  
-	
-    public OsgGridTypeServlet() {
-        // TODO Auto-generated constructor stub
-    }
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{	
-		//setContext(request);
+		UserContext context = new UserContext(request);
+		Authorization auth = context.getAuthorization();
 		auth.check("admin");
 
 		try {
 			//construct view
 			BootMenuView menuview = new BootMenuView(context, "admin");
-			ContentView contentview = createContentView();
+			ContentView contentview = createContentView(context);
 			
 			//setup crumbs
 			BootBreadCrumbView bread_crumb = new BootBreadCrumbView();
@@ -69,7 +68,7 @@ public class OsgGridTypeServlet extends ServletBase implements Servlet {
 		}
 	}
 	
-	protected ContentView createContentView() 
+	protected ContentView createContentView(UserContext context) 
 		throws ServletException, SQLException
 	{
 		OsgGridTypeModel model = new OsgGridTypeModel(context);

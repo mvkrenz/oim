@@ -23,9 +23,10 @@ import com.divrep.common.DivRepButton;
 import com.divrep.common.DivRepDialog;
 import com.divrep.common.DivRepStaticContent;
 
+import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.StaticConfig;
 
-import edu.iu.grid.oim.model.Context;
+import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.DNModel;
 import edu.iu.grid.oim.model.db.DowntimeClassModel;
 import edu.iu.grid.oim.model.db.DowntimeSeverityModel;
@@ -54,22 +55,17 @@ import edu.iu.grid.oim.view.divrep.RemoveDowntimeDialog;
 public class ResourceDowntimeServlet extends ServletBase implements Servlet {
 	private static final long serialVersionUID = 1L;
 	static Logger log = Logger.getLogger(ResourceDowntimeServlet.class);  
-	
-	RemoveDowntimeDialog remove_downtime_dialog;
-	
-    public ResourceDowntimeServlet() {
-    }
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{	
+		UserContext context = new UserContext(request);
+		Authorization auth = context.getAuthorization();
 		//auth.check("edit_my_resource");
-		
-		remove_downtime_dialog = new RemoveDowntimeDialog(context.getPageRoot(), context);
 		
 		try {			
 			//construct view
 			BootMenuView menuview = new BootMenuView(context, "resourcedowntime");
-			ContentView contentview = createContentView();
+			ContentView contentview = createContentView(context);
 			BootPage page = new BootPage(context, menuview, contentview, createSideView());
 			page.render(response.getWriter());			
 		} catch (SQLException e) {
@@ -78,7 +74,7 @@ public class ResourceDowntimeServlet extends ServletBase implements Servlet {
 		}
 	}
 	
-	protected ContentView createContentView() 
+	protected ContentView createContentView(UserContext context) 
 		throws ServletException, SQLException
 	{
 		ResourceModel model = new ResourceModel(context);
@@ -88,7 +84,9 @@ public class ResourceDowntimeServlet extends ServletBase implements Servlet {
 				return a.getName().compareToIgnoreCase(b.getName());
 			}
 		});
-
+		
+		RemoveDowntimeDialog remove_dialog = new RemoveDowntimeDialog(context.getPageRoot(), context);
+		
 		ContentView contentview = new ContentView();	
 		if(resources.size() == 0) {
 			contentview.add(new HtmlView("<p>You currently don't have any resources that list your contact in any of the contact types.</p>"));
@@ -109,7 +107,7 @@ public class ResourceDowntimeServlet extends ServletBase implements Servlet {
 				ResourceDowntimeModel dmodel = new ResourceDowntimeModel(context);
 				Collection <ResourceDowntimeRecord> dt_records = dmodel.getRecentDowntimesByResourceID(rec.id, StaticConfig.getDowntimeEditableEndDays());
 				for(ResourceDowntimeRecord drec : dt_records) {
-					downtime_view.add(createDowntimeView(drec));
+					downtime_view.add(createDowntimeView(context, remove_dialog, drec));
 				}
 				if (dt_records.isEmpty()) {
 					contentview.add(new HtmlView("No scheduled downtime"));
@@ -125,46 +123,46 @@ public class ResourceDowntimeServlet extends ServletBase implements Servlet {
 		}
 		
 
-		
-		contentview.add(new DivRepWrapper(remove_downtime_dialog));
+		contentview.add(new DivRepWrapper(remove_dialog));
 		
 		return contentview;
 	}
 	
-	private IView createDowntimeView(final ResourceDowntimeRecord rec) throws SQLException
+	private IView createDowntimeView(UserContext context, final RemoveDowntimeDialog remove_dialog, final ResourceDowntimeRecord rec) throws SQLException
 	{
+		Authorization auth = context.getAuthorization();
 		GenericView view = new GenericView();
 		
 		view.add(new HtmlView("<div class=\"well downtime_detail\">"));
 		
 		class RemoveButtonDE extends DivRepButton
 		{
-			public RemoveButtonDE(DivRep parent)
+			public RemoveButtonDE(UserContext context)
 			{
-				super(parent, "images/delete.png");
+				super(context.getPageRoot(), "images/delete.png");
 				setStyle(DivRepButton.Style.IMAGE);
 				addClass("right");
 			}
 			protected void onEvent(DivRepEvent e) {
-				remove_downtime_dialog.setRecord(rec);
-				remove_downtime_dialog.open();	
+				remove_dialog.setRecord(rec);
+				remove_dialog.open();	
 			}
 		};
-		view.add(new DivRepWrapper(new RemoveButtonDE(context.getPageRoot())));
+		view.add(new DivRepWrapper(new RemoveButtonDE(context)));
 		
 		view.add(new HtmlView("<a class=\"btn\" href=\"resourcedowntimeedit?rid=" + rec.resource_id + "&did=" + rec.id + "\">Edit</a>"));
 		
 		//RecordTableView table = new RecordTableView();
 		view.add(new HtmlView("<table class=\"table\">"));
-		view.add(new HtmlView("<thead><tr><th>Summary</th><td>"+rec.downtime_summary+"</td></tr></thead>"));
+		view.add(new HtmlView("<thead><tr><th>Summary</th><td>"+StringEscapeUtils.escapeHtml(rec.downtime_summary)+"</td></tr></thead>"));
 
 		DateFormat dformat = DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.SHORT);
 		String start = "";
-		dformat.setTimeZone(getTimeZone());
-		start += dformat.format(rec.start_time) + " (" + getTimeZone().getID() + ")";
+		dformat.setTimeZone(auth.getTimeZone());
+		start += dformat.format(rec.start_time) + " (" + auth.getTimeZone().getID() + ")";
 		view.add(new HtmlView("<tr><th>Start Time</th><td>"+start+"</td></tr>"));
 		
-		String end = dformat.format(rec.end_time) + " (" + getTimeZone().getID() + ")";
+		String end = dformat.format(rec.end_time) + " (" + auth.getTimeZone().getID() + ")";
 		view.add(new HtmlView("<tr><th>End Time</th><td>"+end+"</td></tr>"));
 		
 		DowntimeClassModel dtcmodel = new DowntimeClassModel(context);
@@ -175,7 +173,7 @@ public class ResourceDowntimeServlet extends ServletBase implements Servlet {
 		view.add(new HtmlView("<tr><th>Downtime&nbsp;Severity</th><td>"+dtsmodel.get(rec.downtime_severity_id).name+"</td></tr>"));
 		//table.addRow("Downtime Severity", dtsmodel.get(rec.downtime_severity_id).name);
 		
-		view.add(new HtmlView("<tr><th>Affected&nbsp;Services</th><td>"+createAffectedServices(rec.id)+"</td></tr>"));
+		view.add(new HtmlView("<tr><th>Affected&nbsp;Services</th><td>"+createAffectedServices(context, rec.id)+"</td></tr>"));
 		//table.addRow("Affected Services", createAffectedServices(rec.id));
 		
 		DNModel dnmodel = new DNModel(context);
@@ -189,7 +187,7 @@ public class ResourceDowntimeServlet extends ServletBase implements Servlet {
 		return view;
 	}
 	
-	private IView createAffectedServices(int downtime_id) throws SQLException
+	private String createAffectedServices(UserContext context, int downtime_id) throws SQLException
 	{
 		String html = "";
 		ResourceDowntimeServiceModel model = new ResourceDowntimeServiceModel(context);
@@ -199,9 +197,9 @@ public class ResourceDowntimeServlet extends ServletBase implements Servlet {
 		ServiceModel smodel = new ServiceModel(context);
 		for(ResourceDowntimeServiceRecord service : services) {
 			ServiceRecord rec = smodel.get(service.service_id);
-			html += rec.name + "<br/>";
+			html += StringEscapeUtils.escapeHtml(rec.name) + "<br/>";
 		}
-		return new HtmlView(html);
+		return html;
 	}
 			
 	private SideContentView createSideView()

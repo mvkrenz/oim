@@ -16,6 +16,7 @@ import com.divrep.DivRep;
 import com.divrep.DivRepEvent;
 import com.divrep.common.DivRepButton;
 
+import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.view.BootBreadCrumbView;
 import edu.iu.grid.oim.view.BootMenuView;
@@ -29,6 +30,7 @@ import edu.iu.grid.oim.view.Page;
 import edu.iu.grid.oim.view.RecordTableView;
 import edu.iu.grid.oim.view.SideContentView;
 
+import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.FieldOfScienceModel;
 import edu.iu.grid.oim.model.db.ServiceGroupModel;
 import edu.iu.grid.oim.model.db.record.FieldOfScienceRecord;
@@ -37,20 +39,18 @@ import edu.iu.grid.oim.model.db.record.ServiceGroupRecord;
 public class FieldOfScienceServlet extends ServletBase implements Servlet {
 	private static final long serialVersionUID = 1L;
 	static Logger log = Logger.getLogger(FieldOfScienceServlet.class);  
-	
-    public FieldOfScienceServlet() {
-        // TODO Auto-generated constructor stub
-    }
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{	
+		UserContext context = new UserContext(request);
+		Authorization auth = context.getAuthorization();
 		auth.check("admin");
 		
 		try {
 
 			//construct view
 			BootMenuView menuview = new BootMenuView(context, "admin");;
-			ContentView contentview = createContentView();
+			ContentView contentview = createContentView(context);
 			
 			//setup crumbs
 			BootBreadCrumbView bread_crumb = new BootBreadCrumbView();
@@ -66,7 +66,7 @@ public class FieldOfScienceServlet extends ServletBase implements Servlet {
 		}
 	}
 	
-	protected ContentView createContentView() 
+	protected ContentView createContentView(UserContext context) 
 		throws ServletException, SQLException
 	{
 		FieldOfScienceModel model = new FieldOfScienceModel(context);

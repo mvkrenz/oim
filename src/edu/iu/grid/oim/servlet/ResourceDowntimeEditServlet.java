@@ -17,6 +17,7 @@ import com.divrep.common.DivRepButton;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.StaticConfig;
+import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.ResourceDowntimeModel;
 import edu.iu.grid.oim.model.db.ResourceModel;
 import edu.iu.grid.oim.model.db.record.ResourceDowntimeRecord;
@@ -41,6 +42,8 @@ public class ResourceDowntimeEditServlet extends ServletBase implements Servlet 
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{
+		UserContext context = new UserContext(request);
+		Authorization auth = context.getAuthorization();
 		auth.check("edit_my_resource");
 		
 		Integer resource_id = null;
@@ -78,7 +81,7 @@ public class ResourceDowntimeEditServlet extends ServletBase implements Servlet 
 		
 		//String origin_url = StaticConfig.getApplicationBase()+"/"+parent_page;
 		try {
-			form = new ResourceDowntimeFormDE(context, parent_page, resource_id, downtime_id, getTimeZone());
+			form = new ResourceDowntimeFormDE(context, parent_page, resource_id, downtime_id, auth.getTimeZone());
 			
 			//put the form in a view and display
 			ContentView contentview = new ContentView();

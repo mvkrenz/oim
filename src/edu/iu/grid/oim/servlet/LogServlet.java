@@ -41,8 +41,9 @@ import com.divrep.common.DivRepDate;
 import com.divrep.common.DivRepSelectBox;
 import com.divrep.common.DivRepTextBox;
 
+import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.StaticConfig;
-import edu.iu.grid.oim.model.Context;
+import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.DNModel;
 import edu.iu.grid.oim.model.db.LogModel;
 import edu.iu.grid.oim.model.db.ModelBase;
@@ -87,9 +88,10 @@ public class LogServlet extends ServletBase  {
 	
 	class ActivationList extends List
 	{
-		public ActivationList(DivRep _parent, HttpServletRequest request) {
+		private UserContext context;
+		public ActivationList(UserContext context, DivRep _parent, HttpServletRequest request) {
 			super(_parent, "Activation Log");
-			//xml_reg = "(<Name>)(active|disable)(</Name>)";
+			this.context = context;
 		}
 
 		public String getParameters() {
@@ -119,8 +121,12 @@ public class LogServlet extends ServletBase  {
 	
 	class AllList extends List
 	{    	
-		public AllList(DivRep _parent, HttpServletRequest request) {
+		
+		
+		private UserContext context;
+		public AllList(UserContext context, DivRep _parent, HttpServletRequest request) {
 			super(_parent, "All Logs");
+			this.context = context;
 		}
 
 		public void render(PrintWriter out) {
@@ -148,14 +154,17 @@ public class LogServlet extends ServletBase  {
 	
 	class SpecificList extends List
 	{    	
+		UserContext context;
 		DivRepTextBox id;
-		public SpecificList(DivRep _parent, HttpServletRequest request) {
+		public SpecificList(UserContext context, DivRep _parent, HttpServletRequest request) {
 			super(_parent, "ID Specific Log");
 			
 			id = new DivRepTextBox(this);
 			id.setLabel("Log ID");
 			id.setValue(request.getParameter("id"));
 			id.setWidth(100);
+			
+			this.context = context;
 		}
 
 		public void render(PrintWriter out) {
@@ -288,13 +297,13 @@ public class LogServlet extends ServletBase  {
     		return null;
     	}
     	
-    	Parameters(DivRep parent, HttpServletRequest request) {
-    		super(parent);
+    	Parameters(UserContext context, HttpServletRequest request) {
+    		super(context.getPageRoot());
     		
     		lists = new LinkedHashMap<Integer, List>();
-    		lists.put(1, new AllList(this, request));
-    		lists.put(2, new ActivationList(this, request));   	
-    		lists.put(3, new SpecificList(this, request));  
+    		lists.put(1, new AllList(context, this, request));
+    		lists.put(2, new ActivationList(context, this, request));   	
+    		lists.put(3, new SpecificList(context, this, request));  
     		/*
     		lists.put(4, new ResourceHistory(this, request));  
     		lists.put(5, new VOHistory(this, request));  
@@ -568,27 +577,25 @@ public class LogServlet extends ServletBase  {
 			return getCurrentList().getRecords(this);
 		}
     }
-    
-    public LogServlet() {
-        super();
-    }
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{	
+		UserContext context = new UserContext(request);
+		Authorization auth = context.getAuthorization();
 		auth.check("read_all_logs");
 
-		params = new Parameters(context.getPageRoot(), request);
+		params = new Parameters(context, request);
 		try {
 			if(request.getParameter("xml") == null) {
 				//construct HTML
 				BootMenuView menuview = new BootMenuView(context, "log");
-				ContentView contentview = createContentView(params);
+				ContentView contentview = createContentView(context, params);
 				BootPage page = new BootPage(context, menuview, contentview, createSideView());
 				page.render(response.getWriter());		
 			} else {
 				//construct XML
 				response.setHeader("Content-type", "text/xml");
-				outputXML(response.getWriter());
+				outputXML(context, response.getWriter());
 			}
 		} catch (SQLException e) {
 			log.error(e);
@@ -596,7 +603,7 @@ public class LogServlet extends ServletBase  {
 		}
 	}
 	
-	protected void outputXML(PrintWriter out) throws ServletException, SQLException
+	protected void outputXML(UserContext context, PrintWriter out) throws ServletException, SQLException
 	{
 		out.write("<Logs>");
 		try {
@@ -608,7 +615,8 @@ public class LogServlet extends ServletBase  {
 			
 			DNModel dmodel = new DNModel(context);
 			DateFormat dformat = DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.SHORT);
-			dformat.setTimeZone(getTimeZone());
+			Authorization auth = context.getAuthorization();
+			dformat.setTimeZone(auth.getTimeZone());
 			
 			//pull log entries that matches the log type
 			Collection<LogRecord> recs = params.getRecords();
@@ -619,7 +627,7 @@ public class LogServlet extends ServletBase  {
 				
 				//instantiate the model specified on the log (with Authorization as parameter)
 				Class modelClass = Class.forName(rec.model);
-				Constructor cons = modelClass.getConstructor(new Class[]{Context.class});
+				Constructor cons = modelClass.getConstructor(new Class[]{UserContext.class});
 				ModelBase somemodel = (ModelBase) cons.newInstance(context);	
 	
 				byte[] bArray = rec.xml.getBytes();
@@ -657,7 +665,7 @@ public class LogServlet extends ServletBase  {
 		out.write("</Logs>");
 	}
 	
-	protected ContentView createContentView(Parameters params) throws ServletException, SQLException
+	protected ContentView createContentView(UserContext context, Parameters params) throws ServletException, SQLException
 	{
 		ContentView view = new ContentView();	
 		view.add(new HtmlView("<h2>"+params.getTitle()+"</h2>"));    	
@@ -671,7 +679,8 @@ public class LogServlet extends ServletBase  {
 			
 			DNModel dmodel = new DNModel(context);
 			DateFormat dformat = DateFormat.getDateTimeInstance(DateFormat.LONG, DateFormat.SHORT);
-			dformat.setTimeZone(getTimeZone());
+			Authorization auth = context.getAuthorization();
+			dformat.setTimeZone(auth.getTimeZone());
 			
 			//pull log entries that matches the log type
 			Collection<LogRecord> recs = params.getRecords();
@@ -682,7 +691,7 @@ public class LogServlet extends ServletBase  {
 					
 					//instantiate the model specified on the log (with Authorization as parameter)
 					Class modelClass = Class.forName(rec.model);
-					Constructor cons = modelClass.getConstructor(new Class[]{Context.class});
+					Constructor cons = modelClass.getConstructor(new Class[]{UserContext.class});
 					ModelBase somemodel = (ModelBase) cons.newInstance(context);	
 				
 					try {
@@ -700,7 +709,7 @@ public class LogServlet extends ServletBase  {
 						}
 						view.add(new HtmlView("<h3 class=\"logheader\">" + somemodel.getName() + " ("+rec.type+")<a href=\"log?type=3&id="+rec.id+"\" class=\"sidenote\">"+rec.id+"</a></h3>"));
 						
-						view.add(new HtmlView("<div class=\"sidenote\">By "+dn_string_to_print+"<br/>"+dformat.format(rec.timestamp)+ " (" + getTimeZone().getID() + ")</div>"));
+						view.add(new HtmlView("<div class=\"sidenote\">By "+dn_string_to_print+"<br/>"+dformat.format(rec.timestamp)+ " (" + auth.getTimeZone().getID() + ")</div>"));
 						if(rec.comment != null) {
 							view.add(new HtmlView("<p>"+StringEscapeUtils.escapeHtml(rec.comment)+"</p>"));
 						}

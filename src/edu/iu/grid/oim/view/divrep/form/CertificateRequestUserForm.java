@@ -35,7 +35,7 @@ import edu.iu.grid.oim.lib.Footprints;
 import edu.iu.grid.oim.lib.Footprints.FPTicket;
 import edu.iu.grid.oim.lib.HashHelper;
 import edu.iu.grid.oim.lib.StaticConfig;
-import edu.iu.grid.oim.model.Context;
+import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.cert.CertificateManager;
 import edu.iu.grid.oim.model.cert.GenerateCSR;
 import edu.iu.grid.oim.model.cert.ICertificateSigner;
@@ -64,7 +64,7 @@ import edu.iu.grid.oim.view.divrep.VOResourceOwnership;
 public class CertificateRequestUserForm extends DivRepForm
 {
     static Logger log = Logger.getLogger(CertificateRequestUserForm.class);
-	private Context context;
+	private UserContext context;
 	private Authorization auth;
 	
 	//subscriber identify
@@ -95,10 +95,10 @@ public class CertificateRequestUserForm extends DivRepForm
 	private DivRepTextBox twiki_id;
 	*/
 	
-	public CertificateRequestUserForm(Context _context, DivRepPage page_root, String origin_url) {
+	public CertificateRequestUserForm(UserContext context, String origin_url) {
 		
-		super(page_root, origin_url);
-		context = _context;
+		super(context.getPageRoot(), origin_url);
+		this.context = context;
 		auth = context.getAuthorization();
 		ContactRecord contact = auth.getContact();
 		
@@ -505,7 +505,7 @@ public class CertificateRequestUserForm extends DivRepForm
 		}
 		*/
 		
-		context.close();
+		//context.storeDivRepSession();
 		return ret;
 	}
 }

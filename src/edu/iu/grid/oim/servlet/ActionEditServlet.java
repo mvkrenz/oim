@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.log4j.Logger;
 import edu.iu.grid.oim.lib.StaticConfig;
+import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.ActionModel;
 import edu.iu.grid.oim.model.db.record.ActionRecord;
 import edu.iu.grid.oim.view.divrep.form.ActionFormDE;
@@ -27,14 +28,10 @@ public class ActionEditServlet extends ServletBase implements Servlet {
 	static Logger log = Logger.getLogger(ActionEditServlet.class);  
 	private String current_page = "action";	
 
-    public ActionEditServlet() {
-        super();
-    }
-
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{
-		//setContext(request);
-		auth.check("admin");
+		UserContext user = new UserContext(request);
+		user.getAuthorization().check("admin");
 		
 		ActionRecord rec;
 		String title;
@@ -45,7 +42,7 @@ public class ActionEditServlet extends ServletBase implements Servlet {
 		if(id_str != null) {
 			//pull record to update
 			int id = Integer.parseInt(id_str);
-			ActionModel model = new ActionModel(context);
+			ActionModel model = new ActionModel(user);
 			try {
 				rec = model.get(id);
 			} catch (SQLException e) {
@@ -60,7 +57,7 @@ public class ActionEditServlet extends ServletBase implements Servlet {
 		ActionFormDE form;
 		//String origin_url = StaticConfig.getApplicationBase()+"/"+current_page;
 		try {
-			form = new ActionFormDE(context, rec, current_page);
+			form = new ActionFormDE(user, rec, current_page);
 		} catch (SQLException e) {
 			throw new ServletException(e);
 		}
@@ -78,8 +75,9 @@ public class ActionEditServlet extends ServletBase implements Servlet {
 
 		contentview.setBreadCrumb(bread_crumb);
 		
-		BootPage page = new BootPage(context, new BootMenuView(context, "admin"), contentview, createSideView());	
+		BootPage page = new BootPage(user, new BootMenuView(user, "admin"), contentview, createSideView());	
 		page.render(response.getWriter());	
+		//user.storeDivRepSession();
 	}
 	
 	private SideContentView createSideView()

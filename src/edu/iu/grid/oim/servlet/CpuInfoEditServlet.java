@@ -14,6 +14,7 @@ import com.divrep.DivRepRoot;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.StaticConfig;
+import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.CpuInfoModel;
 import edu.iu.grid.oim.model.db.record.CpuInfoRecord;
 import edu.iu.grid.oim.view.divrep.form.CpuInfoFormDE;
@@ -34,12 +35,10 @@ public class CpuInfoEditServlet extends ServletBase implements Servlet {
 	static Logger log = Logger.getLogger(CpuInfoEditServlet.class);  
 	private String current_page = "cpuinfo";	
 
-    public CpuInfoEditServlet() {
-        super();
-    }
-
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{
+		UserContext context = new UserContext(request);
+		Authorization auth = context.getAuthorization();
 		auth.check("edit_measurement"); 
 		
 		CpuInfoRecord rec;

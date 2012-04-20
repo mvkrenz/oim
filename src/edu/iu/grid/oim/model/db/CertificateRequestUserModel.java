@@ -30,7 +30,8 @@ import edu.iu.grid.oim.lib.Footprints;
 import edu.iu.grid.oim.lib.HashHelper;
 import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.lib.Footprints.FPTicket;
-import edu.iu.grid.oim.model.Context;
+import edu.iu.grid.oim.model.CertificateRequestStatus;
+import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.record.CertificateRequestUserRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.LogRecord;
@@ -40,8 +41,9 @@ import edu.iu.grid.oim.model.db.record.VORecord;
 
 public class CertificateRequestUserModel extends ModelBase<CertificateRequestUserRecord> {
     static Logger log = Logger.getLogger(CertificateRequestUserModel.class);  
-	private Context contect;
-    public CertificateRequestUserModel(Context _context) {
+    
+	private UserContext contect;
+    public CertificateRequestUserModel(UserContext _context) {
 		super(_context, "certificate_request_user");
 		context = _context;
 	}
@@ -56,16 +58,17 @@ public class CertificateRequestUserModel extends ModelBase<CertificateRequestUse
 	//determines if user should be able to view request details and logs
 	public boolean canView(CertificateRequestUserRecord rec) {
 		if(auth.isGuest()) {
+			//all guest see all other guest's certificates
 			if(rec.requester_contact_id == null) return true;
 		} else if(auth.isUser()) {
-			//ra can see all requests
-			if(auth.allows("view_all_user_cert_requests")) return true;
+			//super ra can see all requests
+			if(auth.allows("admin_all_user_cert_requests")) return true;
 			
 			//is user the requester?
 			ContactRecord contact = auth.getContact();
 			if(rec.requester_contact_id.equals(contact.id)) return true;
 			
-			//maybe sponsor who belongs to the requesteed vo
+			//ra or sponsor for specified vo can view it
 			VOContactModel model = new VOContactModel(context);
 			ContactModel cmodel = new ContactModel(context);
 			ArrayList<VOContactRecord> crecs;
@@ -73,12 +76,10 @@ public class CertificateRequestUserModel extends ModelBase<CertificateRequestUse
 				crecs = model.getByVOID(rec.vo_id);
 				for(VOContactRecord crec : crecs) {
 					ContactRecord contactrec = cmodel.get(crec.contact_id);
-					/*
 					if(crec.contact_type_id.equals(11) && crec.contact_rank_id.equals(1)) { //primary
-						rec.ra_contact_id = crec.contact_id;
-						ticket.ccs.add(contactrec.primary_email);
+						if(contactrec.id.equals(contact.id)) return true;
 					}
-					*/
+					
 					if(crec.contact_type_id.equals(11) && crec.contact_rank_id.equals(3)) { //sponsor
 						if(contactrec.id.equals(contact.id)) return true;
 					}
@@ -89,6 +90,114 @@ public class CertificateRequestUserModel extends ModelBase<CertificateRequestUse
 		}
 		return false;
 	}
+	
+	//true if user can approve request
+	public boolean canApprove(CertificateRequestUserRecord rec) {
+		if(!canView(rec)) return false;
+		
+		if(	rec.status.equals(CertificateRequestStatus.REQUESTED) ||
+			rec.status.equals(CertificateRequestStatus.RENEW_REQUESTED)) {
+			if(auth.isUser()) {
+				ContactRecord contact = auth.getContact();
+				
+				//super ra can see all requests
+				if(auth.allows("admin_all_user_cert_requests")) return true;
+				
+				//Is user RA agent for specified vo?
+				VOContactModel model = new VOContactModel(context);
+				ContactModel cmodel = new ContactModel(context);
+				ArrayList<VOContactRecord> crecs;
+				try {
+					crecs = model.getByVOID(rec.vo_id);
+					for(VOContactRecord crec : crecs) {
+						ContactRecord contactrec = cmodel.get(crec.contact_id);
+						if(crec.contact_type_id.equals(11) && crec.contact_rank_id.equals(1)) { //primary
+							if(contactrec.id.equals(contact.id)) return true;
+						}
+					}
+				} catch (SQLException e1) {
+					log.error("Failed to lookup RA/sponsor information", e1);
+				}			
+			}
+		}
+		return false;
+	}
+	
+	public boolean canReject(CertificateRequestUserRecord rec) {
+		return canApprove(rec); //same rule as approval
+	}	
+	
+	public boolean canCancel(CertificateRequestUserRecord rec) {
+		if(!canView(rec)) return false;
+		
+		if(	rec.status.equals(CertificateRequestStatus.REQUESTED) ||
+			rec.status.equals(CertificateRequestStatus.RENEW_REQUESTED) ||
+			rec.status.equals(CertificateRequestStatus.REVOCATION_REQUESTED)) {
+			if(auth.isUser()) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	public boolean canRequestRenew(CertificateRequestUserRecord rec) {
+		if(!canView(rec)) return false;
+		
+		if(	rec.status.equals(CertificateRequestStatus.ISSUED)) {
+			if(auth.isUser()) {
+				return true;
+			}
+		}
+		return false;
+	}
+	public boolean canRequestRevoke(CertificateRequestUserRecord rec) {
+		if(!canView(rec)) return false;
+		
+		if(rec.status.equals(CertificateRequestStatus.ISSUED)) {
+			//revocation request is only for guest
+			if(auth.isGuest()) {
+				return true;
+			}
+		}
+		return false;
+	}
+	public boolean canRevoke(CertificateRequestUserRecord rec) {
+		if(!canView(rec)) return false;
+		
+		if(	rec.status.equals(CertificateRequestStatus.ISSUED) ||
+			rec.status.equals(CertificateRequestStatus.REVOCATION_REQUESTED)) {
+			//super ra can admin all requests
+			if(auth.allows("admin_all_user_cert_requests")) return true;
+			
+			//requester oneself can revoke it
+			ContactRecord contact = auth.getContact();
+			if(rec.requester_contact_id.equals(contact.id)) return true;
+			
+			//ra can revoke it
+			VOContactModel model = new VOContactModel(context);
+			ContactModel cmodel = new ContactModel(context);
+			ArrayList<VOContactRecord> crecs;
+			try {
+				crecs = model.getByVOID(rec.vo_id);
+				for(VOContactRecord crec : crecs) {
+					ContactRecord contactrec = cmodel.get(crec.contact_id);
+					if(crec.contact_type_id.equals(11) && crec.contact_rank_id.equals(1)) { //primary
+						if(contactrec.id.equals(contact.id)) return true;
+					}
+				}
+			} catch (SQLException e1) {
+				log.error("Failed to lookup RA/sponsor information", e1);
+			}
+		}
+		return false;
+	}
+	
+	//NO-AC
+	//return true if success
+	public boolean approve(CertificateRequestUserRecord rec) {
+		return true;
+	}
+	
 	
 	//NO-AC
 	public CertificateRequestUserRecord get(int id) throws SQLException {
@@ -257,7 +366,7 @@ public class CertificateRequestUserModel extends ModelBase<CertificateRequestUse
     {
 		Date current = new Date();
 		rec.request_time = new Timestamp(current.getTime());
-		rec.status = "REQUESTED";
+		rec.status = CertificateRequestStatus.REQUESTED;
 		
 		//CC ra & sponsor
 		VOContactModel model = new VOContactModel(context);

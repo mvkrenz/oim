@@ -9,7 +9,7 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
-import edu.iu.grid.oim.model.Context;
+import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.record.AuthorizationTypeRecord;
 import edu.iu.grid.oim.model.db.record.DNRecord;
 import edu.iu.grid.oim.model.db.record.RecordBase;
@@ -19,7 +19,7 @@ import edu.iu.grid.oim.model.db.record.VOReportNameRecord;
 public class VOReportNameFqanModel extends SmallTableModelBase<VOReportNameFqanRecord> {
     static Logger log = Logger.getLogger(VOReportNameFqanModel.class); 
 
-	public VOReportNameFqanModel(Context context) {
+	public VOReportNameFqanModel(UserContext context) {
 		super(context, "vo_report_name_fqan");
 	}
 	VOReportNameFqanRecord createRecord() throws SQLException

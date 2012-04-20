@@ -12,14 +12,14 @@ import com.divrep.common.DivRepStaticContent;
 import com.divrep.common.DivRepTextBox;
 import com.divrep.validator.DivRepDoubleValidator;
 
-import edu.iu.grid.oim.model.Context;
+import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.ResourceWLCGModel;
 import edu.iu.grid.oim.model.db.record.ResourceWLCGRecord;
 import edu.iu.grid.oim.view.ToolTip;
 
 public class ResourceWLCG extends DivRepFormElement {
 
-	private Context context;
+	private UserContext context;
 	private WLCGEditor editor;
 	private DivRepButton add_button;
 
@@ -205,7 +205,7 @@ public class ResourceWLCG extends DivRepFormElement {
 		editor  = new WLCGEditor(this, _wrec);
 	}
 
-	public ResourceWLCG(DivRep parent, Context _context, ResourceWLCGRecord _wrec) {
+	public ResourceWLCG(DivRep parent, UserContext _context, ResourceWLCGRecord _wrec) {
 		super(parent);
 		context = _context;
 		setWlcgRecord (_wrec);

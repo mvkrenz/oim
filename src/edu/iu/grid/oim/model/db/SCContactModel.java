@@ -16,7 +16,7 @@ import org.w3c.dom.Document;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.AuthorizationException;
-import edu.iu.grid.oim.model.Context;
+import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.record.ContactRankRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.ContactTypeRecord;
@@ -28,7 +28,7 @@ import edu.iu.grid.oim.model.db.record.VORecord;
 public class SCContactModel extends SmallTableModelBase<SCContactRecord> {
     static Logger log = Logger.getLogger(SCContactModel.class); 
 
-	public SCContactModel(Context context) {
+	public SCContactModel(UserContext context) {
 		super(context, "sc_contact");
 	}
 	SCContactRecord createRecord() throws SQLException

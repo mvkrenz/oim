@@ -9,7 +9,7 @@ import javax.xml.xpath.XPathExpressionException;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 
-import edu.iu.grid.oim.model.Context;
+import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.record.FieldOfScienceRecord;
 import edu.iu.grid.oim.model.db.record.RecordBase;
 import edu.iu.grid.oim.model.db.record.ResourceRecord;
@@ -17,7 +17,7 @@ import edu.iu.grid.oim.model.db.record.ResourceRecord;
 public class FieldOfScienceModel extends SmallTableModelBase<FieldOfScienceRecord> {
     static Logger log = Logger.getLogger(FieldOfScienceModel.class);  
 	
-    public FieldOfScienceModel(Context context) 
+    public FieldOfScienceModel(UserContext context) 
     {
     	super(context, "field_of_science");
     }

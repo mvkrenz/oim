@@ -7,7 +7,7 @@ import org.apache.commons.lang.StringEscapeUtils;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.StaticConfig;
-import edu.iu.grid.oim.model.Context;
+import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.MenuItem;
 import edu.iu.grid.oim.servlet.ServletBase;
 
@@ -15,7 +15,7 @@ public class MenuView implements IView {
 	private ArrayList<MenuItem> menu = new ArrayList<MenuItem>();
 	private String current;
 	
-	public MenuView(Context context, String _current) {
+	public MenuView(UserContext context, String _current) {
 		Authorization auth = context.getAuthorization();
 		
 		// Always show home page with information about what OIM is... how can we make this better? -agopu

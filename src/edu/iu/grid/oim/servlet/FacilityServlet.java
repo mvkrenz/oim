@@ -23,8 +23,10 @@ import com.divrep.DivRepEvent;
 import com.divrep.DivRepRoot;
 import com.divrep.common.DivRepButton;
 
+import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.lib.AuthorizationException;
+import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.FacilityModel;
 import edu.iu.grid.oim.model.db.record.FacilityRecord;
 import edu.iu.grid.oim.model.db.record.SiteRecord;
@@ -46,19 +48,15 @@ public class FacilityServlet extends ServletBase implements Servlet {
 	private static final long serialVersionUID = 1L;
 	static Logger log = Logger.getLogger(FacilityServlet.class);  
 	
-    public FacilityServlet() {
-        // TODO Auto-generated constructor stub
-    }
-
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{	
-		//setContext(request);
-		//auth.check("edit_all_facility");
+		UserContext context = new UserContext(request);
+		//Authorization auth = context.getAuthorization();
 		
 		try {	
 			//construct view
 			MenuView menuview = new MenuView(context, "facility");
-			ContentView contentview = createContentView();
+			ContentView contentview = createContentView(context);
 			
 			//setup crumbs
 			BreadCrumbView bread_crumb = new BreadCrumbView();
@@ -66,7 +64,7 @@ public class FacilityServlet extends ServletBase implements Servlet {
 			bread_crumb.addCrumb("Topology", "topology");
 			contentview.setBreadCrumb(bread_crumb);
 			
-			Page page = new Page(context, menuview, contentview, createSideView());
+			Page page = new Page(context, menuview, contentview, createSideView(context));
 			page.render(response.getWriter());			
 		} catch (SQLException e) {
 			log.error(e);
@@ -74,7 +72,7 @@ public class FacilityServlet extends ServletBase implements Servlet {
 		}
 	}
 	
-	protected ContentView createContentView() 
+	protected ContentView createContentView(UserContext context) 
 		throws ServletException, SQLException
 	{
 		//pull list of all sites
@@ -116,7 +114,7 @@ public class FacilityServlet extends ServletBase implements Servlet {
 		return contentview;
 	}
 	
-	private SideContentView createSideView()
+	private SideContentView createSideView(UserContext context)
 	{
 		SideContentView view = new SideContentView();
 		

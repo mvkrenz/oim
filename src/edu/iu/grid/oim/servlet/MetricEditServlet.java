@@ -14,6 +14,7 @@ import com.divrep.DivRepRoot;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.StaticConfig;
+import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.MetricModel;
 import edu.iu.grid.oim.model.db.OsgGridTypeModel;
 import edu.iu.grid.oim.model.db.record.MetricRecord;
@@ -36,13 +37,10 @@ public class MetricEditServlet extends ServletBase implements Servlet {
 	static Logger log = Logger.getLogger(MetricEditServlet.class);  
 	private String parent_page = "metric";	
 
-    public MetricEditServlet() {
-        super();
-    }
-
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{
-		//setContext(request);
+		UserContext context = new UserContext(request);
+		Authorization auth = context.getAuthorization();
 		auth.check("admin");
 		
 		MetricRecord rec;

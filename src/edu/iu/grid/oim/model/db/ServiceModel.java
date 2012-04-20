@@ -7,7 +7,7 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathExpressionException;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
-import edu.iu.grid.oim.model.Context;
+import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.record.MetricServiceRecord;
 import edu.iu.grid.oim.model.db.record.RecordBase;
 import edu.iu.grid.oim.model.db.record.ServiceRecord;
@@ -16,7 +16,7 @@ import edu.iu.grid.oim.model.db.record.SiteRecord;
 public class ServiceModel extends SmallTableModelBase<ServiceRecord> {
     static Logger log = Logger.getLogger(ServiceModel.class);  
 	
-    public ServiceModel(Context context) 
+    public ServiceModel(UserContext context) 
     {
     	super(context, "service");
     }

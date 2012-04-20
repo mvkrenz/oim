@@ -8,7 +8,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.log4j.Logger;
 
+import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.StaticConfig;
+import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.VOModel;
 import edu.iu.grid.oim.model.db.record.ResourceRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
@@ -29,12 +31,10 @@ public class VOEditServlet extends ServletBase implements Servlet {
 	static Logger log = Logger.getLogger(VOEditServlet.class);  
 	private String parent_page = "vo";	
 
-    public VOEditServlet() {
-        super();
-    }
-
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{
+		UserContext context = new UserContext(request);
+		Authorization auth = context.getAuthorization();
 		auth.check("edit_my_vo");		
 		
 		VORecord rec;
@@ -91,6 +91,8 @@ public class VOEditServlet extends ServletBase implements Servlet {
 		
 		BootPage page = new BootPage(context, new BootMenuView(context, parent_page), contentview, createSideView(rec));
 		page.render(response.getWriter());	
+		
+		//context.storeDivRepSession();
 	}
 	
 	private SideContentView createSideView(VORecord rec)

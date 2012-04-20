@@ -19,7 +19,9 @@ import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 
+import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.StaticConfig;
+import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.ResourceContactModel;
 import edu.iu.grid.oim.model.db.ResourceModel;
@@ -48,12 +50,10 @@ public class ReportConfirmationServlet extends ServletBase implements Servlet {
 	private static final long serialVersionUID = 1L;
 	static Logger log = Logger.getLogger(ReportConfirmationServlet.class);  
 	
-    public ReportConfirmationServlet() {
-        // TODO Auto-generated constructor stub
-    }
-    
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{	
+		UserContext context = new UserContext(request);
+		Authorization auth = context.getAuthorization();
 		if(!auth.isLocal()) {
 			//allow cron to access
 			auth.check("read_report");
@@ -70,7 +70,7 @@ public class ReportConfirmationServlet extends ServletBase implements Servlet {
 					response.setContentType("application/vnd.ms-excel");
 					response.setHeader("Content-Disposition",
 							"attachment; filename=ConfirmationReport.xls");
-					HSSFWorkbook wb = createExcelView(expired_recs);	
+					HSSFWorkbook wb = createExcelView(context, expired_recs);	
 					wb.write(response.getOutputStream());
 	
 				} catch (Exception e) {
@@ -80,7 +80,7 @@ public class ReportConfirmationServlet extends ServletBase implements Servlet {
 			} else {
 				//construct html view
 				BootMenuView menuview = new BootMenuView(context, "reportconfirmation");
-				ContentView contentview = createContentView(expired_recs);
+				ContentView contentview = createContentView(context, expired_recs);
 				/*
 				//set crumbs
 				BootBreadCrumbView bread_crumb = new BootBreadCrumbView();
@@ -98,12 +98,12 @@ public class ReportConfirmationServlet extends ServletBase implements Servlet {
 			throw new ServletException(e);
 		}
 	}
-	private HSSFWorkbook createExcelView(ArrayList<ContactRecord> expired_recs) 
+	private HSSFWorkbook createExcelView(UserContext context, ArrayList<ContactRecord> expired_recs) 
 	{
 		ArrayList<ContactRecord> normal_list = new ArrayList<ContactRecord>();
 		ArrayList<ContactRecord> critical_list = new ArrayList<ContactRecord>();
 		HashMap<Integer, ArrayList<String>> critical_details = new HashMap<Integer, ArrayList<String>>();
-		createReport(expired_recs, normal_list, critical_list, critical_details);
+		createReport(context, expired_recs, normal_list, critical_list, critical_details);
 		
 		HSSFWorkbook wb = new HSSFWorkbook();
 		HSSFCellStyle cellstyle = wb.createCellStyle();
@@ -173,7 +173,7 @@ public class ReportConfirmationServlet extends ServletBase implements Servlet {
 		return wb;
 		
 	}
-	protected ContentView createContentView(ArrayList<ContactRecord> expired_recs) throws ServletException, SQLException
+	protected ContentView createContentView(UserContext context, ArrayList<ContactRecord> expired_recs) throws ServletException, SQLException
 	{	
 		ContentView contentview = new ContentView();	
 		contentview.add(new HtmlView("<h1>Confirmation Report</h1>"));
@@ -181,7 +181,7 @@ public class ReportConfirmationServlet extends ServletBase implements Servlet {
 		ArrayList<ContactRecord> normal_list = new ArrayList<ContactRecord>();
 		ArrayList<ContactRecord> critical_list = new ArrayList<ContactRecord>();
 		HashMap<Integer, ArrayList<String>> critical_details = new HashMap<Integer, ArrayList<String>>();
-		createReport(expired_recs, normal_list, critical_list, critical_details);
+		createReport(context, expired_recs, normal_list, critical_list, critical_details);
 				
 		contentview.add(new HtmlView("<div class=\"row-fluid\">"));
 		
@@ -216,8 +216,11 @@ public class ReportConfirmationServlet extends ServletBase implements Servlet {
 		return contentview;
 	}
 	
-	private void createReport(ArrayList<ContactRecord> expired_recs, 
-			ArrayList<ContactRecord> normal_list, ArrayList<ContactRecord> critical_list, HashMap<Integer, ArrayList<String>> critical_details)
+	private void createReport(UserContext context,
+			ArrayList<ContactRecord> expired_recs, 
+			ArrayList<ContactRecord> normal_list, 
+			ArrayList<ContactRecord> critical_list, 
+			HashMap<Integer, ArrayList<String>> critical_details)
 	{
 		try {		
 			ResourceModel rmodel = new ResourceModel(context);

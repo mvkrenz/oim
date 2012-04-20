@@ -8,22 +8,22 @@ import org.apache.commons.lang.StringEscapeUtils;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.StaticConfig;
-import edu.iu.grid.oim.model.Context;
+import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.MenuItem;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.servlet.ServletBase;
 
 public class BootMenuView implements IView {
 	private String current;
-	private Context context;
+	private UserContext user;
 	
-	public BootMenuView(Context context, String current) {
+	public BootMenuView(UserContext user, String current) {
 		this.current = current;
-		this.context = context;
+		this.user = user;
 	}
 	
 	public void render(PrintWriter out) {		
-		Authorization auth = context.getAuthorization();
+		Authorization auth = user.getAuthorization();
 		
 		out.println("<div class=\"navbar navbar-fixed-top\">");	
 		out.println("<div class=\"navbar-inner\">");

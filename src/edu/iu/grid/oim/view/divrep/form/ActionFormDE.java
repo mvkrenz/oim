@@ -12,7 +12,7 @@ import com.divrep.validator.DivRepUniqueValidator;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.AuthorizationException;
-import edu.iu.grid.oim.model.Context;
+import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.ActionModel;
 import edu.iu.grid.oim.model.db.record.ActionRecord;
 
@@ -20,14 +20,14 @@ public class ActionFormDE extends DivRepForm
 {
     static Logger log = Logger.getLogger(ActionFormDE.class); 
     
-    private Context context;
+    private UserContext context;
     private Authorization auth;
 	private Integer id;
 	
 	private DivRepTextBox name;
 	private DivRepTextArea description;
 	
-	public ActionFormDE(Context _context, ActionRecord rec, String origin_url) throws AuthorizationException, SQLException
+	public ActionFormDE(UserContext _context, ActionRecord rec, String origin_url) throws AuthorizationException, SQLException
 	{	
 		super(_context.getPageRoot(), origin_url);
 		context = _context;
@@ -87,7 +87,7 @@ public class ActionFormDE extends DivRepForm
 			alert(e.getMessage());
 			ret = false;
 		}
-		context.close();
+		//context.close();
 		return ret;
 	}
 

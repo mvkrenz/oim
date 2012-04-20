@@ -21,6 +21,7 @@ import com.divrep.common.DivRepStaticContent;
 import com.divrep.common.DivRepToggler;
 
 import edu.iu.grid.oim.lib.StaticConfig;
+import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.ContactRankModel;
 import edu.iu.grid.oim.model.db.ContactTypeModel;
 import edu.iu.grid.oim.model.db.ContactModel;
@@ -68,13 +69,10 @@ import edu.iu.grid.oim.view.divrep.form.VOFormDE;
 public class VOServlet extends ServletBase implements Servlet {
 	private static final long serialVersionUID = 1L;
 	static Logger log = Logger.getLogger(VOServlet.class);  
-	
-    public VOServlet() {
-        // TODO Auto-generated constructor stub
-    }
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{		
+		UserContext context = new UserContext(request);
 		//auth.check("edit_my_vo");
 		
 		try {	
@@ -105,12 +103,12 @@ public class VOServlet extends ServletBase implements Servlet {
 				if(rec.disable == true) {
 					contentview.add(new HtmlView("<div class=\"alert\">This Virtual Organization is currently disabled.</div>"));
 				}
-				contentview.add(createVOContent(rec, model.canEdit(vo_id))); //false = no edit button	
+				contentview.add(createVOContent(context, rec, model.canEdit(vo_id))); //false = no edit button	
 				
-				sideview = createSideView();
+				sideview = createSideView(context);
 
 			} else {
-				contentview = createListContentView();
+				contentview = createListContentView(context);
 			}
 			
 			BootPage page = new BootPage(context, menuview, contentview, sideview);
@@ -121,7 +119,7 @@ public class VOServlet extends ServletBase implements Servlet {
 		}
 	}
 	
-	protected ContentView createListContentView() 
+	protected ContentView createListContentView(UserContext context) 
 		throws ServletException, SQLException
 	{
 
@@ -145,7 +143,7 @@ public class VOServlet extends ServletBase implements Servlet {
 		
 		ContentView contentview = new ContentView();
 		
-		if(auth.isUser()) {
+		if(context.getAuthorization().isUser()) {
 			contentview.add(new HtmlView("<a href=\"voedit\" class=\"btn pull-right\"><i class=\"icon-plus-sign\"></i> Add New Virtual Organization</a>"));
 			contentview.add(new HtmlView("<h2>My Virtual Organizations</h2>"));
 			if(editable_vos.size() == 0) {
@@ -198,7 +196,7 @@ public class VOServlet extends ServletBase implements Servlet {
 		return contentview;
 	}
 
-	public DivRep createVOContent(final VORecord rec, final boolean show_edit_button) {
+	public DivRep createVOContent(UserContext context, final VORecord rec, final boolean show_edit_button) {
 		RecordTableView table = new RecordTableView();
 		try {	
 
@@ -225,7 +223,7 @@ public class VOServlet extends ServletBase implements Servlet {
 			}
 			ToolTip parent_vo_tip = new ToolTip("Sometimes a project grows large enough to include several offshoot projects in it. When this happens, such a VO would want to be its own registration but would want to cite the parent project on its registration. This item helps a VO manager make such a mapping.");
 			table.addRow("Parent VO " + parent_vo_tip.render() + " ", parent_vo_name);
-			table.addRow("Support Center", getSCName(rec.sc_id));
+			table.addRow("Support Center", getSCName(context, rec.sc_id));
 
 			ContactTypeModel ctmodel = new ContactTypeModel(context);
 			ContactRankModel crmodel = new ContactRankModel(context);
@@ -265,7 +263,7 @@ public class VOServlet extends ServletBase implements Servlet {
 			if (rec.science_vo) {
 				table.addRow("App Description", rec.app_description);
 				ToolTip field_of_science_tip = new ToolTip("VOs are often associated with one or more scientific fields. ");
-				table.addRow("Field of Science " +field_of_science_tip.render()+ " ", getFieldOfScience(rec.id));
+				table.addRow("Field of Science " +field_of_science_tip.render()+ " ", getFieldOfScience(context, rec.id));
 				table.addRow("Primary URL", new URLView(rec.primary_url));
 				table.addRow("AUP URL", new URLView(rec.aup_url));
 				table.addRow("Membership Services URL", new URLView(rec.membership_services_url));
@@ -277,14 +275,17 @@ public class VOServlet extends ServletBase implements Servlet {
 				ArrayList<VOReportNameRecord> vorepname_records = vorepname_model.getAllByVOID(rec.id);
 				GenericView vorepname_view = new GenericView();
 				for(VOReportNameRecord vorepname_record : vorepname_records) {
-					vorepname_view.add(createVOReportNameView(vorepname_record));
+					vorepname_view.add(createVOReportNameView(context, vorepname_record));
 				}
 				table.addRow("Reports", vorepname_view);
 			}
 			
+			/*
 			if(auth.allows("admin")) {
 				table.addRow("Footprints ID", rec.footprints_id);
 			}
+			*/
+			
 			table.addRow("Active", rec.active);
 			table.addRow("Disable", rec.disable);
 					
@@ -313,14 +314,14 @@ public class VOServlet extends ServletBase implements Servlet {
 		return new ViewWrapper(context.getPageRoot(), table);
 	}
 	
-	private String getSCName(Integer sc_id) throws SQLException
+	private String getSCName(UserContext context, Integer sc_id) throws SQLException
 	{
 		SCModel model = new SCModel(context);
 		SCRecord rec = model.get(sc_id);
 		return rec.name;
 	}
 	
-	private IView getFieldOfScience(Integer vo_id) throws SQLException
+	private IView getFieldOfScience(UserContext context, Integer vo_id) throws SQLException
 	{
 		VOFieldOfScienceModel model = new VOFieldOfScienceModel(context);
 		ArrayList<VOFieldOfScienceRecord> list = model.getByVOID(vo_id);
@@ -341,7 +342,7 @@ public class VOServlet extends ServletBase implements Servlet {
 		return new HtmlView(out);
 	}
 
-	private IView createVOReportNameView(VOReportNameRecord record)
+	private IView createVOReportNameView(UserContext context, VOReportNameRecord record)
 	{
 		GenericView view = new GenericView();
 		RecordTableView table = new RecordTableView("inner_table");
@@ -351,7 +352,7 @@ public class VOServlet extends ServletBase implements Servlet {
 			
 			table.addRow("Associated FQANs", new HtmlView (""));
 			Row row = table.new Row();
-			row.addCell(getVOReportNameFqans(record.id), 2);
+			row.addCell(getVOReportNameFqans(context, record.id), 2);
 			table.addRow(row);
 			
 			ContactTypeModel ctmodel = new ContactTypeModel(context);
@@ -380,7 +381,7 @@ public class VOServlet extends ServletBase implements Servlet {
 		return view;
 	}
 	
-	private IView getVOReportNameFqans(int vo_report_name_id) throws SQLException
+	private IView getVOReportNameFqans(UserContext context, int vo_report_name_id) throws SQLException
 	{
 		VOReportNameFqanModel vorepnamefqan_model = new VOReportNameFqanModel(context);
 		Collection<VOReportNameFqanRecord> records = vorepnamefqan_model.getAllByVOReportNameID(vo_report_name_id);
@@ -399,13 +400,13 @@ public class VOServlet extends ServletBase implements Servlet {
 		return table;
 	}
 
-	private SideContentView createSideView()
+	private SideContentView createSideView(UserContext context)
 	{
 		SideContentView view = new SideContentView();
 		
 		//view.add(new HtmlView("<h3>Other Actions</h3>"));
 		//view.add(new HtmlView("<div class=\"indent\">"));
-		if(auth.isUser()) {
+		if(context.getAuthorization().isUser()) {
 			view.add(new HtmlView("<p>"));
 			view.add(new HtmlView("<a class=\"btn\" href=\"voedit\">Register New Virtual Organization</a>"));
 			view.add(new HtmlView("</p>"));

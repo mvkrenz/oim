@@ -15,7 +15,7 @@ import com.divrep.validator.DivRepUniqueValidator;
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Footprints;
 import edu.iu.grid.oim.lib.AuthorizationException;
-import edu.iu.grid.oim.model.Context;
+import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.ContactTypeModel;
 import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.SCModel;
@@ -34,7 +34,7 @@ import edu.iu.grid.oim.view.divrep.ContactEditor.Rank;
 public class SCFormDE extends DivRepForm 
 {
     static Logger log = Logger.getLogger(SCFormDE.class); 
-    private Context context;
+    private UserContext context;
    
 	protected Authorization auth;
 	private Integer id;
@@ -62,7 +62,7 @@ public class SCFormDE extends DivRepForm
 	
 	private HashMap<Integer, ContactEditor> contact_editors = new HashMap();
 	
-	public SCFormDE(Context _context, SCRecord rec, String origin_url) throws AuthorizationException, SQLException
+	public SCFormDE(UserContext _context, SCRecord rec, String origin_url) throws AuthorizationException, SQLException
 	{	
 		super(_context.getPageRoot(), origin_url);
 		context = _context;
@@ -299,7 +299,7 @@ public class SCFormDE extends DivRepForm
 			log.error("Failed to insert/update record", e);
 			ret = false;
 		}
-		context.close();
+		//context.close();
 		return ret;
 	}
 	

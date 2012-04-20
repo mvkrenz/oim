@@ -15,6 +15,7 @@ import com.divrep.DivRepRoot;
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.AuthorizationException;
 import edu.iu.grid.oim.lib.StaticConfig;
+import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.SCModel;
 import edu.iu.grid.oim.model.db.record.SCRecord;
 import edu.iu.grid.oim.view.divrep.form.SCFormDE;
@@ -34,13 +35,10 @@ public class SCEditServlet extends ServletBase implements Servlet {
 	static Logger log = Logger.getLogger(SCEditServlet.class);  
 	private String parent_page = "sc";	
 
-    public SCEditServlet() {
-        super();
-    }
-
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{
-		//setContext(request);
+		UserContext context = new UserContext(request);
+		Authorization auth = context.getAuthorization();
 		auth.check("edit_my_sc");
 		
 		SCRecord rec;

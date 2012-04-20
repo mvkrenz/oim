@@ -23,8 +23,10 @@ import com.divrep.DivRepEvent;
 import com.divrep.DivRepRoot;
 import com.divrep.common.DivRepButton;
 
+import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.lib.AuthorizationException;
+import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.ContactRankModel;
 import edu.iu.grid.oim.model.db.ContactTypeModel;
 import edu.iu.grid.oim.model.db.ContactModel;
@@ -64,14 +66,11 @@ import edu.iu.grid.oim.view.TableView.Row;
 public class SiteServlet extends ServletBase implements Servlet {
 	private static final long serialVersionUID = 1L;
 	static Logger log = Logger.getLogger(SiteServlet.class);  
-	
-    public SiteServlet() {
-        // TODO Auto-generated constructor stub
-    }
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{	
-		//setContext(request);
+		UserContext context = new UserContext(request);
+		Authorization auth = context.getAuthorization();
 		//auth.check("edit_all_site");
 		
 		try {	
@@ -96,15 +95,15 @@ public class SiteServlet extends ServletBase implements Servlet {
 				bread_crumb.addCrumb("Site " + rec.name, null);
 				contentview.setBreadCrumb(bread_crumb);
 
-				contentview.add(createSiteContent(rec)); //false = no edit button	
+				contentview.add(createSiteContent(context, rec)); //false = no edit button	
 				
-				sideview = createSideView();
+				sideview = createSideView(context);
 
 			} else {
-				contentview = createListContentView();
+				contentview = createListContentView(context);
 			}
 			
-			BootPage page = new BootPage(context, menuview, contentview, createSideView());
+			BootPage page = new BootPage(context, menuview, contentview, createSideView(context));
 			page.render(response.getWriter());			
 		} catch (SQLException e) {
 			log.error(e);
@@ -112,7 +111,7 @@ public class SiteServlet extends ServletBase implements Servlet {
 		}
 	}
 	
-	protected ContentView createSiteContent(final SiteRecord rec) throws ServletException, SQLException {
+	protected ContentView createSiteContent(UserContext context, final SiteRecord rec) throws ServletException, SQLException {
 		/*
 		SiteModel model = new SiteModel(context);
 		ArrayList<SiteRecord> sites = model.getAll();
@@ -140,8 +139,8 @@ public class SiteServlet extends ServletBase implements Servlet {
 		table.addRow("Country", rec.country);
 		table.addRow("Longitude", rec.longitude);
 		table.addRow("Latitude", rec.latitude);
-		table.addRow("Facility", getFacilityName(rec.facility_id));
-		table.addRow("Support Center", getSCName(rec.sc_id));
+		table.addRow("Facility", getFacilityName(context, rec.facility_id));
+		table.addRow("Support Center", getSCName(context, rec.sc_id));
 		table.addRow("Active", rec.active);
 		table.addRow("Disable", rec.disable);
 		
@@ -160,7 +159,7 @@ public class SiteServlet extends ServletBase implements Servlet {
 		};
 		table.add(new DivRepWrapper(new EditButtonDE(context.getPageRoot(), StaticConfig.getApplicationBase()+"/siteedit?site_id=" + rec.id)));
 		*/
-		if(auth.isUser()) {
+		if(context.getAuthorization().isUser()) {
 			table.add(new HtmlView("<a class=\"btn\" href=\"siteedit?id=" + rec.id + "\">Edit</a>"));
 		}
 		
@@ -168,7 +167,7 @@ public class SiteServlet extends ServletBase implements Servlet {
 	}
 		
 	
-	protected ContentView createListContentView() 
+	protected ContentView createListContentView(UserContext context) 
 		throws ServletException, SQLException
 	{
 		SiteModel model = new SiteModel(context);
@@ -208,7 +207,7 @@ public class SiteServlet extends ServletBase implements Servlet {
 		return contentview;
 	}
 	
-	private String getSCName(Integer sc_id) throws SQLException
+	private String getSCName(UserContext context, Integer sc_id) throws SQLException
 	{
 		if(sc_id == null) return null;
 		SCModel model = new SCModel(context);
@@ -219,7 +218,7 @@ public class SiteServlet extends ServletBase implements Servlet {
 		return sc.name;
 	}
 	
-	private String getFacilityName(Integer facility_id) throws SQLException
+	private String getFacilityName(UserContext context, Integer facility_id) throws SQLException
 	{
 		if(facility_id == null) return null;
 		FacilityModel model = new FacilityModel(context);
@@ -230,10 +229,10 @@ public class SiteServlet extends ServletBase implements Servlet {
 		return facility.name;
 	}
 
-	private SideContentView createSideView()
+	private SideContentView createSideView(UserContext context)
 	{
 		SideContentView view = new SideContentView();
-		if(auth.isUser()) {
+		if(context.getAuthorization().isUser()) {
 			view.add(new HtmlView("<a class=\"btn\" href=\"siteedit\">Add New Administrative Site</a>"));
 		}
 		/*

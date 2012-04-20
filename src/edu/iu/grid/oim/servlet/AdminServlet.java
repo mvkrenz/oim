@@ -16,10 +16,12 @@ import com.divrep.DivRepEventListener;
 import com.divrep.DivRepRoot;
 import com.divrep.common.DivRepButton;
 
+import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.lib.Footprints;
 import edu.iu.grid.oim.lib.AuthorizationException;
 import edu.iu.grid.oim.model.MenuItem;
+import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.SmallTableModelBase;
 import edu.iu.grid.oim.view.BootMenuView;
 import edu.iu.grid.oim.view.BootPage;
@@ -37,28 +39,25 @@ import edu.iu.grid.oim.view.SideContentView;
 public class AdminServlet extends ServletBase  {
 	private static final long serialVersionUID = 1L;
     static Logger log = Logger.getLogger(AdminServlet.class);  
-    
-    public AdminServlet() {
-        super();
-        // TODO Auto-generated constructor stub
-    }
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{
+		UserContext context = new UserContext(request);
+		Authorization auth = context.getAuthorization();
 		auth.check("admin");
 
 		BootMenuView menuview = new BootMenuView(context, "admin");
-		ContentView contentview = createContentView();
-		BootPage page = new BootPage(context, menuview, contentview, createSideView());
+		ContentView contentview = createContentView(context);
+		BootPage page = new BootPage(context, menuview, contentview, createSideView(context));
 		page.render(response.getWriter());	
 	}
 	
-	protected ContentView createContentView()
+	protected ContentView createContentView(UserContext context)
 	{
 		ContentView contentview = new ContentView();
 		
 		contentview.add(new HtmlView("<h2>Administration</h2>"));
-		if(auth.allows("admin")) {
+		if(context.getAuthorization().allows("admin")) {
 			contentview.add(new HtmlView("<h3>Authentication / Authorization</h3>"));
 			contentview.add(new InternalLinkView("action", "Actions"));
 			//contentview.add(new HtmlView("<br/>"));
@@ -91,26 +90,18 @@ public class AdminServlet extends ServletBase  {
 
 			contentview.add(new InternalLinkView("fptemplates", "Footprints Ticket Templates"));
 			//contentview.add(new HtmlView("<br/>"));
-			
-			/*
-			contentview.add(new HtmlView("<br/>"));
-			contentview.add(new HtmlView("<h3>Reports</h3>"));
-			contentview.add(new InternalLinkView("reportregistration", "Registration"));
-			contentview.add(new HtmlView("<br/>"));
-			contentview.add(new InternalLinkView("reportconfirmation", "Confirmation"));
-			contentview.add(new HtmlView("<br/>"));
-			*/
+	
 		}
 		
 		return contentview;
 	}
 	
-	private SideContentView createSideView()
+	private SideContentView createSideView(UserContext context)
 	{
 		SideContentView view = new SideContentView();
 		GenericView operations = new GenericView();
 		
-		if(!auth.allows("admin")) return view;
+		if(!context.getAuthorization().allows("admin")) return view;
 		
 		final DivRepButton clear_button = new DivRepButton(context.getPageRoot(), "Clear All Cache");
 		clear_button.addClass("btn");

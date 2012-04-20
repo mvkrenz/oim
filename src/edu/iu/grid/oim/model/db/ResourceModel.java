@@ -13,7 +13,7 @@ import javax.xml.xpath.XPathExpressionException;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 
-import edu.iu.grid.oim.model.Context;
+import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.record.RecordBase;
 import edu.iu.grid.oim.model.db.record.ResourceAliasRecord;
 import edu.iu.grid.oim.model.db.record.ResourceContactRecord;
@@ -28,7 +28,7 @@ import edu.iu.grid.oim.model.db.record.VOResourceOwnershipRecord;
 public class ResourceModel extends SmallTableModelBase<ResourceRecord> {
     static Logger log = Logger.getLogger(ResourceModel.class);  
     
-    public ResourceModel(Context context) 
+    public ResourceModel(UserContext context) 
     {
     	super(context, "resource");
     }

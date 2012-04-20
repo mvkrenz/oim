@@ -18,7 +18,9 @@ import com.divrep.DivRep;
 import com.divrep.DivRepEvent;
 import com.divrep.common.DivRepButton;
 
+import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.StaticConfig;
+import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.OsgGridTypeModel;
 import edu.iu.grid.oim.model.db.ResourceGroupModel;
 import edu.iu.grid.oim.model.db.SiteModel;
@@ -39,27 +41,24 @@ import edu.iu.grid.oim.view.SideContentView;
 public class ResourceGroupServlet extends ServletBase implements Servlet {
 	private static final long serialVersionUID = 1L;
 	static Logger log = Logger.getLogger(ResourceGroupServlet.class);  
-	
-    public ResourceGroupServlet() {
-        // TODO Auto-generated constructor stub
-    }
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{	
-		//setContext(request);
+		UserContext context = new UserContext(request);
+		Authorization auth = context.getAuthorization();
 		//auth.check("edit_all_resource_group");
 		
 		try {
 			//construct view
 			BootMenuView menuview = new BootMenuView(context, "resourcegroup");
-			ContentView contentview = createContentView();
+			ContentView contentview = createContentView(context);
 			/*
 			//setup crumbs
 			BootBreadCrumbView bread_crumb = new BootBreadCrumbView();
 			bread_crumb.addCrumb("Resource Group",  null);
 			contentview.setBreadCrumb(bread_crumb);
 			*/
-			BootPage page = new BootPage(context, menuview, contentview, createSideView());
+			BootPage page = new BootPage(context, menuview, contentview, createSideView(context));
 			page.render(response.getWriter());			
 		} catch (SQLException e) {
 			log.error(e);
@@ -67,7 +66,7 @@ public class ResourceGroupServlet extends ServletBase implements Servlet {
 		}
 	}
 	
-	protected ContentView createContentView() 
+	protected ContentView createContentView(UserContext context) 
 		throws ServletException, SQLException
 	{
 		ContentView contentview = new ContentView();	
@@ -109,6 +108,7 @@ public class ResourceGroupServlet extends ServletBase implements Servlet {
 			};
 			table.add(new DivRepWrapper(new EditButtonDE(context.getPageRoot(), StaticConfig.getApplicationBase()+"/resourcegroupedit?id=" + rec.id)));
 			*/
+			Authorization auth = context.getAuthorization();
 			if(auth.allows("edit_all_resource_group")) {
 				table.add(new HtmlView("<a class=\"btn\" href=\"resourcegroupedit?id="+rec.id+"\">Edit</a>"));
 			}
@@ -117,7 +117,7 @@ public class ResourceGroupServlet extends ServletBase implements Servlet {
 		return contentview;
 	}
 	
-	private SideContentView createSideView()
+	private SideContentView createSideView(UserContext context)
 	{
 		SideContentView view = new SideContentView();
 		
@@ -135,6 +135,7 @@ public class ResourceGroupServlet extends ServletBase implements Servlet {
 			}
 		};
 		*/
+		Authorization auth = context.getAuthorization();
 		if(auth.isUser()) {
 			view.add(new HtmlView("<a class=\"btn\" href=\"resourcegroupedit\">Add New Resource Group</a>"));
 		}

@@ -12,7 +12,7 @@ import com.divrep.DivRepEvent;
 import com.divrep.common.DivRepFormElement;
 
 import edu.iu.grid.oim.lib.AuthorizationException;
-import edu.iu.grid.oim.model.Context;
+import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.ServiceModel;
 import edu.iu.grid.oim.model.db.record.ResourceRecord;
 import edu.iu.grid.oim.model.db.record.ResourceServiceDetailRecord;
@@ -23,9 +23,9 @@ public class ServiceDetails extends DivRepFormElement {
     static Logger log = Logger.getLogger(ServiceFormDE.class); 
 	private ServiceDetailsContent content = null;
 	private Integer service_id = null;
-	private Context context;
+	private UserContext context;
 	
-	public ServiceDetails(Context context, DivRep _parent) {
+	public ServiceDetails(UserContext context, DivRep _parent) {
 		super(_parent);
 		this.context = context;
 		// TODO Auto-generated constructor stub

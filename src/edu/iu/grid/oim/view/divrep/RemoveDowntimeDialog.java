@@ -10,7 +10,7 @@ import com.divrep.common.DivRepDialog;
 import com.divrep.common.DivRepStaticContent;
 
 import edu.iu.grid.oim.lib.StaticConfig;
-import edu.iu.grid.oim.model.Context;
+import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.ResourceDowntimeModel;
 import edu.iu.grid.oim.model.db.record.ResourceDowntimeRecord;
 import edu.iu.grid.oim.servlet.ResourceDowntimeServlet;
@@ -18,9 +18,9 @@ import edu.iu.grid.oim.servlet.ResourceDowntimeServlet;
 public class RemoveDowntimeDialog extends DivRepDialog {
 	static Logger log = Logger.getLogger(ResourceDowntimeServlet.class);  
 	ResourceDowntimeRecord rec;
-	Context context;
+	UserContext context;
 	
-	public RemoveDowntimeDialog(DivRep parent, Context context) {
+	public RemoveDowntimeDialog(DivRep parent, UserContext context) {
 		super(parent);
 		this.context = context;
 		setHasCancelButton(true);

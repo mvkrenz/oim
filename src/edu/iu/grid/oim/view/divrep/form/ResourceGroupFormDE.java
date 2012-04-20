@@ -21,7 +21,7 @@ import com.divrep.validator.DivRepUrlValidator;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.AuthorizationException;
-import edu.iu.grid.oim.model.Context;
+import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.ContactTypeModel;
 import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.OsgGridTypeModel;
@@ -49,7 +49,7 @@ import edu.iu.grid.oim.view.divrep.SiteSelector;
 public class ResourceGroupFormDE extends DivRepForm 
 {
     static Logger log = Logger.getLogger(ResourceGroupFormDE.class); 
-    private Context context;
+    private UserContext context;
     
 	protected Authorization auth;
 	private Integer id;
@@ -61,7 +61,7 @@ public class ResourceGroupFormDE extends DivRepForm
 	//private DivRepCheckBox active;
 	private DivRepCheckBox disable;
 	
-	public ResourceGroupFormDE(Context _context, ResourceGroupRecord rec, String origin_url) throws AuthorizationException, SQLException
+	public ResourceGroupFormDE(UserContext _context, ResourceGroupRecord rec, String origin_url) throws AuthorizationException, SQLException
 	{	
 		super(_context.getPageRoot(), origin_url);
 		context = _context;
@@ -176,7 +176,7 @@ public class ResourceGroupFormDE extends DivRepForm
 			alert(e.getMessage());
 			ret = false;
 		}
-		context.close();
+		//context.close();
 		return ret;
 	}
 	

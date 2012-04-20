@@ -13,7 +13,7 @@ import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 
 import edu.iu.grid.oim.lib.Authorization;
-import edu.iu.grid.oim.model.Context;
+import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.record.ContactRankRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.ContactTypeRecord;
@@ -26,7 +26,7 @@ import edu.iu.grid.oim.model.db.record.VOContactRecord;
 public class ResourceContactModel extends SmallTableModelBase<ResourceContactRecord> {
     static Logger log = Logger.getLogger(ResourceContactModel.class); 
 	
-	public ResourceContactModel(Context context) {
+	public ResourceContactModel(UserContext context) {
 		super(context, "resource_contact");
 	}
 	ResourceContactRecord createRecord() throws SQLException

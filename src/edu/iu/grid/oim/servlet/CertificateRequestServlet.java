@@ -13,8 +13,9 @@ import com.divrep.DivRep;
 import com.divrep.DivRepEvent;
 import com.divrep.common.DivRepButton;
 
+import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.StaticConfig;
-import edu.iu.grid.oim.model.Context;
+import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.servlet.RegisterServlet.RegistraitonForm;
@@ -29,22 +30,20 @@ import edu.iu.grid.oim.view.divrep.form.CertificateRequestUserForm;
 public class CertificateRequestServlet extends ServletBase  {
 	private static final long serialVersionUID = 1L;
     static Logger log = Logger.getLogger(CertificateRequestServlet.class);  
-    
-    public CertificateRequestServlet() {
-        super();
-        // TODO Auto-generated constructor stub
-    }
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{
+		UserContext context = new UserContext(request);
+		Authorization auth = context.getAuthorization();
+		
 		BootMenuView menuview = new BootMenuView(context, "certificate");
 		ContentView contentview;
-		contentview = createContentView();
+		contentview = createContentView(context);
 		BootPage page = new BootPage(context, menuview, contentview, createSideView());
 		page.render(response.getWriter());
 	}
 	
-	protected ContentView createContentView() throws ServletException
+	protected ContentView createContentView(UserContext context) throws ServletException
 	{
 		ContentView v = new ContentView();
 	
@@ -56,7 +55,7 @@ public class CertificateRequestServlet extends ServletBase  {
 		v.add(new HtmlView("  </ul>"));
 		v.add(new HtmlView("  <div class=\"tab-content\">"));
 		v.add(new HtmlView("    <div class=\"tab-pane active\" id=\"user\">"));
-		CertificateRequestUserForm form = new CertificateRequestUserForm(context, context.getPageRoot(), "certificate");
+		CertificateRequestUserForm form = new CertificateRequestUserForm(context, "certificate");
 		v.add(new DivRepWrapper(form));
 		v.add(new HtmlView("    </div>"));
 		v.add(new HtmlView("    <div class=\"tab-pane\" id=\"host\">"));

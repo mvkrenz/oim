@@ -41,7 +41,9 @@ import com.divrep.DivRepRoot;
 import com.divrep.common.DivRepButton;
 import com.divrep.common.DivRepSelectBox;
 
+import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.StaticConfig;
+import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.ActionModel;
 import edu.iu.grid.oim.model.db.CpuInfoModel;
 import edu.iu.grid.oim.model.db.DNModel;
@@ -65,15 +67,13 @@ import edu.iu.grid.oim.view.SideContentView;
 public class ReportDataServlet extends ServletBase implements Servlet {
 	private static final long serialVersionUID = 1L;
 	static Logger log = Logger.getLogger(ReportDataServlet.class);  
-	
-    public ReportDataServlet() {
-        // TODO Auto-generated constructor stub
-    }
     
     Integer days = 7;
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{	
+		UserContext context = new UserContext(request);
+		Authorization auth = context.getAuthorization();
 		auth.check("read_report.error");
 		try {
 			String days_str = request.getParameter("days");

@@ -11,7 +11,7 @@ import javax.xml.xpath.XPathExpressionException;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 
-import edu.iu.grid.oim.model.Context;
+import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.record.RecordBase;
 import edu.iu.grid.oim.model.db.record.ResourceRecord;
 import edu.iu.grid.oim.model.db.record.ResourceServiceDetailRecord;
@@ -20,7 +20,7 @@ import edu.iu.grid.oim.model.db.record.ServiceRecord;
 public class ResourceServiceDetailModel extends SmallTableModelBase<ResourceServiceDetailRecord> {
     static Logger log = Logger.getLogger(ResourceServiceDetailModel.class); 
 
-	public ResourceServiceDetailModel(Context context) {
+	public ResourceServiceDetailModel(UserContext context) {
 		super(context, "resource_service_detail");
 	}
 	ResourceServiceDetailRecord createRecord() throws SQLException

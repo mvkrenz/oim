@@ -12,7 +12,7 @@ import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 
 import edu.iu.grid.oim.lib.Authorization;
-import edu.iu.grid.oim.model.Context;
+import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.record.OsgGridTypeRecord;
 import edu.iu.grid.oim.model.db.record.RecordBase;
 import edu.iu.grid.oim.model.db.record.ResourceAliasRecord;
@@ -27,7 +27,7 @@ import edu.iu.grid.oim.model.db.record.VORecord;
 public class ResourceServiceModel extends SmallTableModelBase<ResourceServiceRecord> {
     static Logger log = Logger.getLogger(ResourceServiceModel.class); 
 
-	public ResourceServiceModel(Context context) {
+	public ResourceServiceModel(UserContext context) {
 		super(context, "resource_service");
 	}
 	ResourceServiceRecord createRecord() throws SQLException

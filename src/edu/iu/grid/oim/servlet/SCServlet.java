@@ -20,7 +20,9 @@ import com.divrep.common.DivRepButton;
 import com.divrep.common.DivRepStaticContent;
 import com.divrep.common.DivRepToggler;
 
+import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.StaticConfig;
+import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.ContactRankModel;
 import edu.iu.grid.oim.model.db.ContactTypeModel;
 import edu.iu.grid.oim.model.db.ContactModel;
@@ -54,14 +56,11 @@ import edu.iu.grid.oim.view.divrep.form.VOFormDE;
 public class SCServlet extends ServletBase implements Servlet {
 	private static final long serialVersionUID = 1L;
 	static Logger log = Logger.getLogger(SCServlet.class);  
-	
-    public SCServlet() {
-        // TODO Auto-generated constructor stub
-    }
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{	
-		//setContext(request);
+		UserContext context = new UserContext(request);
+		Authorization auth = context.getAuthorization();
 		//auth.check("edit_my_sc");
 		
 		try {		
@@ -96,10 +95,10 @@ public class SCServlet extends ServletBase implements Servlet {
 				if(rec.disable == true) {
 					contentview.add(new HtmlView("<div class=\"alert\">This Support Center is currently disabled.</div>"));
 				}
-				contentview.add(createSCContent(rec, model.canEdit(sc_id))); //false = no edit button	
-				sideview = createSideView();
+				contentview.add(createSCContent(context, rec, model.canEdit(sc_id))); //false = no edit button	
+				sideview = createSideView(context);
 			} else {
-				contentview = createListContent();
+				contentview = createListContent(context);
 			}
 			
 			BootPage page = new BootPage(context, menuview, contentview, sideview);
@@ -110,7 +109,7 @@ public class SCServlet extends ServletBase implements Servlet {
 		}
 	}
 	
-	protected ContentView createListContent() 
+	protected ContentView createListContent(UserContext context) 
 		throws ServletException, SQLException
 	{
 		SCModel model = new SCModel(context);
@@ -131,7 +130,7 @@ public class SCServlet extends ServletBase implements Servlet {
 		}
 		
 		ContentView contentview = new ContentView();
-		if(auth.isUser()) {
+		if(context.getAuthorization().isUser()) {
 			contentview.add(new HtmlView("<a href=\"scedit\" class=\"btn pull-right\"><i class=\"icon-plus-sign\"></i> Add New Support Center</a>"));
 			contentview.add(new HtmlView("<h2>My Support Centers</h2>"));
 			if(editable_scs.size() == 0) {
@@ -186,7 +185,7 @@ public class SCServlet extends ServletBase implements Servlet {
 		return contentview;
 	}
 	
-	public DivRep createSCContent(final SCRecord rec, final boolean show_edit_button) {
+	public DivRep createSCContent(UserContext context, final SCRecord rec, final boolean show_edit_button) {
 		RecordTableView table = new RecordTableView();
 		try {			
 		 	table.addRow("Long Name", rec.long_name);
@@ -228,7 +227,7 @@ public class SCServlet extends ServletBase implements Servlet {
 					table.addRow(ctrec.name + " " + tip.render(), new HtmlView(cliststr));
 				}
 			}			
-			if(auth.allows("admin")) {
+			if(context.getAuthorization().allows("admin")) {
 				table.addRow("Footprints ID", rec.footprints_id);
 			}
 			table.addRow("Active", rec.active);
@@ -259,14 +258,14 @@ public class SCServlet extends ServletBase implements Servlet {
 		return new ViewWrapper(context.getPageRoot(), table);
 	}
 	
-	private SideContentView createSideView()
+	private SideContentView createSideView(UserContext context)
 	{
 		SideContentView view = new SideContentView();
 		
 		//view.add(new HtmlView("<h3>Other Actions</h3>"));
 		//view.add(new HtmlView("<div class=\"indent\">"));
 		//view.add(new HtmlView("<div class=\"indent\">"));
-		if(auth.isUser()) {
+		if(context.getAuthorization().isUser()) {
 			view.add(new HtmlView("<p><a class=\"btn\" href=\"scedit\">Register New Support Center</a></p>"));
 		}
 		/*

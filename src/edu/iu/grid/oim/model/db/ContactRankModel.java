@@ -8,13 +8,13 @@ import javax.xml.xpath.XPathExpressionException;
 
 import org.w3c.dom.Document;
 
-import edu.iu.grid.oim.model.Context;
+import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.record.ContactRankRecord;
 import edu.iu.grid.oim.model.db.record.ContactTypeRecord;
 import edu.iu.grid.oim.model.db.record.RecordBase;
 
 public class ContactRankModel extends SmallTableModelBase<ContactRankRecord> {	
-	public ContactRankModel(Context _context) {
+	public ContactRankModel(UserContext _context) {
 		super(_context, "contact_rank");
 	}
 	ContactRankRecord createRecord() throws SQLException

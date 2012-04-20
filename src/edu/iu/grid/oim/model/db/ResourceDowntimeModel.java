@@ -15,7 +15,7 @@ import javax.xml.xpath.XPathExpressionException;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 
-import edu.iu.grid.oim.model.Context;
+import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.record.DNRecord;
 import edu.iu.grid.oim.model.db.record.DowntimeClassRecord;
 import edu.iu.grid.oim.model.db.record.DowntimeSeverityRecord;
@@ -32,7 +32,7 @@ public class ResourceDowntimeModel extends SmallTableModelBase<ResourceDowntimeR
     	public ArrayList<ResourceDowntimeServiceRecord> services;
     }
     
-	public ResourceDowntimeModel(Context context) {
+	public ResourceDowntimeModel(UserContext context) {
 		super(context, "resource_downtime");
 	}
 	

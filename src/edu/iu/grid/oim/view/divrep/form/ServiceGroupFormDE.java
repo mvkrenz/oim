@@ -19,7 +19,7 @@ import com.divrep.validator.DivRepUrlValidator;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.AuthorizationException;
-import edu.iu.grid.oim.model.Context;
+import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.ContactTypeModel;
 import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.OsgGridTypeModel;
@@ -48,7 +48,7 @@ import edu.iu.grid.oim.view.divrep.ResourceServices;
 public class ServiceGroupFormDE extends DivRepForm 
 {
     static Logger log = Logger.getLogger(ServiceGroupFormDE.class); 
-    private Context context;
+    private UserContext context;
    
 	protected Authorization auth;
 	private Integer id;
@@ -56,7 +56,7 @@ public class ServiceGroupFormDE extends DivRepForm
 	private DivRepTextBox name;
 	private DivRepTextArea description;
 	
-	public ServiceGroupFormDE(Context _context, ServiceGroupRecord rec, String origin_url) throws AuthorizationException, SQLException
+	public ServiceGroupFormDE(UserContext _context, ServiceGroupRecord rec, String origin_url) throws AuthorizationException, SQLException
 	{	
 		super(_context.getPageRoot(), origin_url);
 		context = _context;
@@ -107,7 +107,7 @@ public class ServiceGroupFormDE extends DivRepForm
 			alert(e.getMessage());
 			ret = false;
 		}
-		context.close();
+		//context.close();
 		return ret;
 	}
 	

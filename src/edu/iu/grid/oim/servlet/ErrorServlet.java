@@ -18,7 +18,7 @@ import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.AuthorizationException;
 import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.lib.SendMail_deprecated;
-import edu.iu.grid.oim.model.Context;
+import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.view.BootMenuView;
 import edu.iu.grid.oim.view.BootPage;
 import edu.iu.grid.oim.view.ContentView;
@@ -34,16 +34,11 @@ public class ErrorServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	static Logger log = Logger.getLogger(Authorization.class);  
 
-    public ErrorServlet() {
-        super();
-        // TODO Auto-generated constructor stub
-    }
-
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{
-		BootMenuView menuview = new BootMenuView(Context.getGuestContext(), "_error_");
+		BootMenuView menuview = new BootMenuView(UserContext.getGuestContext(), "_error_");
 		ContentView contentview = createContentView(request);		
-		BootPage page = new BootPage(Context.getGuestContext(), menuview, contentview, new SideContentView());
+		BootPage page = new BootPage(UserContext.getGuestContext(), menuview, contentview, new SideContentView());
 		page.render(response.getWriter());	
 	}
 	

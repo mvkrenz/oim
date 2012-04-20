@@ -15,7 +15,9 @@ import com.divrep.DivRepEvent;
 import com.divrep.DivRepRoot;
 import com.divrep.common.DivRepButton;
 
+import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.StaticConfig;
+import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.MetricModel;
 import edu.iu.grid.oim.model.db.MetricServiceModel;
 import edu.iu.grid.oim.model.db.ResourceDowntimeModel;
@@ -42,20 +44,17 @@ import edu.iu.grid.oim.view.SideContentView;
 public class ServiceServlet extends ServletBase implements Servlet {
 	private static final long serialVersionUID = 1L;
 	static Logger log = Logger.getLogger(ServiceServlet.class);  
-	
-    public ServiceServlet() {
-        // TODO Auto-generated constructor stub
-    }
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{	
-		//setContext(request);
+		UserContext context = new UserContext(request);
+		Authorization auth = context.getAuthorization();
 		auth.check("admin");
 		
 		try {	
 			//construct view
 			BootMenuView menuview = new BootMenuView(context, "admin");
-			ContentView contentview = createContentView();
+			ContentView contentview = createContentView(context);
 			
 			//setup crumbs
 			BootBreadCrumbView bread_crumb = new BootBreadCrumbView();
@@ -71,7 +70,7 @@ public class ServiceServlet extends ServletBase implements Servlet {
 		}
 	}
 	
-	protected ContentView createContentView() 
+	protected ContentView createContentView(UserContext context) 
 		throws ServletException, SQLException
 	{
 		ContentView contentview = new ContentView();	
@@ -98,7 +97,7 @@ public class ServiceServlet extends ServletBase implements Servlet {
 			GenericView metric_view = new GenericView();
 			MetricServiceModel dmodel = new MetricServiceModel(context);
 			for(MetricServiceRecord drec : dmodel.getAllByServiceID(rec.id)) {
-				metric_view.add(createMetricView(drec));
+				metric_view.add(createMetricView(context, drec));
 			}
 			table.addRow("Metrics", metric_view);
 		
@@ -123,7 +122,7 @@ public class ServiceServlet extends ServletBase implements Servlet {
 		return contentview;
 	}
 
-	private IView createMetricView(MetricServiceRecord rec) 
+	private IView createMetricView(UserContext context, MetricServiceRecord rec) 
 	{
 		GenericView view = new GenericView();
 		RecordTableView table = new RecordTableView("inner_table");

@@ -17,8 +17,7 @@ public class VORecord extends ConfirmableRecord {
 	public Integer sc_id;
 	public Boolean active;
 	public Boolean disable;
-	public String footprints_id;
-	//public String external_assignment_id;
+	//public String footprints_id;
 	
 	public Boolean science_vo;
 	public String primary_url;

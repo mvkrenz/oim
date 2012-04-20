@@ -23,7 +23,7 @@ import com.divrep.common.DivRepToggler;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.StaticConfig;
-import edu.iu.grid.oim.model.Context;
+import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.FacilityModel;
 import edu.iu.grid.oim.model.db.ResourceGroupModel;
 import edu.iu.grid.oim.model.db.ResourceModel;
@@ -36,9 +36,9 @@ import edu.iu.grid.oim.model.db.record.SiteRecord;
 public class SiteSelector extends DivRepSelectBox {
 
 	static Logger log = Logger.getLogger(SiteSelector.class);  
-    private Context context;
+    private UserContext context;
 
-    public SiteSelector(DivRep parent, Context _context) {
+    public SiteSelector(DivRep parent, UserContext _context) {
 		super(parent);
 		context = _context;
 		

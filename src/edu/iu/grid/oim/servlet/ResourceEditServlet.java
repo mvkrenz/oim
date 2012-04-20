@@ -15,9 +15,10 @@ import com.divrep.DivRepEvent;
 import com.divrep.common.DivRepButton;
 import com.divrep.common.DivRepForm;
 
+import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.AuthorizationException;
 import edu.iu.grid.oim.lib.StaticConfig;
-import edu.iu.grid.oim.model.Context;
+import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.ResourceModel;
 import edu.iu.grid.oim.model.db.record.ResourceRecord;
 import edu.iu.grid.oim.model.db.record.ResourceWLCGRecord;
@@ -39,12 +40,10 @@ public class ResourceEditServlet extends ServletBase implements Servlet {
 	static Logger log = Logger.getLogger(ResourceEditServlet.class);  
 	private String parent_page = "topology";	
 
-    public ResourceEditServlet() {
-        super();
-    }
-
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{
+		UserContext context = new UserContext(request);
+		Authorization auth = context.getAuthorization();		
 		auth.check("edit_my_resource");
 
 		ResourceRecord rec;

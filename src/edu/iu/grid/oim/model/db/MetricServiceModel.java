@@ -10,7 +10,7 @@ import javax.xml.xpath.XPathExpressionException;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 
-import edu.iu.grid.oim.model.Context;
+import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.record.FacilityRecord;
 import edu.iu.grid.oim.model.db.record.MetricRecord;
 import edu.iu.grid.oim.model.db.record.MetricServiceRecord;
@@ -21,7 +21,7 @@ import edu.iu.grid.oim.model.db.record.ServiceRecord;
 public class MetricServiceModel extends SmallTableModelBase<MetricServiceRecord> {
     static Logger log = Logger.getLogger(MetricServiceModel.class);  
     
-    public MetricServiceModel(Context context) 
+    public MetricServiceModel(UserContext context) 
     {
     	super(context, "metric_service");
     }

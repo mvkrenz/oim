@@ -11,14 +11,14 @@ import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 
 import edu.iu.grid.oim.lib.Authorization;
-import edu.iu.grid.oim.model.Context;
+import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.record.ActionRecord;
 import edu.iu.grid.oim.model.db.record.RecordBase;
 
 public class ActionModel extends SmallTableModelBase<ActionRecord> {
     static Logger log = Logger.getLogger(ActionModel.class);  
     
-    public ActionModel(Context context) 
+    public ActionModel(UserContext context) 
     {
     	super(context, "action");
     }
@@ -46,7 +46,7 @@ public class ActionModel extends SmallTableModelBase<ActionRecord> {
 	public Boolean hasLogAccess(XPath xpath, Document doc) throws XPathExpressionException
 	{
 		//Integer id = Integer.parseInt((String)xpath.evaluate("//Keys/Key[Name='id']/Value", doc, XPathConstants.STRING));
-		if(auth.allows("admin")) {
+		if(context.getAuthorization().allows("admin")) {
 			return true;
 		}
 		return false;

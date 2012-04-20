@@ -15,6 +15,7 @@ import com.divrep.DivRepRoot;
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.StaticConfig;
 
+import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.FacilityModel;
 import edu.iu.grid.oim.model.db.record.FacilityRecord;
 
@@ -36,13 +37,10 @@ public class FacilityEditServlet extends ServletBase implements Servlet {
 	static Logger log = Logger.getLogger(FacilityEditServlet.class);  
 	private String parent_page = "topology";	
 
-    public FacilityEditServlet() {
-        super();
-    }
-
-	protected void doGet(HttpServletRequest request,
-			HttpServletResponse response) throws ServletException, IOException {
-		// setContext(request);
+	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
+	{
+		UserContext context = new UserContext(request);
+		Authorization auth = context.getAuthorization();
 		auth.check("edit_all_facility");
 
 		FacilityRecord rec;

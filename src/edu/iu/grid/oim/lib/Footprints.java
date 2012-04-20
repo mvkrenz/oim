@@ -17,9 +17,10 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import edu.iu.grid.oim.model.Context;
+import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.ConfigModel;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
+import edu.iu.grid.oim.model.db.record.SCRecord;
 import edu.iu.grid.oim.view.HtmlFileView;
 
 public class Footprints 
@@ -27,7 +28,7 @@ public class Footprints
     static Logger log = Logger.getLogger(Footprints.class); 
     
 	Authorization auth;
-	ConfigModel config;
+	//ConfigModel config;
 	/*
 	SOAPBody body;
 	SOAPEnvelope env;
@@ -35,10 +36,10 @@ public class Footprints
 	SOAPMessage msg;
 	*/
 
-	public Footprints(Context context)
+	public Footprints(UserContext context)
 	{
 		auth = context.getAuthorization();
-		config = new ConfigModel(context);
+		//config = new ConfigModel();
 		
 		/*
 		//using program listed here > http://blogs.sun.com/andreas/entry/no_more_unable_to_find to create the trusted keystore
@@ -718,11 +719,12 @@ public class Footprints
 		return false;
 	}
 	
-	public void createNewResourceTicket(String resource_name, String sc_footprint_id)
+	public void createNewResourceTicket(String resource_name, SCRecord sc)
 	{
 		FPTicket ticket = new FPTicket();
 		
 		//create description
+		ConfigModel config = new ConfigModel();
 		HtmlFileView description = new HtmlFileView(config.ResourceFPTemplate.get());
 		HashMap<String, String> params = new HashMap<String, String>();
 		params.put("##RESOURCE_NAME##", resource_name);
@@ -746,8 +748,9 @@ public class Footprints
 			ticket.assignees.add("kagross");
             ticket.ccs.add("rquick@iu.edu");
             ticket.ccs.add("ruth@fnal.gov");
-            if(sc_footprint_id != null) {
-            	ticket.assignees.add(sc_footprint_id);
+            if(sc != null && sc.footprints_id != null) {
+            	ticket.assignees.add(sc.footprints_id);
+            	ticket.metadata.put("SUPPORTING_SC_ID", sc.id.toString());
             }
 		}
 		
@@ -762,6 +765,7 @@ public class Footprints
 		FPTicket ticket = new FPTicket();
 		
 		//create description
+		ConfigModel config = new ConfigModel();
 		HtmlFileView description = new HtmlFileView(config.SCFPTemplate.get());
 		HashMap<String, String> params = new HashMap<String, String>();
 		params.put("##SC_NAME##", sc_name);
@@ -794,10 +798,11 @@ public class Footprints
 		}
 	}
 	
-	public void createNewVOTicket(String vo_name, String sc_footprint_id) {
+	public void createNewVOTicket(String vo_name, SCRecord sc) {
 		FPTicket ticket = new FPTicket();
 		
 		//create description
+		ConfigModel config = new ConfigModel();
 		HtmlFileView description = new HtmlFileView(config.VOFPTemplate.get());	
 		HashMap<String, String> params = new HashMap<String, String>();
 		params.put("##VO_NAME##", vo_name);
@@ -822,6 +827,10 @@ public class Footprints
             ticket.ccs.add("rquick@iu.edu");
             ticket.ccs.add("ruth@fnal.gov");
             ticket.ccs.add("osg-security-team@OPENSCIENCEGRID.ORG");
+            if(sc != null && sc.footprints_id != null) {
+            	ticket.assignees.add(sc.footprints_id);
+            	ticket.metadata.put("SUPPORTING_SC_ID", sc.id.toString());
+            }
 		}
 		
 		String id = open(ticket);

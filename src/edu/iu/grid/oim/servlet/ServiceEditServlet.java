@@ -12,7 +12,9 @@ import org.apache.log4j.Logger;
 
 import com.divrep.DivRepRoot;
 
+import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.StaticConfig;
+import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.ServiceModel;
 import edu.iu.grid.oim.model.db.record.ServiceRecord;
 import edu.iu.grid.oim.view.BootBreadCrumbView;
@@ -32,13 +34,10 @@ public class ServiceEditServlet extends ServletBase implements Servlet {
 	static Logger log = Logger.getLogger(ServiceEditServlet.class);  
 	private String parent_page = "service";	
 
-    public ServiceEditServlet() {
-        super();
-    }
-
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{
-		//setContext(request);
+		UserContext context = new UserContext(request);
+		Authorization auth = context.getAuthorization();
 		auth.check("admin");
 		
 		ServiceRecord rec;

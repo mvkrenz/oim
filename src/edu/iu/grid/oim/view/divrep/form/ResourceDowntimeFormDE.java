@@ -9,7 +9,7 @@ import com.divrep.common.DivRepForm;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.AuthorizationException;
-import edu.iu.grid.oim.model.Context;
+import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.ResourceDowntimeModel;
 import edu.iu.grid.oim.model.db.ResourceDowntimeModel.ResourceDowntime;
 import edu.iu.grid.oim.model.db.record.ResourceDowntimeRecord;
@@ -19,14 +19,14 @@ public class ResourceDowntimeFormDE extends DivRepForm
 {
     static Logger log = Logger.getLogger(ResourceDowntimeFormDE.class); 
     
-    private Context context;
+    private UserContext context;
     private Authorization auth;
 	private Integer resource_id;
 	private Integer downtime_id;
 	
 	private ResourceDowntimeEditor editor;
 	
-	public ResourceDowntimeFormDE(Context _context, String origin_url, Integer rid, Integer did, TimeZone _timezone) throws AuthorizationException, SQLException
+	public ResourceDowntimeFormDE(UserContext _context, String origin_url, Integer rid, Integer did, TimeZone _timezone) throws AuthorizationException, SQLException
 	{	
 		super(_context.getPageRoot(), origin_url);
 		context = _context;
@@ -63,7 +63,7 @@ public class ResourceDowntimeFormDE extends DivRepForm
 			alert(e.getMessage());
 			ret = false;
 		}
-		context.close();
+		//context.close();
 		return ret;
 	}
 }

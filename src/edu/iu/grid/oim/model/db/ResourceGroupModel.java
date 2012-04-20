@@ -7,7 +7,7 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathExpressionException;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
-import edu.iu.grid.oim.model.Context;
+import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.record.OsgGridTypeRecord;
 import edu.iu.grid.oim.model.db.record.RecordBase;
 import edu.iu.grid.oim.model.db.record.ResourceGroupRecord;
@@ -17,7 +17,7 @@ import edu.iu.grid.oim.model.db.record.SiteRecord;
 public class ResourceGroupModel extends SmallTableModelBase<ResourceGroupRecord> {
     static Logger log = Logger.getLogger(ResourceGroupModel.class); 
 
-	public ResourceGroupModel(Context context) {
+	public ResourceGroupModel(UserContext context) {
 		super(context, "resource_group");
 	}
 	ResourceGroupRecord createRecord() throws SQLException

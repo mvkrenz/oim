@@ -17,19 +17,18 @@ import com.divrep.DivRepRoot;
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.AuthorizationException;
 
-public class Context {
-    static Logger log = Logger.getLogger(Context.class);  
+//provides easy access to various object that are user specific
+public class UserContext {
+    static Logger log = Logger.getLogger(UserContext.class);  
     
     private DivRepRoot divrep_root;
 	private DivRepPage divrep_pageroot;
 	
 	private Authorization auth = new Authorization();
+	private Connection connection;
 	private String request_url;
 	private HttpSession session;
 	private String remote_addr;
-	
-	//DB connection that we will reuse everywhere... it's OIM DB 100% of the time..
-	private Connection connection = null;
 
 	//stores the reason for current transaction (used for log table)
 	//why should this work? because *usually* all update within a session occurs under common purpose.
@@ -38,7 +37,7 @@ public class Context {
 	public String getComment() { return comment; }
 	public String getRemoteAddr() { return remote_addr; }
 	
-	public Context(HttpServletRequest request) throws AuthorizationException
+	public UserContext(HttpServletRequest request) throws AuthorizationException
 	{	
 		//don't store request object because it can get stale really fast... (was causing issue when divrep tries to get session from it)
 		//request = _request;	
@@ -51,37 +50,18 @@ public class Context {
 		remote_addr = request.getRemoteAddr();
 	}
 	
-	protected void finalize() throws Throwable {
-	    try {
-	        close(); 
-	    } finally {
-	        super.finalize();
-	    }
-	}
-
-
-	public static Context getGuestContext()
+	public static UserContext getGuestContext()
 	{
-		return new Context();
+		return new UserContext();
 	}
-	private Context()
+	private UserContext()
 	{
 	}
 
-	public void close()
-	{
-		try {
-			if(connection != null) {
-				if (!connection.isClosed()) {
-					log.info("Closing connection: " + connection.toString());
-					connection.close();
-					
-				}
-			}
-		} catch (SQLException e) {
-			log.info("Failed to reset session for divrep (it's okay if this caused by invalidated session)", e);
-		} 
-		
+	/*
+	//call this function to ensure that any update made to divrep object will be serialized across container
+	public void storeDivRepSession()
+	{		
 		try {
 			if(divrep_root != null) {	
 				divrep_root.setSession(session);
@@ -90,58 +70,10 @@ public class Context {
 			log.info("Failed to reset session for divrep (it's okay if this caused by invalidated session)", e);
 		}
 	}
-	
-	/*
-	I don't know why, but JDBC's isValid() function doesn't work.. When I use it I get following exception
-	
-	java.lang.AbstractMethodError: org.apache.tomcat.dbcp.dbcp.PoolingDataSource$PoolGuardConnectionWrapper.isValid(I)Z
-	at edu.iu.grid.oim.model.Context.isConnectionValid(Context.java:95)
-
-	 */
-	public boolean isConnectionValid() {
-		if (connection == null)
-			return false;
-		
-		//my version of isValid()... since JDBC.isValid() doesn't work!
-		try {
-			if (connection.isClosed()) {
-				//log.warn("OIM connection is closed...");
-				return false;
-			}
-			connection.getMetaData();
-		} catch (Exception e) {
-			//log.warn("OIM connection is stale...");
-			return false;
-		}
-		return true;
-		
-	}
+	*/
 	
 	
 	//make sure to close the connection as soon as you are done (inside the same function that you call connectOIM)
-	public Connection connect(String ctx) throws SQLException
-	{	
-		if(isConnectionValid()) {
-			return connection;
-		}
-		
-		//reconnect
-		try {
-			javax.naming.Context initContext = new InitialContext();
-			javax.naming.Context envContext = (javax.naming.Context)initContext.lookup("java:/comp/env");
-			DataSource ds = (DataSource)envContext.lookup(ctx);
-			connection = ds.getConnection();
-			log.info("Requesting new db connection: context=" + ctx + " connection=" + connection.toString() + " for " + auth.getUserDN());
-			initContext.close();
-			
-			TimeZone.setDefault(TimeZone.getTimeZone("UTC"));
-			
-			return connection;
-		} catch (NamingException e) {
-			log.error(e);
-		}
-		return null;
-	}
 	
 	public Authorization getAuthorization()
 	{
@@ -156,7 +88,6 @@ public class Context {
 	{
 		return request_url;
 	}
-
 	
 	private void setRequestURL(HttpServletRequest request) {
 		request_url = "";

@@ -6,14 +6,14 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathExpressionException;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
-import edu.iu.grid.oim.model.Context;
+import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.record.DowntimePublishWLCGRecord;
 import edu.iu.grid.oim.model.db.record.RecordBase;
 
 public class DowntimePublishWLCGModel extends SmallTableModelBase<DowntimePublishWLCGRecord> {
     static Logger log = Logger.getLogger(DowntimePublishWLCGModel.class);  
     
-    public DowntimePublishWLCGModel(Context context) 
+    public DowntimePublishWLCGModel(UserContext context) 
     {
     	super(context, "downtime_publish_wlcg");
     }

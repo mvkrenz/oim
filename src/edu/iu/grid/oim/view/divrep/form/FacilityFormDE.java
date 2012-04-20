@@ -23,7 +23,7 @@ import com.divrep.validator.DivRepUrlValidator;
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Footprints;
 import edu.iu.grid.oim.lib.AuthorizationException;
-import edu.iu.grid.oim.model.Context;
+import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.FacilityModel;
 import edu.iu.grid.oim.model.db.record.RecordBase;
 import edu.iu.grid.oim.model.db.record.FacilityRecord;
@@ -34,7 +34,7 @@ public class FacilityFormDE extends DivRepForm
 {
     static Logger log = Logger.getLogger(FacilityFormDE.class); 
    
-    private Context context;
+    private UserContext context;
     private Authorization auth;
 	private Integer id;
 	
@@ -43,7 +43,7 @@ public class FacilityFormDE extends DivRepForm
 	private DivRepCheckBox active;
 	private DivRepCheckBox disable;
 	
-	public FacilityFormDE(Context _context, FacilityRecord rec, String origin_url) throws AuthorizationException, SQLException
+	public FacilityFormDE(UserContext _context, FacilityRecord rec, String origin_url) throws AuthorizationException, SQLException
 	{	
 		super(_context.getPageRoot(), origin_url);
 		context = _context;
@@ -129,7 +129,7 @@ public class FacilityFormDE extends DivRepForm
 			alert(e.getMessage());
 			ret =  false;
 		}
-		context.close();
+		//context.close();
 		return ret;
 	}
 }

@@ -26,7 +26,7 @@ import com.divrep.common.DivRepStaticContent;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.StaticConfig;
-import edu.iu.grid.oim.model.Context;
+import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.view.divrep.form.ContactFormDE;
@@ -45,13 +45,10 @@ public class ProfileEditServlet extends ServletBase implements Servlet {
 	private String parent_page = "home";	
 	private ContactFormDE form;
 	
-    public ProfileEditServlet() {
-        super();
-    }
-
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{
-		// Probably ok to use this auth level since a profile is one's own contact information? -agopu 2010-04-22
+		UserContext context = new UserContext(request);
+		Authorization auth = context.getAuthorization();
 		auth.check("edit_my_contact");
 		
 		ContactRecord rec;
@@ -71,7 +68,7 @@ public class ProfileEditServlet extends ServletBase implements Servlet {
 			*/
 			contentview.add(new DivRepWrapper(form));
 			
-			BootPage page = new BootPage(context, new BootMenuView(context, "profileedit"), contentview, createSideView());
+			BootPage page = new BootPage(context, new BootMenuView(context, "profileedit"), contentview, createSideView(context));
 			page.render(response.getWriter());	
 			
 		} catch (SQLException e) {
@@ -79,8 +76,9 @@ public class ProfileEditServlet extends ServletBase implements Servlet {
 		}
 	}
 	
-	private SideContentView createSideView() throws SQLException
+	private SideContentView createSideView(UserContext context) throws SQLException
 	{
+		Authorization auth = context.getAuthorization();
 		SideContentView view = new SideContentView();
 		/*
 		view.add("About", new HtmlView("<p>This page lets you edit your OIM profile.</p>"+

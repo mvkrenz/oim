@@ -7,14 +7,14 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathExpressionException;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
-import edu.iu.grid.oim.model.Context;
+import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.record.RecordBase;
 import edu.iu.grid.oim.model.db.record.ServiceGroupRecord;
 
 public class ServiceGroupModel extends SmallTableModelBase<ServiceGroupRecord> {
     static Logger log = Logger.getLogger(ServiceGroupModel.class);  
 	
-    public ServiceGroupModel(Context context) 
+    public ServiceGroupModel(UserContext context) 
     {
     	super(context, "service_group");
     }

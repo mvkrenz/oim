@@ -5,26 +5,22 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
+
 import org.apache.log4j.Logger;
 
-import edu.iu.grid.oim.lib.Authorization;
-import edu.iu.grid.oim.model.Context;
+import javax.sql.DataSource;
+
 
 public class ConfigModel {
 	
-	/*
-	public class ConfigException extends Exception {
-		public ConfigException(String msg) {
-			super(msg);
-		}
-	}
-	*/
 	public class NoSuchConfigException extends Exception {}
-	
     static Logger log = Logger.getLogger(ConfigModel.class);  
     
-    protected Context context;
-	protected Authorization auth;
+    //protected Connection connection;
+	//protected Authorization auth;
 	
 	public class Config {
 		String key;
@@ -60,15 +56,25 @@ public class ConfigModel {
 	public Config SCFPTemplate = new Config(this, "resource_sc_template", 
 		"here is my default sc template");	
 	
-	public ConfigModel(Context context)
-	{
-		this.context = context;
-		auth = context.getAuthorization();
+    private DataSource _oimds = null;
+	protected Connection connectOIM() throws SQLException {
+		if(_oimds == null) {
+		    try {
+		    	
+		    	Context initContext = new InitialContext();
+		    	Context envContext  = (Context)initContext.lookup("java:/comp/env");
+		    	_oimds = (DataSource)envContext.lookup("jdbc/oim");
+		    } catch( NamingException ne ) {
+		    	throw new RuntimeException( "Unable to aquire data source", ne );
+		    }
+		}
+		
+		return _oimds.getConnection();
 	}
-
+	
 	private String get(String key) throws SQLException, NoSuchConfigException {
-		Connection conn = context.connect("jdbc/oim");
-		PreparedStatement stmt = conn.prepareStatement("SELECT `value` FROM config WHERE `key` = ?");
+		Connection connection = connectOIM();
+		PreparedStatement stmt = connection.prepareStatement("SELECT `value` FROM config WHERE `key` = ?");
 		stmt.setString(1, key);
 		String value = null;
 		ResultSet rs = stmt.executeQuery();
@@ -82,24 +88,25 @@ public class ConfigModel {
 	    	log.error("ConfigModel::get didn't return result set");
 	    }
 	    stmt.close();
+	    connection.close();
 	    return value;
 	}
 	
 	private void set(String key, String value) throws SQLException {
-		Connection conn = context.connect("jdbc/oim");
+		Connection connection = connectOIM();
 		int affected;
 		try {
 			//does the value exist?
 			get(key);
 			
 			//update the value
-			PreparedStatement stmt = conn.prepareStatement("UPDATE config SET `value` = ? WHERE `key` = ?");
+			PreparedStatement stmt = connection.prepareStatement("UPDATE config SET `value` = ? WHERE `key` = ?");
 			stmt.setString(1, value);
 			stmt.setString(2, key);
 			affected = stmt.executeUpdate();
 		} catch (NoSuchConfigException e) {
 			//never been set before.. insert
-			PreparedStatement stmt = conn.prepareStatement("INSERT INTO config (`key`, `value`) VALUES (?,?)");
+			PreparedStatement stmt = connection.prepareStatement("INSERT INTO config (`key`, `value`) VALUES (?,?)");
 			stmt.setString(1, key);
 			stmt.setString(2, value);	
 			affected = stmt.executeUpdate();
@@ -107,6 +114,7 @@ public class ConfigModel {
 		if(affected != 1) {
 			log.error("Failed to set " + key + " with value " + value);
 		}
+		connection.close();
 	}
 	
 

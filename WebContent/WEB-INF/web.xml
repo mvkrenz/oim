@@ -703,5 +703,10 @@
 		<exception-type>javax.servlet.ServletException</exception-type>
 		<location>/error</location>
 	</error-page>
+		<error-page>
+		<exception-type>edu.iu.grid.oim.lib.AuthorizationException</exception-type>
+		<location>/error</location>
+	</error-page>
+	
 
 </web-app>

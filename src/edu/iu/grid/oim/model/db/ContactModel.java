@@ -18,7 +18,7 @@ import org.w3c.dom.Document;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.StaticConfig;
-import edu.iu.grid.oim.model.Context;
+import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.DNRecord;
 import edu.iu.grid.oim.model.db.record.RecordBase;
@@ -30,7 +30,7 @@ import edu.iu.grid.oim.model.db.record.VORecord;
 public class ContactModel extends SmallTableModelBase<ContactRecord> {
     static Logger log = Logger.getLogger(ContactModel.class);  
 
-    public ContactModel(Context _context) 
+    public ContactModel(UserContext _context) 
     {
     	super(_context, "contact");
     }

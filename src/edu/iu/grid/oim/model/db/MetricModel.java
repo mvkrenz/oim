@@ -9,14 +9,14 @@ import javax.xml.xpath.XPathExpressionException;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 
-import edu.iu.grid.oim.model.Context;
+import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.record.MetricRecord;
 import edu.iu.grid.oim.model.db.record.RecordBase;
 
 public class MetricModel extends SmallTableModelBase<MetricRecord> {
     static Logger log = Logger.getLogger(MetricModel.class);  
     
-    public MetricModel(Context context) 
+    public MetricModel(UserContext context) 
     {
     	super(context, "metric");
     }

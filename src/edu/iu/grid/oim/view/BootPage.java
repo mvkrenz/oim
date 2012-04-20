@@ -12,12 +12,12 @@ import org.apache.log4j.Logger;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.StaticConfig;
-import edu.iu.grid.oim.model.Context;
+import edu.iu.grid.oim.model.UserContext;
 
 public class BootPage implements IView {
 	static Logger log = Logger.getLogger(BootPage.class);  
 	
-    protected Context context;
+    protected UserContext context;
 	private HashMap<String, String> params = new HashMap<String, String>();
 	private ArrayList<String> css = new ArrayList<String>();
     
@@ -34,7 +34,7 @@ public class BootPage implements IView {
 		css.add(path);
 	}
 	
-	public BootPage(Context _context, IView _menu, IView _content, IView _side)
+	public BootPage(UserContext _context, IView _menu, IView _content, IView _side)
 	{
 		context = _context;
 		header = new HtmlFileView(getClass().getResourceAsStream("boot_header.txt"));
@@ -57,8 +57,10 @@ public class BootPage implements IView {
 		
 		if(auth.isGuest()) {
 			params.put("__BASE__", StaticConfig.conf.getProperty("application.guestbase"));	
+			params.put("__GOCTICKET__", "http://ticket.grid.iu.edu/goc");
 		} else {
 			params.put("__BASE__", StaticConfig.getApplicationBase());
+			params.put("__GOCTICKET__", "https://ticket.grid.iu.edu/goc");
 		}
 		
 		if(StaticConfig.isDebug()) {
@@ -68,6 +70,7 @@ public class BootPage implements IView {
 		}
 		params.put("__VERSION__", StaticConfig.getVersion());
 		//log.debug(StaticConfig.conf.getProperty("debug"));
+	
 		
 		try {
 			String request_uri = context.getRequestURL();

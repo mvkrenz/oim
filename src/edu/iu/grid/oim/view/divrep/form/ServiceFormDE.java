@@ -17,7 +17,7 @@ import com.divrep.validator.DivRepUniqueValidator;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.AuthorizationException;
-import edu.iu.grid.oim.model.Context;
+import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.MetricModel;
 import edu.iu.grid.oim.model.db.MetricServiceModel;
 import edu.iu.grid.oim.model.db.ServiceGroupModel;
@@ -31,7 +31,7 @@ import edu.iu.grid.oim.view.divrep.MetricService;
 public class ServiceFormDE extends DivRepForm 
 {
     static Logger log = Logger.getLogger(ServiceFormDE.class); 
-    private Context context;
+    private UserContext context;
     
 	protected Authorization auth;
 	private Integer id;
@@ -43,7 +43,7 @@ public class ServiceFormDE extends DivRepForm
 	//private DivRepTextBox type; //TODO - turn this into selectbox instead
 	private MetricService metric_service;
 	
-	public ServiceFormDE(Context _context, ServiceRecord rec, String origin_url) throws AuthorizationException, SQLException
+	public ServiceFormDE(UserContext _context, ServiceRecord rec, String origin_url) throws AuthorizationException, SQLException
 	{	
 		super(_context.getPageRoot(), origin_url);
 		context = _context;
@@ -145,7 +145,7 @@ public class ServiceFormDE extends DivRepForm
 			alert(e.getMessage());
 			ret = false;
 		}
-		context.close();
+		//context.close();
 		return ret;
 	}
 

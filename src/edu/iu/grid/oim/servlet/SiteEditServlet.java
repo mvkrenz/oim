@@ -16,6 +16,7 @@ import com.divrep.common.DivRepStaticContent;
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.StaticConfig;
 
+import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.SiteModel;
 import edu.iu.grid.oim.model.db.record.SiteRecord;
 import edu.iu.grid.oim.view.BootBreadCrumbView;
@@ -36,13 +37,10 @@ public class SiteEditServlet extends ServletBase implements Servlet {
 	static Logger log = Logger.getLogger(SiteEditServlet.class);  
 	private String parent_page = "topology";	
 
-    public SiteEditServlet() {
-        super();
-    }
-
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{
-		//setContext(request);
+		UserContext context = new UserContext(request);
+		Authorization auth = context.getAuthorization();
 		auth.check("edit_all_site");
 		
 		SiteRecord rec;

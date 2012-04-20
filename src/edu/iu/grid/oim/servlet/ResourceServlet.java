@@ -21,7 +21,9 @@ import com.divrep.common.DivRepButton;
 import com.divrep.common.DivRepStaticContent;
 import com.divrep.common.DivRepToggler;
 
+import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.StaticConfig;
+import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.ContactRankModel;
 import edu.iu.grid.oim.model.db.ContactTypeModel;
 import edu.iu.grid.oim.model.db.ContactModel;
@@ -81,13 +83,11 @@ import edu.iu.grid.oim.view.divrep.form.SiteFormDE;
 public class ResourceServlet extends ServletBase implements Servlet {
 	private static final long serialVersionUID = 1L;
 	static Logger log = Logger.getLogger(ResourceServlet.class);  
-	
-    public ResourceServlet() {
-        // TODO Auto-generated constructor stub
-    }
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{	
+		UserContext context = new UserContext(request);
+		Authorization auth = context.getAuthorization();
 		//auth.check("edit_my_resource");
 		
 		try {
@@ -118,13 +118,13 @@ public class ResourceServlet extends ServletBase implements Servlet {
 				if(rec.disable == true) {
 					contentview.add(new HtmlView("<div class=\"alert\">This resource is currently disabled.</div>"));
 				}
-				contentview.add(createResourceContent(rec, model.canEdit(resource_id))); //false = no edit button
+				contentview.add(createResourceContent(context, rec, model.canEdit(resource_id))); //false = no edit button
 
 			} else {
-				contentview = createListContentView();
+				contentview = createListContentView(context);
 			}
 			
-			BootPage page = new BootPage(context, menuview, contentview, createSideView(rec));
+			BootPage page = new BootPage(context, menuview, contentview, createSideView(context, rec));
 			page.render(response.getWriter());			
 		} catch (SQLException e) {
 			log.error(e);
@@ -132,7 +132,7 @@ public class ResourceServlet extends ServletBase implements Servlet {
 		}
 	}
 	
-	protected ContentView createListContentView() 
+	protected ContentView createListContentView(final UserContext context) 
 		throws ServletException, SQLException
 	{
 		ResourceModel model = new ResourceModel(context);
@@ -164,7 +164,7 @@ public class ResourceServlet extends ServletBase implements Servlet {
 			contentview.add(new DivRepToggler(context.getPageRoot()) {
 				@Override
 				public DivRep createContent() {
-					return createResourceContent(rec, true);
+					return createResourceContent(context, rec, true);
 				}
 				//contentview.add(showResource(rec, false)); //false = no edit button
 			}); //true = show edit button
@@ -180,7 +180,7 @@ public class ResourceServlet extends ServletBase implements Servlet {
 				contentview.add(new DivRepToggler(context.getPageRoot()) {
 					@Override
 					public DivRep createContent() {
-						return createResourceContent(rec, false);
+						return createResourceContent(context, rec, false);
 					}
 					//contentview.add(showResource(rec, false)); //false = no edit button
 				});
@@ -190,7 +190,7 @@ public class ResourceServlet extends ServletBase implements Servlet {
 		return contentview;
 	}
 	
-	private DivRep createResourceContent(ResourceRecord rec, boolean show_edit_button) {
+	private DivRep createResourceContent(UserContext context, ResourceRecord rec, boolean show_edit_button) {
 		RecordTableView table = new RecordTableView();
 		try {
 			
@@ -233,7 +233,7 @@ public class ResourceServlet extends ServletBase implements Servlet {
 			
 			table.addRow("Resource Description", rec.description);
 			table.addRow("Information URL", new URLView(rec.url));	
-			table.addRow("Resource FQDN Alias", new HtmlView(getAlias(rec.id)));
+			table.addRow("Resource FQDN Alias", new HtmlView(getAlias(context, rec.id)));
 			
 			//Resource Services
 			ResourceServiceModel rsmodel = new ResourceServiceModel(context);
@@ -249,12 +249,12 @@ public class ResourceServlet extends ServletBase implements Servlet {
 						values.put(drec.key, drec.value);
 					}
 				}
-				services_view.add(createServiceView(rsrec, values));
+				services_view.add(createServiceView(context, rsrec, values));
 			}
 			table.addRow("Services", services_view);
 			
 			// Ownership information
-			table.addRow("VO Owners of This Resource", getVOOwners(rec.id));
+			table.addRow("VO Owners of This Resource", getVOOwners(context, rec.id));
 			
 			//contacts (only shows contacts that are filled out)
 			ContactTypeModel ctmodel = new ContactTypeModel(context);
@@ -367,7 +367,7 @@ public class ResourceServlet extends ServletBase implements Servlet {
 		return view;
 	}
 	
-	private IView createServiceView(ResourceServiceRecord rec, HashMap<String, String> details)
+	private IView createServiceView(UserContext context, ResourceServiceRecord rec, HashMap<String, String> details)
 	{
 		GenericView view = new GenericView();
 		
@@ -394,7 +394,7 @@ public class ResourceServlet extends ServletBase implements Servlet {
 		return view;
 	}
 	
-	private String getAlias(int resource_id) throws SQLException
+	private String getAlias(UserContext context, int resource_id) throws SQLException
 	{
 		String html = "";
 		ResourceAliasModel ramodel = new ResourceAliasModel(context);
@@ -406,7 +406,7 @@ public class ResourceServlet extends ServletBase implements Servlet {
 		return html;
 	}
 
-	private IView getVOOwners(Integer resource_id) throws SQLException
+	private IView getVOOwners(UserContext context, Integer resource_id) throws SQLException
 	{
 		VOResourceOwnershipModel model = new VOResourceOwnershipModel(context);
 		Collection<VOResourceOwnershipRecord> list = model.getAllByResourceID(resource_id);
@@ -448,13 +448,13 @@ public class ResourceServlet extends ServletBase implements Servlet {
 		return new HtmlView("<img src=\""+url+"\"/>");
 	}
 
-	private SideContentView createSideView(ResourceRecord rec)
+	private SideContentView createSideView(UserContext context, ResourceRecord rec)
 	{
 		SideContentView view = new SideContentView();
 				
 		//view.add(new HtmlView("<h3>Other Actions</h3>"));
 		//view.add(new HtmlView("<div class=\"indent\">"));
-		if(auth.isUser()) {
+		if(context.getAuthorization().isUser()) {
 			view.add(new HtmlView("<p><a class=\"btn\" href=\"resourceedit\">Register New Resource</a></p>"));
 		}
 		/*

@@ -15,6 +15,7 @@ import com.divrep.DivRepRoot;
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.StaticConfig;
 
+import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.DNModel;
 import edu.iu.grid.oim.model.db.SiteModel;
 import edu.iu.grid.oim.model.db.record.DNRecord;
@@ -38,13 +39,10 @@ public class UserEditServlet extends ServletBase implements Servlet {
 	static Logger log = Logger.getLogger(UserEditServlet.class);  
 	private String current_page = "user";	
 
-    public UserEditServlet() {
-        super();
-    }
-
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{
-		//setContext(request);
+		UserContext context = new UserContext(request);
+		Authorization auth = context.getAuthorization();
 		auth.check("admin");
 	
 		String title;
