@@ -12,14 +12,21 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 
+import com.divrep.DivRep;
 import com.divrep.DivRepEvent;
 import com.divrep.DivRepEventListener;
 import com.divrep.common.DivRepButton;
+import com.divrep.common.DivRepDialog;
+import com.divrep.common.DivRepPassword;
+import com.divrep.common.DivRepStaticContent;
+import com.divrep.common.DivRepTextBox;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.AuthorizationException;
 import edu.iu.grid.oim.lib.StaticConfig;
+import edu.iu.grid.oim.model.CertificateRequestStatus;
 import edu.iu.grid.oim.model.UserContext;
+import edu.iu.grid.oim.model.cert.DivRepPassStrengthValidator;
 import edu.iu.grid.oim.model.db.CertificateRequestUserModel;
 import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.VOModel;
@@ -84,6 +91,7 @@ public class CertificateServlet extends ServletBase  {
 		bread_crumb.addCrumb("USER" + Integer.toString(rec.id),  null);
 		v.setBreadCrumb(bread_crumb);
 		
+		/*
 		//guest
 		final DivRepButton guestbutton = new DivRepButton(context.getPageRoot(), "<button class=\"btn btn-primary\"><i class=\"icon-ok icon-white\"></i> Test</button>");
 		guestbutton.setStyle(DivRepButton.Style.HTML);
@@ -91,7 +99,7 @@ public class CertificateServlet extends ServletBase  {
 		guestbutton.addEventListener(new DivRepEventListener() {
             public void handleEvent(DivRepEvent e) {
             	if(context.getAuthorization().isGuest()) {
-            		guestbutton.alert("You are guest");
+            		guestbutton.alert("You are guest :" + context.getPageRoot().toString());
             	}
             	if(context.getAuthorization().isUser()) {
             		guestbutton.alert("Logged in");
@@ -99,89 +107,12 @@ public class CertificateServlet extends ServletBase  {
             }
         });
 		v.add(guestbutton);
+		*/
 	
-		
-		//controls
-		final CertificateRequestUserModel model = new CertificateRequestUserModel(context);
-		v.add(new HtmlView("<p>"));
-		if(model.canApprove(rec)) {
-			final DivRepButton button = new DivRepButton(context.getPageRoot(), "<button class=\"btn btn-primary\"><i class=\"icon-ok icon-white\"></i> Approve</button>");
-			button.setStyle(DivRepButton.Style.HTML);
-			button.addClass("inline");
-			button.addEventListener(new DivRepEventListener() {
-                public void handleEvent(DivRepEvent e) {
-                	if(model.approve(rec)) {
-                		button.redirect("certificate");
-                	}
-                }
-            });
-			v.add(button);
-		}
-		if(model.canRequestRenew(rec)) {
-			final DivRepButton button = new DivRepButton(context.getPageRoot(), "<button class=\"btn btn-primary\"><i class=\"icon-refresh icon-white\"></i> Request Renew</button>");
-			button.setStyle(DivRepButton.Style.HTML);
-			button.addClass("inline");
-			button.addEventListener(new DivRepEventListener() {
-                public void handleEvent(DivRepEvent e) {
-                	button.alert("You clicked a normal button");
-                }
-            });
-			v.add(button);
-			//v.add(new HtmlView("<a href=\""+baseparam+"&action=request_renew\" class=\"btn btn-primary\"><i class=\"icon-ok icon-white\"></i> Request Renew</a>&nbsp;"));
-		}
-		if(model.canRequestRevoke(rec)) {
-			final DivRepButton button = new DivRepButton(context.getPageRoot(), "<button class=\"btn btn-primary\"><i class=\"icon-exclamation-sign icon-white\"></i> Request Revocation</button>");
-			button.setStyle(DivRepButton.Style.HTML);
-			button.addClass("inline");
-			button.addEventListener(new DivRepEventListener() {
-                public void handleEvent(DivRepEvent e) {
-                	button.alert("You clicked a normal button");
-                }
-            });
-			v.add(button);
-			//v.add(new HtmlView("<a href=\""+baseparam+"&action=request_revoke\" class=\"btn btn-primary\"><i class=\"icon-ok icon-white\"></i> Request Revocation</a>&nbsp;"));
-		}
-		if(model.canCancel(rec)) {
-			final DivRepButton button = new DivRepButton(context.getPageRoot(), "<button class=\"btn\">Cancel Request</button>");
-			button.setStyle(DivRepButton.Style.HTML);
-			button.addClass("inline");
-			button.addEventListener(new DivRepEventListener() {
-                public void handleEvent(DivRepEvent e) {
-                	button.alert("You clicked a normal button");
-                }
-            });
-			v.add(button);
-			//v.add(new HtmlView("<a href=\""+baseparam+"&action=cancel\"  class=\"btn\"><i class=\"icon-trash\"></i> Cancel Request</a>&nbsp;"));
-		}
-		if(model.canReject(rec)) {
-			final DivRepButton button = new DivRepButton(context.getPageRoot(), "<button class=\"btn btn-danger\"><i class=\"icon-remove icon-white\"></i> Reject Request</button>");
-			button.setStyle(DivRepButton.Style.HTML);
-			button.addClass("inline");
-			button.addEventListener(new DivRepEventListener() {
-                public void handleEvent(DivRepEvent e) {
-                	button.alert("You clicked a normal button");
-                }
-            });
-			v.add(button);
-			//v.add(new HtmlView("<a href=\""+baseparam+"&action=reject\"  class=\"btn btn-danger\"><i class=\"icon-remove icon-white\"></i> Reject Request</a>&nbsp;"));
-		}
-		if(model.canRevoke(rec)) {
-			final DivRepButton button = new DivRepButton(context.getPageRoot(), "<button class=\"btn btn-danger\"><i class=\"icon-exclamation-sign icon-white\"></i> Revoke</button>");
-			button.setStyle(DivRepButton.Style.HTML);
-			button.addClass("inline");
-			button.addEventListener(new DivRepEventListener() {
-                public void handleEvent(DivRepEvent e) {
-                	button.alert("You clicked a normal button");
-                }
-            });
-			v.add(button);
-			//v.add(new HtmlView("<a href=\""+baseparam+"&action=revoke\"  class=\"btn btn-warning\"><i class=\"icon-exclamation-sign icon-white\"></i> Revoke</a>&nbsp;"));
-		}
-		v.add(new HtmlView("</p>"));
 		
 		//details
 		//v.add(new HtmlView("<h2>Details</h2>"));
-		v.add(new HtmlView("<table class=\"table\">"));
+		v.add(new HtmlView("<table class=\"table nohover\">"));
 	
 		v.add(new HtmlView("<tbody>"));
 		
@@ -193,6 +124,18 @@ public class CertificateServlet extends ServletBase  {
 		*/
 		
 		v.add(new HtmlView("<tr>"));
+		v.add(new HtmlView("<th>Status</th>"));
+		v.add(new HtmlView("<td>"+StringEscapeUtils.escapeHtml(rec.status)+"</td>"));
+		v.add(new HtmlView("</tr>"));
+		
+		v.add(new HtmlView("<tr>"));
+		v.add(new HtmlView("<th>Next Action</th>"));
+		v.add(new HtmlView("<td>"));
+		v.add(nextActionControl(context, rec));
+		v.add(new HtmlView("</td>"));
+		v.add(new HtmlView("</tr>"));
+		
+		v.add(new HtmlView("<tr>"));
 		v.add(new HtmlView("<th>Requester Name</th>"));
 		String auth_status = "(Unauthenticated)";
 		if(rec.requester_contact_id != null) {
@@ -201,12 +144,7 @@ public class CertificateServlet extends ServletBase  {
 		v.add(new HtmlView("<td>"+StringEscapeUtils.escapeHtml(rec.requester_name)+" " +  auth_status+ "</td>"));
 		v.add(new HtmlView("</tr>"));
 		
-		/*
-		v.add(new HtmlView("<tr>"));
-		v.add(new HtmlView("<th>Status</th>"));
-		v.add(new HtmlView("<td>"+StringEscapeUtils.escapeHtml(rec.status)+"</td>"));
-		v.add(new HtmlView("</tr>"));
-		*/
+		
 		
 		v.add(new HtmlView("<tr>"));
 		v.add(new HtmlView("<th>Requested Time</th>"));
@@ -243,7 +181,7 @@ public class CertificateServlet extends ServletBase  {
 		
 		//logs
 		v.add(new HtmlView("<h2>Activity Log</h2>"));
-		v.add(new HtmlView("<table class=\"table\">"));
+		v.add(new HtmlView("<table class=\"table nohover\">"));
 		v.add(new HtmlView("<thead><tr><th>By</th><th>IP</th><th>Status</th><th>Note</th><th>Timestamp</th></tr></thead>"));
 		
 		v.add(new HtmlView("<tbody>"));
@@ -269,6 +207,196 @@ public class CertificateServlet extends ServletBase  {
 		}
 		v.add(new HtmlView("</tbody>"));
 		v.add(new HtmlView("</table>"));
+		
+		return v;
+	}
+	
+	protected GenericView nextActionControl(UserContext context, final CertificateRequestUserRecord rec) {
+		GenericView v = new GenericView();
+		
+		final String url = "certificate?id="+rec.id+"&type=user";
+		
+		//controls
+		final CertificateRequestUserModel model = new CertificateRequestUserModel(context);
+		if(model.canApprove(rec)) {
+			final DivRepButton button = new DivRepButton(context.getPageRoot(), "<button class=\"btn btn-primary\"><i class=\"icon-ok icon-white\"></i> Approve</button>");
+			button.setStyle(DivRepButton.Style.HTML);
+			button.addClass("inline");
+			button.addEventListener(new DivRepEventListener() {
+                public void handleEvent(DivRepEvent e) {
+                	if(model.approve(rec)) {
+                		button.redirect(url);
+                	} else {
+                		button.alert("Failed to approve request");
+                	}
+                }
+            });
+			v.add(button);
+		}
+		if(model.canRequestRenew(rec)) {
+			final DivRepButton button = new DivRepButton(context.getPageRoot(), "<button class=\"btn btn-primary\"><i class=\"icon-refresh icon-white\"></i> Request Renew</button>");
+			button.setStyle(DivRepButton.Style.HTML);
+			button.addClass("inline");
+			button.addEventListener(new DivRepEventListener() {
+                public void handleEvent(DivRepEvent e) {
+                  	if(model.requestRenew(rec)) {
+                		button.redirect(url);
+                	} else {
+                		button.alert("Failed to request renewal");
+                	}
+                }
+            });
+			v.add(button);
+			//v.add(new HtmlView("<a href=\""+baseparam+"&action=request_renew\" class=\"btn btn-primary\"><i class=\"icon-ok icon-white\"></i> Request Renew</a>&nbsp;"));
+		}
+		if(model.canRequestRevoke(rec)) {
+			final DivRepButton button = new DivRepButton(context.getPageRoot(), "<button class=\"btn btn-primary\"><i class=\"icon-exclamation-sign icon-white\"></i> Request Revocation</button>");
+			button.setStyle(DivRepButton.Style.HTML);
+			button.addClass("inline");
+			button.addEventListener(new DivRepEventListener() {
+                public void handleEvent(DivRepEvent e) {
+                  	if(model.requestRevoke(rec)) {
+                		button.redirect(url);
+                	} else {
+                		button.alert("Failed to request revoke request");
+                	}
+                }
+            });
+			v.add(button);
+			//v.add(new HtmlView("<a href=\""+baseparam+"&action=request_revoke\" class=\"btn btn-primary\"><i class=\"icon-ok icon-white\"></i> Request Revocation</a>&nbsp;"));
+		}
+		if(model.canIssue(rec)) {
+			v.add(new HtmlView("<p class=\"help-block\">Please provide passphrase to encrypt your p12 certificate</p>"));
+			final DivRepPassword pass = new DivRepPassword(context.getPageRoot());
+			pass.setLabel("Passphrase");
+			pass.setRequired(true);
+			pass.addValidator(new DivRepPassStrengthValidator());
+			v.add(pass);
+			/*
+			class IssueDialog extends DivRepDialog {
+				DivRepPassword issue_passphrase;
+				
+				public IssueDialog(DivRep parent) {
+					super(parent);
+					setHasCancelButton(true);
+					setTitle("Issue Certificate");
+					DivRepStaticContent l = new DivRepStaticContent(this ,"<p class=\"help-block\">Please provide passphrase to retreive & encryp your p12 certificate</p>");
+					issue_passphrase = new DivRepPassword(this);
+					issue_passphrase.setLabel("Passphrase");
+					issue_passphrase.addValidator(new DivRepPassStrengthValidator());
+				}
+
+				@Override
+				public void onSubmit() {
+					String passphrase = issue_passphrase.getValue();
+					if(model.issue(rec, passphrase)) {
+						redirect(url);
+					} else {
+						alert("Failed to issue certificate");
+					}
+					
+				}
+
+				@Override
+				public void onCancel() {
+					// TODO Auto-generated method stub
+					
+				}
+				
+			}
+			final DivRepDialog issue_dialog = new IssueDialog(context.getPageRoot());
+			v.add(issue_dialog);
+			*/
+			
+			final DivRepButton button = new DivRepButton(context.getPageRoot(), "<button class=\"btn btn-primary\"><i class=\"icon-download-alt icon-white\"></i> Issue Certificate ...</button>");
+			button.setStyle(DivRepButton.Style.HTML);
+			button.addClass("inline");
+			button.addEventListener(new DivRepEventListener() {
+                public void handleEvent(DivRepEvent e) {
+                	/*
+                  	if(model.issue(rec)) {
+                		button.redirect(url);
+                	} else {
+                		button.alert("Failed to issue certificate");
+                	}*/
+                	if(pass.validate()) {
+                		//start process thread 
+                      	if(model.startissue(rec, pass.getValue())) {
+                    		button.redirect(url);
+                    	} else {
+                    		button.alert("Failed to issue certificate");
+                    	}
+                	}
+                }
+            });
+			v.add(button);
+			//v.add(new HtmlView("<a href=\""+baseparam+"&action=request_revoke\" class=\"btn btn-primary\"><i class=\"icon-ok icon-white\"></i> Request Revocation</a>&nbsp;"));
+		}
+		if(model.canCancel(rec)) {
+			final DivRepButton button = new DivRepButton(context.getPageRoot(), "<button class=\"btn\">Cancel Request</button>");
+			button.setStyle(DivRepButton.Style.HTML);
+			button.addClass("inline");
+			button.addEventListener(new DivRepEventListener() {
+                public void handleEvent(DivRepEvent e) {
+                	if(model.cancel(rec)) {
+                		button.redirect(url);
+                	} else {
+                		button.alert("Failed to cancel request");
+                	}
+                }
+            });
+			v.add(button);
+			//v.add(new HtmlView("<a href=\""+baseparam+"&action=cancel\"  class=\"btn\"><i class=\"icon-trash\"></i> Cancel Request</a>&nbsp;"));
+		}
+		if(model.canReject(rec)) {
+			final DivRepButton button = new DivRepButton(context.getPageRoot(), "<button class=\"btn btn-danger\"><i class=\"icon-remove icon-white\"></i> Reject Request</button>");
+			button.setStyle(DivRepButton.Style.HTML);
+			button.addClass("inline");
+			button.addEventListener(new DivRepEventListener() {
+                public void handleEvent(DivRepEvent e) {
+                  	if(model.reject(rec)) {
+                		button.redirect(url);
+                	} else {
+                		button.alert("Failed to reject request");
+                	}
+                }
+            });
+			v.add(button);
+			//v.add(new HtmlView("<a href=\""+baseparam+"&action=reject\"  class=\"btn btn-danger\"><i class=\"icon-remove icon-white\"></i> Reject Request</a>&nbsp;"));
+		}
+		if(model.canRevoke(rec)) {
+			final DivRepButton button = new DivRepButton(context.getPageRoot(), "<button class=\"btn btn-danger\"><i class=\"icon-exclamation-sign icon-white\"></i> Revoke</button>");
+			button.setStyle(DivRepButton.Style.HTML);
+			button.addClass("inline");
+			button.addEventListener(new DivRepEventListener() {
+                public void handleEvent(DivRepEvent e) {
+                 	if(model.revoke(rec)) {
+                		button.redirect(url);
+                	} else {
+                		button.alert("Failed to cancel request");
+                	}
+                }
+            });
+			v.add(button);
+			//v.add(new HtmlView("<a href=\""+baseparam+"&action=revoke\"  class=\"btn btn-warning\"><i class=\"icon-exclamation-sign icon-white\"></i> Revoke</a>&nbsp;"));
+		}
+		
+		if(rec.status.equals(CertificateRequestStatus.ISSUING)) {
+			String gencsr_class = "progressing";
+			if(rec.csr != null) {
+				gencsr_class = "completed";
+			}
+			String sign_class = "notstarted";
+			if(rec.csr != null && rec.cert_pkcs7 == null) {
+				sign_class = "progressing";
+			}
+			v.add(new HtmlView("<ul class=\"progress_display\">"));
+			v.add(new HtmlView("<li class=\""+gencsr_class+"\">Generating CSR/Private Key</li>"));
+			v.add(new HtmlView("<li class=\""+sign_class+"\">Signing Certificate</li>"));
+			v.add(new HtmlView("</ul>"));
+			v.add(new HtmlView("<script>setTimeout('window.location.reload()', 3000);</script>"));
+		}
+		
 		return v;
 	}
 	

@@ -1,76 +1,60 @@
 package edu.iu.grid.oim.model.cert;
-import java.io.BufferedWriter;
+
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
-import java.math.BigInteger;
+import java.io.StringWriter;
 import java.security.AlgorithmParameters;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.InvalidKeyException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
-import java.security.PublicKey;
 import java.security.SecureRandom;
-import java.security.Signature;
-import java.security.SignatureException;
-import java.security.cert.CertificateException;
-import java.security.interfaces.RSAPrivateKey;
-import java.security.interfaces.RSAPublicKey;
-import java.security.spec.InvalidKeySpecException;
-import java.security.spec.InvalidParameterSpecException;
-import java.security.spec.PKCS8EncodedKeySpec;
-import java.security.spec.X509EncodedKeySpec;
 
-import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.EncryptedPrivateKeyInfo;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 import javax.crypto.spec.PBEParameterSpec;
 
-import sun.misc.BASE64Decoder;
-import sun.misc.BASE64Encoder;
-
+import org.apache.commons.codec.binary.Base64;
 import org.apache.log4j.Logger;
 
-import edu.iu.grid.oim.model.db.LogModel;
- 
-import sun.security.pkcs.PKCS10;
-import sun.security.rsa.RSAKeyPairGenerator;
-import sun.security.x509.X500Name;
-import sun.security.x509.X500Signer;
- 
+import org.bouncycastle.asn1.pkcs.CertificationRequest;
+import org.bouncycastle.asn1.x500.X500Name;
+import org.bouncycastle.openssl.PEMWriter;
+import org.bouncycastle.operator.ContentSigner;
+import org.bouncycastle.operator.OperatorCreationException;
+import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
+import org.bouncycastle.pkcs.jcajce.JcaPKCS10CertificationRequestBuilder;
+import org.bouncycastle.pkcs.PKCS10CertificationRequest;
+
+
 //http://www.journaldev.com/223/generating-a-certificate-signing-request-using-java-api
 public class GenerateCSR {
 	
     static Logger log = Logger.getLogger(GenerateCSR.class); 
     
+    private SecureRandom random = null;
     private KeyPair keypair = null;
-    private KeyPairGenerator keyGen = null;
-    private byte[] csr;
+    private String csr;
+   
     
-    private SecureRandom random = new SecureRandom();
+    //sse http://grid-dk.googlecode.com/svn/trunk/SingleSignOn/src/ConfusaSLCSApp.java
     
-    public GenerateCSR(X500Name x500Name) throws Exception {
+    public GenerateCSR(X500Name name) throws NoSuchAlgorithmException, OperatorCreationException, IOException {
+
+    	/*
     	//generate public/private key pair
-    
         try {
             keyGen = KeyPairGenerator.getInstance("RSA");
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
         }
         keyGen.initialize(2048, random);
-        //keyGen.initialize(1024, random);
         keypair = keyGen.generateKeyPair();
 
         // generate PKCS10 certificate request (CSR)
@@ -78,12 +62,40 @@ public class GenerateCSR {
         Signature signature = Signature.getInstance("MD5WithRSA");
         signature.initSign(keypair.getPrivate());
         
-        pkcs10.encodeAndSign(new X500Signer(signature, x500Name));
+            	
+        pkcs10.encodeAndSign(new X500Signer(signature, x500));
         ByteArrayOutputStream bs = new ByteArrayOutputStream();
         PrintStream ps = new PrintStream(bs);
         pkcs10.print(ps);
         csr = bs.toByteArray();
-       
+        */
+    	//signame	"SHA1withRSA" 	 
+    	random = new SecureRandom();
+    	
+    	KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
+        keyGen.initialize(2048, random); //keep it small for test
+        keypair = keyGen.genKeyPair();
+
+        JcaContentSignerBuilder signer_builder = new JcaContentSignerBuilder("SHA1withRSA"); 
+        signer_builder.setSecureRandom(random);
+        ContentSigner signer = signer_builder.build(keypair.getPrivate());
+        
+        JcaPKCS10CertificationRequestBuilder request_builder = new JcaPKCS10CertificationRequestBuilder(name, keypair.getPublic());
+        PKCS10CertificationRequest request = request_builder.build(signer);
+
+        csr = "-----BEGIN CERTIFICATE REQUEST-----\n";
+        csr += new String(Base64.encodeBase64Chunked(request.getEncoded()));
+        csr += "-----END CERTIFICATE REQUEST-----";
+        
+     
+        /*
+    	// write the CSR to a string
+		StringWriter strWrt = new StringWriter();
+		PEMWriter pemWrt = new PEMWriter(strWrt);
+		pemWrt.writeObject(request.getSignature());
+		pemWrt.close();
+		csr = strWrt.toString();
+       */
         /*
         if (ps != null)
             ps.close();
@@ -92,10 +104,11 @@ public class GenerateCSR {
             */
     }
     
-    /*
-    public byte[] getCSR() { 
+    
+    public String getCSR() { 
     	return csr;
     }
+    /*
  
     public RSAPublicKey getPublicKey() {
         return (RSAPublicKey)keypair.getPublic();
@@ -142,8 +155,7 @@ public class GenerateCSR {
     	EncryptedPrivateKeyInfo encinfo = new EncryptedPrivateKeyInfo(algparms, ciphertext);
     	
     	// and here we have it! a DER encoded PKCS#8 encrypted key!
-        BASE64Encoder encoder64 = new BASE64Encoder();
-    	return encoder64.encode(encinfo.getEncoded());   	
+    	return new String(Base64.encodeBase64(encinfo.getEncoded()));   	
     }
  
     /*
@@ -155,8 +167,8 @@ public class GenerateCSR {
 		return result;
 	}
 	*/
+    /*
 	public void saveSSHPublicKey(FileWriter fout) throws IOException {
-        BASE64Encoder encoder64 = new BASE64Encoder();
 		RSAPublicKey publickey = (RSAPublicKey)keypair.getPublic();
 
 		//part 1 -- header
@@ -179,8 +191,9 @@ public class GenerateCSR {
 		encodeUInt32(data.length, out);
 		out.write(data);
 		
-		fout.write(encoder64.encode(out.toByteArray()));
+		fout.write(Base64.encode(out.toByteArray()));
 	}
+	*/
 	
 
 	public void encodeUInt32(int value, OutputStream out) throws IOException
@@ -194,12 +207,12 @@ public class GenerateCSR {
 	}
 	
    
+	/*
 	private void saveSSHPrivateKey(FileWriter fout) throws IOException {
-        BASE64Encoder encoder64 = new BASE64Encoder();
         RSAPrivateKey privatekey = (RSAPrivateKey)keypair.getPrivate();
-		fout.write(encoder64.encode(privatekey.getEncoded()));
+		fout.write(Base64.encode(privatekey.getEncoded()));
 	}
-   
+    */
  
 	public void saveDER(String path) throws IOException {
 		FileOutputStream ospvt = new FileOutputStream(path + "/private.der");
@@ -246,25 +259,20 @@ public class GenerateCSR {
 		fout.close();
 		*/
 		
+		/*
 		//save csr
 		FileWriter fout = new FileWriter(path + "/request.csr");
 		fout.write(new String(csr));
 		fout.close();
-	}
-
-	public String getCSR() {
-		return new String(csr);
+		*/
 	}
 	
     public static void main(String[] args) throws Exception {
     	  
     	//generate public/private keys
-    	GenerateCSR gcsr = new GenerateCSR(new X500Name(
-        		"soichi.grid.iu.edu/emailAddress=hayashis@iu.edu", //CN common name
-        		"PKITesting", //Organization unit
-        		"OSG", //Organization name
-        		"Bloomington", "Indiana", "US" //location, state, country
-        ));
+    	GenerateCSR gcsr = 
+    		new GenerateCSR(
+    			new X500Name("CN=\"Soichi Hayashi/emailAddress=hayashis@indiana.edu\", OU=PKITesting, O=OSG, L=Bloomington, ST=IN, C=United States"));
     
     	gcsr.saveDER("c:/trash");
     	gcsr.saveCSR("c:/trash");

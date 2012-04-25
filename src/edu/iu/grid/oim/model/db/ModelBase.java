@@ -38,7 +38,7 @@ public abstract class ModelBase<T extends RecordBase> {
     	table_name = _table_name;
 	}
 
-    static DataSource _oimds = null;
+    DataSource _oimds = null;
 	protected Connection connectOIM() throws SQLException {
 		if(_oimds == null) {
 		    try {

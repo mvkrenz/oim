@@ -18,9 +18,13 @@ public interface ICertificateSigner {
 		}
 		public String serial; //isser specific serial
 		public String issuer;
+		
+		//returned by signer
 		public String certificate; //pkcs7 string
+		public String intermediate; //pkcs7 string
+		public String pkcs7; //pkcs7 string
 	}
 	
-	public Certificate signHostCertificate(String csr, String domain) throws CertificateProviderException;
+	public Certificate signHostCertificate(String csr) throws CertificateProviderException;
 	public Certificate signUserCertificate(String csr) throws CertificateProviderException;
 }

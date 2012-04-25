@@ -13,8 +13,9 @@ import java.util.LinkedHashMap;
 import java.util.TimeZone;
 
 import org.apache.log4j.Logger;
-
-import sun.security.x509.X500Name;
+import org.bouncycastle.asn1.x500.X500Name;
+import org.bouncycastle.asn1.x500.X500NameBuilder;
+import org.bouncycastle.asn1.x500.style.BCStyle;
 
 import com.divrep.DivRepEvent;
 import com.divrep.DivRepEventListener;
@@ -37,6 +38,7 @@ import edu.iu.grid.oim.lib.HashHelper;
 import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.cert.CertificateManager;
+import edu.iu.grid.oim.model.cert.DivRepPassStrengthValidator;
 import edu.iu.grid.oim.model.cert.GenerateCSR;
 import edu.iu.grid.oim.model.cert.ICertificateSigner;
 import edu.iu.grid.oim.model.db.CertificateRequestUserModel;
@@ -203,8 +205,7 @@ public class CertificateRequestUserForm extends DivRepForm
 				new DivRepStaticContent(this, "<p class=\"help-block\">This passphrase will also be used to encrypt your certificate.</p>");
 			}
 			passphrase = new DivRepPassword(this);
-			passphrase.addValidator(new DivRepLengthValidator(5, 100));
-			//passphrase.setLabel("Passphrase");
+			passphrase.addValidator(new DivRepPassStrengthValidator());
 			passphrase.setRequired(true);
 		}
 		
@@ -396,42 +397,29 @@ public class CertificateRequestUserForm extends DivRepForm
 	@Override
 	protected Boolean doSubmit() {
 		Boolean ret = true;
-		
-		/*
-		//Generate CSR
-		GenerateCSR gcsr = null;
-		try {
-			String cn = fullname.getValue() + "/emailAddress=" + primary_email.getValue();
-			X500Name x500 = new X500Name(
-					cn, 
-					orgunit.getValue(),
-					orgname.getValue(),
-					city.getValue(), state.getValue(), country.getValue()
-			);
-			log.debug("Generating CSR for " + cn);
-			gcsr = new GenerateCSR(x500);
-			log.debug(gcsr.getCSR());
-			//gcsr.saveDER("c:/trash");
-		} catch (Exception e) {
-			log.error("Failed to generate CSR");
-			alert("Sorry.. Failed to generate your CSR");
-			ret = false;
-		}
+	
+
+        X500NameBuilder x500NameBld = new X500NameBuilder(BCStyle.INSTANCE);
+
+        x500NameBld.addRDN(BCStyle.C, country.getValue());
+        x500NameBld.addRDN(BCStyle.ST, state.getValue());
+        x500NameBld.addRDN(BCStyle.L, city.getValue());
+        x500NameBld.addRDN(BCStyle.O, "OSG");//org name
+        x500NameBld.addRDN(BCStyle.OU, "PKITesting");//org unit      
+        x500NameBld.addRDN(BCStyle.NAME, fullname.getValue());//org unit      
+        x500NameBld.addRDN(BCStyle.EmailAddress, email.getValue());
+
+        X500Name    x500 = x500NameBld.build();
+        /*
+		String cn = fullname.getValue() + "/emailAddress=" + email.getValue();
+		X500NameBuilder builder = X500NameBuilder();
+		x500 = new X500Name(cn,
+				"PKITesting", //org unit
+				"OSG", //osg name
+				city.getValue(), state.getValue(), country.getValue()
+		);
 		*/
 
-		X500Name x500 = null;//only uesd for non-csr request
-		try {
-			//generate DN
-			String cn = fullname.getValue() + "/emailAddress=" + email.getValue();
-			x500 = new X500Name(
-					cn, 
-					"PKITesting", //org unit
-					"OSG", //osg name
-					city.getValue(), state.getValue(), country.getValue()
-			);
-		} catch (IOException e1) {
-			log.error("Failed to create x500Name objct", e1);
-		}
 		
 		try {
 			CertificateRequestUserModel certmodel = new CertificateRequestUserModel(context);

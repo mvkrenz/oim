@@ -25,7 +25,7 @@ public class UserContext {
 	private DivRepPage divrep_pageroot;
 	
 	private Authorization auth = new Authorization();
-	private Connection connection;
+	//private Connection connection;
 	private String request_url;
 	private HttpSession session;
 	private String remote_addr;
@@ -36,6 +36,7 @@ public class UserContext {
 	public void setComment(String _comment) { comment = _comment; }
 	public String getComment() { return comment; }
 	public String getRemoteAddr() { return remote_addr; }
+	public HttpSession getSession() { return session; }
 	
 	public UserContext(HttpServletRequest request) throws AuthorizationException
 	{	

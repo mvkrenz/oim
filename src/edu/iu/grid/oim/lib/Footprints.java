@@ -3,6 +3,7 @@ package edu.iu.grid.oim.lib;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -631,9 +632,11 @@ public class Footprints
 		public String title;
 		public String description;
 		public String nextaction;
+		public Date nad;
 		public String name;
 		public String phone;
 		public String email;
+		public String status;
 		public ArrayList<String> ccs = new ArrayList<String>();
 		public ArrayList<String> assignees = new ArrayList<String>();
 		public HashMap<String, String> metadata = new HashMap<String, String>();
@@ -657,6 +660,7 @@ public class Footprints
 		post.setParameter("phone", ticket.phone);
 		post.setParameter("email", ticket.email);
 		post.setParameter("nextaction", ticket.nextaction);
+		post.setParameter("nextactiontime", String.valueOf(ticket.nad.getTime()/1000));
 		for(int i = 0; i < ticket.ccs.size(); ++i) {
 			post.setParameter("cc["+i+"]", ticket.ccs.get(i));
 		}
@@ -696,8 +700,16 @@ public class Footprints
 		HttpClient cl = new HttpClient();
 	    //cl.getParams().setParameter("http.useragent", "OIM (OSG Information Management System)");
 		PostMethod post = new PostMethod(StaticConfig.conf.getProperty("api.gocticket")+"/rest/update?id="+ticket_id);
-		//TODO - right now, REST API only supports adding new description
 		post.setParameter("description", ticket.description);
+		if(ticket.nextaction != null) {
+			post.setParameter("nextactiontime", ticket.nextaction);
+		}
+		if(ticket.nad != null) {
+			post.setParameter("nextactiontime", String.valueOf(ticket.nad.getTime()/1000));
+		}
+		if(ticket.status != null) {
+			post.setParameter("status", ticket.status);
+		}
 	
 		try {
 			cl.executeMethod(post);

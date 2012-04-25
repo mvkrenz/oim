@@ -32,18 +32,13 @@ public class DigicertCertificateSigner implements ICertificateSigner {
 		}
 	};
 	
-	public Certificate signHostCertificate(String csr, String domain) throws CertificateProviderException {
-		String requet_id = request(csr, domain);
+	public Certificate signHostCertificate(String csr) throws CertificateProviderException {
+		String requet_id = requestHostCert(csr);
 		String order_id = approve(requet_id, "Approving for test purpose"); //like 00295828
 		return retrieveByOrderID(order_id);
 	}
 	public Certificate signUserCertificate(String csr) throws CertificateProviderException {
-		//String requet_id = request(csr, domain);
-		//String order_id = approve(requet_id, "Approving for test purpose"); //like 00295828
-		//return retrieveByOrderID(order_id);
-
-		//TODO
-		return null;
+		return requestUserCert(csr);
 	}
 	
 	private Document parseXML(InputStream in) throws ParserConfigurationException, SAXException, IOException {
@@ -52,7 +47,74 @@ public class DigicertCertificateSigner implements ICertificateSigner {
 		return db.parse(in);
 	}
 	
-	public String request(String csr, String domain) throws DigicertCPException {
+	public Certificate requestUserCert(String csr) throws DigicertCPException {
+		HttpClient cl = new HttpClient();
+		//cl.getHttpConnectionManager().getParams().setConnectionTimeout(1000*10);
+	    cl.getParams().setParameter("http.useragent", "OIM (OSG Information Management System)");
+	    //cl.getParams().setParameter("http.contenttype", "application/x-www-form-urlencoded")
+		
+		PostMethod post = new PostMethod("https://www.digicert.com//enterprise/api/?action=grid_request_email_cert");
+
+		post.addParameter("customer_name", "052062");
+		post.setParameter("customer_api_key", "MG9ij2Of4rakV7tXARyE347QQu00097U");
+		post.setParameter("response_type", "xml");
+		post.setParameter("validity", "1"); //security by obscurity -- from the DigiCert dev team
+		post.setParameter("email", "hayashis@iu.edu");
+		post.setParameter("full_name", "Soichi Hayashi");
+		post.setParameter("csr", csr);
+		//post.setParameter("comments", "This is just a test request."); //for approver to see
+		
+		try {
+			cl.executeMethod(post);
+			Document ret = parseXML(post.getResponseBodyAsStream());
+			NodeList result_nl = ret.getElementsByTagName("result");
+			Element result = (Element)result_nl.item(0);
+			if(result.getTextContent().equals("failure")) {
+				System.out.println("failed to execute grid_retrieve_host_cert request");
+				NodeList error_code_nl = ret.getElementsByTagName("error_code");
+				StringBuffer errors  = new StringBuffer();
+				for(int i = 0;i < error_code_nl.getLength(); ++i) {
+					Element error_code = (Element)error_code_nl.item(i);
+					Element code = (Element)error_code.getElementsByTagName("code").item(0);
+					Element description = (Element)error_code.getElementsByTagName("description").item(0);
+					errors.append("Code:" + code.getTextContent());
+					errors.append(" Description:" + description.getTextContent());
+					errors.append("\n");
+				}
+				throw new DigicertCPException("Request failed..\n" + errors.toString());
+			} else if(result.getTextContent().equals("success")) {
+				
+				ICertificateSigner.Certificate cert = new ICertificateSigner.Certificate("Digicert");
+				
+				Element serial_e = (Element)ret.getElementsByTagName("serial").item(0);
+				cert.serial = serial_e.getTextContent();
+				
+				Element certificate_e = (Element)ret.getElementsByTagName("certificate").item(0);
+				cert.certificate = certificate_e.getTextContent();
+				
+				Element intermediate_e = (Element)ret.getElementsByTagName("intermediate").item(0);
+				cert.intermediate = intermediate_e.getTextContent();
+			
+				Element pkcs7_e = (Element)ret.getElementsByTagName("pkcs7").item(0);
+				cert.pkcs7 = pkcs7_e.getTextContent();
+
+				return cert;
+			}
+			
+			throw new DigicertCPException("Unknown return code: " +result.getTextContent());	
+		} catch (HttpException e) {
+			throw new DigicertCPException("Failed to make request", e);
+		} catch (IOException e) {
+			throw new DigicertCPException("Failed to make request", e);
+		} catch (ParserConfigurationException e) {
+			throw new DigicertCPException("Failed to parse returned String", e);
+		} catch (SAXException e) {
+			throw new DigicertCPException("Failed to parse returned String", e);
+		}
+	}
+	
+	
+	public String requestHostCert(String csr) throws DigicertCPException {
 		HttpClient cl = new HttpClient();
 		//cl.getHttpConnectionManager().getParams().setConnectionTimeout(1000*10);
 	    cl.getParams().setParameter("http.useragent", "OIM (OSG Information Management System)");
@@ -64,7 +126,7 @@ public class DigicertCertificateSigner implements ICertificateSigner {
 		post.setParameter("customer_api_key", "MG9ij2Of4rakV7tXARyE347QQu00097U");
 		post.setParameter("response_type", "xml");
 		post.setParameter("validity", "1"); //security by obscurity -- from the DigiCert dev team
-		post.setParameter("common_name", domain);
+		//post.setParameter("common_name", domain);
 		post.setParameter("csr", csr);
 		//post.setParameter("comments", "This is just a test request."); //for approver to see
 		
@@ -195,8 +257,14 @@ public class DigicertCertificateSigner implements ICertificateSigner {
 				Element serial_e = (Element)ret.getElementsByTagName("serial").item(0);
 				cert.serial = serial_e.getTextContent();
 			
+				Element certificate_e = (Element)ret.getElementsByTagName("certificate").item(0);
+				cert.certificate = certificate_e.getTextContent();
+				
+				Element intermediate_e = (Element)ret.getElementsByTagName("intermediate").item(0);
+				cert.intermediate = intermediate_e.getTextContent();
+				
 				Element pkcs7_e = (Element)ret.getElementsByTagName("pkcs7").item(0);
-				cert.certificate = pkcs7_e.getTextContent();
+				cert.pkcs7 = pkcs7_e.getTextContent();
 
 				return cert;
 			}

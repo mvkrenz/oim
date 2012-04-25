@@ -524,7 +524,8 @@ background-color: #ccc;
 div.well_disabled {
 background-color: #999;
 }
-table.nohover tbody tr:hover td {
+table.nohover tbody tr:hover td,
+table.nohover tbody tr:hover th {
 background-color: inherit;
 }
 div.downtime_detail {
@@ -538,7 +539,8 @@ margin-bottom: 0px;
 .fptemplate textarea {
 width: 100% !important;
 }
-input[type=button].divrep_processing {
+input[type=button].divrep_processing,
+div.divrep_processing button {
 background-image:url(../images/loading.gif);
 background-repeat:no-repeat;
 background-position: 5px;
@@ -553,4 +555,33 @@ cursor: pointer;
 .inline {
 display: inline-block;
 padding-right: 5px;
+}
+ul.progress_display {
+margin: 0px;
+}
+ul.progress_display li {
+background-repeat:no-repeat;
+background-position: 5px;
+padding: 10px;
+padding-left: 25px;
+margin: 0px 5px;
+list-style: none;
+border: 1px solid #ddd;
+border-radius: 4px;
+float: left;
+}
+ul.progress_display li.notstarted {
+background-image:url(../images/clock_stop.png);
+color: #999;
+
+}
+ul.progress_display li.progressing {
+background-image:url(../images/loading.gif);
+color: #005580;
+background-color: #cde;
+}
+ul.progress_display li.completed {
+background-image:url(../images/ok.png);
+color: #468847;
+background-color: #DFF0D8;
 }
