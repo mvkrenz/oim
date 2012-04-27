@@ -687,6 +687,40 @@
 		<url-pattern>/certificaterequest</url-pattern>
 	</servlet-mapping>	
 
+	<servlet>
+		<description>
+		</description>
+		<display-name>CertificateDownloadServlet</display-name>
+		<servlet-name>CertificateDownloadServlet</servlet-name>
+		<servlet-class>edu.iu.grid.oim.servlet.CertificateDownloadServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>CertificateDownloadServlet</servlet-name>
+		<url-pattern>/certificatedownload</url-pattern>
+	</servlet-mapping>	
+
+    <servlet>
+        <servlet-name>SimpleCaptcha</servlet-name>
+        <servlet-class>nl.captcha.servlet.SimpleCaptchaServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>SimpleCaptcha</servlet-name>
+        <url-pattern>/simplecaptcha</url-pattern>
+    </servlet-mapping>
+    
+    <servlet>
+        <servlet-name>StickyCaptcha</servlet-name>
+        <servlet-class>edu.iu.grid.oim.servlet.StickyCaptchaServlet</servlet-class>
+        <init-param>
+             <param-name>ttl</param-name>
+             <param-value>900000</param-value>
+        </init-param>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>StickyCaptcha</servlet-name>
+        <url-pattern>/stickycaptcha.png</url-pattern>
+    </servlet-mapping>
+
 	<welcome-file-list>
 		<welcome-file>index.jsp</welcome-file>
 	</welcome-file-list>

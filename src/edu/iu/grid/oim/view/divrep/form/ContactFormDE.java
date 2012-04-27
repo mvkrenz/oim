@@ -324,11 +324,13 @@ public class ContactFormDE extends DivRepForm
 			} catch (SQLException e) {
 				log.error(e);
 			}
+			/*
 			if ((associated_dn_rec != null) && (!profileEdit)) {
 				if (associated_dn_rec.dn_string.equals(context.getAuthorization().getUserDN())) {
-					new DivRepStaticContent(this, "<div><h2>NOTE: This is your profile!</h2></div>");
+					new DivRepStaticContent(this, "<div class=\"alert\">NOTE: This is your profile!</div>");
 				}
 			}
+			*/
 		}
 
 		new DivRepStaticContent(this, "<h2>Contact Information</h2>");

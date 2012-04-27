@@ -1,7 +1,18 @@
 package edu.iu.grid.oim.model.db;
 
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.PrintStream;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.security.PrivateKey;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -11,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.TreeSet;
 
 import javax.servlet.http.HttpSession;
@@ -23,9 +35,23 @@ import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
 import org.apache.log4j.Logger;
+import org.bouncycastle.asn1.pkcs.RSAPrivateKey;
 import org.bouncycastle.asn1.x500.X500Name;
+import org.bouncycastle.asn1.x500.X500NameBuilder;
+import org.bouncycastle.asn1.x500.style.BCStyle;
+import org.bouncycastle.asn1.x509.Certificate;
+import org.bouncycastle.cert.X509CertificateHolder;
+import org.bouncycastle.cms.CMSEnvelopedData;
+import org.bouncycastle.cms.CMSException;
+import org.bouncycastle.cms.CMSSignedData;
+import org.bouncycastle.operator.OperatorCreationException;
+import org.bouncycastle.util.Store;
+import org.bouncycastle.x509.X509Store;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
+
+import com.sun.org.apache.xml.internal.security.exceptions.Base64DecodingException;
+import com.sun.org.apache.xml.internal.security.utils.Base64;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Footprints;
@@ -36,21 +62,24 @@ import edu.iu.grid.oim.model.CertificateRequestStatus;
 import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.cert.CertificateManager;
 import edu.iu.grid.oim.model.cert.GenerateCSR;
-import edu.iu.grid.oim.model.cert.ICertificateSigner.Certificate;
-import edu.iu.grid.oim.model.cert.ICertificateSigner.CertificateProviderException;
+import edu.iu.grid.oim.model.cert.ICertificateSigner;
+//import edu.iu.grid.oim.model.cert.ICertificateSigner.Certificate;
+//import edu.iu.grid.oim.model.cert.ICertificateSigner.CertificateProviderException;
 import edu.iu.grid.oim.model.db.record.CertificateRequestUserRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
+import edu.iu.grid.oim.model.db.record.DNAuthorizationTypeRecord;
+import edu.iu.grid.oim.model.db.record.DNRecord;
 import edu.iu.grid.oim.model.db.record.LogRecord;
 import edu.iu.grid.oim.model.db.record.RecordBase;
 import edu.iu.grid.oim.model.db.record.SCRecord;
 import edu.iu.grid.oim.model.db.record.VOContactRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
 
-public class CertificateRequestUserModel extends ModelBase<CertificateRequestUserRecord> {
-    static Logger log = Logger.getLogger(CertificateRequestUserModel.class);  
+public class UserCertificateRequestModel extends ModelBase<CertificateRequestUserRecord> {
+    static Logger log = Logger.getLogger(UserCertificateRequestModel.class);  
     
 	private UserContext contect;
-    public CertificateRequestUserModel(UserContext _context) {
+    public UserCertificateRequestModel(UserContext _context) {
 		super(_context, "certificate_request_user");
 		context = _context;
 	}
@@ -62,7 +91,8 @@ public class CertificateRequestUserModel extends ModelBase<CertificateRequestUse
 		return null;
 	}  
 	
-	//determines if user should be able to view request details and logs
+	
+	//determines if user should be able to view request details, logs, and download certificate (pkcs12 is session specific)
 	public boolean canView(CertificateRequestUserRecord rec) {
 		if(auth.isGuest()) {
 			//all guest see all other guest's certificates
@@ -250,8 +280,30 @@ public class CertificateRequestUserModel extends ModelBase<CertificateRequestUse
 			return false;
 		}
 		
-		Authorization auth = context.getAuthorization();
-		ContactRecord contact = auth.getContact();
+		try {
+			//Then insert a new DN record
+			DNRecord dnrec = new DNRecord();
+			dnrec.contact_id = rec.requester_contact_id;
+			dnrec.dn_string = rec.dn;
+			DNModel dnmodel = new DNModel(context);
+			dnrec.id = dnmodel.insert(dnrec);
+			
+			//Give user OSG end user access
+			DNAuthorizationTypeModel dnauthmodel = new DNAuthorizationTypeModel(context);
+			DNAuthorizationTypeRecord dnauthrec = new DNAuthorizationTypeRecord();
+			dnauthrec.dn_id = dnrec.id;
+			dnauthrec.authorization_type_id = 1; //OSG End User
+			dnauthmodel.insert(dnauthrec);
+			
+			//enable contact
+			ContactModel cmodel = new ContactModel(context);
+			ContactRecord crec = cmodel.get(rec.requester_contact_id);
+			crec.disable = false;
+			cmodel.update(cmodel.get(rec.requester_contact_id), crec);
+			
+		} catch (SQLException e) {
+			log.error("Failed to associate new DN with requeter contact", e);
+		}
 		
 		Footprints fp = new Footprints(context);
 		FPTicket ticket = fp.new FPTicket();
@@ -401,7 +453,7 @@ public class CertificateRequestUserModel extends ModelBase<CertificateRequestUse
 	public boolean startissue(final CertificateRequestUserRecord rec, final String password) {
 		
 		try {
-			//mark the requet as "issuing.."
+			//mark the request as "issuing.."
 			rec.status = CertificateRequestStatus.ISSUING;
 			super.update(get(rec.id), rec);
 		} catch (SQLException e) {
@@ -425,31 +477,30 @@ public class CertificateRequestUserModel extends ModelBase<CertificateRequestUse
 					
 					rec.csr = csrgen.getCSR();
 					try {
-						CertificateRequestUserModel.super.update(get(rec.id), rec);
+						UserCertificateRequestModel.super.update(get(rec.id), rec);
 					} catch (SQLException e1) {
 						log.error("Failed to store generated CSR for request: " + rec.id, e1);
 						return;
 					}
 					
-					//TODO - store private key somewhere in memory
-					/*
-					HttpSession session = context.getSession();
+					//store private key in memory
 					try {
-						session.setAttribute("USER"+rec.id+"_PRIVATE", csrgen.getEncryptedPrivateKey(password));
+						HttpSession session = context.getSession();
+						session.setAttribute("PRIVATE_USER:"+rec.id, csrgen.getPrivateKey());
+						session.setAttribute("PASS_USER:"+rec.id, password);
 					} catch (Exception e) {
 						log.error("Failed to obtain encrypted private key for user certiricate request: " + rec.id, e);
 						return;
 					}
-					*/					
 				}
 				
 				CertificateManager cm = new CertificateManager();
 				try {
-					Certificate cert = cm.signUserCertificate(rec.csr);
+					ICertificateSigner.Certificate cert = cm.signUserCertificate(rec.csr);
 					rec.cert_certificate = cert.certificate;
 					rec.cert_intermediate = cert.intermediate;
 					rec.cert_pkcs7 = cert.pkcs7;
-				} catch (CertificateProviderException e1) {
+				} catch (ICertificateSigner.CertificateProviderException e1) {
 					log.error("Failed to sign certificate", e1);
 					return;
 				}
@@ -457,7 +508,7 @@ public class CertificateRequestUserModel extends ModelBase<CertificateRequestUse
 				try {
 					//context.setComment("Certificate Approved");
 					rec.status = CertificateRequestStatus.ISSUED;
-					CertificateRequestUserModel.super.update(get(rec.id), rec);
+					UserCertificateRequestModel.super.update(get(rec.id), rec);
 				} catch (SQLException e) {
 					log.error("Failed to update status for certificate request: " + rec.id);
 					return;
@@ -478,7 +529,86 @@ public class CertificateRequestUserModel extends ModelBase<CertificateRequestUse
 		return true;
 	}
 	
+	public PrivateKey getPrivateKey(Integer id) {
+		HttpSession session = context.getSession();
+		return (PrivateKey)session.getAttribute("PRIVATE_USER:"+id);	
+	}
 	
+	//return null if unsuccessful - errors are logged
+	public KeyStore getPkcs12(CertificateRequestUserRecord rec) {			
+		//pull certificate chain from pkcs7
+
+		try {
+			//need to strip first and last line (-----BEGIN PKCS7-----, -----END PKCS7-----)
+			String []lines = rec.cert_pkcs7.split("\n");
+			String payload = "";
+			for(String line : lines) {
+				if(line.startsWith("-----")) continue;
+				payload += line;
+			}
+			
+			CMSSignedData cms = new CMSSignedData(Base64.decode(payload));
+			Store s = cms.getCertificates();
+			Collection collection = s.getMatches(null);
+			java.security.cert.Certificate[] chain = new java.security.cert.Certificate[3]; //TODO - how do I know that there will always be 3?
+			Iterator itr = collection.iterator(); 
+			int i = 0;
+			
+		    CertificateFactory cf = CertificateFactory.getInstance("X.509"); 
+			while(itr.hasNext()) {
+				X509CertificateHolder it = (X509CertificateHolder)itr.next();
+				Certificate c = it.toASN1Structure();
+				
+				//convert to java.security certificate
+			    InputStream is1 = new ByteArrayInputStream(c.getEncoded()); 
+				chain[i++] = cf.generateCertificate(is1);
+			}
+			
+			HttpSession session = context.getSession();
+			String password = (String)session.getAttribute("PASS_USER:"+rec.id);
+			
+			KeyStore p12 = KeyStore.getInstance("PKCS12");
+			p12.load(null, null);  //not sure what this does.
+			PrivateKey private_key = getPrivateKey(rec.id);
+			//p12.setKeyEntry("USER"+rec.id, private_key.getEncoded(), chain); 
+			
+			/*
+			//DEBUG -- fake it to test
+			password = "password";
+			try {
+				GenerateCSR gcsr = new GenerateCSR(
+							new X500Name("CN=\"Soichi Hayashi/emailAddress=hayashis@indiana.edu\", OU=PKITesting, O=OSG, L=Bloomington, ST=IN, C=United States"));
+		    	private_key = gcsr.getPrivateKey();
+				
+			} catch (OperatorCreationException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			*/
+
+			
+			p12.setKeyEntry("USER"+rec.id, private_key, password.toCharArray(), chain); 
+			return p12;
+		} catch (IOException e) {
+			log.error("Failed to get encoded byte array from bouncy castle certificate.");
+		} catch (CertificateException e) {
+			log.error("Failed to generate java security certificate from byte array");
+		} catch (KeyStoreException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (NoSuchAlgorithmException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (Base64DecodingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (CMSException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return null;
+	}
+
 	//NO-AC
 	public CertificateRequestUserRecord get(int id) throws SQLException {
 		ResultSet rs = null;
@@ -544,7 +674,7 @@ public class CertificateRequestUserModel extends ModelBase<CertificateRequestUse
 			
 			ArrayList<Log> logs = new ArrayList<Log>();
 			LogModel model = new LogModel(context);
-			Collection<LogRecord> raws = model.getByModel(CertificateRequestUserModel.class, id.toString());
+			Collection<LogRecord> raws = model.getByModel(UserCertificateRequestModel.class, id.toString());
 			for(LogRecord raw : raws) {
 				Log log = new Log();
 				log.comment = raw.comment;
@@ -586,60 +716,48 @@ public class CertificateRequestUserModel extends ModelBase<CertificateRequestUse
     	
     	return false;
     }
-    
- 
-    public boolean requestWithX500(Integer vo_id, X500Name name) throws SQLException
-    { 
-    	//TODO -- check access
-    	
-    	//TODO -- check quota
-    	
-		CertificateRequestUserRecord rec = new CertificateRequestUserRecord();
-		ContactRecord contact = auth.getContact();
-		rec.requester_contact_id = contact.id;
-		rec.requester_name = contact.name;
-		rec.dn = name.toString(); //RFC1779
-		rec.vo_id = vo_id;
-		
-		Footprints fp = new Footprints(context);
-		FPTicket ticket = fp.new FPTicket();
-		ticket.name = contact.name;
-		ticket.email = contact.primary_email;
-		ticket.phone = contact.primary_phone;
-		
-    	return request(rec, ticket);
-    }
-    
+       
     //true - success
-    public boolean requestGuestWithCSR(Integer vo_id, String csr, String fullname) throws SQLException
-    { 
-    	
-    	return false;
-    }
-    
- 
-    //true - success
-    public boolean requestGuestWithX500(Integer vo_id, X500Name name, String requester_passphrase, String fullname, String email, String phone) throws SQLException
+    public boolean request(Integer vo_id, ContactRecord requester, String requester_passphrase) throws SQLException
     { 
     	//TODO -- check access
     	
     	//TODO -- check quota
  
+    	X500Name name = generateDN(requester.name, requester.primary_email);
+    	
 		CertificateRequestUserRecord rec = new CertificateRequestUserRecord();
-		rec.requester_name = fullname;
+		rec.requester_name = requester.name;
 		rec.dn = name.toString(); //RFC1779
 		rec.requester_passphrase = requester_passphrase;
+		rec.requester_contact_id = requester.id;
 		rec.vo_id = vo_id;
-		rec.requester_name = fullname;
-		
+
 		Footprints fp = new Footprints(context);
 		FPTicket ticket = fp.new FPTicket();
-		ticket.name = fullname;
-		ticket.email = email;
-		ticket.phone = phone;
+		ticket.name = requester.name;
+		ticket.email = requester.primary_email;
+		ticket.phone = requester.primary_phone;
 		
     	return request(rec, ticket);
     } 
+    
+    private X500Name generateDN(String fullname, String email) {
+        X500NameBuilder x500NameBld = new X500NameBuilder(BCStyle.INSTANCE);
+
+        /*
+        x500NameBld.addRDN(BCStyle.C, country.getValue());
+        x500NameBld.addRDN(BCStyle.ST, state.getValue());
+        x500NameBld.addRDN(BCStyle.L, city.getValue());
+        */
+        x500NameBld.addRDN(BCStyle.O, "OSG");//org name
+        x500NameBld.addRDN(BCStyle.OU, "PKITesting");//org unit      
+        x500NameBld.addRDN(BCStyle.NAME, fullname);//org unit      
+        x500NameBld.addRDN(BCStyle.EmailAddress, email);
+
+        return x500NameBld.build();
+        
+    }
     
     //NO-AC NO-QUOTA
     private boolean request(CertificateRequestUserRecord rec, FPTicket ticket) throws SQLException 

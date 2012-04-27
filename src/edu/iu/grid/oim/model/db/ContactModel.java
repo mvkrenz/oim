@@ -175,7 +175,7 @@ public class ContactModel extends SmallTableModelBase<ContactRecord> {
 		String unused_twiki_id = twiki_id.toString();
 		int count = 2; //start with #2 (because #1 already exist)
 		while(isTWikiIDExist(unused_twiki_id, rec_ignore)) {
-			unused_twiki_id = twiki_id.toString() + count;
+			unused_twiki_id = twiki_id.toString() + count++;
 		}
 		
 		return unused_twiki_id;

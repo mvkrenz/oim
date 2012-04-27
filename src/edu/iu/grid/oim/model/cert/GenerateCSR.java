@@ -11,6 +11,7 @@ import java.security.AlgorithmParameters;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
 import java.security.SecureRandom;
 
 import javax.crypto.Cipher;
@@ -24,6 +25,7 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.log4j.Logger;
 
 import org.bouncycastle.asn1.pkcs.CertificationRequest;
+import org.bouncycastle.asn1.pkcs.RSAPrivateKey;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.openssl.PEMWriter;
 import org.bouncycastle.operator.ContentSigner;
@@ -116,16 +118,14 @@ public class GenerateCSR {
  
     */
  
-    /*
-    public String getPrivateKey() {
-    	RSAPrivateKey key = (RSAPrivateKey)keypair.getPrivate();
-        BASE64Encoder encoder64 = new BASE64Encoder();
-    	return encoder64.encode(key.getEncoded());   
+  
+    public PrivateKey getPrivateKey() {
+    	return keypair.getPrivate();
     }
-    */
+   
     
     //http://stackoverflow.com/questions/5127379/how-to-generate-a-rsa-keypair-with-a-privatekey-encrypted-with-password
-    public String getEncryptedPrivateKey(String password) throws Exception {
+    public byte[] getEncryptedPrivateKey(String password) throws Exception {
     	byte[] encodedprivkey = keypair.getPrivate().getEncoded();
 
     	// We must use a PasswordBasedEncryption algorithm in order to encrypt the private key, 
@@ -153,9 +153,7 @@ public class GenerateCSR {
     	AlgorithmParameters algparms = AlgorithmParameters.getInstance(MYPBEALG);
     	algparms.init(pbeParamSpec);
     	EncryptedPrivateKeyInfo encinfo = new EncryptedPrivateKeyInfo(algparms, ciphertext);
-    	
-    	// and here we have it! a DER encoded PKCS#8 encrypted key!
-    	return new String(Base64.encodeBase64(encinfo.getEncoded()));   	
+    	return encinfo.getEncoded();
     }
  
     /*
@@ -214,6 +212,7 @@ public class GenerateCSR {
 	}
     */
  
+	/*
 	public void saveDER(String path) throws IOException {
 		FileOutputStream ospvt = new FileOutputStream(path + "/private.der");
 		try {
@@ -230,6 +229,7 @@ public class GenerateCSR {
 		  ospub.close();
 		}
 	}
+	*/
 	public void saveCSR(String path) throws IOException {
 		
 		//RSAPublicKey publickey = (RSAPublicKey)keypair.getPublic();
@@ -274,8 +274,8 @@ public class GenerateCSR {
     		new GenerateCSR(
     			new X500Name("CN=\"Soichi Hayashi/emailAddress=hayashis@indiana.edu\", OU=PKITesting, O=OSG, L=Bloomington, ST=IN, C=United States"));
     
-    	gcsr.saveDER("c:/trash");
-    	gcsr.saveCSR("c:/trash");
+    	//gcsr.saveDER("c:/trash");
+    	//gcsr.saveCSR("c:/trash");
     	/*
         System.out.println(new String(gcsr.getCSR()));
         
@@ -309,5 +309,9 @@ openssl rsa -in ~/tmp/private.pem -text #dump the private key I just converted
 > convert java generate (pkcs8 der) public key to openssl format (public.pem)
 openssl rsa -pubin -inform der < public.der > public.pem
  
+ > dump pem formatted pkcs7 
+ openssl pkcs7 -text -noout -print_certs -in pkcs7.txt
  
+ > dump pkcs12
+ openssl pkcs12 -in soichi.2012.p12 -noout -info
  */

@@ -12,6 +12,9 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.TimeZone;
 
+import net.tanesha.recaptcha.ReCaptcha;
+import net.tanesha.recaptcha.ReCaptchaFactory;
+
 import org.apache.log4j.Logger;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x500.X500NameBuilder;
@@ -41,7 +44,7 @@ import edu.iu.grid.oim.model.cert.CertificateManager;
 import edu.iu.grid.oim.model.cert.DivRepPassStrengthValidator;
 import edu.iu.grid.oim.model.cert.GenerateCSR;
 import edu.iu.grid.oim.model.cert.ICertificateSigner;
-import edu.iu.grid.oim.model.db.CertificateRequestUserModel;
+import edu.iu.grid.oim.model.db.UserCertificateRequestModel;
 import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.DNAuthorizationTypeModel;
 import edu.iu.grid.oim.model.db.DNModel;
@@ -61,11 +64,13 @@ import edu.iu.grid.oim.view.HtmlView;
 import edu.iu.grid.oim.view.MenuView;
 import edu.iu.grid.oim.view.Page;
 import edu.iu.grid.oim.view.SideContentView;
+import edu.iu.grid.oim.view.divrep.DivRepReCaptcha;
+import edu.iu.grid.oim.view.divrep.DivRepSimpleCaptcha;
 import edu.iu.grid.oim.view.divrep.VOResourceOwnership;
 
-public class CertificateRequestUserForm extends DivRepForm
+public class UserCertificateRequestForm extends DivRepForm
 {
-    static Logger log = Logger.getLogger(CertificateRequestUserForm.class);
+    static Logger log = Logger.getLogger(UserCertificateRequestForm.class);
 	private UserContext context;
 	private Authorization auth;
 	
@@ -75,7 +80,13 @@ public class CertificateRequestUserForm extends DivRepForm
 	private DivRepTextBox phone;
 	//private DivRepTextBox orgunit, orgname;
 	//private DivRepTextBox address_line_1, address_line_2;
-	private DivRepTextBox city, state, country;
+	private DivRepTextBox city, state, country, zipcode;
+	private DivRepSelectBox timezone;
+	private HashMap<Integer, String> timezone_id2tz;
+	
+	private DivRepTextArea profile;
+	private DivRepCheckBox use_twiki;
+	private DivRepTextBox twiki_id;
 	
 	private DivRepPassword passphrase; //for guest
 	private DivRepCheckBox agreement;
@@ -97,38 +108,14 @@ public class CertificateRequestUserForm extends DivRepForm
 	private DivRepTextBox twiki_id;
 	*/
 	
-	public CertificateRequestUserForm(UserContext context, String origin_url) {
+	public UserCertificateRequestForm(final UserContext context, String origin_url) {
 		
 		super(context.getPageRoot(), origin_url);
 		this.context = context;
 		auth = context.getAuthorization();
 		ContactRecord contact = auth.getContact();
-		
-		new DivRepStaticContent(this, "<h2>Identity Information</h2>");
-		new DivRepStaticContent(this, "<p class=\"help-block\">This information will be used to generate your CSR (PKCS10).</p>");
-				
-		fullname = new DivRepTextBox(this);
-		fullname.setLabel("Full Name");
-		fullname.setRequired(true);
-		if(contact != null) {
-			fullname.setValue(contact.name);
-		}
-		
-		email = new DivRepTextBox(this);
-		email.setLabel("Email");
-		email.setRequired(true);
-		if(contact != null) {
-			email.setValue(contact.primary_email);
-		}
-		
-		phone = new DivRepTextBox(this);
-		phone.setLabel("Phone");
-		phone.setRequired(true);
-		if(contact != null) {
-			phone.setValue(contact.primary_phone);
-		}
-		new DivRepStaticContent(this, "<p class=\"help-block\">* Used for certificate sponsors to contact you via GOC Ticket</p>");
-		
+	
+	
 		/*
 		class CheckValidator implements DivRepIValidator
 		{
@@ -170,35 +157,116 @@ public class CertificateRequestUserForm extends DivRepForm
 		address_line_2 = new DivRepTextBox(this);
 		address_line_2.setLabel("Address Line 2");
 		*/
-		
-		city = new DivRepTextBox(this);
-		city.setLabel("City");
-		city.setRequired(true);
-		if(contact != null) {
-			city.setValue(contact.city);
-		}
-
-		state = new DivRepTextBox(this);
-		state.setLabel("State");
-		state.setRequired(true);
-		if(contact != null) {
-			state.setValue(contact.state);
-		}
-
-		/*
-		zipcode = new DivRepTextBox(this);
-		zipcode.setLabel("Zipcode");
-		zipcode.setRequired(true);
-		*/
-
-		country = new DivRepTextBox(this);
-		country.setLabel("Country");
-		country.setRequired(true);
-		if(contact != null) {
-			country.setValue(contact.country);
-		}
-		
 		if(auth.isGuest()) {
+			new DivRepStaticContent(this, "<h2>Contact Information</h2>");
+			new DivRepStaticContent(this, "<p class=\"help-block\">Following information will be used to contact you during the approval process.</p>");
+					
+			fullname = new DivRepTextBox(this);
+			fullname.setLabel("Full Name");
+			fullname.setRequired(true);
+			if(contact != null) {
+				fullname.setValue(contact.name);
+			}
+			
+			email = new DivRepTextBox(this);
+			email.setLabel("Email");
+			email.setRequired(true);
+			if(contact != null) {
+				email.setValue(contact.primary_email);
+			}
+			
+			phone = new DivRepTextBox(this);
+			phone.setLabel("Phone");
+			phone.setRequired(true);
+			if(contact != null) {
+				phone.setValue(contact.primary_phone);
+			}
+			
+			new DivRepStaticContent(this, "<h2>Profile Information</h2>");
+			new DivRepStaticContent(this, "<p class=\"help-block\">Following information will be used to register you as a new OIM user.</p>");
+			
+			city = new DivRepTextBox(this);
+			city.setLabel("City");
+			city.setRequired(true);
+			if(contact != null) {
+				city.setValue(contact.city);
+			}
+	
+			state = new DivRepTextBox(this);
+			state.setLabel("State");
+			state.setRequired(true);
+			if(contact != null) {
+				state.setValue(contact.state);
+			}
+			
+			zipcode = new DivRepTextBox(this);
+			zipcode.setLabel("Zipcode");
+			zipcode.setRequired(true);
+	
+			country = new DivRepTextBox(this);
+			country.setLabel("Country");
+			country.setRequired(true);
+			if(contact != null) {
+				country.setValue(contact.country);
+			}
+			
+			timezone = new DivRepSelectBox(this);
+			timezone_id2tz = new HashMap<Integer, String>();
+			int i = 0;
+			for(int offset = -12;offset < 12;++offset) {
+				LinkedHashMap<Integer, String> group = new LinkedHashMap<Integer, String>();
+				for(String tz : TimeZone.getAvailableIDs(offset*1000*3600)) {
+					Calendar cal = Calendar.getInstance(TimeZone.getTimeZone(tz));
+					String tstr = String.format("%02d", cal.get(Calendar.HOUR)) + ":" + String.format("%02d", cal.get(Calendar.MINUTE));
+					switch(cal.get(Calendar.AM_PM)) {
+					case Calendar.AM:
+						tstr += " AM";
+						break;
+					default:
+						tstr += " PM";
+					}
+					tstr += String.format("%2d", cal.get(Calendar.MONTH)+1) + "/" + cal.get(Calendar.DAY_OF_MONTH);
+					group.put(i, tstr + " " + tz);
+					timezone_id2tz.put(i, tz);
+			
+					++i;
+				}
+				String group_name = "GMT";
+				if(offset < 0) {
+					group_name += offset;
+				} else if(offset > 0) {
+					group_name += "+" + offset;
+				}
+				timezone.addGroup(group_name, group);
+			}
+			timezone.setLabel("Time Zone - Please choose location based timezone such as America/Chicago");
+			timezone.setRequired(true);
+			
+			profile = new DivRepTextArea(this);
+			profile.setLabel("Profile");
+			profile.setRequired(true);
+			profile.setSampleValue("Please enter your role within OSG community, and maybe a small introduction of who you are and what you do.");
+		
+			use_twiki = new DivRepCheckBox(this);
+			use_twiki.setLabel("Use OSG TWiki");
+			use_twiki.setValue(false);
+			
+			twiki_id = new DivRepTextBox(this);
+			twiki_id.setLabel("OSG TWiki ID - Generated from your name");
+			twiki_id.setDisabled(true);
+			fullname.addEventListener(new DivRepEventListener() {
+				public void handleEvent(DivRepEvent e) {
+					if(e.action.equals("change")) {
+						ContactModel model = new ContactModel(context);
+						try {
+							twiki_id.setValue(model.generateTwikiID(e.value, null));
+							twiki_id.redraw();	
+						} catch (SQLException e1) {
+							alert(e1.toString());
+						}
+					}
+				}});
+			
 			new DivRepStaticContent(this, "<h2>Passphrase</h2>");
 			new DivRepStaticContent(this, "<p class=\"help-block\">Please pick a passphrase to retrieve your certificate once issued.</p>");
 			if(auth.isGuest()) {
@@ -207,6 +275,15 @@ public class CertificateRequestUserForm extends DivRepForm
 			passphrase = new DivRepPassword(this);
 			passphrase.addValidator(new DivRepPassStrengthValidator());
 			passphrase.setRequired(true);
+
+			/*
+			new DivRepReCaptcha(this, 
+					StaticConfig.conf.getProperty("recaptcha.public_key"), 
+					StaticConfig.conf.getProperty("recaptcha.private_key"),
+					context.getRemoteAddr());
+			*/
+			new DivRepStaticContent(this, "<h2>Captcha</h2>");
+			new DivRepSimpleCaptcha(this, context.getSession());
 		}
 		
 		new DivRepStaticContent(this, "<h2>DigiCert Policy Agreement</h2>");
@@ -227,7 +304,7 @@ public class CertificateRequestUserForm extends DivRepForm
 			}});
 		
 		new DivRepStaticContent(this, "<h2>Sponsor</h2>");
-		new DivRepStaticContent(this, "<p class=\"help-block\">Please select VO and sponsor who should approve your request.</p>");
+		new DivRepStaticContent(this, "<p class=\"help-block\">Please select VO who should approve your request.</p>");
 		
 		VOModel vo_model = new VOModel(context);
 		LinkedHashMap<Integer, String> kv = new LinkedHashMap();
@@ -398,18 +475,6 @@ public class CertificateRequestUserForm extends DivRepForm
 	protected Boolean doSubmit() {
 		Boolean ret = true;
 	
-
-        X500NameBuilder x500NameBld = new X500NameBuilder(BCStyle.INSTANCE);
-
-        x500NameBld.addRDN(BCStyle.C, country.getValue());
-        x500NameBld.addRDN(BCStyle.ST, state.getValue());
-        x500NameBld.addRDN(BCStyle.L, city.getValue());
-        x500NameBld.addRDN(BCStyle.O, "OSG");//org name
-        x500NameBld.addRDN(BCStyle.OU, "PKITesting");//org unit      
-        x500NameBld.addRDN(BCStyle.NAME, fullname.getValue());//org unit      
-        x500NameBld.addRDN(BCStyle.EmailAddress, email.getValue());
-
-        X500Name    x500 = x500NameBld.build();
         /*
 		String cn = fullname.getValue() + "/emailAddress=" + email.getValue();
 		X500NameBuilder builder = X500NameBuilder();
@@ -420,20 +485,61 @@ public class CertificateRequestUserForm extends DivRepForm
 		);
 		*/
 
-		
-		try {
-			CertificateRequestUserModel certmodel = new CertificateRequestUserModel(context);
-			if(auth.isGuest()) {
-				String requester_passphrase = HashHelper.sha1(passphrase.getValue());
-				ret = certmodel.requestGuestWithX500(vo.getValue(), x500, requester_passphrase, fullname.getValue(), email.getValue(), phone.getValue());
-			} else {
-				ret = certmodel.requestWithX500(vo.getValue(), x500);
+		ContactRecord user;
+		if(auth.isUser()) {
+			user = auth.getContact();
+		} else {
+			ContactModel model = new ContactModel(context);
+			DNModel dnmodel = new DNModel(context);
+			try {
+				//Find contact record with the same email address
+				ContactRecord rec = model.getByemail(email.getValue());
+				//Create new one if none is found
+				if(rec == null) {
+					rec = new ContactRecord();
+					rec.name = fullname.getValue();
+					rec.primary_email = email.getValue();
+					rec.primary_phone = phone.getValue();
+					rec.city = city.getValue();
+					rec.state = state.getValue();
+					rec.zipcode = zipcode.getValue();
+					rec.country = country.getValue();
+					rec.timezone = timezone_id2tz.get(timezone.getValue());
+					rec.profile = profile.getValue();
+					rec.use_twiki = use_twiki.getValue();
+					rec.twiki_id = twiki_id.getValue();
+					rec.person = true;
+					rec.disable = true; //don't enable until the request gets approved
+					rec.id = model.insert(rec);
+					user = rec;
+				} else {
+					//Make sure that this contact is not used by any DN already
+					if(dnmodel.getByContactID(rec.id) != null) {
+						alert("The email address specified is already associated with a different DN. Please try different email address.");
+						return false;
+					} 						
+					user = rec;
+				}
+			} catch (SQLException e) {
+				alert("Sorry, we couldn't register your contact information to OIM DB..");
+				log.error(e);
+				return false;
 			}
+		} 
+	
+		//do certificate request
+		try {
+			UserCertificateRequestModel certmodel = new UserCertificateRequestModel(context);
+			String requester_passphrase = null;
+			if(auth.isGuest()) {
+				requester_passphrase = HashHelper.sha1(passphrase.getValue());
+			} 
+			ret = certmodel.request(vo.getValue(), user, requester_passphrase);
 		} catch (Exception e) {
 			log.error("Failed to submit request..", e);
 			ret = false;
 		}
-		
+
 		if(!ret) {
 			alert("Sorry, failed to submit request..");
 		}

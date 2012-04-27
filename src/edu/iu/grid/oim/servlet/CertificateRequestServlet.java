@@ -25,7 +25,7 @@ import edu.iu.grid.oim.view.ContactAssociationView;
 import edu.iu.grid.oim.view.ContentView;
 import edu.iu.grid.oim.view.DivRepWrapper;
 import edu.iu.grid.oim.view.HtmlView;
-import edu.iu.grid.oim.view.divrep.form.CertificateRequestUserForm;
+import edu.iu.grid.oim.view.divrep.form.UserCertificateRequestForm;
 
 public class CertificateRequestServlet extends ServletBase  {
 	private static final long serialVersionUID = 1L;
@@ -55,7 +55,7 @@ public class CertificateRequestServlet extends ServletBase  {
 		v.add(new HtmlView("  </ul>"));
 		v.add(new HtmlView("  <div class=\"tab-content\">"));
 		v.add(new HtmlView("    <div class=\"tab-pane active\" id=\"user\">"));
-		CertificateRequestUserForm form = new CertificateRequestUserForm(context, "certificate");
+		UserCertificateRequestForm form = new UserCertificateRequestForm(context, "certificate");
 		v.add(new DivRepWrapper(form));
 		v.add(new HtmlView("    </div>"));
 		v.add(new HtmlView("    <div class=\"tab-pane\" id=\"host\">"));
