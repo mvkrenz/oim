@@ -46,7 +46,12 @@ public class CertificateDownloadServlet extends ServletBase  {
 						} else if(download.equals("pkcs12")) {
 							response.setContentType("application/x-pkcs12");
 							KeyStore p12 = model.getPkcs12(rec);
-							p12.store(response.getOutputStream(), "password".toCharArray());
+							if(p12 == null) {
+								log.error("Failed to create pkcs12");
+							} else {
+								String password = model.getPassword(id);
+								p12.store(response.getOutputStream(), password.toCharArray());
+							}
 						}
 					}
 				} catch (SQLException e) {

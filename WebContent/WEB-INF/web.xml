@@ -698,15 +698,6 @@
 		<servlet-name>CertificateDownloadServlet</servlet-name>
 		<url-pattern>/certificatedownload</url-pattern>
 	</servlet-mapping>	
-
-    <servlet>
-        <servlet-name>SimpleCaptcha</servlet-name>
-        <servlet-class>nl.captcha.servlet.SimpleCaptchaServlet</servlet-class>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>SimpleCaptcha</servlet-name>
-        <url-pattern>/simplecaptcha</url-pattern>
-    </servlet-mapping>
     
     <servlet>
         <servlet-name>StickyCaptcha</servlet-name>
@@ -721,6 +712,15 @@
         <url-pattern>/stickycaptcha.png</url-pattern>
     </servlet-mapping>
 
+    <servlet>
+        <servlet-name>RestServlet</servlet-name>
+        <servlet-class>edu.iu.grid.oim.servlet.RestServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>RestServlet</servlet-name>
+        <url-pattern>/rest</url-pattern>
+    </servlet-mapping>
+    
 	<welcome-file-list>
 		<welcome-file>index.jsp</welcome-file>
 	</welcome-file-list>

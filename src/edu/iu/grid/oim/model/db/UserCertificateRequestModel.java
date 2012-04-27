@@ -533,6 +533,10 @@ public class UserCertificateRequestModel extends ModelBase<CertificateRequestUse
 		HttpSession session = context.getSession();
 		return (PrivateKey)session.getAttribute("PRIVATE_USER:"+id);	
 	}
+	public String getPassword(Integer id) {
+		HttpSession session = context.getSession();
+		return (String)session.getAttribute("PASS_USER:"+id);		
+	}
 	
 	//return null if unsuccessful - errors are logged
 	public KeyStore getPkcs12(CertificateRequestUserRecord rec) {			
@@ -547,13 +551,13 @@ public class UserCertificateRequestModel extends ModelBase<CertificateRequestUse
 				payload += line;
 			}
 			
+			//convert cms to certificate chain
 			CMSSignedData cms = new CMSSignedData(Base64.decode(payload));
 			Store s = cms.getCertificates();
 			Collection collection = s.getMatches(null);
-			java.security.cert.Certificate[] chain = new java.security.cert.Certificate[3]; //TODO - how do I know that there will always be 3?
+			java.security.cert.Certificate[] chain = new java.security.cert.Certificate[collection.size()];
 			Iterator itr = collection.iterator(); 
 			int i = 0;
-			
 		    CertificateFactory cf = CertificateFactory.getInstance("X.509"); 
 			while(itr.hasNext()) {
 				X509CertificateHolder it = (X509CertificateHolder)itr.next();
@@ -565,7 +569,7 @@ public class UserCertificateRequestModel extends ModelBase<CertificateRequestUse
 			}
 			
 			HttpSession session = context.getSession();
-			String password = (String)session.getAttribute("PASS_USER:"+rec.id);
+			String password = getPassword(rec.id);
 			
 			KeyStore p12 = KeyStore.getInstance("PKCS12");
 			p12.load(null, null);  //not sure what this does.
@@ -588,6 +592,8 @@ public class UserCertificateRequestModel extends ModelBase<CertificateRequestUse
 
 			
 			p12.setKeyEntry("USER"+rec.id, private_key, password.toCharArray(), chain); 
+			//p12.setKeyEntry("USER"+rec.id, private_key, null, chain); 
+			
 			return p12;
 		} catch (IOException e) {
 			log.error("Failed to get encoded byte array from bouncy castle certificate.");
@@ -750,11 +756,17 @@ public class UserCertificateRequestModel extends ModelBase<CertificateRequestUse
         x500NameBld.addRDN(BCStyle.ST, state.getValue());
         x500NameBld.addRDN(BCStyle.L, city.getValue());
         */
+        x500NameBld.addRDN(BCStyle.DC, "com");
+        x500NameBld.addRDN(BCStyle.DC, "DigiCert-Grid");
+        x500NameBld.addRDN(BCStyle.OU, "People");   
+        x500NameBld.addRDN(BCStyle.CN, fullname);
+        /*
         x500NameBld.addRDN(BCStyle.O, "OSG");//org name
         x500NameBld.addRDN(BCStyle.OU, "PKITesting");//org unit      
         x500NameBld.addRDN(BCStyle.NAME, fullname);//org unit      
         x500NameBld.addRDN(BCStyle.EmailAddress, email);
-
+		*/
+        
         return x500NameBld.build();
         
     }
