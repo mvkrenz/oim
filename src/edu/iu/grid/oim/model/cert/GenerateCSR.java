@@ -314,4 +314,15 @@ openssl rsa -pubin -inform der < public.der > public.pem
  
  > dump pkcs12
  openssl pkcs12 -in soichi.2012.p12 -noout -info
+  
+ //to install ca cert for httpd server
+ 1) export cert fromo the browser as base64 encoded der (.pem)
+ 2) install it on /etc/grid-security/certificates
+ 3) create hash-link 
+ ln -s thecert.pem `openssl x509 -hash -noout -in thecert.pem`.0
+ 4) verify the ca 
+    $ openssl verify -CApath . thecert.pem
+DigiCertGridTESTRootCA.pem: OK
+
+ 
  */
