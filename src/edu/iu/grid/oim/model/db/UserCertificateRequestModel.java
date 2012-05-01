@@ -15,7 +15,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
@@ -306,10 +305,7 @@ public class UserCertificateRequestModel extends ModelBase<CertificateRequestUse
 			FPTicket ticket = fp.new FPTicket();
 			ticket.description = "Dear " + requester.name + ",\n\n";
 			ticket.description += "Your user certificate request has been approved. Please issue & download your certificate";
-			ticket.nextaction = "Requester to download certificate";
-			Calendar nad = Calendar.getInstance();
-			nad.add(Calendar.DATE, 7);
-			ticket.nad = nad.getTime();
+			ticket.nextaction = "Requester to download certificate"; // NAD will be set 7 days from today by default
 			fp.update(ticket, rec.goc_ticket_id);
 			
 		} catch (SQLException e) {
@@ -385,10 +381,7 @@ public class UserCertificateRequestModel extends ModelBase<CertificateRequestUse
 		Footprints fp = new Footprints(context);
 		FPTicket ticket = fp.new FPTicket();
 		ticket.description = contact.name + " has requested renewal for this certificate request.";
-		ticket.nextaction = "RA/Sponsor to verify&approve";
-		Calendar nad = Calendar.getInstance();
-		nad.add(Calendar.DATE, 7);
-		ticket.nad = nad.getTime();
+		ticket.nextaction = "RA/Sponsor to verify&approve"; //nad will be set to 7 days from today by default
 		fp.update(ticket, rec.goc_ticket_id);
 		
 		return true;
@@ -412,10 +405,7 @@ public class UserCertificateRequestModel extends ModelBase<CertificateRequestUse
 		Footprints fp = new Footprints(context);
 		FPTicket ticket = fp.new FPTicket();
 		ticket.description = contact.name + " has requested recocation of this certificate request.";
-		ticket.nextaction = "RA to process";
-		Calendar nad = Calendar.getInstance();
-		nad.add(Calendar.DATE, 7);
-		ticket.nad = nad.getTime();
+		ticket.nextaction = "RA to process"; //nad will be set to 7 days from today by default
 		fp.update(ticket, rec.goc_ticket_id);
 		
 		return true;
@@ -815,10 +805,7 @@ public class UserCertificateRequestModel extends ModelBase<CertificateRequestUse
 		} else {
 			ticket.assignees.add("adeximo");
 		}
-		ticket.nextaction = "RA/Sponsors to verify requester";
-		Calendar nad = Calendar.getInstance();
-		nad.add(Calendar.DATE, 7);
-		ticket.nad = nad.getTime();
+		ticket.nextaction = "RA/Sponsors to verify requester";	 //NAD will be set to 7 days in advance by default
 		
 		//set metadata
 		ticket.metadata.put("ASSOCIATED_VO_ID", vrec.id.toString());
