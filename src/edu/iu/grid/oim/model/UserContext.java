@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.TimeZone;
 
+import javax.naming.Context;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 import javax.servlet.http.HttpServletRequest;
@@ -29,6 +30,10 @@ public class UserContext {
 	private String request_url;
 	private HttpSession session;
 	private String remote_addr;
+	
+	//let's lookup once per user request (not session)
+    private DataSource oimds;
+    //private Connection oim;
 
 	//stores the reason for current transaction (used for log table)
 	//why should this work? because *usually* all update within a session occurs under common purpose.
@@ -49,6 +54,32 @@ public class UserContext {
 		divrep_root = DivRepRoot.getInstance(request.getSession());
 		divrep_pageroot = divrep_root.initPage(request.getRequestURI() + request.getQueryString());
 		remote_addr = request.getRemoteAddr();
+	}
+	
+	public Connection getConnection() throws SQLException {
+		if(oimds == null) {
+		    try {
+		    	log.debug("Looking for jdbc connection");
+		    	Context initContext = new InitialContext();
+		    	Context envContext  = (Context)initContext.lookup("java:/comp/env");
+		    	oimds = (DataSource)envContext.lookup("jdbc/oim");
+		    	log.debug(oimds.toString());
+		    } catch( NamingException ne ) {
+		    	throw new RuntimeException( "Unable to aquire data source", ne );
+		    }	
+		}
+		/*
+		if(oim == null || oim.isClosed()) {
+	    	log.debug("Connecting..");
+			oim = oimds.getConnection();
+	    	log.debug(oim.toString());
+		}
+		return oim;
+		*/
+    	log.debug("Connecting..");
+		Connection oim = oimds.getConnection();
+    	log.debug(oim.toString());
+		return oim;
 	}
 	
 	public static UserContext getGuestContext()

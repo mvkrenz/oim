@@ -102,7 +102,10 @@ public class Authorization {
 		
 		String localname = request.getLocalName();
 		String remoteaddr = request.getRemoteAddr();
-		if(localname.equals("localhost") || localname.equals("localhost.localdomain") || localname.equals("0.0.0.0") || remoteaddr.equals("192.168.1.77")) {
+		if(localname.equals("localhost") || localname.equals("localhost.localdomain") || localname.equals("0.0.0.0") 
+				|| remoteaddr.equals("192.168.1.75") //t520
+				|| remoteaddr.equals("192.168.1.77") //ubuntu-t520
+				) {
 			usertype = UserType.LOCAL;
 			debugAuthOverride(request);
 		}
