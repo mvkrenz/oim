@@ -1,15 +1,11 @@
 package edu.iu.grid.oim.model.db;
 
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PrintStream;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
 import java.security.PrivateKey;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
@@ -23,7 +19,6 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Iterator;
-import java.util.TreeSet;
 
 import javax.servlet.http.HttpSession;
 import javax.xml.parsers.DocumentBuilder;
@@ -35,27 +30,20 @@ import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
 
 import org.apache.log4j.Logger;
-import org.bouncycastle.asn1.pkcs.RSAPrivateKey;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x500.X500NameBuilder;
 import org.bouncycastle.asn1.x500.style.BCStyle;
 import org.bouncycastle.asn1.x509.Certificate;
 import org.bouncycastle.cert.X509CertificateHolder;
-import org.bouncycastle.cms.CMSEnvelopedData;
 import org.bouncycastle.cms.CMSException;
 import org.bouncycastle.cms.CMSSignedData;
-import org.bouncycastle.operator.OperatorCreationException;
 import org.bouncycastle.util.Store;
-import org.bouncycastle.x509.X509Store;
+import org.bouncycastle.util.encoders.Base64;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
-import com.sun.org.apache.xml.internal.security.exceptions.Base64DecodingException;
-import com.sun.org.apache.xml.internal.security.utils.Base64;
-
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Footprints;
-import edu.iu.grid.oim.lib.HashHelper;
 import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.lib.Footprints.FPTicket;
 import edu.iu.grid.oim.model.CertificateRequestStatus;
@@ -140,8 +128,10 @@ public class UserCertificateRequestModel extends ModelBase<CertificateRequestUse
 			if(auth.isUser()) {
 				ContactRecord contact = auth.getContact();
 				
+				/*
 				//super ra can see all requests
 				if(auth.allows("admin_all_user_cert_requests")) return true;
+				*/
 				
 				//Is user RA agent for specified vo?
 				VOContactModel model = new VOContactModel(context);
@@ -180,8 +170,10 @@ public class UserCertificateRequestModel extends ModelBase<CertificateRequestUse
 				//requester can cancel one's own request
 				if(rec.requester_contact_id == contact.id) return true;
 				
+				/*
 				//super ra can cancel all requests
 				if(auth.allows("admin_all_user_cert_requests")) return true;
+				*/
 				
 				//ra can cancel
 				VOContactModel model = new VOContactModel(context);
@@ -230,8 +222,11 @@ public class UserCertificateRequestModel extends ModelBase<CertificateRequestUse
 		
 		if(	rec.status.equals(CertificateRequestStatus.ISSUED) ||
 			rec.status.equals(CertificateRequestStatus.REVOCATION_REQUESTED)) {
+			
+			/*
 			//super ra can admin all requests
 			if(auth.allows("admin_all_user_cert_requests")) return true;
+			*/
 			
 			//requester oneself can revoke it
 			ContactRecord contact = auth.getContact();
@@ -261,8 +256,10 @@ public class UserCertificateRequestModel extends ModelBase<CertificateRequestUse
 		
 		if(	rec.status.equals(CertificateRequestStatus.APPROVED) ||
 			rec.status.equals(CertificateRequestStatus.REVOCATION_REQUESTED)) {
+			/*
 			//super ra can issue certificate
 			if(auth.allows("admin_all_user_cert_requests")) return true;
+			*/
 			
 			//requester oneself can issue
 			ContactRecord contact = auth.getContact();
@@ -607,9 +604,6 @@ public class UserCertificateRequestModel extends ModelBase<CertificateRequestUse
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (NoSuchAlgorithmException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (Base64DecodingException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (CMSException e) {

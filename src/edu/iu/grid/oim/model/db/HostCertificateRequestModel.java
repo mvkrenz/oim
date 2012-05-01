@@ -22,10 +22,8 @@ import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x500.style.BCStyle;
 
 import org.bouncycastle.pkcs.PKCS10CertificationRequest;
+import org.bouncycastle.util.encoders.Base64;
 import org.w3c.dom.Document;
-
-import com.sun.org.apache.xml.internal.security.exceptions.Base64DecodingException;
-import com.sun.org.apache.xml.internal.security.utils.Base64;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Footprints;
@@ -208,9 +206,6 @@ public class HostCertificateRequestModel extends ModelBase<CertificateRequestHos
 	    		X500Name name = csr.getSubject();
 	    		RDN[] cn_rdn = name.getRDNs(BCStyle.CN);
 	    		cn = cn_rdn[0].getFirst().getValue().toString(); //wtf?
-			} catch (Base64DecodingException e) {
-				log.error("Failed to base64 decode CSR", e);
-				throw new HostCertificateRequestException("Failed to base64 decode CSR:"+csr_string, e);
 			} catch (IOException e) {
 				log.error("Failed to base64 decode CSR", e);
 				throw new HostCertificateRequestException("Failed to base64 decode CSR:"+csr_string, e);
