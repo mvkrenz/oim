@@ -3,6 +3,7 @@ package edu.iu.grid.oim.lib;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 
@@ -640,6 +641,12 @@ public class Footprints
 		public ArrayList<String> ccs = new ArrayList<String>();
 		public ArrayList<String> assignees = new ArrayList<String>();
 		public HashMap<String, String> metadata = new HashMap<String, String>();
+		
+		public FPTicket() {
+			Calendar cal = Calendar.getInstance();
+			cal.add(Calendar.DATE, 7);
+			nad = cal.getTime();
+		}
 	}
 	
 	private Document parseXML(InputStream in) throws ParserConfigurationException, SAXException, IOException {
@@ -661,6 +668,7 @@ public class Footprints
 		post.setParameter("email", ticket.email);
 		post.setParameter("nextaction", ticket.nextaction);
 		post.setParameter("nextactiontime", String.valueOf(ticket.nad.getTime()/1000));
+	
 		for(int i = 0; i < ticket.ccs.size(); ++i) {
 			post.setParameter("cc["+i+"]", ticket.ccs.get(i));
 		}
@@ -704,9 +712,7 @@ public class Footprints
 		if(ticket.nextaction != null) {
 			post.setParameter("nextactiontime", ticket.nextaction);
 		}
-		if(ticket.nad != null) {
-			post.setParameter("nextactiontime", String.valueOf(ticket.nad.getTime()/1000));
-		}
+		post.setParameter("nextactiontime", String.valueOf(ticket.nad.getTime()/1000));
 		if(ticket.status != null) {
 			post.setParameter("status", ticket.status);
 		}
