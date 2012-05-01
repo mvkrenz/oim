@@ -13,15 +13,11 @@ import javax.servlet.http.HttpSession;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 
-import com.divrep.DivRep;
 import com.divrep.DivRepEvent;
 import com.divrep.DivRepEventListener;
 import com.divrep.common.DivRepButton;
-import com.divrep.common.DivRepDialog;
 import com.divrep.common.DivRepPassword;
-import com.divrep.common.DivRepStaticContent;
 import com.divrep.common.DivRepTextArea;
-import com.divrep.common.DivRepTextBox;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.AuthorizationException;
@@ -49,7 +45,7 @@ public class CertificateServlet extends ServletBase  {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{
 		UserContext context = new UserContext(request);
-		Authorization auth = context.getAuthorization();
+		//Authorization auth = context.getAuthorization();
 		
 		BootMenuView menuview = new BootMenuView(context, "certificate");
 		ContentView content = null;
@@ -155,12 +151,21 @@ public class CertificateServlet extends ServletBase  {
 		v.add(new HtmlView("</tr>"));
 
 		v.add(new HtmlView("<tr>"));
-		v.add(new HtmlView("<th>Requester Name</th>"));
+		v.add(new HtmlView("<th>Requester</th>"));
+		try {
+			ContactModel cmodel = new ContactModel(context);
+			ContactRecord requester = cmodel.get(rec.requester_contact_id);
+			v.add(new HtmlView("<td>"+StringEscapeUtils.escapeHtml(requester.name)+" ("+StringEscapeUtils.escapeHtml(requester.primary_email)+")</td>"));
+
+		} catch (SQLException e1) {
+			v.add(new HtmlView("<td>(sql error)</td>"));
+		}
+		/*
 		String auth_status = "(Unauthenticated)";
 		if(rec.requester_contact_id != null) {
 			auth_status = "(OIM Authenticated)";
 		}
-		v.add(new HtmlView("<td>"+StringEscapeUtils.escapeHtml(rec.requester_name)+" " +  auth_status+ "</td>"));
+		*/
 		v.add(new HtmlView("</tr>"));
 		
 		v.add(new HtmlView("<tr>"));
