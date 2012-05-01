@@ -94,9 +94,11 @@ public class UserCertificateRequestModel extends ModelBase<CertificateRequestUse
 	
 	//determines if user should be able to view request details, logs, and download certificate (pkcs12 is session specific)
 	public boolean canView(CertificateRequestUserRecord rec) {
+		return true; //let's allow everyone to view.
+		/*
 		if(auth.isGuest()) {
-			//all guest see all other guest's certificates
-			if(rec.requester_contact_id == null) return true;
+			//right now, guest can't view certificate requests
+			//TODO - we need to allow guest user to somehow gain access to ones own request
 		} else if(auth.isUser()) {
 			//super ra can see all requests
 			if(auth.allows("admin_all_user_cert_requests")) return true;
@@ -126,6 +128,7 @@ public class UserCertificateRequestModel extends ModelBase<CertificateRequestUse
 			}
 		}
 		return false;
+		*/
 	}
 	
 	//true if user can approve request
@@ -297,24 +300,25 @@ public class UserCertificateRequestModel extends ModelBase<CertificateRequestUse
 			
 			//enable contact
 			ContactModel cmodel = new ContactModel(context);
-			ContactRecord crec = cmodel.get(rec.requester_contact_id);
-			crec.disable = false;
-			cmodel.update(cmodel.get(rec.requester_contact_id), crec);
+			ContactRecord requester = cmodel.get(rec.requester_contact_id);
+			requester.disable = false;
+			cmodel.update(cmodel.get(rec.requester_contact_id), requester);
+
+			//update ticket
+			Footprints fp = new Footprints(context);
+			FPTicket ticket = fp.new FPTicket();
+			ticket.description = "Dear " + requester.name + ",\n\n";
+			ticket.description += "Your user certificate request has been approved. Please issue & download your certificate";
+			ticket.nextaction = "Requester to download certificate";
+			Calendar nad = Calendar.getInstance();
+			nad.add(Calendar.DATE, 7);
+			ticket.nad = nad.getTime();
+			fp.update(ticket, rec.goc_ticket_id);
 			
 		} catch (SQLException e) {
 			log.error("Failed to associate new DN with requeter contact", e);
 		}
-		
-		Footprints fp = new Footprints(context);
-		FPTicket ticket = fp.new FPTicket();
-		ticket.description = "Dear " + rec.requester_name + ",\n\n";
-		ticket.description += "Your user certificate request has been approved. Please issue & download your certificate";
-		ticket.nextaction = "Requester to download certificate";
-		Calendar nad = Calendar.getInstance();
-		nad.add(Calendar.DATE, 7);
-		ticket.nad = nad.getTime();
-		fp.update(ticket, rec.goc_ticket_id);
-		
+	
 		return true;
 	}
 	
@@ -733,7 +737,6 @@ public class UserCertificateRequestModel extends ModelBase<CertificateRequestUse
     	X500Name name = generateDN(requester.name, requester.primary_email);
     	
 		CertificateRequestUserRecord rec = new CertificateRequestUserRecord();
-		rec.requester_name = requester.name;
 		rec.dn = name.toString(); //RFC1779
 		rec.requester_passphrase = requester_passphrase;
 		rec.requester_contact_id = requester.id;
@@ -745,7 +748,7 @@ public class UserCertificateRequestModel extends ModelBase<CertificateRequestUse
 		ticket.email = requester.primary_email;
 		ticket.phone = requester.primary_phone;
 		
-    	return request(rec, ticket);
+    	return request(rec, requester, ticket);
     } 
     
     private X500Name generateDN(String fullname, String email) {
@@ -772,7 +775,7 @@ public class UserCertificateRequestModel extends ModelBase<CertificateRequestUse
     }
     
     //NO-AC NO-QUOTA
-    private boolean request(CertificateRequestUserRecord rec, FPTicket ticket) throws SQLException 
+    private boolean request(CertificateRequestUserRecord rec, ContactRecord requester, FPTicket ticket) throws SQLException 
     {
 		Date current = new Date();
 		rec.request_time = new Timestamp(current.getTime());
@@ -798,11 +801,11 @@ public class UserCertificateRequestModel extends ModelBase<CertificateRequestUse
 			log.error("Failed to lookup RA/sponsor information", e1);
 		}
 				
-		context.setComment("Making Request for " + rec.requester_name);
+		context.setComment("Making Request for " + requester.name);
     	Integer request_id = super.insert(rec);
     	
 		//submit goc ticket
-		ticket.title = "User Certificate Request for "+rec.requester_name;
+		ticket.title = "User Certificate Request for "+requester.name;
 		String auth_status = "An unauthenticated user; ";
 		if(auth.isUser()) {
 			auth_status = "An OIM Authenticated user; ";
@@ -810,7 +813,7 @@ public class UserCertificateRequestModel extends ModelBase<CertificateRequestUse
 		VOModel vmodel = new VOModel(context);
 		VORecord vrec = vmodel.get(rec.vo_id);
 		ticket.description = "Dear " + vrec.name + " VO RA,\n\n";
-		ticket.description += auth_status + rec.requester_name + " has requested a user certificate. ";
+		ticket.description += auth_status + requester.name + " <"+requester.primary_email+"> has requested a user certificate. ";
 		String url = StaticConfig.getApplicationBase() + "/certificate?type=user&id=" + rec.id;
 		ticket.description += "Please determine this request's authenticity, and approve / disapprove at " + url;
 		if(StaticConfig.isDebug()) {
@@ -830,11 +833,11 @@ public class UserCertificateRequestModel extends ModelBase<CertificateRequestUse
 		SCRecord screc = scmodel.get(vrec.sc_id);
 		ticket.metadata.put("SUPPORTING_SC_ID", screc.id.toString());
 		ticket.metadata.put("SUPPORTING_SC_NAME", screc.name);
-		ticket.metadata.put("SUBMITTED_VIA", "OIM/CertManager");
+		ticket.metadata.put("SUBMITTED_VIA", "OIM/CertManager(user)");
 		if(auth.isUser()) {
 			ticket.metadata.put("SUBMITTER_DN", auth.getUserDN());
 		} 
-		ticket.metadata.put("SUBMITTER_NAME", rec.requester_name);
+		ticket.metadata.put("SUBMITTER_NAME", requester.name);
 		
 		//do open ticket.
 		Footprints fp = new Footprints(context);

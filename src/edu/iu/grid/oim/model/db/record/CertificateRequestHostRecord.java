@@ -7,12 +7,13 @@ import java.sql.Timestamp;
 public class CertificateRequestHostRecord extends RecordBase {
 
 	@Key public Integer id;
+
+	//used for goc ticket contact, but since we don't store contact_id, we should probably store this in DB
+	public String requester_name;
+	public String requester_email;
+	public String requester_phone;
 	
-	//either one of these should be set
-	public Integer requester_contact_id; //for oim user
-	public String requester_name; //for guest
-	
-	public String fqdn_csrs; //list of fqdn:csr lines
+	public String csrs; //list of csrs on each line
 	
 	//return from DigiCert
 	public String cert_certificate;
@@ -24,6 +25,7 @@ public class CertificateRequestHostRecord extends RecordBase {
 	public Timestamp update_time;
 	
 	public String status;
+	public Integer gridadmin_contact_id;
 	public String goc_ticket_id;
 	
 	//load from existing record

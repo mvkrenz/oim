@@ -1,49 +1,27 @@
 package edu.iu.grid.oim.servlet;
 
 import java.io.IOException;
+import java.io.PrintWriter;
+
 import java.sql.SQLException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.HashMap;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 
-import com.divrep.DivRep;
-import com.divrep.DivRepEvent;
-import com.divrep.DivRepEventListener;
-import com.divrep.common.DivRepButton;
-import com.divrep.common.DivRepDialog;
-import com.divrep.common.DivRepPassword;
-import com.divrep.common.DivRepStaticContent;
-import com.divrep.common.DivRepTextArea;
-import com.divrep.common.DivRepTextBox;
-
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.AuthorizationException;
 import edu.iu.grid.oim.lib.StaticConfig;
-import edu.iu.grid.oim.model.CertificateRequestStatus;
 import edu.iu.grid.oim.model.UserContext;
-import edu.iu.grid.oim.model.cert.DivRepPassStrengthValidator;
 import edu.iu.grid.oim.model.db.HostCertificateRequestModel;
-import edu.iu.grid.oim.model.db.UserCertificateRequestModel;
-import edu.iu.grid.oim.model.db.ContactModel;
-import edu.iu.grid.oim.model.db.VOModel;
+import edu.iu.grid.oim.model.db.HostCertificateRequestModel.HostCertificateRequestException;
 import edu.iu.grid.oim.model.db.record.CertificateRequestHostRecord;
-import edu.iu.grid.oim.model.db.record.CertificateRequestUserRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
-import edu.iu.grid.oim.model.db.record.VORecord;
-import edu.iu.grid.oim.view.BootBreadCrumbView;
-import edu.iu.grid.oim.view.BootMenuView;
-import edu.iu.grid.oim.view.BootPage;
-import edu.iu.grid.oim.view.ContentView;
-import edu.iu.grid.oim.view.GenericView;
-import edu.iu.grid.oim.view.HtmlView;
+
 
 public class RestServlet extends ServletBase  {
 	private static final long serialVersionUID = 1L;
@@ -56,7 +34,8 @@ public class RestServlet extends ServletBase  {
     	HashMap<String, String> params = new HashMap<String, String>();
     }
     
-    class RestException extends Exception {
+    @SuppressWarnings("serial")
+	class RestException extends Exception {
     	public RestException(String message) {
     		super(message);
     	}
@@ -65,7 +44,7 @@ public class RestServlet extends ServletBase  {
     	}
     }
 
-	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
+	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{
 		response.setContentType("text/xml");
 		Reply reply = new Reply();
@@ -76,66 +55,120 @@ public class RestServlet extends ServletBase  {
 				doHostCertsRequest(request, reply);
 			} else if(action.equals("host_certs_renew")) {
 				doHostCertsRenew(request, reply);
-			} else if(action.equals("host_cert_retrieve")) {
-				doHostCertRetrieve(request, reply);
-			} else if(action.equals("approve_host_request")) {
-				doApproveHostRequest(request, reply);
+			} else if(action.equals("host_certs_retrieve")) {
+				doHostCertsRetrieve(request, reply);
+			} else if(action.equals("host_certs_approve")) {
+				doHostCertsApprove(request, reply);
 			}
 		
 		} catch (RestException e) {
 			reply.status = Status.FAILED;
-			reply.detail = e.getMessage();
+			reply.detail = e.toString();
+			if(e.getMessage() != null) reply.detail += " -- " + e.getMessage();	
 		} catch(AuthorizationException e) {
 			reply.status = Status.FAILED;
-			reply.detail = e.getMessage();
+			reply.detail = e.toString();	
+		} catch(Exception e) {
+			reply.status = Status.FAILED;
+			reply.detail = e.toString();
+			if(e.getMessage() != null) reply.detail += " -- " + e.getMessage();	
 		}
+		PrintWriter out = response.getWriter();
+		/*
+		if(reply.status.equals(Status.FAILED)) {
+			response.setStatus(500);
+		}
+		*/
+		out.write("{");
+		out.write("\"status\": \""+reply.status.toString()+"\",");
+		out.write("\"detail\": \""+StringEscapeUtils.escapeJavaScript(reply.detail)+"\",");
+		//output params
+		out.write("}");
 		
-		//TODO - output reply
 	}
  
 	private void doHostCertsRequest(HttpServletRequest request, Reply reply) throws AuthorizationException, RestException {
 		UserContext context = new UserContext(request);	
 		Authorization auth = context.getAuthorization();
 		
-		HashMap<String, String> fqdn_csrs = new HashMap<String, String>();
-		HostCertificateRequestModel model = new HostCertificateRequestModel(context);
-		
-		String [] dirty_fqdn_csrs = request.getParameterValues("fqdn_csrs");
-		for(String fqdn_csr : dirty_fqdn_csrs) {
-			String []parts = fqdn_csr.split(":");
-			String fqdn = parts[0];
-			String csr = parts[1];
-	
-			ArrayList<Integer> gridadmins = model.lookupGridAdmins(fqdn);
-			if(gridadmins.isEmpty()) {
-				throw new RestException("There are no Gridadmin who can approve request for " + fqdn);
+		String[] csrs = request.getParameterValues("csrs");
+		String name, email, phone;
+		if(auth.isGuest()) {
+			name = request.getParameter("name");
+			email = request.getParameter("email");
+			phone = request.getParameter("phone");
+			
+			//TODO - validate
+			
+			if(name == null || email == null || phone == null) {
+				throw new RestException("Please provide name, email, phone in order to create GOC ticket.");
 			}
-			fqdn_csrs.put(fqdn, csr);
+			context.setComment("Guest user; " + name + " submitted host certificatates request.");
+		} else {
+			ContactRecord user = auth.getContact();
+			name = user.name;
+			email = user.primary_email;
+			phone = user.primary_phone;
+			
+			context.setComment("OIM authenticated user; " + name + " submitted host certificatates request.");
 		}
 		
+		HostCertificateRequestModel model = new HostCertificateRequestModel(context);
 		CertificateRequestHostRecord rec;
 		try {
-			rec = model.request(fqdn_csrs);
+			rec = model.request(csrs, name, email, phone);
 			if(rec == null) {
 				throw new RestException("Failed to make request");
 			}
-		} catch (SQLException e) {
+			reply.params.put("gocticket_url", StaticConfig.conf.getProperty("url.gocticket")+"/"+rec.goc_ticket_id);
+			reply.params.put("host_request_id", "HOST"+rec.id);
+		} catch (HostCertificateRequestException e) {
 			throw new RestException("SQLException while makeing request", e);
 		}
 	}
 	
 	private void doHostCertsRenew(HttpServletRequest request, Reply reply) throws AuthorizationException {
 		UserContext context = new UserContext(request);	
-		Authorization auth = context.getAuthorization();
+		//Authorization auth = context.getAuthorization();
 	}
 	
-	private void doHostCertRetrieve(HttpServletRequest request, Reply reply) throws AuthorizationException {
+	private void doHostCertsRetrieve(HttpServletRequest request, Reply reply) throws AuthorizationException, RestException {
 		UserContext context = new UserContext(request);	
-		Authorization auth = context.getAuthorization();
+		//Authorization auth = context.getAuthorization();
+		String dirty_host_request_id = request.getParameter("host_request_id");
+		Integer host_request_id = Integer.parseInt(dirty_host_request_id);
+		String dirty_idx = request.getParameter("idx");
+		Integer idx = Integer.parseInt(dirty_idx);
+		HostCertificateRequestModel model = new HostCertificateRequestModel(context);
+		try {
+			CertificateRequestHostRecord rec = model.get(host_request_id);
+			reply.params.put("pkcs7", model.getPkcs7(rec, idx));
+		} catch (SQLException e) {
+			throw new RestException("SQLException while makeing request", e);
+		} catch (HostCertificateRequestException e) {
+			throw new RestException("HostCertificateRequestException while makeing request", e);
+		}
 	}
 	
-	private void doApproveHostRequest(HttpServletRequest request, Reply reply) throws AuthorizationException {
+	private void doHostCertsApprove(HttpServletRequest request, Reply reply) throws AuthorizationException, RestException {
 		UserContext context = new UserContext(request);	
-		Authorization auth = context.getAuthorization();
+		//Authorization auth = context.getAuthorization();
+		
+		String dirty_host_request_id = request.getParameter("host_request_id");
+		Integer host_request_id = Integer.parseInt(dirty_host_request_id);
+		HostCertificateRequestModel model = new HostCertificateRequestModel(context);
+	
+		try {
+			CertificateRequestHostRecord rec = model.get(host_request_id);
+			if(model.canApprove(rec)) {
+				model.approve(rec);
+			} else {
+				throw new AuthorizationException("You can't approve this request");
+			}
+		} catch (SQLException e) {
+			throw new RestException("SQLException while makeing request", e);
+		} catch (HostCertificateRequestException e) {
+			throw new RestException("HostCertificateRequestException while makeing request", e);
+		}
 	}
 }
