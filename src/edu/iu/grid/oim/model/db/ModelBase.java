@@ -7,12 +7,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.TimeZone;
-
-import javax.naming.Context;
-import javax.naming.InitialContext;
-import javax.naming.NamingException;
-import javax.sql.DataSource;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathExpressionException;
 
@@ -38,24 +32,8 @@ public abstract class ModelBase<T extends RecordBase> {
     	table_name = _table_name;
 	}
 
-    DataSource _oimds = null;
 	protected Connection connectOIM() throws SQLException {
-		if(_oimds == null) {
-		    try {
-		    	log.debug("Looking for jdbc connection");
-		    	Context initContext = new InitialContext();
-		    	Context envContext  = (Context)initContext.lookup("java:/comp/env");
-		    	_oimds = (DataSource)envContext.lookup("jdbc/oim");
-		    	log.debug(_oimds.toString());
-		    } catch( NamingException ne ) {
-		    	throw new RuntimeException( "Unable to aquire data source", ne );
-		    }
-		}
-		
-		log.debug("Connecting to oim");
-		Connection conn = _oimds.getConnection();
-		log.debug("connected: " + conn.toString());
-		return conn;
+		return context.getConnection();
 	}
 	
 	//override this to provide human readable value

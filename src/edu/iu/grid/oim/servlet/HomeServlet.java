@@ -10,7 +10,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.log4j.Logger;
 import com.divrep.DivRep;
 import com.divrep.DivRepEvent;
-import com.divrep.common.DivRepButton;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.StaticConfig;
@@ -25,10 +24,7 @@ import edu.iu.grid.oim.view.DivRepWrapper;
 import edu.iu.grid.oim.view.ExternalLinkView;
 import edu.iu.grid.oim.view.GenericView;
 import edu.iu.grid.oim.view.HtmlView;
-import edu.iu.grid.oim.view.MenuView;
-import edu.iu.grid.oim.view.Page;
 import edu.iu.grid.oim.view.SideContentView;
-import edu.iu.grid.oim.view.ToolTip;
 
 public class HomeServlet extends ServletBase  {
 	private static final long serialVersionUID = 1L;
@@ -37,7 +33,7 @@ public class HomeServlet extends ServletBase  {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{
 		UserContext context = new UserContext(request);
-		Authorization auth = context.getAuthorization();
+		//Authorization auth = context.getAuthorization();
 		
 		BootMenuView menuview = new BootMenuView(context, "home");
 		ContentView contentview;
@@ -134,6 +130,7 @@ public class HomeServlet extends ServletBase  {
 		return contentview;
 	}
 	
+	@SuppressWarnings("serial")
 	class Confirmation extends DivRep
 	{
 		final ContactRecord crec;
