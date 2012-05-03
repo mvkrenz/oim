@@ -674,6 +674,19 @@
 		<servlet-name>CertificateServlet</servlet-name>
 		<url-pattern>/certificate</url-pattern>
 	</servlet-mapping>	
+	
+	<servlet>
+		<description>
+		</description>
+		<display-name>CertificateUserServlet</display-name>
+		<servlet-name>CertificateUserServlet</servlet-name>
+		<servlet-class>edu.iu.grid.oim.servlet.CertificateUserServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>CertificateUserServlet</servlet-name>
+		<url-pattern>/certificateuser</url-pattern>
+	</servlet-mapping>	
+		
 
 	<servlet>
 		<description>
