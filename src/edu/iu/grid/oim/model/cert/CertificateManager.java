@@ -12,14 +12,14 @@ public class CertificateManager {
 		cp  = new DigicertCertificateSigner();
 	}
 
-	public ICertificateSigner.Certificate signHostCertificate(X500Name x500, String domain) {
+	public ICertificateSigner.Certificate signHostCertificate(X500Name x500, String cn) {
 		//generate CSR for user
 		GenerateCSR gcsr;
 		try {
 			gcsr = new GenerateCSR(x500);
 			//gcsr.saveDER("c:/trash");
 			
-			ICertificateSigner.Certificate cert = signHostCertificate(gcsr.getCSR());
+			ICertificateSigner.Certificate cert = signHostCertificate(gcsr.getCSR(), cn);
 			return cert;
 			
 		} catch (Exception e) {
@@ -29,13 +29,13 @@ public class CertificateManager {
 	}
 	
 	//use user provided CSR
-	public ICertificateSigner.Certificate signHostCertificate(String csr) throws CertificateProviderException {
-		ICertificateSigner.Certificate cert = cp.signHostCertificate(csr);
+	public ICertificateSigner.Certificate signHostCertificate(String csr, String cn) throws CertificateProviderException {
+		ICertificateSigner.Certificate cert = cp.signHostCertificate(csr, cn);
 		return cert;
 	}
 	
-	public ICertificateSigner.Certificate signUserCertificate(String csr) throws CertificateProviderException {
-		ICertificateSigner.Certificate cert = cp.signUserCertificate(csr);
+	public ICertificateSigner.Certificate signUserCertificate(String csr, String dn) throws CertificateProviderException {
+		ICertificateSigner.Certificate cert = cp.signUserCertificate(csr, dn);
 		return cert;
 	}
 	

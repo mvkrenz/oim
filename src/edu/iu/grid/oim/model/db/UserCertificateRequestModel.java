@@ -487,7 +487,7 @@ public class UserCertificateRequestModel extends ModelBase<CertificateRequestUse
 				
 				CertificateManager cm = new CertificateManager();
 				try {
-					ICertificateSigner.Certificate cert = cm.signUserCertificate(rec.csr);
+					ICertificateSigner.Certificate cert = cm.signUserCertificate(rec.csr, rec.dn);
 					rec.cert_certificate = cert.certificate;
 					rec.cert_intermediate = cert.intermediate;
 					rec.cert_pkcs7 = cert.pkcs7;
@@ -711,8 +711,8 @@ public class UserCertificateRequestModel extends ModelBase<CertificateRequestUse
     	return false;
     }
        
-    //true - success
-    public boolean request(Integer vo_id, ContactRecord requester, String requester_passphrase) throws SQLException
+    //returns insertec request record if successful. if not, null
+    public CertificateRequestUserRecord request(Integer vo_id, ContactRecord requester, String requester_passphrase) throws SQLException
     { 
     	//TODO -- check access
     	
@@ -732,7 +732,11 @@ public class UserCertificateRequestModel extends ModelBase<CertificateRequestUse
 		ticket.email = requester.primary_email;
 		ticket.phone = requester.primary_phone;
 		
-    	return request(rec, requester, ticket);
+    	if(request(rec, requester, ticket) == true) {
+    		return rec;
+    	} else {
+    		return null;
+    	}
     } 
     
     private X500Name generateDN(String fullname, String email) {
@@ -786,7 +790,7 @@ public class UserCertificateRequestModel extends ModelBase<CertificateRequestUse
 		}
 				
 		context.setComment("Making Request for " + requester.name);
-    	Integer request_id = super.insert(rec);
+    	super.insert(rec);
     	
 		//submit goc ticket
 		ticket.title = "User Certificate Request for "+requester.name;
@@ -827,7 +831,7 @@ public class UserCertificateRequestModel extends ModelBase<CertificateRequestUse
 		//update request record with goc ticket id
 		rec.goc_ticket_id = ticket_id;
 		context.setComment("Opened GOC Ticket " + ticket_id);
-		super.update(get(request_id), rec);
+		super.update(get(rec.id), rec);
 
 		return true;
     }

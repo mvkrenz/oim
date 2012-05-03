@@ -32,13 +32,13 @@ public class DigicertCertificateSigner implements ICertificateSigner {
 		}
 	};
 	
-	public Certificate signHostCertificate(String csr) throws CertificateProviderException {
-		String requet_id = requestHostCert(csr);
+	public Certificate signHostCertificate(String csr, String cn) throws CertificateProviderException {
+		String requet_id = requestHostCert(csr, cn);
 		String order_id = approve(requet_id, "Approving for test purpose"); //like 00295828
 		return retrieveByOrderID(order_id);
 	}
-	public Certificate signUserCertificate(String csr) throws CertificateProviderException {
-		return requestUserCert(csr);
+	public Certificate signUserCertificate(String csr, String dn) throws CertificateProviderException {
+		return requestUserCert(csr, dn);
 	}
 	
 	private Document parseXML(InputStream in) throws ParserConfigurationException, SAXException, IOException {
@@ -47,7 +47,7 @@ public class DigicertCertificateSigner implements ICertificateSigner {
 		return db.parse(in);
 	}
 	
-	public Certificate requestUserCert(String csr) throws DigicertCPException {
+	public Certificate requestUserCert(String csr, String dn) throws DigicertCPException {
 		HttpClient cl = new HttpClient();
 		//cl.getHttpConnectionManager().getParams().setConnectionTimeout(1000*10);
 	    cl.getParams().setParameter("http.useragent", "OIM (OSG Information Management System)");
@@ -62,6 +62,8 @@ public class DigicertCertificateSigner implements ICertificateSigner {
 		post.setParameter("email", "hayashis@iu.edu");
 		post.setParameter("full_name", "Soichi Hayashi");
 		post.setParameter("csr", csr);
+		//post.setParameter("dn", dn); //request to override dn with ours
+		
 		//post.setParameter("comments", "This is just a test request."); //for approver to see
 		
 		try {
@@ -114,19 +116,19 @@ public class DigicertCertificateSigner implements ICertificateSigner {
 	}
 	
 	
-	public String requestHostCert(String csr) throws DigicertCPException {
+	public String requestHostCert(String csr, String cn) throws DigicertCPException {
 		HttpClient cl = new HttpClient();
 		//cl.getHttpConnectionManager().getParams().setConnectionTimeout(1000*10);
 	    cl.getParams().setParameter("http.useragent", "OIM (OSG Information Management System)");
 	    //cl.getParams().setParameter("http.contenttype", "application/x-www-form-urlencoded")
 		
-		PostMethod post = new PostMethod("https://www.digicert.com//enterprise/api/?action=grid_request_host_cert");
+		PostMethod post = new PostMethod("https://www.digicert.com/enterprise/api/?action=grid_request_host_cert");
 
 		post.addParameter("customer_name", "052062");
 		post.setParameter("customer_api_key", "MG9ij2Of4rakV7tXARyE347QQu00097U");
 		post.setParameter("response_type", "xml");
 		post.setParameter("validity", "1"); //security by obscurity -- from the DigiCert dev team
-		//post.setParameter("common_name", domain);
+		post.setParameter("common_name", cn);
 		post.setParameter("csr", csr);
 		//post.setParameter("comments", "This is just a test request."); //for approver to see
 		
@@ -172,7 +174,7 @@ public class DigicertCertificateSigner implements ICertificateSigner {
 	    cl.getParams().setParameter("http.useragent", "OIM (OSG Information Management System)");
 	    //cl.getParams().setParameter("http.contenttype", "application/x-www-form-urlencoded")
 		
-		PostMethod post = new PostMethod("https://www.digicert.com//enterprise/api/?action=grid_approve_request");
+		PostMethod post = new PostMethod("https://www.digicert.com/enterprise/api/?action=grid_approve_request");
 
 		post.addParameter("customer_name", "052062");
 		post.setParameter("customer_api_key", "MG9ij2Of4rakV7tXARyE347QQu00097U");
@@ -224,7 +226,7 @@ public class DigicertCertificateSigner implements ICertificateSigner {
 	    cl.getParams().setParameter("http.useragent", "OIM (OSG Information Management System)");
 	    //cl.getParams().setParameter("http.contenttype", "application/x-www-form-urlencoded")
 		
-		PostMethod post = new PostMethod("https://www.digicert.com//enterprise/api/?action=grid_retrieve_host_cert");
+		PostMethod post = new PostMethod("https://www.digicert.com/enterprise/api/?action=grid_retrieve_host_cert");
 
 		post.addParameter("customer_name", "052062");
 		post.setParameter("customer_api_key", "MG9ij2Of4rakV7tXARyE347QQu00097U");

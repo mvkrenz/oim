@@ -1,9 +1,6 @@
 package edu.iu.grid.oim.view.divrep.form;
 
-import java.io.IOException;
-import java.util.Date;
 import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -12,17 +9,10 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.TimeZone;
 
-import net.tanesha.recaptcha.ReCaptcha;
-import net.tanesha.recaptcha.ReCaptchaFactory;
-
 import org.apache.log4j.Logger;
-import org.bouncycastle.asn1.x500.X500Name;
-import org.bouncycastle.asn1.x500.X500NameBuilder;
-import org.bouncycastle.asn1.x500.style.BCStyle;
 
 import com.divrep.DivRepEvent;
 import com.divrep.DivRepEventListener;
-import com.divrep.DivRepPage;
 import com.divrep.common.DivRepCheckBox;
 import com.divrep.common.DivRepForm;
 import com.divrep.common.DivRepPassword;
@@ -30,43 +20,21 @@ import com.divrep.common.DivRepSelectBox;
 import com.divrep.common.DivRepStaticContent;
 import com.divrep.common.DivRepTextArea;
 import com.divrep.common.DivRepTextBox;
-import com.divrep.validator.DivRepEmailValidator;
 import com.divrep.validator.DivRepIValidator;
-import com.divrep.validator.DivRepLengthValidator;
 
 import edu.iu.grid.oim.lib.Authorization;
-import edu.iu.grid.oim.lib.Footprints;
-import edu.iu.grid.oim.lib.Footprints.FPTicket;
 import edu.iu.grid.oim.lib.HashHelper;
-import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.model.UserContext;
-import edu.iu.grid.oim.model.cert.CertificateManager;
 import edu.iu.grid.oim.model.cert.DivRepPassStrengthValidator;
-import edu.iu.grid.oim.model.cert.GenerateCSR;
-import edu.iu.grid.oim.model.cert.ICertificateSigner;
 import edu.iu.grid.oim.model.db.UserCertificateRequestModel;
 import edu.iu.grid.oim.model.db.ContactModel;
-import edu.iu.grid.oim.model.db.DNAuthorizationTypeModel;
 import edu.iu.grid.oim.model.db.DNModel;
-import edu.iu.grid.oim.model.db.VOContactModel;
 import edu.iu.grid.oim.model.db.VOModel;
 import edu.iu.grid.oim.model.db.record.CertificateRequestUserRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
-import edu.iu.grid.oim.model.db.record.DNAuthorizationTypeRecord;
-import edu.iu.grid.oim.model.db.record.DNRecord;
-import edu.iu.grid.oim.model.db.record.SCRecord;
-import edu.iu.grid.oim.model.db.record.VOContactRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
-import edu.iu.grid.oim.servlet.CertificateRequestServlet;
-import edu.iu.grid.oim.view.ContentView;
-import edu.iu.grid.oim.view.DivRepWrapper;
-import edu.iu.grid.oim.view.HtmlView;
-import edu.iu.grid.oim.view.MenuView;
-import edu.iu.grid.oim.view.Page;
-import edu.iu.grid.oim.view.SideContentView;
-import edu.iu.grid.oim.view.divrep.DivRepReCaptcha;
+
 import edu.iu.grid.oim.view.divrep.DivRepSimpleCaptcha;
-import edu.iu.grid.oim.view.divrep.VOResourceOwnership;
 
 public class UserCertificateRequestForm extends DivRepForm
 {
@@ -78,8 +46,6 @@ public class UserCertificateRequestForm extends DivRepForm
 	private DivRepTextBox fullname;
 	private DivRepTextBox email;
 	private DivRepTextBox phone;
-	//private DivRepTextBox orgunit, orgname;
-	//private DivRepTextBox address_line_1, address_line_2;
 	private DivRepTextBox city, state, country, zipcode;
 	private DivRepSelectBox timezone;
 	private HashMap<Integer, String> timezone_id2tz;
@@ -321,149 +287,10 @@ public class UserCertificateRequestForm extends DivRepForm
 			vo = new DivRepSelectBox(this, kv);
 			vo.setLabel("Virtual Organization");
 			vo.setRequired(true);
-			/*
-			vo.addEventListener(new DivRepEventListener() {
-				@Override
-				public void handleEvent(DivRepEvent e) {
-					if(e.value != null) {
-						Integer vo_id = Integer.parseInt(e.value);
-						VOContactModel model = new VOContactModel(context);
-						ContactModel cmodel = new ContactModel(context);
-						try {
-							LinkedHashMap<Integer, String> kv = new LinkedHashMap();
-							ArrayList<VOContactRecord> recs = model.getByVOID(vo_id);
-							
-							for(VOContactRecord rec : recs) {
-								if(rec.contact_type_id.equals(11) && rec.contact_rank_id.equals(3)) {
-									//tertiary ra contact (sponsor)
-									ContactRecord contact = cmodel.get(rec.contact_id);
-									kv.put(rec.contact_id, contact.name);
-								}
-							}
-							sponsor.setValues(kv);
-						} catch (SQLException e1) {
-							alert("Failed to load sponsor for selected VO");
-						}
-						sponsor.setHidden(false);
-					} else {
-						sponsor.setHidden(true);
-					}
-					sponsor.redraw();
-				}
-				
-			});
-			
-			sponsor = new DivRepSelectBox(this, kv);
-			sponsor.setLabel("Sponsor");
-			sponsor.setRequired(true);
-			sponsor.setHidden(true);
-			*/
 			
 		} catch (SQLException e) {
 			log.error("Failed to load vo list while constructing certificat request form", e);
 		}
-
-		
-		
-		
-		/*
-		///////////////////////////////////////////////////////////////////////////////////////////
-		//
-		// Extra OIM Profile
-		//
-		new DivRepStaticContent(this, "<h3>Profile Information</h3>");
-		
-		secondary_email = new DivRepTextBox(this);
-		secondary_email.setLabel("Secondary Email");
-		secondary_email.addValidator(new DivRepEmailValidator());
-
-		// TODO Need formatting help here -agopu  -- looks like the phone number used by OSG community is very diverse. I don't know how simple is simple enough
-		// validation in our case.. -- hayashis
-		primary_phone = new DivRepTextBox(this);
-		primary_phone.setLabel("Primary Phone");
-
-		primary_phone_ext = new DivRepTextBox(this);
-		primary_phone_ext.setLabel("Primary Phone Extension");
-		primary_phone.setRequired(true);
-
-		secondary_phone = new DivRepTextBox(this);
-		secondary_phone.setLabel("Secondary Phone");
-
-		secondary_phone_ext = new DivRepTextBox(this);
-		secondary_phone_ext.setLabel("Secondary Phone Extension");
-		
-		sms_address = new DivRepTextBox(this);
-		sms_address.setLabel("SMS Address");
-		sms_address.setSampleValue("8127771234@txt.att.net");
-		sms_address.addValidator(DivRepEmailValidator.getInstance());
-		
-		contact_preference = new DivRepTextArea(this);
-		contact_preference.setLabel("Enter Additional Contact Preferences");
-		contact_preference.setSampleValue("Please contact me via phone during the day.");
-		
-		im = new DivRepTextBox(this);
-		im.setLabel("Instant Messaging Information");
-		im.setSampleValue("soichih@gtalk");
-		
-		timezone = new DivRepSelectBox(this);
-		timezone_id2tz = new HashMap<Integer, String>();
-		int i = 0;
-		for(int offset = -12;offset < 12;++offset) {
-			LinkedHashMap<Integer, String> group = new LinkedHashMap<Integer, String>();
-			for(String tz : TimeZone.getAvailableIDs(offset*1000*3600)) {
-				Calendar cal = Calendar.getInstance(TimeZone.getTimeZone(tz));
-				String tstr = String.format("%02d", cal.get(Calendar.HOUR)) + ":" + String.format("%02d", cal.get(Calendar.MINUTE));
-				switch(cal.get(Calendar.AM_PM)) {
-				case Calendar.AM:
-					tstr += " AM";
-					break;
-				default:
-					tstr += " PM";
-				}
-				tstr += String.format("%2d", cal.get(Calendar.MONTH)+1) + "/" + cal.get(Calendar.DAY_OF_MONTH);
-				group.put(i, tstr + " " + tz);
-				timezone_id2tz.put(i, tz);
-		
-				++i;
-			}
-			String group_name = "GMT";
-			if(offset < 0) {
-				group_name += offset;
-			} else if(offset > 0) {
-				group_name += "+" + offset;
-			}
-			timezone.addGroup(group_name, group);
-		}
-		timezone.setLabel("Time Zone - Please choose location based timezone such as America/Chicago");
-		timezone.setRequired(true);
-
-		profile = new DivRepTextArea(this);
-		profile.setLabel("Profile");
-		profile.setRequired(true);
-		profile.setSampleValue("Please enter your role within OSG community, and maybe a small introduction of who you are and what you do.");
-	
-		use_twiki = new DivRepCheckBox(this);
-		use_twiki.setLabel("Use OSG TWiki");
-		use_twiki.setValue(false);
-		
-		twiki_id = new DivRepTextBox(this);
-		twiki_id.setLabel("OSG TWiki ID - Generated from your name");
-		twiki_id.setDisabled(true);
-		name.addEventListener(new DivRepEventListener() {
-			public void handleEvent(DivRepEvent e) {
-				if(e.action.equals("change")) {
-					ContactModel model = new ContactModel(context);
-					try {
-						twiki_id.setValue(model.generateTwikiID(e.value, null));
-						twiki_id.redraw();	
-					} catch (SQLException e1) {
-						alert(e1.toString());
-					}
-				}
-			}
-		});
-		
-		*/
 	}
 
 	protected void onEvent(DivRepEvent e) {
@@ -474,16 +301,6 @@ public class UserCertificateRequestForm extends DivRepForm
 	@Override
 	protected Boolean doSubmit() {
 		Boolean ret = true;
-	
-        /*
-		String cn = fullname.getValue() + "/emailAddress=" + email.getValue();
-		X500NameBuilder builder = X500NameBuilder();
-		x500 = new X500Name(cn,
-				"PKITesting", //org unit
-				"OSG", //osg name
-				city.getValue(), state.getValue(), country.getValue()
-		);
-		*/
 
 		ContactRecord user;
 		if(auth.isUser()) {
@@ -534,7 +351,10 @@ public class UserCertificateRequestForm extends DivRepForm
 			if(auth.isGuest()) {
 				requester_passphrase = HashHelper.sha1(passphrase.getValue());
 			} 
-			ret = certmodel.request(vo.getValue(), user, requester_passphrase);
+			CertificateRequestUserRecord rec = certmodel.request(vo.getValue(), user, requester_passphrase);
+			if(rec != null) {
+				redirect("certificate?type=user&id="+rec.id); //TODO - does this work? I haven't tested it
+			}
 		} catch (Exception e) {
 			log.error("Failed to submit request..", e);
 			ret = false;

@@ -1,21 +1,24 @@
 package edu.iu.grid.oim.model.db;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.security.KeyStore;
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Iterator;
 
-import javax.net.ssl.SSLEngineResult.Status;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathExpressionException;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 import org.bouncycastle.asn1.x500.RDN;
 import org.bouncycastle.asn1.x500.X500Name;
@@ -24,6 +27,9 @@ import org.bouncycastle.asn1.x500.style.BCStyle;
 import org.bouncycastle.pkcs.PKCS10CertificationRequest;
 import org.bouncycastle.util.encoders.Base64;
 import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Footprints;
@@ -34,14 +40,73 @@ import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.cert.CertificateManager;
 import edu.iu.grid.oim.model.cert.ICertificateSigner;
 import edu.iu.grid.oim.model.db.record.CertificateRequestHostRecord;
-import edu.iu.grid.oim.model.db.record.CertificateRequestUserRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.RecordBase;
 
-
 public class HostCertificateRequestModel extends ModelBase<CertificateRequestHostRecord> {
     static Logger log = Logger.getLogger(HostCertificateRequestModel.class);  
-    static String NOT_ISSUED_TOKEN = "__NOT_ISSUED__";
+    //static String NOT_ISSUED_TOKEN = "__NOT_ISSUED__";
+
+    //provide String[] with XML serialization capability
+    class StringArray  {
+    	private String[] strings;
+    	public String get(int idx) { return strings[idx]; }
+    	public void set(int idx, String str) { strings[idx] = str; }
+    	public String[] getAll() { return strings; }
+    	public StringArray(String xml) {
+    		//deserialize from xml
+    		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+    		try {
+    			DocumentBuilder db = dbf.newDocumentBuilder();
+    			InputStream is = new ByteArrayInputStream(xml.getBytes());
+    			Document dom = db.parse(is);
+    			
+    			//create string array
+    			Node size_nl = dom.getElementsByTagName("Size").item(0);
+    			String size_str = size_nl.getTextContent();
+    			int size = Integer.parseInt(size_str);
+    			strings = new String[size];
+    			
+    			//populate data
+    			NodeList string_nl = dom.getElementsByTagName("String");
+    			for(int i = 0;i < string_nl.getLength(); ++i) {
+    				Node n = string_nl.item(i);
+    				Node null_mark = n.getAttributes().getNamedItem("null");
+    				if(null_mark != null) {
+    					strings[i] = null;
+    				} else {
+    					strings[i] = n.getTextContent();
+    				}
+    			}
+    			
+    		}catch(ParserConfigurationException pce) {
+    			pce.printStackTrace();
+    		}catch(SAXException se) {
+    			se.printStackTrace();
+    		}catch(IOException ioe) {
+    			ioe.printStackTrace();
+    		}
+    	}
+    	public StringArray(int size) {
+    		strings = new String[size];
+    	}
+    	public String toXML() {
+    		StringBuffer out = new StringBuffer();
+    		out.append("<StringArray>");
+    		out.append("<Size>"+strings.length+"</Size>");
+    		for(String s : strings) {
+    			if(s == null) {
+        			out.append("<String null=\"true\"></String>");
+    			} else {
+    				out.append("<String>"+StringEscapeUtils.escapeXml(s)+"</String>");
+    			}
+    		}
+    		out.append("</StringArray>");
+    		return out.toString();
+    	}
+    	public int length() { return strings.length; }
+    
+    }
     
     public class HostCertificateRequestException extends Exception {
 		private static final long serialVersionUID = 1L;
@@ -58,17 +123,6 @@ public class HostCertificateRequestModel extends ModelBase<CertificateRequestHos
 		super(_context, "certificate_request_host");
 		context = _context;
 	}
-    
-    //return list of gridadmins who can approve certificate request for given domain
-    public ArrayList<Integer> lookupGridAdmins(String fqdn) {
-    	ArrayList<Integer> gridadmins = new ArrayList<Integer>();
-    	
-    	//TODO ---
-    	gridadmins.add(238);//Soichi
-    	
-    	return gridadmins;
-    	
-    }
     
 	//NO-AC
 	public CertificateRequestHostRecord get(int id) throws SQLException {
@@ -94,11 +148,13 @@ public class HostCertificateRequestModel extends ModelBase<CertificateRequestHos
 	//NO-AC 
 	//return pem encoded pkcs7
 	public String getPkcs7(CertificateRequestHostRecord rec, int idx) throws HostCertificateRequestException {
-		String [] pkcs7s = rec.cert_pkcs7.split("\n");
-		if(pkcs7s.length > idx) {
-			String pkcs7 = pkcs7s[idx];
-			if(pkcs7.equals(NOT_ISSUED_TOKEN) && rec.status.equals(CertificateRequestStatus.APPROVED)) {
-				pkcs7 = issueCertificate(rec, idx);	
+		StringArray pkcs7s = new StringArray(rec.cert_pkcs7);
+		if(pkcs7s.length() > idx) {
+			String pkcs7 = pkcs7s.get(idx);
+			if(pkcs7 == null) {
+				if(rec.status.equals(CertificateRequestStatus.APPROVED) || rec.status.equals(CertificateRequestStatus.ISSUING) ) {	
+					pkcs7 = issueCertificate(rec, idx);
+				}
 			}
 			return pkcs7;
 		} else {
@@ -109,39 +165,66 @@ public class HostCertificateRequestModel extends ModelBase<CertificateRequestHos
 	//NO-AC (no check fo idx out-of-bound)
 	//issue idx specified certificate, and store back to DB. return pkcs7
 	private String issueCertificate(CertificateRequestHostRecord rec, int idx) throws HostCertificateRequestException {
-		String [] csrs = rec.csrs.split("\n");
-		String csr = csrs[idx];
+		StringArray csrs = new StringArray(rec.csrs);
+		String csr = csrs.get(idx);
+
+		//pull CN
+		String cn;
+		try {
+			PKCS10CertificationRequest pkcs10 = new PKCS10CertificationRequest(Base64.decode(csr));
+			X500Name name = pkcs10.getSubject();
+			RDN[] cn_rdn = name.getRDNs(BCStyle.CN);
+			cn = cn_rdn[0].getFirst().getValue().toString(); //wtf?
+		} catch (IOException e2) {
+			throw new HostCertificateRequestException("Failed to obtain cn from given csr", e2);
+		}
 		
 		CertificateManager cm = new CertificateManager();
 		try {
-			ICertificateSigner.Certificate cert = cm.signHostCertificate(csr);
+			ICertificateSigner.Certificate cert = cm.signHostCertificate(csr, cn);
 			
-			String [] cert_certificates = rec.cert_certificate.split("\n");
-			cert_certificates[idx] = cert.certificate;
-			rec.cert_certificate = StringUtils.join(cert_certificates, "\n");
+			StringArray cert_certificates = new StringArray(rec.cert_certificate);
+			cert_certificates.set(idx, cert.certificate);
+			rec.cert_certificate = cert_certificates.toXML();
 			
-			String [] cert_intermediates = rec.cert_intermediate.split("\n");
-			cert_intermediates[idx] = cert.intermediate;
-			rec.cert_intermediate = StringUtils.join(cert_intermediates, "\n");
+			StringArray cert_intermediates = new StringArray(rec.cert_intermediate);
+			cert_intermediates.set(idx, cert.intermediate);
+			rec.cert_intermediate = cert_intermediates.toXML();
 			
-			String [] cert_pkcs7s = rec.cert_pkcs7.split("\n");
-			cert_pkcs7s[idx] = cert.pkcs7;
-			rec.cert_pkcs7 = StringUtils.join(cert_pkcs7s, "\n");
+			StringArray cert_pkcs7s = new StringArray(rec.cert_pkcs7);
+			cert_pkcs7s.set(idx, cert.pkcs7);
+			rec.cert_pkcs7 = cert_pkcs7s.toXML();
 			
 			try {
-				//context.setComment("Certificate Approved");
-				rec.status = CertificateRequestStatus.ISSUED;
+				//if all certificate is issued, change status to ISSUED
+				boolean issued = true;
+				for(String s : cert_pkcs7s.getAll()) {
+					if(s == null) {
+						issued = false;
+						break;
+					}
+				}
+				if(issued) {
+					rec.status = CertificateRequestStatus.ISSUED;
+				} else {
+					rec.status = CertificateRequestStatus.ISSUING;	//TODO - I am not sure if this really makes sense.
+				}
+				
 				HostCertificateRequestModel.super.update(get(rec.id), rec);
 			} catch (SQLException e) {
 				throw new HostCertificateRequestException("Failed to update status for certificate request: " + rec.id);
 			}
 			
 			//update ticket
-			Authorization auth = context.getAuthorization();
-			ContactRecord contact = auth.getContact();
 			Footprints fp = new Footprints(context);
 			FPTicket ticket = fp.new FPTicket();
-			ticket.description = contact.name + " has issued certificate.";
+			Authorization auth = context.getAuthorization();
+			if(auth.isUser()) {
+				ContactRecord contact = auth.getContact();
+				ticket.description = contact.name + " has issued certificate.";
+			} else {
+				ticket.description = "Someone with IP address: " + context.getRemoteAddr() + " has issued certificate";
+			}
 			ticket.status = "Resolved";
 			fp.update(ticket, rec.goc_ticket_id);
 			
@@ -192,11 +275,10 @@ public class HostCertificateRequestModel extends ModelBase<CertificateRequestHos
 		rec.request_time = new Timestamp(current.getTime());
 		rec.status = CertificateRequestStatus.REQUESTED;
     	rec.gridadmin_contact_id = null;
-    	rec.csrs = "";
-    	rec.cert_certificate = "";
-    	rec.cert_intermediate = "";
-    	rec.cert_pkcs7 = "";
     	
+    	GridAdminModel gmodel = new GridAdminModel(context);
+    	StringArray csrs_sa = new StringArray(csrs.length);
+    	int idx = 0;
     	for(String csr_string : csrs) {
     		String cn;
 			try {
@@ -213,7 +295,7 @@ public class HostCertificateRequestModel extends ModelBase<CertificateRequestHos
 				log.error("(probably) couldn't find CN inside the CSR:"+csr_string, e);
 				throw new HostCertificateRequestException("Failed to base64 decode CSR", e);	
 			}
-			
+			/*
 			//make sure there is 1 and only 1 gridadmin who can approve this host
 			ArrayList<Integer> gridadmins = lookupGridAdmins(cn);
 			if(gridadmins.size() == 0) {
@@ -222,21 +304,37 @@ public class HostCertificateRequestModel extends ModelBase<CertificateRequestHos
 			if(gridadmins.size() > 1) {
 				throw new HostCertificateRequestException("Multiple GridAdmin can approve host:" + cn + "(must be 1)");	
 			}
+			*/
+			
+			//lookup gridadmin
+			ContactRecord ga;
+			try {
+				ga = gmodel.getGridAdminByFQDN(cn);
+			} catch (SQLException e) {
+				throw new HostCertificateRequestException("Failed to lookup GridAdmin to approve host:" + cn, e);	
+			}
+			if(ga == null) {
+				throw new HostCertificateRequestException("No GridAdmin can approve host:" + cn);	
+			}
 			
 			//make sure single gridadmin approves all host
 			if(rec.gridadmin_contact_id == null) {
-				rec.gridadmin_contact_id = gridadmins.get(0);
+				rec.gridadmin_contact_id = ga.id;
 			} else {
-				if(!rec.gridadmin_contact_id.equals(gridadmins.get(0))) {
+				if(!rec.gridadmin_contact_id.equals(ga.id)) {
 					throw new HostCertificateRequestException("All host must be approved by the same GridAdmin. Different for " + cn);	
 				}
 			}
 				
-			rec.csrs += csr_string + "\n";
-	    	rec.cert_certificate += NOT_ISSUED_TOKEN;
-	    	rec.cert_intermediate += NOT_ISSUED_TOKEN;
-	    	rec.cert_pkcs7 += NOT_ISSUED_TOKEN;
+			csrs_sa.set(idx++, csr_string);
     	}
+    	
+    	rec.csrs = csrs_sa.toXML();
+    	
+    	StringArray ar = new StringArray(csrs.length);
+    	rec.cert_certificate = ar.toXML();
+    	rec.cert_intermediate = ar.toXML();
+    	rec.cert_pkcs7 = ar.toXML();
     	
     	try {
     		//insert request record
@@ -260,7 +358,7 @@ public class HostCertificateRequestModel extends ModelBase<CertificateRequestHos
 			ContactRecord ga = cmodel.get(rec.gridadmin_contact_id);
 			ticket.description = "Dear " + ga.name + "; the GridAdmin, \n";
 			ticket.description += requester_name + " <"+requester_email+"> has requested a user certificate. ";
-			String url = StaticConfig.getApplicationBase() + "/certificate?type=user&id=" + rec.id;
+			String url = StaticConfig.getApplicationBase() + "/certificate?type=host&id=" + rec.id;
 			ticket.description += "Please determine this request's authenticity, and approve / disapprove at " + url;
 			if(StaticConfig.isDebug()) {
 				ticket.assignees.add("hayashis");

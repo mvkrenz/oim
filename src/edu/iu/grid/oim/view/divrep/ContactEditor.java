@@ -9,6 +9,8 @@ import java.util.HashMap;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
@@ -92,6 +94,7 @@ public class ContactEditor extends DivRepFormElement<HashMap<ContactEditor.Rank,
 	
 	
 	@Deprecated
+	//use addSelected() instead
 	public void setValue(HashMap<ContactEditor.Rank, ArrayList<ContactEditor.ContactDE>> value)
 	{
 		//depricated
@@ -362,6 +365,9 @@ public class ContactEditor extends DivRepFormElement<HashMap<ContactEditor.Rank,
 	public void render(PrintWriter out) 
 	{
 		out.print("<div id=\""+getNodeID()+"\">");
+		if(getLabel() != null) {
+			out.print("<label>"+StringEscapeUtils.escapeHtml(getLabel())+"</label><br/>");
+		}
 		if(isDisabled()) {
 			out.print("<table class='contact_table gray'>");		
 		} else {
@@ -411,4 +417,11 @@ public class ContactEditor extends DivRepFormElement<HashMap<ContactEditor.Rank,
 	protected void onEvent(DivRepEvent e) {
 		// TODO Auto-generated method stub	
 	}
+	
+	@Deprecated
+	public Boolean isRequired() { return false; }
+
+	@Deprecated
+	//use setMinContact instead
+	public void setRequired(Boolean b) { }
 }

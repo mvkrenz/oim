@@ -80,9 +80,16 @@ public class RestServlet extends ServletBase  {
 		}
 		*/
 		out.write("{");
+		
 		out.write("\"status\": \""+reply.status.toString()+"\",");
-		out.write("\"detail\": \""+StringEscapeUtils.escapeJavaScript(reply.detail)+"\",");
-		//output params
+
+		for(String key : reply.params.keySet()) {
+			String value = reply.params.get(key);
+			out.write("\""+key+"\": \""+StringEscapeUtils.escapeJavaScript(value)+"\",");
+		}
+		
+		out.write("\"detail\": \""+StringEscapeUtils.escapeJavaScript(reply.detail)+"\"");
+
 		out.write("}");
 		
 	}
@@ -104,13 +111,15 @@ public class RestServlet extends ServletBase  {
 				throw new RestException("Please provide name, email, phone in order to create GOC ticket.");
 			}
 			context.setComment("Guest user; " + name + " submitted host certificatates request.");
-		} else {
+		} else if(auth.isUser()){
 			ContactRecord user = auth.getContact();
 			name = user.name;
 			email = user.primary_email;
 			phone = user.primary_phone;
 			
 			context.setComment("OIM authenticated user; " + name + " submitted host certificatates request.");
+		} else {
+			throw new AuthorizationException("Sorry, you can't call this action - maybe not registered?");
 		}
 		
 		HostCertificateRequestModel model = new HostCertificateRequestModel(context);
@@ -121,7 +130,7 @@ public class RestServlet extends ServletBase  {
 				throw new RestException("Failed to make request");
 			}
 			reply.params.put("gocticket_url", StaticConfig.conf.getProperty("url.gocticket")+"/"+rec.goc_ticket_id);
-			reply.params.put("host_request_id", "HOST"+rec.id);
+			reply.params.put("host_request_id", rec.id.toString());
 		} catch (HostCertificateRequestException e) {
 			throw new RestException("SQLException while makeing request", e);
 		}

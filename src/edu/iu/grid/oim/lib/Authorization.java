@@ -100,16 +100,17 @@ public class Authorization {
 		guest_context = UserContext.getGuestContext();
 		usertype = UserType.GUEST;
 		
-		String localname = request.getLocalName();
-		String remoteaddr = request.getRemoteAddr();
-		if(localname.equals("localhost") || localname.equals("localhost.localdomain") || localname.equals("0.0.0.0") 
-				|| remoteaddr.equals("192.168.1.75") //t520
-				|| remoteaddr.equals("192.168.1.77") //ubuntu-t520
-				) {
-			usertype = UserType.LOCAL;
-			debugAuthOverride(request);
+		if(StaticConfig.isDebug()) {
+			String localname = request.getLocalName();
+			String remoteaddr = request.getRemoteAddr();
+			if(localname.equals("localhost") || localname.equals("localhost.localdomain") || localname.equals("0.0.0.0") 
+					|| remoteaddr.equals("192.168.1.75") //t520
+					|| remoteaddr.equals("192.168.1.77") //ubuntu-t520
+					) {
+				usertype = UserType.LOCAL;
+				debugAuthOverride(request);
+			}
 		}
-		
 		
 		//figure out usertype
 		String client_verify = (String)request.getAttribute("SSL_CLIENT_VERIFY");

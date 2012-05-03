@@ -25,6 +25,6 @@ public interface ICertificateSigner {
 		public String pkcs7; //pkcs7 string
 	}
 	
-	public Certificate signHostCertificate(String csr) throws CertificateProviderException;
-	public Certificate signUserCertificate(String csr) throws CertificateProviderException;
+	public Certificate signHostCertificate(String csr, String cn) throws CertificateProviderException;
+	public Certificate signUserCertificate(String csr, String dn) throws CertificateProviderException;
 }
