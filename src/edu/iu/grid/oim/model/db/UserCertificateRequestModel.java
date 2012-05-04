@@ -10,6 +10,7 @@ import java.security.PrivateKey;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -20,14 +21,8 @@ import java.util.Date;
 import java.util.Iterator;
 
 import javax.servlet.http.HttpSession;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x500.X500NameBuilder;
@@ -38,8 +33,6 @@ import org.bouncycastle.cms.CMSException;
 import org.bouncycastle.cms.CMSSignedData;
 import org.bouncycastle.util.Store;
 import org.bouncycastle.util.encoders.Base64;
-import org.w3c.dom.Document;
-import org.xml.sax.SAXException;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Footprints;
@@ -50,34 +43,44 @@ import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.cert.CertificateManager;
 import edu.iu.grid.oim.model.cert.GenerateCSR;
 import edu.iu.grid.oim.model.cert.ICertificateSigner;
-//import edu.iu.grid.oim.model.cert.ICertificateSigner.Certificate;
-//import edu.iu.grid.oim.model.cert.ICertificateSigner.CertificateProviderException;
 import edu.iu.grid.oim.model.db.record.CertificateRequestUserRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.DNAuthorizationTypeRecord;
 import edu.iu.grid.oim.model.db.record.DNRecord;
-import edu.iu.grid.oim.model.db.record.LogRecord;
 import edu.iu.grid.oim.model.db.record.RecordBase;
 import edu.iu.grid.oim.model.db.record.SCRecord;
 import edu.iu.grid.oim.model.db.record.VOContactRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
 
-public class UserCertificateRequestModel extends ModelBase<CertificateRequestUserRecord> {
+public class UserCertificateRequestModel extends CertificateRequestModelBase<CertificateRequestUserRecord> {
     static Logger log = Logger.getLogger(UserCertificateRequestModel.class);  
     
 	private UserContext contect;
     public UserCertificateRequestModel(UserContext _context) {
 		super(_context, "certificate_request_user");
-		context = _context;
 	}
-
-	@Override
-	public Boolean hasLogAccess(XPath xpath, Document doc)
-			throws XPathExpressionException {
-		// TODO Auto-generated method stub
-		return null;
-	}  
-	
+    
+    //find certificate request with the same DN that user is currently using to login
+    public CertificateRequestUserRecord getCurrent() throws SQLException {
+    	
+    	Authorization auth = context.getAuthorization();
+    	if(!auth.isUser()) {
+    		return null;
+    	}
+    	
+		ResultSet rs = null;
+		Connection conn = connectOIM();
+		PreparedStatement pstmt = conn.prepareStatement("SELECT * FROM "+table_name+ " WHERE dn = ?");
+		pstmt.setString(1, auth.getUserDN());
+		//log.debug(pstmt.toString());
+	    if (pstmt.execute()) {
+	    	rs = pstmt.getResultSet();
+	    	if(rs != null && rs.next()) {
+	    		return new CertificateRequestUserRecord(rs);
+			}
+	    }	
+	    return null;
+    }
 	
 	//determines if user should be able to view request details, logs, and download certificate (pkcs12 is session specific)
 	public boolean canView(CertificateRequestUserRecord rec) {
@@ -265,6 +268,13 @@ public class UserCertificateRequestModel extends ModelBase<CertificateRequestUse
 			if(rec.requester_contact_id.equals(contact.id)) return true;
 		}
 		return false;
+	}
+	
+	//convert comma delimited DN (RFC1779) to apache format (delimited by /)
+	private String RFC1779_to_ApacheDN(String dn) {
+		String tokens[] = dn.split(",");
+		String out = StringUtils.join(tokens, "/");
+		return "/"+out;
 	}
 	
 	//NO-AC
@@ -647,63 +657,6 @@ public class UserCertificateRequestModel extends ModelBase<CertificateRequestUse
 	    return ret;
 	}
 	
-	public class Log {
-		public ContactRecord contact; //user who made this action
-		public String ip; //ip address
-		public String status; //new status
-		public String comment; //from the log
-		public Date time;
-	}
-	
-	//NO-AC
-	public ArrayList<Log> getLogs(Integer id) throws SQLException {
-    	DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-    	factory.setNamespaceAware(false);
-    	factory.setValidating(false);
-    	DocumentBuilder builder;
-		try {
-			builder = factory.newDocumentBuilder();
-			XPath xpath = XPathFactory.newInstance().newXPath();
-			ContactModel cmodel = new ContactModel(context);
-			
-			ArrayList<Log> logs = new ArrayList<Log>();
-			LogModel model = new LogModel(context);
-			Collection<LogRecord> raws = model.getByModel(UserCertificateRequestModel.class, id.toString());
-			for(LogRecord raw : raws) {
-				Log log = new Log();
-				log.comment = raw.comment;
-				log.time = raw.timestamp;
-				log.ip = raw.ip;
-				if(raw.contact_id != null) {
-					log.contact = cmodel.get(raw.contact_id);
-				}
-				//parse the xml
-				byte[] bArray = raw.xml.getBytes();
-				ByteArrayInputStream bais = new ByteArrayInputStream(bArray);
-				Document doc = builder.parse(bais);
-				
-				String type = (String)xpath.evaluate("//Type", doc, XPathConstants.STRING);
-				if(type.equals("Insert")) {
-					log.status = (String)xpath.evaluate("//Field[Name='status']/Value", doc, XPathConstants.STRING);
-				} else if(type.equals("Update")) {
-					log.status = (String)xpath.evaluate("//Field[Name='status']/NewValue", doc, XPathConstants.STRING);
-				}
-				logs.add(log);
-			}
-			return logs;
-		} catch (ParserConfigurationException e) {
-			log.error("Failed to instantiate xml parser to parse log", e);
-		} catch (SAXException e) {
-			log.error("Failed to parse log", e);
-		} catch (IOException e) {
-			log.error("Failed to parse log", e);
-		} catch (XPathExpressionException e) {
-			log.error("Failed to apply xpath on log", e);
-		}
-
-		return null;
-	}
-	
     public boolean requestWithCSR(String csr, String fullname, Integer vo_id) throws SQLException
     { 
     	//TODO
@@ -712,7 +665,7 @@ public class UserCertificateRequestModel extends ModelBase<CertificateRequestUse
     }
        
     //returns insertec request record if successful. if not, null
-    public CertificateRequestUserRecord request(Integer vo_id, ContactRecord requester, String requester_passphrase) throws SQLException
+    public CertificateRequestUserRecord requestWithNOCSR(Integer vo_id, ContactRecord requester, String requester_passphrase) throws SQLException
     { 
     	//TODO -- check access
     	
@@ -721,7 +674,7 @@ public class UserCertificateRequestModel extends ModelBase<CertificateRequestUse
     	X500Name name = generateDN(requester.name, requester.primary_email);
     	
 		CertificateRequestUserRecord rec = new CertificateRequestUserRecord();
-		rec.dn = name.toString(); //RFC1779
+		rec.dn = RFC1779_to_ApacheDN(name.toString());
 		rec.requester_passphrase = requester_passphrase;
 		rec.requester_contact_id = requester.id;
 		rec.vo_id = vo_id;
@@ -852,4 +805,5 @@ public class UserCertificateRequestModel extends ModelBase<CertificateRequestUse
     {
     	throw new UnsupportedOperationException("disallowing remove cert request..");
     }
+    
 }

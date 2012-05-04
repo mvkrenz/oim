@@ -72,7 +72,8 @@ public class ErrorServlet extends HttpServlet {
 			contentview.add(new HtmlView("<p>If you believe you should have an access this page, <a target=\"_blank\" href=\"https://ticket.grid.iu.edu/goc/oim?ref="+request_uri+"\">Open GOC ticket</a></p></div>"));
 	    } else {
 			contentview.add(new HtmlView("<h2>Oops!</h2>"));
-			contentview.add(new HtmlView("<div class=\"alert\"><p>Sorry, OIM has encountered a problem. </p>"));
+			contentview.add(new HtmlView("<p>Sorry, OIM has encountered a problem. </p>"));
+			contentview.add(new HtmlView("<div class=\"alert\">"));
 			contentview.add(new HtmlView("<p>Detail: "+throwable.getMessage()+"</p></div>"));
 			contentview.add(new HtmlView("<p>The GOC has been notified about this error, however, you can also <a target=\"_blank\" href=\"https://ticket.grid.iu.edu/goc/oim\">Open GOC ticket</a></p>"));
 		
@@ -107,43 +108,4 @@ public class ErrorServlet extends HttpServlet {
     	Date current = new Date();
     	log.error("Date: " + current.toString());
 	}
-	
-	/*
-	private StringBuffer reportError(ContentView contentview, HashMap<String, String> message)
-	{
-		//create error report
-		StringBuffer buffer = new StringBuffer();
-		
-    	//create error report
-    	for (String key : message.keySet()) {
-    		buffer.append("[" + key + "]");
-    		buffer.append("\n");
-    		buffer.append(message.get(key));
-    		buffer.append("\n\n");
-    	}
-    	
-		if(StaticConfig.isDebug()) {
-			//display to browser
-			contentview.add(new HtmlView("<h3>Debug Dump</h3>"));
-			contentview.add(new HtmlView("<pre>"+StringEscapeUtils.escapeHtml(buffer.toString())+"</pre>"));
-		} else {
-			//send report to GOC via email
-		   	try {
-    			SendMail.sendErrorEmail(buffer.toString());
-				contentview.add(new HtmlView("<p>Details of this issue have been sent to the GOC, and will be processed soon. We apologize for the inconvenience.</p>"));			
-		   	} catch (MessagingException e) {
-				contentview.add(new HtmlView("<p>OIM tried to send an error report to OIM development team, but the attempt has failed due to following reason.</p>"));			
-				contentview.add(new HtmlView("<div class=\"indent\">"));
-				contentview.add(new HtmlView("<p>"+e.toString()+"</p>"));
-				contentview.add(new HtmlView("</div>"));
-				contentview.add(new HtmlView("<p>Please open a ticket at <a target=\"_blank\" href=\"https://ticket.grid.iu.edu/goc/other\">GOC Ticket</a> with following details regarding this error.</p>"));
-				
-				contentview.add(new HtmlView("<div class=\"indent\">"));
-				contentview.add(new HtmlView("<pre>"+buffer.toString()+"</pre>"));
-				contentview.add(new HtmlView("</div>"));
-	    	}
-	   	}
-		return buffer;
-	}
-	*/
 }

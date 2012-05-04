@@ -36,9 +36,9 @@ import edu.iu.grid.oim.model.db.record.VORecord;
 
 import edu.iu.grid.oim.view.divrep.DivRepSimpleCaptcha;
 
-public class UserCertificateRequestForm extends DivRepForm
+public class CertificateRequestUserForm extends DivRepForm
 {
-    static Logger log = Logger.getLogger(UserCertificateRequestForm.class);
+    static Logger log = Logger.getLogger(CertificateRequestUserForm.class);
 	private UserContext context;
 	private Authorization auth;
 	
@@ -74,7 +74,7 @@ public class UserCertificateRequestForm extends DivRepForm
 	private DivRepTextBox twiki_id;
 	*/
 	
-	public UserCertificateRequestForm(final UserContext context, String origin_url) {
+	public CertificateRequestUserForm(final UserContext context, String origin_url) {
 		
 		super(context.getPageRoot(), origin_url);
 		this.context = context;
@@ -344,16 +344,16 @@ public class UserCertificateRequestForm extends DivRepForm
 			}
 		} 
 	
-		//do certificate request
+		//do certificate request with no csr
 		try {
 			UserCertificateRequestModel certmodel = new UserCertificateRequestModel(context);
 			String requester_passphrase = null;
 			if(auth.isGuest()) {
 				requester_passphrase = HashHelper.sha1(passphrase.getValue());
 			} 
-			CertificateRequestUserRecord rec = certmodel.request(vo.getValue(), user, requester_passphrase);
+			CertificateRequestUserRecord rec = certmodel.requestWithNOCSR(vo.getValue(), user, requester_passphrase);
 			if(rec != null) {
-				redirect("certificate?type=user&id="+rec.id); //TODO - does this work? I haven't tested it
+				redirect("certificateuser?id="+rec.id); //TODO - does this work? I haven't tested it
 			}
 		} catch (Exception e) {
 			log.error("Failed to submit request..", e);

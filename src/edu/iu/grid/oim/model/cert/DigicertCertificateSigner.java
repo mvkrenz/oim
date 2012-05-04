@@ -13,32 +13,43 @@ import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.httpclient.params.HttpClientParams;
+import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import edu.iu.grid.oim.model.db.HostCertificateRequestModel;
+
 public class DigicertCertificateSigner implements ICertificateSigner {
-	
+    static Logger log = Logger.getLogger(DigicertCertificateSigner.class);  
 	class DigicertCPException extends CertificateProviderException {
-		String msg;
 		public DigicertCPException(String msg, Exception e) {
-			super(e);
-			this.msg = msg;
+			super(msg, e);
 		}
 		public DigicertCPException(String msg) {
-			this.msg = msg;
+			super(msg);
 		}
 	};
 	
-	public Certificate signHostCertificate(String csr, String cn) throws CertificateProviderException {
-		String requet_id = requestHostCert(csr, cn);
-		String order_id = approve(requet_id, "Approving for test purpose"); //like 00295828
-		return retrieveByOrderID(order_id);
-	}
 	public Certificate signUserCertificate(String csr, String dn) throws CertificateProviderException {
 		return requestUserCert(csr, dn);
+	}
+	
+	public Certificate signHostCertificate(String csr, String cn) throws CertificateProviderException {
+		String request_id = requestHostCert(csr, cn);
+		log.debug("Requested host certificate. Digicert Request ID:" + request_id);
+		String order_id = approve(request_id, "Approving for test purpose"); //like 00295828
+		log.debug("Approved host certificate. Digicert Order ID:" + order_id);
+		
+		log.debug("Waiting for 10 second before retrieving --- I am not sure if this even works, but if it does, this is not acceptable.");
+		try {
+			Thread.sleep(1000*10);
+		} catch (InterruptedException e) {
+			log.error("Sleep interrupted", e);
+		} //wait for 30 seconds
+		return retrieveByOrderID(order_id);
 	}
 	
 	private Document parseXML(InputStream in) throws ParserConfigurationException, SAXException, IOException {
@@ -240,7 +251,6 @@ public class DigicertCertificateSigner implements ICertificateSigner {
 			NodeList result_nl = ret.getElementsByTagName("result");
 			Element result = (Element)result_nl.item(0);
 			if(result.getTextContent().equals("failure")) {
-				System.out.println("failed to execute grid_retrieve_host_cert request");
 				NodeList error_code_nl = ret.getElementsByTagName("error_code");
 				StringBuffer errors  = new StringBuffer();
 				for(int i = 0;i < error_code_nl.getLength(); ++i) {

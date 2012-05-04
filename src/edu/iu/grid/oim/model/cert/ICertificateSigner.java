@@ -8,6 +8,12 @@ public interface ICertificateSigner {
 		public CertificateProviderException(Exception e) {
 			super(e);
 		}
+		public CertificateProviderException(String msg, Exception e) {
+			super(msg, e);
+		}
+		public CertificateProviderException(String msg) {
+			super(msg);
+		}
 		public CertificateProviderException() {	
 		}
 	};

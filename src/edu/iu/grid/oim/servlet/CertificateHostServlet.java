@@ -28,9 +28,12 @@ import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.cert.DivRepPassStrengthValidator;
 import edu.iu.grid.oim.model.db.CertificateRequestModelBase;
 import edu.iu.grid.oim.model.db.CertificateRequestModelBase.LogDetail;
-import edu.iu.grid.oim.model.db.UserCertificateRequestModel;
+import edu.iu.grid.oim.model.db.HostCertificateRequestModel;
 import edu.iu.grid.oim.model.db.ContactModel;
+import edu.iu.grid.oim.model.db.HostCertificateRequestModel.HostCertificateRequestException;
+import edu.iu.grid.oim.model.db.UserCertificateRequestModel;
 import edu.iu.grid.oim.model.db.VOModel;
+import edu.iu.grid.oim.model.db.record.CertificateRequestHostRecord;
 import edu.iu.grid.oim.model.db.record.CertificateRequestUserRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
@@ -43,18 +46,18 @@ import edu.iu.grid.oim.view.GenericView;
 import edu.iu.grid.oim.view.HtmlView;
 import edu.iu.grid.oim.view.IView;
 
-public class CertificateUserServlet extends ServletBase  {
+public class CertificateHostServlet extends ServletBase  {
 	private static final long serialVersionUID = 1L;
-    static Logger log = Logger.getLogger(CertificateUserServlet.class);  
+    static Logger log = Logger.getLogger(CertificateHostServlet.class);  
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{
 		UserContext context = new UserContext(request);
-		
-		UserCertificateRequestModel model = new UserCertificateRequestModel(context);
+
 		CertificateRequestUserRecord userrec;
 		try {
-			userrec = model.getCurrent();
+			UserCertificateRequestModel umodel = new UserCertificateRequestModel(context);
+			userrec = umodel.getCurrent();
 		} catch(SQLException e) {
 			throw new ServletException("Failed to load current user certificate", e);
 		}
@@ -66,11 +69,12 @@ public class CertificateUserServlet extends ServletBase  {
 		if(dirty_id != null) {
 			try {
 				int id = Integer.parseInt(dirty_id);
-				CertificateRequestUserRecord rec = model.get(id);
+				HostCertificateRequestModel model = new HostCertificateRequestModel(context);
+				CertificateRequestHostRecord rec = model.get(id);
 				if(!model.canView(rec)) {
 					throw new AuthorizationException("You don't have access to view this certificate");
 				}
-				ArrayList<CertificateRequestModelBase<CertificateRequestUserRecord>.LogDetail> logs = model.getLogs(id);
+				ArrayList<CertificateRequestModelBase<CertificateRequestHostRecord>.LogDetail> logs = model.getLogs(id);
 				content = createDetailView(context, rec, logs, userrec);
 			} catch (SQLException e) {
 				throw new ServletException("Failed to load specified certificate", e);
@@ -85,8 +89,8 @@ public class CertificateUserServlet extends ServletBase  {
 	
 	protected IView createDetailView(
 			final UserContext context, 
-			final CertificateRequestUserRecord rec, 
-			final ArrayList<CertificateRequestModelBase<CertificateRequestUserRecord>.LogDetail> logs,
+			final CertificateRequestHostRecord rec, 
+			final ArrayList<CertificateRequestModelBase<CertificateRequestHostRecord>.LogDetail> logs,
 			final CertificateRequestUserRecord userrec) throws ServletException
 	{
 		final Authorization auth = context.getAuthorization();
@@ -102,30 +106,17 @@ public class CertificateUserServlet extends ServletBase  {
 				out.write("<div class=\"row-fluid\">");
 				
 				out.write("<div class=\"span3\">");
-				
-				//TODO see if this is user's current image
-				String current;
-				if(rec.id.equals(userrec.id)) {
-					current = "certificateuser_current";
-				} else {
-					current = "certificateuser";
-				}
- 				CertificateMenuView menu = new CertificateMenuView(context, current, userrec);
+			
+ 				CertificateMenuView menu = new CertificateMenuView(context, "certificatehost", userrec);
 				menu.render(out);
 				out.write("</div>"); //span3
 				
 				out.write("<div class=\"span9\">");
 				
 				BootBreadCrumbView bread_crumb = new BootBreadCrumbView();
-				bread_crumb.addCrumb("User Certificat Requests", "certificateuser");
+				bread_crumb.addCrumb("Host Certificat Requests", "certificatehost");
 				bread_crumb.addCrumb(Integer.toString(rec.id),  null);
 				bread_crumb.render(out);		
-				
-				/*
-				if(rec.id.equals(userrec.id)) {
-					out.write("<div class=\"alert alert-info\">You are currently logged in using certificate issued by this user certificate request.</div>");
-				}
-				*/
 			
 				renderDetail(out);
 				renderLog(out);
@@ -141,26 +132,17 @@ public class CertificateUserServlet extends ServletBase  {
 				out.write("<table class=\"table nohover\">");
 				out.write("<tbody>");
 				
-				if(rec.id.equals(userrec.id)) {
-					out.write("<tr class=\"latest\">");
-					out.write("<th>DN</th>");
-					out.write("<td>");
-					out.write(StringEscapeUtils.escapeHtml(rec.dn));
-					out.write(" <span class=\"badge badge-info\">Current</span>");
-					out.write("</td>");
-					out.write("</tr>");	
-				} else {
-					out.write("<tr>");
-					out.write("<th>DN</th>");
-					out.write("<td>");
-					out.write(StringEscapeUtils.escapeHtml(rec.dn));
-					out.write("</td>");
-					out.write("</tr>");
-				}
+				/*
+				out.write("<tr>");
+				out.write("<th>DN</th>");
+				out.write("<td>"+StringEscapeUtils.escapeHtml(rec.dn)+"</td>");
+				out.write("</tr>");
+				*/
 				
 				out.write("<tr>");
 				out.write("<th>Status</th>");
 				out.write("<td>"+StringEscapeUtils.escapeHtml(rec.status));
+				/*
 				if(rec.status.equals(CertificateRequestStatus.ISSUING)) {
 					String gencsr_class = "progressing";
 					if(rec.csr != null) {
@@ -176,14 +158,15 @@ public class CertificateUserServlet extends ServletBase  {
 					out.write("</ul>");
 					out.write("<script>setTimeout('window.location.reload()', 3000);</script>");
 				}
+				*/
 				out.write("</td>");
 				out.write("</tr>");
 
 				out.write("<tr>");
-				out.write("<th>Requester</th>");
+				out.write("<th>Grid Admin</th>");
 				try {
 					ContactModel cmodel = new ContactModel(context);
-					ContactRecord requester = cmodel.get(rec.requester_contact_id);
+					ContactRecord requester = cmodel.get(rec.gridadmin_contact_id);
 					out.write("<td>"+StringEscapeUtils.escapeHtml(requester.name)+" ("+StringEscapeUtils.escapeHtml(requester.primary_email)+")</td>");
 
 				} catch (SQLException e1) {
@@ -201,23 +184,28 @@ public class CertificateUserServlet extends ServletBase  {
 				out.write("<td><a target=\"_blank\" href=\""+StaticConfig.conf.getProperty("url.gocticket")+"/"+rec.goc_ticket_id+"\">"+rec.goc_ticket_id+"</a></td>");
 				out.write("</tr>");
 				
-				if(rec.cert_pkcs7 != null) {
-					out.write("<tr>");
-					out.write("<th>Certificates</th>");
-					out.write("<td>");
-					HttpSession session = context.getSession();
-
-					UserCertificateRequestModel model = new UserCertificateRequestModel(context);
-					if(model.getPrivateKey(rec.id) != null) {
-						out.write("<a href=\"certificatedownload?id="+rec.id+"&type=user&download=pkcs12\">Download PKCS12</a>");
-					} 
-					out.write("<ul>");
-					out.write("<li><a href=\"certificatedownload?id="+rec.id+"&type=user&download=pkcs7\">Download PKCS7</a></li>");
-					out.write("</ul>");
-					out.write("</td>");
-					out.write("</tr>");
-				}
+				out.write("<tr>");
+				out.write("<th>FQDNs</th>");
 				
+				out.write("<td>");
+				String[] cns = rec.getCNs();
+				out.write("<ul>");
+				int i = 0;
+				for(String cn : cns) {
+					out.write("<li>"+StringEscapeUtils.escapeHtml(cn));
+					if(	rec.status.equals(CertificateRequestStatus.APPROVED) ||
+						rec.status.equals(CertificateRequestStatus.ISSUING) ||
+						rec.status.equals(CertificateRequestStatus.ISSUED)) {
+						out.write(" <a href=\"certificatedownload?id="+rec.id+"&type=host&download=pkcs7&idx="+i+"\">Download PKCS7</a>");
+					}
+					out.write("</li>");
+				}
+				out.write("</ul>");
+				out.write("</td>");
+				out.write("</tr>");
+				
+				
+				/*
 				out.write("<tr>");
 				out.write("<th>VO</th>");
 				VOModel vmodel = new VOModel(context);
@@ -230,6 +218,7 @@ public class CertificateUserServlet extends ServletBase  {
 					out.write("<td>N/A</td>");
 				}
 				out.write("</tr>");
+				*/
 				
 				out.write("<tr>");
 				out.write("<th>Next Action</th>");
@@ -253,7 +242,7 @@ public class CertificateUserServlet extends ServletBase  {
 				out.write("<tbody>");
 				
 				boolean latest = true;
-				for(LogDetail log : logs) {
+				for(CertificateRequestModelBase<CertificateRequestHostRecord>.LogDetail log : logs) {
 					if(latest) {
 						out.write("<tr class=\"latest\">");
 						latest = false;
@@ -277,10 +266,10 @@ public class CertificateUserServlet extends ServletBase  {
 		};
 	}
 	
-	protected GenericView nextActionControl(final UserContext context, final CertificateRequestUserRecord rec) {
+	protected GenericView nextActionControl(final UserContext context, final CertificateRequestHostRecord rec) {
 		GenericView v = new GenericView();
 		
-		final String url = "certificate?id="+rec.id+"&type=user";
+		final String url = "certificatehost?id="+rec.id;
 		
 		final DivRepTextArea note = new DivRepTextArea(context.getPageRoot());
 		note.setLabel("Action Note");
@@ -288,8 +277,9 @@ public class CertificateUserServlet extends ServletBase  {
 		note.setHidden(true);
 		v.add(note);
 		
+		
 		//controls
-		final UserCertificateRequestModel model = new UserCertificateRequestModel(context);
+		final HostCertificateRequestModel model = new HostCertificateRequestModel(context);
 		if(model.canApprove(rec)) {
 			final DivRepButton button = new DivRepButton(context.getPageRoot(), "<button class=\"btn btn-primary\"><i class=\"icon-ok icon-white\"></i> Approve</button>");
 			button.setStyle(DivRepButton.Style.HTML);
@@ -298,17 +288,23 @@ public class CertificateUserServlet extends ServletBase  {
                 public void handleEvent(DivRepEvent e) {
                 	if(note.validate()) {
                 		context.setComment(note.getValue());
-	                	if(model.approve(rec)) {
-	                		button.redirect(url);
-	                	} else {
-	                		button.alert("Failed to approve request");
-	                	}
+	                	try {
+							if(model.approve(rec)) {
+								button.redirect(url);
+							} else {
+								button.alert("Failed to approve request");
+							}
+						} catch (HostCertificateRequestException e1) {
+							log.error("Failed to approve host certificate", e1);
+							button.alert(e1.toString());
+						}
                 	}
                 }
             });
 			note.setHidden(false);
 			v.add(button);
 		}
+		/*
 		if(model.canRequestRenew(rec)) {
 			final DivRepButton button = new DivRepButton(context.getPageRoot(), "<button class=\"btn btn-primary\"><i class=\"icon-refresh icon-white\"></i> Request Renew</button>");
 			button.setStyle(DivRepButton.Style.HTML);
@@ -427,7 +423,7 @@ public class CertificateUserServlet extends ServletBase  {
 			v.add(button);
 			note.setHidden(false);
 		}
-		
+		*/
 		return v;
 	}
 	
@@ -449,7 +445,7 @@ public class CertificateUserServlet extends ServletBase  {
 				out.write("<div class=\"row-fluid\">");
 				
 				out.write("<div class=\"span3\">");
-				CertificateMenuView menu = new CertificateMenuView(context, "certificateuser", userrec);
+				CertificateMenuView menu = new CertificateMenuView(context, "certificatehost", userrec);
 				menu.render(out);
 				out.write("</div>"); //span3
 				
@@ -461,27 +457,39 @@ public class CertificateUserServlet extends ServletBase  {
 			}
 			
 			public void renderList(PrintWriter out) {
-				UserCertificateRequestModel usermodel = new UserCertificateRequestModel(context);
+				HostCertificateRequestModel model = new HostCertificateRequestModel(context);
+				ContactModel cmodel = new ContactModel(context);
 				out.write("<table class=\"table certificate\">");
-				out.write("<thead><tr><th>ID</th><th>Status</th><th>GOC Ticket</th><th>DN</th><th>VO</th></tr></thead>");
+				out.write("<thead><tr><th>ID</th><th>Status</th><th>GOC Ticket</th><th>FQDNs</th><th>Grid Admin</th></tr></thead>");
 				try {
-					ArrayList<CertificateRequestUserRecord> recs = usermodel.getMine(auth.getContact().id);
+					ArrayList<CertificateRequestHostRecord> recs = model.getMine(auth.getContact().id);
 					out.write("<tbody>");
-					for(CertificateRequestUserRecord rec : recs) {
-						String cls = "";
-						if(rec.id.equals(userrec.id)) {
-							cls = "latest";
-						}
-						out.write("<tr class=\""+cls+"\" onclick=\"document.location='certificateuser?id="+rec.id+"';\">");
-						out.write("<td>USER"+rec.id+"</td>");
+					for(CertificateRequestHostRecord rec : recs) {
+						out.write("<tr onclick=\"document.location='certificatehost?id="+rec.id+"';\">");
+						out.write("<td>HOST"+rec.id+"</td>");
 						out.write("<td>"+rec.status+"</td>");
 						//TODO - use configured goc ticket URL
 						out.write("<td><a target=\"_blank\" href=\""+StaticConfig.conf.getProperty("url.gocticket")+"/"+rec.goc_ticket_id+"\">"+rec.goc_ticket_id+"</a></td>");
-						out.write("<td>"+rec.dn);
-						if(rec.id.equals(userrec.id)) {
-							out.write(" <span class=\"badge badge-info\">Current</span>");
+	
+						//fqdns
+						String[] cns = rec.getCNs();
+						int idx = 0;
+						out.write("<td><ul>");
+						for(String cn : cns) {
+							out.write("<li>"+cn+"</li>");
+							idx++;
+							if(idx > 5) {
+								out.write("<li>... <span class=\"badge badge-info\">Total "+cns.length+"</span></li>");
+								break;
+							}
+							
 						}
-						out.write("</td>");
+						out.write("</ul></td>");
+						
+						ContactRecord gridadmin = cmodel.get(rec.gridadmin_contact_id);
+						out.write("<td>"+StringEscapeUtils.escapeHtml(gridadmin.name)+"</td>");
+						
+						/*
 						try {
 							VOModel vomodel = new VOModel(context);
 							VORecord vo = vomodel.get(rec.vo_id);
@@ -489,6 +497,7 @@ public class CertificateUserServlet extends ServletBase  {
 						} catch (SQLException e) {
 							out.write("<td>sql error</td>");
 						}
+						*/
 						out.write("</tr>");	
 					}
 					out.write("</tbody>");

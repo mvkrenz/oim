@@ -41,6 +41,8 @@ public class Authorization {
     	}
     	return null;
     }
+
+    
     //public Integer getContactID() { return contact_id; }
     public ContactRecord getContact() 
     {
@@ -194,7 +196,10 @@ public class Authorization {
 					//user_dn = "/DC=org/DC=doegrids/OU=People/CN=Kyle A. Gross 453426";
 					//user_dn = "/DC=org/DC=doegrids/OU=People/CN=Horst Severini 926890";
 					//request.setAttribute("SSL_CLIENT_S_DN", "/DC=org/DC=doegrids/OU=People/CN=christopher pipes 556895"); //disabled
+					
 					request.setAttribute("SSL_CLIENT_S_DN", "/DC=org/DC=doegrids/OU=People/CN=Soichi Hayashi 461343");
+					//request.setAttribute("SSL_CLIENT_S_DN", "/DC=com/DC=DigiCert-Grid/OU=People/CN=Soichi Hayashi");
+					
 					//request.setAttribute("SSL_CLIENT_S_DN", "/DC=org/DC=doegrids/OU=People/CN=Soichi Hayashi new2");
 					//request.setAttribute("SSL_CLIENT_S_DN", "/DC=org/DC=doegrids/OU=People/CN=Alain Roy 424511");
 					request.setAttribute("SSL_CLIENT_I_DN_CN", "Test CA");

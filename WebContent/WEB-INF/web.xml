@@ -686,20 +686,19 @@
 		<servlet-name>CertificateUserServlet</servlet-name>
 		<url-pattern>/certificateuser</url-pattern>
 	</servlet-mapping>	
-		
-
+	
 	<servlet>
 		<description>
 		</description>
-		<display-name>CertificateRequestServlet</display-name>
-		<servlet-name>CertificateRequestServlet</servlet-name>
-		<servlet-class>edu.iu.grid.oim.servlet.CertificateRequestServlet</servlet-class>
+		<display-name>CertificateHostServlet</display-name>
+		<servlet-name>CertificateHostServlet</servlet-name>
+		<servlet-class>edu.iu.grid.oim.servlet.CertificateHostServlet</servlet-class>
 	</servlet>
 	<servlet-mapping>
-		<servlet-name>CertificateRequestServlet</servlet-name>
-		<url-pattern>/certificaterequest</url-pattern>
+		<servlet-name>CertificateHostServlet</servlet-name>
+		<url-pattern>/certificatehost</url-pattern>
 	</servlet-mapping>	
-
+		
 	<servlet>
 		<description>
 		</description>
@@ -711,7 +710,31 @@
 		<servlet-name>CertificateDownloadServlet</servlet-name>
 		<url-pattern>/certificatedownload</url-pattern>
 	</servlet-mapping>	
+	
+	<servlet>
+		<description>
+		</description>
+		<display-name>CertificateRequestUserServlet</display-name>
+		<servlet-name>CertificateRequestUserServlet</servlet-name>
+		<servlet-class>edu.iu.grid.oim.servlet.CertificateRequestUserServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>CertificateRequestUserServlet</servlet-name>
+		<url-pattern>/certificaterequestuser</url-pattern>
+	</servlet-mapping>	
     
+    <servlet>
+		<description>
+		</description>
+		<display-name>CertificateRequestHostServlet</display-name>
+		<servlet-name>CertificateRequestHostServlet</servlet-name>
+		<servlet-class>edu.iu.grid.oim.servlet.CertificateRequestHostServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>CertificateRequestHostServlet</servlet-name>
+		<url-pattern>/certificaterequesthost</url-pattern>
+	</servlet-mapping>
+	
     <servlet>
         <servlet-name>StickyCaptcha</servlet-name>
         <servlet-class>edu.iu.grid.oim.servlet.StickyCaptchaServlet</servlet-class>

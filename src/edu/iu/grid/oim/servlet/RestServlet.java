@@ -125,7 +125,11 @@ public class RestServlet extends ServletBase  {
 		HostCertificateRequestModel model = new HostCertificateRequestModel(context);
 		CertificateRequestHostRecord rec;
 		try {
-			rec = model.request(csrs, name, email, phone);
+			if(auth.isUser()) {
+				rec = model.requestAsGuest(csrs, name, email, phone);
+			} else {
+				rec = model.requestAsUser(csrs,  auth.getContact());
+			}
 			if(rec == null) {
 				throw new RestException("Failed to make request");
 			}
