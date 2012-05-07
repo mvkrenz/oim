@@ -12,6 +12,7 @@ public class CertificateRequestUserRecord extends RecordBase {
 	public Integer requester_contact_id; //for oim user
 	
 	public String requester_passphrase; //only used if guest submits request & user doesn't provide CSR
+	public String requester_passphrase_salt;
 	public String csr; //only set if user provides csr
 	public String cert_certificate;
 	public String cert_intermediate;

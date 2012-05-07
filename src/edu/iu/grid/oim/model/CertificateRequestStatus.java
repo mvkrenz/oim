@@ -11,4 +11,5 @@ public class CertificateRequestStatus {
 	public final static String ISSUED = "ISSUED";
 	public final static String EXPIRED = "EXPIRED";
 	public final static String REVOKED = "REVOKED";
+	public final static String FAILED = "FAILED";
 }

@@ -46,10 +46,10 @@ public class CertificateMenuView implements IView {
 		
 		if(current.equals("certificateuser")) {
 			out.write("<li class=\"active\">");
-			out.write("<a href=\"certificateuser\"><i class=\"icon-white icon-list\"></i> List</a></li>");	
+			out.write("<a href=\"certificateuser\"><i class=\"icon-white icon-list\"></i> Show Requests</a></li>");	
 		} else {
 			out.write("<li>");
-			out.write("<a href=\"certificateuser\"><i class=\"icon-list\"></i> List</a></li>");	
+			out.write("<a href=\"certificateuser\"><i class=\"icon-list\"></i> Show Requests</a></li>");	
 		}		
 		
 		
@@ -65,10 +65,10 @@ public class CertificateMenuView implements IView {
 		
 		if(current.equals("certificatehost")) {
 			out.write("<li class=\"active\">");
-			out.write("<a href=\"certificatehost\"><i class=\"icon-white icon-list\"></i> List</a></li>");	
+			out.write("<a href=\"certificatehost\"><i class=\"icon-white icon-list\"></i> Show Requests</a></li>");	
 		} else {
 			out.write("<li>");
-			out.write("<a href=\"certificatehost\"><i class=\"icon-list\"></i> List</a></li>");	
+			out.write("<a href=\"certificatehost\"><i class=\"icon-list\"></i> Show Requests</a></li>");	
 		}		
 		
 		out.write("</ul>");

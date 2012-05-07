@@ -14,15 +14,20 @@ import javax.servlet.http.HttpSession;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 
+import com.divrep.DivRep;
 import com.divrep.DivRepEvent;
 import com.divrep.DivRepEventListener;
 import com.divrep.common.DivRepButton;
+import com.divrep.common.DivRepForm;
 import com.divrep.common.DivRepPassword;
+import com.divrep.common.DivRepStaticContent;
 import com.divrep.common.DivRepTextArea;
+import com.divrep.common.DivRepTextBox;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.AuthorizationException;
 import edu.iu.grid.oim.lib.StaticConfig;
+import edu.iu.grid.oim.model.CertificateRequestException;
 import edu.iu.grid.oim.model.CertificateRequestStatus;
 import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.cert.DivRepPassStrengthValidator;
@@ -31,6 +36,7 @@ import edu.iu.grid.oim.model.db.CertificateRequestModelBase.LogDetail;
 import edu.iu.grid.oim.model.db.UserCertificateRequestModel;
 import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.VOModel;
+import edu.iu.grid.oim.model.db.record.CertificateRequestHostRecord;
 import edu.iu.grid.oim.model.db.record.CertificateRequestUserRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
@@ -38,7 +44,7 @@ import edu.iu.grid.oim.view.BootBreadCrumbView;
 import edu.iu.grid.oim.view.BootMenuView;
 import edu.iu.grid.oim.view.BootPage;
 import edu.iu.grid.oim.view.CertificateMenuView;
-import edu.iu.grid.oim.view.ContentView;
+import edu.iu.grid.oim.view.DivRepWrapper;
 import edu.iu.grid.oim.view.GenericView;
 import edu.iu.grid.oim.view.HtmlView;
 import edu.iu.grid.oim.view.IView;
@@ -67,10 +73,13 @@ public class CertificateUserServlet extends ServletBase  {
 			try {
 				int id = Integer.parseInt(dirty_id);
 				CertificateRequestUserRecord rec = model.get(id);
+				if(rec == null) {
+					throw new ServletException("No request found with a specified request ID.");
+				}
 				if(!model.canView(rec)) {
 					throw new AuthorizationException("You don't have access to view this certificate");
 				}
-				ArrayList<CertificateRequestModelBase<CertificateRequestUserRecord>.LogDetail> logs = model.getLogs(id);
+				ArrayList<CertificateRequestModelBase<CertificateRequestUserRecord>.LogDetail> logs = model.getLogs(UserCertificateRequestModel.class, id);
 				content = createDetailView(context, rec, logs, userrec);
 			} catch (SQLException e) {
 				throw new ServletException("Failed to load specified certificate", e);
@@ -105,7 +114,7 @@ public class CertificateUserServlet extends ServletBase  {
 				
 				//TODO see if this is user's current image
 				String current;
-				if(rec.id.equals(userrec.id)) {
+				if(userrec != null && rec.id.equals(userrec.id)) {
 					current = "certificateuser_current";
 				} else {
 					current = "certificateuser";
@@ -141,7 +150,7 @@ public class CertificateUserServlet extends ServletBase  {
 				out.write("<table class=\"table nohover\">");
 				out.write("<tbody>");
 				
-				if(rec.id.equals(userrec.id)) {
+				if(userrec != null && rec.id.equals(userrec.id)) {
 					out.write("<tr class=\"latest\">");
 					out.write("<th>DN</th>");
 					out.write("<td>");
@@ -209,11 +218,11 @@ public class CertificateUserServlet extends ServletBase  {
 
 					UserCertificateRequestModel model = new UserCertificateRequestModel(context);
 					if(model.getPrivateKey(rec.id) != null) {
-						out.write("<a href=\"certificatedownload?id="+rec.id+"&type=user&download=pkcs12\">Download PKCS12</a>");
-					} 
-					out.write("<ul>");
-					out.write("<li><a href=\"certificatedownload?id="+rec.id+"&type=user&download=pkcs7\">Download PKCS7</a></li>");
-					out.write("</ul>");
+						out.write("<a href=\"certificatedownload?id="+rec.id+"&type=user&download=pkcs12\">Download PKCS12</a><br>");
+					} else {
+						out.write("<a href=\"certificatedownload?id="+rec.id+"&type=user&download=pkcs7\">Download PKCS7</a><br>");
+					}
+					
 					out.write("</td>");
 					out.write("</tr>");
 				}
@@ -231,13 +240,14 @@ public class CertificateUserServlet extends ServletBase  {
 				}
 				out.write("</tr>");
 				
+				GenericView action_control = nextActionControl(context, rec);
 				out.write("<tr>");
 				out.write("<th>Next Action</th>");
 				out.write("<td>");
-				GenericView action_control = nextActionControl(context, rec);
 				action_control.render(out);
 				out.write("</td>");
 				out.write("</tr>");
+				
 				
 				out.write("</tbody>");
 				
@@ -280,7 +290,17 @@ public class CertificateUserServlet extends ServletBase  {
 	protected GenericView nextActionControl(final UserContext context, final CertificateRequestUserRecord rec) {
 		GenericView v = new GenericView();
 		
-		final String url = "certificate?id="+rec.id+"&type=user";
+		if(rec.status.equals(CertificateRequestStatus.REQUESTED) ||
+			rec.status.equals(CertificateRequestStatus.RENEW_REQUESTED) ||
+			rec.status.equals(CertificateRequestStatus.REVOCATION_REQUESTED)) {
+			v.add(new HtmlView("<p class=\"help-block\">RA to approve certificate request</p>"));
+		} else if(rec.status.equals(CertificateRequestStatus.APPROVED)) {
+			v.add(new HtmlView("<p class=\"help-block\">Requester to issue certificate & download</p>"));
+		} else if(rec.status.equals(CertificateRequestStatus.APPROVED)) {
+			v.add(new HtmlView("<p class=\"help-block\">Requester to issue certificate & download</p>"));
+		}
+		
+		final String url = "certificateuser?id="+rec.id;
 		
 		final DivRepTextArea note = new DivRepTextArea(context.getPageRoot());
 		note.setLabel("Action Note");
@@ -306,8 +326,8 @@ public class CertificateUserServlet extends ServletBase  {
                 	}
                 }
             });
-			note.setHidden(false);
 			v.add(button);
+			note.setHidden(false);
 		}
 		if(model.canRequestRenew(rec)) {
 			final DivRepButton button = new DivRepButton(context.getPageRoot(), "<button class=\"btn btn-primary\"><i class=\"icon-refresh icon-white\"></i> Request Renew</button>");
@@ -348,7 +368,14 @@ public class CertificateUserServlet extends ServletBase  {
 			note.setHidden(false);
 		}
 		if(model.canIssue(rec)) {
-			v.add(new HtmlView("<p class=\"help-block\">Please provide passphrase to encrypt your p12 certificate</p>"));
+			Authorization auth = context.getAuthorization();
+			
+			if(rec.requester_passphrase != null) {
+				v.add(new HtmlView("<p class=\"help-block\">Please enter passphrase to retrieve & encrypt your p12 certificate</p>"));
+			} else {
+				v.add(new HtmlView("<p class=\"help-block\">Please create passphrase to encrypt your p12 certificate</p>"));
+			}
+			
 			final DivRepPassword pass = new DivRepPassword(context.getPageRoot());
 			pass.setLabel("Passphrase");
 			pass.setRequired(true);
@@ -361,12 +388,13 @@ public class CertificateUserServlet extends ServletBase  {
 			button.addEventListener(new DivRepEventListener() {
                 public void handleEvent(DivRepEvent e) {
                 	if(pass.validate()) {
-                		context.setComment(note.getValue());
+                		context.setComment("User requested to issue certificate");
                 		//start process thread 
-                      	if(model.startissue(rec, pass.getValue())) {
-                    		button.redirect(url);
-                    	} else {
-                    		button.alert("Failed to issue certificate");
+                		try {
+	                      	model.startissue(rec, pass.getValue());
+	                    	button.redirect(url);
+                    	} catch(CertificateRequestException ex) {
+                    		button.alert(ex.getMessage());
                     	}
                 	}
                 }
@@ -379,7 +407,7 @@ public class CertificateUserServlet extends ServletBase  {
 			button.addClass("inline");
 			button.addEventListener(new DivRepEventListener() {
                 public void handleEvent(DivRepEvent e) {
-            		context.setComment(note.getValue());
+            		context.setComment("Request canceled..");
                 	if(model.cancel(rec)) {
                 		button.redirect(url);
                 	} else {
@@ -437,9 +465,25 @@ public class CertificateUserServlet extends ServletBase  {
 		final SimpleDateFormat dformat = new SimpleDateFormat();
 		dformat.setTimeZone(auth.getTimeZone());
 		
-		if(!auth.isUser()) {
-			throw new AuthorizationException("Sorry, this page is only for logged in users.");
-		}
+		//guest has to enter request ID
+		class IDForm extends DivRepForm {
+			final DivRepTextBox id;
+			public IDForm(DivRep parent) {
+				super(parent, null);
+				new DivRepStaticContent(this, "<p>Please enter user certificate request ID to view details</p>");
+				id = new DivRepTextBox(this);
+				id.setLabel("Request ID");
+				id.setRequired(true);
+				
+				setSubmitLabel("Open");
+			}
+			
+			@Override
+			protected Boolean doSubmit() {
+				redirect("certificateuser?id="+id.getValue());
+				return true;
+			}
+		};
 		
 		return new IView(){
 			@Override
@@ -454,13 +498,18 @@ public class CertificateUserServlet extends ServletBase  {
 				out.write("</div>"); //span3
 				
 				out.write("<div class=\"span9\">");
-				renderList(out);
+				if(auth.isUser()) {
+					renderMyList(out);
+				} else {
+					IDForm form = new IDForm(context.getPageRoot());
+					form.render(out);
+				}
 				out.write("</div>"); //span9
 				
 				out.write("</div>"); //row-fluid
 			}
 			
-			public void renderList(PrintWriter out) {
+			public void renderMyList(PrintWriter out) {
 				UserCertificateRequestModel usermodel = new UserCertificateRequestModel(context);
 				out.write("<table class=\"table certificate\">");
 				out.write("<thead><tr><th>ID</th><th>Status</th><th>GOC Ticket</th><th>DN</th><th>VO</th></tr></thead>");
@@ -469,7 +518,7 @@ public class CertificateUserServlet extends ServletBase  {
 					out.write("<tbody>");
 					for(CertificateRequestUserRecord rec : recs) {
 						String cls = "";
-						if(rec.id.equals(userrec.id)) {
+						if(userrec != null && rec.id.equals(userrec.id)) {
 							cls = "latest";
 						}
 						out.write("<tr class=\""+cls+"\" onclick=\"document.location='certificateuser?id="+rec.id+"';\">");
@@ -478,7 +527,7 @@ public class CertificateUserServlet extends ServletBase  {
 						//TODO - use configured goc ticket URL
 						out.write("<td><a target=\"_blank\" href=\""+StaticConfig.conf.getProperty("url.gocticket")+"/"+rec.goc_ticket_id+"\">"+rec.goc_ticket_id+"</a></td>");
 						out.write("<td>"+rec.dn);
-						if(rec.id.equals(userrec.id)) {
+						if(userrec != null && rec.id.equals(userrec.id)) {
 							out.write(" <span class=\"badge badge-info\">Current</span>");
 						}
 						out.write("</td>");
@@ -501,6 +550,7 @@ public class CertificateUserServlet extends ServletBase  {
 				out.write("</div>");//content
 			}
 		};
+
 	}
 
 }

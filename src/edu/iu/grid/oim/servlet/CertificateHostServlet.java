@@ -14,15 +14,20 @@ import javax.servlet.http.HttpSession;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 
+import com.divrep.DivRep;
 import com.divrep.DivRepEvent;
 import com.divrep.DivRepEventListener;
 import com.divrep.common.DivRepButton;
+import com.divrep.common.DivRepForm;
 import com.divrep.common.DivRepPassword;
+import com.divrep.common.DivRepStaticContent;
 import com.divrep.common.DivRepTextArea;
+import com.divrep.common.DivRepTextBox;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.AuthorizationException;
 import edu.iu.grid.oim.lib.StaticConfig;
+import edu.iu.grid.oim.model.CertificateRequestException;
 import edu.iu.grid.oim.model.CertificateRequestStatus;
 import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.cert.DivRepPassStrengthValidator;
@@ -30,7 +35,6 @@ import edu.iu.grid.oim.model.db.CertificateRequestModelBase;
 import edu.iu.grid.oim.model.db.CertificateRequestModelBase.LogDetail;
 import edu.iu.grid.oim.model.db.HostCertificateRequestModel;
 import edu.iu.grid.oim.model.db.ContactModel;
-import edu.iu.grid.oim.model.db.HostCertificateRequestModel.HostCertificateRequestException;
 import edu.iu.grid.oim.model.db.UserCertificateRequestModel;
 import edu.iu.grid.oim.model.db.VOModel;
 import edu.iu.grid.oim.model.db.record.CertificateRequestHostRecord;
@@ -71,10 +75,13 @@ public class CertificateHostServlet extends ServletBase  {
 				int id = Integer.parseInt(dirty_id);
 				HostCertificateRequestModel model = new HostCertificateRequestModel(context);
 				CertificateRequestHostRecord rec = model.get(id);
+				if(rec == null) {
+					throw new ServletException("No request found with a specified request ID.");
+				}
 				if(!model.canView(rec)) {
 					throw new AuthorizationException("You don't have access to view this certificate");
 				}
-				ArrayList<CertificateRequestModelBase<CertificateRequestHostRecord>.LogDetail> logs = model.getLogs(id);
+				ArrayList<CertificateRequestModelBase<CertificateRequestHostRecord>.LogDetail> logs = model.getLogs(HostCertificateRequestModel.class, id);
 				content = createDetailView(context, rec, logs, userrec);
 			} catch (SQLException e) {
 				throw new ServletException("Failed to load specified certificate", e);
@@ -101,29 +108,23 @@ public class CertificateHostServlet extends ServletBase  {
 			@Override
 			public void render(PrintWriter out) {
 				out.write("<div id=\"content\">");
-				
-				
 				out.write("<div class=\"row-fluid\">");
 				
 				out.write("<div class=\"span3\">");
-			
  				CertificateMenuView menu = new CertificateMenuView(context, "certificatehost", userrec);
 				menu.render(out);
 				out.write("</div>"); //span3
 				
 				out.write("<div class=\"span9\">");
-				
 				BootBreadCrumbView bread_crumb = new BootBreadCrumbView();
 				bread_crumb.addCrumb("Host Certificat Requests", "certificatehost");
 				bread_crumb.addCrumb(Integer.toString(rec.id),  null);
 				bread_crumb.render(out);		
-			
 				renderDetail(out);
 				renderLog(out);
 				out.write("</div>"); //span9
 				
 				out.write("</div>"); //row-fluid
-				
 				out.write("</div>"); //content
 			}
 			
@@ -131,14 +132,7 @@ public class CertificateHostServlet extends ServletBase  {
 				
 				out.write("<table class=\"table nohover\">");
 				out.write("<tbody>");
-				
-				/*
-				out.write("<tr>");
-				out.write("<th>DN</th>");
-				out.write("<td>"+StringEscapeUtils.escapeHtml(rec.dn)+"</td>");
-				out.write("</tr>");
-				*/
-				
+						
 				out.write("<tr>");
 				out.write("<th>Status</th>");
 				out.write("<td>"+StringEscapeUtils.escapeHtml(rec.status));
@@ -203,23 +197,7 @@ public class CertificateHostServlet extends ServletBase  {
 				out.write("</ul>");
 				out.write("</td>");
 				out.write("</tr>");
-				
-				
-				/*
-				out.write("<tr>");
-				out.write("<th>VO</th>");
-				VOModel vmodel = new VOModel(context);
-				VORecord vo;
-				try {
-					vo = vmodel.get(rec.vo_id);
-					out.write("<td>"+StringEscapeUtils.escapeHtml(vo.name)+"</td>");
-				} catch (SQLException e) {
-					log.error("Failed to find vo information for certificate view", e);
-					out.write("<td>N/A</td>");
-				}
-				out.write("</tr>");
-				*/
-				
+			
 				out.write("<tr>");
 				out.write("<th>Next Action</th>");
 				out.write("<td>");
@@ -240,7 +218,6 @@ public class CertificateHostServlet extends ServletBase  {
 				out.write("<thead><tr><th>By</th><th>IP</th><th>Status</th><th>Note</th><th>Timestamp</th></tr></thead>");
 				
 				out.write("<tbody>");
-				
 				boolean latest = true;
 				for(CertificateRequestModelBase<CertificateRequestHostRecord>.LogDetail log : logs) {
 					if(latest) {
@@ -277,7 +254,6 @@ public class CertificateHostServlet extends ServletBase  {
 		note.setHidden(true);
 		v.add(note);
 		
-		
 		//controls
 		final HostCertificateRequestModel model = new HostCertificateRequestModel(context);
 		if(model.canApprove(rec)) {
@@ -289,12 +265,9 @@ public class CertificateHostServlet extends ServletBase  {
                 	if(note.validate()) {
                 		context.setComment(note.getValue());
 	                	try {
-							if(model.approve(rec)) {
-								button.redirect(url);
-							} else {
-								button.alert("Failed to approve request");
-							}
-						} catch (HostCertificateRequestException e1) {
+							model.approve(rec);
+							button.redirect(url);
+						} catch (CertificateRequestException e1) {
 							log.error("Failed to approve host certificate", e1);
 							button.alert(e1.toString());
 						}
@@ -433,9 +406,25 @@ public class CertificateHostServlet extends ServletBase  {
 		final SimpleDateFormat dformat = new SimpleDateFormat();
 		dformat.setTimeZone(auth.getTimeZone());
 		
-		if(!auth.isUser()) {
-			throw new AuthorizationException("Sorry, this page is only for logged in users.");
-		}
+		//guest has to enter request ID
+		class IDForm extends DivRepForm {
+			final DivRepTextBox id;
+			public IDForm(DivRep parent) {
+				super(parent, null);
+				new DivRepStaticContent(this, "<p>Please enter host certificate request ID to view details</p>");
+				id = new DivRepTextBox(this);
+				id.setLabel("Request ID");
+				id.setRequired(true);
+				
+				setSubmitLabel("Open");
+			}
+			
+			@Override
+			protected Boolean doSubmit() {
+				redirect("certificatehost?id="+id.getValue());
+				return true;
+			}
+		};
 		
 		return new IView(){
 			@Override
@@ -450,13 +439,18 @@ public class CertificateHostServlet extends ServletBase  {
 				out.write("</div>"); //span3
 				
 				out.write("<div class=\"span9\">");
-				renderList(out);
+				if(auth.isUser()) {
+					renderMyList(out);
+				} else {
+					IDForm form = new IDForm(context.getPageRoot());
+					form.render(out);
+				}
 				out.write("</div>"); //span9
 				
 				out.write("</div>"); //row-fluid
 			}
 			
-			public void renderList(PrintWriter out) {
+			public void renderMyList(PrintWriter out) {
 				HostCertificateRequestModel model = new HostCertificateRequestModel(context);
 				ContactModel cmodel = new ContactModel(context);
 				out.write("<table class=\"table certificate\">");

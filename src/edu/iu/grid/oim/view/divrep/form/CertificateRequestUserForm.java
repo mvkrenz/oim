@@ -347,79 +347,22 @@ public class CertificateRequestUserForm extends DivRepForm
 		//do certificate request with no csr
 		try {
 			UserCertificateRequestModel certmodel = new UserCertificateRequestModel(context);
-			String requester_passphrase = null;
+			CertificateRequestUserRecord rec = null;
 			if(auth.isGuest()) {
-				requester_passphrase = HashHelper.sha1(passphrase.getValue());
-			} 
-			CertificateRequestUserRecord rec = certmodel.requestWithNOCSR(vo.getValue(), user, requester_passphrase);
+				//requester_passphrase = HashHelper.sha1(passphrase.getValue());
+				rec = certmodel.requestGuestWithNOCSR(vo.getValue(), user, passphrase.getValue());
+			} else {
+				rec = certmodel.requestUsertWithNOCSR(vo.getValue(), user);
+			}
 			if(rec != null) {
 				redirect("certificateuser?id="+rec.id); //TODO - does this work? I haven't tested it
 			}
 		} catch (Exception e) {
 			log.error("Failed to submit request..", e);
-			ret = false;
-		}
-
-		if(!ret) {
 			alert("Sorry, failed to submit request..");
-		}
-
-		/*
-		ContactModel model = new ContactModel(context);
-		DNModel dnmodel = new DNModel(context);
-		try {
-			//Find contact record with the same email address
-			ContactRecord rec = model.getByemail(primary_email.getValue());
-			//Create new one if none is found
-			if(rec == null) {
-				rec = new ContactRecord();
-				rec.name = name.getValue();
-				rec.primary_email = primary_email.getValue();
-				rec.secondary_email = secondary_email.getValue();
-				rec.primary_phone = primary_phone.getValue();
-				rec.primary_phone_ext = primary_phone_ext.getValue();
-				rec.secondary_phone = secondary_phone.getValue();
-				rec.secondary_phone_ext = secondary_phone_ext.getValue();
-				rec.sms_address = sms_address.getValue();
-				rec.address_line_1 = address_line_1.getValue(); 
-				rec.address_line_2 = address_line_2.getValue(); 
-				rec.city = city.getValue();
-				rec.state = state.getValue();
-				rec.zipcode = zipcode.getValue();
-				rec.country = country.getValue();
-				rec.im = im.getValue();
-				rec.timezone = timezone_id2tz.get(timezone.getValue());
-				rec.profile = profile.getValue();
-				rec.contact_preference = profile.getValue();
-				rec.use_twiki = use_twiki.getValue();
-				rec.twiki_id = twiki_id.getValue();
-				rec.person = true;
-				rec.disable = false;
-				model.insert(rec);
-			} else {
-				//Make sure that this contact is not used by any DN already
-				if(dnmodel.getByContactID(rec.id) != null) {
-					alert("The email address specified is already associated with a different DN. Please try different email address.");
-					//primary_email.setValue("");
-					//primary_email_check.setValue("");
-
-					context.close();
-					return false;
-				}
-			}
-			
-	
-			//jump to profile page for more details
-			redirect(StaticConfig.getApplicationBase()+"/profileedit");
-			
-		} catch (SQLException e) {
-			alert(e.toString());
-			//redirect(origin_url);
 			ret = false;
 		}
-		*/
-		
-		//context.storeDivRepSession();
+
 		return ret;
 	}
 }

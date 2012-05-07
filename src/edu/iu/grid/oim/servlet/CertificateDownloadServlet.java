@@ -15,13 +15,12 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.log4j.Logger;
 
 import edu.iu.grid.oim.lib.Authorization;
+import edu.iu.grid.oim.model.CertificateRequestException;
 import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.HostCertificateRequestModel;
-import edu.iu.grid.oim.model.db.HostCertificateRequestModel.HostCertificateRequestException;
 import edu.iu.grid.oim.model.db.UserCertificateRequestModel;
 import edu.iu.grid.oim.model.db.record.CertificateRequestHostRecord;
 import edu.iu.grid.oim.model.db.record.CertificateRequestUserRecord;
-
 
 public class CertificateDownloadServlet extends ServletBase  {
 	private static final long serialVersionUID = 1L;
@@ -83,7 +82,7 @@ public class CertificateDownloadServlet extends ServletBase  {
 					}
 				} catch (SQLException e) {
 					log.error("Failed to load certificate record", e);
-				} catch (HostCertificateRequestException e) {
+				} catch (CertificateRequestException e) {
 					log.error("Failed to load pkcs7 cert -- HostCertificateRequestException", e);
 				}
 			}

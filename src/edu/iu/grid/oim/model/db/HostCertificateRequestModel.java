@@ -1,6 +1,5 @@
 package edu.iu.grid.oim.model.db;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -29,6 +28,7 @@ import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Footprints;
 import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.lib.Footprints.FPTicket;
+import edu.iu.grid.oim.model.CertificateRequestException;
 import edu.iu.grid.oim.model.CertificateRequestStatus;
 import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.cert.CertificateManager;
@@ -40,16 +40,6 @@ import edu.iu.grid.oim.model.db.record.RecordBase;
 public class HostCertificateRequestModel extends CertificateRequestModelBase<CertificateRequestHostRecord> {
     static Logger log = Logger.getLogger(HostCertificateRequestModel.class);  
     
-    public class HostCertificateRequestException extends Exception {
-		private static final long serialVersionUID = 1L;
-		public HostCertificateRequestException(String message) {
-    		super(message);
-    	}
-    	public HostCertificateRequestException(String message, Exception e) {
-    		super(message, e);
-    	}
-    }
-    
 	private UserContext contect;
     public HostCertificateRequestModel(UserContext _context) {
 		super(_context, "certificate_request_host");
@@ -58,16 +48,19 @@ public class HostCertificateRequestModel extends CertificateRequestModelBase<Cer
     
 	//NO-AC
 	public CertificateRequestHostRecord get(int id) throws SQLException {
+		CertificateRequestHostRecord rec = null;
 		ResultSet rs = null;
 		Connection conn = connectOIM();
 		Statement stmt = conn.createStatement();
 	    if (stmt.execute("SELECT * FROM "+table_name+ " WHERE id = " + id)) {
 	    	rs = stmt.getResultSet();
 	    	if(rs.next()) {
-	    		return new CertificateRequestHostRecord(rs);
+	    		rec = new CertificateRequestHostRecord(rs);
 			}
 	    }	
-	    return null;
+	    stmt.close();
+	    conn.close();
+	    return rec;
 	}
 	
 	//return requests that I have submitted
@@ -82,6 +75,7 @@ public class HostCertificateRequestModel extends CertificateRequestModelBase<Cer
     		ret.add(new CertificateRequestHostRecord(rs));
     	}
 	    stmt.close();
+	    conn.close();
 	    return ret;
 	}
 
@@ -94,7 +88,7 @@ public class HostCertificateRequestModel extends CertificateRequestModelBase<Cer
 
 	//NO-AC 
 	//return pem encoded pkcs7
-	public String getPkcs7(CertificateRequestHostRecord rec, int idx) throws HostCertificateRequestException {
+	public String getPkcs7(CertificateRequestHostRecord rec, int idx) throws CertificateRequestException {
 		StringArray pkcs7s = new StringArray(rec.cert_pkcs7);
 		if(pkcs7s.length() > idx) {
 			String pkcs7 = pkcs7s.get(idx);
@@ -105,13 +99,13 @@ public class HostCertificateRequestModel extends CertificateRequestModelBase<Cer
 			}
 			return pkcs7;
 		} else {
-			throw new HostCertificateRequestException("Index is larger than the number of CSR requested");
+			throw new CertificateRequestException("Index is larger than the number of CSR requested");
 		}
 	}
 	
 	//NO-AC (no check fo idx out-of-bound)
 	//issue idx specified certificate, and store back to DB. return pkcs7
-	private String issueCertificate(CertificateRequestHostRecord rec, int idx) throws HostCertificateRequestException {
+	private String issueCertificate(CertificateRequestHostRecord rec, int idx) throws CertificateRequestException {
 		StringArray csrs = new StringArray(rec.csrs);
 		String csr = csrs.get(idx);
 
@@ -123,7 +117,7 @@ public class HostCertificateRequestModel extends CertificateRequestModelBase<Cer
 			RDN[] cn_rdn = name.getRDNs(BCStyle.CN);
 			cn = cn_rdn[0].getFirst().getValue().toString(); //wtf?
 		} catch (IOException e2) {
-			throw new HostCertificateRequestException("Failed to obtain cn from given csr", e2);
+			throw new CertificateRequestException("Failed to obtain cn from given csr", e2);
 		}
 		
 		CertificateManager cm = new CertificateManager();
@@ -159,7 +153,7 @@ public class HostCertificateRequestModel extends CertificateRequestModelBase<Cer
 				
 				HostCertificateRequestModel.super.update(get(rec.id), rec);
 			} catch (SQLException e) {
-				throw new HostCertificateRequestException("Failed to update status for certificate request: " + rec.id);
+				throw new CertificateRequestException("Failed to update status for certificate request: " + rec.id);
 			}
 			
 			//update ticket
@@ -179,14 +173,14 @@ public class HostCertificateRequestModel extends CertificateRequestModelBase<Cer
 			
 		} catch (ICertificateSigner.CertificateProviderException e1) {
 			log.error("Failed to sign certificate", e1);
-			throw new HostCertificateRequestException("Failed to sign certificate", e1);
+			throw new CertificateRequestException("Failed to sign certificate", e1);
 		}
 	
 	}
 	
 	//NO-AC
 	//return true if success
-    public boolean approve(CertificateRequestHostRecord rec) throws HostCertificateRequestException 
+    public void approve(CertificateRequestHostRecord rec) throws CertificateRequestException 
     {
 		rec.status = CertificateRequestStatus.APPROVED;
 		try {
@@ -194,7 +188,7 @@ public class HostCertificateRequestModel extends CertificateRequestModelBase<Cer
 			super.update(get(rec.id), rec);
 		} catch (SQLException e) {
 			log.error("Failed to approve host certificate request: " + rec.id);
-			return false;
+			throw new CertificateRequestException("Failed to update certificate request record");
 		}
 		
 		//update ticket
@@ -207,13 +201,11 @@ public class HostCertificateRequestModel extends CertificateRequestModelBase<Cer
 		nad.add(Calendar.DATE, 7);
 		ticket.nad = nad.getTime();
 		fp.update(ticket, rec.goc_ticket_id);
-	
-		return true;
     }
     
     //NO-AC (for authenticated user)
 	//return request record if successful, otherwise null
-    public CertificateRequestHostRecord requestAsUser(String[] csrs, ContactRecord requester) throws HostCertificateRequestException 
+    public CertificateRequestHostRecord requestAsUser(String[] csrs, ContactRecord requester) throws CertificateRequestException 
     {
     	CertificateRequestHostRecord rec = new CertificateRequestHostRecord();
 		Date current = new Date();
@@ -235,7 +227,7 @@ public class HostCertificateRequestModel extends CertificateRequestModelBase<Cer
     
     //NO-AC (for guest user)
 	//return request record if successful, otherwise null
-    public CertificateRequestHostRecord requestAsGuest(String[] csrs, String requester_name, String requester_email, String requester_phone) throws HostCertificateRequestException 
+    public CertificateRequestHostRecord requestAsGuest(String[] csrs, String requester_name, String requester_email, String requester_phone) throws CertificateRequestException 
     {
     	CertificateRequestHostRecord rec = new CertificateRequestHostRecord();
 		Date current = new Date();
@@ -256,7 +248,7 @@ public class HostCertificateRequestModel extends CertificateRequestModelBase<Cer
     
     //NO-AC
 	//return request record if successful, otherwise null (guest interface)
-    private CertificateRequestHostRecord request(String[] csrs, CertificateRequestHostRecord rec, FPTicket ticket) throws HostCertificateRequestException 
+    private CertificateRequestHostRecord request(String[] csrs, CertificateRequestHostRecord rec, FPTicket ticket) throws CertificateRequestException 
     {
 		Date current = new Date();
 		rec.request_time = new Timestamp(current.getTime());
@@ -280,33 +272,23 @@ public class HostCertificateRequestModel extends CertificateRequestModelBase<Cer
 	    		cns_sa.set(idx, cn);
 			} catch (IOException e) {
 				log.error("Failed to base64 decode CSR", e);
-				throw new HostCertificateRequestException("Failed to base64 decode CSR:"+csr_string, e);
+				throw new CertificateRequestException("Failed to base64 decode CSR:"+csr_string, e);
 			} catch (NullPointerException e) {
 				log.error("(probably) couldn't find CN inside the CSR:"+csr_string, e);
-				throw new HostCertificateRequestException("Failed to base64 decode CSR", e);	
+				throw new CertificateRequestException("Failed to base64 decode CSR", e);	
 			} catch(Exception e) {
-				throw new HostCertificateRequestException("Failed to decode CSR", e);
+				throw new CertificateRequestException("Failed to decode CSR", e);
 			}
-			/*
-			//make sure there is 1 and only 1 gridadmin who can approve this host
-			ArrayList<Integer> gridadmins = lookupGridAdmins(cn);
-			if(gridadmins.size() == 0) {
-				throw new HostCertificateRequestException("No GridAdmin can approve host:" + cn);	
-			}
-			if(gridadmins.size() > 1) {
-				throw new HostCertificateRequestException("Multiple GridAdmin can approve host:" + cn + "(must be 1)");	
-			}
-			*/
 			
 			//lookup gridadmin
 			ContactRecord ga;
 			try {
 				ga = gmodel.getGridAdminByFQDN(cn);
 			} catch (SQLException e) {
-				throw new HostCertificateRequestException("Failed to lookup GridAdmin to approve host:" + cn, e);	
+				throw new CertificateRequestException("Failed to lookup GridAdmin to approve host:" + cn, e);	
 			}
 			if(ga == null) {
-				throw new HostCertificateRequestException("No GridAdmin can approve host:" + cn);	
+				throw new CertificateRequestException("No GridAdmin can approve host:" + cn);	
 			}
 			
 			//make sure single gridadmin approves all host
@@ -314,7 +296,7 @@ public class HostCertificateRequestModel extends CertificateRequestModelBase<Cer
 				rec.gridadmin_contact_id = ga.id;
 			} else {
 				if(!rec.gridadmin_contact_id.equals(ga.id)) {
-					throw new HostCertificateRequestException("All host must be approved by the same GridAdmin. Different for " + cn);	
+					throw new CertificateRequestException("All host must be approved by the same GridAdmin. Different for " + cn);	
 				}
 			}
 				
@@ -333,18 +315,11 @@ public class HostCertificateRequestModel extends CertificateRequestModelBase<Cer
     		//insert request record
 			Integer request_id = super.insert(rec);
 			
-		
-			/*
-			VOModel vmodel = new VOModel(context);
-			VORecord vrec = vmodel.get(rec.vo_id);
-			ticket.description = "Dear " + vrec.name + " VO RA,\n\n";
-			*/
-			
 			ContactModel cmodel = new ContactModel(context);
 			ContactRecord ga = cmodel.get(rec.gridadmin_contact_id);
 			ticket.description = "Dear " + ga.name + "; the GridAdmin, \n";
 			ticket.description += "Host certificate request has been submitted.";
-			String url = StaticConfig.getApplicationBase() + "/certificate?type=host&id=" + rec.id;
+			String url = StaticConfig.getApplicationBase() + "/certificatehost?id=" + rec.id;
 			ticket.description += "Please determine this request's authenticity, and approve / disapprove at " + url;
 			if(StaticConfig.isDebug()) {
 				ticket.assignees.add("hayashis");
@@ -370,7 +345,7 @@ public class HostCertificateRequestModel extends CertificateRequestModelBase<Cer
 			context.setComment("Opened GOC Ticket " + ticket_id);
 			super.update(get(request_id), rec);
 		} catch (SQLException e) {
-			throw new HostCertificateRequestException("Failed to insert host certificate request record");	
+			throw new CertificateRequestException("Failed to insert host certificate request record");	
 		}
 		
     	return rec;

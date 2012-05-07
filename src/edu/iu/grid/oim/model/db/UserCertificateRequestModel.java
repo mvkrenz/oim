@@ -22,6 +22,7 @@ import java.util.Iterator;
 
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.bouncycastle.asn1.x500.X500Name;
@@ -35,9 +36,11 @@ import org.bouncycastle.util.Store;
 import org.bouncycastle.util.encoders.Base64;
 
 import edu.iu.grid.oim.lib.Authorization;
+import edu.iu.grid.oim.lib.BCrypt;
 import edu.iu.grid.oim.lib.Footprints;
 import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.lib.Footprints.FPTicket;
+import edu.iu.grid.oim.model.CertificateRequestException;
 import edu.iu.grid.oim.model.CertificateRequestStatus;
 import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.cert.CertificateManager;
@@ -54,7 +57,7 @@ import edu.iu.grid.oim.model.db.record.VORecord;
 
 public class UserCertificateRequestModel extends CertificateRequestModelBase<CertificateRequestUserRecord> {
     static Logger log = Logger.getLogger(UserCertificateRequestModel.class);  
-    
+ 
 	private UserContext contect;
     public UserCertificateRequestModel(UserContext _context) {
 		super(_context, "certificate_request_user");
@@ -62,7 +65,7 @@ public class UserCertificateRequestModel extends CertificateRequestModelBase<Cer
     
     //find certificate request with the same DN that user is currently using to login
     public CertificateRequestUserRecord getCurrent() throws SQLException {
-    	
+    	CertificateRequestUserRecord rec = null;
     	Authorization auth = context.getAuthorization();
     	if(!auth.isUser()) {
     		return null;
@@ -76,10 +79,13 @@ public class UserCertificateRequestModel extends CertificateRequestModelBase<Cer
 	    if (pstmt.execute()) {
 	    	rs = pstmt.getResultSet();
 	    	if(rs != null && rs.next()) {
-	    		return new CertificateRequestUserRecord(rs);
+	    		
+	    		rec = new CertificateRequestUserRecord(rs);
 			}
 	    }	
-	    return null;
+		pstmt.close();
+		conn.close();
+	    return rec;
     }
 	
 	//determines if user should be able to view request details, logs, and download certificate (pkcs12 is session specific)
@@ -230,24 +236,26 @@ public class UserCertificateRequestModel extends CertificateRequestModelBase<Cer
 			if(auth.allows("admin_all_user_cert_requests")) return true;
 			*/
 			
-			//requester oneself can revoke it
-			ContactRecord contact = auth.getContact();
-			if(rec.requester_contact_id.equals(contact.id)) return true;
-			
-			//ra can revoke it
-			VOContactModel model = new VOContactModel(context);
-			ContactModel cmodel = new ContactModel(context);
-			ArrayList<VOContactRecord> crecs;
-			try {
-				crecs = model.getByVOID(rec.vo_id);
-				for(VOContactRecord crec : crecs) {
-					ContactRecord contactrec = cmodel.get(crec.contact_id);
-					if(crec.contact_type_id.equals(11) && crec.contact_rank_id.equals(1)) { //primary
-						if(contactrec.id.equals(contact.id)) return true;
+			if(auth.isUser()) {
+				//requester oneself can revoke it
+				ContactRecord contact = auth.getContact();
+				if(rec.requester_contact_id.equals(contact.id)) return true;
+				
+				//ra can revoke it
+				VOContactModel model = new VOContactModel(context);
+				ContactModel cmodel = new ContactModel(context);
+				ArrayList<VOContactRecord> crecs;
+				try {
+					crecs = model.getByVOID(rec.vo_id);
+					for(VOContactRecord crec : crecs) {
+						ContactRecord contactrec = cmodel.get(crec.contact_id);
+						if(crec.contact_type_id.equals(11) && crec.contact_rank_id.equals(1)) { //primary
+							if(contactrec.id.equals(contact.id)) return true;
+						}
 					}
+				} catch (SQLException e1) {
+					log.error("Failed to lookup RA/sponsor information", e1);
 				}
-			} catch (SQLException e1) {
-				log.error("Failed to lookup RA/sponsor information", e1);
 			}
 		}
 		return false;
@@ -264,8 +272,15 @@ public class UserCertificateRequestModel extends CertificateRequestModelBase<Cer
 			*/
 			
 			//requester oneself can issue
-			ContactRecord contact = auth.getContact();
-			if(rec.requester_contact_id.equals(contact.id)) return true;
+			if(auth.isUser()) {
+				ContactRecord contact = auth.getContact();
+				if(rec.requester_contact_id.equals(contact.id)) return true;
+			} else {
+				if(rec.requester_passphrase != null) {
+					//guest user can try entering retrieval passphrase
+					return true;
+				}
+			}
 		}
 		return false;
 	}
@@ -276,6 +291,15 @@ public class UserCertificateRequestModel extends CertificateRequestModelBase<Cer
 		String out = StringUtils.join(tokens, "/");
 		return "/"+out;
 	}
+	
+	//convert apache format (delimited by /) to comma delimited DN (RFC1779)
+	private String ApacheDN_to_RFC1779(String dn) {
+		String tokens[] = dn.split("/");
+		tokens = (String[]) ArrayUtils.remove(tokens, 0);//remove first one which is empty
+		String out = StringUtils.join(tokens, ",");
+		return out;
+	}
+	
 	
 	//NO-AC
 	//return true if success
@@ -314,7 +338,8 @@ public class UserCertificateRequestModel extends CertificateRequestModelBase<Cer
 			Footprints fp = new Footprints(context);
 			FPTicket ticket = fp.new FPTicket();
 			ticket.description = "Dear " + requester.name + ",\n\n";
-			ticket.description += "Your user certificate request has been approved. Please issue & download your certificate";
+			ticket.description += "Your user certificate request has been approved. Please issue & download your certificate.\n\n";
+			ticket.description += "> " + context.getComment();
 			ticket.nextaction = "Requester to download certificate"; // NAD will be set 7 days from today by default
 			fp.update(ticket, rec.goc_ticket_id);
 			
@@ -328,9 +353,9 @@ public class UserCertificateRequestModel extends CertificateRequestModelBase<Cer
 	//NO-AC
 	//return true if success
 	public boolean cancel(CertificateRequestUserRecord rec) {
-		rec.status = CertificateRequestStatus.CANCELED;
 		try {
 			//context.setComment("Certificate Approved");
+			rec.status = CertificateRequestStatus.CANCELED;
 			super.update(get(rec.id), rec);
 		} catch (SQLException e) {
 			log.error("Failed to cancel user certificate request:" + rec.id);
@@ -342,7 +367,8 @@ public class UserCertificateRequestModel extends CertificateRequestModelBase<Cer
 		
 		Footprints fp = new Footprints(context);
 		FPTicket ticket = fp.new FPTicket();
-		ticket.description = contact.name + " has canceled this certificate request.";
+		ticket.description = contact.name + " has canceled this certificate request.\n\n";
+		ticket.description += "> " + context.getComment();
 		ticket.status = "Resolved";
 		fp.update(ticket, rec.goc_ticket_id);
 		
@@ -366,7 +392,8 @@ public class UserCertificateRequestModel extends CertificateRequestModelBase<Cer
 		
 		Footprints fp = new Footprints(context);
 		FPTicket ticket = fp.new FPTicket();
-		ticket.description = contact.name + " has rejected this certificate request.";
+		ticket.description = contact.name + " has rejected this certificate request.\n\n";
+		ticket.description += "> " + context.getComment();
 		ticket.status = "Resolved";
 		fp.update(ticket, rec.goc_ticket_id);
 		
@@ -378,7 +405,6 @@ public class UserCertificateRequestModel extends CertificateRequestModelBase<Cer
 	public boolean requestRenew(CertificateRequestUserRecord rec) {
 		rec.status = CertificateRequestStatus.RENEW_REQUESTED;
 		try {
-			//context.setComment("Certificate Approved");
 			super.update(get(rec.id), rec);
 		} catch (SQLException e) {
 			log.error("Failed to request user certificate request renewal: " + rec.id);
@@ -390,7 +416,8 @@ public class UserCertificateRequestModel extends CertificateRequestModelBase<Cer
 		
 		Footprints fp = new Footprints(context);
 		FPTicket ticket = fp.new FPTicket();
-		ticket.description = contact.name + " has requested renewal for this certificate request.";
+		ticket.description = contact.name + " has requested renewal for this certificate request.\n\n";
+		ticket.description += "> " + context.getComment();
 		ticket.nextaction = "RA/Sponsor to verify&approve"; //nad will be set to 7 days from today by default
 		fp.update(ticket, rec.goc_ticket_id);
 		
@@ -448,88 +475,88 @@ public class UserCertificateRequestModel extends CertificateRequestModelBase<Cer
 		
 		return true;
 	}
-	
-	//NO-AC
-	//return true if success
-	public boolean startissue(final CertificateRequestUserRecord rec, final String password) {
+
+	// NO-AC
+	// return true if success
+	public boolean startissue(final CertificateRequestUserRecord rec, final String password) throws CertificateRequestException {
 		
+		//verify passphrase if necessary
+		if(rec.requester_passphrase != null) {
+			String hashed = BCrypt.hashpw(password, rec.requester_passphrase_salt);
+			if(!hashed.equals(rec.requester_passphrase)) {
+				throw new CertificateRequestException("Failed to match passphrase.");
+			}
+		}
+
+		// mark the request as "issuing.."
 		try {
-			//mark the request as "issuing.."
 			rec.status = CertificateRequestStatus.ISSUING;
 			super.update(get(rec.id), rec);
 		} catch (SQLException e) {
 			log.error("Failed to issue user certificate for request:" + rec.id);
-			return false;
+			throw new CertificateRequestException("Failed to update certificate request status");
 		}
-		
+
 		new Thread(new Runnable() {
-			   public void run() {
-				if(rec.csr == null) {
-					X500Name name;
-					name = new X500Name(rec.dn);
-					
-					GenerateCSR csrgen;
-					try {
-						csrgen = new GenerateCSR(name);
-					} catch (Exception e) {
-						log.error("Failed to generate privatekey/csr for user certificate request: " + rec.id, e);
-						return;
-					}
-					
-					rec.csr = csrgen.getCSR();
-					try {
-						UserCertificateRequestModel.super.update(get(rec.id), rec);
-					} catch (SQLException e1) {
-						log.error("Failed to store generated CSR for request: " + rec.id, e1);
-						return;
-					}
-					
-					//store private key in memory
-					try {
-						HttpSession session = context.getSession();
-						session.setAttribute("PRIVATE_USER:"+rec.id, csrgen.getPrivateKey());
-						session.setAttribute("PASS_USER:"+rec.id, password);
-					} catch (Exception e) {
-						log.error("Failed to obtain encrypted private key for user certiricate request: " + rec.id, e);
-						return;
-					}
-				}
-				
-				CertificateManager cm = new CertificateManager();
+			public void failed(String message, Throwable e) {
+				log.error(message, e);
+				rec.status = CertificateRequestStatus.FAILED;
 				try {
+					context.setComment(message + " :: " + e.getMessage());
+					UserCertificateRequestModel.super.update(get(rec.id), rec);
+				} catch (SQLException e1) {
+					log.error("Failed to update request status while processing failed condition :" + message, e1);
+				}
+			}
+			public void run() {
+				try {
+					//if csr is not set, we need to create one and private key for user
+					if (rec.csr == null) {
+						String dn = ApacheDN_to_RFC1779(rec.dn);
+						X500Name name = new X500Name(dn);
+						GenerateCSR csrgen = new GenerateCSR(name);
+						rec.csr = csrgen.getCSR();
+						context.setComment("Generated CSR and private key");
+						UserCertificateRequestModel.super.update(get(rec.id),rec);
+	
+						// store private key in memory to be used to create pkcs12 later
+						HttpSession session = context.getSession();
+						session.setAttribute("PRIVATE_USER:" + rec.id, csrgen.getPrivateKey());
+						session.setAttribute("PASS_USER:" + rec.id, password);
+					}
+	
+					//now we can sign it
+					CertificateManager cm = new CertificateManager();
 					ICertificateSigner.Certificate cert = cm.signUserCertificate(rec.csr, rec.dn);
 					rec.cert_certificate = cert.certificate;
 					rec.cert_intermediate = cert.intermediate;
 					rec.cert_pkcs7 = cert.pkcs7;
-				} catch (ICertificateSigner.CertificateProviderException e1) {
-					log.error("Failed to sign certificate", e1);
-					return;
-				}
-				
-				try {
-					//context.setComment("Certificate Approved");
+					
+					//all done at this point
 					rec.status = CertificateRequestStatus.ISSUED;
+					context.setComment("Certificate has been issued by signer");
 					UserCertificateRequestModel.super.update(get(rec.id), rec);
-				} catch (SQLException e) {
-					log.error("Failed to update status for certificate request: " + rec.id);
-					return;
+	
+					// update ticket
+					Authorization auth = context.getAuthorization();
+					ContactRecord contact = auth.getContact();
+					Footprints fp = new Footprints(context);
+					FPTicket ticket = fp.new FPTicket();
+					ticket.description = contact.name + " has issued certificate.";
+					ticket.status = "Resolved";
+					fp.update(ticket, rec.goc_ticket_id);
+					
+				} catch (ICertificateSigner.CertificateProviderException e) {
+					failed("Failed to sign certificate -- CertificateProviderException ", e);
+				} catch(Exception e) {
+					failed("Failed to sign certificate -- unhandled", e);	
 				}
-				
-				//update ticket
-				Authorization auth = context.getAuthorization();
-				ContactRecord contact = auth.getContact();
-				Footprints fp = new Footprints(context);
-				FPTicket ticket = fp.new FPTicket();
-				ticket.description = contact.name + " has issued certificate.";
-				ticket.status = "Resolved";
-				fp.update(ticket, rec.goc_ticket_id);
-				
 			}
 		}).start();
-		
+
 		return true;
 	}
-	
+
 	public PrivateKey getPrivateKey(Integer id) {
 		HttpSession session = context.getSession();
 		return (PrivateKey)session.getAttribute("PRIVATE_USER:"+id);	
@@ -615,16 +642,19 @@ public class UserCertificateRequestModel extends CertificateRequestModelBase<Cer
 
 	//NO-AC
 	public CertificateRequestUserRecord get(int id) throws SQLException {
+		CertificateRequestUserRecord rec = null;
 		ResultSet rs = null;
 		Connection conn = connectOIM();
 		Statement stmt = conn.createStatement();
 	    if (stmt.execute("SELECT * FROM "+table_name+ " WHERE id = " + id)) {
 	    	rs = stmt.getResultSet();
 	    	if(rs.next()) {
-	    		return new CertificateRequestUserRecord(rs);
+	    		rec = new CertificateRequestUserRecord(rs);
 			}
 	    }	
-	    return null;
+	    stmt.close();
+	    conn.close();
+	    return rec;
 	}
 	
 	//return requests that I have submitted
@@ -639,6 +669,7 @@ public class UserCertificateRequestModel extends CertificateRequestModelBase<Cer
     		ret.add(new CertificateRequestUserRecord(rs));
     	}
 	    stmt.close();
+	    conn.close();
 	    return ret;
 	}
 	
@@ -654,38 +685,41 @@ public class UserCertificateRequestModel extends CertificateRequestModelBase<Cer
     		ret.add(new CertificateRequestUserRecord(rs));
     	}
 	    stmt.close();
+	    conn.close();
 	    return ret;
 	}
 	
-    public boolean requestWithCSR(String csr, String fullname, Integer vo_id) throws SQLException
-    { 
+    public boolean requestWithCSR(String csr, String fullname, Integer vo_id) throws SQLException { 
     	//TODO
     	
     	return false;
     }
+    
+    public CertificateRequestUserRecord requestUsertWithNOCSR(Integer vo_id, ContactRecord requester) throws SQLException {
+    	
+    	//TODO -- check access
+    	
+    	//TODO -- check quota
+
+		CertificateRequestUserRecord rec = new CertificateRequestUserRecord();
+    	if(request(vo_id, rec, requester) == true) {
+    		return rec;
+    	} else {
+    		return null;
+    	}
+    }
        
     //returns insertec request record if successful. if not, null
-    public CertificateRequestUserRecord requestWithNOCSR(Integer vo_id, ContactRecord requester, String requester_passphrase) throws SQLException
-    { 
+    public CertificateRequestUserRecord requestGuestWithNOCSR(Integer vo_id, ContactRecord requester, String passphrase) throws SQLException { 
     	//TODO -- check access
     	
     	//TODO -- check quota
  
-    	X500Name name = generateDN(requester.name, requester.primary_email);
-    	
-		CertificateRequestUserRecord rec = new CertificateRequestUserRecord();
-		rec.dn = RFC1779_to_ApacheDN(name.toString());
-		rec.requester_passphrase = requester_passphrase;
-		rec.requester_contact_id = requester.id;
-		rec.vo_id = vo_id;
-
-		Footprints fp = new Footprints(context);
-		FPTicket ticket = fp.new FPTicket();
-		ticket.name = requester.name;
-		ticket.email = requester.primary_email;
-		ticket.phone = requester.primary_phone;
-		
-    	if(request(rec, requester, ticket) == true) {
+		CertificateRequestUserRecord rec = new CertificateRequestUserRecord();		
+		String salt = BCrypt.gensalt(12);//let's hard code this for now..
+		rec.requester_passphrase_salt = salt;
+		rec.requester_passphrase = BCrypt.hashpw(passphrase, salt);
+    	if(request(vo_id, rec, requester) == true) {
     		return rec;
     	} else {
     		return null;
@@ -703,7 +737,7 @@ public class UserCertificateRequestModel extends CertificateRequestModelBase<Cer
         x500NameBld.addRDN(BCStyle.DC, "com");
         x500NameBld.addRDN(BCStyle.DC, "DigiCert-Grid");
         x500NameBld.addRDN(BCStyle.OU, "People");   
-        x500NameBld.addRDN(BCStyle.CN, fullname);
+        x500NameBld.addRDN(BCStyle.CN, fullname + "/" + email);
         /*
         x500NameBld.addRDN(BCStyle.O, "OSG");//org name
         x500NameBld.addRDN(BCStyle.OU, "PKITesting");//org unit      
@@ -716,11 +750,23 @@ public class UserCertificateRequestModel extends CertificateRequestModelBase<Cer
     }
     
     //NO-AC NO-QUOTA
-    private boolean request(CertificateRequestUserRecord rec, ContactRecord requester, FPTicket ticket) throws SQLException 
+    //return true for success
+    private boolean request(Integer vo_id, CertificateRequestUserRecord rec, ContactRecord requester) throws SQLException 
     {
 		Date current = new Date();
 		rec.request_time = new Timestamp(current.getTime());
 		rec.status = CertificateRequestStatus.REQUESTED;
+		
+		Footprints fp = new Footprints(context);
+		FPTicket ticket = fp.new FPTicket();
+		ticket.name = requester.name;
+		ticket.email = requester.primary_email;
+		ticket.phone = requester.primary_phone;
+		
+		X500Name name = generateDN(requester.name, requester.primary_email);
+		rec.dn = RFC1779_to_ApacheDN(name.toString());
+		rec.requester_contact_id = requester.id;
+		rec.vo_id = vo_id;
 		
 		//CC ra & sponsor
 		VOContactModel model = new VOContactModel(context);
@@ -739,7 +785,7 @@ public class UserCertificateRequestModel extends CertificateRequestModelBase<Cer
 				}
 			}
 		} catch (SQLException e1) {
-			log.error("Failed to lookup RA/sponsor information", e1);
+			log.error("Failed to lookup RA/sponsor information - ignoring", e1);
 		}
 				
 		context.setComment("Making Request for " + requester.name);
@@ -755,7 +801,7 @@ public class UserCertificateRequestModel extends CertificateRequestModelBase<Cer
 		VORecord vrec = vmodel.get(rec.vo_id);
 		ticket.description = "Dear " + vrec.name + " VO RA,\n\n";
 		ticket.description += auth_status + requester.name + " <"+requester.primary_email+"> has requested a user certificate. ";
-		String url = StaticConfig.getApplicationBase() + "/certificate?type=user&id=" + rec.id;
+		String url = StaticConfig.getApplicationBase() + "/certificateuser?id=" + rec.id;
 		ticket.description += "Please determine this request's authenticity, and approve / disapprove at " + url;
 		if(StaticConfig.isDebug()) {
 			ticket.assignees.add("hayashis");
@@ -778,7 +824,6 @@ public class UserCertificateRequestModel extends CertificateRequestModelBase<Cer
 		ticket.metadata.put("SUBMITTER_NAME", requester.name);
 		
 		//do open ticket.
-		Footprints fp = new Footprints(context);
 		String ticket_id = fp.open(ticket);
 
 		//update request record with goc ticket id

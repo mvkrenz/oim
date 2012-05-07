@@ -41,7 +41,7 @@ abstract public class CertificateRequestModelBase<T extends RecordBase> extends 
 		super(context, _table_name);
 	}
 	static Logger log = Logger.getLogger(CertificateRequestModelBase.class);  
-
+	
     //provide String[] with XML serialization capability
     class StringArray  {
     	private String[] strings;
@@ -118,7 +118,7 @@ abstract public class CertificateRequestModelBase<T extends RecordBase> extends 
 	}
 
 	//NO-AC
-	public ArrayList<LogDetail> getLogs(Integer id) throws SQLException {
+	public ArrayList<LogDetail> getLogs(Class model_class, Integer id) throws SQLException {
     	DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
     	factory.setNamespaceAware(false);
     	factory.setValidating(false);
@@ -130,7 +130,7 @@ abstract public class CertificateRequestModelBase<T extends RecordBase> extends 
 			
 			ArrayList<LogDetail> logs = new ArrayList<LogDetail>();
 			LogModel model = new LogModel(context);
-			Collection<LogRecord> raws = model.getByModel(HostCertificateRequestModel.class, id.toString());
+			Collection<LogRecord> raws = model.getByModel(model_class, id.toString());
 			for(LogRecord raw : raws) {
 				LogDetail log = new LogDetail();
 				log.comment = raw.comment;

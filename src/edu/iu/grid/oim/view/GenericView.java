@@ -22,5 +22,8 @@ public class GenericView implements IView {
 		}
 		out.write("</div>");
 	}
+	public boolean isEmpty() {
+		return children.isEmpty();
+	}
 
 }

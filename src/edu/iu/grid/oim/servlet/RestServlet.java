@@ -16,9 +16,9 @@ import org.apache.log4j.Logger;
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.AuthorizationException;
 import edu.iu.grid.oim.lib.StaticConfig;
+import edu.iu.grid.oim.model.CertificateRequestException;
 import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.HostCertificateRequestModel;
-import edu.iu.grid.oim.model.db.HostCertificateRequestModel.HostCertificateRequestException;
 import edu.iu.grid.oim.model.db.record.CertificateRequestHostRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 
@@ -135,7 +135,7 @@ public class RestServlet extends ServletBase  {
 			}
 			reply.params.put("gocticket_url", StaticConfig.conf.getProperty("url.gocticket")+"/"+rec.goc_ticket_id);
 			reply.params.put("host_request_id", rec.id.toString());
-		} catch (HostCertificateRequestException e) {
+		} catch (CertificateRequestException e) {
 			throw new RestException("SQLException while makeing request", e);
 		}
 	}
@@ -158,7 +158,7 @@ public class RestServlet extends ServletBase  {
 			reply.params.put("pkcs7", model.getPkcs7(rec, idx));
 		} catch (SQLException e) {
 			throw new RestException("SQLException while makeing request", e);
-		} catch (HostCertificateRequestException e) {
+		} catch (CertificateRequestException e) {
 			throw new RestException("HostCertificateRequestException while makeing request", e);
 		}
 	}
@@ -180,7 +180,7 @@ public class RestServlet extends ServletBase  {
 			}
 		} catch (SQLException e) {
 			throw new RestException("SQLException while makeing request", e);
-		} catch (HostCertificateRequestException e) {
+		} catch (CertificateRequestException e) {
 			throw new RestException("HostCertificateRequestException while makeing request", e);
 		}
 	}
