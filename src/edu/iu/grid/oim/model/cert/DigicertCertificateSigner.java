@@ -1,9 +1,7 @@
 package edu.iu.grid.oim.model.cert;
 
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -12,15 +10,11 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.commons.httpclient.params.HttpClientParams;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
-
-import edu.iu.grid.oim.model.db.HostCertificateRequestModel;
 
 public class DigicertCertificateSigner implements ICertificateSigner {
     static Logger log = Logger.getLogger(DigicertCertificateSigner.class);  
@@ -43,9 +37,9 @@ public class DigicertCertificateSigner implements ICertificateSigner {
 		String order_id = approve(request_id, "Approving for test purpose"); //like 00295828
 		log.debug("Approved host certificate. Digicert Order ID:" + order_id);
 		
-		log.debug("Waiting for 10 second before retrieving --- I am not sure if this even works, but if it does, this is not acceptable.");
+		log.debug("Waiting for 60 second before retrieving --- I am not sure if this even works, but if it does, this is not acceptable.");
 		try {
-			Thread.sleep(1000*10);
+			Thread.sleep(1000*60);
 		} catch (InterruptedException e) {
 			log.error("Sleep interrupted", e);
 		} //wait for 30 seconds

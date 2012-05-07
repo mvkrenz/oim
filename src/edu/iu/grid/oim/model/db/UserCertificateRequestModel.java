@@ -73,7 +73,7 @@ public class UserCertificateRequestModel extends CertificateRequestModelBase<Cer
     	
 		ResultSet rs = null;
 		Connection conn = connectOIM();
-		PreparedStatement pstmt = conn.prepareStatement("SELECT * FROM "+table_name+ " WHERE dn = ?");
+		PreparedStatement pstmt = conn.prepareStatement("SELECT * FROM "+table_name+" WHERE dn = ?");
 		pstmt.setString(1, auth.getUserDN());
 		//log.debug(pstmt.toString());
 	    if (pstmt.execute()) {
@@ -149,7 +149,8 @@ public class UserCertificateRequestModel extends CertificateRequestModelBase<Cer
 					crecs = model.getByVOID(rec.vo_id);
 					for(VOContactRecord crec : crecs) {
 						ContactRecord contactrec = cmodel.get(crec.contact_id);
-						if(crec.contact_type_id.equals(11) && crec.contact_rank_id.equals(1)) { //primary
+						if(crec.contact_type_id.equals(11) && //RA
+							(crec.contact_rank_id.equals(1) || crec.contact_rank_id.equals(2))) { //primary or secondary
 							if(contactrec.id.equals(contact.id)) return true;
 						}
 					}
@@ -191,7 +192,8 @@ public class UserCertificateRequestModel extends CertificateRequestModelBase<Cer
 					crecs = model.getByVOID(rec.vo_id);
 					for(VOContactRecord crec : crecs) {
 						ContactRecord contactrec = cmodel.get(crec.contact_id);
-						if(crec.contact_type_id.equals(11) && crec.contact_rank_id.equals(1)) { //primary
+						if(crec.contact_type_id.equals(11) && //RA
+								(crec.contact_rank_id.equals(1) || crec.contact_rank_id.equals(2))) { //primary or secondary
 							if(contactrec.id.equals(contact.id)) return true;
 						}
 					}
@@ -249,7 +251,8 @@ public class UserCertificateRequestModel extends CertificateRequestModelBase<Cer
 					crecs = model.getByVOID(rec.vo_id);
 					for(VOContactRecord crec : crecs) {
 						ContactRecord contactrec = cmodel.get(crec.contact_id);
-						if(crec.contact_type_id.equals(11) && crec.contact_rank_id.equals(1)) { //primary
+						if(crec.contact_type_id.equals(11) && //RA
+								(crec.contact_rank_id.equals(1) || crec.contact_rank_id.equals(2))) { //primary or secondary
 							if(contactrec.id.equals(contact.id)) return true;
 						}
 					}
