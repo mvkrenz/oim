@@ -102,13 +102,14 @@ public class Authorization {
 		guest_context = UserContext.getGuestContext();
 		usertype = UserType.GUEST;
 
-		String localname = request.getLocalName(); //the host name of the Internet Protocol (IP) interface on which the request was received.
-		log.debug("Request received on " + localname);
+		//String localname = request.getLocalName(); //the host name of the Internet Protocol (IP) interface on which the request was received.
 		if(StaticConfig.isDebug()) {
 			debugAuthOverride(request);
 		}
 		
-		if(localname.equals("localhost") || localname.equals("localhost.localdomain")) {
+		String remoteaddr = request.getRemoteAddr();
+		log.debug("Request received from " + remoteaddr);
+		if(remoteaddr.startsWith("129.79.53.")) { //GOC VLAN
 			usertype = UserType.LOCAL;
 		} else {
 			//figure out usertype from SSL ENV
@@ -170,6 +171,7 @@ public class Authorization {
 				loadGuestAction();
 			}
 		}
+		log.debug("Determined UserType:" + usertype.toString());
 	}
 	
 	private void loadGuestAction() throws AuthorizationException {
