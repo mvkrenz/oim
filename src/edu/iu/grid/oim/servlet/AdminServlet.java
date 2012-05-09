@@ -1,6 +1,7 @@
 package edu.iu.grid.oim.servlet;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 
 import javax.servlet.ServletException;
@@ -8,6 +9,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 
 import com.divrep.DivRep;
@@ -25,6 +27,7 @@ import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.SmallTableModelBase;
 import edu.iu.grid.oim.view.BootMenuView;
 import edu.iu.grid.oim.view.BootPage;
+import edu.iu.grid.oim.view.CertificateMenuView;
 import edu.iu.grid.oim.view.ContentView;
 import edu.iu.grid.oim.view.GenericView;
 import edu.iu.grid.oim.view.HtmlView;
@@ -35,6 +38,7 @@ import edu.iu.grid.oim.view.MenuView;
 import edu.iu.grid.oim.view.Page;
 import edu.iu.grid.oim.view.IView;
 import edu.iu.grid.oim.view.SideContentView;
+import edu.iu.grid.oim.view.divrep.form.CertificateRequestUserForm;
 
 public class AdminServlet extends ServletBase  {
 	private static final long serialVersionUID = 1L;
@@ -47,55 +51,49 @@ public class AdminServlet extends ServletBase  {
 		auth.check("admin");
 
 		BootMenuView menuview = new BootMenuView(context, "admin");
-		ContentView contentview = createContentView(context);
-		BootPage page = new BootPage(context, menuview, contentview, createSideView(context));
+		BootPage page = new BootPage(context, menuview, createContentView(context), createSideView(context));
 		page.render(response.getWriter());	
 	}
 	
-	protected ContentView createContentView(UserContext context)
+	protected IView createContentView(final UserContext context)
 	{
-		ContentView contentview = new ContentView();
+		return new IView() {
+			@Override
+			public void render(PrintWriter out) {
+				out.write("<div id=\"content\">");
+				
+				out.write("<div class=\"row-fluid\">");
+				
+				out.write("<div class=\"span4\">");
+				out.write("<h3>Authentication / Authorization</h3>");
+				out.write("<p><a href=\"action\">Action</a></p>");
+				out.write("<p><a href=\"authtype\">Authorization Types</a></p>");
+				out.write("<p><a href=\"authmatrix\">Action/Authorization Matrix</a></p>");
+				out.write("<p><a href=\"user\">DN/AuthType Mapping</a></p>");
+				out.write("</div>");
+				
+				out.write("<div class=\"span4\">");
+				out.write("<h3>Certificate Management</h3>");
+				out.write("<p><a href=\"gridadmin\">GridAdmin</a></p>");
+				out.write("<p><a href=\"quotaadmin\">Quota</a></p>");
+				out.write("</div>");
+				
+				out.write("<div class=\"span4\">");
+				out.write("<h3>Misc.</h3>");
+				out.write("<p><a href=\"osggridtype\">OSG Grid Types</a></p>");
+				out.write("<p><a href=\"servicegroup\">Service Groups</a></p>");
+				out.write("<p><a href=\"service\">Services</a></p>");
+				out.write("<p><a href=\"metric\">RSV Metrics</a></p>");
+				out.write("<p><a href=\"fieldofscience\">Fields of Science (associated with VOs)</a></p>");
+				out.write("<p><a href=\"fptemplates\">Footprints Ticket Templates</a></p>");
+				out.write("</div>");
+				
+				out.write("</div>");//row-fluid
+				
+				out.write("</div>"); //content
+			}
 		
-		contentview.add(new HtmlView("<h2>Administration</h2>"));
-		if(context.getAuthorization().allows("admin")) {
-			contentview.add(new HtmlView("<h3>Authentication / Authorization</h3>"));
-			contentview.add(new InternalLinkView("action", "Actions"));
-			//contentview.add(new HtmlView("<br/>"));
-			
-			contentview.add(new InternalLinkView("authtype", "Authorization Types"));
-			//contentview.add(new HtmlView("<br/>"));
-			
-			contentview.add(new InternalLinkView("authmatrix", "Action/Authorization Matrix" ));
-			//contentview.add(new HtmlView("<br/>"));
-			
-			contentview.add(new InternalLinkView("user", "DN/AuthType Mapping" ));
-			//contentview.add(new HtmlView("<br/>"));
-			
-			//contentview.add(new HtmlView("<br/>"));
-			contentview.add(new HtmlView("<h3>GOC Administration</h3>"));
-			contentview.add(new InternalLinkView("osggridtype", "OSG Grid Types"));
-			//contentview.add(new HtmlView("<br/>"));
-			
-			contentview.add(new InternalLinkView("servicegroup", "Service Groups"));
-			//contentview.add(new HtmlView("<br/>"));
-			
-			contentview.add(new InternalLinkView("service", "Services")); //service table, metric_service table
-			//contentview.add(new HtmlView("<br/>"));
-			
-			contentview.add(new InternalLinkView("metric", "RSV Metrics"));
-			//contentview.add(new HtmlView("<br/>"));
-			
-			contentview.add(new InternalLinkView("fieldofscience", "Fields of Science (associated with VOs)"));
-			//contentview.add(new HtmlView("<br/>"));
-
-			contentview.add(new InternalLinkView("fptemplates", "Footprints Ticket Templates"));
-			//contentview.add(new HtmlView("<br/>"));
-			
-			contentview.add(new InternalLinkView("gridadmin", "Grid Admin"));
-	
-		}
-		
-		return contentview;
+		};
 	}
 	
 	private SideContentView createSideView(UserContext context)

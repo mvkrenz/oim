@@ -56,7 +56,7 @@ public class ProfileEditServlet extends ServletBase implements Servlet {
 			rec = auth.getContact();
 				
 			//String origin_url = StaticConfig.getApplicationBase()+"/"+parent_page;
-			form = new ContactFormDE(context, rec, parent_page, true);
+			form = new ContactFormDE(context, rec, parent_page);
 			
 			//put the form in a view and display
 			ContentView contentview = new ContentView();

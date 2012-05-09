@@ -25,7 +25,7 @@ import edu.iu.grid.oim.lib.AuthorizationException;
 import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.model.CertificateRequestStatus;
 import edu.iu.grid.oim.model.UserContext;
-import edu.iu.grid.oim.model.cert.DivRepPassStrengthValidator;
+import edu.iu.grid.oim.model.db.CertificateQuotaModel;
 import edu.iu.grid.oim.model.db.UserCertificateRequestModel;
 import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.VOModel;
@@ -42,6 +42,7 @@ import edu.iu.grid.oim.view.GenericView;
 import edu.iu.grid.oim.view.HtmlView;
 import edu.iu.grid.oim.view.IView;
 import edu.iu.grid.oim.view.divrep.form.CertificateRequestUserForm;
+import edu.iu.grid.oim.view.divrep.form.validator.DivRepPassStrengthValidator;
 
 public class CertificateRequestUserServlet extends ServletBase  {
 	private static final long serialVersionUID = 1L;
@@ -82,28 +83,17 @@ public class CertificateRequestUserServlet extends ServletBase  {
 				out.write("</div>"); //span3
 				
 				out.write("<div class=\"span9\">");
-				CertificateRequestUserForm form = new CertificateRequestUserForm(context, "certificateuser");
-				form.render(out);	
+				CertificateQuotaModel quota = new CertificateQuotaModel(context);
+				if(quota.canRequestUserCert()) {
+					CertificateRequestUserForm form = new CertificateRequestUserForm(context, "certificateuser");
+					form.render(out);	
+				} else {
+					out.write("<div class=\"alert\">You have reached the maximum quota for user certificate request. Please contact GOC for more detail.</div>");
+				}
+
 				out.write("</div>"); //span9
 				
 				out.write("</div>"); //row-fluid
-				
-				/*
-				out.write("<h1>Certificate Request</h1><br>");
-				out.write("<div class=\"tabbable\">");
-				out.write("  <ul class=\"nav nav-tabs\">");
-				out.write("    <li class=\"active\"><a href=\"#user\" data-toggle=\"tab\">User Certificate</a></li>");
-				out.write("    <li><a href=\"#host\" data-toggle=\"tab\">Host Certificate</a></li>");
-				out.write("  </ul>");
-				out.write("  <div class=\"tab-content\">");
-				out.write("    <div class=\"tab-pane active\" id=\"user\">");
-				out.write("    </div>");
-				out.write("    <div class=\"tab-pane\" id=\"host\">");
-				out.write("      <p>TODO.. host cert</p>");
-				out.write("    </div>");
-				out.write("  </div>");
-				out.write("</div>");
-				*/
 				
 				out.write("</div>"); //content
 			}

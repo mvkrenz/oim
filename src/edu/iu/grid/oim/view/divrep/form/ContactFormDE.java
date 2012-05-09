@@ -22,12 +22,14 @@ import com.divrep.common.DivRepTextBox;
 import com.divrep.common.DivRepToggler;
 import com.divrep.validator.DivRepEmailValidator;
 import com.divrep.validator.DivRepIValidator;
+import com.divrep.validator.DivRepIntegerValidator;
 import com.divrep.validator.DivRepUniqueValidator;
 import com.divrep.validator.DivRepUrlValidator;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.model.UserContext;
+import edu.iu.grid.oim.model.db.ConfigModel;
 import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.DNModel;
 import edu.iu.grid.oim.model.db.record.DNRecord;
@@ -66,6 +68,10 @@ public class ContactFormDE extends DivRepForm
 	private DivRepSelectBox submitter_dn;
 	private DivRepCheckBox use_twiki;
 	private DivRepTextBox twiki_id;
+	
+	private DivRepTextBox count_hostcert_day;
+	private DivRepTextBox count_hostcert_year;
+	private DivRepTextBox count_usercert_year;
 	
 	private PersonalInfo personal_info;
 	
@@ -230,13 +236,6 @@ public class ContactFormDE extends DivRepForm
 		}
 	}
 	
-	/*
-	public void setConfirmed(Timestamp _confirmed)
-	{
-		confirmed = _confirmed;
-	}
-	*/
-	
 	class PhotoDE extends DivRepFormElement<String>
 	{
 		public PhotoDE(DivRep _parent) {
@@ -307,8 +306,7 @@ public class ContactFormDE extends DivRepForm
 		personal_info.redraw();
 	}
 	
-	public ContactFormDE(UserContext _context, final ContactRecord rec, String origin_url,
-			boolean profileEdit) //, boolean newRegistration)
+	public ContactFormDE(UserContext _context, final ContactRecord rec, String origin_url)
 	{	
 		super(_context.getPageRoot(), origin_url);
 		context = _context;
@@ -324,13 +322,6 @@ public class ContactFormDE extends DivRepForm
 			} catch (SQLException e) {
 				log.error(e);
 			}
-			/*
-			if ((associated_dn_rec != null) && (!profileEdit)) {
-				if (associated_dn_rec.dn_string.equals(context.getAuthorization().getUserDN())) {
-					new DivRepStaticContent(this, "<div class=\"alert\">NOTE: This is your profile!</div>");
-				}
-			}
-			*/
 		}
 
 		new DivRepStaticContent(this, "<h2>Contact Information</h2>");
@@ -383,58 +374,60 @@ public class ContactFormDE extends DivRepForm
 		person = new DivRepCheckBox(this);
 		person.setLabel("This is a person/service contact (not a group mailing list, etc...) that in the future may attempt to register an X509 certificate on OIM.");
 		person.setValue(rec.person);
-
-		personal_info = new PersonalInfo(this, rec, associated_dn_rec);
-
-		if ((profileEdit == true) || (associated_dn_rec!= null)) {
+		person.addEventListener(new DivRepEventListener() {
+			public void handleEvent(DivRepEvent e) {
+				showHidePersonalDetail();
+			}}
+		);
+		if (associated_dn_rec != null) {
 			person.setValue(true);
 			person.setLabel("Person contact flag (Cannot modify: Always true for users whose DN is registered with OIM)");
 			person.setDisabled(true);
 		}
-		else {
-			person.addEventListener(new DivRepEventListener() {
-				public void handleEvent(DivRepEvent e) {
-					showHidePersonalDetail();
-				}}
-			);
-		}
+		
+		personal_info = new PersonalInfo(this, rec, associated_dn_rec);
 		if(rec.person == null || rec.person == false) {
 			showHidePersonalDetail();
 		}
 		
 		new DivRepStaticContent(this, "<h2>Confirmation</h2>");
 		confirmation = new Confirmation(this, rec, auth);
-
+		
+		ContactRecord user = auth.getContact();
 		if(rec.id != null) {
-			new DivRepStaticContent(this, "<h2>Contact Association</h2>");
-			//ContactAssociationView is GenericView, so I have to wrap it
-			new DivRep(this) {
-				ContactAssociationView view;
-				@Override
-				public void render(PrintWriter out) {
-					out.write("<div id=\""+getNodeID()+"\">");
-					try {
-						view = new ContactAssociationView(context, rec.id);
-						view.render(out);
-					} catch (SQLException e) {
-						out.write(e.toString());
-					}
-					out.write("</div>");
-				}
+			DivRepToggler toggler = new DivRepToggler(this) {
+				public DivRep createContent() {
+					//ContactAssociationView is GenericView, so I have to wrap it with DivRep object
+					return new DivRep(this) {
+						ContactAssociationView view;
+						@Override
+						public void render(PrintWriter out) {
+							out.write("<div id=\""+getNodeID()+"\">");
+							out.write("<h2>Contact Association</h2>");
+							try {
+								view = new ContactAssociationView(context, rec.id);
+								view.render(out);
+							} catch (SQLException e) {
+								out.write(e.toString());
+							}
+							out.write("</div>");
+						}
 
-				@Override
-				protected void onEvent(DivRepEvent e) {
-					// TODO Auto-generated method stub
-					
+						@Override
+						protected void onEvent(DivRepEvent e) {
+							// TODO Auto-generated method stub
+							
+						}
+					};
 				}
 			};
+			toggler.setShowHtml("<button class=\"btn\">Show Contact Association</button>");
+			toggler.setHideHtml("");
 		}
 
+		new DivRepStaticContent(this, "<h2>Administrative</h2>");
+		new DivRepStaticContent(this, "<p>* Only GOC staff can modify following information</p>");
 		
-		if(auth.allows("admin")) {
-			new DivRepStaticContent(this, "<h2>Administrative</h2>");
-		}
-
 		//create DN selector
 		LinkedHashMap<Integer, String> dns = new LinkedHashMap();
 		try {
@@ -449,20 +442,52 @@ public class ContactFormDE extends DivRepForm
 		submitter_dn.addClass("dn_selecter");
 		submitter_dn.setLabel("Submitter DN");
 		submitter_dn.setValue(rec.submitter_dn_id);
-		if(!auth.allows("admin")) {
-			submitter_dn.setHidden(true);
-		}
 
+		ConfigModel config = new ConfigModel(context);
+		String usercert_max_year = config.QuotaUserCertYearMax.get();
+		String hostcert_max_year = config.QuotaUserHostYearMax.get();
+		String hostcert_max_day = config.QuotaUserHostDayMax.get();
+		
+		count_usercert_year = new DivRepTextBox(this);
+		count_usercert_year.setLabel("User Certificate Request Count (This Year)");
+		count_usercert_year.setRequired(true);
+		count_usercert_year.addValidator(new DivRepIntegerValidator());
+		new DivRepStaticContent(this, "<p>* You can request up to <span class=\"label label-info\">"+usercert_max_year+"</span> user certificates per year</p>");
+	
+		count_hostcert_year = new DivRepTextBox(this);
+		count_hostcert_year.setLabel("Host Certificate Approval Count (This Year)");
+		count_hostcert_year.setRequired(true);
+		count_hostcert_year.addValidator(new DivRepIntegerValidator());
+		new DivRepStaticContent(this, "<p>* You can approve up to <span class=\"label label-info\">"+hostcert_max_year+"</span> host certificates per year</p>");
+
+		count_hostcert_day = new DivRepTextBox(this);
+		count_hostcert_day.setLabel("Host Certificate Approval Count (Today)");
+		count_hostcert_day.setRequired(true);
+		count_hostcert_day.addValidator(new DivRepIntegerValidator());
+		new DivRepStaticContent(this, "<p>* You can approve up to <span class=\"label label-info\">"+hostcert_max_day+"</span> host certificates per day</p>");
+		
+		if(rec.id == null) {
+			//set to 0
+			count_usercert_year.setValue("0");
+			count_hostcert_day.setValue("0");
+			count_hostcert_year.setValue("0");
+		} else {
+			count_usercert_year.setValue(String.valueOf(rec.count_usercert_year));
+			count_hostcert_day.setValue(String.valueOf(rec.count_hostcert_day));
+			count_hostcert_year.setValue(String.valueOf(rec.count_hostcert_year));
+		}
+		
 		disable = new DivRepCheckBox(this);
 		disable.setLabel("Disable");
 		disable.setValue(rec.disable);
-
-		if (profileEdit == true) {
-			disable.setLabel("Disable (Not allowed on your own profile! Ask other GOC staff for help.)");
-			disable.setDisabled(true);
-		}
+		
+		//disable admin controllers
 		if(!auth.allows("admin")) {
-			disable.setHidden(true);
+			submitter_dn.setDisabled(true);
+			count_hostcert_day.setDisabled(true);
+			count_hostcert_year.setDisabled(true);
+			count_usercert_year.setDisabled(true);
+			disable.setDisabled(true);
 		}
 		
 	}
@@ -498,13 +523,17 @@ public class ContactFormDE extends DivRepForm
 		rec.profile = profile.getValue();
 		rec.use_twiki = use_twiki.getValue();
 		rec.twiki_id = twiki_id.getValue();
+		rec.count_hostcert_day = Integer.parseInt(count_hostcert_day.getValue());
+		rec.count_hostcert_year = Integer.parseInt(count_hostcert_year.getValue());
+		rec.count_usercert_year = Integer.parseInt(count_usercert_year.getValue());
 		
 		ContactModel model = new ContactModel(context);
 		try {
 			if(rec.id == null) {
 				model.insert(rec);
 			} else {
-				model.update(model.get(rec), rec);
+				ContactRecord old = model.get(rec);
+				model.update(old, rec);
 			}
 		} catch (Exception e) {
 			alert(e.getMessage());

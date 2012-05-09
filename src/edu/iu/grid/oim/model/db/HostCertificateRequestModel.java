@@ -28,7 +28,6 @@ import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Footprints;
 import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.lib.Footprints.FPTicket;
-import edu.iu.grid.oim.model.CertificateRequestException;
 import edu.iu.grid.oim.model.CertificateRequestStatus;
 import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.cert.CertificateManager;
@@ -36,6 +35,7 @@ import edu.iu.grid.oim.model.cert.ICertificateSigner;
 import edu.iu.grid.oim.model.db.record.CertificateRequestHostRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.RecordBase;
+import edu.iu.grid.oim.model.exceptions.CertificateRequestException;
 
 public class HostCertificateRequestModel extends CertificateRequestModelBase<CertificateRequestHostRecord> {
     static Logger log = Logger.getLogger(HostCertificateRequestModel.class);  
@@ -182,10 +182,18 @@ public class HostCertificateRequestModel extends CertificateRequestModelBase<Cer
 	//return true if success
     public void approve(CertificateRequestHostRecord rec) throws CertificateRequestException 
     {
+    	//check quota
+    	CertificateQuotaModel quota = new CertificateQuotaModel(context);
+    	if(!quota.canApproveHostCert()) {
+    		throw new CertificateRequestException("You have exceeded your host approval quota.");
+    	}
+    	
 		rec.status = CertificateRequestStatus.APPROVED;
 		try {
 			//context.setComment("Certificate Approved");
 			super.update(get(rec.id), rec);
+			String [] cns = rec.getCNs();
+			quota.incrementHostCertApproval(cns.length);
 		} catch (SQLException e) {
 			log.error("Failed to approve host certificate request: " + rec.id);
 			throw new CertificateRequestException("Failed to update certificate request record");
@@ -201,6 +209,7 @@ public class HostCertificateRequestModel extends CertificateRequestModelBase<Cer
 		nad.add(Calendar.DATE, 7);
 		ticket.nad = nad.getTime();
 		fp.update(ticket, rec.goc_ticket_id);
+		
     }
     
     //NO-AC (for authenticated user)

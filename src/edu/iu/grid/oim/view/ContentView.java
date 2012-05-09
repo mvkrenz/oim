@@ -1,7 +1,6 @@
 package edu.iu.grid.oim.view;
 
 import java.io.PrintWriter;
-import java.util.ArrayList;
 
 public class ContentView extends GenericView {
 	IView bread_crumb;

@@ -28,6 +28,14 @@ public class ContactRecord extends ConfirmableRecord {
 	public Boolean use_twiki;
 	public String twiki_id;
 	
+	//public Integer quota_usercert_daymax; //3 - User can submit request upto this number
+	public Integer count_usercert_year; //will be reset every day by cron
+	
+	//public Integer quota_hostcert_daymax; //50 - GridAdmin can approve upto this number per day
+	public Integer count_hostcert_day; //will be reset every day by cron
+	//public Integer quota_hostcert_yearmax; //1000 - GridAdmin can approve upto this number per year
+	public Integer count_hostcert_year; //will be reset every year by cron
+	
 	//load from existing record
 	public ContactRecord(ResultSet rs) throws SQLException {
 		super(rs);

@@ -40,7 +40,6 @@ import edu.iu.grid.oim.lib.BCrypt;
 import edu.iu.grid.oim.lib.Footprints;
 import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.lib.Footprints.FPTicket;
-import edu.iu.grid.oim.model.CertificateRequestException;
 import edu.iu.grid.oim.model.CertificateRequestStatus;
 import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.cert.CertificateManager;
@@ -54,6 +53,7 @@ import edu.iu.grid.oim.model.db.record.RecordBase;
 import edu.iu.grid.oim.model.db.record.SCRecord;
 import edu.iu.grid.oim.model.db.record.VOContactRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
+import edu.iu.grid.oim.model.exceptions.CertificateRequestException;
 
 public class UserCertificateRequestModel extends CertificateRequestModelBase<CertificateRequestUserRecord> {
     static Logger log = Logger.getLogger(UserCertificateRequestModel.class);  
@@ -405,13 +405,20 @@ public class UserCertificateRequestModel extends CertificateRequestModelBase<Cer
 	
 	//NO-AC
 	//return true if success
-	public boolean requestRenew(CertificateRequestUserRecord rec) {
+	public void requestRenew(CertificateRequestUserRecord rec) throws CertificateRequestException {
+		
+    	//check quota
+    	CertificateQuotaModel quota = new CertificateQuotaModel(context);
+    	if(!quota.canRequestUserCert()) {
+    		throw new CertificateRequestException("Can't request any more user certificate.");
+    	}
+    	
 		rec.status = CertificateRequestStatus.RENEW_REQUESTED;
 		try {
 			super.update(get(rec.id), rec);
 		} catch (SQLException e) {
 			log.error("Failed to request user certificate request renewal: " + rec.id);
-			return false;
+			throw new CertificateRequestException("Failed to update request status", e);
 		}
 		
 		Authorization auth = context.getAuthorization();
@@ -423,20 +430,17 @@ public class UserCertificateRequestModel extends CertificateRequestModelBase<Cer
 		ticket.description += "> " + context.getComment();
 		ticket.nextaction = "RA/Sponsor to verify&approve"; //nad will be set to 7 days from today by default
 		fp.update(ticket, rec.goc_ticket_id);
-		
-		return true;
 	}
 	
 	//NO-AC
-	//return true if success
-	public boolean requestRevoke(CertificateRequestUserRecord rec) {
+	public void requestRevoke(CertificateRequestUserRecord rec) throws CertificateRequestException {
 		rec.status = CertificateRequestStatus.REVOCATION_REQUESTED;
 		try {
 			//context.setComment("Certificate Approved");
 			super.update(get(rec.id), rec);
 		} catch (SQLException e) {
 			log.error("Failed to request revocation of user certificate: " + rec.id);
-			return false;
+			throw new CertificateRequestException("Failed to update request status", e);
 		}
 		
 		Authorization auth = context.getAuthorization();
@@ -447,13 +451,11 @@ public class UserCertificateRequestModel extends CertificateRequestModelBase<Cer
 		ticket.description = contact.name + " has requested recocation of this certificate request.";
 		ticket.nextaction = "RA to process"; //nad will be set to 7 days from today by default
 		fp.update(ticket, rec.goc_ticket_id);
-		
-		return true;
 	}
 	
 	//NO-AC
 	//return true if success
-	public boolean revoke(CertificateRequestUserRecord rec) {
+	public void revoke(CertificateRequestUserRecord rec) throws CertificateRequestException {
 		
 		//TODO revoke certificate
 		
@@ -463,8 +465,8 @@ public class UserCertificateRequestModel extends CertificateRequestModelBase<Cer
 			//context.setComment("Certificate Approved");
 			super.update(get(rec.id), rec);
 		} catch (SQLException e) {
-			log.error("Failed to revoke user certificate: " + rec.id);
-			return false;
+			log.error("Failed to update user certificate status: " + rec.id);
+			throw new CertificateRequestException("Failed to update user certificate status", e);
 		}
 		
 		Authorization auth = context.getAuthorization();
@@ -475,13 +477,11 @@ public class UserCertificateRequestModel extends CertificateRequestModelBase<Cer
 		ticket.description = contact.name + " has revoked this certificate.";
 		ticket.status = "Resolved";
 		fp.update(ticket, rec.goc_ticket_id);
-		
-		return true;
 	}
 
 	// NO-AC
 	// return true if success
-	public boolean startissue(final CertificateRequestUserRecord rec, final String password) throws CertificateRequestException {
+	public void startissue(final CertificateRequestUserRecord rec, final String password) throws CertificateRequestException {
 		
 		//verify passphrase if necessary
 		if(rec.requester_passphrase != null) {
@@ -556,8 +556,6 @@ public class UserCertificateRequestModel extends CertificateRequestModelBase<Cer
 				}
 			}
 		}).start();
-
-		return true;
 	}
 
 	public PrivateKey getPrivateKey(Integer id) {
@@ -698,35 +696,25 @@ public class UserCertificateRequestModel extends CertificateRequestModelBase<Cer
     	return false;
     }
     
-    public CertificateRequestUserRecord requestUsertWithNOCSR(Integer vo_id, ContactRecord requester) throws SQLException {
+    public CertificateRequestUserRecord requestUsertWithNOCSR(Integer vo_id, ContactRecord requester) throws SQLException, CertificateRequestException {
     	
     	//TODO -- check access
-    	
-    	//TODO -- check quota
 
 		CertificateRequestUserRecord rec = new CertificateRequestUserRecord();
-    	if(request(vo_id, rec, requester) == true) {
-    		return rec;
-    	} else {
-    		return null;
-    	}
+    	request(vo_id, rec, requester);
+    	return rec;
     }
        
     //returns insertec request record if successful. if not, null
-    public CertificateRequestUserRecord requestGuestWithNOCSR(Integer vo_id, ContactRecord requester, String passphrase) throws SQLException { 
+    public CertificateRequestUserRecord requestGuestWithNOCSR(Integer vo_id, ContactRecord requester, String passphrase) throws SQLException, CertificateRequestException { 
     	//TODO -- check access
-    	
-    	//TODO -- check quota
  
 		CertificateRequestUserRecord rec = new CertificateRequestUserRecord();		
 		String salt = BCrypt.gensalt(12);//let's hard code this for now..
 		rec.requester_passphrase_salt = salt;
 		rec.requester_passphrase = BCrypt.hashpw(passphrase, salt);
-    	if(request(vo_id, rec, requester) == true) {
-    		return rec;
-    	} else {
-    		return null;
-    	}
+    	request(vo_id, rec, requester);
+    	return rec;
     } 
     
     private X500Name generateDN(String fullname, String email) {
@@ -754,8 +742,14 @@ public class UserCertificateRequestModel extends CertificateRequestModelBase<Cer
     
     //NO-AC NO-QUOTA
     //return true for success
-    private boolean request(Integer vo_id, CertificateRequestUserRecord rec, ContactRecord requester) throws SQLException 
+    private void request(Integer vo_id, CertificateRequestUserRecord rec, ContactRecord requester) throws SQLException, CertificateRequestException 
     {
+    	//check quota
+    	CertificateQuotaModel quota = new CertificateQuotaModel(context);
+    	if(!quota.canRequestUserCert()) {
+    		throw new CertificateRequestException("Can't request any more user certificate.");
+    	}
+    	
 		Date current = new Date();
 		rec.request_time = new Timestamp(current.getTime());
 		rec.status = CertificateRequestStatus.REQUESTED;
@@ -793,6 +787,7 @@ public class UserCertificateRequestModel extends CertificateRequestModelBase<Cer
 				
 		context.setComment("Making Request for " + requester.name);
     	super.insert(rec);
+		quota.incrementUserCertRequest();
     	
 		//submit goc ticket
 		ticket.title = "User Certificate Request for "+requester.name;
@@ -833,8 +828,6 @@ public class UserCertificateRequestModel extends CertificateRequestModelBase<Cer
 		rec.goc_ticket_id = ticket_id;
 		context.setComment("Opened GOC Ticket " + ticket_id);
 		super.update(get(rec.id), rec);
-
-		return true;
     }
     
 	//prevent low level access - please use model specific actions

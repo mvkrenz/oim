@@ -16,11 +16,12 @@ import org.apache.log4j.Logger;
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.AuthorizationException;
 import edu.iu.grid.oim.lib.StaticConfig;
-import edu.iu.grid.oim.model.CertificateRequestException;
 import edu.iu.grid.oim.model.UserContext;
+import edu.iu.grid.oim.model.db.ConfigModel;
 import edu.iu.grid.oim.model.db.HostCertificateRequestModel;
 import edu.iu.grid.oim.model.db.record.CertificateRequestHostRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
+import edu.iu.grid.oim.model.exceptions.CertificateRequestException;
 
 
 public class RestServlet extends ServletBase  {
@@ -59,6 +60,8 @@ public class RestServlet extends ServletBase  {
 				doHostCertsRetrieve(request, reply);
 			} else if(action.equals("host_certs_approve")) {
 				doHostCertsApprove(request, reply);
+			} else if(action.equals("quota_info")) {
+				doQuotaInfo(request, reply);
 			}
 		
 		} catch (RestException e) {
@@ -183,5 +186,18 @@ public class RestServlet extends ServletBase  {
 		} catch (CertificateRequestException e) {
 			throw new RestException("HostCertificateRequestException while makeing request", e);
 		}
+	}
+	
+	private void doQuotaInfo(HttpServletRequest request, Reply reply) throws AuthorizationException {
+		UserContext context = new UserContext(request);	
+		Authorization auth = context.getAuthorization();
+		if(!auth.isLocal()) {
+			throw new AuthorizationException("You can't access this interface from there");
+		}
+		ConfigModel config = new ConfigModel(context);
+		reply.params.put("global_usercert_year_count", config.QuotaGlobalUserCertYearCount.get());
+		reply.params.put("global_usercert_year_max", config.QuotaGlobalUserCertYearMax.get());
+		reply.params.put("global_hostcert_year_count", config.QuotaGlobalHostCertYearCount.get());
+		reply.params.put("global_hostcert_year_max", config.QuotaGlobalHostCertYearMax.get());
 	}
 }

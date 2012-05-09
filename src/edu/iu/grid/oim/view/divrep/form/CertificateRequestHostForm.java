@@ -25,7 +25,6 @@ import com.divrep.validator.DivRepIValidator;
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.HashHelper;
 import edu.iu.grid.oim.model.UserContext;
-import edu.iu.grid.oim.model.cert.DivRepPassStrengthValidator;
 import edu.iu.grid.oim.model.db.HostCertificateRequestModel;
 import edu.iu.grid.oim.model.db.UserCertificateRequestModel;
 import edu.iu.grid.oim.model.db.ContactModel;
@@ -37,6 +36,7 @@ import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
 
 import edu.iu.grid.oim.view.divrep.DivRepSimpleCaptcha;
+import edu.iu.grid.oim.view.divrep.form.validator.DivRepPassStrengthValidator;
 
 public class CertificateRequestHostForm extends DivRepForm
 {

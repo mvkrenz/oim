@@ -1,4 +1,4 @@
-package edu.iu.grid.oim.model;
+package edu.iu.grid.oim.model.exceptions;
 public class CertificateRequestException extends Exception {
 	private static final long serialVersionUID = 1L;
 	public CertificateRequestException(String message) {

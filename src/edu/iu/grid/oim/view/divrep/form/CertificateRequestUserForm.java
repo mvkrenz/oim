@@ -25,7 +25,6 @@ import com.divrep.validator.DivRepIValidator;
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.HashHelper;
 import edu.iu.grid.oim.model.UserContext;
-import edu.iu.grid.oim.model.cert.DivRepPassStrengthValidator;
 import edu.iu.grid.oim.model.db.UserCertificateRequestModel;
 import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.DNModel;
@@ -35,6 +34,7 @@ import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
 
 import edu.iu.grid.oim.view.divrep.DivRepSimpleCaptcha;
+import edu.iu.grid.oim.view.divrep.form.validator.DivRepPassStrengthValidator;
 
 public class CertificateRequestUserForm extends DivRepForm
 {
@@ -59,20 +59,6 @@ public class CertificateRequestUserForm extends DivRepForm
 	
 	private DivRepSelectBox vo;//, sponsor;
 	
-	/*
-	//oim profile
-	private DivRepTextBox secondary_email ;
-	private DivRepTextBox primary_phone, secondary_phone;
-	private DivRepTextBox primary_phone_ext, secondary_phone_ext;
-	private DivRepTextBox sms_address;
-	private DivRepTextBox im;
-	private DivRepSelectBox timezone;
-	private HashMap<Integer, String> timezone_id2tz;
-	private DivRepTextArea profile;
-	private DivRepTextArea contact_preference;
-	private DivRepCheckBox use_twiki;
-	private DivRepTextBox twiki_id;
-	*/
 	
 	public CertificateRequestUserForm(final UserContext context, String origin_url) {
 		
@@ -81,48 +67,6 @@ public class CertificateRequestUserForm extends DivRepForm
 		auth = context.getAuthorization();
 		ContactRecord contact = auth.getContact();
 	
-	
-		/*
-		class CheckValidator implements DivRepIValidator
-		{
-			DivRepTextBox other;
-			public CheckValidator(DivRepTextBox _other) {
-				other = _other;
-			}
-			public String getErrorMessage() {
-				return "Email address doesn't match.";
-			}
-			public Boolean isValid(Object value) {
-				if(other.getValue() == null) return false;
-				return other.getValue().equals((String)value);
-			}
-		}
-		
-		primary_email_check = new DivRepTextBox(this);
-		primary_email_check.setLabel("Email (Confirm)");
-		primary_email_check.setRequired(true);
-		primary_email_check.addValidator(new CheckValidator(primary_email));
-		*/
-		/*
-		orgunit = new DivRepTextBox(this);
-		orgunit.setLabel("Organization Unit");
-		orgunit.setRequired(true);
-		orgunit.setSampleValue("PKITesting");
-		
-		orgname = new DivRepTextBox(this);
-		orgname.setLabel("Organization Name");
-		orgname.setRequired(true);
-		orgname.setValue("OSG");
-		orgname.setDisabled(true);
-		*/
-		
-		/*
-		address_line_1 = new DivRepTextBox(this);
-		address_line_1.setLabel("Address Line 1");
-
-		address_line_2 = new DivRepTextBox(this);
-		address_line_2.setLabel("Address Line 2");
-		*/
 		if(auth.isGuest()) {
 			new DivRepStaticContent(this, "<h2>Contact Information</h2>");
 			new DivRepStaticContent(this, "<p class=\"help-block\">Following information will be used to contact you during the approval process.</p>");
@@ -242,12 +186,6 @@ public class CertificateRequestUserForm extends DivRepForm
 			passphrase.addValidator(new DivRepPassStrengthValidator());
 			passphrase.setRequired(true);
 
-			/*
-			new DivRepReCaptcha(this, 
-					StaticConfig.conf.getProperty("recaptcha.public_key"), 
-					StaticConfig.conf.getProperty("recaptcha.private_key"),
-					context.getRemoteAddr());
-			*/
 			new DivRepStaticContent(this, "<h2>Captcha</h2>");
 			new DivRepSimpleCaptcha(this, context.getSession());
 		}
@@ -327,6 +265,11 @@ public class CertificateRequestUserForm extends DivRepForm
 					rec.twiki_id = twiki_id.getValue();
 					rec.person = true;
 					rec.disable = true; //don't enable until the request gets approved
+					
+					rec.count_hostcert_day = 0;
+					rec.count_hostcert_year = 0;
+					rec.count_usercert_year = 0;
+					
 					rec.id = model.insert(rec);
 					user = rec;
 				} else {

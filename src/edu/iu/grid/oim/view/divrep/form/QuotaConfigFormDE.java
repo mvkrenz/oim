@@ -1,0 +1,118 @@
+package edu.iu.grid.oim.view.divrep.form;
+
+import java.sql.SQLException;
+
+import org.apache.log4j.Logger;
+
+import com.divrep.DivRepEvent;
+import com.divrep.common.DivRepForm;
+import com.divrep.common.DivRepStaticContent;
+import com.divrep.common.DivRepTextBox;
+
+import com.divrep.validator.DivRepIntegerValidator;
+
+import edu.iu.grid.oim.lib.AuthorizationException;
+import edu.iu.grid.oim.model.UserContext;
+import edu.iu.grid.oim.model.db.ConfigModel;
+import edu.iu.grid.oim.model.db.ConfigModel.Config;
+
+public class QuotaConfigFormDE extends DivRepForm 
+{
+    static Logger log = Logger.getLogger(QuotaConfigFormDE.class); 
+    
+    private UserContext context;
+	
+	private DivRepTextBox global_usercert_max;
+	private DivRepTextBox global_usercert_count;
+	
+	private DivRepTextBox global_hostcert_max;
+	private DivRepTextBox global_hostcert_count;
+	
+	private DivRepTextBox usercert_max_year;
+	private DivRepTextBox hostcert_max_year;
+	private DivRepTextBox hostcert_max_day;
+	
+	public QuotaConfigFormDE(UserContext _context) throws AuthorizationException, SQLException
+	{	
+		super(_context.getPageRoot(), null);
+		context = _context;
+
+		setSubmitLabel("Update");
+		
+		ConfigModel config = new ConfigModel(context);
+		
+		new DivRepStaticContent(this, "<h2>Global Quota</h2>");
+		global_usercert_max = new DivRepTextBox(this);
+		global_usercert_max.setLabel("User Certificate Maximum");
+		global_usercert_max.setValue(config.QuotaGlobalUserCertYearMax.get());
+		global_usercert_max.setRequired(true);
+		global_usercert_max.addValidator(new DivRepIntegerValidator());
+		
+		global_usercert_count = new DivRepTextBox(this);
+		global_usercert_count.setLabel("User Certificate Count");
+		global_usercert_count.setValue(config.QuotaGlobalUserCertYearCount.get());
+		global_usercert_count.setRequired(true);
+		global_usercert_count.addValidator(new DivRepIntegerValidator());
+		new DivRepStaticContent(this, "<p>* This counter will be reset to 0 on January 1st of every year.</p>");
+		
+		global_hostcert_max = new DivRepTextBox(this);
+		global_hostcert_max.setLabel("Host Certificate Maximum");
+		global_hostcert_max.setValue(config.QuotaGlobalHostCertYearMax.get());
+		global_hostcert_max.setRequired(true);
+		global_hostcert_max.addValidator(new DivRepIntegerValidator());
+		
+		global_hostcert_count = new DivRepTextBox(this);
+		global_hostcert_count.setLabel("Host Certificate Count");
+		global_hostcert_count.setValue(config.QuotaGlobalHostCertYearCount.get());
+		global_hostcert_count.setRequired(true);
+		global_hostcert_count.addValidator(new DivRepIntegerValidator());
+		new DivRepStaticContent(this, "<p>* This counter will be reset to 0 on January 1st of every year.</p>");
+		
+		new DivRepStaticContent(this, "<h2>Per User Quota</h2>");
+		usercert_max_year = new DivRepTextBox(this);
+		usercert_max_year.setLabel("User Certificate Request Yearly Maximum");
+		usercert_max_year.setValue(config.QuotaUserCertYearMax.get());
+		usercert_max_year.setRequired(true);
+		usercert_max_year.addValidator(new DivRepIntegerValidator());
+		
+		hostcert_max_year = new DivRepTextBox(this);
+		hostcert_max_year.setLabel("Host Certificate Approval Yearly Maximum");
+		hostcert_max_year.setValue(config.QuotaUserHostYearMax.get());
+		hostcert_max_year.setRequired(true);
+		hostcert_max_year.addValidator(new DivRepIntegerValidator());
+		
+		hostcert_max_day = new DivRepTextBox(this);
+		hostcert_max_day.setLabel("Host Certificate Approval Daily Maximum");
+		hostcert_max_day.setValue(config.QuotaUserHostDayMax.get());
+		hostcert_max_day.setRequired(true);
+		hostcert_max_day.addValidator(new DivRepIntegerValidator());
+		new DivRepStaticContent(this, "<p>* Per user counters are stored in user contact record.</p>");
+	}
+	
+	protected Boolean doSubmit() 
+	{		
+		ConfigModel config = new ConfigModel(context);
+		try {
+			config.QuotaGlobalUserCertYearMax.set(global_usercert_max.getValue());
+			config.QuotaGlobalUserCertYearCount.set(global_usercert_count.getValue());
+			
+			config.QuotaGlobalHostCertYearMax.set(global_hostcert_max.getValue());
+			config.QuotaGlobalHostCertYearCount.set(global_hostcert_count.getValue());
+			
+			config.QuotaUserCertYearMax.set(usercert_max_year.getValue());
+			config.QuotaUserHostDayMax.set(hostcert_max_day.getValue());
+			config.QuotaUserHostYearMax.set(hostcert_max_year.getValue());
+		} catch (SQLException e) {
+			log.error("Failed to update quota config", e);
+			alert(e.getMessage());
+			return false;
+		}
+		return true;
+	}
+
+	@Override
+	protected void onEvent(DivRepEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+}

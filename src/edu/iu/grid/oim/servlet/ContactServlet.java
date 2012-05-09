@@ -25,6 +25,7 @@ import com.divrep.common.DivRepToggler;
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.model.UserContext;
+import edu.iu.grid.oim.model.db.ConfigModel;
 import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.DNModel;
 import edu.iu.grid.oim.model.db.ResourceContactModel;
@@ -50,6 +51,7 @@ import edu.iu.grid.oim.view.ContentView;
 import edu.iu.grid.oim.view.DivRepWrapper;
 import edu.iu.grid.oim.view.GenericView;
 import edu.iu.grid.oim.view.HtmlView;
+import edu.iu.grid.oim.view.IView;
 import edu.iu.grid.oim.view.ItemTableView;
 import edu.iu.grid.oim.view.MenuView;
 import edu.iu.grid.oim.view.Page;
@@ -67,39 +69,43 @@ public class ContactServlet extends ServletBase implements Servlet {
 		Authorization auth = context.getAuthorization();
 		auth.check("edit_my_contact");
 
-		try {
-		
-			//construct view
-			//MenuView menuview = new MenuView(context, "contact");
-			//ContentView contentview = createContentView();
-			
+		try {	
 			BootMenuView menuview = new BootMenuView(context, "contact");
 			ContentView contentview = null;
+			SideContentView sideview = null;
+			
 			//display either list, or a single resource
 			ContactRecord rec = null;
 			String contact_id_str = request.getParameter("id");
 			if(contact_id_str != null) {
-				Integer contact_id = Integer.parseInt(contact_id_str);
 				ContactModel model = new ContactModel(context);
+				Integer contact_id = Integer.parseInt(contact_id_str);
 				rec = model.get(contact_id);
 				contentview = new ContentView();
 				
 				// setup crumbs
 				BootBreadCrumbView bread_crumb = new BootBreadCrumbView();
 				// bread_crumb.addCrumb("Administration", "admin");
-				bread_crumb.addCrumb("Contact", "contact");
+				bread_crumb.addCrumb("OSG Contact", "contact");
 				bread_crumb.addCrumb(rec.name, null);
 				contentview.setBreadCrumb(bread_crumb);
 
+				if(model.canEdit(rec.id)) {
+					contentview.add(new HtmlView("<p class=\"pull-right\"><a class=\"btn\" href=\"contactedit?id=" + rec.id + "\">Edit</a></p> "));
+				}
+				//contentview.add(new HtmlView("<p class=\"pull-right\"><a class=\"btn\" href=\"contactedit\">Register New Contact</a></p> "));
+				
 				contentview.add(new HtmlView("<h2>"+StringEscapeUtils.escapeHtml(rec.name)+"</h2>"));	
-				contentview.add(createContent(context, rec, false)); //false = no edit button	
-
+				contentview.add(createContent(context, rec)); //false = no edit button	
+				
+				//sideview = createRecordSideView(context);
 			} else {
 				//pull list of all contacts
 				contentview = createContentView(context);
+				sideview = createListSideView(context);
 			}
 			
-			BootPage page = new BootPage(context, menuview, contentview, createSideView(rec));
+			BootPage page = new BootPage(context, menuview, contentview, sideview);//createSideView(context, rec, model.canEdit(rec.id)));
 			page.render(response.getWriter());			
 		} catch (SQLException e) {
 			log.error(e);
@@ -157,6 +163,10 @@ public class ContactServlet extends ServletBase implements Servlet {
 		throws ServletException, SQLException
 	{  
 		contentview.add(new HtmlView("<h1>OSG Contacts</h1>"));
+		if(context.getAuthorization().isUser()) {
+			contentview.add(new HtmlView("<p class=\"pull-right\"><a class=\"btn\" href=\"contactedit\"><i class=\"icon-plus-sign\"></i> Register New Contact</a></p>"));
+		}
+	
 		if(editable_contacts.size() != 0) {
 			contentview.add(new HtmlView("<h2>Editable</h2>"));
 			contentview.add(new HtmlView("<p>You have edit access to following contacts</p>"));
@@ -217,7 +227,8 @@ public class ContactServlet extends ServletBase implements Servlet {
 		return name_to_display;
 	}
 	
-	public DivRep createContent(UserContext context, final ContactRecord rec, final boolean show_edit_button) {
+	public DivRep createContent(UserContext context, final ContactRecord rec) {
+		
 		RecordTableView table = new RecordTableView();
 		try {	
 			table.addRow("Primary Email", new HtmlView("<a class=\"mailto\" href=\"mailto:"+rec.primary_email+"\">"+StringEscapeUtils.escapeHtml(rec.primary_email)+"</a>"));
@@ -280,42 +291,23 @@ public class ContactServlet extends ServletBase implements Servlet {
 				}
 				table.addRow("Associated DN", dn_string);		
 			}
-
-			if(show_edit_button) {
-				class EditButtonDE extends DivRepButton
-				{
-					String url;
-					public EditButtonDE(DivRep parent, String _url)
-					{
-						super(parent, "Edit");
-						url = _url;
-					}
-					protected void onEvent(DivRepEvent e) {
-						redirect(url);
-					}
-				};
-				table.add(new DivRepWrapper(new EditButtonDE(context.getPageRoot(), "contactedit?id=" + rec.id)));
-			}
+			
+			//Certificate Quota
+			ConfigModel config = new ConfigModel(context);
+			table.addRow("User Certificate Requests", rec.count_usercert_year + " (max "+config.QuotaUserCertYearMax.get()+" per year)");
+			table.addRow("Host Certificate Approvals (Year)", rec.count_hostcert_year + " (max "+config.QuotaUserHostYearMax.get()+" per year)");
+			table.addRow("Host Certificate Approvals (Today)", rec.count_hostcert_day + " (max "+config.QuotaUserHostDayMax.get()+" per day)");
+			
 		} catch (SQLException e) {
 			return new DivRepStaticContent(context.getPageRoot(), e.toString());
 		}
 		return new ViewWrapper(context.getPageRoot(), table);
 	}
 	
-	private SideContentView createSideView(ContactRecord rec)
-	{
+	private SideContentView createListSideView(UserContext context) {
 		SideContentView view = new SideContentView();
-		
-		if(rec == null) {
-			//view.add(new HtmlView("<h3>Other Actions</h3>"));
-			//view.add(new HtmlView("<div class=\"indent\">"));
-			view.add(new HtmlView("<p><a class=\"btn\" href=\"contactedit\">Register New Contact</a></p>"));
-			//view.add(new HtmlView("</div>"));
-			view.add(new HtmlView("This page shows a list of contacts on OIM. Contacts can be a person or a mailing list or a service that needs to be registered on OIM to access privileged information on other OSG services. <p><br/> You as a registered OIM user will be able to edit any contact you added. GOC staff are able to edit all contacts including previous de-activated ones. <p><br/> If you want to map a certain person or group contact (and their email/phone number) to a resource, VO, SC, etc. but cannot find that contact already in OIM, then you can add a new contact. <p><br/>  Note that if you add a person as a new contact, that person will still not be able to perform any actions inside OIM until they register their X509 certificate on OIM."));		
-			view.addContactGroupFlagLegend();
-		} else {
-			//view.addContactLegend();
-		}
+		view.add(new HtmlView("This page shows a list of contacts on OIM. Contacts can be a person or a mailing list or a service that needs to be registered on OIM to access privileged information on other OSG services. <p><br/> You as a registered OIM user will be able to edit any contact you added. GOC staff are able to edit all contacts including previous de-activated ones. <p><br/> If you want to map a certain person or group contact (and their email/phone number) to a resource, VO, SC, etc. but cannot find that contact already in OIM, then you can add a new contact. <p><br/>  Note that if you add a person as a new contact, that person will still not be able to perform any actions inside OIM until they register their X509 certificate on OIM."));		
+		view.addContactGroupFlagLegend();
 		return view;
 	}
 }

@@ -15,12 +15,12 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.log4j.Logger;
 
 import edu.iu.grid.oim.lib.Authorization;
-import edu.iu.grid.oim.model.CertificateRequestException;
 import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.HostCertificateRequestModel;
 import edu.iu.grid.oim.model.db.UserCertificateRequestModel;
 import edu.iu.grid.oim.model.db.record.CertificateRequestHostRecord;
 import edu.iu.grid.oim.model.db.record.CertificateRequestUserRecord;
+import edu.iu.grid.oim.model.exceptions.CertificateRequestException;
 
 public class CertificateDownloadServlet extends ServletBase  {
 	private static final long serialVersionUID = 1L;

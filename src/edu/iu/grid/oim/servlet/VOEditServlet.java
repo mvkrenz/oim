@@ -9,20 +9,15 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.log4j.Logger;
 
 import edu.iu.grid.oim.lib.Authorization;
-import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.VOModel;
-import edu.iu.grid.oim.model.db.record.ResourceRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
 import edu.iu.grid.oim.view.BootBreadCrumbView;
 import edu.iu.grid.oim.view.BootMenuView;
 import edu.iu.grid.oim.view.BootPage;
-import edu.iu.grid.oim.view.BreadCrumbView;
 import edu.iu.grid.oim.view.ContentView;
 import edu.iu.grid.oim.view.DivRepWrapper;
 import edu.iu.grid.oim.view.HtmlView;
-import edu.iu.grid.oim.view.MenuView;
-import edu.iu.grid.oim.view.Page;
 import edu.iu.grid.oim.view.SideContentView;
 import edu.iu.grid.oim.view.divrep.form.VOFormDE;
 
@@ -64,7 +59,7 @@ public class VOEditServlet extends ServletBase implements Servlet {
 			rec = new VORecord();
 			//title = "New Virtual Organization";	
 		}
-	
+			
 		VOFormDE form;
 		try {
 			form = new VOFormDE(context, rec, parent_page);
@@ -81,6 +76,11 @@ public class VOEditServlet extends ServletBase implements Servlet {
 		if(rec.disable != null && rec.disable == true) {
 			contentview.add(new HtmlView("<div class=\"alert\">This Virtual Organization is currently disabled.</div>"));
 		}
+		
+		if(rec.id != null) {
+			contentview.add(new HtmlView("<p class=\"pull-right\"><a class=\"btn\" href=\"vo?id="+rec.id+"\">Show Readonly View</a></p>"));
+		}
+		
 		contentview.add(new DivRepWrapper(form));
 		
 		//setup crumbs
@@ -89,24 +89,17 @@ public class VOEditServlet extends ServletBase implements Servlet {
 		bread_crumb.addCrumb(rec.name,  null);
 		contentview.setBreadCrumb(bread_crumb);
 		
-		BootPage page = new BootPage(context, new BootMenuView(context, parent_page), contentview, createSideView(rec));
+		BootPage page = new BootPage(context, new BootMenuView(context, parent_page), contentview, createSideView());
 		page.render(response.getWriter());	
 		
 		//context.storeDivRepSession();
 	}
 	
-	private SideContentView createSideView(VORecord rec)
+	private SideContentView createSideView()
 	{
 		SideContentView view = new SideContentView();
-		if(rec.id != null) {
-			//view.add(new HtmlView("<h3>Other Actions</h3>"));
-			//view.add(new HtmlView("<div class=\"indent\">"));
-			view.add(new HtmlView("<p><a class=\"btn\" href=\"vo?id="+rec.id+"\">Show Readonly View</a></p>"));
-			//view.add(new HtmlView("<p><a href=\""+StaticConfig.getApplicationBase()+"/log?type=5&id="+rec.id+"\">View Update History</a></p>"));
-			//view.add(new HtmlView("</div>"));
-		}
 
-		
+
 		//view.add("About", new HtmlView("This form allows you to edit this VO's registration information.</p>"));		
 		view.addContactNote();		
 		// view.addContactLegent();		

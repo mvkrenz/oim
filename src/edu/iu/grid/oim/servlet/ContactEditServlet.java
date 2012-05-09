@@ -66,11 +66,13 @@ public class ContactEditServlet extends ServletBase implements Servlet {
 		}
 
 		//String origin_url = StaticConfig.getApplicationBase()+"/"+parent_page;
-		ContactFormDE form = new ContactFormDE(context, rec, parent_page, false);
+		ContactFormDE form = new ContactFormDE(context, rec, parent_page);
 		
 		//put the form in a view and display
 		ContentView contentview = new ContentView();
-		//contentview.add(new HtmlView("<h1>"+title+"</h1>"));	
+		if(rec.id != null) {
+			contentview.add(new HtmlView("<p class=\"pull-right\"><a class=\"btn\" href=\"contact?id="+rec.id+"\">Show Readonly View</a></p>"));
+		}
 		contentview.add(new DivRepWrapper(form));
 		
 		//setup crumbs
@@ -79,14 +81,13 @@ public class ContactEditServlet extends ServletBase implements Servlet {
 		bread_crumb.addCrumb(title,  null);
 		contentview.setBreadCrumb(bread_crumb);
 		
-		BootPage page = new BootPage(context, new BootMenuView(context, parent_page), contentview, createSideView());
+		BootPage page = new BootPage(context, new BootMenuView(context, parent_page), contentview, null);
 		page.render(response.getWriter());	
 	}
 	
-	private SideContentView createSideView()
+	private SideContentView createSideView(ContactRecord rec)
 	{
 		SideContentView view = new SideContentView();
-		//view.add("TODO", new HtmlView("Whatever"));
 		return view;
 	}
 }

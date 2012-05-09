@@ -101,76 +101,74 @@ public class Authorization {
 	{		
 		guest_context = UserContext.getGuestContext();
 		usertype = UserType.GUEST;
-		
+
+		String localname = request.getLocalName(); //the host name of the Internet Protocol (IP) interface on which the request was received.
+		log.debug("Request received on " + localname);
 		if(StaticConfig.isDebug()) {
-			String localname = request.getLocalName();
-			String remoteaddr = request.getRemoteAddr();
-			if(localname.equals("localhost") || localname.equals("localhost.localdomain") || localname.equals("0.0.0.0") 
-					|| remoteaddr.equals("192.168.1.75") //t520
-					|| remoteaddr.equals("192.168.1.77") //ubuntu-t520
-					) {
-				usertype = UserType.LOCAL;
-				debugAuthOverride(request);
-			}
+			debugAuthOverride(request);
 		}
 		
-		//figure out usertype
-		String client_verify = (String)request.getAttribute("SSL_CLIENT_VERIFY");
-		if(client_verify != null && !client_verify.equals("none")) {
-			//user is accessing via https
-			
-			//we set mod_jk to return "none" if the value doesn't exist. let's convert back to null.
-			String user_dn_tmp = (String)request.getAttribute("SSL_CLIENT_S_DN");
-			if(user_dn_tmp != null && !user_dn_tmp.equals("none")) {
-				user_dn = user_dn_tmp;
-			}
-			String user_cn_tmp = (String)request.getAttribute("SSL_CLIENT_I_DN_CN");
-			if(user_cn_tmp != null && !user_cn_tmp.equals("none")) {
-				user_cn = user_cn_tmp;
-			}
-			log.info(request.getRequestURI() + "?" + request.getQueryString());
-			log.info("Authenticated User DN: "+user_dn + " SSL_CLIENT_I_DN_CN: " + user_cn);
-			
-			if(user_dn == null || user_cn == null) {
-				log.info("SSL_CLIENT_S_DN or SSL_CLIENT_I_DN_CN is not set. Logging in as guest.");
-			} else {
-				if(client_verify == null || !(client_verify.equals("SUCCESS"))) {
-					log.info("SSL_DN / CN is set, but CLIENT_VERIFY has failed :: "+client_verify+". Logging in as guest");
-					user_dn = null;
-					user_cn = null;
+		if(localname.equals("localhost") || localname.equals("localhost.localdomain")) {
+			usertype = UserType.LOCAL;
+		} else {
+			//figure out usertype from SSL ENV
+			String client_verify = (String)request.getAttribute("SSL_CLIENT_VERIFY");
+			if(client_verify != null && !client_verify.equals("none")) {
+				//user is accessing via https
+				
+				//we set mod_jk to return "none" if the value doesn't exist. let's convert back to null.
+				String user_dn_tmp = (String)request.getAttribute("SSL_CLIENT_S_DN");
+				if(user_dn_tmp != null && !user_dn_tmp.equals("none")) {
+					user_dn = user_dn_tmp;
+				}
+				String user_cn_tmp = (String)request.getAttribute("SSL_CLIENT_I_DN_CN");
+				if(user_cn_tmp != null && !user_cn_tmp.equals("none")) {
+					user_cn = user_cn_tmp;
+				}
+				log.info(request.getRequestURI() + "?" + request.getQueryString());
+				log.info("Authenticated User DN: "+user_dn + " SSL_CLIENT_I_DN_CN: " + user_cn);
+				
+				if(user_dn == null || user_cn == null) {
+					log.info("SSL_CLIENT_S_DN or SSL_CLIENT_I_DN_CN is not set. Logging in as guest.");
 				} else {
-					//login as OIM user
-					try {
-						//check to see if the DN is already registered
-						DNModel dnmodel = new DNModel(guest_context);
-						dnrec = dnmodel.getByDNString(user_dn);
-						
-						if(dnrec == null) {
-							usertype = UserType.UNREGISTERED;
-							loadGuestAction();
-						} else {
-							//check for disabled contact
-							ContactModel cmodel = new ContactModel(guest_context);
-							contact = cmodel.get(dnrec.contact_id);
-							if (contact.isDisabled()) {
-								log.info("The DN found in \"dn\" table but is mapped to disabled contact. Set isDisabled to true.");
-								usertype = UserType.DISABLED;
-								loadGuestAction(); //disabled user can still access guest content
+					if(client_verify == null || !(client_verify.equals("SUCCESS"))) {
+						log.info("SSL_DN / CN is set, but CLIENT_VERIFY has failed :: "+client_verify+". Logging in as guest");
+						user_dn = null;
+						user_cn = null;
+					} else {
+						//login as OIM user
+						try {
+							//check to see if the DN is already registered
+							DNModel dnmodel = new DNModel(guest_context);
+							dnrec = dnmodel.getByDNString(user_dn);
+							
+							if(dnrec == null) {
+								usertype = UserType.UNREGISTERED;
+								loadGuestAction();
 							} else {
-								usertype = UserType.USER;
-								initAction(dnrec);
+								//check for disabled contact
+								ContactModel cmodel = new ContactModel(guest_context);
+								contact = cmodel.get(dnrec.contact_id);
+								if (contact.isDisabled()) {
+									log.info("The DN found in \"dn\" table but is mapped to disabled contact. Set isDisabled to true.");
+									usertype = UserType.DISABLED;
+									loadGuestAction(); //disabled user can still access guest content
+								} else {
+									usertype = UserType.USER;
+									initAction(dnrec);
+								}
 							}
+						} catch (SQLException e) {
+							throw new AuthorizationException("Authorization check failed due to " + e.getMessage());
 						}
-					} catch (SQLException e) {
-						throw new AuthorizationException("Authorization check failed due to " + e.getMessage());
 					}
 				}
+
+			} else {
+				//user is mostlikely accessing via http
+				usertype = UserType.GUEST;
+				loadGuestAction();
 			}
-			
-		} else {
-			//user is mostlikely accessing via http
-			usertype = UserType.GUEST;
-			loadGuestAction();
 		}
 	}
 	

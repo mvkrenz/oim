@@ -119,19 +119,20 @@ public class FPTemplatesServlet extends ServletBase implements Servlet {
 		return contentview;
 	}
 	
-	
 	class FPTemplatesForm extends DivRepForm {
 	
 		private DivRepTextArea resource_template;	
 		private DivRepTextArea vo_template;
 		private DivRepTextArea sc_template;
+		private UserContext context;
 
 		public FPTemplatesForm(DivRepPage page, UserContext context) throws AuthorizationException, SQLException
 		{	
 			super(page, "admin");
+			this.context = context;
 
-			ConfigModel config = new ConfigModel();
-			ContactModel contactmodel = new ContactModel(context);
+			ConfigModel config = new ConfigModel(context);
+			//ContactModel contactmodel = new ContactModel(context);
 			
 			new DivRepStaticContent(this, "<h2>Resource Registration</h2>");
 			new DivRepStaticContent(this, "<p><b>##RESOURCE_NAME##</b> will be replaced by the actual resource name registered.</p>");
@@ -140,14 +141,6 @@ public class FPTemplatesServlet extends ServletBase implements Servlet {
 			resource_template.addClass("fptemplate");
 			resource_template.setHeight(200);
 			
-			/*
-			contentview.add(new HtmlView("<h3>CC</h3>"));
-			resource_contacts = new ContactEditor(page, contactmodel, false, false);
-			resource_contacts.setShowRank(false);
-			resource_contacts.setLabel("CC");
-			addContacts(contactmodel, resource_contacts, config.ResourceFPCC.get());
-			contentview.add(resource_contacts);
-			*/
 			
 			new DivRepStaticContent(this, "<h2>VO Registration</h2>");
 			new DivRepStaticContent(this, "<p><b>##VO_NAME##</b> will be replaced by the actual VO name registered.</p>");
@@ -156,14 +149,6 @@ public class FPTemplatesServlet extends ServletBase implements Servlet {
 			vo_template.addClass("fptemplate");
 			vo_template.setHeight(200);
 
-			/*
-			contentview.add(new HtmlView("<h3>CC</h3>"));
-			vo_contacts = new ContactEditor(page, contactmodel, false, false);
-			vo_contacts.setShowRank(false);
-			vo_contacts.setLabel("CC");
-			addContacts(contactmodel, vo_contacts, config.VOFPCC.get());
-			contentview.add(vo_contacts);
-			*/
 			
 			new DivRepStaticContent(this, "<h2>SC Registration</h2>");
 			new DivRepStaticContent(this, "<p><b>##SC_NAME##</b> will be replaced by the actual SC name registered.</p>");
@@ -172,18 +157,10 @@ public class FPTemplatesServlet extends ServletBase implements Servlet {
 			sc_template.setValue(config.SCFPTemplate.get());
 			sc_template.addClass("fptemplate");
 			sc_template.setHeight(200);
-			
-			/*
-			contentview.add(new HtmlView("<h3>CC</h3>"));
-			sc_contacts = new ContactEditor(page, contactmodel, false, false);
-			sc_contacts.setShowRank(false);
-			addContacts(contactmodel, sc_contacts, config.SCFPCC.get());
-			contentview.add(sc_contacts);
-			*/
 	
 		}
 		protected Boolean doSubmit() {
-			ConfigModel config = new ConfigModel();
+			ConfigModel config = new ConfigModel(context);
 			try {
 				config.ResourceFPTemplate.set(resource_template.getValue());
 				config.VOFPTemplate.set(vo_template.getValue());

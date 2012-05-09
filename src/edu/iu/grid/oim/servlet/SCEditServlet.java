@@ -84,6 +84,14 @@ public class SCEditServlet extends ServletBase implements Servlet {
 		if(rec.disable != null && rec.disable == true) {
 			contentview.add(new HtmlView("<div class=\"alert\">This Support Center is currently disabled.</div>"));
 		}
+		if(rec.id != null) {
+			//view.add(new HtmlView("<h3>Other Actions</h3>"));
+			//view.add(new HtmlView("<div class=\"indent\">"));
+			//view.add(new HtmlView("<p><a class=\"btn\" href=\"scedit\">Register New Support Center</a></p>"));
+			contentview.add(new HtmlView("<p class=\"pull-right\"><a class=\"btn\" href=\"sc?id="+rec.id+"\">Show Readonly View</a></p>"));
+			//view.add(new HtmlView("<p><a href=\""+StaticConfig.getApplicationBase()+"/log?type=6&id="+rec.id+"\">View Update History</a></p>"));
+			//view.add(new HtmlView("</div>"));
+		}
 		contentview.add(new DivRepWrapper(form));
 		
 		//setup crumbs
@@ -101,15 +109,7 @@ public class SCEditServlet extends ServletBase implements Servlet {
 	{
 		SideContentView view = new SideContentView();
 		
-		//view.add("About", new HtmlView("This form allows you to edit this support center's registration information.</p>"));
-		if(rec.id != null) {
-			//view.add(new HtmlView("<h3>Other Actions</h3>"));
-			//view.add(new HtmlView("<div class=\"indent\">"));
-			//view.add(new HtmlView("<p><a class=\"btn\" href=\"scedit\">Register New Support Center</a></p>"));
-			view.add(new HtmlView("<p><a class=\"btn\" href=\"sc?id="+rec.id+"\">Show Readonly View</a></p>"));
-			//view.add(new HtmlView("<p><a href=\""+StaticConfig.getApplicationBase()+"/log?type=6&id="+rec.id+"\">View Update History</a></p>"));
-			//view.add(new HtmlView("</div>"));
-		}
+		//view.add("About", new HtmlView("This form allows you to edit this support center's registration information.</p>"))
 		view.addContactNote();		
 		// view.addContactLegent();		
 		return view;

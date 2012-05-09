@@ -1,12 +1,7 @@
 package edu.iu.grid.oim.model.db;
 
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
 import java.util.HashSet;
 
 import javax.xml.xpath.XPath;
@@ -16,16 +11,11 @@ import javax.xml.xpath.XPathExpressionException;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 
-import edu.iu.grid.oim.lib.Authorization;
-import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.DNRecord;
 import edu.iu.grid.oim.model.db.record.RecordBase;
-import edu.iu.grid.oim.model.db.record.ResourceRecord;
-import edu.iu.grid.oim.model.db.record.SCRecord;
 import edu.iu.grid.oim.model.db.record.ServiceRecord;
-import edu.iu.grid.oim.model.db.record.VORecord;
 
 public class ContactModel extends SmallTableModelBase<ContactRecord> {
     static Logger log = Logger.getLogger(ContactModel.class);  
@@ -107,7 +97,7 @@ public class ContactModel extends SmallTableModelBase<ContactRecord> {
 	
 	public ArrayList<ContactRecord> getAllEditable() throws SQLException
 	{	   
-		ArrayList<ContactRecord> list = new ArrayList();
+		ArrayList<ContactRecord> list = new ArrayList<ContactRecord>();
 
     	//only select record that is editable
 	    for(RecordBase rec : getCache()) {

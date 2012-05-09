@@ -1,4 +1,4 @@
-package edu.iu.grid.oim.model.cert;
+package edu.iu.grid.oim.view.divrep.form.validator;
 
 import com.divrep.validator.DivRepIValidator;
 

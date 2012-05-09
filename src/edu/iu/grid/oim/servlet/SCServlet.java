@@ -95,7 +95,11 @@ public class SCServlet extends ServletBase implements Servlet {
 				if(rec.disable == true) {
 					contentview.add(new HtmlView("<div class=\"alert\">This Support Center is currently disabled.</div>"));
 				}
-				contentview.add(createSCContent(context, rec, model.canEdit(sc_id))); //false = no edit button	
+				if(model.canEdit(sc_id)) {
+					contentview.add(new HtmlView("<p class=\"pull-right\"><a class=\"btn\" href=\"scedit?id=" + rec.id + "\">Edit</a></p>"));
+				}
+				contentview.add(new HtmlView("<h2>"+StringEscapeUtils.escapeHtml(rec.name)+"</h2>"));	
+				contentview.add(createSCContent(context, rec)); //false = no edit button	
 				sideview = createSideView(context);
 			} else {
 				contentview = createListContent(context);
@@ -185,7 +189,7 @@ public class SCServlet extends ServletBase implements Servlet {
 		return contentview;
 	}
 	
-	public DivRep createSCContent(UserContext context, final SCRecord rec, final boolean show_edit_button) {
+	public DivRep createSCContent(UserContext context, final SCRecord rec) {
 		RecordTableView table = new RecordTableView();
 		try {			
 		 	table.addRow("Long Name", rec.long_name);
@@ -232,26 +236,6 @@ public class SCServlet extends ServletBase implements Servlet {
 			}
 			table.addRow("Active", rec.active);
 			table.addRow("Disable", rec.disable);
-		
-			if(show_edit_button) {
-				/*
-				class EditButtonDE extends DivRepButton
-				{
-					String url;
-					public EditButtonDE(DivRep parent, String _url)
-					{
-						super(parent, "Edit");
-						url = _url;
-					}
-					protected void onEvent(DivRepEvent e) {
-						redirect(url);
-					}
-				};
-				table.add(new DivRepWrapper(new EditButtonDE(context.getPageRoot(), StaticConfig.getApplicationBase()+"/scedit?id=" + rec.id)));
-				*/
-				table.add(new HtmlView("<a class=\"btn\" href=\"scedit?id=" + rec.id + "\">Edit</a>"));
-
-			}
 		} catch (SQLException e) {
 			return new DivRepStaticContent(context.getPageRoot(), e.toString());
 		}
@@ -261,20 +245,11 @@ public class SCServlet extends ServletBase implements Servlet {
 	private SideContentView createSideView(UserContext context)
 	{
 		SideContentView view = new SideContentView();
-		
-		//view.add(new HtmlView("<h3>Other Actions</h3>"));
-		//view.add(new HtmlView("<div class=\"indent\">"));
-		//view.add(new HtmlView("<div class=\"indent\">"));
+		/*
 		if(context.getAuthorization().isUser()) {
 			view.add(new HtmlView("<p><a class=\"btn\" href=\"scedit\">Register New Support Center</a></p>"));
 		}
-		/*
-		 *
-		if(rec != null) {
-			view.add(new HtmlView("<p><a href=\""+StaticConfig.getApplicationBase()+"/log?type=6&id="+rec.id+"\">View Update History</a></p>"));
-		}
 		*/
-		//view.add(new HtmlView("</div>"));
 		view.addContactLegend();
 		return view;
 	}

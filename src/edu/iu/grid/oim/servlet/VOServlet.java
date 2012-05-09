@@ -73,7 +73,7 @@ public class VOServlet extends ServletBase implements Servlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{		
 		UserContext context = new UserContext(request);
-		//auth.check("edit_my_vo");
+		//auth.check("f_my_vo");
 		
 		try {	
 			//construct view
@@ -103,7 +103,11 @@ public class VOServlet extends ServletBase implements Servlet {
 				if(rec.disable == true) {
 					contentview.add(new HtmlView("<div class=\"alert\">This Virtual Organization is currently disabled.</div>"));
 				}
-				contentview.add(createVOContent(context, rec, model.canEdit(vo_id))); //false = no edit button	
+				if(model.canEdit(vo_id)) {
+					contentview.add(new HtmlView("<p class=\"pull-right\"><a class=\"btn\" href=\"voedit?id=" + rec.id + "\">Edit</a></p>"));
+				}
+				contentview.add(new HtmlView("<h2>"+StringEscapeUtils.escapeHtml(rec.name)+"</h2>"));	
+				contentview.add(createVOContent(context, rec)); //false = no edit button	
 				
 				sideview = createSideView(context);
 
@@ -196,7 +200,7 @@ public class VOServlet extends ServletBase implements Servlet {
 		return contentview;
 	}
 
-	public DivRep createVOContent(UserContext context, final VORecord rec, final boolean show_edit_button) {
+	public DivRep createVOContent(UserContext context, final VORecord rec) {
 		RecordTableView table = new RecordTableView();
 		try {	
 
@@ -280,34 +284,8 @@ public class VOServlet extends ServletBase implements Servlet {
 				table.addRow("Reports", vorepname_view);
 			}
 			
-			/*
-			if(auth.allows("admin")) {
-				table.addRow("Footprints ID", rec.footprints_id);
-			}
-			*/
-			
 			table.addRow("Active", rec.active);
 			table.addRow("Disable", rec.disable);
-					
-			if(show_edit_button) {
-				/*
-				class EditButtonDE extends DivRepButton
-				{
-					String url;
-					public EditButtonDE(DivRep parent, String _url)
-					{
-						super(parent, "Edit");
-						url = _url;
-					}
-					protected void onEvent(DivRepEvent e) {
-						redirect(url);
-					}
-				};
-				table.add(new DivRepWrapper(new EditButtonDE(context.getPageRoot(), StaticConfig.getApplicationBase()+"/voedit?id=" + rec.id)));
-				*/
-				table.add(new HtmlView("<a class=\"btn\" href=\"voedit?id=" + rec.id + "\">Edit</a>"));
-
-			}
 		} catch (SQLException e) {
 			return new DivRepStaticContent(context.getPageRoot(), e.toString());
 		}
@@ -403,24 +381,14 @@ public class VOServlet extends ServletBase implements Servlet {
 	private SideContentView createSideView(UserContext context)
 	{
 		SideContentView view = new SideContentView();
-		
-		//view.add(new HtmlView("<h3>Other Actions</h3>"));
-		//view.add(new HtmlView("<div class=\"indent\">"));
+		/*
 		if(context.getAuthorization().isUser()) {
 			view.add(new HtmlView("<p>"));
 			view.add(new HtmlView("<a class=\"btn\" href=\"voedit\">Register New Virtual Organization</a>"));
 			view.add(new HtmlView("</p>"));
 		}
-		/*
-		if(rec != null) {
-			view.add(new HtmlView("<p><a href=\""+StaticConfig.getApplicationBase()+"/log?type=5&id="+rec.id+"\">View Update History</a></p>"));
-		}
 		*/
-		//view.add(new HtmlView("</div>"));
-		//view.add("About", new HtmlView("This page shows a list of Virtual Organization that you have access to edit."));		
-
 		view.addContactLegend();
-	
 		return view;
 	}
 }
