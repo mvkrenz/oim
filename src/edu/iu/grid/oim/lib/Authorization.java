@@ -20,7 +20,6 @@ import edu.iu.grid.oim.model.db.DNModel;
 import edu.iu.grid.oim.model.db.record.AuthorizationTypeRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.DNRecord;
-import java.util.TimeZone;
 
 //provide client the authorization information
 public class Authorization {
@@ -112,7 +111,7 @@ public class Authorization {
 		if(remoteaddr.startsWith("129.79.53.")) { //GOC VLAN
 			usertype = UserType.LOCAL;
 		} else {
-			//figure out usertype from SSL ENV
+			//figure out usertype from SSL ENV (if provided)
 			String client_verify = (String)request.getAttribute("SSL_CLIENT_VERIFY");
 			if(client_verify != null && !client_verify.equals("none")) {
 				//user is accessing via https
@@ -164,9 +163,8 @@ public class Authorization {
 						}
 					}
 				}
-
 			} else {
-				//user is mostlikely accessing via http
+				//user is most likely accessing via http
 				usertype = UserType.GUEST;
 				loadGuestAction();
 			}
