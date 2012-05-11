@@ -108,7 +108,7 @@ public class Authorization {
 		
 		String remoteaddr = request.getRemoteAddr();
 		log.debug("Request received from " + remoteaddr);
-		if(remoteaddr.startsWith("129.79.53.")) { //GOC VLAN
+		if(remoteaddr.equals("127.0.0.1") /*|| remoteaddr.startsWith("129.79.53.")*/) { 
 			usertype = UserType.LOCAL;
 		} else {
 			//figure out usertype from SSL ENV (if provided)
