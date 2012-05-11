@@ -86,7 +86,7 @@ public class VOFormDE extends DivRepForm
 		ContactTypes = new ArrayList<ContactTypeRecord.Info>();
 		ContactTypes.add(new ContactTypeRecord.Info(1, "A contact who has registered this virtual organization"));
 		ContactTypes.add(new ContactTypeRecord.Info(6, "Contacts who decides on what virtual organizations are allowed to run on VO-owned resources, who are users of this virtual organization, etc"));
-		ContactTypes.add(new ContactTypeRecord.Info(3, "Retained for legacy reasons. Purposes unknown"));
+		ContactTypes.add(new ContactTypeRecord.Info(3, "Contacts for ticketing and assorted issues. This is typically a user/application support person or a help desk"));
 		ContactTypes.add(new ContactTypeRecord.Info(2, "Security notifications sent out by the OSG security team are sent to primary and secondary virtual organization security contacts"));
 		ContactTypes.add(new ContactTypeRecord.Info(5, "Contacts who do not fall under any of the above types but would like to be able to edit this virtual organization can be added as miscellaneous contact"));
 		ContactTypes.add(new ContactTypeRecord.Info(11, "RA (Registration Authority) agent who can approve certificate requests."));
