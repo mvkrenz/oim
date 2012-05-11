@@ -33,6 +33,19 @@ public class RestServlet extends ServletBase  {
     	Status status = Status.OK;
     	String detail = "Nothing to report";
     	HashMap<String, String> params = new HashMap<String, String>();
+    	
+    	void out(HttpServletResponse response) throws IOException {
+    		response.setContentType("text/xml");
+    		PrintWriter out = response.getWriter();
+    		out.write("{");
+    		out.write("\"status\": \""+status.toString()+"\",");
+    		for(String key : params.keySet()) {
+    			String value = params.get(key);
+    			out.write("\""+key+"\": \""+StringEscapeUtils.escapeJavaScript(value)+"\",");
+    		}
+    		out.write("\"detail\": \""+StringEscapeUtils.escapeJavaScript(detail)+"\"");
+    		out.write("}");
+    	}
     }
     
     @SuppressWarnings("serial")
@@ -47,7 +60,6 @@ public class RestServlet extends ServletBase  {
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{
-		response.setContentType("text/xml");
 		Reply reply = new Reply();
 		
 		try {
@@ -60,8 +72,6 @@ public class RestServlet extends ServletBase  {
 				doHostCertsRetrieve(request, reply);
 			} else if(action.equals("host_certs_approve")) {
 				doHostCertsApprove(request, reply);
-			} else if(action.equals("quota_info")) {
-				doQuotaInfo(request, reply);
 			}
 		
 		} catch (RestException e) {
@@ -76,25 +86,26 @@ public class RestServlet extends ServletBase  {
 			reply.detail = e.toString();
 			if(e.getMessage() != null) reply.detail += " -- " + e.getMessage();	
 		}
-		PrintWriter out = response.getWriter();
-		/*
-		if(reply.status.equals(Status.FAILED)) {
-			response.setStatus(500);
+		reply.out(response);
+	}
+	
+	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException  
+	{
+		Reply reply = new Reply();
+		try {
+			String action = request.getParameter("action");
+			if(action.equals("quota_info")) {
+				doQuotaInfo(request, reply);
+			}
+		} catch(AuthorizationException e) {
+			reply.status = Status.FAILED;
+			reply.detail = e.toString();	
+		} catch(Exception e) {
+			reply.status = Status.FAILED;
+			reply.detail = e.toString();
+			if(e.getMessage() != null) reply.detail += " -- " + e.getMessage();	
 		}
-		*/
-		out.write("{");
-		
-		out.write("\"status\": \""+reply.status.toString()+"\",");
-
-		for(String key : reply.params.keySet()) {
-			String value = reply.params.get(key);
-			out.write("\""+key+"\": \""+StringEscapeUtils.escapeJavaScript(value)+"\",");
-		}
-		
-		out.write("\"detail\": \""+StringEscapeUtils.escapeJavaScript(reply.detail)+"\"");
-
-		out.write("}");
-		
+		reply.out(response);
 	}
  
 	private void doHostCertsRequest(HttpServletRequest request, Reply reply) throws AuthorizationException, RestException {

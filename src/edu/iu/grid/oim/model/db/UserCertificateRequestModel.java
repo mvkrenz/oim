@@ -127,6 +127,20 @@ public class UserCertificateRequestModel extends CertificateRequestModelBase<Cer
 		*/
 	}
 	
+	//null if not found
+	public ContactRecord findPrimaryRA(CertificateRequestUserRecord rec) throws SQLException {
+		VOContactModel model = new VOContactModel(context);
+		ContactModel cmodel = new ContactModel(context);
+		ArrayList<VOContactRecord> crecs = model.getByVOID(rec.vo_id);
+		for(VOContactRecord crec : crecs) {
+			if(crec.contact_type_id.equals(11) && crec.contact_rank_id.equals(1)) { //primaryRA
+				ContactRecord contactrec = cmodel.get(crec.contact_id);
+				return contactrec;
+			}
+		}
+		return null;
+	}
+	
 	//true if user can approve request
 	public boolean canApprove(CertificateRequestUserRecord rec) {
 		if(!canView(rec)) return false;
@@ -148,10 +162,10 @@ public class UserCertificateRequestModel extends CertificateRequestModelBase<Cer
 				try {
 					crecs = model.getByVOID(rec.vo_id);
 					for(VOContactRecord crec : crecs) {
-						ContactRecord contactrec = cmodel.get(crec.contact_id);
 						if(crec.contact_type_id.equals(11) && //RA
 							(crec.contact_rank_id.equals(1) || crec.contact_rank_id.equals(2))) { //primary or secondary
-							if(contactrec.id.equals(contact.id)) return true;
+							//ContactRecord contactrec = cmodel.get(crec.contact_id);
+							if(crec.contact_id.equals(contact.id)) return true;
 						}
 					}
 				} catch (SQLException e1) {
@@ -191,10 +205,10 @@ public class UserCertificateRequestModel extends CertificateRequestModelBase<Cer
 				try {
 					crecs = model.getByVOID(rec.vo_id);
 					for(VOContactRecord crec : crecs) {
-						ContactRecord contactrec = cmodel.get(crec.contact_id);
 						if(crec.contact_type_id.equals(11) && //RA
 								(crec.contact_rank_id.equals(1) || crec.contact_rank_id.equals(2))) { //primary or secondary
-							if(contactrec.id.equals(contact.id)) return true;
+							//ContactRecord contactrec = cmodel.get(crec.contact_id);
+							if(crec.contact_id.equals(contact.id)) return true;
 						}
 					}
 				} catch (SQLException e1) {
@@ -250,10 +264,10 @@ public class UserCertificateRequestModel extends CertificateRequestModelBase<Cer
 				try {
 					crecs = model.getByVOID(rec.vo_id);
 					for(VOContactRecord crec : crecs) {
-						ContactRecord contactrec = cmodel.get(crec.contact_id);
+						//ContactRecord contactrec = cmodel.get(crec.contact_id);
 						if(crec.contact_type_id.equals(11) && //RA
 								(crec.contact_rank_id.equals(1) || crec.contact_rank_id.equals(2))) { //primary or secondary
-							if(contactrec.id.equals(contact.id)) return true;
+							if(crec.contact_id.equals(contact.id)) return true;
 						}
 					}
 				} catch (SQLException e1) {

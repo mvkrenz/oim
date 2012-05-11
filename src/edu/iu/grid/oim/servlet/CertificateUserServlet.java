@@ -33,6 +33,7 @@ import edu.iu.grid.oim.model.db.CertificateRequestModelBase;
 import edu.iu.grid.oim.model.db.CertificateRequestModelBase.LogDetail;
 import edu.iu.grid.oim.model.db.UserCertificateRequestModel;
 import edu.iu.grid.oim.model.db.ContactModel;
+import edu.iu.grid.oim.model.db.VOContactModel;
 import edu.iu.grid.oim.model.db.VOModel;
 import edu.iu.grid.oim.model.db.record.CertificateRequestHostRecord;
 import edu.iu.grid.oim.model.db.record.CertificateRequestUserRecord;
@@ -408,15 +409,18 @@ public class CertificateUserServlet extends ServletBase  {
 			button.addClass("inline");
 			button.addEventListener(new DivRepEventListener() {
                 public void handleEvent(DivRepEvent e) {
-            		context.setComment("Request canceled..");
-                	if(model.cancel(rec)) {
-                		button.redirect(url);
-                	} else {
-                		button.alert("Failed to cancel request");
+                	if(note.validate()) {
+                		context.setComment(note.getValue());
+	                	if(model.cancel(rec)) {
+	                		button.redirect(url);
+	                	} else {
+	                		button.alert("Failed to cancel request");
+	                	}
                 	}
                 }
             });
 			v.add(button);
+			note.setHidden(false);
 		}
 		if(model.canReject(rec)) {
 			final DivRepButton button = new DivRepButton(context.getPageRoot(), "<button class=\"btn btn-danger\"><i class=\"icon-remove icon-white\"></i> Reject Request</button>");
@@ -514,7 +518,7 @@ public class CertificateUserServlet extends ServletBase  {
 			public void renderMyList(PrintWriter out) {
 				UserCertificateRequestModel usermodel = new UserCertificateRequestModel(context);
 				out.write("<table class=\"table certificate\">");
-				out.write("<thead><tr><th>ID</th><th>Status</th><th>GOC Ticket</th><th>DN</th><th>VO</th></tr></thead>");
+				out.write("<thead><tr><th>ID</th><th>Status</th><th>GOC Ticket</th><th>DN</th><th>VO</th><th>RA</th></tr></thead>");
 				try {
 					ArrayList<CertificateRequestUserRecord> recs = usermodel.getMine(auth.getContact().id);
 					out.write("<tbody>");
@@ -524,7 +528,7 @@ public class CertificateUserServlet extends ServletBase  {
 							cls = "latest";
 						}
 						out.write("<tr class=\""+cls+"\" onclick=\"document.location='certificateuser?id="+rec.id+"';\">");
-						out.write("<td>USER"+rec.id+"</td>");
+						out.write("<td>U"+rec.id+"</td>");
 						out.write("<td>"+rec.status+"</td>");
 						//TODO - use configured goc ticket URL
 						out.write("<td><a target=\"_blank\" href=\""+StaticConfig.conf.getProperty("url.gocticket")+"/"+rec.goc_ticket_id+"\">"+rec.goc_ticket_id+"</a></td>");
@@ -533,6 +537,7 @@ public class CertificateUserServlet extends ServletBase  {
 							out.write(" <span class=\"badge badge-info\">Current</span>");
 						}
 						out.write("</td>");
+						
 						try {
 							VOModel vomodel = new VOModel(context);
 							VORecord vo = vomodel.get(rec.vo_id);
@@ -540,6 +545,18 @@ public class CertificateUserServlet extends ServletBase  {
 						} catch (SQLException e) {
 							out.write("<td>sql error</td>");
 						}
+						
+						try {
+							ContactRecord ra = usermodel.findPrimaryRA(rec);
+							if(ra == null) {
+								out.write("<td>N/A</td>");
+							} else {
+								out.write("<td>"+ra.name+"</td>");
+							}
+						} catch (SQLException e) {
+							out.write("<td>sql error</td>");
+						}
+						
 						out.write("</tr>");	
 					}
 					out.write("</tbody>");
