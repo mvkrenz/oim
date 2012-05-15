@@ -57,11 +57,11 @@ public class CertificateUserServlet extends ServletBase  {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{
 		UserContext context = new UserContext(request);
-		
+
 		UserCertificateRequestModel model = new UserCertificateRequestModel(context);
-		CertificateRequestUserRecord userrec;
+		CertificateRequestUserRecord current;
 		try {
-			userrec = model.getCurrent();
+			current = model.getCurrent();
 		} catch(SQLException e) {
 			throw new ServletException("Failed to load current user certificate", e);
 		}
@@ -81,12 +81,12 @@ public class CertificateUserServlet extends ServletBase  {
 					throw new AuthorizationException("You don't have access to view this certificate");
 				}
 				ArrayList<CertificateRequestModelBase<CertificateRequestUserRecord>.LogDetail> logs = model.getLogs(UserCertificateRequestModel.class, id);
-				content = createDetailView(context, rec, logs, userrec);
+				content = createDetailView(context, rec, logs, current);
 			} catch (SQLException e) {
 				throw new ServletException("Failed to load specified certificate", e);
 			}
 		} else {
-			content = createListView(context, userrec);
+			content = createListView(context, current);
 		}
 		
 		BootPage page = new BootPage(context, menuview, content, null);
@@ -97,7 +97,7 @@ public class CertificateUserServlet extends ServletBase  {
 			final UserContext context, 
 			final CertificateRequestUserRecord rec, 
 			final ArrayList<CertificateRequestModelBase<CertificateRequestUserRecord>.LogDetail> logs,
-			final CertificateRequestUserRecord userrec) throws ServletException
+			final CertificateRequestUserRecord current) throws ServletException
 	{
 		final Authorization auth = context.getAuthorization();
 		final SimpleDateFormat dformat = new SimpleDateFormat();
@@ -113,13 +113,13 @@ public class CertificateUserServlet extends ServletBase  {
 				out.write("<div class=\"span3\">");
 				
 				//TODO see if this is user's current image
-				String current;
-				if(userrec != null && rec.id.equals(userrec.id)) {
-					current = "certificateuser_current";
+				String current_str;
+				if(current != null && rec.id.equals(current.id)) {
+					current_str = "certificateuser_current";
 				} else {
-					current = "certificateuser";
+					current_str = "certificateuser";
 				}
- 				CertificateMenuView menu = new CertificateMenuView(context, current, userrec);
+ 				CertificateMenuView menu = new CertificateMenuView(context, current_str);
 				menu.render(out);
 				out.write("</div>"); //span3
 				
@@ -150,7 +150,7 @@ public class CertificateUserServlet extends ServletBase  {
 				out.write("<table class=\"table nohover\">");
 				out.write("<tbody>");
 				
-				if(userrec != null && rec.id.equals(userrec.id)) {
+				if(current != null && rec.id.equals(current.id)) {
 					out.write("<tr class=\"latest\">");
 					out.write("<th>DN</th>");
 					out.write("<td>");
@@ -293,16 +293,24 @@ public class CertificateUserServlet extends ServletBase  {
 		if(rec.status.equals(CertificateRequestStatus.REQUESTED) ||
 			rec.status.equals(CertificateRequestStatus.RENEW_REQUESTED) ||
 			rec.status.equals(CertificateRequestStatus.REVOCATION_REQUESTED)) {
-			v.add(new HtmlView("<p class=\"help-block\">RA to approve certificate request</p>"));
+			v.add(new HtmlView("<p class=\"alert alert-info\">RA to approve certificate request</p>"));
 		} else if(rec.status.equals(CertificateRequestStatus.APPROVED)) {
-			v.add(new HtmlView("<p class=\"help-block\">Requester to issue certificate & download</p>"));
-		} else if(rec.status.equals(CertificateRequestStatus.APPROVED)) {
-			v.add(new HtmlView("<p class=\"help-block\">Requester to issue certificate & download</p>"));
+			v.add(new HtmlView("<p class=\"alert alert-info\">Requester to issue certificate & download</p>"));
+		} else if(rec.status.equals(CertificateRequestStatus.ISSUED)) {
+			v.add(new HtmlView("<p class=\"alert alert-info\">Requester to issue certificate & download</p>"));
+		} else if(rec.status.equals(CertificateRequestStatus.REJECTED) ||
+				rec.status.equals(CertificateRequestStatus.REVOKED) ||
+				rec.status.equals(CertificateRequestStatus.EXPIRED)
+				) {
+			v.add(new HtmlView("<p class=\"alert alert-info\">No further action.</p>"));
+		}  else if(rec.status.equals(CertificateRequestStatus.FAILED)) {
+			v.add(new HtmlView("<p class=\"alert alert-info\">GOC engineer to troubleshoot & resubmit</p>"));
 		}
 		
 		final String url = "certificateuser?id="+rec.id;
 		
 		final DivRepTextArea note = new DivRepTextArea(context.getPageRoot());
+		note.setHeight(40);
 		note.setLabel("Action Note");
 		note.setRequired(true);
 		note.setHidden(true);
@@ -499,7 +507,7 @@ public class CertificateUserServlet extends ServletBase  {
 				out.write("<div class=\"row-fluid\">");
 				
 				out.write("<div class=\"span3\">");
-				CertificateMenuView menu = new CertificateMenuView(context, "certificateuser", userrec);
+				CertificateMenuView menu = new CertificateMenuView(context, "certificateuser");
 				menu.render(out);
 				out.write("</div>"); //span3
 				

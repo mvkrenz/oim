@@ -52,6 +52,7 @@ public class CertificateRequestUserServlet extends ServletBase  {
 	{
 		UserContext context = new UserContext(request);
 		
+		/*
 		CertificateRequestUserRecord userrec;
 		try {
 			UserCertificateRequestModel umodel = new UserCertificateRequestModel(context);
@@ -59,13 +60,14 @@ public class CertificateRequestUserServlet extends ServletBase  {
 		} catch(SQLException e) {
 			throw new ServletException("Failed to load current user certificate", e);
 		}
+		*/
 		
 		BootMenuView menuview = new BootMenuView(context, "certificate");
-		BootPage page = new BootPage(context, menuview, createContent(context, userrec), null);
+		BootPage page = new BootPage(context, menuview, createContent(context), null);
 		page.render(response.getWriter());
 	}
 	
-	protected IView createContent(final UserContext context, final CertificateRequestUserRecord userrec) throws ServletException
+	protected IView createContent(final UserContext context) throws ServletException
 	{
 		//final Authorization auth = context.getAuthorization();
 
@@ -78,7 +80,7 @@ public class CertificateRequestUserServlet extends ServletBase  {
 				
 				out.write("<div class=\"span3\">");
 				
- 				CertificateMenuView menu = new CertificateMenuView(context, "certificaterequestuser", userrec);
+ 				CertificateMenuView menu = new CertificateMenuView(context, "certificaterequestuser");
 				menu.render(out);
 				out.write("</div>"); //span3
 				

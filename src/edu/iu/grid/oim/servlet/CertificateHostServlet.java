@@ -58,13 +58,15 @@ public class CertificateHostServlet extends ServletBase  {
 	{
 		UserContext context = new UserContext(request);
 
-		CertificateRequestUserRecord userrec;
+		/*
+		CertificateRequestHostRecord hostrec;
 		try {
-			UserCertificateRequestModel umodel = new UserCertificateRequestModel(context);
-			userrec = umodel.getCurrent();
+			HostCertificateRequestModel umodel = new HostCertificateRequestModel(context);
+			hostrec = umodel.getCurrent();
 		} catch(SQLException e) {
-			throw new ServletException("Failed to load current user certificate", e);
+			throw new ServletException("Failed to load current host certificate", e);
 		}
+		*/
 		
 		BootMenuView menuview = new BootMenuView(context, "certificate");
 		IView content = null;
@@ -82,12 +84,12 @@ public class CertificateHostServlet extends ServletBase  {
 					throw new AuthorizationException("You don't have access to view this certificate");
 				}
 				ArrayList<CertificateRequestModelBase<CertificateRequestHostRecord>.LogDetail> logs = model.getLogs(HostCertificateRequestModel.class, id);
-				content = createDetailView(context, rec, logs, userrec);
+				content = createDetailView(context, rec, logs);
 			} catch (SQLException e) {
 				throw new ServletException("Failed to load specified certificate", e);
 			}
 		} else {
-			content = createListView(context, userrec);
+			content = createListView(context);
 		}
 		
 		BootPage page = new BootPage(context, menuview, content, null);
@@ -97,8 +99,7 @@ public class CertificateHostServlet extends ServletBase  {
 	protected IView createDetailView(
 			final UserContext context, 
 			final CertificateRequestHostRecord rec, 
-			final ArrayList<CertificateRequestModelBase<CertificateRequestHostRecord>.LogDetail> logs,
-			final CertificateRequestUserRecord userrec) throws ServletException
+			final ArrayList<CertificateRequestModelBase<CertificateRequestHostRecord>.LogDetail> logs) throws ServletException
 	{
 		final Authorization auth = context.getAuthorization();
 		final SimpleDateFormat dformat = new SimpleDateFormat();
@@ -111,7 +112,7 @@ public class CertificateHostServlet extends ServletBase  {
 				out.write("<div class=\"row-fluid\">");
 				
 				out.write("<div class=\"span3\">");
- 				CertificateMenuView menu = new CertificateMenuView(context, "certificatehost", userrec);
+ 				CertificateMenuView menu = new CertificateMenuView(context, "certificatehost");
 				menu.render(out);
 				out.write("</div>"); //span3
 				
@@ -246,6 +247,23 @@ public class CertificateHostServlet extends ServletBase  {
 	protected GenericView nextActionControl(final UserContext context, final CertificateRequestHostRecord rec) {
 		GenericView v = new GenericView();
 		
+		if(rec.status.equals(CertificateRequestStatus.REQUESTED) ||
+				rec.status.equals(CertificateRequestStatus.RENEW_REQUESTED) ||
+				rec.status.equals(CertificateRequestStatus.REVOCATION_REQUESTED)) {
+				v.add(new HtmlView("<p class=\"alert alert-info\">GridAdmin to approve request</p>"));
+			} else if(rec.status.equals(CertificateRequestStatus.APPROVED)) {
+				v.add(new HtmlView("<p class=\"alert alert-info\">Requester to issue certificate & download</p>"));
+			} else if(rec.status.equals(CertificateRequestStatus.ISSUED)) {
+				v.add(new HtmlView("<p class=\"alert alert-info\">Requester to download certificate</p>"));
+			} else if(rec.status.equals(CertificateRequestStatus.REJECTED) ||
+					rec.status.equals(CertificateRequestStatus.REVOKED) ||
+					rec.status.equals(CertificateRequestStatus.EXPIRED)
+					) {
+				v.add(new HtmlView("<p class=\"alert alert-info\">No further action.</p>"));
+			}  else if(rec.status.equals(CertificateRequestStatus.FAILED)) {
+				v.add(new HtmlView("<p class=\"alert alert-info\">GOC engineer to troubleshoot & resubmit</p>"));
+			}
+		
 		final String url = "certificatehost?id="+rec.id;
 		
 		final DivRepTextArea note = new DivRepTextArea(context.getPageRoot());
@@ -277,7 +295,7 @@ public class CertificateHostServlet extends ServletBase  {
 			note.setHidden(false);
 			v.add(button);
 		}
-		/*
+		
 		if(model.canRequestRenew(rec)) {
 			final DivRepButton button = new DivRepButton(context.getPageRoot(), "<button class=\"btn btn-primary\"><i class=\"icon-refresh icon-white\"></i> Request Renew</button>");
 			button.setStyle(DivRepButton.Style.HTML);
@@ -286,9 +304,10 @@ public class CertificateHostServlet extends ServletBase  {
                 public void handleEvent(DivRepEvent e) {
                 	if(note.validate()) {
                 		context.setComment(note.getValue());
-	                  	if(model.requestRenew(rec)) {
+	                  	try {
+	                  		model.requestRenew(rec);
 	                		button.redirect(url);
-	                	} else {
+	                	} catch (CertificateRequestException e1) {
 	                		button.alert("Failed to request renewal");
 	                	}
                 	}
@@ -297,6 +316,7 @@ public class CertificateHostServlet extends ServletBase  {
 			v.add(button);
 			note.setHidden(false);
 		}
+		
 		if(model.canRequestRevoke(rec)) {
 			final DivRepButton button = new DivRepButton(context.getPageRoot(), "<button class=\"btn btn-primary\"><i class=\"icon-exclamation-sign icon-white\"></i> Request Revocation</button>");
 			button.setStyle(DivRepButton.Style.HTML);
@@ -305,9 +325,10 @@ public class CertificateHostServlet extends ServletBase  {
                 public void handleEvent(DivRepEvent e) {
                 	if(note.validate()) {
                 		context.setComment(note.getValue());
-	                  	if(model.requestRevoke(rec)) {
+                		try {
+                			model.requestRevoke(rec);
 	                		button.redirect(url);
-	                	} else {
+	                	} catch (CertificateRequestException e1) {
 	                		button.alert("Failed to request revoke request");
 	                	}
                 	}
@@ -316,32 +337,6 @@ public class CertificateHostServlet extends ServletBase  {
 			v.add(button);
 			note.setHidden(false);
 		}
-		if(model.canIssue(rec)) {
-			v.add(new HtmlView("<p class=\"help-block\">Please provide passphrase to encrypt your p12 certificate</p>"));
-			final DivRepPassword pass = new DivRepPassword(context.getPageRoot());
-			pass.setLabel("Passphrase");
-			pass.setRequired(true);
-			pass.addValidator(new DivRepPassStrengthValidator());
-			v.add(pass);
-			
-			final DivRepButton button = new DivRepButton(context.getPageRoot(), "<button class=\"btn btn-primary\"><i class=\"icon-download-alt icon-white\"></i> Issue Certificate ...</button>");
-			button.setStyle(DivRepButton.Style.HTML);
-			button.addClass("inline");
-			button.addEventListener(new DivRepEventListener() {
-                public void handleEvent(DivRepEvent e) {
-                	if(pass.validate()) {
-                		context.setComment(note.getValue());
-                		//start process thread 
-                      	if(model.startissue(rec, pass.getValue())) {
-                    		button.redirect(url);
-                    	} else {
-                    		button.alert("Failed to issue certificate");
-                    	}
-                	}
-                }
-            });
-			v.add(button);
-		}
 		if(model.canCancel(rec)) {
 			final DivRepButton button = new DivRepButton(context.getPageRoot(), "<button class=\"btn\">Cancel Request</button>");
 			button.setStyle(DivRepButton.Style.HTML);
@@ -349,9 +344,10 @@ public class CertificateHostServlet extends ServletBase  {
 			button.addEventListener(new DivRepEventListener() {
                 public void handleEvent(DivRepEvent e) {
             		context.setComment(note.getValue());
-                	if(model.cancel(rec)) {
+                	try {
+                		model.cancel(rec);
                 		button.redirect(url);
-                	} else {
+                	} catch (CertificateRequestException e1) {
                 		button.alert("Failed to cancel request");
                 	}
                 }
@@ -366,9 +362,10 @@ public class CertificateHostServlet extends ServletBase  {
                 public void handleEvent(DivRepEvent e) {
                 	if(note.validate()) {
                 		context.setComment(note.getValue());
-	                  	if(model.reject(rec)) {
+	                  	try {
+	                  		model.reject(rec);
 	                		button.redirect(url);
-	                	} else {
+	                	} catch (CertificateRequestException e1) {
 	                		button.alert("Failed to reject request");
 	                	}
                 	}
@@ -385,9 +382,10 @@ public class CertificateHostServlet extends ServletBase  {
                 public void handleEvent(DivRepEvent e) {
                 	if(note.validate()) {
                 		context.setComment(note.getValue());
-	                 	if(model.revoke(rec)) {
+	                 	try {
+	                 		model.revoke(rec);
 	                		button.redirect(url);
-	                	} else {
+	                	} catch (CertificateRequestException e1) {
 	                		button.alert("Failed to cancel request");
 	                	}
                 	}
@@ -396,11 +394,10 @@ public class CertificateHostServlet extends ServletBase  {
 			v.add(button);
 			note.setHidden(false);
 		}
-		*/
 		return v;
 	}
 	
-	protected IView createListView(final UserContext context, final CertificateRequestUserRecord userrec) throws ServletException
+	protected IView createListView(final UserContext context) throws ServletException
 	{
 		final Authorization auth = context.getAuthorization();
 		final SimpleDateFormat dformat = new SimpleDateFormat();
@@ -434,7 +431,7 @@ public class CertificateHostServlet extends ServletBase  {
 				out.write("<div class=\"row-fluid\">");
 				
 				out.write("<div class=\"span3\">");
-				CertificateMenuView menu = new CertificateMenuView(context, "certificatehost", userrec);
+				CertificateMenuView menu = new CertificateMenuView(context, "certificatehost");
 				menu.render(out);
 				out.write("</div>"); //span3
 				
