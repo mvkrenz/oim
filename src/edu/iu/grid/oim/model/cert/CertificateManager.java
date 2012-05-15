@@ -38,6 +38,13 @@ public class CertificateManager {
 		ICertificateSigner.Certificate cert = cp.signUserCertificate(csr, dn);
 		return cert;
 	}
+	public void revokeUserCertificate(String serial_id) throws CertificateProviderException {
+		cp.revokeUserCertificate(serial_id);
+	}
+	
+	public void revokeHostCertificate(String serial_id) throws CertificateProviderException {
+		cp.revokeHostCertificate(serial_id);
+	}
 	
     public static void main(String[] args) throws Exception {
   	  

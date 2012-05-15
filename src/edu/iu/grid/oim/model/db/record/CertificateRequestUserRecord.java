@@ -17,6 +17,7 @@ public class CertificateRequestUserRecord extends RecordBase {
 	public String cert_certificate;
 	public String cert_intermediate;
 	public String cert_pkcs7;
+	public String cert_serial_id;
 	public String dn; 
 	public Timestamp request_time;
 	//public Timestamp update_time;

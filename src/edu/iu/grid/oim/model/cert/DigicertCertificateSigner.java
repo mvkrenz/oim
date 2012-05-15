@@ -286,4 +286,56 @@ public class DigicertCertificateSigner implements ICertificateSigner {
 			throw new DigicertCPException("Failed to parse returned String", e);
 		}
 	}
+
+	@Override
+	public void revokeHostCertificate(String serial_id) throws CertificateProviderException {
+		HttpClient cl = new HttpClient();
+	    cl.getParams().setParameter("http.useragent", "OIM (OSG Information Management System)");
+		
+		PostMethod post = new PostMethod("https://www.digicert.com/enterprise/api/?action=grid_request_host_revoke");
+
+		post.addParameter("customer_name", "052062");
+		post.setParameter("customer_api_key", "MG9ij2Of4rakV7tXARyE347QQu00097U");
+		post.setParameter("response_type", "xml");
+		post.setParameter("validity", "1"); //security by obscurity -- from the DigiCert dev team
+		post.setParameter("serial", serial_id);
+		
+		try {
+			cl.executeMethod(post);
+			Document ret = parseXML(post.getResponseBodyAsStream());
+			NodeList result_nl = ret.getElementsByTagName("result");
+			Element result = (Element)result_nl.item(0);
+			if(result.getTextContent().equals("failure")) {
+				NodeList error_code_nl = ret.getElementsByTagName("error_code");
+				StringBuffer errors  = new StringBuffer();
+				for(int i = 0;i < error_code_nl.getLength(); ++i) {
+					Element error_code = (Element)error_code_nl.item(i);
+					Element code = (Element)error_code.getElementsByTagName("code").item(0);
+					Element description = (Element)error_code.getElementsByTagName("description").item(0);
+					errors.append("Code:" + code.getTextContent());
+					errors.append(" Description:" + description.getTextContent());
+					errors.append("\n");
+				}
+				throw new DigicertCPException("Request failed..\n" + errors.toString());
+			} else if(result.getTextContent().equals("success")) {
+				//nothing particular to do
+			}
+			
+			throw new DigicertCPException("Unknown return code: " +result.getTextContent());	
+		} catch (HttpException e) {
+			throw new DigicertCPException("Failed to make request", e);
+		} catch (IOException e) {
+			throw new DigicertCPException("Failed to make request", e);
+		} catch (ParserConfigurationException e) {
+			throw new DigicertCPException("Failed to parse returned String", e);
+		} catch (SAXException e) {
+			throw new DigicertCPException("Failed to parse returned String", e);
+		}
+	}
+
+	@Override
+	public void revokeUserCertificate(String serial_id) throws CertificateProviderException {
+		//just use the host revoke
+		revokeHostCertificate(serial_id);
+	}
 }

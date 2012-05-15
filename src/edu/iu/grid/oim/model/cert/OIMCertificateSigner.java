@@ -71,4 +71,18 @@ public class OIMCertificateSigner implements ICertificateSigner {
 		return null;
 	}
 
+	@Override
+	public void revokeHostCertificate(String serial_id)
+			throws CertificateProviderException {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void revokeUserCertificate(String serial_id)
+			throws CertificateProviderException {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

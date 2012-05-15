@@ -125,6 +125,12 @@ public class Footprints
 		if(ticket.status != null) {
 			post.setParameter("status", ticket.status);
 		}
+		//only update if new list is provided (this means we can't *empty* cclist..)
+		if(ticket.ccs.size() > 0) {
+			for(int i = 0; i < ticket.ccs.size(); ++i) {
+				post.setParameter("cc["+i+"]", ticket.ccs.get(i));
+			}
+		}
 	
 		try {
 			cl.executeMethod(post);

@@ -23,7 +23,6 @@ import com.divrep.common.DivRepTextBox;
 import com.divrep.validator.DivRepIValidator;
 
 import edu.iu.grid.oim.lib.Authorization;
-import edu.iu.grid.oim.lib.HashHelper;
 import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.UserCertificateRequestModel;
 import edu.iu.grid.oim.model.db.ContactModel;

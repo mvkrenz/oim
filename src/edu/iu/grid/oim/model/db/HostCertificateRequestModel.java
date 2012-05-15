@@ -32,7 +32,9 @@ import edu.iu.grid.oim.model.CertificateRequestStatus;
 import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.cert.CertificateManager;
 import edu.iu.grid.oim.model.cert.ICertificateSigner;
+import edu.iu.grid.oim.model.cert.ICertificateSigner.CertificateProviderException;
 import edu.iu.grid.oim.model.db.record.CertificateRequestHostRecord;
+import edu.iu.grid.oim.model.db.record.CertificateRequestUserRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.RecordBase;
 import edu.iu.grid.oim.model.exceptions.CertificateRequestException;
@@ -136,6 +138,8 @@ public class HostCertificateRequestModel extends CertificateRequestModelBase<Cer
 			cert_pkcs7s.set(idx, cert.pkcs7);
 			rec.cert_pkcs7 = cert_pkcs7s.toXML();
 			
+			rec.cert_serial_id = cert.serial;
+			
 			try {
 				//if all certificate is issued, change status to ISSUED
 				boolean issued = true;
@@ -175,7 +179,6 @@ public class HostCertificateRequestModel extends CertificateRequestModelBase<Cer
 			log.error("Failed to sign certificate", e1);
 			throw new CertificateRequestException("Failed to sign certificate", e1);
 		}
-	
 	}
 	
 	//NO-AC
@@ -360,6 +363,191 @@ public class HostCertificateRequestModel extends CertificateRequestModelBase<Cer
     	return rec;
     }
     
+	//NO-AC
+	//return host rec if success
+	public CertificateRequestHostRecord requestRenew(CertificateRequestHostRecord rec) throws CertificateRequestException {
+		/*
+    	//check quota
+    	CertificateQuotaModel quota = new CertificateQuotaModel(context);
+    	if(!quota.canApproveHostCert()) {
+    		throw new CertificateRequestException("Can't request any more host certificate.");
+    	}
+    	*/
+    	
+		//update gridadmin
+		GridAdminModel gamodel = new GridAdminModel(context);
+    	GridAdminModel gmodel = new GridAdminModel(context);
+    	rec.gridadmin_contact_id = null;
+    	int idx = 0;
+    	for(String csr_string : rec.getCSRs()) {
+    		String cn;
+			try {
+	    		PKCS10CertificationRequest csr = new PKCS10CertificationRequest(Base64.decode(csr_string));
+
+	    		//pull CN
+	    		X500Name name = csr.getSubject();
+	    		RDN[] cn_rdn = name.getRDNs(BCStyle.CN);
+	    		cn = cn_rdn[0].getFirst().getValue().toString(); //wtf?
+	    	
+			} catch (IOException e) {
+				log.error("Failed to base64 decode CSR", e);
+				throw new CertificateRequestException("Failed to base64 decode CSR:"+csr_string, e);
+			} catch (NullPointerException e) {
+				log.error("(probably) couldn't find CN inside the CSR:"+csr_string, e);
+				throw new CertificateRequestException("Failed to base64 decode CSR", e);	
+			} catch(Exception e) {
+				throw new CertificateRequestException("Failed to decode CSR", e);
+			}
+			
+			//lookup gridadmin
+			ContactRecord ga;
+			try {
+				ga = gmodel.getGridAdminByFQDN(cn);
+			} catch (SQLException e) {
+				throw new CertificateRequestException("Failed to lookup GridAdmin to approve host:" + cn, e);	
+			}
+			if(ga == null) {
+				throw new CertificateRequestException("No GridAdmin can approve host:" + cn);	
+			}
+			
+			//make sure single gridadmin approves all host
+			if(rec.gridadmin_contact_id == null) {
+				rec.gridadmin_contact_id = ga.id;
+			} else {
+				if(!rec.gridadmin_contact_id.equals(ga.id)) {
+					throw new CertificateRequestException("All host must be approved by the same GridAdmin. Different for " + cn);	
+				}
+			}
+    	}
+		rec.status = CertificateRequestStatus.RENEW_REQUESTED;
+		try {
+			super.update(get(rec.id), rec);
+		} catch (SQLException e) {
+			log.error("Failed to request host certificate request renewal: " + rec.id);
+			throw new CertificateRequestException("Failed to update request status", e);
+		}
+		
+		Authorization auth = context.getAuthorization();
+		ContactRecord contact = auth.getContact();
+		
+		Footprints fp = new Footprints(context);
+		FPTicket ticket = fp.new FPTicket();
+		ticket.description = contact.name + " has requested renewal for this certificate request.\n\n";
+		ticket.description += "> " + context.getComment();
+		ticket.nextaction = "GridAdmin to verify and approve/reject"; //nad will be set to 7 days from today by default
+		
+		//Update CC gridadmin (it might have been changed since last time request was made)
+		VOContactModel model = new VOContactModel(context);
+		ContactModel cmodel = new ContactModel(context);
+		ContactRecord gridadmin;
+		try {
+			gridadmin = cmodel.get(rec.gridadmin_contact_id);
+			ticket.ccs.add(gridadmin.primary_email);
+		} catch (SQLException e) {
+			log.error("Failed to lookup GridAdmin information - ignoring", e);
+		}
+		
+		//reopen now
+		fp.update(ticket, rec.goc_ticket_id);
+		
+		return rec;
+	}
+    
+	//NO-AC
+	public void requestRevoke(CertificateRequestHostRecord rec) throws CertificateRequestException {
+		rec.status = CertificateRequestStatus.REVOCATION_REQUESTED;
+		try {
+			super.update(get(rec.id), rec);
+		} catch (SQLException e) {
+			log.error("Failed to request revocation of host certificate: " + rec.id);
+			throw new CertificateRequestException("Failed to update request status", e);
+		}
+		
+		Authorization auth = context.getAuthorization();
+		ContactRecord contact = auth.getContact();
+		
+		Footprints fp = new Footprints(context);
+		FPTicket ticket = fp.new FPTicket();
+		ticket.description = contact.name + " has requested recocation of this certificate request.";
+		ticket.nextaction = "Grid Admin to process request."; //nad will be set to 7 days from today by default
+		fp.update(ticket, rec.goc_ticket_id);
+	}	
+	
+	//NO-AC
+	//return true if success
+	public void cancel(CertificateRequestHostRecord rec) throws CertificateRequestException {
+		try {
+			//context.setComment("Certificate Approved");
+			rec.status = CertificateRequestStatus.CANCELED;
+			super.update(get(rec.id), rec);
+		} catch (SQLException e) {
+			log.error("Failed to cancel host certificate request:" + rec.id);
+			throw new CertificateRequestException("Failed to cancel request status", e);
+		}
+		
+		Authorization auth = context.getAuthorization();
+		ContactRecord contact = auth.getContact();
+		
+		Footprints fp = new Footprints(context);
+		FPTicket ticket = fp.new FPTicket();
+		ticket.description = contact.name + " has canceled this certificate request.\n\n";
+		ticket.description += "> " + context.getComment();
+		ticket.status = "Resolved";
+		fp.update(ticket, rec.goc_ticket_id);
+	}
+	
+	public void reject(CertificateRequestHostRecord rec) throws CertificateRequestException {
+		rec.status = CertificateRequestStatus.REJECTED;
+		try {
+			//context.setComment("Certificate Approved");
+			super.update(get(rec.id), rec);
+		} catch (SQLException e) {
+			log.error("Failed to reject host certificate request:" + rec.id);
+			throw new CertificateRequestException("Failed to reject request status", e);
+		}
+		
+		Authorization auth = context.getAuthorization();
+		ContactRecord contact = auth.getContact();
+		
+		Footprints fp = new Footprints(context);
+		FPTicket ticket = fp.new FPTicket();
+		ticket.description = contact.name + " has rejected this certificate request.\n\n";
+		ticket.description += "> " + context.getComment();
+		ticket.status = "Resolved";
+		fp.update(ticket, rec.goc_ticket_id);
+	}
+	
+	//NO-AC
+	public void revoke(CertificateRequestHostRecord rec) throws CertificateRequestException {
+		
+		//revoke
+		CertificateManager cm = new CertificateManager();
+		try {
+			cm.revokeHostCertificate(rec.cert_serial_id);
+		} catch (CertificateProviderException e1) {
+			log.error("Failed to revoke host certificate", e1);
+			throw new CertificateRequestException("Failed to revoke host certificate", e1);
+		}	
+		
+		rec.status = CertificateRequestStatus.REVOKED;
+		try {
+			//context.setComment("Certificate Approved");
+			super.update(get(rec.id), rec);
+		} catch (SQLException e) {
+			log.error("Failed to update host certificate status: " + rec.id);
+			throw new CertificateRequestException("Failed to update host certificate status", e);
+		}
+		
+		Authorization auth = context.getAuthorization();
+		ContactRecord contact = auth.getContact();
+		
+		Footprints fp = new Footprints(context);
+		FPTicket ticket = fp.new FPTicket();
+		ticket.description = contact.name + " has revoked this certificate.";
+		ticket.status = "Resolved";
+		fp.update(ticket, rec.goc_ticket_id);
+	}
+	
 	//determines if user should be able to view request details, logs, and download certificate (pkcs12 is session specific)
 	public boolean canView(CertificateRequestHostRecord rec) {
 		return true;
@@ -414,6 +602,80 @@ public class HostCertificateRequestModel extends CertificateRequestModelBase<Cer
 		}
 		return false;
 	}    
+	
+	public boolean canReject(CertificateRequestHostRecord rec) {
+		return canApprove(rec); //same rule as approval
+	}	
+
+	public boolean canCancel(CertificateRequestHostRecord rec) {
+		if(!canView(rec)) return false;
+		
+		if(	rec.status.equals(CertificateRequestStatus.REQUESTED) ||
+			//rec.status.equals(CertificateRequestStatus.APPROVED) ||
+			rec.status.equals(CertificateRequestStatus.RENEW_REQUESTED) ||
+			rec.status.equals(CertificateRequestStatus.REVOCATION_REQUESTED)) {
+			if(auth.isUser()) {
+				//requester can cancel one's own request
+				if(rec.requester_contact_id != null) {//could be null if guest submitted it
+					ContactRecord contact = auth.getContact();
+					if(rec.requester_contact_id == contact.id) return true;
+				}
+				
+				//grid admin can cancel it
+				ContactRecord user = auth.getContact();
+				if(rec.gridadmin_contact_id.equals(user.id)) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	
+	public boolean canRequestRenew(CertificateRequestHostRecord rec) {
+		if(!canView(rec)) return false;
+		
+		if(	rec.status.equals(CertificateRequestStatus.ISSUED)) {
+			if(auth.isUser()) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	public boolean canRequestRevoke(CertificateRequestHostRecord rec) {
+		if(!canView(rec)) return false;
+		
+		if(rec.status.equals(CertificateRequestStatus.ISSUED)) {
+			//revocation request is only for guest
+			if(auth.isGuest()) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	public boolean canRevoke(CertificateRequestHostRecord rec) {
+		if(!canView(rec)) return false;
+		
+		if(	rec.status.equals(CertificateRequestStatus.ISSUED) ||
+			rec.status.equals(CertificateRequestStatus.REVOCATION_REQUESTED)) {
+			
+			if(auth.isUser()) {
+				//requester oneself can revoke it
+				if(rec.requester_contact_id != null) {//could be null if guest submitted it
+					ContactRecord contact = auth.getContact();
+					if(rec.requester_contact_id.equals(contact.id)) return true;
+				}
+				
+				//grid admin can revoke it
+				ContactRecord user = auth.getContact();
+				if(rec.gridadmin_contact_id.equals(user.id)) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
 	
 	//prevent low level access - please use model specific actions
     @Override

@@ -18,6 +18,7 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Iterator;
 
 import javax.servlet.http.HttpSession;
@@ -45,6 +46,7 @@ import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.cert.CertificateManager;
 import edu.iu.grid.oim.model.cert.GenerateCSR;
 import edu.iu.grid.oim.model.cert.ICertificateSigner;
+import edu.iu.grid.oim.model.cert.ICertificateSigner.CertificateProviderException;
 import edu.iu.grid.oim.model.db.record.CertificateRequestUserRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.DNAuthorizationTypeRecord;
@@ -184,7 +186,7 @@ public class UserCertificateRequestModel extends CertificateRequestModelBase<Cer
 		if(!canView(rec)) return false;
 		
 		if(	rec.status.equals(CertificateRequestStatus.REQUESTED) ||
-			rec.status.equals(CertificateRequestStatus.APPROVED) ||
+			//rec.status.equals(CertificateRequestStatus.APPROVED) ||
 			rec.status.equals(CertificateRequestStatus.RENEW_REQUESTED) ||
 			rec.status.equals(CertificateRequestStatus.REVOCATION_REQUESTED)) {
 			if(auth.isUser()) {
@@ -192,11 +194,6 @@ public class UserCertificateRequestModel extends CertificateRequestModelBase<Cer
 				
 				//requester can cancel one's own request
 				if(rec.requester_contact_id == contact.id) return true;
-				
-				/*
-				//super ra can cancel all requests
-				if(auth.allows("admin_all_user_cert_requests")) return true;
-				*/
 				
 				//ra can cancel
 				VOContactModel model = new VOContactModel(context);
@@ -443,6 +440,27 @@ public class UserCertificateRequestModel extends CertificateRequestModelBase<Cer
 		ticket.description = contact.name + " has requested renewal for this certificate request.\n\n";
 		ticket.description += "> " + context.getComment();
 		ticket.nextaction = "RA/Sponsor to verify&approve"; //nad will be set to 7 days from today by default
+		
+		//Update CC ra & sponsor (it might have been changed since last time request was made)
+		VOContactModel model = new VOContactModel(context);
+		ContactModel cmodel = new ContactModel(context);
+		ArrayList<VOContactRecord> crecs;
+		try {
+			crecs = model.getByVOID(rec.vo_id);
+			for(VOContactRecord crec : crecs) {
+				ContactRecord contactrec = cmodel.get(crec.contact_id);
+				if(crec.contact_type_id.equals(11) && crec.contact_rank_id.equals(1)) { //primary
+					//rec.ra_contact_id = crec.contact_id;
+					ticket.ccs.add(contactrec.primary_email);
+				}
+				if(crec.contact_type_id.equals(11) && crec.contact_rank_id.equals(3)) { //sponsor
+					ticket.ccs.add(contactrec.primary_email);
+				}
+			}
+		} catch (SQLException e1) {
+			log.error("Failed to lookup RA/sponsor information - ignoring", e1);
+		}
+		
 		fp.update(ticket, rec.goc_ticket_id);
 	}
 	
@@ -470,9 +488,14 @@ public class UserCertificateRequestModel extends CertificateRequestModelBase<Cer
 	//NO-AC
 	//return true if success
 	public void revoke(CertificateRequestUserRecord rec) throws CertificateRequestException {
-		
-		//TODO revoke certificate
-		
+		//revoke
+		CertificateManager cm = new CertificateManager();
+		try {
+			cm.revokeUserCertificate(rec.cert_serial_id);
+		} catch (CertificateProviderException e1) {
+			log.error("Failed to revoke user certificate", e1);
+			throw new CertificateRequestException("Failed to revoke user certificate", e1);
+		}	
 		
 		rec.status = CertificateRequestStatus.REVOKED;
 		try {
@@ -530,6 +553,7 @@ public class UserCertificateRequestModel extends CertificateRequestModelBase<Cer
 					//if csr is not set, we need to create one and private key for user
 					if (rec.csr == null) {
 						String dn = ApacheDN_to_RFC1779(rec.dn);
+						log.debug("RF1779 dn: " + dn);
 						X500Name name = new X500Name(dn);
 						GenerateCSR csrgen = new GenerateCSR(name);
 						rec.csr = csrgen.getCSR();
@@ -548,6 +572,7 @@ public class UserCertificateRequestModel extends CertificateRequestModelBase<Cer
 					rec.cert_certificate = cert.certificate;
 					rec.cert_intermediate = cert.intermediate;
 					rec.cert_pkcs7 = cert.pkcs7;
+					rec.cert_serial_id = cert.serial;
 					
 					//all done at this point
 					rec.status = CertificateRequestStatus.ISSUED;
@@ -675,10 +700,31 @@ public class UserCertificateRequestModel extends CertificateRequestModelBase<Cer
 	//return requests that I have submitted
 	public ArrayList<CertificateRequestUserRecord> getMine(Integer id) throws SQLException {
 		ArrayList<CertificateRequestUserRecord> ret = new ArrayList<CertificateRequestUserRecord>();
+		
+		//list all vo that user is ra of
+		HashSet<Integer> vo_ids = new HashSet<Integer>();
+		VOContactModel model = new VOContactModel(context);
+		ArrayList<VOContactRecord> crecs;
+		try {
+			for(VOContactRecord crec : model.getByContactID(id)) {
+				if(crec.contact_type_id.equals(11) && //RA
+						(crec.contact_rank_id.equals(1) || crec.contact_rank_id.equals(2))) { //primary or secondary
+					vo_ids.add(crec.vo_id);	
+				}
+			}
+		} catch (SQLException e1) {
+			log.error("Failed to lookup RA/sponsor information", e1);
+		}	
+		String vo_ids_str = StringUtils.join(vo_ids, ",");
+		
 		ResultSet rs = null;
 		Connection conn = connectOIM();
 		Statement stmt = conn.createStatement();
-		stmt.execute("SELECT * FROM "+table_name + " WHERE requester_contact_id = " + id);	
+		if(vo_ids.size() == 0) {
+			stmt.execute("SELECT * FROM "+table_name + " WHERE requester_contact_id = " + id);	
+		} else {
+			stmt.execute("SELECT * FROM "+table_name + " WHERE requester_contact_id = " + id + " OR vo_id IN ("+vo_ids_str+")");	
+		}
     	rs = stmt.getResultSet();
     	while(rs.next()) {
     		ret.add(new CertificateRequestUserRecord(rs));
@@ -731,7 +777,7 @@ public class UserCertificateRequestModel extends CertificateRequestModelBase<Cer
     	return rec;
     } 
     
-    private X500Name generateDN(String fullname, String email) {
+    private X500Name generateDN(String fullname, Integer serial) {
         X500NameBuilder x500NameBld = new X500NameBuilder(BCStyle.INSTANCE);
 
         /*
@@ -742,7 +788,7 @@ public class UserCertificateRequestModel extends CertificateRequestModelBase<Cer
         x500NameBld.addRDN(BCStyle.DC, "com");
         x500NameBld.addRDN(BCStyle.DC, "DigiCert-Grid");
         x500NameBld.addRDN(BCStyle.OU, "People");   
-        x500NameBld.addRDN(BCStyle.CN, fullname + "/" + email);
+        x500NameBld.addRDN(BCStyle.CN, fullname + " " + serial.toString()); //don't use "," or "/" which is used for DN delimiter
         /*
         x500NameBld.addRDN(BCStyle.O, "OSG");//org name
         x500NameBld.addRDN(BCStyle.OU, "PKITesting");//org unit      
@@ -752,6 +798,23 @@ public class UserCertificateRequestModel extends CertificateRequestModelBase<Cer
         
         return x500NameBld.build();
         
+    }
+    
+    private Integer getMaxID() throws SQLException {
+		CertificateRequestUserRecord rec = null;
+		ResultSet rs = null;
+		Integer max = null;
+		Connection conn = connectOIM();
+		Statement stmt = conn.createStatement();
+	    if (stmt.execute("SELECT max(id) FROM "+table_name)) {
+	    	rs = stmt.getResultSet();
+	    	if(rs.next()) {
+	    		max = rs.getInt(1);
+			}
+	    }	
+	    stmt.close();
+	    conn.close();
+	    return max;
     }
     
     //NO-AC NO-QUOTA
@@ -774,7 +837,7 @@ public class UserCertificateRequestModel extends CertificateRequestModelBase<Cer
 		ticket.email = requester.primary_email;
 		ticket.phone = requester.primary_phone;
 		
-		X500Name name = generateDN(requester.name, requester.primary_email);
+		X500Name name = generateDN(requester.name, getMaxID()+1);
 		rec.dn = RFC1779_to_ApacheDN(name.toString());
 		rec.requester_contact_id = requester.id;
 		rec.vo_id = vo_id;

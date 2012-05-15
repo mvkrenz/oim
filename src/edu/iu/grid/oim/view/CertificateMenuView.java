@@ -5,22 +5,34 @@ import java.io.StringWriter;
 import java.sql.SQLException;
 
 import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.log4j.Logger;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.UserCertificateRequestModel;
+import edu.iu.grid.oim.model.db.record.CertificateRequestHostRecord;
 import edu.iu.grid.oim.model.db.record.CertificateRequestUserRecord;
+import edu.iu.grid.oim.servlet.CertificateHostServlet;
 
 public class CertificateMenuView implements IView {
+    static Logger log = Logger.getLogger(CertificateMenuView.class);  
 
 	private String current;
 	private UserContext context;
 	private CertificateRequestUserRecord userrec;
 	
-	public CertificateMenuView(UserContext context, String current, CertificateRequestUserRecord userrec) {
+	public CertificateMenuView(UserContext context, String current) {
 		this.current = current;
 		this.context = context;
-		this.userrec = userrec;
+		
+		//find if user has "current" user certificate
+		CertificateRequestHostRecord hostrec;
+		try {
+			UserCertificateRequestModel umodel = new UserCertificateRequestModel(context);
+			this.userrec = umodel.getCurrent();
+		} catch(SQLException e) {
+			log.error("Failed to find out if user has current user certificate");
+		}
 	}
 	public void render(PrintWriter out) {		
 		out.write("<div class=\"well\" style=\"padding: 8px 0;\">");
