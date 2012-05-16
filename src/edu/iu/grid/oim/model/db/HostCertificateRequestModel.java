@@ -11,18 +11,16 @@ import java.util.Calendar;
 import java.util.Date;
 
 import javax.xml.xpath.XPath;
-
 import javax.xml.xpath.XPathExpressionException;
 
-import org.apache.log4j.Logger;
 import org.bouncycastle.asn1.x500.RDN;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x500.style.BCStyle;
-
 import org.bouncycastle.pkcs.PKCS10CertificationRequest;
 import org.bouncycastle.util.encoders.Base64;
-import org.w3c.dom.Document;
 
+import org.w3c.dom.Document;
+import org.apache.log4j.Logger;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Footprints;
@@ -34,7 +32,6 @@ import edu.iu.grid.oim.model.cert.CertificateManager;
 import edu.iu.grid.oim.model.cert.ICertificateSigner;
 import edu.iu.grid.oim.model.cert.ICertificateSigner.CertificateProviderException;
 import edu.iu.grid.oim.model.db.record.CertificateRequestHostRecord;
-import edu.iu.grid.oim.model.db.record.CertificateRequestUserRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.RecordBase;
 import edu.iu.grid.oim.model.exceptions.CertificateRequestException;
@@ -42,10 +39,8 @@ import edu.iu.grid.oim.model.exceptions.CertificateRequestException;
 public class HostCertificateRequestModel extends CertificateRequestModelBase<CertificateRequestHostRecord> {
     static Logger log = Logger.getLogger(HostCertificateRequestModel.class);  
     
-	private UserContext contect;
     public HostCertificateRequestModel(UserContext _context) {
 		super(_context, "certificate_request_host");
-		context = _context;
 	}
     
 	//NO-AC
@@ -105,7 +100,7 @@ public class HostCertificateRequestModel extends CertificateRequestModelBase<Cer
 		}
 	}
 	
-	//NO-AC (no check fo idx out-of-bound)
+	//NO-AC (no check for idx out-of-bound)
 	//issue idx specified certificate, and store back to DB. return pkcs7
 	private String issueCertificate(CertificateRequestHostRecord rec, int idx) throws CertificateRequestException {
 		StringArray csrs = new StringArray(rec.csrs);

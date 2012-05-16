@@ -53,6 +53,7 @@ public class CertificateServlet extends ServletBase  {
 			return;
 		} else if(auth.isUser()) {
 			UserCertificateRequestModel model = new UserCertificateRequestModel(context);
+			/*
 			CertificateRequestUserRecord rec;
 			try {
 				rec = model.getCurrent();
@@ -63,7 +64,25 @@ public class CertificateServlet extends ServletBase  {
 			} catch (SQLException e) {
 				throw new ServletException("Failed to load current dn", e);
 			}
+			*/
+			try {
+				ContactRecord crec = auth.getContact();
+				ArrayList<CertificateRequestUserRecord> list = model.getMine(crec.id);
+				if(list.size() == 0) {
+					response.sendRedirect("certificaterequestuser"); //request new
+					return;
+				} else if(list.size() == 1) {
+					CertificateRequestUserRecord urec = list.get(0);
+					response.sendRedirect("certificateuser?id="+urec.id); //show detail
+					return;
+				} 
+				
+				//all else
+				response.sendRedirect("certificateuser"); //show list
+				
+			} catch (SQLException e) {
+				throw new ServletException("Failed to load my certificate", e);
+			}
 		}
-		response.sendRedirect("certificateuser");
 	}
 }

@@ -61,11 +61,10 @@ import edu.iu.grid.oim.model.exceptions.CertificateRequestException;
 public class UserCertificateRequestModel extends CertificateRequestModelBase<CertificateRequestUserRecord> {
     static Logger log = Logger.getLogger(UserCertificateRequestModel.class);  
  
-	private UserContext contect;
     public UserCertificateRequestModel(UserContext _context) {
 		super(_context, "certificate_request_user");
 	}
-    
+    /*
     //find certificate request with the same DN that user is currently using to login
     public CertificateRequestUserRecord getCurrent() throws SQLException {
     	CertificateRequestUserRecord rec = null;
@@ -90,7 +89,8 @@ public class UserCertificateRequestModel extends CertificateRequestModelBase<Cer
 		conn.close();
 	    return rec;
     }
-	
+	*/
+    
 	//determines if user should be able to view request details, logs, and download certificate (pkcs12 is session specific)
 	public boolean canView(CertificateRequestUserRecord rec) {
 		return true; //let's allow everyone to view.
@@ -784,26 +784,17 @@ public class UserCertificateRequestModel extends CertificateRequestModelBase<Cer
     private X500Name generateDN(String fullname, Integer serial) {
         X500NameBuilder x500NameBld = new X500NameBuilder(BCStyle.INSTANCE);
 
-        /*
-        x500NameBld.addRDN(BCStyle.C, country.getValue());
-        x500NameBld.addRDN(BCStyle.ST, state.getValue());
-        x500NameBld.addRDN(BCStyle.L, city.getValue());
-        */
+        //DigiCert overrides the DN, so none of these matters - except CN which is used to send common_name parameter
+        //We are creating this so that we can create private key
         x500NameBld.addRDN(BCStyle.DC, "com");
         x500NameBld.addRDN(BCStyle.DC, "DigiCert-Grid");
         x500NameBld.addRDN(BCStyle.OU, "People");   
         x500NameBld.addRDN(BCStyle.CN, fullname + " " + serial.toString()); //don't use "," or "/" which is used for DN delimiter
-        /*
-        x500NameBld.addRDN(BCStyle.O, "OSG");//org name
-        x500NameBld.addRDN(BCStyle.OU, "PKITesting");//org unit      
-        x500NameBld.addRDN(BCStyle.NAME, fullname);//org unit      
-        x500NameBld.addRDN(BCStyle.EmailAddress, email);
-		*/
         
         return x500NameBld.build();
-        
     }
     
+    /*
     private Integer getMaxID() throws SQLException {
 		CertificateRequestUserRecord rec = null;
 		ResultSet rs = null;
@@ -820,6 +811,7 @@ public class UserCertificateRequestModel extends CertificateRequestModelBase<Cer
 	    conn.close();
 	    return max;
     }
+    */
     
     //NO-AC NO-QUOTA
     //return true for success
@@ -841,7 +833,7 @@ public class UserCertificateRequestModel extends CertificateRequestModelBase<Cer
 		ticket.email = requester.primary_email;
 		ticket.phone = requester.primary_phone;
 		
-		X500Name name = generateDN(requester.name, getMaxID()+1);
+		X500Name name = generateDN(requester.name, requester.id);
 		rec.dn = RFC1779_to_ApacheDN(name.toString());
 		rec.requester_contact_id = requester.id;
 		rec.vo_id = vo_id;

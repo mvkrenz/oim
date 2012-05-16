@@ -19,12 +19,12 @@ public class CertificateMenuView implements IView {
 
 	private String current;
 	private UserContext context;
-	private CertificateRequestUserRecord userrec;
+	//private CertificateRequestUserRecord userrec;
 	
 	public CertificateMenuView(UserContext context, String current) {
 		this.current = current;
 		this.context = context;
-		
+		/*
 		//find if user has "current" user certificate
 		CertificateRequestHostRecord hostrec;
 		try {
@@ -33,11 +33,14 @@ public class CertificateMenuView implements IView {
 		} catch(SQLException e) {
 			log.error("Failed to find out if user has current user certificate");
 		}
+		*/
 	}
 	public void render(PrintWriter out) {		
 		out.write("<div class=\"well\" style=\"padding: 8px 0;\">");
 		out.write("<ul class=\"nav nav-list\">");
 		out.write("<li class=\"nav-header\">User Certificates</li>");
+		
+		/*
 		if(userrec != null) {
 			if(current.equals("certificateuser_current")) {
 				out.write("<li class=\"active\">");
@@ -47,6 +50,7 @@ public class CertificateMenuView implements IView {
 				out.write("<a href=\"certificateuser?id="+userrec.id+"\"><i class=\"icon-home\"></i> Current</a></li>");
 			}
 		}
+		*/
 		
 		if(current.equals("certificaterequestuser")) {
 			out.write("<li class=\"active\">");

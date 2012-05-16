@@ -119,6 +119,7 @@ public class CertificateRequestHostForm extends DivRepForm
 "Nb4jr2oKlBc4Vqo4OjfpakA4n6yseH0F\n"+
 "-----END CERTIFICATE REQUEST-----");
 		csr.setWidth(600);
+		new DivRepStaticContent(this, "<p>* Create your CSR on your target hosts using tools such as openssl. <br><pre>openssl req -out request.csr -new -newkey rsa:2048 -nodes -keyout private.key</pre> DN will be overriden by the certificate signer except CN.</p>");
 		
 		new DivRepStaticContent(this, "<h2>DigiCert Policy Agreement</h2>");
 		new DivRepStaticContent(this, "<div class=\"well\">TBD... we display Digicert policy here for user to read..</div>");

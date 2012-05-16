@@ -59,13 +59,14 @@ public class CertificateUserServlet extends ServletBase  {
 		UserContext context = new UserContext(request);
 
 		UserCertificateRequestModel model = new UserCertificateRequestModel(context);
+		/*
 		CertificateRequestUserRecord current;
 		try {
 			current = model.getCurrent();
 		} catch(SQLException e) {
 			throw new ServletException("Failed to load current user certificate", e);
 		}
-		
+		*/
 		BootMenuView menuview = new BootMenuView(context, "certificate");
 		IView content = null;
 		String dirty_id = request.getParameter("id");
@@ -81,12 +82,12 @@ public class CertificateUserServlet extends ServletBase  {
 					throw new AuthorizationException("You don't have access to view this certificate");
 				}
 				ArrayList<CertificateRequestModelBase<CertificateRequestUserRecord>.LogDetail> logs = model.getLogs(UserCertificateRequestModel.class, id);
-				content = createDetailView(context, rec, logs, current);
+				content = createDetailView(context, rec, logs);
 			} catch (SQLException e) {
 				throw new ServletException("Failed to load specified certificate", e);
 			}
 		} else {
-			content = createListView(context, current);
+			content = createListView(context);
 		}
 		
 		BootPage page = new BootPage(context, menuview, content, null);
@@ -96,8 +97,7 @@ public class CertificateUserServlet extends ServletBase  {
 	protected IView createDetailView(
 			final UserContext context, 
 			final CertificateRequestUserRecord rec, 
-			final ArrayList<CertificateRequestModelBase<CertificateRequestUserRecord>.LogDetail> logs,
-			final CertificateRequestUserRecord current) throws ServletException
+			final ArrayList<CertificateRequestModelBase<CertificateRequestUserRecord>.LogDetail> logs) throws ServletException
 	{
 		final Authorization auth = context.getAuthorization();
 		final SimpleDateFormat dformat = new SimpleDateFormat();
@@ -112,6 +112,7 @@ public class CertificateUserServlet extends ServletBase  {
 				
 				out.write("<div class=\"span3\">");
 				
+				/*
 				//TODO see if this is user's current image
 				String current_str;
 				if(current != null && rec.id.equals(current.id)) {
@@ -119,7 +120,8 @@ public class CertificateUserServlet extends ServletBase  {
 				} else {
 					current_str = "certificateuser";
 				}
- 				CertificateMenuView menu = new CertificateMenuView(context, current_str);
+				*/
+ 				CertificateMenuView menu = new CertificateMenuView(context, "certificateuser");
 				menu.render(out);
 				out.write("</div>"); //span3
 				
@@ -149,7 +151,7 @@ public class CertificateUserServlet extends ServletBase  {
 				
 				out.write("<table class=\"table nohover\">");
 				out.write("<tbody>");
-				
+				/*
 				if(current != null && rec.id.equals(current.id)) {
 					out.write("<tr class=\"latest\">");
 					out.write("<th>DN</th>");
@@ -159,13 +161,14 @@ public class CertificateUserServlet extends ServletBase  {
 					out.write("</td>");
 					out.write("</tr>");	
 				} else {
-					out.write("<tr>");
-					out.write("<th>DN</th>");
-					out.write("<td>");
-					out.write(StringEscapeUtils.escapeHtml(rec.dn));
-					out.write("</td>");
-					out.write("</tr>");
-				}
+				*/
+				out.write("<tr>");
+				out.write("<th>DN</th>");
+				out.write("<td>");
+				out.write(StringEscapeUtils.escapeHtml(rec.dn));
+				out.write("</td>");
+				out.write("</tr>");
+				//}
 				
 				out.write("<tr>");
 				out.write("<th>Status</th>");
@@ -219,6 +222,8 @@ public class CertificateUserServlet extends ServletBase  {
 					UserCertificateRequestModel model = new UserCertificateRequestModel(context);
 					if(model.getPrivateKey(rec.id) != null) {
 						out.write("<a href=\"certificatedownload?id="+rec.id+"&type=user&download=pkcs12\">Download PKCS12</a><br>");
+						out.write("<p class=\"alert\">You can only download PKCS12 certificate while your browser session is active. Afterward, you can only download PKCS7.</p>");
+						
 					} else {
 						out.write("<a href=\"certificatedownload?id="+rec.id+"&type=user&download=pkcs7\">Download PKCS7</a><br>");
 					}
@@ -473,7 +478,7 @@ public class CertificateUserServlet extends ServletBase  {
 		return v;
 	}
 	
-	protected IView createListView(final UserContext context, final CertificateRequestUserRecord userrec) throws ServletException
+	protected IView createListView(final UserContext context) throws ServletException
 	{
 		final Authorization auth = context.getAuthorization();
 		final SimpleDateFormat dformat = new SimpleDateFormat();
@@ -531,19 +536,23 @@ public class CertificateUserServlet extends ServletBase  {
 					ArrayList<CertificateRequestUserRecord> recs = usermodel.getMine(auth.getContact().id);
 					out.write("<tbody>");
 					for(CertificateRequestUserRecord rec : recs) {
+						/*
 						String cls = "";
 						if(userrec != null && rec.id.equals(userrec.id)) {
 							cls = "latest";
 						}
-						out.write("<tr class=\""+cls+"\" onclick=\"document.location='certificateuser?id="+rec.id+"';\">");
+						*/
+						out.write("<tr onclick=\"document.location='certificateuser?id="+rec.id+"';\">");
 						out.write("<td>U"+rec.id+"</td>");
 						out.write("<td>"+rec.status+"</td>");
 						//TODO - use configured goc ticket URL
 						out.write("<td><a target=\"_blank\" href=\""+StaticConfig.conf.getProperty("url.gocticket")+"/"+rec.goc_ticket_id+"\">"+rec.goc_ticket_id+"</a></td>");
 						out.write("<td>"+rec.dn);
+						/*
 						if(userrec != null && rec.id.equals(userrec.id)) {
 							out.write(" <span class=\"badge badge-info\">Current</span>");
 						}
+						*/
 						out.write("</td>");
 						
 						try {

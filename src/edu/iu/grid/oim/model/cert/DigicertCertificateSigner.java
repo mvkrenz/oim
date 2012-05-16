@@ -121,7 +121,7 @@ public class DigicertCertificateSigner implements ICertificateSigner {
 	}
 	
 	
-	public String requestHostCert(String csr, String cn) throws DigicertCPException {
+	private String requestHostCert(String csr, String cn) throws DigicertCPException {
 		HttpClient cl = new HttpClient();
 		//cl.getHttpConnectionManager().getParams().setConnectionTimeout(1000*10);
 	    cl.getParams().setParameter("http.useragent", "OIM (OSG Information Management System)");
@@ -173,7 +173,7 @@ public class DigicertCertificateSigner implements ICertificateSigner {
 		}
 	}
 	
-	public String approve(String request_id, String comment) throws DigicertCPException {
+	private String approve(String request_id, String comment) throws DigicertCPException {
 		HttpClient cl = new HttpClient();
 		//cl.getHttpConnectionManager().getParams().setConnectionTimeout(1000*10);
 	    cl.getParams().setParameter("http.useragent", "OIM (OSG Information Management System)");
@@ -225,7 +225,7 @@ public class DigicertCertificateSigner implements ICertificateSigner {
 		}
 	}
 	
-	public Certificate retrieveByOrderID(String order_id) throws DigicertCPException {
+	private Certificate retrieveByOrderID(String order_id) throws DigicertCPException {
 		HttpClient cl = new HttpClient();
 		//cl.getHttpConnectionManager().getParams().setConnectionTimeout(1000*10);
 	    cl.getParams().setParameter("http.useragent", "OIM (OSG Information Management System)");
