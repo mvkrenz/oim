@@ -179,6 +179,9 @@ public class RestServlet extends ServletBase  {
 		HostCertificateRequestModel model = new HostCertificateRequestModel(context);
 		try {
 			CertificateRequestHostRecord rec = model.get(host_request_id);
+			if(rec == null) {
+				throw new RestException("No such host certificate request ID");
+			}
 			reply.params.put("pkcs7", model.getPkcs7(rec, idx));
 		} catch (SQLException e) {
 			throw new RestException("SQLException while makeing request", e);
