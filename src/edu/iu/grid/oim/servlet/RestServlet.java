@@ -84,7 +84,7 @@ public class RestServlet extends ServletBase  {
 		} catch(Exception e) {
 			reply.status = Status.FAILED;
 			reply.detail = e.toString();
-			if(e.getMessage() != null) reply.detail += " -- " + e.getMessage();	
+			if(e.getMessage() != null) reply.detail += " -- " + e.getMessage() + "\n" + e.getStackTrace().toString();	
 		}
 		reply.out(response);
 	}
