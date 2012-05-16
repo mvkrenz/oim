@@ -109,15 +109,23 @@ public class RestServlet extends ServletBase  {
 	}
  
 	private void doHostCertsRequest(HttpServletRequest request, Reply reply) throws AuthorizationException, RestException {
+		log.debug("hostcertsrequest");
+		
 		UserContext context = new UserContext(request);	
 		Authorization auth = context.getAuthorization();
 		
+		log.debug("loading csrs");
 		String[] csrs = request.getParameterValues("csrs");
 		String name, email, phone;
 		if(auth.isGuest()) {
+			log.debug("guest access");
 			name = request.getParameter("name");
 			email = request.getParameter("email");
 			phone = request.getParameter("phone");
+			
+			log.debug("name: " + name);
+			log.debug("email: " + email);
+			log.debug("phone" + phone);
 			
 			//TODO - validate
 			
@@ -136,17 +144,21 @@ public class RestServlet extends ServletBase  {
 			throw new AuthorizationException("Sorry, you can't call this action - maybe not registered?");
 		}
 		
+		log.debug("init model");
 		HostCertificateRequestModel model = new HostCertificateRequestModel(context);
 		CertificateRequestHostRecord rec;
 		try {
 			if(auth.isUser()) {
-				rec = model.requestAsGuest(csrs, name, email, phone);
-			} else {
+				log.debug("requesting as user");
 				rec = model.requestAsUser(csrs,  auth.getContact());
+			} else {
+				log.debug("requesting as guest");
+				rec = model.requestAsGuest(csrs, name, email, phone);
 			}
 			if(rec == null) {
 				throw new RestException("Failed to make request");
 			}
+			log.debug("success");
 			reply.params.put("gocticket_url", StaticConfig.conf.getProperty("url.gocticket")+"/"+rec.goc_ticket_id);
 			reply.params.put("host_request_id", rec.id.toString());
 		} catch (CertificateRequestException e) {
