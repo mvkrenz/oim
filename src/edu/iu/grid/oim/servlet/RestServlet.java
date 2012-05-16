@@ -77,14 +77,22 @@ public class RestServlet extends ServletBase  {
 		} catch (RestException e) {
 			reply.status = Status.FAILED;
 			reply.detail = e.getMessage();
+			if(e.getCause() != null) {
+				reply.detail += e.getCause().getMessage();
+			}
 			//if(e.getMessage() != null) reply.detail += " -- " + e.getMessage();	
 		} catch(AuthorizationException e) {
 			reply.status = Status.FAILED;
 			reply.detail = e.getMessage();	
+			if(e.getCause() != null) {
+				reply.detail += e.getCause().getMessage();
+			}
 		} catch(Exception e) {
 			reply.status = Status.FAILED;
 			reply.detail = e.getMessage();
-			reply.detail += " -- " + e.getStackTrace().toString();	
+			if(e.getCause() != null) {
+				reply.detail += e.getCause().getMessage();
+			}
 		}
 		reply.out(response);
 	}
