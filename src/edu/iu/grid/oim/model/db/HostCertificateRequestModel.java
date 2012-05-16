@@ -300,7 +300,7 @@ public class HostCertificateRequestModel extends CertificateRequestModelBase<Cer
 			try {
 				ga = gmodel.getGridAdminByFQDN(cn);
 			} catch (SQLException e) {
-				throw new CertificateRequestException("Failed to lookup GridAdmin to approve host:" + cn, e);	
+				throw new CertificateRequestException("SQLException while looking up GridAdmin to approve host:" + cn, e);	
 			}
 			if(ga == null) {
 				throw new CertificateRequestException("No GridAdmin can approve host:" + cn);	

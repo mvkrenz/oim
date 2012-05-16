@@ -76,15 +76,15 @@ public class RestServlet extends ServletBase  {
 		
 		} catch (RestException e) {
 			reply.status = Status.FAILED;
-			reply.detail = e.toString();
+			reply.detail = e.getMessage();
 			//if(e.getMessage() != null) reply.detail += " -- " + e.getMessage();	
 		} catch(AuthorizationException e) {
 			reply.status = Status.FAILED;
-			reply.detail = e.toString();	
+			reply.detail = e.getMessage();	
 		} catch(Exception e) {
 			reply.status = Status.FAILED;
-			reply.detail = e.toString();
-			if(e.getMessage() != null) reply.detail += " -- " + e.getMessage() + "\n" + e.getStackTrace().toString();	
+			reply.detail = e.getMessage();
+			reply.detail += " -- " + e.getStackTrace().toString();	
 		}
 		reply.out(response);
 	}
@@ -152,7 +152,7 @@ public class RestServlet extends ServletBase  {
 			reply.params.put("gocticket_url", StaticConfig.conf.getProperty("url.gocticket")+"/"+rec.goc_ticket_id);
 			reply.params.put("host_request_id", rec.id.toString());
 		} catch (CertificateRequestException e) {
-			throw new RestException("SQLException while makeing request", e);
+			throw new RestException("CertificateRequestException while makeing request", e);
 		}
 	}
 	
@@ -175,7 +175,7 @@ public class RestServlet extends ServletBase  {
 		} catch (SQLException e) {
 			throw new RestException("SQLException while makeing request", e);
 		} catch (CertificateRequestException e) {
-			throw new RestException("HostCertificateRequestException while makeing request", e);
+			throw new RestException("CertificateRequestException while makeing request", e);
 		}
 	}
 	
@@ -197,7 +197,7 @@ public class RestServlet extends ServletBase  {
 		} catch (SQLException e) {
 			throw new RestException("SQLException while makeing request", e);
 		} catch (CertificateRequestException e) {
-			throw new RestException("HostCertificateRequestException while makeing request", e);
+			throw new RestException("CertificateRequestException while makeing request", e);
 		}
 	}
 	
