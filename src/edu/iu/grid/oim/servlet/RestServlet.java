@@ -78,20 +78,20 @@ public class RestServlet extends ServletBase  {
 			reply.status = Status.FAILED;
 			reply.detail = e.getMessage();
 			if(e.getCause() != null) {
-				reply.detail += e.getCause().getMessage();
+				reply.detail += " -- " + e.getCause().getMessage();
 			}
 			//if(e.getMessage() != null) reply.detail += " -- " + e.getMessage();	
 		} catch(AuthorizationException e) {
 			reply.status = Status.FAILED;
 			reply.detail = e.getMessage();	
 			if(e.getCause() != null) {
-				reply.detail += e.getCause().getMessage();
+				reply.detail += " -- " + e.getCause().getMessage();
 			}
 		} catch(Exception e) {
 			reply.status = Status.FAILED;
 			reply.detail = e.getMessage();
 			if(e.getCause() != null) {
-				reply.detail += e.getCause().getMessage();
+				reply.detail += " -- " + e.getCause().getMessage();
 			}
 		}
 		reply.out(response);
@@ -197,6 +197,9 @@ public class RestServlet extends ServletBase  {
 	
 		try {
 			CertificateRequestHostRecord rec = model.get(host_request_id);
+			if(rec == null) {
+				throw new RestException("No such host certificate request ID");
+			}
 			if(model.canApprove(rec)) {
 				model.approve(rec);
 			} else {

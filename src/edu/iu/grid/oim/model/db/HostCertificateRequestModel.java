@@ -364,7 +364,7 @@ public class HostCertificateRequestModel extends CertificateRequestModelBase<Cer
 			context.setComment("Opened GOC Ticket " + ticket_id);
 			super.update(get(request_id), rec);
 		} catch (SQLException e) {
-			throw new CertificateRequestException("Failed to insert host certificate request record");	
+			throw new CertificateRequestException("Failed to insert host certificate request record", e);	
 		}
 		
     	return rec;
