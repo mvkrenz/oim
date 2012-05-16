@@ -298,6 +298,7 @@ public class HostCertificateRequestModel extends CertificateRequestModelBase<Cer
         	log.debug("looking up gridadmin");
 			ContactRecord ga;
 			try {
+	        	log.debug("looking up gridadmin (2)");
 				ga = gmodel.getGridAdminByFQDN(cn);
 			} catch (SQLException e) {
 				throw new CertificateRequestException("SQLException while looking up GridAdmin to approve host:" + cn, e);	
