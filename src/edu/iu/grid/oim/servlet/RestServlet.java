@@ -77,7 +77,7 @@ public class RestServlet extends ServletBase  {
 		} catch (RestException e) {
 			reply.status = Status.FAILED;
 			reply.detail = e.toString();
-			if(e.getMessage() != null) reply.detail += " -- " + e.getMessage();	
+			//if(e.getMessage() != null) reply.detail += " -- " + e.getMessage();	
 		} catch(AuthorizationException e) {
 			reply.status = Status.FAILED;
 			reply.detail = e.toString();	
@@ -109,23 +109,16 @@ public class RestServlet extends ServletBase  {
 	}
  
 	private void doHostCertsRequest(HttpServletRequest request, Reply reply) throws AuthorizationException, RestException {
-		log.debug("hostcertsrequest");
 		
 		UserContext context = new UserContext(request);	
 		Authorization auth = context.getAuthorization();
 		
-		log.debug("loading csrs");
 		String[] csrs = request.getParameterValues("csrs");
 		String name, email, phone;
 		if(auth.isGuest()) {
-			log.debug("guest access");
 			name = request.getParameter("name");
 			email = request.getParameter("email");
 			phone = request.getParameter("phone");
-			
-			log.debug("name: " + name);
-			log.debug("email: " + email);
-			log.debug("phone" + phone);
 			
 			//TODO - validate
 			
@@ -144,15 +137,12 @@ public class RestServlet extends ServletBase  {
 			throw new AuthorizationException("Sorry, you can't call this action - maybe not registered?");
 		}
 		
-		log.debug("init model");
 		HostCertificateRequestModel model = new HostCertificateRequestModel(context);
 		CertificateRequestHostRecord rec;
 		try {
 			if(auth.isUser()) {
-				log.debug("requesting as user");
 				rec = model.requestAsUser(csrs,  auth.getContact());
 			} else {
-				log.debug("requesting as guest");
 				rec = model.requestAsGuest(csrs, name, email, phone);
 			}
 			if(rec == null) {

@@ -257,16 +257,21 @@ public class HostCertificateRequestModel extends CertificateRequestModelBase<Cer
 	//return request record if successful, otherwise null (guest interface)
     private CertificateRequestHostRecord request(String[] csrs, CertificateRequestHostRecord rec, FPTicket ticket) throws CertificateRequestException 
     {
+    	log.debug("request");
+    	
 		Date current = new Date();
 		rec.request_time = new Timestamp(current.getTime());
 		rec.status = CertificateRequestStatus.REQUESTED;
     	rec.gridadmin_contact_id = null;
+    	
+    	log.debug("request init");
     	
     	GridAdminModel gmodel = new GridAdminModel(context);
     	StringArray csrs_sa = new StringArray(csrs.length);
     	StringArray cns_sa = new StringArray(csrs.length);
     	int idx = 0;
     	for(String csr_string : csrs) {
+        	log.debug("processing csr: " + csr_string);
     		String cn;
 			try {
 	    		PKCS10CertificationRequest csr = new PKCS10CertificationRequest(Base64.decode(csr_string));
@@ -275,6 +280,8 @@ public class HostCertificateRequestModel extends CertificateRequestModelBase<Cer
 	    		X500Name name = csr.getSubject();
 	    		RDN[] cn_rdn = name.getRDNs(BCStyle.CN);
 	    		cn = cn_rdn[0].getFirst().getValue().toString(); //wtf?
+	    		
+	        	log.debug("cn found: " + cn);
 	    		
 	    		cns_sa.set(idx, cn);
 			} catch (IOException e) {
@@ -288,6 +295,7 @@ public class HostCertificateRequestModel extends CertificateRequestModelBase<Cer
 			}
 			
 			//lookup gridadmin
+        	log.debug("looking up gridadmin");
 			ContactRecord ga;
 			try {
 				ga = gmodel.getGridAdminByFQDN(cn);
@@ -299,6 +307,7 @@ public class HostCertificateRequestModel extends CertificateRequestModelBase<Cer
 			}
 			
 			//make sure single gridadmin approves all host
+        	log.debug("validating gridadmin");
 			if(rec.gridadmin_contact_id == null) {
 				rec.gridadmin_contact_id = ga.id;
 			} else {
@@ -319,9 +328,10 @@ public class HostCertificateRequestModel extends CertificateRequestModelBase<Cer
     	rec.cert_pkcs7 = ar.toXML();
     	
     	try {
-    		//insert request record
+        	log.debug("inserting request record");
 			Integer request_id = super.insert(rec);
 			
+        	log.debug("request_id: " + request_id);
 			ContactModel cmodel = new ContactModel(context);
 			ContactRecord ga = cmodel.get(rec.gridadmin_contact_id);
 			ticket.description = "Dear " + ga.name + "; the GridAdmin, \n";
@@ -345,9 +355,10 @@ public class HostCertificateRequestModel extends CertificateRequestModelBase<Cer
 				ticket.metadata.put("SUBMITTER_DN", auth.getUserDN());
 			} 
 			Footprints fp = new Footprints(context);
+        	log.debug("opening footprints ticket");
 			String ticket_id = fp.open(ticket);
 
-			//update request record with goc ticket id
+        	log.debug("update request record with goc ticket id");
 			rec.goc_ticket_id = ticket_id;
 			context.setComment("Opened GOC Ticket " + ticket_id);
 			super.update(get(request_id), rec);
