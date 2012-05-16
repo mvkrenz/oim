@@ -26,6 +26,7 @@ import javax.servlet.http.HttpSession;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.bouncycastle.asn1.x500.RDN;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x500.X500NameBuilder;
 import org.bouncycastle.asn1.x500.style.BCStyle;
@@ -550,11 +551,14 @@ public class UserCertificateRequestModel extends CertificateRequestModelBase<Cer
 			}
 			public void run() {
 				try {
+					String dn = ApacheDN_to_RFC1779(rec.dn);
+					log.debug("RF1779 dn: " + dn);
+					X500Name name = new X500Name(dn);
+					RDN[] cn_rdn = name.getRDNs(BCStyle.CN);
+					String cn = cn_rdn[0].getFirst().getValue().toString(); //wtf?
+					
 					//if csr is not set, we need to create one and private key for user
 					if (rec.csr == null) {
-						String dn = ApacheDN_to_RFC1779(rec.dn);
-						log.debug("RF1779 dn: " + dn);
-						X500Name name = new X500Name(dn);
 						GenerateCSR csrgen = new GenerateCSR(name);
 						rec.csr = csrgen.getCSR();
 						context.setComment("Generated CSR and private key");
@@ -565,10 +569,10 @@ public class UserCertificateRequestModel extends CertificateRequestModelBase<Cer
 						session.setAttribute("PRIVATE_USER:" + rec.id, csrgen.getPrivateKey());
 						session.setAttribute("PASS_USER:" + rec.id, password);
 					}
-	
+					
 					//now we can sign it
 					CertificateManager cm = new CertificateManager();
-					ICertificateSigner.Certificate cert = cm.signUserCertificate(rec.csr, rec.dn);
+					ICertificateSigner.Certificate cert = cm.signUserCertificate(rec.csr, cn);
 					rec.cert_certificate = cert.certificate;
 					rec.cert_intermediate = cert.intermediate;
 					rec.cert_pkcs7 = cert.pkcs7;

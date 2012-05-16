@@ -34,8 +34,8 @@ public class CertificateManager {
 		return cert;
 	}
 	
-	public ICertificateSigner.Certificate signUserCertificate(String csr, String dn) throws CertificateProviderException {
-		ICertificateSigner.Certificate cert = cp.signUserCertificate(csr, dn);
+	public ICertificateSigner.Certificate signUserCertificate(String csr, String cn) throws CertificateProviderException {
+		ICertificateSigner.Certificate cert = cp.signUserCertificate(csr, cn);
 		return cert;
 	}
 	public void revokeUserCertificate(String serial_id) throws CertificateProviderException {

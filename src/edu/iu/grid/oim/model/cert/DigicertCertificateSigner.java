@@ -52,7 +52,7 @@ public class DigicertCertificateSigner implements ICertificateSigner {
 		return db.parse(in);
 	}
 	
-	public Certificate requestUserCert(String csr, String dn) throws DigicertCPException {
+	public Certificate requestUserCert(String csr, String cn) throws DigicertCPException {
 		HttpClient cl = new HttpClient();
 		//cl.getHttpConnectionManager().getParams().setConnectionTimeout(1000*10);
 	    cl.getParams().setParameter("http.useragent", "OIM (OSG Information Management System)");
@@ -65,7 +65,7 @@ public class DigicertCertificateSigner implements ICertificateSigner {
 		post.setParameter("response_type", "xml");
 		post.setParameter("validity", "1"); //security by obscurity -- from the DigiCert dev team
 		post.setParameter("email", "hayashis@iu.edu");
-		post.setParameter("full_name", "Soichi Hayashi");
+		post.setParameter("full_name", cn);
 		post.setParameter("csr", csr);
 		//post.setParameter("dn", dn); //request to override dn with ours
 		
