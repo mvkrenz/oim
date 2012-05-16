@@ -47,7 +47,9 @@ public class GridAdminModel extends SmallTableModelBase<GridAdminRecord> {
 
 		Integer contact_id = null;
 		String domain = null;
+    	log.debug("getting all gridadmin records");
 		ArrayList<GridAdminRecord> recs = getAll();
+    	log.debug("got " + recs.size());
 		for(GridAdminRecord rec : recs) {
 			if(fqdn.endsWith(rec.domain)) {
 				//keep - if we find more specific domain
@@ -57,10 +59,11 @@ public class GridAdminModel extends SmallTableModelBase<GridAdminRecord> {
 				} 
 			}
 		}
-		
+    	log.debug("iterated");
 		if(contact_id == null) {
 			return null;
 		}
+    	log.debug("pulling contact record");
 		ContactModel cmodel = new ContactModel(context);
 		return cmodel.get(contact_id);
 	}
