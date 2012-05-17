@@ -2,29 +2,21 @@ package edu.iu.grid.oim.servlet;
 
 import java.io.IOException;
 import java.util.Date;
-import java.util.HashMap;
 
-//import javax.mail.MessagingException;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.AuthorizationException;
-import edu.iu.grid.oim.lib.StaticConfig;
-import edu.iu.grid.oim.lib.SendMail_deprecated;
 import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.view.BootMenuView;
 import edu.iu.grid.oim.view.BootPage;
 import edu.iu.grid.oim.view.ContentView;
 import edu.iu.grid.oim.view.HtmlView;
-import edu.iu.grid.oim.view.MenuView;
-import edu.iu.grid.oim.view.Page;
 import edu.iu.grid.oim.view.SideContentView;
 
 /**

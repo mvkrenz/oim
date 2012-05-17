@@ -32,7 +32,7 @@ import edu.iu.grid.oim.view.SideContentView;
 
 import edu.iu.grid.oim.view.divrep.form.FacilityFormDE;
 
-public class FacilityEditServlet extends ServletBase implements Servlet {
+public class FacilityEditServlet extends ServletBase {
 	private static final long serialVersionUID = 1L;
 	static Logger log = Logger.getLogger(FacilityEditServlet.class);  
 	private String parent_page = "topology";	

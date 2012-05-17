@@ -87,6 +87,27 @@ public class CertificateMenuView implements IView {
 			out.write("<a href=\"certificatehost\"><i class=\"icon-list\"></i> Show Requests</a></li>");	
 		}		
 		
+		Authorization auth = context.getAuthorization();
+		if(auth.allows("admin_gridadmin") || auth.allows("admin_pki_quota ")) {
+			out.write("<li class=\"nav-header\">Administration</li>");
+			if(current.equals("gridadmin")) {
+				out.write("<li class=\"active\">");
+				out.write("<a href=\"gridadmin\"><i class=\"icon-white icon-flag\"></i> GridAdmin</a></li>");	
+			} else {
+				out.write("<li>");
+				out.write("<a href=\"gridadmin\"><i class=\"icon-flag\"></i> GridAdmin</a></li>");	
+			}		
+			
+			if(current.equals("quotaadmin")) {
+				out.write("<li class=\"active\">");
+				out.write("<a href=\"quotaadmin\"><i class=\"icon-white icon-lock\"></i> Quota</a></li>");	
+			} else {
+				out.write("<li>");
+				out.write("<a href=\"quotaadmin\"><i class=\"icon-lock\"></i> Quota</a></li>");	
+			}		
+			
+		}
+		
 		out.write("</ul>");
 		out.write("</div>");
 	}

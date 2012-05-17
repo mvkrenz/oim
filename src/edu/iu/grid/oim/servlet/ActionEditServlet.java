@@ -23,7 +23,7 @@ import edu.iu.grid.oim.view.MenuView;
 import edu.iu.grid.oim.view.Page;
 import edu.iu.grid.oim.view.SideContentView;
 
-public class ActionEditServlet extends ServletBase implements Servlet {
+public class ActionEditServlet extends ServletBase {
 	private static final long serialVersionUID = 1L;
 	static Logger log = Logger.getLogger(ActionEditServlet.class);  
 	private String current_page = "action";	

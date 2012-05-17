@@ -76,12 +76,14 @@ public class HostCertificateRequestModel extends CertificateRequestModelBase<Cer
 	    return ret;
 	}
 
+	/*
 	@Override
 	public Boolean hasLogAccess(XPath xpath, Document doc)
 			throws XPathExpressionException {
 		// TODO Auto-generated method stub
 		return null;
-	}  
+	} 
+	*/ 
 
 	//NO-AC 
 	//return pem encoded pkcs7
@@ -668,6 +670,10 @@ public class HostCertificateRequestModel extends CertificateRequestModelBase<Cer
 			rec.status.equals(CertificateRequestStatus.REVOCATION_REQUESTED)) {
 			
 			if(auth.isUser()) {
+				if(auth.allows("revoke_all_certificate")) {
+					return true;
+				}
+				
 				//requester oneself can revoke it
 				if(rec.requester_contact_id != null) {//could be null if guest submitted it
 					ContactRecord contact = auth.getContact();

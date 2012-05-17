@@ -34,7 +34,7 @@ import edu.iu.grid.oim.view.Page;
 import edu.iu.grid.oim.view.RecordTableView;
 import edu.iu.grid.oim.view.SideContentView;
 
-public class AuthtypeServlet extends ServletBase implements Servlet {
+public class AuthtypeServlet extends ServletBase {
 	private static final long serialVersionUID = 1L;
 	static Logger log = Logger.getLogger(AuthtypeServlet.class);  
 

@@ -82,6 +82,7 @@ public class AuthorizationTypeActionModel extends SmallTableModelBase<Authorizat
 		}
 		return value;
 	}
+	/*
 	public Boolean hasLogAccess(XPath xpath, Document doc) throws XPathExpressionException
 	{
 		//Integer id = Integer.parseInt((String)xpath.evaluate("//Keys/Key[Name='id']/Value", doc, XPathConstants.STRING));
@@ -90,4 +91,6 @@ public class AuthorizationTypeActionModel extends SmallTableModelBase<Authorizat
 		}
 		return false;
 	}
+	*/
+	
 }

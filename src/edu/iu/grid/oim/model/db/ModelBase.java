@@ -372,5 +372,5 @@ public abstract class ModelBase<T extends RecordBase> {
     
 
 	//override this to reveal the log to particular user
-	abstract public Boolean hasLogAccess(XPath xpath, Document doc) throws XPathExpressionException;
+	//abstract public Boolean hasLogAccess(XPath xpath, Document doc) throws XPathExpressionException;
 }

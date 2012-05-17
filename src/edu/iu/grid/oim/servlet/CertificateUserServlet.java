@@ -111,16 +111,6 @@ public class CertificateUserServlet extends ServletBase  {
 				out.write("<div class=\"row-fluid\">");
 				
 				out.write("<div class=\"span3\">");
-				
-				/*
-				//TODO see if this is user's current image
-				String current_str;
-				if(current != null && rec.id.equals(current.id)) {
-					current_str = "certificateuser_current";
-				} else {
-					current_str = "certificateuser";
-				}
-				*/
  				CertificateMenuView menu = new CertificateMenuView(context, "certificateuser");
 				menu.render(out);
 				out.write("</div>"); //span3
@@ -409,6 +399,7 @@ public class CertificateUserServlet extends ServletBase  {
 	                      	model.startissue(rec, pass.getValue());
 	                    	button.redirect(url);
                     	} catch(CertificateRequestException ex) {
+                    		log.warn("CertificateRequestException while issuging certificate:", ex);
                     		button.alert(ex.getMessage());
                     	}
                 	}

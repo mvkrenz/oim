@@ -30,7 +30,7 @@ import edu.iu.grid.oim.view.MenuView;
 import edu.iu.grid.oim.view.Page;
 import edu.iu.grid.oim.view.SideContentView;
 
-public class CpuInfoEditServlet extends ServletBase implements Servlet {
+public class CpuInfoEditServlet extends ServletBase {
 	private static final long serialVersionUID = 1L;
 	static Logger log = Logger.getLogger(CpuInfoEditServlet.class);  
 	private String current_page = "cpuinfo";	

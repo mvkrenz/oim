@@ -103,11 +103,13 @@ abstract public class CertificateRequestModelBase<T extends RecordBase> extends 
     
     }
  
+    /*
 	@Override
 	public Boolean hasLogAccess(XPath xpath, Document doc) throws XPathExpressionException {
 		// TODO Auto-generated method stub
 		return null;
-	}  
+	} 
+	*/ 
 
 	public class LogDetail {
 		public ContactRecord contact; //user who made this action

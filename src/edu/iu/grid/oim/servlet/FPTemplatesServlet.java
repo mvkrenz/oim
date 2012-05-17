@@ -1,77 +1,33 @@
 package edu.iu.grid.oim.servlet;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Set;
-import java.util.TreeMap;
 
-import javax.servlet.Servlet;
+import java.sql.SQLException;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
 
-import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
-import org.w3c.dom.Document;
-import org.xml.sax.SAXException;
 
-import com.divrep.DivRep;
-import com.divrep.DivRepEvent;
-import com.divrep.DivRepEventListener;
 import com.divrep.DivRepPage;
-import com.divrep.DivRepRoot;
-import com.divrep.common.DivRepButton;
 import com.divrep.common.DivRepForm;
-import com.divrep.common.DivRepSelectBox;
 import com.divrep.common.DivRepStaticContent;
 import com.divrep.common.DivRepTextArea;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.AuthorizationException;
-import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.model.UserContext;
-import edu.iu.grid.oim.model.db.ActionModel;
 import edu.iu.grid.oim.model.db.ConfigModel;
-import edu.iu.grid.oim.model.db.ContactModel;
-import edu.iu.grid.oim.model.db.CpuInfoModel;
-import edu.iu.grid.oim.model.db.DNModel;
-import edu.iu.grid.oim.model.db.LogModel;
-import edu.iu.grid.oim.model.db.record.ActionRecord;
-import edu.iu.grid.oim.model.db.record.CpuInfoRecord;
-import edu.iu.grid.oim.model.db.record.LogRecord;
-import edu.iu.grid.oim.model.db.record.SCRecord;
-
 import edu.iu.grid.oim.view.BootBreadCrumbView;
 import edu.iu.grid.oim.view.BootMenuView;
 import edu.iu.grid.oim.view.BootPage;
-import edu.iu.grid.oim.view.BreadCrumbView;
 import edu.iu.grid.oim.view.ContentView;
-import edu.iu.grid.oim.view.DivRepWrapper;
-import edu.iu.grid.oim.view.GenericView;
 import edu.iu.grid.oim.view.HtmlView;
-import edu.iu.grid.oim.view.MenuView;
-import edu.iu.grid.oim.view.Page;
-import edu.iu.grid.oim.view.RecordTableView;
-import edu.iu.grid.oim.view.SideContentView;
-import edu.iu.grid.oim.view.divrep.ContactEditor;
 
-public class FPTemplatesServlet extends ServletBase implements Servlet {
+
+public class FPTemplatesServlet extends ServletBase {
 	private static final long serialVersionUID = 1L;
 	static Logger log = Logger.getLogger(FPTemplatesServlet.class);  
 

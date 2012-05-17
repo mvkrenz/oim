@@ -558,12 +558,21 @@ public class VOFormDE extends DivRepForm
 		for(ContactTypeRecord.Info contact_type : ContactTypes) {
 			tip = new ToolTip(contact_type.desc);
 			ContactEditor editor = createContactEditor(voclist_grouped, ctmodel.get(contact_type.id), tip);
-			//disable submitter editor if needed
-			if(!auth.allows("admin")) {
-				if(contact_type.id == 1 || contact_type.id == 11) { //1 = Submitter Contact, 11=ra
+			
+			//only oim admin can edit submitter
+			if(contact_type.id == 1) {//submitter
+				if(!auth.allows("admin")) {
 					editor.setDisabled(true);
 				}
 			}
+			
+			//only admin_ra can edit ra
+			if(contact_type.id == 11) {//RA
+				if(!auth.allows("admin_ra")) {
+					editor.setDisabled(true);
+				}
+			}
+			
 			if(contact_type.id != 5 && contact_type.id != 10 && contact_type.id != 11) { //5 = misc, 9 = resource report, 11 = ra agent
 				editor.setMinContacts(Rank.PRIMARY, 1);
 			}

@@ -19,11 +19,10 @@ import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.view.BootMenuView;
 import edu.iu.grid.oim.view.BootPage;
 import edu.iu.grid.oim.view.ContactAssociationView;
-import edu.iu.grid.oim.view.ContentView;
-import edu.iu.grid.oim.view.DivRepWrapper;
-import edu.iu.grid.oim.view.ExternalLinkView;
 import edu.iu.grid.oim.view.GenericView;
 import edu.iu.grid.oim.view.HtmlView;
+import edu.iu.grid.oim.view.IView;
+import edu.iu.grid.oim.view.LinkView;
 import edu.iu.grid.oim.view.SideContentView;
 
 public class HomeServlet extends ServletBase  {
@@ -36,9 +35,7 @@ public class HomeServlet extends ServletBase  {
 		//Authorization auth = context.getAuthorization();
 		
 		BootMenuView menuview = new BootMenuView(context, "home");
-		ContentView contentview;
-		contentview = createContentView(context);
-		BootPage page = new BootPage(context, menuview, contentview, createSideView(context));
+		BootPage page = new BootPage(context, menuview, new Content(context), createSideView(context));
 
 		GenericView header = new GenericView();
 		header.add(new HtmlView("<h1>OSG Information Management System</h1>"));
@@ -49,50 +46,55 @@ public class HomeServlet extends ServletBase  {
 		page.render(response.getWriter());
 	}
 	
-	protected ContentView createContentView(UserContext context) throws ServletException
-	{
-		ContentView v = new ContentView();
-		
-		Authorization auth = context.getAuthorization();
-		if(context.getAuthorization().isUser()) {
-			//add confirmation button
-			try {
-				ContactRecord user = auth.getContact();
-				v.add(new DivRepWrapper(new Confirmation(user.id, context)));
-			} catch (SQLException e) {
-				log.error(e);
-			}				
-
-			//show entities that this user is associated
-			try {
-				ContactAssociationView caview = new ContactAssociationView(context, auth.getContact().id);
-				caview.showNewButtons(true);
-				v.add(caview);
-			} catch (SQLException e) {
-				throw new ServletException(e);
-			}
-		} else {
-			//default... just show some info
-			v.add(new HtmlView("<div class=\"row-fluid\">"));
-			v.add(new HtmlView("<div class=\"span4 hotlink\" onclick=\"document.location='topology';\">"));
-			v.add(new HtmlView("<h2>Topology</h2>"));
-			v.add(new HtmlView("<p>Defines resource hierarchy</p>"));
-			v.add(new HtmlView("<img src=\"images/topology.png\">"));
-			v.add(new HtmlView("</div>"));
-			v.add(new HtmlView("<div class=\"span4 hotlink\" onclick=\"document.location='vo';\">"));
-			v.add(new HtmlView("<h2>Virtual Organization</h2>"));
-			v.add(new HtmlView("<p>Defines access for group of users</p>"));
-			v.add(new HtmlView("<img src=\"images/voicon.png\">"));
-			v.add(new HtmlView("</div>"));
-			v.add(new HtmlView("<div class=\"span4 hotlink\" onclick=\"document.location='sc';\">"));
-			v.add(new HtmlView("<h2>Support Centers</h2>"));
-			v.add(new HtmlView("<p>Defines who supports virtual organization</p>"));
-			v.add(new HtmlView("<img src=\"images/scicon.png\">"));
-			v.add(new HtmlView("</div>"));
-			v.add(new HtmlView("</div>"));
+	class Content implements IView {
+		UserContext context;
+		public Content(UserContext context) {
+			this.context = context;
 		}
 		
-		return v;
+		@Override
+		public void render(PrintWriter out) {
+			out.write("<div id=\"content\">");
+			Authorization auth = context.getAuthorization();
+			if(auth.isUser()) {
+				try {
+					ContactRecord user = auth.getContact();
+					Confirmation conf = new Confirmation(user.id, context);
+					conf.render(out);
+				} catch (SQLException e) {
+					log.error(e);
+				}				
+
+				//show entities that this user is associated
+				try {
+					ContactAssociationView caview = new ContactAssociationView(context, auth.getContact().id);
+					caview.showNewButtons(true);
+					caview.render(out);
+				} catch (SQLException e) {
+					log.error(e);
+				}
+			} else {
+				//guest view
+				out.write("<div class=\"row-fluid\">");
+				out.write("<div class=\"span4 hotlink\" onclick=\"document.location='topology';\">");
+				out.write("<h2>Topology</h2>");
+				out.write("<p>Defines resource hierarchy</p>");
+				out.write("<img src=\"images/topology.png\">");
+				out.write("</div>");
+				out.write("<div class=\"span4 hotlink\" onclick=\"document.location='vo';\">");
+				out.write("<h2>Virtual Organization</h2>");
+				out.write("<p>Defines access for group of users</p>");
+				out.write("<img src=\"images/voicon.png\">");
+				out.write("</div>");
+				out.write("<div class=\"span4 hotlink\" onclick=\"document.location='sc';\">");
+				out.write("<h2>Support Centers</h2>");
+				out.write("<p>Defines who supports virtual organization</p>");
+				out.write("<img src=\"images/scicon.png\">");
+				out.write("</div>");
+				out.write("</div>");
+			}
+			out.write("</div>");
+		}
 	}
 	
 	private SideContentView createSideView(UserContext context)
@@ -118,10 +120,10 @@ public class HomeServlet extends ServletBase  {
 		}
 		
 		contentview.add(new HtmlView("<h2>Documentations</h2>"));
-		contentview.add(new ExternalLinkView("https://twiki.grid.iu.edu/twiki/bin/view/Operations/OIMTermDefinition", "OIM Definitions"));
-		contentview.add(new ExternalLinkView("https://twiki.grid.iu.edu/twiki/bin/view/Operations/OIMRegistrationInstructions", "Registration"));
-		contentview.add(new ExternalLinkView("https://twiki.grid.iu.edu/twiki/bin/view/Operations/OIMMaintTool", "Resource Downtime"));
-		contentview.add(new ExternalLinkView("https://twiki.grid.iu.edu/twiki/bin/view/Operations/OIMStandardOperatingProcedures", "Operating Procedures"));
+		contentview.add(new LinkView("https://twiki.grid.iu.edu/twiki/bin/view/Operations/OIMTermDefinition", "OIM Definitions", true));
+		contentview.add(new LinkView("https://twiki.grid.iu.edu/twiki/bin/view/Operations/OIMRegistrationInstructions", "Registration", true));
+		contentview.add(new LinkView("https://twiki.grid.iu.edu/twiki/bin/view/Operations/OIMMaintTool", "Resource Downtime", true));
+		contentview.add(new LinkView("https://twiki.grid.iu.edu/twiki/bin/view/Operations/OIMStandardOperatingProcedures", "Operating Procedures", true));
 
 		if(auth.isUser()) {
 			contentview.addContactLegend();

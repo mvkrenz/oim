@@ -27,7 +27,7 @@ import edu.iu.grid.oim.model.db.FieldOfScienceModel;
 import edu.iu.grid.oim.model.db.record.FieldOfScienceRecord;
 import edu.iu.grid.oim.view.divrep.form.FieldOfScienceFormDE;
 
-public class FieldOfScienceEditServlet extends ServletBase implements Servlet {
+public class FieldOfScienceEditServlet extends ServletBase {
 	private static final long serialVersionUID = 1L;
 	static Logger log = Logger.getLogger(FieldOfScienceEditServlet.class);  
 	private String current_page = "fieldofscience";	

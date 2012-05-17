@@ -59,19 +59,43 @@ public class AuthorizationMatrixServlet extends ServletBase  {
 		ActionModel actionmodel;
 		AuthorizationTypeActionModel matrixmodel;
 		ArrayList<AuthorizationTypeRecord> authtypes;
-		
 		HashMap<Integer/*action_id*/, HashMap<Integer/*type_id*/, DivRepCheckBox>> matrix = new HashMap();
+		
+		public AuthMatrix(DivRep parent, UserContext context) throws SQLException 
+		{
+			super(parent);
+			
+			actionmodel = new ActionModel(context); 
+			matrixmodel = new AuthorizationTypeActionModel(context);
+			AuthorizationTypeModel tmodel = new AuthorizationTypeModel(context); 
+			authtypes = tmodel.getAll();
+			
+			//create checkboxes for each action for each authtype
+			for(ActionRecord action : actionmodel.getAll()) {
+				HashMap<Integer/*type_id*/, DivRepCheckBox> as = new HashMap();
+				matrix.put(action.id, as);
+				Collection<Integer/*type_id*/> authorized = matrixmodel.getTypeByActionID(action.id);
+				for(AuthorizationTypeRecord type : authtypes) {
+					DivRepCheckBox check = new DivRepCheckBox(this);
+					as.put(type.id, check);
+					if(authorized.contains(type.id)) {
+						check.setValue(true);
+					}
+				}
+			}
+		}
+		
 		public void render(PrintWriter out) {
 			try {
-				out.print("<table class=\"auth_matrix\">");
-				out.print("<tr><td></td><th colspan=\""+authtypes.size()+"\">Authorization Types</th></tr>");
+				out.write("<table class=\"auth_matrix\">");
+				out.write("<tr><td></td><th colspan=\""+authtypes.size()+"\">Authorization Types</th></tr>");
 				
 				//show list of auth types
-				out.print("<tr class=\"checklist\"><th valign=\"bottom\">Actions</th>");
+				out.write("<tr class=\"checklist\"><th valign=\"bottom\">Actions</th>");
 				for(AuthorizationTypeRecord type : authtypes) {
-					out.print("<td>"+type.name+"</td>");
+					out.write("<td>"+type.name+"</td>");
 				}
-				out.print("</tr>");
+				out.write("</tr>");
 				
 				//now display all of our check boxes
 				ArrayList<ActionRecord> actions = actionmodel.getAll();
@@ -90,43 +114,18 @@ public class AuthorizationMatrixServlet extends ServletBase  {
 					*/
 					
 					//name & check boxes
-					out.print("<tr class=\"checklist\"><td>"+StringEscapeUtils.escapeHtml(action.name)+"</td>");
+					out.write("<tr class=\"checklist\"><td>"+StringEscapeUtils.escapeHtml(action.name)+"</td>");
 					for(AuthorizationTypeRecord type : authtypes) {
 						HashMap<Integer/*type_id*/, DivRepCheckBox> clist = matrix.get(action.id);
-						out.print("<td>");
+						out.write("<td>");
 						clist.get(type.id).render(out);
-						out.print("</td>");
+						out.write("</td>");
 					}
-					out.print("</tr>");
-		
+					out.write("</tr>");
 				}
-				out.print("</table>");
+				out.write("</table>");
 			} catch (SQLException e) {
-				out.println("SQL Error!");
-			}
-		}
-		
-		public AuthMatrix(DivRep parent, UserContext context) throws SQLException 
-		{
-			super(parent);
-			
-			actionmodel = new ActionModel(context); 
-			matrixmodel = new AuthorizationTypeActionModel(context);
-			AuthorizationTypeModel tmodel = new AuthorizationTypeModel(context); 
-			authtypes = tmodel.getAll();
-			
-			//create checkboxes for each action for each authtype
-			for(ActionRecord action : actionmodel.getAll()) {
-				HashMap<Integer/*type_id*/, DivRepCheckBox> as = new HashMap();
-				matrix.put(action.id, as);
-				Collection<Integer/*type_id*/> authorized = matrixmodel.getTypeByActionID(action.id);
-				for(AuthorizationTypeRecord type : authtypes) {
-					DivRepCheckBox check = new DivRepCheckBox(parent);
-					as.put(type.id, check);
-					if(authorized.contains(type.id)) {
-						check.setValue(true);
-					}
-				}
+				log.error("Failed to render AuthMetric", e);
 			}
 		}
 		
@@ -155,15 +154,14 @@ public class AuthorizationMatrixServlet extends ServletBase  {
 		}
 	}
 	
-    class AuthMatrixFormDE extends DivRepForm
-    {
+    class AuthMatrixFormDE extends DivRepForm {
         private AuthMatrix matrix;
         private UserContext context;
 		public AuthMatrixFormDE(UserContext context, String _origin_url) throws SQLException {
 			super(context.getPageRoot(), _origin_url);
 			this.context = context;
 			matrix = new AuthMatrix(this, context);
-			add(matrix);
+			//add(matrix);
 		}
 
 		protected Boolean doSubmit() {			
@@ -196,38 +194,32 @@ public class AuthorizationMatrixServlet extends ServletBase  {
 
 		//construct view
 		BootMenuView menuview = new BootMenuView(context, "admin");
-		ContentView contentview;
+		BootPage page = new BootPage(context, menuview, new Content(context), null);
+		page.render(response.getWriter());		
+	}
+	
+	class Content implements IView {
+		UserContext context;
+		public Content(UserContext context) {
+			this.context = context;
+		}
 		
-		try {
-			contentview = createContentView(context);
-			
+		@Override
+		public void render(PrintWriter out) {
+			out.write("<div id=\"content\">");
 			//setup crumbs
 			BootBreadCrumbView bread_crumb = new BootBreadCrumbView();
 			bread_crumb.addCrumb("Administration",  "admin");
 			bread_crumb.addCrumb("Authorization Matrix",  null);
-			contentview.setBreadCrumb(bread_crumb);
+			bread_crumb.render(out);
 			
-			BootPage page = new BootPage(context, menuview, contentview, null);
-			page.render(response.getWriter());
-		} catch (SQLException e) {
-			throw new ServletException(e);
+			try {
+				DivRepForm form = new AuthMatrixFormDE(context, "admin");
+				form.render(out);
+			} catch (SQLException e) {
+				log.error("Failed to create auth matrix", e);
+			}
+			out.write("</div>");
 		}
-			
 	}
-	
-	protected ContentView createContentView(UserContext context) throws SQLException
-	{			
-		ContentView contentview = new ContentView();
-		//contentview.add(new HtmlView("<h1>Authorization Matrix</h1>"));
-		DivRepForm form = new AuthMatrixFormDE(context, "admin");
-		contentview.add(new DivRepWrapper(form));
-		return contentview;
-	}
-	/*
-	private SideContentView createSideView()
-	{
-		SideContentView view = new SideContentView();
-		return view;
-	}
-	 */
 }

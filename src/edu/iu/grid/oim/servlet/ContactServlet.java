@@ -59,7 +59,7 @@ import edu.iu.grid.oim.view.RecordTableView;
 import edu.iu.grid.oim.view.SideContentView;
 import edu.iu.grid.oim.view.divrep.ViewWrapper;
 
-public class ContactServlet extends ServletBase implements Servlet {
+public class ContactServlet extends ServletBase {
 	private static final long serialVersionUID = 1L;
 	static Logger log = Logger.getLogger(ContactServlet.class);  
 

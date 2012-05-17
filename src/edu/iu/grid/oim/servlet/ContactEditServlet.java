@@ -28,7 +28,7 @@ import edu.iu.grid.oim.view.MenuView;
 import edu.iu.grid.oim.view.Page;
 import edu.iu.grid.oim.view.SideContentView;
 
-public class ContactEditServlet extends ServletBase implements Servlet {
+public class ContactEditServlet extends ServletBase {
 	private static final long serialVersionUID = 1L;
 	static Logger log = Logger.getLogger(ContactEditServlet.class);  
 	private String parent_page = "contact";	

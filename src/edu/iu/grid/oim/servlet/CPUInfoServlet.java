@@ -42,7 +42,7 @@ import edu.iu.grid.oim.view.RecordTableView;
 import edu.iu.grid.oim.view.SideContentView;
 import edu.iu.grid.oim.view.TableView;
 
-public class CPUInfoServlet extends ServletBase implements Servlet {
+public class CPUInfoServlet extends ServletBase {
 	private static final long serialVersionUID = 1L;
 	static Logger log = Logger.getLogger(CPUInfoServlet.class);  
 
@@ -114,21 +114,6 @@ public class CPUInfoServlet extends ServletBase implements Servlet {
 	private SideContentView createSideView()
 	{
 		SideContentView view = new SideContentView();
-		/*
-		class NewButtonDE extends DivRepButton
-		{
-			String url;
-			public NewButtonDE(DivRep parent, String _url)
-			{
-				super(parent, "Add New CPU Info record");
-				url = _url;
-			}
-			protected void onEvent(DivRepEvent e) {
-				redirect(url);
-			}
-		};
-		view.add("Operation", new NewButtonDE(context.getPageRoot(), "cpuinfoedit"));
-		*/
 		return view;
 	}
 }

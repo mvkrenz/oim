@@ -44,7 +44,7 @@ import edu.iu.grid.oim.view.TableView;
 import edu.iu.grid.oim.view.Utils;
 import edu.iu.grid.oim.view.TableView.Row;
 
-public class FacilityServlet extends ServletBase implements Servlet {
+public class FacilityServlet extends ServletBase {
 	private static final long serialVersionUID = 1L;
 	static Logger log = Logger.getLogger(FacilityServlet.class);  
 	

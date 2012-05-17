@@ -11,10 +11,8 @@ import com.divrep.common.DivRepTextBox;
 
 import com.divrep.validator.DivRepIntegerValidator;
 
-import edu.iu.grid.oim.lib.AuthorizationException;
 import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.ConfigModel;
-import edu.iu.grid.oim.model.db.ConfigModel.Config;
 
 public class QuotaConfigFormDE extends DivRepForm 
 {
@@ -32,7 +30,7 @@ public class QuotaConfigFormDE extends DivRepForm
 	private DivRepTextBox hostcert_max_year;
 	private DivRepTextBox hostcert_max_day;
 	
-	public QuotaConfigFormDE(UserContext _context) throws AuthorizationException, SQLException
+	public QuotaConfigFormDE(UserContext _context) throws SQLException
 	{	
 		super(_context.getPageRoot(), null);
 		context = _context;

@@ -25,7 +25,7 @@ import edu.iu.grid.oim.view.MenuView;
 import edu.iu.grid.oim.view.Page;
 import edu.iu.grid.oim.view.SideContentView;
 
-public class AuthtypeEditServlet extends ServletBase implements Servlet {
+public class AuthtypeEditServlet extends ServletBase {
 	private static final long serialVersionUID = 1L;
 	static Logger log = Logger.getLogger(AuthtypeEditServlet.class);  
 	private String current_page = "authtype";	

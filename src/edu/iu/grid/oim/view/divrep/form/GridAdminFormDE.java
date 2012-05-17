@@ -36,7 +36,7 @@ public class GridAdminFormDE extends DivRepForm
 	private DivRepTextBox domain;
 	private ContactEditor contact;
 	
-	public GridAdminFormDE(UserContext _context, GridAdminRecord rec, String origin_url) throws AuthorizationException, SQLException
+	public GridAdminFormDE(UserContext _context, GridAdminRecord rec, String origin_url) throws SQLException
 	{	
 		super(_context.getPageRoot(), origin_url);
 		context = _context;
@@ -68,7 +68,7 @@ public class GridAdminFormDE extends DivRepForm
 		}
 	}
 	
-	private HashMap<Integer, String> getDomains() throws AuthorizationException, SQLException
+	private HashMap<Integer, String> getDomains() throws SQLException
 	{
 		//pull all OsgGridTypes
 		HashMap<Integer, String> keyvalues = new HashMap<Integer, String>();

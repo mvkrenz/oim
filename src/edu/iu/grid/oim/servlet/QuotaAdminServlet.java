@@ -1,6 +1,7 @@
 package edu.iu.grid.oim.servlet;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 
 import java.sql.SQLException;
 
@@ -13,14 +14,12 @@ import org.apache.log4j.Logger;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.model.UserContext;
-import edu.iu.grid.oim.view.BootBreadCrumbView;
 import edu.iu.grid.oim.view.BootMenuView;
 import edu.iu.grid.oim.view.BootPage;
+import edu.iu.grid.oim.view.CertificateMenuView;
+import edu.iu.grid.oim.view.IView;
 
-import edu.iu.grid.oim.view.ContentView;
-import edu.iu.grid.oim.view.DivRepWrapper;
 import edu.iu.grid.oim.view.divrep.form.QuotaConfigFormDE;
-
 
 public class QuotaAdminServlet extends ServletBase implements Servlet {
 	private static final long serialVersionUID = 1L;
@@ -30,34 +29,38 @@ public class QuotaAdminServlet extends ServletBase implements Servlet {
 	{	
 		UserContext context = new UserContext(request);
 		Authorization auth = context.getAuthorization();
-		auth.check("admin");
-		
-		try {
-			//construct view
-			BootMenuView menuview = new BootMenuView(context, "admin");;
-			ContentView contentview = createContentView(context);
-			
-			BootPage page = new BootPage(context, menuview, contentview, null);
-			page.render(response.getWriter());				
-		} catch (SQLException e) {
-			log.error(e);
-			throw new ServletException(e);
-		}
+		auth.check("admin_pki_quota");
+		BootMenuView menuview = new BootMenuView(context, "certificate");;
+		BootPage page = new BootPage(context, menuview, new Content(context), null);
+		page.render(response.getWriter());				
 	}
 	
-	protected ContentView createContentView(final UserContext context) throws ServletException, SQLException
-	{
-		ContentView contentview = new ContentView();
-		
-		//setup crumbs
-		BootBreadCrumbView bread_crumb = new BootBreadCrumbView();
-		bread_crumb.addCrumb("Administration",  "admin");
-		bread_crumb.addCrumb("Quota Administration",  null);
-		contentview.setBreadCrumb(bread_crumb);
-		
-		QuotaConfigFormDE form = new QuotaConfigFormDE(context);
-		
-		contentview.add(new DivRepWrapper(form));		
-		return contentview;
+	class Content implements IView {
+		UserContext context;
+		Content(UserContext context) {
+			this.context = context;
+		}
+		@Override
+		public void render(PrintWriter out) {
+			out.write("<div id=\"content\">");
+
+			out.write("<div class=\"row-fluid\">");
+			
+			out.write("<div class=\"span3\">");
+			CertificateMenuView menu = new CertificateMenuView(context, "quotaadmin");
+			menu.render(out);
+			out.write("</div>"); //span3
+			
+			out.write("<div class=\"span9\">");
+			try {
+				QuotaConfigFormDE form = new QuotaConfigFormDE(context);
+				form.render(out);
+			} catch (SQLException e) {
+				log.error("SQLError file rendering quota config form", e);
+			}
+			out.write("</div>"); //span9
+			out.write("</div>"); //row-fluid
+			out.write("</div>"); //content
+		}
 	}
 }

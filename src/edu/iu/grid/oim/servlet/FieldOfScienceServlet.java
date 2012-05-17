@@ -36,7 +36,7 @@ import edu.iu.grid.oim.model.db.ServiceGroupModel;
 import edu.iu.grid.oim.model.db.record.FieldOfScienceRecord;
 import edu.iu.grid.oim.model.db.record.ServiceGroupRecord;
 
-public class FieldOfScienceServlet extends ServletBase implements Servlet {
+public class FieldOfScienceServlet extends ServletBase {
 	private static final long serialVersionUID = 1L;
 	static Logger log = Logger.getLogger(FieldOfScienceServlet.class);  
 

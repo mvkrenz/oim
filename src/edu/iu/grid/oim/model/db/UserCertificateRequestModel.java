@@ -245,12 +245,11 @@ public class UserCertificateRequestModel extends CertificateRequestModelBase<Cer
 		if(	rec.status.equals(CertificateRequestStatus.ISSUED) ||
 			rec.status.equals(CertificateRequestStatus.REVOCATION_REQUESTED)) {
 			
-			/*
-			//super ra can admin all requests
-			if(auth.allows("admin_all_user_cert_requests")) return true;
-			*/
-			
 			if(auth.isUser()) {
+				if(auth.allows("revoke_all_certificate")) {
+					return true;
+				}
+				
 				//requester oneself can revoke it
 				ContactRecord contact = auth.getContact();
 				if(rec.requester_contact_id.equals(contact.id)) return true;

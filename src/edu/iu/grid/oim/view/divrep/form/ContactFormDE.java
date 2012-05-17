@@ -443,6 +443,19 @@ public class ContactFormDE extends DivRepForm
 		submitter_dn.setLabel("Submitter DN");
 		submitter_dn.setValue(rec.submitter_dn_id);
 
+		disable = new DivRepCheckBox(this);
+		disable.setLabel("Disable");
+		disable.setValue(rec.disable);
+		
+		//disable admin controllers
+		if(!auth.allows("admin")) {
+			submitter_dn.setDisabled(true);
+			disable.setDisabled(true);
+		}
+
+		new DivRepStaticContent(this, "<h2>Certificate Request Quota</h2>");
+		new DivRepStaticContent(this, "<p>* Only PKI staff can update these information</p>");
+
 		ConfigModel config = new ConfigModel(context);
 		String usercert_max_year = config.QuotaUserCertYearMax.get();
 		String hostcert_max_year = config.QuotaUserHostYearMax.get();
@@ -477,17 +490,11 @@ public class ContactFormDE extends DivRepForm
 			count_hostcert_year.setValue(String.valueOf(rec.count_hostcert_year));
 		}
 		
-		disable = new DivRepCheckBox(this);
-		disable.setLabel("Disable");
-		disable.setValue(rec.disable);
-		
-		//disable admin controllers
-		if(!auth.allows("admin")) {
-			submitter_dn.setDisabled(true);
+		//disable pki quota controllers
+		if(!auth.allows("admin_pki_quota")) {
 			count_hostcert_day.setDisabled(true);
 			count_hostcert_year.setDisabled(true);
 			count_usercert_year.setDisabled(true);
-			disable.setDisabled(true);
 		}
 		
 	}
