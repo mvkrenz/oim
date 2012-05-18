@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -13,17 +14,20 @@ import org.apache.log4j.Logger;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.model.UserContext;
+import edu.iu.grid.oim.model.db.record.ConfigRecord;
+import edu.iu.grid.oim.model.db.record.RecordBase;
+import edu.iu.grid.oim.model.db.record.SiteRecord;
 import edu.iu.grid.oim.model.exceptions.ConfigException;
 
 import javax.sql.DataSource;
 
 
-public class ConfigModel {
+public class ConfigModel extends ModelBase<ConfigRecord> {
 	
     static Logger log = Logger.getLogger(ConfigModel.class);  
     
-    protected UserContext context;
-	protected Authorization auth;
+    //protected UserContext context;
+	//protected Authorization auth;
 	
 	public class Config {
 		String key;
@@ -70,19 +74,18 @@ public class ConfigModel {
 	
 	public ConfigModel(UserContext context)
 	{
-		this.context = context;
-		this.auth = context.getAuthorization();
+		super(context, "config");
 	}
 	
-	private String get(String key) throws SQLException, ConfigException {
+	private ConfigRecord getRecord(String key) throws SQLException, ConfigException {
 		Connection connection = context.getConnection();
-		PreparedStatement stmt = connection.prepareStatement("SELECT `value` FROM config WHERE `key` = ?");
+		PreparedStatement stmt = connection.prepareStatement("SELECT * FROM config WHERE `key` = ?");
 		stmt.setString(1, key);
-		String value = null;
+		ConfigRecord rec = null;
 		ResultSet rs = stmt.executeQuery();
 		if(rs != null) {
 	    	if(rs.next()) {
-	    		value = rs.getString(1);
+	    		rec = new ConfigRecord(rs);
 			} else {
 		    	throw new ConfigException("No such config");
 		    }
@@ -91,32 +94,51 @@ public class ConfigModel {
 	    }
 	    stmt.close();
 	    connection.close();
-	    return value;
+	    return rec;
+	}
+	
+	private String get(String key) throws SQLException, ConfigException {
+		ConfigRecord rec = getRecord(key);
+	    return rec.value;
 	}
 	
 	private void set(String key, String value) throws SQLException {
 		Connection connection = context.getConnection();
-		int affected;
+		//int affected;
 		try {
 			//test get to see if the value exist?
 			get(key);
 			
 			//update the value
+			/*
 			PreparedStatement stmt = connection.prepareStatement("UPDATE config SET `value` = ? WHERE `key` = ?");
 			stmt.setString(1, value);
 			stmt.setString(2, key);
 			affected = stmt.executeUpdate();
 			stmt.close();
+			*/
+			ConfigRecord oldrec = getRecord(key);
+			ConfigRecord newrec = getRecord(key);
+			newrec.value = value;
+			update(oldrec, newrec);
 		} catch (ConfigException e) {
 			//never been set before.. insert
+			/*
 			PreparedStatement stmt = connection.prepareStatement("INSERT INTO config (`key`, `value`) VALUES (?,?)");
 			stmt.setString(1, key);
 			stmt.setString(2, value);	
 			affected = stmt.executeUpdate();
+			*/
+			ConfigRecord rec = new ConfigRecord();
+			rec.key = key;
+			rec.value = value;
+			insert(rec);
 		} 
+		/*
 		if(affected != 1) {
 			log.error("Failed to set " + key + " with value " + value);
 		}
+		*/
 		connection.close();
 	}
 	

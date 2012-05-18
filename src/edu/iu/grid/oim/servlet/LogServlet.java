@@ -4,7 +4,6 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.text.DateFormat;
@@ -12,7 +11,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 
 import javax.servlet.ServletException;
@@ -20,7 +18,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
@@ -42,7 +39,6 @@ import com.divrep.common.DivRepSelectBox;
 import com.divrep.common.DivRepTextBox;
 
 import edu.iu.grid.oim.lib.Authorization;
-import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.DNModel;
 import edu.iu.grid.oim.model.db.LogModel;
@@ -54,8 +50,6 @@ import edu.iu.grid.oim.view.BootPage;
 import edu.iu.grid.oim.view.ContentView;
 import edu.iu.grid.oim.view.DivRepWrapper;
 import edu.iu.grid.oim.view.HtmlView;
-import edu.iu.grid.oim.view.MenuView;
-import edu.iu.grid.oim.view.Page;
 import edu.iu.grid.oim.view.IView;
 import edu.iu.grid.oim.view.RecordTableView;
 import edu.iu.grid.oim.view.SideContentView;
@@ -68,7 +62,42 @@ public class LogServlet extends ServletBase  {
     private Parameters params;
     
 	XPath xpath = XPathFactory.newInstance().newXPath();
-    
+	
+	class ModelType {
+		public String pattern;
+		public String name;
+		public String action;
+		ModelType(String pattern, String name, String action) {
+			this.pattern = pattern;
+			this.name = name;
+			this.action = action;
+		}
+	}
+	private ArrayList<ModelType> modeltypes;
+	
+	public LogServlet() {
+		modeltypes = new ArrayList<ModelType>();
+		modeltypes.add(new ModelType(".Resource", "Resource", "view_topology"));
+		modeltypes.add(new ModelType(".VO", "Virtual Organization", "view_topology"));
+		modeltypes.add(new ModelType(".SC", "Support Center", "view_topology"));
+		modeltypes.add(new ModelType(".Contact", "Contact", "view_topology"));
+		modeltypes.add(new ModelType(".Site", "Site", "view_topology"));
+		modeltypes.add(new ModelType(".Facility", "Facility", "view_topology"));
+		modeltypes.add(new ModelType(".ResourceWLCG", "ResourceWLCG", "view_topology"));
+		modeltypes.add(new ModelType(".Action", "Action", "view_topology"));
+		modeltypes.add(new ModelType(".Authorization", "Authorization", "view_topology"));
+		modeltypes.add(new ModelType(".DN", "DN", "view_topology"));
+		modeltypes.add(new ModelType(".CpuInfo", "CpuInfo", "view_topology"));
+		modeltypes.add(new ModelType(".FieldOfScience", "FieldOfScience", "view_topology"));
+		modeltypes.add(new ModelType(".Metric", "Metric", "view_topology"));
+		modeltypes.add(new ModelType(".Service", "Service", "view_topology"));
+		
+		modeltypes.add(new ModelType(".GridAdmin", "GridAdmin", "admin_gridadmin"));
+		modeltypes.add(new ModelType(".CertificateRequest", "Certificate Requests", "view_certlog"));
+		modeltypes.add(new ModelType(".Config", "Certificate Quota (Config)", "admin_pki_quota"));
+		modeltypes.add(new ModelType(".Config", "Config", "admin")); 
+	}
+   
 	abstract class List extends DivRep
 	{
 		public String title;
@@ -121,8 +150,6 @@ public class LogServlet extends ServletBase  {
 	
 	class AllList extends List
 	{    	
-		
-		
 		private UserContext context;
 		public AllList(UserContext context, DivRep _parent, HttpServletRequest request) {
 			super(_parent, "All Logs");
@@ -241,27 +268,10 @@ public class LogServlet extends ServletBase  {
     		for(Integer id : models.keySet()) {
     			DivRepCheckBox check = models.get(id);
     			if(check.getValue()) {
-	    			String pattern = "";
-	    			switch(id) {
-	    			case 1: pattern = ".Resource"; break;
-	    			case 2: pattern = ".VO"; break;
-	    			case 3: pattern = ".SC"; break;
-	    			case 4: pattern = ".Contact"; break;
-	    			case 5: pattern = ".Site"; break;
-	    			case 6: pattern = ".Facility"; break;
-	    			case 7: pattern = ".ResourceWLCG"; break;
-	    			
-	    			case 8: pattern = ".Action"; break;
-	    			case 9: pattern = ".Authorization"; break;
-	    			case 10: pattern = ".DN"; break;
-	    			case 11: pattern = ".CpuInfo"; break;
-	    			case 12: pattern = ".FieldOfScience"; break;
-	    			case 13: pattern = ".Metric"; break;
-	    			case 14: pattern = ".Service"; break;
-	    			}
-	    			if(model.contains(pattern)) {
-		    			return true;
-	    			}
+    				ModelType mtype = modeltypes.get(id);
+    				if(model.contains(mtype.pattern)) {
+    					return true;
+    				}
     			}
     		}
     		return false;
@@ -304,11 +314,6 @@ public class LogServlet extends ServletBase  {
     		lists.put(1, new AllList(context, this, request));
     		lists.put(2, new ActivationList(context, this, request));   	
     		lists.put(3, new SpecificList(context, this, request));  
-    		/*
-    		lists.put(4, new ResourceHistory(this, request));  
-    		lists.put(5, new VOHistory(this, request));  
-    		lists.put(6, new SCHistory(this, request));  
-    		*/
     		
         	LinkedHashMap<Integer, String> list_kv = new LinkedHashMap<Integer, String>();
         	for(Integer id : lists.keySet()) {
@@ -405,6 +410,20 @@ public class LogServlet extends ServletBase  {
     		///////////////////////////////////////////////////////////////////////////////////////
     		//Model Types
         	models = new LinkedHashMap<Integer, DivRepCheckBox>();
+        	Authorization auth = context.getAuthorization();
+        	for(int id = 0;id < modeltypes.size(); ++id) {
+        		ModelType mtype = modeltypes.get(id);
+        		if(auth.allows(mtype.action)) {
+                	item = new DivRepCheckBox(this);
+                	item.setLabel(mtype.name);
+            		if(request.getParameter("model_"+id) != null) {
+            			item.setValue(true);
+            		}
+                	models.put(id, item);  
+        		}
+        	}
+        	/*
+        	models = new LinkedHashMap<Integer, DivRepCheckBox>();
         	item = new DivRepCheckBox(this);
         	item.setLabel("Resource");
     		if(request.getParameter("model_1") != null) {item.setValue(true);}
@@ -474,6 +493,7 @@ public class LogServlet extends ServletBase  {
         	item.setLabel("Service");
     		if(request.getParameter("model_14") != null) {item.setValue(true);}
         	models.put(14, item); 
+        	*/
         	
     		update = new DivRepButton(this, "Update Page");
     		update.addClass("btn");

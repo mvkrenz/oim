@@ -26,7 +26,7 @@ import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.model.CertificateRequestStatus;
 import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.CertificateQuotaModel;
-import edu.iu.grid.oim.model.db.UserCertificateRequestModel;
+import edu.iu.grid.oim.model.db.CertificateRequestUserModel;
 import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.VOModel;
 import edu.iu.grid.oim.model.db.record.CertificateRequestUserRecord;

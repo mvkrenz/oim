@@ -127,7 +127,7 @@ public class BootMenuView implements IView {
 					} else {
 						out.println("<li>");		
 					}
-					out.println("<a href=\"log?logtype=1&start_type=2&end_type=1&transaction_1=on&transaction_2=on&transaction_3=on&model_1=on&model_2=on&model_3=on&model_4=on&model_5=on&model_6=on&model_7=on?\">OIM Log</a></li>");
+					out.println("<a href=\"log?logtype=1&start_type=2&end_type=1&transaction_1=on&transaction_2=on&transaction_3=on&model_0=on&model_1=on&model_2=on&model_3=on&model_4=on&model_5=on&model_6=on?\">OIM Log</a></li>");
 				}
 				
 				if(current.equals("contact")) {

@@ -58,10 +58,10 @@ import edu.iu.grid.oim.model.db.record.VOContactRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
 import edu.iu.grid.oim.model.exceptions.CertificateRequestException;
 
-public class UserCertificateRequestModel extends CertificateRequestModelBase<CertificateRequestUserRecord> {
-    static Logger log = Logger.getLogger(UserCertificateRequestModel.class);  
+public class CertificateRequestUserModel extends CertificateRequestModelBase<CertificateRequestUserRecord> {
+    static Logger log = Logger.getLogger(CertificateRequestUserModel.class);  
  
-    public UserCertificateRequestModel(UserContext _context) {
+    public CertificateRequestUserModel(UserContext _context) {
 		super(_context, "certificate_request_user");
 	}
     /*
@@ -543,7 +543,7 @@ public class UserCertificateRequestModel extends CertificateRequestModelBase<Cer
 				rec.status = CertificateRequestStatus.FAILED;
 				try {
 					context.setComment(message + " :: " + e.getMessage());
-					UserCertificateRequestModel.super.update(get(rec.id), rec);
+					CertificateRequestUserModel.super.update(get(rec.id), rec);
 				} catch (SQLException e1) {
 					log.error("Failed to update request status while processing failed condition :" + message, e1);
 				}
@@ -561,7 +561,7 @@ public class UserCertificateRequestModel extends CertificateRequestModelBase<Cer
 						GenerateCSR csrgen = new GenerateCSR(name);
 						rec.csr = csrgen.getCSR();
 						context.setComment("Generated CSR and private key");
-						UserCertificateRequestModel.super.update(get(rec.id),rec);
+						CertificateRequestUserModel.super.update(get(rec.id),rec);
 	
 						// store private key in memory to be used to create pkcs12 later
 						HttpSession session = context.getSession();
@@ -580,7 +580,7 @@ public class UserCertificateRequestModel extends CertificateRequestModelBase<Cer
 					//all done at this point
 					rec.status = CertificateRequestStatus.ISSUED;
 					context.setComment("Certificate has been issued by signer");
-					UserCertificateRequestModel.super.update(get(rec.id), rec);
+					CertificateRequestUserModel.super.update(get(rec.id), rec);
 	
 					// update ticket
 					Authorization auth = context.getAuthorization();

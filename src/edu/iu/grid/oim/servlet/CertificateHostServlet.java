@@ -31,9 +31,9 @@ import edu.iu.grid.oim.model.CertificateRequestStatus;
 import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.CertificateRequestModelBase;
 import edu.iu.grid.oim.model.db.CertificateRequestModelBase.LogDetail;
-import edu.iu.grid.oim.model.db.HostCertificateRequestModel;
+import edu.iu.grid.oim.model.db.CertificateRequestHostModel;
 import edu.iu.grid.oim.model.db.ContactModel;
-import edu.iu.grid.oim.model.db.UserCertificateRequestModel;
+import edu.iu.grid.oim.model.db.CertificateRequestUserModel;
 import edu.iu.grid.oim.model.db.VOModel;
 import edu.iu.grid.oim.model.db.record.CertificateRequestHostRecord;
 import edu.iu.grid.oim.model.db.record.CertificateRequestUserRecord;
@@ -75,7 +75,7 @@ public class CertificateHostServlet extends ServletBase  {
 		if(dirty_id != null) {
 			try {
 				int id = Integer.parseInt(dirty_id);
-				HostCertificateRequestModel model = new HostCertificateRequestModel(context);
+				CertificateRequestHostModel model = new CertificateRequestHostModel(context);
 				CertificateRequestHostRecord rec = model.get(id);
 				if(rec == null) {
 					throw new ServletException("No request found with a specified request ID.");
@@ -83,7 +83,7 @@ public class CertificateHostServlet extends ServletBase  {
 				if(!model.canView(rec)) {
 					throw new AuthorizationException("You don't have access to view this certificate");
 				}
-				ArrayList<CertificateRequestModelBase<CertificateRequestHostRecord>.LogDetail> logs = model.getLogs(HostCertificateRequestModel.class, id);
+				ArrayList<CertificateRequestModelBase<CertificateRequestHostRecord>.LogDetail> logs = model.getLogs(CertificateRequestHostModel.class, id);
 				content = createDetailView(context, rec, logs);
 			} catch (SQLException e) {
 				throw new ServletException("Failed to load specified certificate", e);
@@ -273,7 +273,7 @@ public class CertificateHostServlet extends ServletBase  {
 		v.add(note);
 		
 		//controls
-		final HostCertificateRequestModel model = new HostCertificateRequestModel(context);
+		final CertificateRequestHostModel model = new CertificateRequestHostModel(context);
 		if(model.canApprove(rec)) {
 			final DivRepButton button = new DivRepButton(context.getPageRoot(), "<button class=\"btn btn-primary\"><i class=\"icon-ok icon-white\"></i> Approve</button>");
 			button.setStyle(DivRepButton.Style.HTML);
@@ -448,7 +448,7 @@ public class CertificateHostServlet extends ServletBase  {
 			}
 			
 			public void renderMyList(PrintWriter out) {
-				HostCertificateRequestModel model = new HostCertificateRequestModel(context);
+				CertificateRequestHostModel model = new CertificateRequestHostModel(context);
 				ContactModel cmodel = new ContactModel(context);
 				out.write("<table class=\"table certificate\">");
 				out.write("<thead><tr><th>ID</th><th>Status</th><th>GOC Ticket</th><th>FQDNs</th><th>Grid Admin</th></tr></thead>");

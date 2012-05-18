@@ -18,7 +18,7 @@ import edu.iu.grid.oim.lib.AuthorizationException;
 import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.ConfigModel;
-import edu.iu.grid.oim.model.db.HostCertificateRequestModel;
+import edu.iu.grid.oim.model.db.CertificateRequestHostModel;
 import edu.iu.grid.oim.model.db.record.CertificateRequestHostRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.exceptions.CertificateRequestException;
@@ -145,7 +145,7 @@ public class RestServlet extends ServletBase  {
 			throw new AuthorizationException("Sorry, you can't call this action - maybe not registered?");
 		}
 		
-		HostCertificateRequestModel model = new HostCertificateRequestModel(context);
+		CertificateRequestHostModel model = new CertificateRequestHostModel(context);
 		CertificateRequestHostRecord rec;
 		try {
 			if(auth.isUser()) {
@@ -176,7 +176,7 @@ public class RestServlet extends ServletBase  {
 		Integer host_request_id = Integer.parseInt(dirty_host_request_id);
 		String dirty_idx = request.getParameter("idx");
 		Integer idx = Integer.parseInt(dirty_idx);
-		HostCertificateRequestModel model = new HostCertificateRequestModel(context);
+		CertificateRequestHostModel model = new CertificateRequestHostModel(context);
 		try {
 			CertificateRequestHostRecord rec = model.get(host_request_id);
 			if(rec == null) {
@@ -196,7 +196,7 @@ public class RestServlet extends ServletBase  {
 		
 		String dirty_host_request_id = request.getParameter("host_request_id");
 		Integer host_request_id = Integer.parseInt(dirty_host_request_id);
-		HostCertificateRequestModel model = new HostCertificateRequestModel(context);
+		CertificateRequestHostModel model = new CertificateRequestHostModel(context);
 	
 		try {
 			CertificateRequestHostRecord rec = model.get(host_request_id);

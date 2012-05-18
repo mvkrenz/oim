@@ -36,10 +36,10 @@ import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.RecordBase;
 import edu.iu.grid.oim.model.exceptions.CertificateRequestException;
 
-public class HostCertificateRequestModel extends CertificateRequestModelBase<CertificateRequestHostRecord> {
-    static Logger log = Logger.getLogger(HostCertificateRequestModel.class);  
+public class CertificateRequestHostModel extends CertificateRequestModelBase<CertificateRequestHostRecord> {
+    static Logger log = Logger.getLogger(CertificateRequestHostModel.class);  
     
-    public HostCertificateRequestModel(UserContext _context) {
+    public CertificateRequestHostModel(UserContext _context) {
 		super(_context, "certificate_request_host");
 	}
     
@@ -152,7 +152,7 @@ public class HostCertificateRequestModel extends CertificateRequestModelBase<Cer
 					rec.status = CertificateRequestStatus.ISSUING;	//TODO - I am not sure if this really makes sense.
 				}
 				
-				HostCertificateRequestModel.super.update(get(rec.id), rec);
+				CertificateRequestHostModel.super.update(get(rec.id), rec);
 			} catch (SQLException e) {
 				throw new CertificateRequestException("Failed to update status for certificate request: " + rec.id);
 			}

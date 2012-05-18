@@ -25,8 +25,8 @@ import com.divrep.validator.DivRepIValidator;
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.HashHelper;
 import edu.iu.grid.oim.model.UserContext;
-import edu.iu.grid.oim.model.db.HostCertificateRequestModel;
-import edu.iu.grid.oim.model.db.UserCertificateRequestModel;
+import edu.iu.grid.oim.model.db.CertificateRequestHostModel;
+import edu.iu.grid.oim.model.db.CertificateRequestUserModel;
 import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.DNModel;
 import edu.iu.grid.oim.model.db.VOModel;
@@ -177,7 +177,7 @@ public class CertificateRequestHostForm extends DivRepForm
 		
 		//do certificate request
 		try {
-			HostCertificateRequestModel certmodel = new HostCertificateRequestModel(context);
+			CertificateRequestHostModel certmodel = new CertificateRequestHostModel(context);
 			CertificateRequestHostRecord rec;
 			if(auth.isUser()) {
 				rec = certmodel.requestAsUser(csrs, auth.getContact());

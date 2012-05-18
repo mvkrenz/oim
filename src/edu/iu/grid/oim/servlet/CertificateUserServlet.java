@@ -31,7 +31,7 @@ import edu.iu.grid.oim.model.CertificateRequestStatus;
 import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.CertificateRequestModelBase;
 import edu.iu.grid.oim.model.db.CertificateRequestModelBase.LogDetail;
-import edu.iu.grid.oim.model.db.UserCertificateRequestModel;
+import edu.iu.grid.oim.model.db.CertificateRequestUserModel;
 import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.VOContactModel;
 import edu.iu.grid.oim.model.db.VOModel;
@@ -58,7 +58,7 @@ public class CertificateUserServlet extends ServletBase  {
 	{
 		UserContext context = new UserContext(request);
 
-		UserCertificateRequestModel model = new UserCertificateRequestModel(context);
+		CertificateRequestUserModel model = new CertificateRequestUserModel(context);
 		/*
 		CertificateRequestUserRecord current;
 		try {
@@ -81,7 +81,7 @@ public class CertificateUserServlet extends ServletBase  {
 				if(!model.canView(rec)) {
 					throw new AuthorizationException("You don't have access to view this certificate");
 				}
-				ArrayList<CertificateRequestModelBase<CertificateRequestUserRecord>.LogDetail> logs = model.getLogs(UserCertificateRequestModel.class, id);
+				ArrayList<CertificateRequestModelBase<CertificateRequestUserRecord>.LogDetail> logs = model.getLogs(CertificateRequestUserModel.class, id);
 				content = createDetailView(context, rec, logs);
 			} catch (SQLException e) {
 				throw new ServletException("Failed to load specified certificate", e);
@@ -209,7 +209,7 @@ public class CertificateUserServlet extends ServletBase  {
 					out.write("<td>");
 					HttpSession session = context.getSession();
 
-					UserCertificateRequestModel model = new UserCertificateRequestModel(context);
+					CertificateRequestUserModel model = new CertificateRequestUserModel(context);
 					if(model.getPrivateKey(rec.id) != null) {
 						out.write("<a href=\"certificatedownload?id="+rec.id+"&type=user&download=pkcs12\">Download PKCS12</a><br>");
 						out.write("<p class=\"alert\">You can only download PKCS12 certificate while your browser session is active. Afterward, you can only download PKCS7.</p>");
@@ -312,7 +312,7 @@ public class CertificateUserServlet extends ServletBase  {
 		v.add(note);
 		
 		//controls
-		final UserCertificateRequestModel model = new UserCertificateRequestModel(context);
+		final CertificateRequestUserModel model = new CertificateRequestUserModel(context);
 		if(model.canApprove(rec)) {
 			final DivRepButton button = new DivRepButton(context.getPageRoot(), "<button class=\"btn btn-primary\"><i class=\"icon-ok icon-white\"></i> Approve</button>");
 			button.setStyle(DivRepButton.Style.HTML);
@@ -520,7 +520,7 @@ public class CertificateUserServlet extends ServletBase  {
 			}
 			
 			public void renderMyList(PrintWriter out) {
-				UserCertificateRequestModel usermodel = new UserCertificateRequestModel(context);
+				CertificateRequestUserModel usermodel = new CertificateRequestUserModel(context);
 				out.write("<table class=\"table certificate\">");
 				out.write("<thead><tr><th>ID</th><th>Status</th><th>GOC Ticket</th><th>DN</th><th>VO</th><th>RA</th></tr></thead>");
 				try {

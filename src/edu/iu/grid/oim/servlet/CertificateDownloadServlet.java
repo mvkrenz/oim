@@ -16,8 +16,8 @@ import org.apache.log4j.Logger;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.model.UserContext;
-import edu.iu.grid.oim.model.db.HostCertificateRequestModel;
-import edu.iu.grid.oim.model.db.UserCertificateRequestModel;
+import edu.iu.grid.oim.model.db.CertificateRequestHostModel;
+import edu.iu.grid.oim.model.db.CertificateRequestUserModel;
 import edu.iu.grid.oim.model.db.record.CertificateRequestHostRecord;
 import edu.iu.grid.oim.model.db.record.CertificateRequestUserRecord;
 import edu.iu.grid.oim.model.exceptions.CertificateRequestException;
@@ -37,7 +37,7 @@ public class CertificateDownloadServlet extends ServletBase  {
 		if(id_dirty != null && type != null && download != null) {
 			Integer id = Integer.parseInt(id_dirty);
 			if(type.equals("user")) {
-				UserCertificateRequestModel model = new UserCertificateRequestModel(context);
+				CertificateRequestUserModel model = new CertificateRequestUserModel(context);
 				try {
 					CertificateRequestUserRecord rec = model.get(id);
 					if(model.canView(rec)) {
@@ -69,7 +69,7 @@ public class CertificateDownloadServlet extends ServletBase  {
 				String idx_dirty = request.getParameter("idx");
 				Integer idx = Integer.parseInt(idx_dirty);
 					
-				HostCertificateRequestModel model = new HostCertificateRequestModel(context);
+				CertificateRequestHostModel model = new CertificateRequestHostModel(context);
 				try {
 					CertificateRequestHostRecord rec = model.get(id);
 					if(model.canView(rec)) {

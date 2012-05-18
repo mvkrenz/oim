@@ -24,7 +24,7 @@ import edu.iu.grid.oim.lib.AuthorizationException;
 import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.model.CertificateRequestStatus;
 import edu.iu.grid.oim.model.UserContext;
-import edu.iu.grid.oim.model.db.UserCertificateRequestModel;
+import edu.iu.grid.oim.model.db.CertificateRequestUserModel;
 import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.VOModel;
 import edu.iu.grid.oim.model.db.record.CertificateRequestUserRecord;
@@ -52,7 +52,7 @@ public class CertificateServlet extends ServletBase  {
 			response.sendRedirect("certificaterequestuser");
 			return;
 		} else if(auth.isUser()) {
-			UserCertificateRequestModel model = new UserCertificateRequestModel(context);
+			CertificateRequestUserModel model = new CertificateRequestUserModel(context);
 			/*
 			CertificateRequestUserRecord rec;
 			try {

@@ -24,7 +24,7 @@ import com.divrep.validator.DivRepIValidator;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.model.UserContext;
-import edu.iu.grid.oim.model.db.UserCertificateRequestModel;
+import edu.iu.grid.oim.model.db.CertificateRequestUserModel;
 import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.DNModel;
 import edu.iu.grid.oim.model.db.VOModel;
@@ -288,7 +288,7 @@ public class CertificateRequestUserForm extends DivRepForm
 	
 		//do certificate request with no csr
 		try {
-			UserCertificateRequestModel certmodel = new UserCertificateRequestModel(context);
+			CertificateRequestUserModel certmodel = new CertificateRequestUserModel(context);
 			CertificateRequestUserRecord rec = null;
 			if(auth.isGuest()) {
 				//requester_passphrase = HashHelper.sha1(passphrase.getValue());
