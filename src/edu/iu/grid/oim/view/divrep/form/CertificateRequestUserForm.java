@@ -207,7 +207,7 @@ public class CertificateRequestUserForm extends DivRepForm
 			}});
 		
 		new DivRepStaticContent(this, "<h2>Sponsor</h2>");
-		new DivRepStaticContent(this, "<p class=\"help-block\">Please select VO who should approve your request.</p>");
+		new DivRepStaticContent(this, "<p class=\"help-block\">Please select VO that should approve your request.</p>");
 		
 		VOModel vo_model = new VOModel(context);
 		LinkedHashMap<Integer, String> kv = new LinkedHashMap();
