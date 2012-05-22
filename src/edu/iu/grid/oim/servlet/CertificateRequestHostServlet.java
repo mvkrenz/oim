@@ -52,15 +52,10 @@ public class CertificateRequestHostServlet extends ServletBase  {
 	{
 		UserContext context = new UserContext(request);
 		
-		/*
-		CertificateRequestUserRecord userrec;
-		try {
-			UserCertificateRequestModel umodel = new UserCertificateRequestModel(context);
-			userrec = umodel.getCurrent();
-		} catch(SQLException e) {
-			throw new ServletException("Failed to load current user certificate", e);
+		//only run on debug
+		if(!StaticConfig.isDebug()) {
+			throw new AuthorizationException("this feature is not yet available on production");
 		}
-		*/
 		
 		BootMenuView menuview = new BootMenuView(context, "certificate");
 		BootPage page = new BootPage(context, menuview, createContent(context), null);
