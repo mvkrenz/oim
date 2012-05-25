@@ -40,15 +40,15 @@ public class Authorization {
     	}
     	return null;
     }
+    
     private boolean secure = false;
     public boolean isSecure() { return secure; }
-
+     
     //public Integer getContactID() { return contact_id; }
     public ContactRecord getContact() 
     {
     	return contact;
     }
-    
     
     //it really doesn't make sense that this belongs in Authorization, but since Authorization holds the Contact record..
     public TimeZone getTimeZone() {
@@ -64,7 +64,7 @@ public class Authorization {
     }
     
     //User type
-    static enum UserType { GUEST, UNREGISTERED, DISABLED, USER, LOCAL };
+    static enum UserType { _GUEST, UNREGISTERED, DISABLED, USER, LOCAL };
     private UserType usertype;
     public UserType getUserType() { return usertype; }
     public Boolean isLocal() { return (usertype == UserType.LOCAL); }
@@ -93,14 +93,15 @@ public class Authorization {
 	
 	//used to create default Context
 	public Authorization() {
-		usertype = UserType.GUEST;
+		usertype = UserType._GUEST;
 	}
 	
 	//pull user_dn from Apache's SSL_CLIENT_S_DN
 	public Authorization(HttpServletRequest request) throws AuthorizationException 
 	{		
 		guest_context = UserContext.getGuestContext();
-		usertype = UserType.GUEST;
+		usertype = UserType._GUEST;
+		loadGuestAction();
 		
 		if(request.isSecure()) {
 			secure = true;
@@ -119,9 +120,11 @@ public class Authorization {
 			usertype = UserType.LOCAL;
 		} else {
 			//figure out usertype from SSL ENV (if provided)
+			/*
 			String client_verify = (String)request.getAttribute("SSL_CLIENT_VERIFY");
 			if(client_verify != null && !client_verify.equals("none")) {
-				//user is accessing via https
+			*/
+			if(secure) {
 				
 				//we set mod_jk to return "none" if the value doesn't exist. let's convert back to null.
 				String user_dn_tmp = (String)request.getAttribute("SSL_CLIENT_S_DN");
@@ -138,6 +141,7 @@ public class Authorization {
 				if(user_dn == null || user_cn == null) {
 					log.info("SSL_CLIENT_S_DN or SSL_CLIENT_I_DN_CN is not set. Logging in as guest.");
 				} else {
+					String client_verify = (String)request.getAttribute("SSL_CLIENT_VERIFY");
 					if(client_verify == null || !(client_verify.equals("SUCCESS"))) {
 						log.info("SSL_DN / CN is set, but CLIENT_VERIFY has failed :: "+client_verify+". Logging in as guest");
 						user_dn = null;
@@ -170,12 +174,9 @@ public class Authorization {
 						}
 					}
 				}
-			} else {
-				//user is most likely accessing via http
-				usertype = UserType.GUEST;
-				loadGuestAction();
 			}
 		}
+		
 		log.debug("Determined UserType:" + usertype.toString());
 	}
 	
@@ -194,7 +195,7 @@ public class Authorization {
 	        String hostname = addr.getHostName();
 			if(hostname.equals("t520") || hostname.equals("d830")) {
 				if(request.isSecure()) {
-					request.setAttribute("SSL_CLIENT_VERIFY", "SUCCESS");
+					//request.setAttribute("SSL_CLIENT_VERIFY", "SUCCESS");
 			
 					//user_dn = null; user_cn = null;//browser didn't give us any dn
 					//user_dn = "/DC=org/DC=doegrids/OU=People/CN=Soichi Hayashi 461343";	
