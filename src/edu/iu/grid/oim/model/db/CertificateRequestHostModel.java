@@ -341,12 +341,17 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 			ticket.description += "Host certificate request has been submitted.";
 			String url = StaticConfig.getApplicationBase() + "/certificatehost?id=" + rec.id;
 			ticket.description += "Please determine this request's authenticity, and approve / disapprove at " + url;
+			/*
 			if(StaticConfig.isDebug()) {
 				ticket.assignees.add("hayashis");
 			} else {
 				ticket.assignees.add("adeximo");
 				ticket.ccs.add(ga.primary_email);
 			}
+			*/
+			ticket.assignees.add(StaticConfig.conf.getProperty("certrequest.host.assignee"));
+			ticket.ccs.add(ga.primary_email);
+			
 			ticket.nextaction = "RA/Sponsors to verify requester";
 			Calendar nad = Calendar.getInstance();
 			nad.add(Calendar.DATE, 7);

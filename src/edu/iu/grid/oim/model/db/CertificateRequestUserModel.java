@@ -873,11 +873,15 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 		ticket.description += auth_status + requester.name + " <"+requester.primary_email+"> has requested a user certificate. ";
 		String url = StaticConfig.getApplicationBase() + "/certificateuser?id=" + rec.id;
 		ticket.description += "Please determine this request's authenticity, and approve / disapprove at " + url;
+		/*
 		if(StaticConfig.isDebug()) {
 			ticket.assignees.add("hayashis");
 		} else {
 			ticket.assignees.add("adeximo");
 		}
+		*/
+		ticket.assignees.add(StaticConfig.conf.getProperty("certrequest.user.assignee"));
+		
 		ticket.nextaction = "RA/Sponsors to verify requester";	 //NAD will be set to 7 days in advance by default
 		
 		//set metadata
