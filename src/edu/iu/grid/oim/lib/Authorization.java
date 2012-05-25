@@ -40,8 +40,9 @@ public class Authorization {
     	}
     	return null;
     }
+    private boolean https = false;
+    public boolean isHTTPS() { return https; }
 
-    
     //public Integer getContactID() { return contact_id; }
     public ContactRecord getContact() 
     {
@@ -63,12 +64,12 @@ public class Authorization {
     }
     
     //User type
-    static enum UserType { GUEST, NOCERT, UNREGISTERED, DISABLED, USER, LOCAL };
+    static enum UserType { GUEST, UNREGISTERED, DISABLED, USER, LOCAL };
     private UserType usertype;
     public UserType getUserType() { return usertype; }
     public Boolean isLocal() { return (usertype == UserType.LOCAL); }
     public Boolean isDisabled() { return (usertype == UserType.DISABLED); }
-    public Boolean isGuest() { return (usertype == UserType.GUEST); }
+    //public Boolean isGuest() { return (usertype == UserType.GUEST); }
     public Boolean isUser() { return (usertype == UserType.USER); }
     public Boolean isUnregistered() { return (usertype == UserType.UNREGISTERED); }
     
@@ -100,6 +101,12 @@ public class Authorization {
 	{		
 		guest_context = UserContext.getGuestContext();
 		usertype = UserType.GUEST;
+		
+		if(request.getAttribute("HTTPS").equals("on")) {
+			https = true;
+		} else {
+			https = false;
+		}
 
 		//String localname = request.getLocalName(); //the host name of the Internet Protocol (IP) interface on which the request was received.
 		if(StaticConfig.isDebug()) {

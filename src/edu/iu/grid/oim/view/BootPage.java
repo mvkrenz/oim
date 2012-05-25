@@ -55,12 +55,12 @@ public class BootPage implements IView {
 	{
 		Authorization auth = context.getAuthorization();
 		
-		if(auth.isGuest()) {
-			params.put("__BASE__", StaticConfig.conf.getProperty("application.guestbase"));	
-			params.put("__GOCTICKET__", "http://ticket.grid.iu.edu/goc");
-		} else {
+		if(auth.isHTTPS()) {
 			params.put("__BASE__", StaticConfig.getApplicationBase());
 			params.put("__GOCTICKET__", "https://ticket.grid.iu.edu/goc");
+		} else {
+			params.put("__BASE__", StaticConfig.conf.getProperty("application.guestbase"));	
+			params.put("__GOCTICKET__", "http://ticket.grid.iu.edu/goc");
 		}
 		
 		if(StaticConfig.isDebug()) {

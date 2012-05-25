@@ -48,10 +48,10 @@ public class CertificateServlet extends ServletBase  {
 		Authorization auth = context.getAuthorization();
 		
 		//redirect to the most appropriate page
-		if(auth.isGuest()) {
+		if(!auth.isUser()) {
 			response.sendRedirect("certificaterequestuser");
 			return;
-		} else if(auth.isUser()) {
+		} else {
 			CertificateRequestUserModel model = new CertificateRequestUserModel(context);
 			/*
 			CertificateRequestUserRecord rec;

@@ -66,7 +66,7 @@ public class CertificateRequestUserForm extends DivRepForm
 		auth = context.getAuthorization();
 		ContactRecord contact = auth.getContact();
 	
-		if(auth.isGuest()) {
+		if(!auth.isUser()) {
 			new DivRepStaticContent(this, "<h2>Contact Information</h2>");
 			new DivRepStaticContent(this, "<p class=\"help-block\">Following information will be used to contact you during the approval process.</p>");
 					
@@ -178,7 +178,7 @@ public class CertificateRequestUserForm extends DivRepForm
 			
 			new DivRepStaticContent(this, "<h2>Passphrase</h2>");
 			new DivRepStaticContent(this, "<p class=\"help-block\">Please pick a passphrase to retrieve your certificate once issued.</p>");
-			if(auth.isGuest()) {
+			if(!auth.isUser()) {
 				new DivRepStaticContent(this, "<p class=\"help-block\">This passphrase will also be used to encrypt your certificate.</p>");
 			}
 			passphrase = new DivRepPassword(this);
@@ -290,7 +290,7 @@ public class CertificateRequestUserForm extends DivRepForm
 		try {
 			CertificateRequestUserModel certmodel = new CertificateRequestUserModel(context);
 			CertificateRequestUserRecord rec = null;
-			if(auth.isGuest()) {
+			if(!auth.isUser()) {
 				//requester_passphrase = HashHelper.sha1(passphrase.getValue());
 				rec = certmodel.requestGuestWithNOCSR(vo.getValue(), user, passphrase.getValue());
 			} else {

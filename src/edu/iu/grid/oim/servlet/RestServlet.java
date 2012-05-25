@@ -123,7 +123,14 @@ public class RestServlet extends ServletBase  {
 		
 		String[] csrs = request.getParameterValues("csrs");
 		String name, email, phone;
-		if(auth.isGuest()) {
+		if(!auth.isUser()) {
+			ContactRecord user = auth.getContact();
+			name = user.name;
+			email = user.primary_email;
+			phone = user.primary_phone;
+			
+			context.setComment("OIM authenticated user; " + name + " submitted host certificatates request.");
+		} else {	
 			name = request.getParameter("name");
 			email = request.getParameter("email");
 			phone = request.getParameter("phone");
@@ -134,15 +141,6 @@ public class RestServlet extends ServletBase  {
 				throw new RestException("Please provide name, email, phone in order to create GOC ticket.");
 			}
 			context.setComment("Guest user; " + name + " submitted host certificatates request.");
-		} else if(auth.isUser()){
-			ContactRecord user = auth.getContact();
-			name = user.name;
-			email = user.primary_email;
-			phone = user.primary_phone;
-			
-			context.setComment("OIM authenticated user; " + name + " submitted host certificatates request.");
-		} else {
-			throw new AuthorizationException("Sorry, you can't call this action - maybe not registered?");
 		}
 		
 		CertificateRequestHostModel model = new CertificateRequestHostModel(context);

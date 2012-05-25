@@ -190,8 +190,6 @@ public class BootMenuView implements IView {
 				
 			out.println("</ul>");//dropdown-menu
 			out.println("</li>");//dropdown
-		} else if(auth.isGuest()){
-			out.println("<li><a href=\""+StaticConfig.conf.getProperty("application.base")+"\">Login</a></li>");	
 		} else if(auth.isUnregistered()) {
 			if(current.equals("register")) {
 				out.println("<li class=\"active\">");
@@ -204,7 +202,9 @@ public class BootMenuView implements IView {
 			out.println("<li><a href=\""+httpurl+"\">Logoff</a></li>");
 		} else if(auth.isDisabled()) {			
 			String httpurl = StaticConfig.conf.getProperty("application.guestbase");
-			out.println("<li><a href=\""+httpurl+"\">Logoff</a></li>");
+			out.println("<li><a href=\""+httpurl+"\">(Disabled) Logoff</a></li>");
+		} else {
+			out.println("<li><a href=\""+StaticConfig.conf.getProperty("application.base")+"\">Login</a></li>");	
 		}
 		
 		out.println("</ul>");//nav (pull-right)

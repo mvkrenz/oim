@@ -61,7 +61,7 @@ public class CertificateRequestHostForm extends DivRepForm
 		ContactRecord contact = auth.getContact();
 	
 
-		if(auth.isGuest()) {
+		if(!auth.isUser()) {
 			new DivRepStaticContent(this, "<h2>Contact Information</h2>");
 			new DivRepStaticContent(this, "<p class=\"help-block\">Following information will be used to contact you during the approval process.</p>");
 					

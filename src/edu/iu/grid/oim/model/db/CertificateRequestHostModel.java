@@ -660,10 +660,13 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 		if(!canView(rec)) return false;
 		
 		if(rec.status.equals(CertificateRequestStatus.ISSUED)) {
-			//revocation request is only for guest
-			if(auth.isGuest()) {
-				return true;
+			if(auth.isUser() && canRevoke(rec)) {
+				//if user can directly revoke it, no need to request it
+				return false;
 			}
+			
+			//all else, allow
+			return true;
 		}
 		return false;
 	}

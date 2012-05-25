@@ -10,6 +10,7 @@ import java.net.URLEncoder;
 
 import org.apache.log4j.Logger;
 
+import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.model.UserContext;
 
@@ -43,12 +44,17 @@ public class Page implements IView {
 
 	public void render(PrintWriter out)
 	{
+		Authorization auth = context.getAuthorization();
+		
 		//params.put("__STATICBASE__", StaticConfig.getStaticBase());
-		if(context.getAuthorization().isGuest()) {
-			params.put("__BASE__", StaticConfig.conf.getProperty("application.guestbase"));	
-		} else {
+		if(auth.isHTTPS()) {
 			params.put("__BASE__", StaticConfig.getApplicationBase());
+			params.put("__GOCTICKET__", "https://ticket.grid.iu.edu/goc");
+		} else {
+			params.put("__BASE__", StaticConfig.conf.getProperty("application.guestbase"));	
+			params.put("__GOCTICKET__", "http://ticket.grid.iu.edu/goc");
 		}
+		
 		params.put("__APPNAME__", StaticConfig.getApplicationName());
 		params.put("__VERSION__", StaticConfig.getVersion());
 		
@@ -64,12 +70,12 @@ public class Page implements IView {
 			log.error(e);
 		} 
 
-		if(context.getAuthorization().isGuest()) {
-			params.put("__DN__", "Guest");
+		if(context.getAuthorization().isUser()) {
+			params.put("__DN__", context.getAuthorization().getUserDN());
 		} else if(context.getAuthorization().isUnregistered()) {
 			params.put("__DN__", "Unregistered DN (" + context.getAuthorization().getUserDN() + ")");
 		} else {
-			params.put("__DN__", context.getAuthorization().getUserDN());
+			params.put("__DN__", "Guest");
 		}		
 		
 		String exhead = new String();
