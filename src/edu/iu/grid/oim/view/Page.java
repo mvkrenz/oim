@@ -47,7 +47,7 @@ public class Page implements IView {
 		Authorization auth = context.getAuthorization();
 		
 		//params.put("__STATICBASE__", StaticConfig.getStaticBase());
-		if(auth.isHTTPS()) {
+		if(auth.isSecure()) {
 			params.put("__BASE__", StaticConfig.getApplicationBase());
 			params.put("__GOCTICKET__", "https://ticket.grid.iu.edu/goc");
 		} else {

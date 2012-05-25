@@ -40,8 +40,8 @@ public class Authorization {
     	}
     	return null;
     }
-    private boolean https = false;
-    public boolean isHTTPS() { return https; }
+    private boolean secure = false;
+    public boolean isSecure() { return secure; }
 
     //public Integer getContactID() { return contact_id; }
     public ContactRecord getContact() 
@@ -102,10 +102,10 @@ public class Authorization {
 		guest_context = UserContext.getGuestContext();
 		usertype = UserType.GUEST;
 		
-		if(request.getAttribute("HTTPS").equals("on")) {
-			https = true;
+		if(request.isSecure()) {
+			secure = true;
 		} else {
-			https = false;
+			secure = false;
 		}
 
 		//String localname = request.getLocalName(); //the host name of the Internet Protocol (IP) interface on which the request was received.

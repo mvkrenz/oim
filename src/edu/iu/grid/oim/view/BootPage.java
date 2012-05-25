@@ -55,7 +55,7 @@ public class BootPage implements IView {
 	{
 		Authorization auth = context.getAuthorization();
 		
-		if(auth.isHTTPS()) {
+		if(auth.isSecure()) {
 			params.put("__BASE__", StaticConfig.getApplicationBase());
 			params.put("__GOCTICKET__", "https://ticket.grid.iu.edu/goc");
 		} else {

@@ -203,9 +203,13 @@ public class BootMenuView implements IView {
 		} else if(auth.isDisabled()) {			
 			String httpurl = StaticConfig.conf.getProperty("application.guestbase");
 			out.println("<li><a href=\""+httpurl+"\">(Disabled) Logoff</a></li>");
+		} else if(auth.isSecure()) {
+			String httpurl = StaticConfig.conf.getProperty("application.guestbase");
+			out.println("<li><a href=\""+httpurl+"\">(NoCert) Logoff</a></li>");
 		} else {
 			out.println("<li><a href=\""+StaticConfig.conf.getProperty("application.base")+"\">Login</a></li>");	
 		}
+		
 		
 		out.println("</ul>");//nav (pull-right)
 		
