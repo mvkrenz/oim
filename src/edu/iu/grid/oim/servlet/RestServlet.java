@@ -123,7 +123,7 @@ public class RestServlet extends ServletBase  {
 		
 		String[] csrs = request.getParameterValues("csrs");
 		String name, email, phone;
-		if(!auth.isUser()) {
+		if(auth.isUser()) {
 			ContactRecord user = auth.getContact();
 			name = user.name;
 			email = user.primary_email;
