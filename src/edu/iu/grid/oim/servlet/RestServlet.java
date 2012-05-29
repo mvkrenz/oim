@@ -122,6 +122,10 @@ public class RestServlet extends ServletBase  {
 		Authorization auth = context.getAuthorization();
 		
 		String[] csrs = request.getParameterValues("csrs");
+		if(csrs == null) {
+			throw new RestException("csrs parameter is not set.");
+		}
+		
 		String name, email, phone;
 		if(auth.isUser()) {
 			ContactRecord user = auth.getContact();
