@@ -195,7 +195,7 @@ public class Authorization {
 	        String hostname = addr.getHostName();
 			if(hostname.equals("t520") || hostname.equals("d830")) {
 				if(request.isSecure()) {
-					//request.setAttribute("SSL_CLIENT_VERIFY", "SUCCESS");
+					request.setAttribute("SSL_CLIENT_VERIFY", "SUCCESS");
 			
 					//user_dn = null; user_cn = null;//browser didn't give us any dn
 					//user_dn = "/DC=org/DC=doegrids/OU=People/CN=Soichi Hayashi 461343";	

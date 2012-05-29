@@ -566,11 +566,16 @@ public class VOFormDE extends DivRepForm
 				}
 			}
 			
-			//only admin_ra can edit ra
-			if(contact_type.id == 11) {//RA
+			//request authority
+			if(contact_type.id == 11) {
+				//only admin_ra can edit ra
 				if(!auth.allows("admin_ra")) {
 					editor.setDisabled(true);
 				}
+				
+				editor.setLabel(Rank.PRIMARY, "Primary RA");
+				editor.setLabel(Rank.SECONDARY, "Secondary RA");
+				editor.setLabel(Rank.TERTIARY, "Sponsors");
 			}
 			
 			if(contact_type.id != 5 && contact_type.id != 10 && contact_type.id != 11) { //5 = misc, 9 = resource report, 11 = ra agent

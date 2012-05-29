@@ -31,6 +31,17 @@ public class ContactEditor extends DivRepFormElement<HashMap<ContactEditor.Rank,
 	public enum Rank {PRIMARY, SECONDARY, TERTIARY };
 	private HashMap<Rank/*rank_id*/, ArrayList<ContactDE>> selected;
 	
+	private String primary_label = "Primary";
+	private String secondary_label = "Secondary";
+	private String tertiary_label = "Tertiary";
+	public void setLabel(Rank rank, String label) {
+		switch(rank) {
+		case PRIMARY: primary_label = label; break;
+		case SECONDARY: secondary_label = label; break;
+		case TERTIARY: tertiary_label = label; break;
+		}
+	}
+	
 	// Default max contact limits - can be overridden 
 	private int max_primary = 1;
 	private int max_secondary = 1;
@@ -373,23 +384,23 @@ public class ContactEditor extends DivRepFormElement<HashMap<ContactEditor.Rank,
 		} else {
 			out.print("<table class='contact_table'>");
 		}
-		renderContactList(out, primary_newcontact, selected.get(Rank.PRIMARY), "Primary", max_primary);
+		renderContactList(out, primary_newcontact, selected.get(Rank.PRIMARY), Rank.PRIMARY, primary_label, max_primary);
 		if(has_secondary) {
-			renderContactList(out, secondary_newcontact, selected.get(Rank.SECONDARY), "Secondary", max_secondary);
+			renderContactList(out, secondary_newcontact, selected.get(Rank.SECONDARY), Rank.SECONDARY, secondary_label, max_secondary);
 		}
 		if(has_tertiary) {
-			renderContactList(out, tertiary_newcontact, selected.get(Rank.TERTIARY), "Tertiary", max_tertiary);
+			renderContactList(out, tertiary_newcontact, selected.get(Rank.TERTIARY), Rank.TERTIARY, tertiary_label, max_tertiary);
 		}
 		out.print("</table>");
 		error.render(out);
 		out.print("</div>");
 	}
 	
-	public void renderContactList(PrintWriter out, NewContactDE newcontact, ArrayList<ContactDE> selected, String rank, int max)
+	public void renderContactList(PrintWriter out, NewContactDE newcontact, ArrayList<ContactDE> selected, Rank rank, String label, int max)
 	{
 		out.print("<tr>");
 		if(show_rank) {
-			out.print("<th><div class='contact_rank contact_"+rank+"'>"+rank+"</div></th>");
+			out.print("<th><div class='contact_rank contact_"+rank+"'>"+label+"</div></th>");
 		}
 		if(selected.size() == max || isDisabled()) {
 			//list is full or disabled

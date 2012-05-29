@@ -21,13 +21,11 @@ import com.divrep.common.DivRepTextArea;
 import com.divrep.common.DivRepTextBox;
 import com.divrep.common.DivRepToggler;
 import com.divrep.validator.DivRepEmailValidator;
-import com.divrep.validator.DivRepIValidator;
 import com.divrep.validator.DivRepIntegerValidator;
 import com.divrep.validator.DivRepUniqueValidator;
 import com.divrep.validator.DivRepUrlValidator;
 
 import edu.iu.grid.oim.lib.Authorization;
-import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.ConfigModel;
 import edu.iu.grid.oim.model.db.ContactModel;
@@ -36,7 +34,6 @@ import edu.iu.grid.oim.model.db.record.DNRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.view.ContactAssociationView;
 import edu.iu.grid.oim.view.divrep.Confirmation;
-import edu.iu.grid.oim.view.divrep.ViewWrapper;
 
 //alter table contact add column timezone varchar(16) default value "UTC";
 

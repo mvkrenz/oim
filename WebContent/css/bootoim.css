@@ -36,7 +36,7 @@ border-collapse: collapse;
 table.contact_table th
 {
 text-align: left;
-width: 90px;
+width: 110px;
 padding-top: 5px;
 padding-bottom: 5px;
 padding-right: 10px;
@@ -270,15 +270,15 @@ background-repeat:no-repeat;
 padding-left:23px;
 min-height: 20px;
 }
-div.contact_Primary
+div.contact_PRIMARY
 {
 background-image:url(../images/star_red.png);
 }
-div.contact_Secondary
+div.contact_SECONDARY
 {
 background-image:url(../images/star_blue.png);
 }
-div.contact_Tertiary
+div.contact_TERTIARY
 {
 background-image:url(../images/star_green.png);
 }
