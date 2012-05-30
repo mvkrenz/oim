@@ -22,6 +22,7 @@ import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Footprints;
 import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.lib.Footprints.FPTicket;
+import edu.iu.grid.oim.lib.StringArray;
 import edu.iu.grid.oim.model.CertificateRequestStatus;
 import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.cert.CertificateManager;
@@ -77,112 +78,113 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 	public String getPkcs7(CertificateRequestHostRecord rec, int idx) throws CertificateRequestException {
 		StringArray pkcs7s = new StringArray(rec.cert_pkcs7);
 		if(pkcs7s.length() > idx) {
-			String pkcs7 = pkcs7s.get(idx);
-			if(pkcs7 == null) {
-				if(rec.status.equals(CertificateRequestStatus.APPROVED) || rec.status.equals(CertificateRequestStatus.ISSUING) ) {	
-					pkcs7 = issueCertificate(rec, idx);
-				}
-			}
-			return pkcs7;
+			return pkcs7s.get(idx);
 		} else {
 			throw new CertificateRequestException("Index is larger than the number of CSR requested");
 		}
 	}
 	
-	//NO-AC (no check for idx out-of-bound)
-	//issue idx specified certificate, and store back to DB. return pkcs7
-	private String issueCertificate(CertificateRequestHostRecord rec, int idx) throws CertificateRequestException {
-		StringArray csrs = new StringArray(rec.csrs);
-		String csr = csrs.get(idx);
-
-		//pull CN
-		String cn;
+	//NO-AC
+	//issue all requested certs and store it back to DB
+	public void startissue(final CertificateRequestHostRecord rec) throws CertificateRequestException {
+		// mark the request as "issuing.."
 		try {
-			PKCS10CertificationRequest pkcs10 = new PKCS10CertificationRequest(Base64.decode(csr));
-			X500Name name = pkcs10.getSubject();
-			RDN[] cn_rdn = name.getRDNs(BCStyle.CN);
-			cn = cn_rdn[0].getFirst().getValue().toString(); //wtf?
-		} catch (IOException e2) {
-			throw new CertificateRequestException("Failed to obtain cn from given csr", e2);
-		}
+			rec.status = CertificateRequestStatus.ISSUING;
+			super.update(get(rec.id), rec);
+		} catch (SQLException e) {
+			log.error("Failed to update certificate request status for request:" + rec.id);
+			throw new CertificateRequestException("Failed to update certificate request status");
+		};
 		
-		CertificateManager cm = new CertificateManager();
-		try {
-			ICertificateSigner.Certificate cert = cm.signHostCertificate(csr, cn);
+		new Thread(new Runnable() {
+			public void failed(String message, Throwable e) {
+				log.error(message, e);
+				rec.status = CertificateRequestStatus.FAILED;
+				try {
+					context.setComment(message + " :: " + e.getMessage());
+					CertificateRequestHostModel.super.update(get(rec.id), rec);
+				} catch (SQLException e1) {
+					log.error("Failed to update request status while processing failed condition :" + message, e1);
+				}
+			}
 			
-			StringArray cert_certificates = new StringArray(rec.cert_certificate);
-			cert_certificates.set(idx, cert.certificate);
-			rec.cert_certificate = cert_certificates.toXML();
 			
-			StringArray cert_intermediates = new StringArray(rec.cert_intermediate);
-			cert_intermediates.set(idx, cert.intermediate);
-			rec.cert_intermediate = cert_intermediates.toXML();
-			
-			StringArray cert_pkcs7s = new StringArray(rec.cert_pkcs7);
-			cert_pkcs7s.set(idx, cert.pkcs7);
-			rec.cert_pkcs7 = cert_pkcs7s.toXML();
-			
-			StringArray cert_serial_ids = new StringArray(rec.cert_serial_ids);
-			cert_serial_ids.set(idx,  cert.serial);
-			rec.cert_serial_ids = cert_serial_ids.toXML();
-			
-			try {
-				//if all certificate is issued, change status to ISSUED
-				boolean issued = true;
-				for(String s : cert_pkcs7s.getAll()) {
-					if(s == null) {
-						issued = false;
-						break;
+			public void run() {
+				CertificateManager cm = new CertificateManager();
+				try {
+					StringArray csrs = new StringArray(rec.csrs);
+					ICertificateSigner.Certificate[] certs = cm.signHostCertificates(csrs);
+
+					//update records
+					int idx = 0;
+					StringArray cert_certificates = new StringArray(rec.cert_certificate);
+					StringArray cert_intermediates = new StringArray(rec.cert_intermediate);
+					StringArray cert_pkcs7s = new StringArray(rec.cert_pkcs7);
+					StringArray cert_serial_ids = new StringArray(rec.cert_serial_ids);
+					for(ICertificateSigner.Certificate cert : certs) {
+						cert_certificates.set(idx, cert.certificate);
+						rec.cert_certificate = cert_certificates.toXML();
+						
+						cert_intermediates.set(idx, cert.intermediate);
+						rec.cert_intermediate = cert_intermediates.toXML();
+						
+						cert_pkcs7s.set(idx, cert.pkcs7);
+						rec.cert_pkcs7 = cert_pkcs7s.toXML();
+						
+						cert_serial_ids.set(idx,  cert.serial);
+						rec.cert_serial_ids = cert_serial_ids.toXML();
+						
+						++idx;
 					}
+					
+					//update status
+					try {
+						rec.status = CertificateRequestStatus.ISSUED;
+						CertificateRequestHostModel.super.update(get(rec.id), rec);
+					} catch (SQLException e) {
+						throw new CertificateRequestException("Failed to update status for certificate request: " + rec.id);
+					}
+					
+					//update ticket
+					Footprints fp = new Footprints(context);
+					FPTicket ticket = fp.new FPTicket();
+					Authorization auth = context.getAuthorization();
+					if(auth.isUser()) {
+						ContactRecord contact = auth.getContact();
+						ticket.description = contact.name + " has issued certificate.";
+					} else {
+						ticket.description = "Someone with IP address: " + context.getRemoteAddr() + " has issued certificate";
+					}
+					ticket.status = "Resolved";
+					fp.update(ticket, rec.goc_ticket_id);
+				} catch (ICertificateSigner.CertificateProviderException e) {
+					failed("Failed to sign certificate -- CertificateProviderException ", e);
+				} catch(Exception e) {
+					failed("Failed to sign certificate -- unhandled", e);	
 				}
-				if(issued) {
-					rec.status = CertificateRequestStatus.ISSUED;
-				} else {
-					rec.status = CertificateRequestStatus.ISSUING;	//TODO - I am not sure if this really makes sense.
-				}
-				
-				CertificateRequestHostModel.super.update(get(rec.id), rec);
-			} catch (SQLException e) {
-				throw new CertificateRequestException("Failed to update status for certificate request: " + rec.id);
 			}
-			
-			//update ticket
-			Footprints fp = new Footprints(context);
-			FPTicket ticket = fp.new FPTicket();
-			Authorization auth = context.getAuthorization();
-			if(auth.isUser()) {
-				ContactRecord contact = auth.getContact();
-				ticket.description = contact.name + " has issued certificate.";
-			} else {
-				ticket.description = "Someone with IP address: " + context.getRemoteAddr() + " has issued certificate";
-			}
-			ticket.status = "Resolved";
-			fp.update(ticket, rec.goc_ticket_id);
-			
-			return cert.pkcs7;
-			
-		} catch (ICertificateSigner.CertificateProviderException e1) {
-			log.error("Failed to sign certificate", e1);
-			throw new CertificateRequestException("Failed to sign certificate", e1);
-		}
+		}).start();
 	}
 	
 	//NO-AC
 	//return true if success
     public void approve(CertificateRequestHostRecord rec) throws CertificateRequestException 
     {
+    	//get number of certificate requested for this request
+    	String [] cns = rec.getCNs();
+    	int count = cns.length;
+    	
     	//check quota
     	CertificateQuotaModel quota = new CertificateQuotaModel(context);
-    	if(!quota.canApproveHostCert()) {
-    		throw new CertificateRequestException("You have exceeded your host approval quota.");
+    	if(!quota.canApproveHostCert(count)) {
+    		throw new CertificateRequestException("You will exceed your host approval quota.");
     	}
     	
 		rec.status = CertificateRequestStatus.APPROVED;
 		try {
 			//context.setComment("Certificate Approved");
 			super.update(get(rec.id), rec);
-			String [] cns = rec.getCNs();
-			quota.incrementHostCertApproval(cns.length);
+			quota.incrementHostCertApproval(count);
 		} catch (SQLException e) {
 			log.error("Failed to approve host certificate request: " + rec.id);
 			throw new CertificateRequestException("Failed to update certificate request record");
@@ -206,7 +208,7 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
     public CertificateRequestHostRecord requestAsUser(String[] csrs, ContactRecord requester) throws CertificateRequestException 
     {
     	CertificateRequestHostRecord rec = new CertificateRequestHostRecord();
-		Date current = new Date();
+		//Date current = new Date();
     	rec.requester_contact_id = requester.id;
 	 	rec.requester_name = requester.name;
     	rec.requester_email = requester.primary_email;
@@ -228,7 +230,7 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
     public CertificateRequestHostRecord requestAsGuest(String[] csrs, String requester_name, String requester_email, String requester_phone) throws CertificateRequestException 
     {
     	CertificateRequestHostRecord rec = new CertificateRequestHostRecord();
-		Date current = new Date();
+		//Date current = new Date();
 	 	rec.requester_name = requester_name;
     	rec.requester_email = requester_email;
     	rec.requester_phone = requester_phone;
@@ -318,6 +320,7 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
     	rec.cert_certificate = ar.toXML();
     	rec.cert_intermediate = ar.toXML();
     	rec.cert_pkcs7 = ar.toXML();
+    	rec.cert_serial_ids = ar.toXML();
     	
     	try {
         	log.debug("inserting request record");
@@ -326,18 +329,10 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
         	log.debug("request_id: " + request_id);
 			ContactModel cmodel = new ContactModel(context);
 			ContactRecord ga = cmodel.get(rec.gridadmin_contact_id);
-			ticket.description = "Dear " + ga.name + "; the GridAdmin, \n";
+			ticket.description = "Dear " + ga.name + " (GridAdmin), \n";
 			ticket.description += "Host certificate request has been submitted.";
 			String url = StaticConfig.getApplicationBase() + "/certificatehost?id=" + rec.id;
 			ticket.description += "Please determine this request's authenticity, and approve / disapprove at " + url;
-			/*
-			if(StaticConfig.isDebug()) {
-				ticket.assignees.add("hayashis");
-			} else {
-				ticket.assignees.add("adeximo");
-				ticket.ccs.add(ga.primary_email);
-			}
-			*/
 			ticket.assignees.add(StaticConfig.conf.getProperty("certrequest.host.assignee"));
 			ticket.ccs.add(ga.primary_email);
 			
@@ -474,7 +469,7 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 		ticket.description = contact.name + " has requested recocation of this certificate request.";
 		ticket.nextaction = "Grid Admin to process request."; //nad will be set to 7 days from today by default
 		fp.update(ticket, rec.goc_ticket_id);
-	}	
+	}
 	
 	//NO-AC
 	//return true if success
@@ -634,6 +629,25 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 					return true;
 				}
 			}
+		}
+		return false;
+	}
+	
+	//why can't we just issue certificate after it's been approved? because we might have to create pkcs12
+	public boolean canIssue(CertificateRequestHostRecord rec) {
+		if(!canView(rec)) return false;
+		
+		if(	rec.status.equals(CertificateRequestStatus.APPROVED)) {		
+			if(rec.requester_contact_id == null) {
+				//anyone can issue guest request
+				return true;
+			} else {
+				if(auth.isUser()) {
+					ContactRecord contact = auth.getContact();
+						//requester can issue
+						if(rec.requester_contact_id.equals(contact.id)) return true;
+					}
+				}
 		}
 		return false;
 	}

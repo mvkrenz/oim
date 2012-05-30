@@ -41,7 +41,7 @@ abstract public class CertificateRequestModelBase<T extends RecordBase> extends 
 		super(context, _table_name);
 	}
 	static Logger log = Logger.getLogger(CertificateRequestModelBase.class);  
-	
+	/*
     //provide String[] with XML serialization capability
     class StringArray  {
     	private String[] strings;
@@ -102,6 +102,7 @@ abstract public class CertificateRequestModelBase<T extends RecordBase> extends 
     	public int length() { return strings.length; }
     
     }
+    */
  
     /*
 	@Override

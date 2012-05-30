@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
@@ -19,7 +18,6 @@ import com.divrep.DivRepEvent;
 import com.divrep.DivRepEventListener;
 import com.divrep.common.DivRepButton;
 import com.divrep.common.DivRepForm;
-import com.divrep.common.DivRepPassword;
 import com.divrep.common.DivRepStaticContent;
 import com.divrep.common.DivRepTextArea;
 import com.divrep.common.DivRepTextBox;
@@ -30,25 +28,19 @@ import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.model.CertificateRequestStatus;
 import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.CertificateRequestModelBase;
-import edu.iu.grid.oim.model.db.CertificateRequestModelBase.LogDetail;
 import edu.iu.grid.oim.model.db.CertificateRequestHostModel;
 import edu.iu.grid.oim.model.db.ContactModel;
-import edu.iu.grid.oim.model.db.CertificateRequestUserModel;
-import edu.iu.grid.oim.model.db.VOModel;
 import edu.iu.grid.oim.model.db.record.CertificateRequestHostRecord;
 import edu.iu.grid.oim.model.db.record.CertificateRequestUserRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
-import edu.iu.grid.oim.model.db.record.VORecord;
 import edu.iu.grid.oim.model.exceptions.CertificateRequestException;
 import edu.iu.grid.oim.view.BootBreadCrumbView;
 import edu.iu.grid.oim.view.BootMenuView;
 import edu.iu.grid.oim.view.BootPage;
 import edu.iu.grid.oim.view.CertificateMenuView;
-import edu.iu.grid.oim.view.ContentView;
 import edu.iu.grid.oim.view.GenericView;
 import edu.iu.grid.oim.view.HtmlView;
 import edu.iu.grid.oim.view.IView;
-import edu.iu.grid.oim.view.divrep.form.validator.DivRepPassStrengthValidator;
 
 public class CertificateHostServlet extends ServletBase  {
 	private static final long serialVersionUID = 1L;
@@ -57,43 +49,70 @@ public class CertificateHostServlet extends ServletBase  {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{
 		UserContext context = new UserContext(request);
-
-		/*
-		CertificateRequestHostRecord hostrec;
-		try {
-			HostCertificateRequestModel umodel = new HostCertificateRequestModel(context);
-			hostrec = umodel.getCurrent();
-		} catch(SQLException e) {
-			throw new ServletException("Failed to load current host certificate", e);
-		}
-		*/
 		
+		CertificateRequestHostModel model = new CertificateRequestHostModel(context);
 		BootMenuView menuview = new BootMenuView(context, "certificate");
 		IView content = null;
 		String dirty_id = request.getParameter("id");
-
-		if(dirty_id != null) {
+		String status = request.getParameter("status");
+		
+		if(status != null && dirty_id != null) {
+			//display status
+			int id = Integer.parseInt(dirty_id);
+			CertificateRequestHostRecord rec;
 			try {
-				int id = Integer.parseInt(dirty_id);
-				CertificateRequestHostModel model = new CertificateRequestHostModel(context);
-				CertificateRequestHostRecord rec = model.get(id);
-				if(rec == null) {
-					throw new ServletException("No request found with a specified request ID.");
-				}
-				if(!model.canView(rec)) {
-					throw new AuthorizationException("You don't have access to view this certificate");
-				}
-				ArrayList<CertificateRequestModelBase<CertificateRequestHostRecord>.LogDetail> logs = model.getLogs(CertificateRequestHostModel.class, id);
-				content = createDetailView(context, rec, logs);
+				rec = model.get(id);
+				IView view = statusView(rec);
+				view.render(response.getWriter());
 			} catch (SQLException e) {
 				throw new ServletException("Failed to load specified certificate", e);
 			}
 		} else {
-			content = createListView(context);
+			if(dirty_id != null) {
+				try {
+					int id = Integer.parseInt(dirty_id);
+					CertificateRequestHostRecord rec = model.get(id);
+					if(rec == null) {
+						throw new ServletException("No request found with a specified request ID.");
+					}
+					if(!model.canView(rec)) {
+						throw new AuthorizationException("You don't have access to view this certificate");
+					}
+					ArrayList<CertificateRequestModelBase<CertificateRequestHostRecord>.LogDetail> logs = model.getLogs(CertificateRequestHostModel.class, id);
+					content = createDetailView(context, rec, logs);
+				} catch (SQLException e) {
+					throw new ServletException("Failed to load specified certificate", e);
+				}
+			} else {
+				content = createListView(context);
+			}
+			
+			BootPage page = new BootPage(context, menuview, content, null);
+			page.render(response.getWriter());	
 		}
-		
-		BootPage page = new BootPage(context, menuview, content, null);
-		page.render(response.getWriter());
+	}
+	
+	protected IView statusView(final CertificateRequestHostRecord rec) {
+		return new IView() {
+			@Override
+			public void render(PrintWriter out) {
+				if(rec.status.equals(CertificateRequestStatus.ISSUING)) {
+					//count number of certificate issued
+					int issued = 0;
+					String[] pkcs7s = rec.getPKCS7s();
+					for(String pkcs7 : pkcs7s) {
+						if(pkcs7 != null) issued++;
+					}
+					out.write("Requesing Certificates "+issued+" of "+pkcs7s.length);
+					out.write("<div class=\"progress active\">");
+					out.write("<div class=\"bar\" style=\"width: 40%;\"></div>");
+					out.write("</div>");
+				} else {
+					//not issuing anymore - redirect
+					out.write("<script>document.location='certificatehost?id="+rec.id+"';</script>");
+				}
+			}
+		};
 	}
 	
 	protected IView createDetailView(
@@ -137,23 +156,16 @@ public class CertificateHostServlet extends ServletBase  {
 				out.write("<tr>");
 				out.write("<th>Status</th>");
 				out.write("<td>"+StringEscapeUtils.escapeHtml(rec.status));
-				/*
 				if(rec.status.equals(CertificateRequestStatus.ISSUING)) {
-					String gencsr_class = "progressing";
-					if(rec.csr != null) {
-						gencsr_class = "completed";
-					}
-					String sign_class = "notstarted";
-					if(rec.csr != null && rec.cert_pkcs7 == null) {
-						sign_class = "progressing";
-					}
-					out.write("<ul class=\"progress_display\">");
-					out.write("<li class=\""+gencsr_class+"\">Generating CSR/Private Key</li>");
-					out.write("<li class=\""+sign_class+"\">Signing Certificate</li>");
-					out.write("</ul>");
-					out.write("<script>setTimeout('window.location.reload()', 3000);</script>");
+					out.write("<div id=\"status_progress\">Loading...</div>");
+					out.write("<script>");
+					out.write("function loadstatus() { ");
+					out.write("$('#status_progress').load('certificatehost?id="+rec.id+"&status');");
+					out.write("setTimeout('loadstatus()', 1000);");
+					out.write("}");
+					out.write("loadstatus();");
+					out.write("</script>");
 				}
-				*/
 				out.write("</td>");
 				out.write("</tr>");
 
@@ -188,9 +200,7 @@ public class CertificateHostServlet extends ServletBase  {
 				int i = 0;
 				for(String cn : cns) {
 					out.write("<li>"+StringEscapeUtils.escapeHtml(cn));
-					if(	rec.status.equals(CertificateRequestStatus.APPROVED) ||
-						rec.status.equals(CertificateRequestStatus.ISSUING) ||
-						rec.status.equals(CertificateRequestStatus.ISSUED)) {
+					if(rec.status.equals(CertificateRequestStatus.ISSUED)) {
 						out.write(" <a href=\"certificatedownload?id="+rec.id+"&type=host&download=pkcs7&idx="+i+"\">Download PKCS7</a>");
 					}
 					out.write("</li>");
@@ -337,6 +347,28 @@ public class CertificateHostServlet extends ServletBase  {
 			v.add(button);
 			note.setHidden(false);
 		}
+		
+		if(model.canIssue(rec)) {
+			//Authorization auth = context.getAuthorization();
+
+			final DivRepButton button = new DivRepButton(context.getPageRoot(), "<button class=\"btn btn-primary\"><i class=\"icon-download-alt icon-white\"></i> Issue Certificates</button>");
+			button.setStyle(DivRepButton.Style.HTML);
+			button.addClass("inline");
+			button.addEventListener(new DivRepEventListener() {
+                public void handleEvent(DivRepEvent e) {
+            		try {
+                      	model.startissue(rec);
+                    	button.redirect(url);
+                	} catch(CertificateRequestException ex) {
+                		log.warn("CertificateRequestException while issuging certificate:", ex);
+                		button.alert(ex.getMessage());
+                	}
+                	
+                }
+            });
+			v.add(button);
+		}
+		
 		if(model.canCancel(rec)) {
 			final DivRepButton button = new DivRepButton(context.getPageRoot(), "<button class=\"btn\">Cancel Request</button>");
 			button.setStyle(DivRepButton.Style.HTML);

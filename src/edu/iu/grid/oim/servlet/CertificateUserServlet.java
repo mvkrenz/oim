@@ -59,39 +59,74 @@ public class CertificateUserServlet extends ServletBase  {
 		UserContext context = new UserContext(request);
 
 		CertificateRequestUserModel model = new CertificateRequestUserModel(context);
-		/*
-		CertificateRequestUserRecord current;
-		try {
-			current = model.getCurrent();
-		} catch(SQLException e) {
-			throw new ServletException("Failed to load current user certificate", e);
-		}
-		*/
 		BootMenuView menuview = new BootMenuView(context, "certificate");
 		IView content = null;
 		String dirty_id = request.getParameter("id");
-
-		if(dirty_id != null) {
+		String status = request.getParameter("status");
+		
+		if(status != null && dirty_id != null) {
+			//display status
+			int id = Integer.parseInt(dirty_id);
+			CertificateRequestUserRecord rec;
 			try {
-				int id = Integer.parseInt(dirty_id);
-				CertificateRequestUserRecord rec = model.get(id);
-				if(rec == null) {
-					throw new ServletException("No request found with a specified request ID.");
-				}
-				if(!model.canView(rec)) {
-					throw new AuthorizationException("You don't have access to view this certificate");
-				}
-				ArrayList<CertificateRequestModelBase<CertificateRequestUserRecord>.LogDetail> logs = model.getLogs(CertificateRequestUserModel.class, id);
-				content = createDetailView(context, rec, logs);
+				rec = model.get(id);
+				IView view = statusView(rec);
+				view.render(response.getWriter());
 			} catch (SQLException e) {
 				throw new ServletException("Failed to load specified certificate", e);
 			}
 		} else {
-			content = createListView(context);
+			if(dirty_id != null) {
+				//display detail view
+				try {
+					int id = Integer.parseInt(dirty_id);
+					CertificateRequestUserRecord rec = model.get(id);
+					if(rec == null) {
+						throw new ServletException("No request found with a specified request ID.");
+					}
+					if(!model.canView(rec)) {
+						throw new AuthorizationException("You don't have access to view this certificate");
+					}
+					ArrayList<CertificateRequestModelBase<CertificateRequestUserRecord>.LogDetail> logs = model.getLogs(CertificateRequestUserModel.class, id);
+					content = createDetailView(context, rec, logs);
+				} catch (SQLException e) {
+					throw new ServletException("Failed to load specified certificate", e);
+				}
+			} else {
+				//display list view
+				content = createListView(context);
+			}
+			
+			BootPage page = new BootPage(context, menuview, content, null);
+			page.render(response.getWriter());
 		}
-		
-		BootPage page = new BootPage(context, menuview, content, null);
-		page.render(response.getWriter());
+	}
+	
+	protected IView statusView(final CertificateRequestUserRecord rec) {
+		return new IView() {
+
+			@Override
+			public void render(PrintWriter out) {
+			
+				if(rec.status.equals(CertificateRequestStatus.ISSUING)) {
+					String gencsr_class = "progressing";
+					if(rec.csr != null) {
+						gencsr_class = "completed";
+					}
+					String sign_class = "notstarted";
+					if(rec.csr != null && rec.cert_pkcs7 == null) {
+						sign_class = "progressing";
+					}
+					out.write("<ul class=\"progress_display\">");
+					out.write("<li class=\""+gencsr_class+"\">Generating CSR/Private Key</li>");
+					out.write("<li class=\""+sign_class+"\">Signing Certificate</li>");
+					out.write("</ul>");
+				} else {
+					//not issuing anymore - redirect
+					out.write("<script>document.location='certificateuser?id="+rec.id+"';</script>");
+				}
+			}
+		};
 	}
 	
 	protected IView createDetailView(
@@ -141,42 +176,26 @@ public class CertificateUserServlet extends ServletBase  {
 				
 				out.write("<table class=\"table nohover\">");
 				out.write("<tbody>");
-				/*
-				if(current != null && rec.id.equals(current.id)) {
-					out.write("<tr class=\"latest\">");
-					out.write("<th>DN</th>");
-					out.write("<td>");
-					out.write(StringEscapeUtils.escapeHtml(rec.dn));
-					out.write(" <span class=\"badge badge-info\">Current</span>");
-					out.write("</td>");
-					out.write("</tr>");	
-				} else {
-				*/
+
 				out.write("<tr>");
 				out.write("<th>DN</th>");
 				out.write("<td>");
 				out.write(StringEscapeUtils.escapeHtml(rec.dn));
 				out.write("</td>");
 				out.write("</tr>");
-				//}
 				
 				out.write("<tr>");
 				out.write("<th>Status</th>");
 				out.write("<td>"+StringEscapeUtils.escapeHtml(rec.status));
 				if(rec.status.equals(CertificateRequestStatus.ISSUING)) {
-					String gencsr_class = "progressing";
-					if(rec.csr != null) {
-						gencsr_class = "completed";
-					}
-					String sign_class = "notstarted";
-					if(rec.csr != null && rec.cert_pkcs7 == null) {
-						sign_class = "progressing";
-					}
-					out.write("<ul class=\"progress_display\">");
-					out.write("<li class=\""+gencsr_class+"\">Generating CSR/Private Key</li>");
-					out.write("<li class=\""+sign_class+"\">Signing Certificate</li>");
-					out.write("</ul>");
-					out.write("<script>setTimeout('window.location.reload()', 3000);</script>");
+					out.write("<div id=\"status_progress\">Loading...</div>");
+					out.write("<script>");
+					out.write("function loadstatus() { ");
+					out.write("$('#status_progress').load('certificateuser?id="+rec.id+"&status');");
+					out.write("setTimeout('loadstatus()', 1000);");
+					out.write("}");
+					out.write("loadstatus();");
+					out.write("</script>");
 				}
 				out.write("</td>");
 				out.write("</tr>");

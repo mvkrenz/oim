@@ -94,8 +94,6 @@ public class CertificateRequestUserServlet extends ServletBase  {
 				
 				out.write("</div>"); //content
 			}
-			
-
 		};
 	}
 

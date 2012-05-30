@@ -51,22 +51,22 @@ public class CertificateQuotaModel {
 		}
     }
     
-    public boolean canApproveHostCert() {
+    public boolean canApproveHostCert(int count) {
 		//reached global max?
 		ConfigModel config = new ConfigModel(context);
 		Integer global_max = Integer.parseInt(config.QuotaGlobalHostCertYearMax.get());
 		Integer global_count = Integer.parseInt(config.QuotaGlobalHostCertYearCount.get());		
-		if(global_count >= global_max) return false;   	
+		if(global_count + count >= global_max) return false;   	
 		
 		//reached personal day max?
 		Authorization auth = context.getAuthorization();
 		ContactRecord user = auth.getContact();
 		Integer day_max = Integer.parseInt(config.QuotaUserHostDayMax.get());
-		if(user.count_hostcert_day >= day_max) return false;
+		if(user.count_hostcert_day + count >= day_max) return false;
 		
 		//reached personal year max?
 		Integer year_max = Integer.parseInt(config.QuotaUserHostYearMax.get());
-		if(user.count_hostcert_year >= year_max) return false;
+		if(user.count_hostcert_year + count >= year_max) return false;
 		
 		return true;
     }

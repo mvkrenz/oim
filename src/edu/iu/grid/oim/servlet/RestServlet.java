@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
+import org.json.JSONObject;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.AuthorizationException;
@@ -32,11 +33,15 @@ public class RestServlet extends ServletBase  {
     class Reply {
     	Status status = Status.OK;
     	String detail = "Nothing to report";
-    	HashMap<String, String> params = new HashMap<String, String>();
+    	JSONObject params = new JSONObject();
     	
     	void out(HttpServletResponse response) throws IOException {
     		response.setContentType("text/xml");
     		PrintWriter out = response.getWriter();
+    		params.put("status", status.toString());
+    		params.put("detail", detail);
+    		out.write(params.toString());
+    		/*
     		out.write("{");
     		out.write("\"status\": \""+status.toString()+"\",");
     		for(String key : params.keySet()) {
@@ -45,6 +50,7 @@ public class RestServlet extends ServletBase  {
     		}
     		out.write("\"detail\": \""+StringEscapeUtils.escapeJavaScript(detail)+"\"");
     		out.write("}");
+    		*/
     	}
     }
     
@@ -78,6 +84,8 @@ public class RestServlet extends ServletBase  {
 				doHostCertsCancel(request, reply);
 			} else if(action.equals("host_certs_revoke")) {
 				doHostCertsRevoke(request, reply);
+			} else if(action.equals("host_certs_issue")) {
+				doHostCertsIssue(request, reply);
 			}
 		
 		} catch (RestException e) {
@@ -168,7 +176,7 @@ public class RestServlet extends ServletBase  {
 			reply.params.put("gocticket_url", StaticConfig.conf.getProperty("url.gocticket")+"/"+rec.goc_ticket_id);
 			reply.params.put("host_request_id", rec.id.toString());
 		} catch (CertificateRequestException e) {
-			throw new RestException("CertificateRequestException while makeing request", e);
+			throw new RestException("CertificateRequestException while making request", e);
 		}
 	}
 	
@@ -194,9 +202,9 @@ public class RestServlet extends ServletBase  {
 			}
 			reply.params.put("pkcs7", model.getPkcs7(rec, idx));
 		} catch (SQLException e) {
-			throw new RestException("SQLException while makeing request", e);
+			throw new RestException("SQLException while making request", e);
 		} catch (CertificateRequestException e) {
-			throw new RestException("CertificateRequestException while makeing request", e);
+			throw new RestException("CertificateRequestException while making request", e);
 		}
 	}
 	
@@ -219,9 +227,9 @@ public class RestServlet extends ServletBase  {
 				throw new AuthorizationException("You can't approve this request");
 			}
 		} catch (SQLException e) {
-			throw new RestException("SQLException while makeing request", e);
+			throw new RestException("SQLException while making request", e);
 		} catch (CertificateRequestException e) {
-			throw new RestException("CertificateRequestException while makeing request", e);
+			throw new RestException("CertificateRequestException while making request", e);
 		}
 	}
 	
@@ -243,9 +251,9 @@ public class RestServlet extends ServletBase  {
 				throw new AuthorizationException("You can't reject this request");
 			}
 		} catch (SQLException e) {
-			throw new RestException("SQLException while makeing request", e);
+			throw new RestException("SQLException while making request", e);
 		} catch (CertificateRequestException e) {
-			throw new RestException("CertificateRequestException while makeing request", e);
+			throw new RestException("CertificateRequestException while making request", e);
 		}
 	}
 
@@ -267,9 +275,9 @@ public class RestServlet extends ServletBase  {
 				throw new AuthorizationException("You can't cancel this request");
 			}
 		} catch (SQLException e) {
-			throw new RestException("SQLException while makeing request", e);
+			throw new RestException("SQLException while making request", e);
 		} catch (CertificateRequestException e) {
-			throw new RestException("CertificateRequestException while makeing request", e);
+			throw new RestException("CertificateRequestException while making request", e);
 		}
 	}
 	
@@ -291,12 +299,35 @@ public class RestServlet extends ServletBase  {
 				throw new AuthorizationException("You can't revoke this request");
 			}
 		} catch (SQLException e) {
-			throw new RestException("SQLException while makeing request", e);
+			throw new RestException("SQLException while making request", e);
 		} catch (CertificateRequestException e) {
-			throw new RestException("CertificateRequestException while makeing request", e);
+			throw new RestException("CertificateRequestException while making request", e);
 		}
 	}
 	
+	private void doHostCertsIssue(HttpServletRequest request, Reply reply) throws AuthorizationException, RestException {
+		UserContext context = new UserContext(request);	
+		
+		String dirty_host_request_id = request.getParameter("host_request_id");
+		Integer host_request_id = Integer.parseInt(dirty_host_request_id);
+		CertificateRequestHostModel model = new CertificateRequestHostModel(context);
+	
+		try {
+			CertificateRequestHostRecord rec = model.get(host_request_id);
+			if(rec == null) {
+				throw new RestException("No such host certificate request ID");
+			}
+			if(model.canIssue(rec)) {
+				model.startissue(rec);
+			} else {
+				throw new AuthorizationException("You can't issue this request");
+			}
+		} catch (SQLException e) {
+			throw new RestException("SQLException while making request", e);
+		} catch (CertificateRequestException e) {
+			throw new RestException("CertificateRequestException while making request", e);
+		}
+	}
 	
 	private void doQuotaInfo(HttpServletRequest request, Reply reply) throws AuthorizationException {
 		UserContext context = new UserContext(request);	

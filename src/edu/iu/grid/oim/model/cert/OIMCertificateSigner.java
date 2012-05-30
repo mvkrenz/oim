@@ -15,6 +15,8 @@ import org.bouncycastle.cert.X509v3CertificateBuilder;
 import org.bouncycastle.pkcs.PKCS10CertificationRequest;
 import org.bouncycastle.util.encoders.Base64;
 
+import edu.iu.grid.oim.lib.StringArray;
+
 public class OIMCertificateSigner implements ICertificateSigner {
     static Logger log = Logger.getLogger(OIMCertificateSigner.class);  
     /*
@@ -30,31 +32,34 @@ public class OIMCertificateSigner implements ICertificateSigner {
     }
 
 	@Override
-	public Certificate signHostCertificate(String csr, String cn) throws CertificateProviderException {
+	public Certificate[] signHostCertificates(StringArray csrs) throws CertificateProviderException {
 		try {
-			PKCS10CertificationRequest pkcs10 = new PKCS10CertificationRequest(Base64.decode(csr));
-			X500Name csr_name = pkcs10.getSubject();
-	
-			/*
-			BigInteger serial = new BigInteger("12345");
-			X500Name issuser = interCredential.getCertificate().
+			for(String csr: csrs.getAll()) {
+				PKCS10CertificationRequest pkcs10 = new PKCS10CertificationRequest(Base64.decode(csr));
+				X500Name csr_name = pkcs10.getSubject();
+				
+				/*
+				BigInteger serial = new BigInteger("12345");
+				X500Name issuser = interCredential.getCertificate().
+				
+				X509v3CertificateBuilder builder = new X509v3CertificateBuilder(issuer, serial, null, null, null, null);
+				certGen.setSerialNumber(BigInteger.valueOf(System.currentTimeMillis()));
+				certGen.setIssuerDN(caCert.getSubjectX500Principal());
+				certGen.setNotBefore(new Date(System.currentTimeMillis()));
+				certGen.setNotAfter(new Date(System.currentTimeMillis() + 50000));
+				certGen.setSubjectDN(request.getCertificationRequestInfo().getSubject());
+				certGen.setPublicKey(request.getPublicKey("BC"));
+				certGen.setSignatureAlgorithm("SHA256WithRSAEncryption");
+				
+				// provide some basic extensions and mark the certificate as appropriate for signing and encipherment
+				certGen.addExtension(X509Extensions.AuthorityKeyIdentifier, false, new AuthorityKeyIdentifierStructure(caCert));
+				SubjectPublicKeyInfo publicinfo = pkcs10.getSubjectPublicKeyInfo();
+				certGen.addExtension(X509Extensions.SubjectKeyIdentifier, false, pkcs10.getSubject());
+				certGen.addExtension(X509Extensions.BasicConstraints, true, new BasicConstraints(false));
+				certGen.addExtension(X509Extensions.KeyUsage, true, new KeyUsage(KeyUsage.digitalSignature | KeyUsage.keyEncipherment));
+			    */
+			}
 			
-			X509v3CertificateBuilder builder = new X509v3CertificateBuilder(issuer, serial, null, null, null, null);
-			certGen.setSerialNumber(BigInteger.valueOf(System.currentTimeMillis()));
-			certGen.setIssuerDN(caCert.getSubjectX500Principal());
-			certGen.setNotBefore(new Date(System.currentTimeMillis()));
-			certGen.setNotAfter(new Date(System.currentTimeMillis() + 50000));
-			certGen.setSubjectDN(request.getCertificationRequestInfo().getSubject());
-			certGen.setPublicKey(request.getPublicKey("BC"));
-			certGen.setSignatureAlgorithm("SHA256WithRSAEncryption");
-			
-			// provide some basic extensions and mark the certificate as appropriate for signing and encipherment
-			certGen.addExtension(X509Extensions.AuthorityKeyIdentifier, false, new AuthorityKeyIdentifierStructure(caCert));
-			SubjectPublicKeyInfo publicinfo = pkcs10.getSubjectPublicKeyInfo();
-			certGen.addExtension(X509Extensions.SubjectKeyIdentifier, false, pkcs10.getSubject());
-			certGen.addExtension(X509Extensions.BasicConstraints, true, new BasicConstraints(false));
-			certGen.addExtension(X509Extensions.KeyUsage, true, new KeyUsage(KeyUsage.digitalSignature | KeyUsage.keyEncipherment));
-		    */
 		} catch (IOException e) {
 			log.error("Failed to construct pkcs10 object from csr");
 		}

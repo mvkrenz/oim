@@ -1,5 +1,7 @@
 package edu.iu.grid.oim.model.cert;
 
+import edu.iu.grid.oim.lib.StringArray;
+
 //Interface for certificate authority
 public interface ICertificateSigner {
 	
@@ -31,7 +33,7 @@ public interface ICertificateSigner {
 		public String pkcs7; //pkcs7 string
 	}
 	
-	public Certificate signHostCertificate(String csr, String cn) throws CertificateProviderException;
+	public Certificate[] signHostCertificates(StringArray csrs) throws CertificateProviderException;
 	public Certificate signUserCertificate(String csr, String dn) throws CertificateProviderException;
 	public void revokeHostCertificate(String serial_id) throws CertificateProviderException;
 	public void revokeUserCertificate(String serial_id) throws CertificateProviderException;

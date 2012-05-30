@@ -21,9 +21,9 @@ import edu.iu.grid.oim.lib.AuthorizationException;
 //provides easy access to various object that are user specific
 public class UserContext {
     static Logger log = Logger.getLogger(UserContext.class);  
-    
     private DivRepRoot divrep_root;
-	private DivRepPage divrep_pageroot;
+    private String divrep_pageid = null;
+	private DivRepPage divrep_pageroot = null;
 	
 	private Authorization auth = new Authorization();
 	//private Connection connection;
@@ -52,7 +52,7 @@ public class UserContext {
 		auth = new Authorization(request);
 		setRequestURL(request);
 		divrep_root = DivRepRoot.getInstance(request.getSession());
-		divrep_pageroot = divrep_root.initPage(request.getRequestURI() + request.getQueryString());
+		divrep_pageid = request.getRequestURI() + request.getQueryString();
 		remote_addr = request.getRemoteAddr();
 	}
 	
@@ -113,6 +113,10 @@ public class UserContext {
 	}
 	public DivRepPage getPageRoot()
 	{
+		if(divrep_pageroot == null) {
+			log.debug("Initializing divrep page root for: " + divrep_pageid);
+			divrep_pageroot = divrep_root.initPage(divrep_pageid);
+		}
 		return divrep_pageroot;
 	}
 	

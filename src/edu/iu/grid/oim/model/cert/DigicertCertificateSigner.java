@@ -2,6 +2,7 @@ package edu.iu.grid.oim.model.cert;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -11,10 +12,17 @@ import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.log4j.Logger;
+import org.bouncycastle.asn1.x500.RDN;
+import org.bouncycastle.asn1.x500.X500Name;
+import org.bouncycastle.asn1.x500.style.BCStyle;
+import org.bouncycastle.pkcs.PKCS10CertificationRequest;
+import org.bouncycastle.util.encoders.Base64;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
+
+import edu.iu.grid.oim.lib.StringArray;
 
 public class DigicertCertificateSigner implements ICertificateSigner {
     static Logger log = Logger.getLogger(DigicertCertificateSigner.class);  
@@ -31,19 +39,118 @@ public class DigicertCertificateSigner implements ICertificateSigner {
 		return requestUserCert(csr, dn);
 	}
 	
-	public Certificate signHostCertificate(String csr, String cn) throws CertificateProviderException {
-		String request_id = requestHostCert(csr, cn);
-		log.debug("Requested host certificate. Digicert Request ID:" + request_id);
-		String order_id = approve(request_id, "Approving for test purpose"); //like 00295828
-		log.debug("Approved host certificate. Digicert Order ID:" + order_id);
+	public Certificate[] signHostCertificates(StringArray csrs) throws CertificateProviderException {
 		
-		log.debug("Waiting for 60 second before retrieving --- I am not sure if this even works, but if it does, this is not acceptable.");
+		ArrayList<String> order_ids = new ArrayList<String>();
+		
+		//request & approve all
+		for(String csr : csrs.getAll()) {
+			//pull CN
+			String cn;
+			try {
+				PKCS10CertificationRequest pkcs10 = new PKCS10CertificationRequest(Base64.decode(csr));
+				X500Name name = pkcs10.getSubject();
+				RDN[] cn_rdn = name.getRDNs(BCStyle.CN);
+				cn = cn_rdn[0].getFirst().getValue().toString(); //wtf?
+			} catch (IOException e2) {
+				throw new CertificateProviderException("Failed to obtain cn from given csr:" + csr, e2);
+			}
+			
+			//do request & approve
+			String request_id = requestHostCert(csr, cn);
+			log.debug("Requested host certificate. Digicert Request ID:" + request_id);
+			String order_id = approve(request_id, "Approving for test purpose"); //like 00295828
+			log.debug("Approved host certificate. Digicert Order ID:" + order_id);
+			order_ids.add(order_id);
+		}
+		
+		//wait until all certificate is returned (or timeout)
+		Certificate[] certs = new Certificate[csrs.length()];
+		int issued = 0;
+		for(int retry = 0; retry < 40; ++retry) {			
+			//see if all certs are issued
+			for(int c = 0; c < csrs.length(); ++c) {
+				Certificate cert = certs[c];
+				if(cert == null) {
+					try {
+						cert = retrieveByOrderID(order_ids.get(c));
+						cert.serial = order_ids.get(c);
+						if(cert != null) {
+							certs[c] = cert;
+							issued++;
+						}
+					} catch(DigicertCPException e) {
+						//TODO - need to ask DigiCert to give me more specific error code so that I can distinguish between real error v.s. need_wait
+						log.warn("Failed to retrieve cert for order ID:" + order_ids.get(c) + ". try counter:" +retry+" probably not yet issued.. ignoring");
+					}
+ 				}
+			}
+			
+			if(certs.length == issued) {
+				//all issued.
+				return certs;
+			}
+			
+			log.debug(issued + " issued out of " + certs.length + " requests... waiting for 5 second before re-trying");
+			try {
+				Thread.sleep(1000*5);
+			} catch (InterruptedException e) {
+				log.error("Sleep interrupted", e);
+			}
+		}
+		
+		//timed out..
+		throw new CertificateProviderException("DigiCert didn't return certificate after predefined re-tries");
+	}
+	
+	//used to check if certificate has been issued
+	private String getDetail_under_construction(String order_id) throws DigicertCPException {
+		HttpClient cl = new HttpClient();
+		//cl.getHttpConnectionManager().getParams().setConnectionTimeout(1000*10);
+	    cl.getParams().setParameter("http.useragent", "OIM (OSG Information Management System)");
+	    //cl.getParams().setParameter("http.contenttype", "application/x-www-form-urlencoded")
+		
+		PostMethod post = new PostMethod("https://www.digicert.com/enterprise/api/?action=grid_certificate_details");
+
+		post.addParameter("customer_name", "052062");
+		post.setParameter("customer_api_key", "MG9ij2Of4rakV7tXARyE347QQu00097U");
+		post.setParameter("response_type", "xml");
+		post.setParameter("validity", "1"); //security by obscurity -- from the DigiCert dev team
+		post.setParameter("id", order_id);
+
 		try {
-			Thread.sleep(1000*60);
-		} catch (InterruptedException e) {
-			log.error("Sleep interrupted", e);
-		} //wait for 30 seconds
-		return retrieveByOrderID(order_id);
+			cl.executeMethod(post);
+			Document ret = parseXML(post.getResponseBodyAsStream());
+			NodeList result_nl = ret.getElementsByTagName("result");
+			Element result = (Element)result_nl.item(0);
+			if(result.getTextContent().equals("failure")) {
+				System.out.println("failed to execute grid_retrieve_host_cert request");
+				NodeList error_code_nl = ret.getElementsByTagName("error_code");
+				StringBuffer errors  = new StringBuffer();
+				for(int i = 0;i < error_code_nl.getLength(); ++i) {
+					Element error_code = (Element)error_code_nl.item(i);
+					Element code = (Element)error_code.getElementsByTagName("code").item(0);
+					Element description = (Element)error_code.getElementsByTagName("description").item(0);
+					errors.append("Code:" + code.getTextContent());
+					errors.append(" Description:" + description.getTextContent());
+					errors.append("\n");
+				}
+				throw new DigicertCPException("Request failed..\n" + errors.toString());
+			} else if(result.getTextContent().equals("success")) {
+				log.debug("Successfully retrieved certificate detail for " + order_id);
+				return "success";
+			}
+			
+			throw new DigicertCPException("Unknown return code: " +result.getTextContent());	
+		} catch (HttpException e) {
+			throw new DigicertCPException("Failed to make request", e);
+		} catch (IOException e) {
+			throw new DigicertCPException("Failed to make request", e);
+		} catch (ParserConfigurationException e) {
+			throw new DigicertCPException("Failed to parse returned String", e);
+		} catch (SAXException e) {
+			throw new DigicertCPException("Failed to parse returned String", e);
+		}
 	}
 	
 	private Document parseXML(InputStream in) throws ParserConfigurationException, SAXException, IOException {
@@ -58,7 +165,7 @@ public class DigicertCertificateSigner implements ICertificateSigner {
 	    cl.getParams().setParameter("http.useragent", "OIM (OSG Information Management System)");
 	    //cl.getParams().setParameter("http.contenttype", "application/x-www-form-urlencoded")
 		
-		PostMethod post = new PostMethod("https://www.digicert.com//enterprise/api/?action=grid_request_email_cert");
+		PostMethod post = new PostMethod("https://www.digicert.com/enterprise/api/?action=grid_request_email_cert");
 
 		post.addParameter("customer_name", "052062");
 		post.setParameter("customer_api_key", "MG9ij2Of4rakV7tXARyE347QQu00097U");
@@ -67,10 +174,7 @@ public class DigicertCertificateSigner implements ICertificateSigner {
 		post.setParameter("email", "hayashis@iu.edu");
 		post.setParameter("full_name", cn);
 		post.setParameter("csr", csr);
-		//post.setParameter("dn", dn); //request to override dn with ours
-		
-		//post.setParameter("comments", "This is just a test request."); //for approver to see
-		
+
 		try {
 			cl.executeMethod(post);
 			Document ret = parseXML(post.getResponseBodyAsStream());
@@ -135,7 +239,6 @@ public class DigicertCertificateSigner implements ICertificateSigner {
 		post.setParameter("validity", "1"); //security by obscurity -- from the DigiCert dev team
 		post.setParameter("common_name", cn);
 		post.setParameter("csr", csr);
-		//post.setParameter("comments", "This is just a test request."); //for approver to see
 		
 		try {
 			cl.executeMethod(post);
@@ -209,7 +312,6 @@ public class DigicertCertificateSigner implements ICertificateSigner {
 			} else if(result.getTextContent().equals("success")) {
 				Element order_id_e = (Element)ret.getElementsByTagName("order_id").item(0);
 				String order_id = order_id_e.getTextContent();
-				//System.out.println("Obtained Digicert Order ID:" + order_id); //like "00295815"
 				return order_id;
 			}
 			
@@ -229,7 +331,6 @@ public class DigicertCertificateSigner implements ICertificateSigner {
 		HttpClient cl = new HttpClient();
 		//cl.getHttpConnectionManager().getParams().setConnectionTimeout(1000*10);
 	    cl.getParams().setParameter("http.useragent", "OIM (OSG Information Management System)");
-	    //cl.getParams().setParameter("http.contenttype", "application/x-www-form-urlencoded")
 		
 		PostMethod post = new PostMethod("https://www.digicert.com/enterprise/api/?action=grid_retrieve_host_cert");
 

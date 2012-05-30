@@ -278,16 +278,11 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 		return false;
 	}
 	
+	//why can't we just issue certificate after it's been approved? because we might have to create pkcs12
 	public boolean canIssue(CertificateRequestUserRecord rec) {
 		if(!canView(rec)) return false;
 		
-		if(	rec.status.equals(CertificateRequestStatus.APPROVED) ||
-			rec.status.equals(CertificateRequestStatus.REVOCATION_REQUESTED)) {
-			/*
-			//super ra can issue certificate
-			if(auth.allows("admin_all_user_cert_requests")) return true;
-			*/
-			
+		if(	rec.status.equals(CertificateRequestStatus.APPROVED)) {			
 			//requester oneself can issue
 			if(auth.isUser()) {
 				ContactRecord contact = auth.getContact();
