@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import edu.iu.grid.oim.lib.Authorization;
@@ -24,7 +25,6 @@ import edu.iu.grid.oim.model.db.CertificateRequestHostModel;
 import edu.iu.grid.oim.model.db.record.CertificateRequestHostRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.exceptions.CertificateRequestException;
-
 
 public class RestServlet extends ServletBase  {
 	private static final long serialVersionUID = 1L;
@@ -207,7 +207,12 @@ public class RestServlet extends ServletBase  {
 				}
 			}
 			if(issued == pkcs7s.length()) {
-				reply.params.put("pkcs7", pkcs7s.getAll());
+				//convert string array to jsonarray
+				JSONArray ja = new JSONArray();
+				for(int i = 0;i < pkcs7s.length(); ++i) {
+					ja.put(i, pkcs7s.get(i));
+				}
+				reply.params.put("pkcs7", ja);
 			} else {
 				reply.status = Status.PENDING;
 				reply.detail = issued + " of " + pkcs7s.length() + " certificates has been issued";
