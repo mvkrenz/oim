@@ -10,16 +10,12 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathExpressionException;
-
 import org.bouncycastle.asn1.x500.RDN;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x500.style.BCStyle;
 import org.bouncycastle.pkcs.PKCS10CertificationRequest;
 import org.bouncycastle.util.encoders.Base64;
 
-import org.w3c.dom.Document;
 import org.apache.log4j.Logger;
 
 import edu.iu.grid.oim.lib.Authorization;
@@ -75,15 +71,6 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 	    conn.close();
 	    return ret;
 	}
-
-	/*
-	@Override
-	public Boolean hasLogAccess(XPath xpath, Document doc)
-			throws XPathExpressionException {
-		// TODO Auto-generated method stub
-		return null;
-	} 
-	*/ 
 
 	//NO-AC 
 	//return pem encoded pkcs7
