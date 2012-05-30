@@ -103,7 +103,7 @@ public class CertificateHostServlet extends ServletBase  {
 					for(String pkcs7 : pkcs7s) {
 						if(pkcs7 != null) issued++;
 					}
-					out.write("Requesing Certificates "+issued+" of "+pkcs7s.length);
+					out.write("Certificates issued so far: "+issued+" of "+pkcs7s.length);
 					out.write("<div class=\"progress active\">");
 					out.write("<div class=\"bar\" style=\"width: 40%;\"></div>");
 					out.write("</div>");

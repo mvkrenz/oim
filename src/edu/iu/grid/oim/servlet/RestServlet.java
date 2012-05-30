@@ -17,6 +17,7 @@ import org.json.JSONObject;
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.AuthorizationException;
 import edu.iu.grid.oim.lib.StaticConfig;
+import edu.iu.grid.oim.lib.StringArray;
 import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.ConfigModel;
 import edu.iu.grid.oim.model.db.CertificateRequestHostModel;
@@ -29,7 +30,7 @@ public class RestServlet extends ServletBase  {
 	private static final long serialVersionUID = 1L;
     static Logger log = Logger.getLogger(RestServlet.class);  
     
-	static enum Status {OK, FAILED};
+	static enum Status {OK, FAILED, PENDING};
     class Reply {
     	Status status = Status.OK;
     	String detail = "Nothing to report";
@@ -192,19 +193,27 @@ public class RestServlet extends ServletBase  {
 		//Authorization auth = context.getAuthorization();
 		String dirty_host_request_id = request.getParameter("host_request_id");
 		Integer host_request_id = Integer.parseInt(dirty_host_request_id);
-		String dirty_idx = request.getParameter("idx");
-		Integer idx = Integer.parseInt(dirty_idx);
 		CertificateRequestHostModel model = new CertificateRequestHostModel(context);
 		try {
 			CertificateRequestHostRecord rec = model.get(host_request_id);
 			if(rec == null) {
 				throw new RestException("No such host certificate request ID");
 			}
-			reply.params.put("pkcs7", model.getPkcs7(rec, idx));
+			StringArray pkcs7s = new StringArray(rec.cert_pkcs7);
+			int issued = 0;
+			for(String pkcs7 : pkcs7s.getAll()) {
+				if(pkcs7 != null) {
+					issued++;
+				}
+			}
+			if(issued == pkcs7s.length()) {
+				reply.params.put("pkcs7", pkcs7s.getAll());
+			} else {
+				reply.status = Status.PENDING;
+				reply.detail = issued + " of " + pkcs7s.length() + " certificates has been issued";
+			}
 		} catch (SQLException e) {
 			throw new RestException("SQLException while making request", e);
-		} catch (CertificateRequestException e) {
-			throw new RestException("CertificateRequestException while making request", e);
 		}
 	}
 	
@@ -305,6 +314,7 @@ public class RestServlet extends ServletBase  {
 		}
 	}
 	
+	//start issuing cert.. will not block
 	private void doHostCertsIssue(HttpServletRequest request, Reply reply) throws AuthorizationException, RestException {
 		UserContext context = new UserContext(request);	
 		

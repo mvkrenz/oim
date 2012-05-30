@@ -15,6 +15,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.log4j.Logger;
 
 import edu.iu.grid.oim.lib.Authorization;
+import edu.iu.grid.oim.lib.StringArray;
 import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.CertificateRequestHostModel;
 import edu.iu.grid.oim.model.db.CertificateRequestUserModel;
@@ -75,15 +76,13 @@ public class CertificateDownloadServlet extends ServletBase  {
 					if(model.canView(rec)) {
 						if(download.equals("pkcs7")) {
 							PrintWriter out = response.getWriter();
-							String p7 = model.getPkcs7(rec, idx);
+							String[] pkc7s = rec.getPKCS7s();
 							response.setContentType("application/pkcs7-signature");
-							out.write(p7);
+							out.write(pkc7s[idx]);
 						}
 					}
 				} catch (SQLException e) {
 					log.error("Failed to load certificate record", e);
-				} catch (CertificateRequestException e) {
-					log.error("Failed to load pkcs7 cert -- HostCertificateRequestException", e);
 				}
 			}
 		}
