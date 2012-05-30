@@ -212,7 +212,7 @@ public class RestServlet extends ServletBase  {
 				for(int i = 0;i < pkcs7s.length(); ++i) {
 					ja.put(i, pkcs7s.get(i));
 				}
-				reply.params.put("pkcs7", ja);
+				reply.params.put("pkcs7s", ja);
 			} else {
 				reply.status = Status.PENDING;
 				reply.detail = issued + " of " + pkcs7s.length() + " certificates has been issued";
