@@ -73,9 +73,10 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 	    return ret;
 	}
 
+	/*
 	//NO-AC 
-	//return pem encoded pkcs7
-	public String getPkcs7(CertificateRequestHostRecord rec, int idx) throws CertificateRequestException {
+	//return pem encoded pkcs7s
+	public String getPkcs7(CertificateRequestHostRecord rec) throws CertificateRequestException {
 		StringArray pkcs7s = new StringArray(rec.cert_pkcs7);
 		if(pkcs7s.length() > idx) {
 			return pkcs7s.get(idx);
@@ -83,6 +84,7 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 			throw new CertificateRequestException("Index is larger than the number of CSR requested");
 		}
 	}
+	*/
 	
 	//NO-AC
 	//issue all requested certs and store it back to DB
@@ -329,7 +331,7 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
         	log.debug("request_id: " + request_id);
 			ContactModel cmodel = new ContactModel(context);
 			ContactRecord ga = cmodel.get(rec.gridadmin_contact_id);
-			ticket.description = "Dear " + ga.name + " (GridAdmin), \n";
+			ticket.description = "Dear " + ga.name + " (GridAdmin), \n\n";
 			ticket.description += "Host certificate request has been submitted.";
 			String url = StaticConfig.getApplicationBase() + "/certificatehost?id=" + rec.id;
 			ticket.description += "Please determine this request's authenticity, and approve / disapprove at " + url;
