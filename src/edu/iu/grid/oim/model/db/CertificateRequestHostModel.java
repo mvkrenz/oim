@@ -135,7 +135,9 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 			cert_pkcs7s.set(idx, cert.pkcs7);
 			rec.cert_pkcs7 = cert_pkcs7s.toXML();
 			
-			rec.cert_serial_id = cert.serial;
+			StringArray cert_serial_ids = new StringArray(rec.cert_serial_ids);
+			cert_serial_ids.set(idx,  cert.serial);
+			rec.cert_serial_ids = cert_serial_ids.toXML();
 			
 			try {
 				//if all certificate is issued, change status to ISSUED
@@ -537,7 +539,11 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 		//revoke
 		CertificateManager cm = new CertificateManager();
 		try {
-			cm.revokeHostCertificate(rec.cert_serial_id);
+			String[] cert_serial_ids = rec.getSerialIDs();
+			for(String cert_serial_id : cert_serial_ids) {
+				log.info("Revoking certificate with serial ID: " + cert_serial_id);
+				cm.revokeHostCertificate(cert_serial_id);
+			}
 		} catch (CertificateProviderException e1) {
 			log.error("Failed to revoke host certificate", e1);
 			throw new CertificateRequestException("Failed to revoke host certificate", e1);

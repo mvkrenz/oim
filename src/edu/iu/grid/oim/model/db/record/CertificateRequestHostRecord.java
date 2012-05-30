@@ -24,7 +24,7 @@ public class CertificateRequestHostRecord extends RecordBase {
 	public String cert_certificate; //StringArray xml
 	public String cert_intermediate; //StringArray xml
 	public String cert_pkcs7; //StringArray xml
-	public String cert_serial_id;
+	public String cert_serial_ids; //StringArray xml
 	
 	//book keeping
 	public Timestamp request_time;
@@ -51,6 +51,10 @@ public class CertificateRequestHostRecord extends RecordBase {
 	}
 	public String[] getCSRs() {
 		StringArray sa = new StringArray(csrs);
+		return sa.getAll();
+	}
+	public String[] getSerialIDs() {
+		StringArray sa = new StringArray(cert_serial_ids);
 		return sa.getAll();
 	}
 

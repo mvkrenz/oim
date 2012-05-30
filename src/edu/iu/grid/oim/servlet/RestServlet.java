@@ -72,6 +72,12 @@ public class RestServlet extends ServletBase  {
 				doHostCertsRetrieve(request, reply);
 			} else if(action.equals("host_certs_approve")) {
 				doHostCertsApprove(request, reply);
+			} else if(action.equals("host_certs_reject")) {
+				doHostCertsReject(request, reply);
+			} else if(action.equals("host_certs_cancel")) {
+				doHostCertsCancel(request, reply);
+			} else if(action.equals("host_certs_revoke")) {
+				doHostCertsRevoke(request, reply);
 			}
 		
 		} catch (RestException e) {
@@ -166,9 +172,11 @@ public class RestServlet extends ServletBase  {
 		}
 	}
 	
-	private void doHostCertsRenew(HttpServletRequest request, Reply reply) throws AuthorizationException {
+	private void doHostCertsRenew(HttpServletRequest request, Reply reply) throws AuthorizationException, RestException {
 		UserContext context = new UserContext(request);	
 		//Authorization auth = context.getAuthorization();
+		
+		throw new RestException("No yet implemented");
 	}
 	
 	private void doHostCertsRetrieve(HttpServletRequest request, Reply reply) throws AuthorizationException, RestException {
@@ -216,6 +224,79 @@ public class RestServlet extends ServletBase  {
 			throw new RestException("CertificateRequestException while makeing request", e);
 		}
 	}
+	
+	private void doHostCertsReject(HttpServletRequest request, Reply reply) throws AuthorizationException, RestException {
+		UserContext context = new UserContext(request);	
+		
+		String dirty_host_request_id = request.getParameter("host_request_id");
+		Integer host_request_id = Integer.parseInt(dirty_host_request_id);
+		CertificateRequestHostModel model = new CertificateRequestHostModel(context);
+	
+		try {
+			CertificateRequestHostRecord rec = model.get(host_request_id);
+			if(rec == null) {
+				throw new RestException("No such host certificate request ID");
+			}
+			if(model.canReject(rec)) {
+				model.reject(rec);
+			} else {
+				throw new AuthorizationException("You can't reject this request");
+			}
+		} catch (SQLException e) {
+			throw new RestException("SQLException while makeing request", e);
+		} catch (CertificateRequestException e) {
+			throw new RestException("CertificateRequestException while makeing request", e);
+		}
+	}
+
+	private void doHostCertsCancel(HttpServletRequest request, Reply reply) throws AuthorizationException, RestException {
+		UserContext context = new UserContext(request);	
+		
+		String dirty_host_request_id = request.getParameter("host_request_id");
+		Integer host_request_id = Integer.parseInt(dirty_host_request_id);
+		CertificateRequestHostModel model = new CertificateRequestHostModel(context);
+	
+		try {
+			CertificateRequestHostRecord rec = model.get(host_request_id);
+			if(rec == null) {
+				throw new RestException("No such host certificate request ID");
+			}
+			if(model.canCancel(rec)) {
+				model.cancel(rec);
+			} else {
+				throw new AuthorizationException("You can't cancel this request");
+			}
+		} catch (SQLException e) {
+			throw new RestException("SQLException while makeing request", e);
+		} catch (CertificateRequestException e) {
+			throw new RestException("CertificateRequestException while makeing request", e);
+		}
+	}
+	
+	private void doHostCertsRevoke(HttpServletRequest request, Reply reply) throws AuthorizationException, RestException {
+		UserContext context = new UserContext(request);	
+		
+		String dirty_host_request_id = request.getParameter("host_request_id");
+		Integer host_request_id = Integer.parseInt(dirty_host_request_id);
+		CertificateRequestHostModel model = new CertificateRequestHostModel(context);
+	
+		try {
+			CertificateRequestHostRecord rec = model.get(host_request_id);
+			if(rec == null) {
+				throw new RestException("No such host certificate request ID");
+			}
+			if(model.canRevoke(rec)) {
+				model.revoke(rec);
+			} else {
+				throw new AuthorizationException("You can't revoke this request");
+			}
+		} catch (SQLException e) {
+			throw new RestException("SQLException while makeing request", e);
+		} catch (CertificateRequestException e) {
+			throw new RestException("CertificateRequestException while makeing request", e);
+		}
+	}
+	
 	
 	private void doQuotaInfo(HttpServletRequest request, Reply reply) throws AuthorizationException {
 		UserContext context = new UserContext(request);	
