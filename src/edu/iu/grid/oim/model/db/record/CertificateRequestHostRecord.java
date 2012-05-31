@@ -31,6 +31,7 @@ public class CertificateRequestHostRecord extends RecordBase {
 	public Timestamp update_time;
 	
 	public String status;
+	public String status_note;
 	public Integer gridadmin_contact_id;
 	public String goc_ticket_id;
 	

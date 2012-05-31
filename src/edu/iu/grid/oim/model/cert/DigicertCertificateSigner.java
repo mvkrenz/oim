@@ -39,14 +39,17 @@ public class DigicertCertificateSigner implements ICertificateSigner {
 		return requestUserCert(csr, dn);
 	}
 	
-	public Certificate[] signHostCertificates(StringArray csrs) throws CertificateProviderException {
-		
-		ArrayList<String> order_ids = new ArrayList<String>();
+	//pass csrs, and 
+	public void signHostCertificates(Certificate[] certs, IHostCertificatesCallBack callback) throws CertificateProviderException {
 		
 		//request & approve all
-		for(String csr : csrs.getAll()) {
+		for(Certificate cert : certs) {
+			 //don't request if it's already requested
+			if(cert.serial != null) continue;
+			
 			//pull CN
 			String cn;
+			String csr = cert.csr;
 			try {
 				PKCS10CertificationRequest pkcs10 = new PKCS10CertificationRequest(Base64.decode(csr));
 				X500Name name = pkcs10.getSubject();
@@ -61,41 +64,46 @@ public class DigicertCertificateSigner implements ICertificateSigner {
 			log.debug("Requested host certificate. Digicert Request ID:" + request_id);
 			String order_id = approve(request_id, "Approving for test purpose"); //like 00295828
 			log.debug("Approved host certificate. Digicert Order ID:" + order_id);
-			order_ids.add(order_id);
+
+			cert.serial = order_id;
 		}
+		callback.certificateRequested();
 		
 		//wait until all certificate is returned (or timeout)
-		Certificate[] certs = new Certificate[csrs.length()];
-		int issued = 0;
-		for(int retry = 0; retry < 40; ++retry) {			
-			//see if all certs are issued
-			for(int c = 0; c < csrs.length(); ++c) {
+		for(int retry = 0; retry < 40; ++retry) {	
+			//count number of certificates issued so far
+			int issued = 0;
+			for(int c = 0; c < certs.length; ++c) {
 				Certificate cert = certs[c];
-				if(cert == null) {
+				if(cert.pkcs7 == null) {
 					try {
-						cert = retrieveByOrderID(order_ids.get(c));
-						cert.serial = order_ids.get(c);
+						//WARNING - this resets csr stored in current cert
+						cert = retrieveByOrderID(cert.serial);
 						if(cert != null) {
+							//found new certificate issued
 							certs[c] = cert;
 							issued++;
+							callback.certificateSigned(cert, c);
 						}
 					} catch(DigicertCPException e) {
 						//TODO - need to ask DigiCert to give me more specific error code so that I can distinguish between real error v.s. need_wait
-						log.warn("Failed to retrieve cert for order ID:" + order_ids.get(c) + ". try counter:" +retry+" probably not yet issued.. ignoring");
+						log.warn("Failed to retrieve cert for order ID:" + cert.serial + ". try counter:" +retry+" probably not yet issued.. ignoring");
 					}
+ 				} else {
+ 					issued++;
  				}
 			}
 			
 			if(certs.length == issued) {
 				//all issued.
-				return certs;
-			}
-			
-			log.debug(issued + " issued out of " + certs.length + " requests... waiting for 5 second before re-trying");
-			try {
-				Thread.sleep(1000*5);
-			} catch (InterruptedException e) {
-				log.error("Sleep interrupted", e);
+				return;
+			} else {
+				log.debug(issued + " issued out of " + certs.length + " requests... waiting for 5 second before re-trying");
+				try {
+					Thread.sleep(1000*5);
+				} catch (InterruptedException e) {
+					log.error("Sleep interrupted", e);
+				}
 			}
 		}
 		
@@ -195,7 +203,7 @@ public class DigicertCertificateSigner implements ICertificateSigner {
 				throw new DigicertCPException("Request failed..\n" + errors.toString());
 			} else if(result.getTextContent().equals("success")) {
 				
-				ICertificateSigner.Certificate cert = new ICertificateSigner.Certificate("Digicert");
+				ICertificateSigner.Certificate cert = new ICertificateSigner.Certificate();
 				
 				Element serial_e = (Element)ret.getElementsByTagName("serial").item(0);
 				cert.serial = serial_e.getTextContent();
@@ -359,7 +367,7 @@ public class DigicertCertificateSigner implements ICertificateSigner {
 				throw new DigicertCPException("Request failed..\n" + errors.toString());
 			} else if(result.getTextContent().equals("success")) {
 				
-				ICertificateSigner.Certificate cert = new ICertificateSigner.Certificate("Digicert");
+				ICertificateSigner.Certificate cert = new ICertificateSigner.Certificate();
 				
 				Element serial_e = (Element)ret.getElementsByTagName("serial").item(0);
 				cert.serial = serial_e.getTextContent();

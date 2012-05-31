@@ -1,7 +1,9 @@
 package edu.iu.grid.oim.model.cert;
 
 import edu.iu.grid.oim.lib.StringArray;
+import edu.iu.grid.oim.model.cert.ICertificateSigner.Certificate;
 import edu.iu.grid.oim.model.cert.ICertificateSigner.CertificateProviderException;
+import edu.iu.grid.oim.model.cert.ICertificateSigner.IHostCertificatesCallBack;
 
 public class CertificateManager {
 	private ICertificateSigner cp;
@@ -28,9 +30,8 @@ public class CertificateManager {
 	*/
 	
 	//use user provided CSR
-	public ICertificateSigner.Certificate [] signHostCertificates(StringArray csrs) throws CertificateProviderException {
-		ICertificateSigner.Certificate []certs = cp.signHostCertificates(csrs);
-		return certs;
+	public void signHostCertificates(Certificate[] certs, IHostCertificatesCallBack callback) throws CertificateProviderException {
+		cp.signHostCertificates(certs, callback);
 	}
 	
 	public ICertificateSigner.Certificate signUserCertificate(String csr, String cn) throws CertificateProviderException {

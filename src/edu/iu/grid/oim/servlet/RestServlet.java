@@ -9,6 +9,7 @@ import java.util.HashMap;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
@@ -19,7 +20,9 @@ import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.AuthorizationException;
 import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.lib.StringArray;
+import edu.iu.grid.oim.model.CertificateRequestStatus;
 import edu.iu.grid.oim.model.UserContext;
+import edu.iu.grid.oim.model.cert.ICertificateSigner.Certificate;
 import edu.iu.grid.oim.model.db.ConfigModel;
 import edu.iu.grid.oim.model.db.CertificateRequestHostModel;
 import edu.iu.grid.oim.model.db.record.CertificateRequestHostRecord;
@@ -199,24 +202,32 @@ public class RestServlet extends ServletBase  {
 			if(rec == null) {
 				throw new RestException("No such host certificate request ID");
 			}
-			StringArray pkcs7s = new StringArray(rec.cert_pkcs7);
-			int issued = 0;
-			for(String pkcs7 : pkcs7s.getAll()) {
-				if(pkcs7 != null) {
-					issued++;
-				}
-			}
-			if(issued == pkcs7s.length()) {
-				//convert string array to jsonarray
+			
+			if(rec.status.equals(CertificateRequestStatus.ISSUED)) {
+				//convert string array to jsonarray and send to user
 				JSONArray ja = new JSONArray();
+				StringArray pkcs7s = new StringArray(rec.cert_pkcs7);
 				for(int i = 0;i < pkcs7s.length(); ++i) {
 					ja.put(i, pkcs7s.get(i));
 				}
 				reply.params.put("pkcs7s", ja);
-			} else {
+			} else if(rec.status.equals(CertificateRequestStatus.ISSUING)) {
+				//TODO - issue thread should somehow report issue status instead.
+				//count number of certificate issued so far
+				StringArray pkcs7s = new StringArray(rec.cert_pkcs7);
+				int issued = 0;
+				for(String pkcs7 : pkcs7s.getAll()) {
+					if(pkcs7 != null) {
+						issued++;
+					}
+				}
 				reply.status = Status.PENDING;
 				reply.detail = issued + " of " + pkcs7s.length() + " certificates has been issued";
+			} else {
+				reply.status = Status.FAILED;
+				reply.detail = "Can't retrieve certificates for this request. Request status:" + rec.status;
 			}
+			
 		} catch (SQLException e) {
 			throw new RestException("SQLException while making request", e);
 		}

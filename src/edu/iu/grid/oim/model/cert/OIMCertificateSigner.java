@@ -32,10 +32,10 @@ public class OIMCertificateSigner implements ICertificateSigner {
     }
 
 	@Override
-	public Certificate[] signHostCertificates(StringArray csrs) throws CertificateProviderException {
+	public void signHostCertificates(Certificate[] certs, IHostCertificatesCallBack callback) throws CertificateProviderException {
 		try {
-			for(String csr: csrs.getAll()) {
-				PKCS10CertificationRequest pkcs10 = new PKCS10CertificationRequest(Base64.decode(csr));
+			for(Certificate cert: certs) {
+				PKCS10CertificationRequest pkcs10 = new PKCS10CertificationRequest(Base64.decode(cert.csr));
 				X500Name csr_name = pkcs10.getSubject();
 				
 				/*
@@ -63,7 +63,6 @@ public class OIMCertificateSigner implements ICertificateSigner {
 		} catch (IOException e) {
 			log.error("Failed to construct pkcs10 object from csr");
 		}
-		return null;
 	}
 
 	@Override

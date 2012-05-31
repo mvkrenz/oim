@@ -21,11 +21,12 @@ public interface ICertificateSigner {
 	};
 	
 	public class Certificate {
-		public Certificate(String issuer) {
-			this.issuer = issuer;
+		public Certificate() {
+			//this.issuer = issuer;
 		}
 		public String serial; //isser specific serial
-		public String issuer;
+		//public String issuer;
+		public String csr; //csr used to request this certificate
 		
 		//returned by signer
 		public String certificate; //pkcs7 string
@@ -33,7 +34,11 @@ public interface ICertificateSigner {
 		public String pkcs7; //pkcs7 string
 	}
 	
-	public Certificate[] signHostCertificates(StringArray csrs) throws CertificateProviderException;
+	interface IHostCertificatesCallBack {
+		public void certificateRequested();
+		public void certificateSigned(Certificate cert, int idx);
+	}
+	public void signHostCertificates(Certificate[] certs,  IHostCertificatesCallBack callback) throws CertificateProviderException;
 	public Certificate signUserCertificate(String csr, String dn) throws CertificateProviderException;
 	public void revokeHostCertificate(String serial_id) throws CertificateProviderException;
 	public void revokeUserCertificate(String serial_id) throws CertificateProviderException;

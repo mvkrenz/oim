@@ -27,7 +27,9 @@ import edu.iu.grid.oim.model.CertificateRequestStatus;
 import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.cert.CertificateManager;
 import edu.iu.grid.oim.model.cert.ICertificateSigner;
+import edu.iu.grid.oim.model.cert.ICertificateSigner.Certificate;
 import edu.iu.grid.oim.model.cert.ICertificateSigner.CertificateProviderException;
+import edu.iu.grid.oim.model.cert.ICertificateSigner.IHostCertificatesCallBack;
 import edu.iu.grid.oim.model.db.record.CertificateRequestHostRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.RecordBase;
@@ -88,16 +90,34 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 	
 	//NO-AC
 	//issue all requested certs and store it back to DB
+	//you can monitor request status by checking returned Certificate[]
 	public void startissue(final CertificateRequestHostRecord rec) throws CertificateRequestException {
 		// mark the request as "issuing.."
 		try {
 			rec.status = CertificateRequestStatus.ISSUING;
+			context.setComment("Starting to issue certificates.");
 			super.update(get(rec.id), rec);
 		} catch (SQLException e) {
 			log.error("Failed to update certificate request status for request:" + rec.id);
 			throw new CertificateRequestException("Failed to update certificate request status");
 		};
 		
+		//reconstruct cert array from db
+		final StringArray csrs = new StringArray(rec.csrs);
+		final StringArray serial_ids = new StringArray(rec.cert_serial_ids);
+		final StringArray pkcs7s = new StringArray(rec.cert_pkcs7);
+		final StringArray certificates = new StringArray(rec.cert_certificate);
+		final StringArray intermediates = new StringArray(rec.cert_intermediate);
+		final ICertificateSigner.Certificate[] certs = new ICertificateSigner.Certificate[csrs.length()];
+		for(int c = 0; c < csrs.length(); ++c) {
+			certs[c] = new ICertificateSigner.Certificate();
+			certs[c].csr = csrs.get(c);
+			certs[c].serial = serial_ids.get(c);
+			certs[c].certificate = certificates.get(c);
+			certs[c].intermediate = intermediates.get(c);
+			certs[c].pkcs7 = pkcs7s.get(c);
+		}
+
 		new Thread(new Runnable() {
 			public void failed(String message, Throwable e) {
 				log.error(message, e);
@@ -110,12 +130,54 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 				}
 			}
 			
-			
 			public void run() {
 				CertificateManager cm = new CertificateManager();
 				try {
-					StringArray csrs = new StringArray(rec.csrs);
-					ICertificateSigner.Certificate[] certs = cm.signHostCertificates(csrs);
+					cm.signHostCertificates(certs, new IHostCertificatesCallBack() {
+						@Override
+						public void certificateSigned(Certificate cert, int idx) {
+							/*
+							//update certs db contents
+							try {
+								pkcs7s.set(idx,  cert.pkcs7);
+								certificates.set(idx,  cert.certificate);
+								intermediates.set(idx,  cert.intermediate);
+								rec.cert_pkcs7 = pkcs7s.toXML();
+								rec.cert_certificate = certificates.toXML();
+								rec.cert_intermediate = intermediates.toXML();
+								context.setComment("Certificate idx:"+idx+" has been issued");
+								CertificateRequestHostModel.super.update(get(rec.id), rec);
+							} catch (SQLException e) {
+								log.error("Failed to update certificate update while monitoring issue progress:" + rec.id);
+							};
+							*/
+							
+							//update status note
+							try {
+								rec.status_note = "Certificate idx:"+idx+" has been issued";
+								context.setComment(rec.status_note);
+								CertificateRequestHostModel.super.update(get(rec.id), rec);
+							} catch (SQLException e) {
+								log.error("Failed to update certificate update while monitoring issue progress:" + rec.id);
+							}
+						}
+						
+						@Override
+						public void certificateRequested() {
+							//update certs db contents
+							try {
+								for(int c = 0; c < certs.length; ++c) {
+									Certificate cert = certs[c];
+									serial_ids.set(c,  cert.serial);
+								}
+								rec.cert_serial_ids = serial_ids.toXML();
+								context.setComment("Certificate requests has been sent.");
+								CertificateRequestHostModel.super.update(get(rec.id), rec);
+							} catch (SQLException e) {
+								log.error("Failed to update certificate update while monitoring issue progress:" + rec.id);
+							}
+						}
+					});
 
 					//update records
 					int idx = 0;
@@ -142,6 +204,7 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 					//update status
 					try {
 						rec.status = CertificateRequestStatus.ISSUED;
+						context.setComment("All ceritificates has been issued.");
 						CertificateRequestHostModel.super.update(get(rec.id), rec);
 					} catch (SQLException e) {
 						throw new CertificateRequestException("Failed to update status for certificate request: " + rec.id);

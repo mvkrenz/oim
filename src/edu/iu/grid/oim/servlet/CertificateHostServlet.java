@@ -162,7 +162,7 @@ public class CertificateHostServlet extends ServletBase  {
 					out.write("<script>");
 					out.write("function loadstatus() { ");
 					out.write("$('#status_progress').load('certificatehost?id="+rec.id+"&status');");
-					out.write("setTimeout('loadstatus()', 1000);");
+					out.write("setTimeout('loadstatus()', 2000);");
 					out.write("}");
 					out.write("loadstatus();");
 					out.write("</script>");
