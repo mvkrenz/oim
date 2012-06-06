@@ -122,6 +122,7 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 			public void failed(String message, Throwable e) {
 				log.error(message, e);
 				rec.status = CertificateRequestStatus.FAILED;
+				rec.status_note = message + " :: " + e.getMessage();
 				try {
 					context.setComment(message + " :: " + e.getMessage());
 					CertificateRequestHostModel.super.update(get(rec.id), rec);

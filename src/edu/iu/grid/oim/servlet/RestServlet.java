@@ -225,7 +225,7 @@ public class RestServlet extends ServletBase  {
 				reply.detail = issued + " of " + pkcs7s.length() + " certificates has been issued";
 			} else {
 				reply.status = Status.FAILED;
-				reply.detail = "Can't retrieve certificates for this request. Request status:" + rec.status;
+				reply.detail = "Can't retrieve certificates for this request. Request status:" + rec.status + " last note: " + rec.status_note;
 			}
 			
 		} catch (SQLException e) {
