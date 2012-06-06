@@ -31,7 +31,6 @@ import edu.iu.grid.oim.model.db.CertificateRequestModelBase;
 import edu.iu.grid.oim.model.db.CertificateRequestHostModel;
 import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.record.CertificateRequestHostRecord;
-import edu.iu.grid.oim.model.db.record.CertificateRequestUserRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.exceptions.CertificateRequestException;
 import edu.iu.grid.oim.view.BootBreadCrumbView;
@@ -138,7 +137,7 @@ public class CertificateHostServlet extends ServletBase  {
 				
 				out.write("<div class=\"span9\">");
 				BootBreadCrumbView bread_crumb = new BootBreadCrumbView();
-				bread_crumb.addCrumb("Host Certificat Requests", "certificatehost");
+				bread_crumb.addCrumb("Host Certificate Requests", "certificatehost");
 				bread_crumb.addCrumb(Integer.toString(rec.id),  null);
 				bread_crumb.render(out);		
 				renderDetail(out);
