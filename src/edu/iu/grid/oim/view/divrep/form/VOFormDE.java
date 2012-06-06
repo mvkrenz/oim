@@ -70,8 +70,6 @@ public class VOFormDE extends DivRepForm
 	private DivRepTextBox long_name;
 	private DivRepTextArea description;
 	private DivRepTextArea community;
-	//private DivRepTextBox footprints_id;
-	//private DivRepTextBox external_assignment_id;
 	private DivRepSelectBox sc_id;
 	private DivRepCheckBox active;
 	private DivRepCheckBox disable;
@@ -194,10 +192,11 @@ public class VOFormDE extends DivRepForm
 		}
 	}
 
-	class FieldOfScience extends DivRep
+	class FieldOfScience extends DivRepFormElement
 	{
 		DivRepButton add_fs;
 		DivRepTextBox new_fs; 
+		private HashMap<Integer, DivRepCheckBox> field_of_science;
 		
 		public FieldOfScience(DivRep _parent, final VORecord rec) throws SQLException {
 			super(_parent);
@@ -280,7 +279,6 @@ public class VOFormDE extends DivRepForm
 			}
 			return null;
 		}
-		private HashMap<Integer, DivRepCheckBox> field_of_science;
 		
 		protected void onEvent(DivRepEvent e) {
 			// TODO Auto-generated method stub
@@ -293,6 +291,10 @@ public class VOFormDE extends DivRepForm
 			out.write("<h3>Field of Science</h3>");
 	
 			out.write("<p>Select Field Of Science(s) applicable to this VO</p>");
+			if(isRequired()) {
+				//out.print(" * Required");
+				out.print("* Required");
+			}
 			
 			out.write("<table class=\"layout\"><tr><td width=\"33%\">");
 			//sort the field_of_science by name and render
@@ -313,16 +315,35 @@ public class VOFormDE extends DivRepForm
 				}
 			}
 			out.write("</td></tr></table>");
-		
+
+			
 			new_fs.render(out);
 			add_fs.render(out);
 
-			out.write("<br/>");
+			error.render(out);
+			
 			out.write("</div>");
 		}	
+		
+		@Override
+		public boolean validate()
+		{
+			if(isRequired()) {
+				//make sure at least one element is selected
+				for(DivRepCheckBox check : field_of_science.values()) {
+					if(check.getValue() == true) {
+						return true;
+					}
+				}
+				error.set("Please select at least one field of science.");
+				return false;
+			}
+			return true;
+		}
+		
 	}
 	
-	class URLs extends DivRep
+	class URLs extends DivRepFormElement
 	{
 		public URLs(DivRep _parent, VORecord rec) {
 			super(_parent);
@@ -363,12 +384,6 @@ public class VOFormDE extends DivRepForm
 			// support_url.setRequired(true);
 			support_url.setSampleValue("http://cdfcaf.fnal.gov");
 		}
-		// Moved to base class (VOFormDE) level
-		//		public DivRepTextBox primary_url;
-		//		public DivRepTextBox aup_url;
-		//		public DivRepTextBox membership_services_url;
-		//		public DivRepTextBox purpose_url;
-		//		public DivRepTextBox support_url;
 		
 		protected void onEvent(DivRepEvent e) {
 			// TODO Auto-generated method stub
@@ -394,10 +409,12 @@ public class VOFormDE extends DivRepForm
 
 		app_description.setRequired(required);
 		primary_url.setRequired(required);
-		aup_url.setRequired(required);
-		membership_services_url.setRequired(required);
-		purpose_url.setRequired(required);
-		support_url.setRequired(required);
+		//aup_url.setRequired(required);
+		//membership_services_url.setRequired(required);
+		//purpose_url.setRequired(required);
+		//support_url.setRequired(required);
+		field_of_science_de.setRequired(required);
+		
 
 		science_vo_info.setHidden(!required);
 		science_vo_info.redraw();
