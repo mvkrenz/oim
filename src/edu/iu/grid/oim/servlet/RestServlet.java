@@ -2,16 +2,11 @@ package edu.iu.grid.oim.servlet;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-
 import java.sql.SQLException;
-import java.util.HashMap;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-
-import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -22,7 +17,6 @@ import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.lib.StringArray;
 import edu.iu.grid.oim.model.CertificateRequestStatus;
 import edu.iu.grid.oim.model.UserContext;
-import edu.iu.grid.oim.model.cert.ICertificateSigner.Certificate;
 import edu.iu.grid.oim.model.db.ConfigModel;
 import edu.iu.grid.oim.model.db.CertificateRequestHostModel;
 import edu.iu.grid.oim.model.db.record.CertificateRequestHostRecord;
@@ -45,16 +39,6 @@ public class RestServlet extends ServletBase  {
     		params.put("status", status.toString());
     		params.put("detail", detail);
     		out.write(params.toString());
-    		/*
-    		out.write("{");
-    		out.write("\"status\": \""+status.toString()+"\",");
-    		for(String key : params.keySet()) {
-    			String value = params.get(key);
-    			out.write("\""+key+"\": \""+StringEscapeUtils.escapeJavaScript(value)+"\",");
-    		}
-    		out.write("\"detail\": \""+StringEscapeUtils.escapeJavaScript(detail)+"\"");
-    		out.write("}");
-    		*/
     	}
     }
     
@@ -98,7 +82,6 @@ public class RestServlet extends ServletBase  {
 			if(e.getCause() != null) {
 				reply.detail += " -- " + e.getCause().getMessage();
 			}
-			//if(e.getMessage() != null) reply.detail += " -- " + e.getMessage();	
 		} catch(AuthorizationException e) {
 			reply.status = Status.FAILED;
 			reply.detail = e.getMessage();	
