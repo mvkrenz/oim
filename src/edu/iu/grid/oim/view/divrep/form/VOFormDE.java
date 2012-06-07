@@ -565,10 +565,11 @@ public class VOFormDE extends DivRepForm
 			
 			ArrayList<VOContactRecord> ra_list = new ArrayList<VOContactRecord>();
 			VOContactRecord ra = new VOContactRecord();
-			submitter.contact_id = auth.getContact().id;
-			submitter.contact_rank_id = 1;//primary
-			submitter.contact_type_id = 11;//vo_ra
-			submitter_list.add(submitter);
+			//make Alain Deximo secondary RA
+			ra.contact_id = 623;//alain deximo
+			ra.contact_rank_id = 2;//secondary
+			ra.contact_type_id = 11;//vo_ra
+			ra_list.add(ra);
 			voclist_grouped.put(11/*vo ra*/, ra_list);
 		}
 		ContactTypeModel ctmodel = new ContactTypeModel(context);
