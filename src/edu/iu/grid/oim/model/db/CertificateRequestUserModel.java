@@ -249,9 +249,11 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 			rec.status.equals(CertificateRequestStatus.REVOCATION_REQUESTED)) {
 			
 			if(auth.isUser()) {
+				/*
 				if(auth.allows("revoke_all_certificate")) {
 					return true;
 				}
+				*/
 				
 				//requester oneself can revoke it
 				ContactRecord contact = auth.getContact();
