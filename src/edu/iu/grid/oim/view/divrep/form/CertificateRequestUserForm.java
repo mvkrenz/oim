@@ -152,10 +152,10 @@ public class CertificateRequestUserForm extends DivRepForm
 			timezone.setRequired(true);
 			
 			profile = new DivRepTextArea(this);
-			profile.setLabel("Profile");
+			profile.setLabel("Profile - Introduce yourself to the rest of OSG community.");
 			profile.setRequired(true);
 			profile.setSampleValue("Please enter your role within OSG community, and maybe a small introduction of who you are and what you do.");
-		
+			
 			use_twiki = new DivRepCheckBox(this);
 			use_twiki.setLabel("Use OSG TWiki");
 			use_twiki.setValue(false);

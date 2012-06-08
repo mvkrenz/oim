@@ -130,19 +130,23 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 		*/
 	}
 	
-	//null if not found
-	public ContactRecord findPrimaryRA(CertificateRequestUserRecord rec) throws SQLException {
+	
+	//empty if not found
+	public ArrayList<ContactRecord> findRAs(CertificateRequestUserRecord rec) throws SQLException {
+		ArrayList<ContactRecord> ras = new ArrayList<ContactRecord>();
 		VOContactModel model = new VOContactModel(context);
 		ContactModel cmodel = new ContactModel(context);
 		ArrayList<VOContactRecord> crecs = model.getByVOID(rec.vo_id);
 		for(VOContactRecord crec : crecs) {
-			if(crec.contact_type_id.equals(11) && crec.contact_rank_id.equals(1)) { //primaryRA
+			if(crec.contact_type_id.equals(11) 
+					&& (crec.contact_rank_id.equals(1) || crec.contact_rank_id.equals(2)) ) { //primary and secondary RA
 				ContactRecord contactrec = cmodel.get(crec.contact_id);
-				return contactrec;
+				ras.add(contactrec);
 			}
 		}
-		return null;
+		return ras;
 	}
+
 	
 	//true if user can approve request
 	public boolean canApprove(CertificateRequestUserRecord rec) {

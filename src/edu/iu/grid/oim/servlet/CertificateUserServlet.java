@@ -254,6 +254,28 @@ public class CertificateUserServlet extends ServletBase  {
 				}
 				out.write("</tr>");
 				
+				try {
+					out.write("<tr>");
+					out.write("<th>RA</th>");
+					CertificateRequestUserModel usermodel = new CertificateRequestUserModel(context);
+					ArrayList<ContactRecord> ras = usermodel.findRAs(rec);
+					if(ras.isEmpty()) {
+						out.write("<td>N/A</td>");
+					} else {
+						out.write("<td>");
+						out.write("<ul>");
+						for(ContactRecord ra : ras) {
+							out.write("<li>"+ra.name+"</li>");
+						}
+						out.write("</ul>");
+						out.write("</td>");	
+					}
+					out.write("</tr>");
+				} catch (SQLException e) {
+					out.write("<td>sql error</td>");
+				}
+				
+				
 				GenericView action_control = nextActionControl(context, rec);
 				out.write("<tr>");
 				out.write("<th>Next Action</th>");
@@ -574,11 +596,18 @@ public class CertificateUserServlet extends ServletBase  {
 						}
 						
 						try {
-							ContactRecord ra = usermodel.findPrimaryRA(rec);
-							if(ra == null) {
+							ArrayList<ContactRecord> ras = usermodel.findRAs(rec);
+							if(ras.isEmpty()) {
 								out.write("<td>N/A</td>");
 							} else {
-								out.write("<td>"+ra.name+"</td>");
+								out.write("<td>");
+								boolean first = true;
+								for(ContactRecord ra : ras) {
+									if(first) first = false;
+									else out.write(" | ");
+									out.write(ra.name);
+								}
+								out.write("</td>");	
 							}
 						} catch (SQLException e) {
 							out.write("<td>sql error</td>");
