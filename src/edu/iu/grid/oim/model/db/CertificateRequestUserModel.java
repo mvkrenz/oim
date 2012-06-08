@@ -849,11 +849,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 			crecs = model.getByVOID(rec.vo_id);
 			for(VOContactRecord crec : crecs) {
 				ContactRecord contactrec = cmodel.get(crec.contact_id);
-				if(crec.contact_type_id.equals(11) && crec.contact_rank_id.equals(1)) { //primary
-					//rec.ra_contact_id = crec.contact_id;
-					ticket.ccs.add(contactrec.primary_email);
-				}
-				if(crec.contact_type_id.equals(11) && crec.contact_rank_id.equals(3)) { //sponsor
+				if(crec.contact_type_id.equals(11)) { //primary, secondary, and sponsors
 					ticket.ccs.add(contactrec.primary_email);
 				}
 			}
