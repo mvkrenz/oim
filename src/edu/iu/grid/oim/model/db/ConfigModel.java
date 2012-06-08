@@ -87,6 +87,8 @@ public class ConfigModel extends ModelBase<ConfigRecord> {
 	    	if(rs.next()) {
 	    		rec = new ConfigRecord(rs);
 			} else {
+				stmt.close();
+				connection.close();
 		    	throw new ConfigException("No such config");
 		    }
 	    } else {
