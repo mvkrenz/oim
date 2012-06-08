@@ -44,10 +44,12 @@ public class CertificateDownloadServlet extends ServletBase  {
 					if(model.canView(rec)) {
 						if(download.equals("pkcs7")) {
 							response.setContentType("application/pkcs7-signature");
+							response.setHeader("Content-Disposition", "attachment; filename=user_certificate."+rec.id+".p7s");
 							PrintWriter out = response.getWriter();
 							out.write(rec.cert_pkcs7);
 						} else if(download.equals("pkcs12")) {
 							response.setContentType("application/x-pkcs12");
+							response.setHeader("Content-Disposition", "attachment; filename=user_certificate."+rec.id+".p12");
 							KeyStore p12 = model.getPkcs12(rec);
 							if(p12 == null) {
 								log.error("Failed to create pkcs12");
