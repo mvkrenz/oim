@@ -230,11 +230,11 @@ public class CertificateUserServlet extends ServletBase  {
 
 					CertificateRequestUserModel model = new CertificateRequestUserModel(context);
 					if(model.getPrivateKey(rec.id) != null) {
-						out.write("<a href=\"certificatedownload?id="+rec.id+"&type=user&download=pkcs12\">Download PKCS12</a><br>");
+						out.write("<a href=\"certificatedownload?id="+rec.id+"&type=user&download=pkcs12\">Download Certificata (PKCS12)</a><br>");
 						out.write("<p class=\"alert\">You can only download PKCS12 certificate while your browser session is active. Afterward, you can only download PKCS7.</p>");
 						
 					} else {
-						out.write("<a href=\"certificatedownload?id="+rec.id+"&type=user&download=pkcs7\">Download PKCS7</a><br>");
+						out.write("<a href=\"certificatedownload?id="+rec.id+"&type=user&download=pkcs7\">Download Certificata (PKCS7)</a><br>");
 					}
 					
 					out.write("</td>");
@@ -395,9 +395,9 @@ public class CertificateUserServlet extends ServletBase  {
 			Authorization auth = context.getAuthorization();
 			
 			if(rec.requester_passphrase != null) {
-				v.add(new HtmlView("<p class=\"help-block\">Please enter passphrase to retrieve & encrypt your p12 certificate</p>"));
+				v.add(new HtmlView("<p class=\"help-block\">Please enter passphrase to retrieve & encrypt your new certificate (pkcs12)</p>"));
 			} else {
-				v.add(new HtmlView("<p class=\"help-block\">Please create passphrase to encrypt your p12 certificate</p>"));
+				v.add(new HtmlView("<p class=\"help-block\">Please choose a passphrase to associate with your new certificate (pkcs12)</p>"));
 			}
 			
 			final DivRepPassword pass = new DivRepPassword(context.getPageRoot());
