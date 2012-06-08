@@ -587,11 +587,15 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 					CertificateRequestUserModel.super.update(get(rec.id), rec);
 	
 					// update ticket
-					Authorization auth = context.getAuthorization();
-					ContactRecord contact = auth.getContact();
 					Footprints fp = new Footprints(context);
 					FPTicket ticket = fp.new FPTicket();
-					ticket.description = contact.name + " has issued certificate.";
+					Authorization auth = context.getAuthorization();
+					if(auth.isUser()) {
+						ContactRecord contact = auth.getContact();
+						ticket.description = contact.name + " has issued certificate.";
+					} else {
+						ticket.description = "Guest with IP:" + context.getRemoteAddr() + " has issued certificate.";
+					}
 					ticket.status = "Resolved";
 					fp.update(ticket, rec.goc_ticket_id);
 					
