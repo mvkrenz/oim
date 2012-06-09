@@ -491,12 +491,17 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 			throw new CertificateRequestException("Failed to update request status", e);
 		}
 		
-		Authorization auth = context.getAuthorization();
-		ContactRecord contact = auth.getContact();
 		
 		Footprints fp = new Footprints(context);
-		FPTicket ticket = fp.new FPTicket();
-		ticket.description = contact.name + " has requested renewal for this certificate request.\n\n";
+		FPTicket ticket = fp.new FPTicket();		
+		Authorization auth = context.getAuthorization();
+		if(auth.isUser()) {
+			ContactRecord contact = auth.getContact();
+			ticket.description = contact.name + " has requested renewal for this certificate request.\n\n";
+		} else {
+			ticket.description = "Guest user with IP:" + context.getRemoteAddr() + " has requested renewal of this certificate request.";		
+
+		}
 		ticket.description += "> " + context.getComment();
 		ticket.nextaction = "GridAdmin to verify and approve/reject"; //nad will be set to 7 days from today by default
 		
@@ -526,13 +531,17 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 			log.error("Failed to request revocation of host certificate: " + rec.id);
 			throw new CertificateRequestException("Failed to update request status", e);
 		}
-		
-		Authorization auth = context.getAuthorization();
-		ContactRecord contact = auth.getContact();
+	
 		
 		Footprints fp = new Footprints(context);
 		FPTicket ticket = fp.new FPTicket();
-		ticket.description = contact.name + " has requested recocation of this certificate request.";
+		Authorization auth = context.getAuthorization();
+		if(auth.isUser()) {
+			ContactRecord contact = auth.getContact();
+			ticket.description = contact.name + " has requested revocation of this certificate request.";
+		} else {
+			ticket.description = "Guest user with IP:" + context.getRemoteAddr() + " has requested revocation of this certificate request.";		
+		}
 		ticket.nextaction = "Grid Admin to process request."; //nad will be set to 7 days from today by default
 		fp.update(ticket, rec.goc_ticket_id);
 	}
@@ -553,12 +562,15 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 			throw new CertificateRequestException("Failed to cancel request status", e);
 		}
 		
-		Authorization auth = context.getAuthorization();
-		ContactRecord contact = auth.getContact();
-		
 		Footprints fp = new Footprints(context);
 		FPTicket ticket = fp.new FPTicket();
-		ticket.description = contact.name + " has canceled this certificate request.\n\n";
+		Authorization auth = context.getAuthorization();
+		if(auth.isUser()) {
+			ContactRecord contact = auth.getContact();
+			ticket.description = contact.name + " has canceled this request.\n\n";
+		} else {
+			ticket.description = "guest shouldn't be canceling";
+		}
 		ticket.description += "> " + context.getComment();
 		ticket.status = "Resolved";
 		fp.update(ticket, rec.goc_ticket_id);
@@ -574,12 +586,15 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 			throw new CertificateRequestException("Failed to reject request status", e);
 		}
 		
-		Authorization auth = context.getAuthorization();
-		ContactRecord contact = auth.getContact();
-		
 		Footprints fp = new Footprints(context);
 		FPTicket ticket = fp.new FPTicket();
-		ticket.description = contact.name + " has rejected this certificate request.\n\n";
+		Authorization auth = context.getAuthorization();
+		if(auth.isUser()) {
+			ContactRecord contact = auth.getContact();
+			ticket.description = contact.name + " has rejected this certificate request.\n\n";
+		} else {
+			throw new CertificateRequestException("Guest shouldn't be rejecting request");
+		}
 		ticket.description += "> " + context.getComment();
 		ticket.status = "Resolved";
 		fp.update(ticket, rec.goc_ticket_id);
@@ -609,13 +624,17 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 			log.error("Failed to update host certificate status: " + rec.id);
 			throw new CertificateRequestException("Failed to update host certificate status", e);
 		}
-		
-		Authorization auth = context.getAuthorization();
-		ContactRecord contact = auth.getContact();
+	
 		
 		Footprints fp = new Footprints(context);
 		FPTicket ticket = fp.new FPTicket();
-		ticket.description = contact.name + " has revoked this certificate.";
+		Authorization auth = context.getAuthorization();
+		if(auth.isUser()) {
+			ContactRecord contact = auth.getContact();
+			ticket.description = contact.name + " has revoked this certificate.";
+		} else {
+			throw new CertificateRequestException("Guest should'nt be revoking certificate");
+		}
 		ticket.status = "Resolved";
 		fp.update(ticket, rec.goc_ticket_id);
 	}
