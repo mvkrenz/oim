@@ -541,8 +541,12 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 	//return true if success
 	public void cancel(CertificateRequestHostRecord rec) throws CertificateRequestException {
 		try {
-			//context.setComment("Certificate Approved");
-			rec.status = CertificateRequestStatus.CANCELED;
+			if(	rec.status.equals(CertificateRequestStatus.RENEW_REQUESTED) ||
+				rec.status.equals(CertificateRequestStatus.REVOCATION_REQUESTED)) {
+				rec.status = CertificateRequestStatus.ISSUED;
+			} else {
+				rec.status = CertificateRequestStatus.CANCELED;
+			}
 			super.update(get(rec.id), rec);
 		} catch (SQLException e) {
 			log.error("Failed to cancel host certificate request:" + rec.id);

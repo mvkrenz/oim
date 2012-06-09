@@ -371,8 +371,12 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 	//return true if success
 	public boolean cancel(CertificateRequestUserRecord rec) {
 		try {
-			//context.setComment("Certificate Approved");
-			rec.status = CertificateRequestStatus.CANCELED;
+			if(rec.status.equals(CertificateRequestStatus.RENEW_REQUESTED) ||
+				rec.status.equals(CertificateRequestStatus.REVOCATION_REQUESTED)) {
+					rec.status = CertificateRequestStatus.ISSUED;
+			} else {
+				rec.status = CertificateRequestStatus.CANCELED;
+			}
 			super.update(get(rec.id), rec);
 		} catch (SQLException e) {
 			log.error("Failed to cancel user certificate request:" + rec.id);
