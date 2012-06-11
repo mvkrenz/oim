@@ -1,5 +1,6 @@
 package edu.iu.grid.oim.view.divrep.form;
 
+import java.io.InputStream;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -23,6 +24,7 @@ import com.divrep.common.DivRepTextBox;
 import com.divrep.validator.DivRepIValidator;
 
 import edu.iu.grid.oim.lib.Authorization;
+import edu.iu.grid.oim.lib.ResourceReader;
 import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.CertificateRequestUserModel;
 import edu.iu.grid.oim.model.db.ContactModel;
@@ -32,6 +34,7 @@ import edu.iu.grid.oim.model.db.record.CertificateRequestUserRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
 
+import edu.iu.grid.oim.view.HtmlFileView;
 import edu.iu.grid.oim.view.divrep.DivRepSimpleCaptcha;
 import edu.iu.grid.oim.view.divrep.form.validator.DivRepPassStrengthValidator;
 
@@ -189,10 +192,15 @@ public class CertificateRequestUserForm extends DivRepForm
 			new DivRepSimpleCaptcha(this, context.getSession());
 		}
 		
-		new DivRepStaticContent(this, "<h2>DigiCert Policy Agreement</h2>");
-		new DivRepStaticContent(this, "<div class=\"well\">TBD... we display Digicert policy here for user to read..</div>");
+		new DivRepStaticContent(this, "<h2>OSG Policy Agreement</h2>");
+		
+		//agreement doc comes from https://twiki.grid.iu.edu/twiki/pub/Operations/DigiCertAgreements/IGTF_Certificate_Subscriber_Agreement_-_Mar_26_2012.doc
+		InputStream aup_stream =getClass().getResourceAsStream("osg.certificate.agreement.html");
+		StringBuilder aup = ResourceReader.loadContent(aup_stream);
+		new DivRepStaticContent(this, aup.toString());
+		
 		agreement = new DivRepCheckBox(this);
-		agreement.setLabel("I agree with above policies");
+		agreement.setLabel("I AGREE");
 		agreement.setRequired(true);
 		agreement.addValidator(new DivRepIValidator<Boolean>(){
 

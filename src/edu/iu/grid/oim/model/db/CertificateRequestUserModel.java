@@ -856,6 +856,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 		rec.requester_contact_id = requester.id;
 		rec.vo_id = vo_id;
 		
+		String ranames = "";
 		//CC ra & sponsor
 		VOContactModel model = new VOContactModel(context);
 		ContactModel cmodel = new ContactModel(context);
@@ -866,6 +867,11 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 				ContactRecord contactrec = cmodel.get(crec.contact_id);
 				if(crec.contact_type_id.equals(11)) { //primary, secondary, and sponsors
 					ticket.ccs.add(contactrec.primary_email);
+					
+					if(ranames.length() != 0) {
+						ranames += ", ";
+					}
+					ranames += contactrec.name;
 				}
 			}
 		} catch (SQLException e1) {
@@ -884,7 +890,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 		}
 		VOModel vmodel = new VOModel(context);
 		VORecord vrec = vmodel.get(rec.vo_id);
-		ticket.description = "Dear " + vrec.name + " VO RA,\n\n";
+		ticket.description = "Dear " + ranames + " (" + vrec.name + " VO RA),\n\n";
 		ticket.description += auth_status + requester.name + " <"+requester.primary_email+"> has requested a user certificate. ";
 		String url = StaticConfig.getApplicationBase() + "/certificateuser?id=" + rec.id;
 		ticket.description += "Please determine this request's authenticity, and approve / disapprove at " + url;
