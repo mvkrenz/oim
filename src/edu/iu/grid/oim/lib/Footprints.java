@@ -73,7 +73,12 @@ public class Footprints
 		post.addParameter("title", ticket.title);
 		post.setParameter("description", ticket.description);
 		post.setParameter("name", ticket.name);
+		
+		if(ticket.phone == null) {
+			ticket.phone = ""; //empty works just fine
+		}
 		post.setParameter("phone", ticket.phone);
+		
 		post.setParameter("email", ticket.email);
 		post.setParameter("nextaction", ticket.nextaction);
 		post.setParameter("nextactiontime", String.valueOf(ticket.nad.getTime()/1000));
