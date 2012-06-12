@@ -65,7 +65,7 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 		ResultSet rs = null;
 		Connection conn = connectOIM();
 		Statement stmt = conn.createStatement();
-		stmt.execute("SELECT * FROM "+table_name + " WHERE requester_contact_id = " + id + " OR gridadmin_contact_id = "+id);	
+		stmt.execute("SELECT * FROM "+table_name + " WHERE requester_contact_id = " + id);	
     	rs = stmt.getResultSet();
     	while(rs.next()) {
     		ret.add(new CertificateRequestHostRecord(rs));
@@ -321,7 +321,7 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 		Date current = new Date();
 		rec.request_time = new Timestamp(current.getTime());
 		rec.status = CertificateRequestStatus.REQUESTED;
-    	rec.gridadmin_contact_id = null;
+    	//rec.gridadmin_contact_id = null;
     	
     	log.debug("request init");
     	
@@ -352,7 +352,7 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 			} catch(Exception e) {
 				throw new CertificateRequestException("Failed to decode CSR", e);
 			}
-			
+			/*
 			//lookup gridadmin
         	log.debug("looking up gridadmin");
 			ContactRecord ga;
@@ -375,6 +375,7 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 					throw new CertificateRequestException("All host must be approved by the same GridAdmin. Different for " + cn);	
 				}
 			}
+			*/
 				
 			csrs_sa.set(idx++, csr_string);
     	}
@@ -393,8 +394,7 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 			Integer request_id = super.insert(rec);
 			
         	log.debug("request_id: " + request_id);
-			ContactModel cmodel = new ContactModel(context);
-			ContactRecord ga = cmodel.get(rec.gridadmin_contact_id);
+        	ContactRecord ga = findGridAdmin(rec);
 			ticket.description = "Dear " + ga.name + " (GridAdmin), \n\n";
 			ticket.description += "Host certificate request has been submitted.";
 			String url = StaticConfig.getApplicationBase() + "/certificatehost?id=" + rec.id;
@@ -427,21 +427,11 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
     	return rec;
     }
     
-	//NO-AC
-	//return host rec if success
-	public CertificateRequestHostRecord requestRenew(CertificateRequestHostRecord rec) throws CertificateRequestException {
-		/*
-    	//check quota
-    	CertificateQuotaModel quota = new CertificateQuotaModel(context);
-    	if(!quota.canApproveHostCert()) {
-    		throw new CertificateRequestException("Can't request any more host certificate.");
-    	}
-    	*/
-    	
-		//update gridadmin
+    //find gridadmin who should process the request
+    //null if none, or there are more than 1 
+    public ContactRecord findGridAdmin(CertificateRequestHostRecord rec) throws CertificateRequestException {
 		GridAdminModel gamodel = new GridAdminModel(context);
-    	GridAdminModel gmodel = new GridAdminModel(context);
-    	rec.gridadmin_contact_id = null;
+    	Integer gridadmin_contact_id = null;
     	int idx = 0;
     	for(String csr_string : rec.getCSRs()) {
     		String cn;
@@ -466,7 +456,7 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 			//lookup gridadmin
 			ContactRecord ga;
 			try {
-				ga = gmodel.getGridAdminByFQDN(cn);
+				ga = gamodel.getGridAdminByFQDN(cn);
 			} catch (SQLException e) {
 				throw new CertificateRequestException("Failed to lookup GridAdmin to approve host:" + cn, e);	
 			}
@@ -475,14 +465,43 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 			}
 			
 			//make sure single gridadmin approves all host
-			if(rec.gridadmin_contact_id == null) {
-				rec.gridadmin_contact_id = ga.id;
+			if(gridadmin_contact_id == null) {
+				gridadmin_contact_id = ga.id;
 			} else {
-				if(!rec.gridadmin_contact_id.equals(ga.id)) {
+				if(!gridadmin_contact_id.equals(ga.id)) {
 					throw new CertificateRequestException("All host must be approved by the same GridAdmin. Different for " + cn);	
 				}
 			}
     	}
+    	
+    	if(gridadmin_contact_id == null) {
+    		throw new CertificateRequestException("Failed to find gridadmin for user certificate request" + rec.id);
+    	}
+    	
+		ContactModel cmodel = new ContactModel(context);
+		ContactRecord gridadmin;
+		try {
+			gridadmin = cmodel.get(gridadmin_contact_id);
+		} catch (SQLException e) {
+			throw new CertificateRequestException("Failed to find user record for gridadmin id " + gridadmin_contact_id, e);
+		}
+		return gridadmin;
+    }
+    
+	//NO-AC
+	//return host rec if success
+	public CertificateRequestHostRecord requestRenew(CertificateRequestHostRecord rec) throws CertificateRequestException {
+		/*
+    	//check quota
+    	CertificateQuotaModel quota = new CertificateQuotaModel(context);
+    	if(!quota.canApproveHostCert()) {
+    		throw new CertificateRequestException("Can't request any more host certificate.");
+    	}
+    	*/
+    
+		//lookup gridadmin first
+		ContactRecord gridadmin = findGridAdmin(rec);
+		
 		rec.status = CertificateRequestStatus.RENEW_REQUESTED;
 		try {
 			super.update(get(rec.id), rec);
@@ -508,13 +527,7 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 		//Update CC gridadmin (it might have been changed since last time request was made)
 		VOContactModel model = new VOContactModel(context);
 		ContactModel cmodel = new ContactModel(context);
-		ContactRecord gridadmin;
-		try {
-			gridadmin = cmodel.get(rec.gridadmin_contact_id);
-			ticket.ccs.add(gridadmin.primary_email);
-		} catch (SQLException e) {
-			log.error("Failed to lookup GridAdmin information - ignoring", e);
-		}
+		ticket.ccs.add(gridadmin.primary_email);
 		
 		//reopen now
 		fp.update(ticket, rec.goc_ticket_id);
@@ -686,8 +699,13 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 			if(auth.isUser()) {
 				//grid admin can appove it
 				ContactRecord user = auth.getContact();
-				if(rec.gridadmin_contact_id.equals(user.id)) {
-					return true;
+				try {
+					ContactRecord gridadmin = findGridAdmin(rec);
+					if(gridadmin.id.equals(user.id)) {
+						return true;
+					}
+				} catch (CertificateRequestException e) {
+					log.error("Failed to lookup gridadmin for " + rec.id + " while processing canApprove()", e);
 				}
 			}
 		}
@@ -714,8 +732,13 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 				
 				//grid admin can cancel it
 				ContactRecord user = auth.getContact();
-				if(rec.gridadmin_contact_id.equals(user.id)) {
-					return true;
+				try {
+					ContactRecord gridadmin = findGridAdmin(rec);
+					if(gridadmin.id.equals(user.id)) {
+						return true;
+					}
+				} catch (CertificateRequestException e) {
+					log.error("Failed to lookup gridadmin for " + rec.id + " while processing canCancel()", e);
 				}
 			}
 		}
@@ -788,8 +811,13 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 				
 				//grid admin can revoke it
 				ContactRecord user = auth.getContact();
-				if(rec.gridadmin_contact_id.equals(user.id)) {
-					return true;
+				try {
+					ContactRecord gridadmin = findGridAdmin(rec);
+					if(gridadmin.id.equals(user.id)) {
+						return true;
+					}
+				} catch (CertificateRequestException e) {
+					log.error("Failed to lookup gridadmin for " + rec.id + " while processing canRevoke()", e);
 				}
 			}
 		}

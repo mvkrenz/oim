@@ -145,7 +145,21 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 		}
 		return ras;
 	}
-
+	
+	//empty if not found
+	public ArrayList<ContactRecord> findSponsors(CertificateRequestUserRecord rec) throws SQLException {
+		ArrayList<ContactRecord> sponsors = new ArrayList<ContactRecord>();
+		VOContactModel model = new VOContactModel(context);
+		ContactModel cmodel = new ContactModel(context);
+		ArrayList<VOContactRecord> crecs = model.getByVOID(rec.vo_id);
+		for(VOContactRecord crec : crecs) {
+			if(crec.contact_type_id.equals(11) && crec.contact_rank_id.equals(3) ) { //terriary is sponsor
+				ContactRecord contactrec = cmodel.get(crec.contact_id);
+				sponsors.add(contactrec);
+			}
+		}
+		return sponsors;
+	}
 	
 	//true if user can approve request
 	public boolean canApprove(CertificateRequestUserRecord rec) {

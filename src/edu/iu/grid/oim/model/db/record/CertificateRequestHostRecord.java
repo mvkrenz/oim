@@ -32,7 +32,7 @@ public class CertificateRequestHostRecord extends RecordBase {
 	
 	public String status;
 	public String status_note;
-	public Integer gridadmin_contact_id;
+	//public Integer gridadmin_contact_id;
 	public String goc_ticket_id;
 	
 	//load from existing record

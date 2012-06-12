@@ -275,6 +275,27 @@ public class CertificateUserServlet extends ServletBase  {
 					out.write("<td>sql error</td>");
 				}
 				
+				try {
+					out.write("<tr>");
+					out.write("<th>Sponsors</th>");
+					CertificateRequestUserModel usermodel = new CertificateRequestUserModel(context);
+					ArrayList<ContactRecord> sponsors = usermodel.findSponsors(rec);
+					if(sponsors.isEmpty()) {
+						out.write("<td>N/A</td>");
+					} else {
+						out.write("<td>");
+						out.write("<ul>");
+						for(ContactRecord sponsor : sponsors) {
+							out.write("<li>"+sponsor.name+"</li>");
+						}
+						out.write("</ul>");
+						out.write("</td>");	
+					}
+					out.write("</tr>");
+				} catch (SQLException e) {
+					out.write("<td>sql error</td>");
+				}
+				
 				
 				GenericView action_control = nextActionControl(context, rec);
 				out.write("<tr>");

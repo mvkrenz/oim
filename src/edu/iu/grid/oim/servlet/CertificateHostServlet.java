@@ -71,6 +71,7 @@ public class CertificateHostServlet extends ServletBase  {
 				try {
 					int id = Integer.parseInt(dirty_id);
 					CertificateRequestHostRecord rec = model.get(id);
+					ContactRecord gridadmin = model.findGridAdmin(rec);
 					if(rec == null) {
 						throw new ServletException("No request found with a specified request ID.");
 					}
@@ -78,9 +79,11 @@ public class CertificateHostServlet extends ServletBase  {
 						throw new AuthorizationException("You don't have access to view this certificate");
 					}
 					ArrayList<CertificateRequestModelBase<CertificateRequestHostRecord>.LogDetail> logs = model.getLogs(CertificateRequestHostModel.class, id);
-					content = createDetailView(context, rec, logs);
+					content = createDetailView(context, rec, logs, gridadmin);
 				} catch (SQLException e) {
 					throw new ServletException("Failed to load specified certificate", e);
+				} catch (CertificateRequestException ce) {
+					throw new ServletException("Most likely failed to lookup gridadmin", ce);
 				}
 			} else {
 				content = createListView(context);
@@ -118,7 +121,8 @@ public class CertificateHostServlet extends ServletBase  {
 	protected IView createDetailView(
 			final UserContext context, 
 			final CertificateRequestHostRecord rec, 
-			final ArrayList<CertificateRequestModelBase<CertificateRequestHostRecord>.LogDetail> logs) throws ServletException
+			final ArrayList<CertificateRequestModelBase<CertificateRequestHostRecord>.LogDetail> logs,
+			final ContactRecord gridadmin) throws ServletException
 	{
 		final Authorization auth = context.getAuthorization();
 		final SimpleDateFormat dformat = new SimpleDateFormat();
@@ -170,20 +174,26 @@ public class CertificateHostServlet extends ServletBase  {
 				out.write("</tr>");
 
 				out.write("<tr>");
-				out.write("<th>Grid Admin</th>");
+				out.write("<th>Requester</th>");
 				try {
 					ContactModel cmodel = new ContactModel(context);
-					ContactRecord requester = cmodel.get(rec.gridadmin_contact_id);
+					ContactRecord requester = cmodel.get(rec.requester_contact_id);
 					out.write("<td>"+StringEscapeUtils.escapeHtml(requester.name)+" ("+StringEscapeUtils.escapeHtml(requester.primary_email)+")</td>");
 
 				} catch (SQLException e1) {
 					out.write("<td>(sql error)</td>");
 				}
 				out.write("</tr>");
-				
+								
 				out.write("<tr>");
 				out.write("<th>Requested Time</th>");
 				out.write("<td>"+dformat.format(rec.request_time)+"</td>");
+				out.write("</tr>");
+				
+				out.write("<tr>");
+				out.write("<th>Grid Admin</th>");
+				out.write("<td>"+StringEscapeUtils.escapeHtml(gridadmin.name)+" ("+StringEscapeUtils.escapeHtml(gridadmin.primary_email)+")</td>");
+	
 				out.write("</tr>");
 				
 				out.write("<tr>");
@@ -509,7 +519,8 @@ public class CertificateHostServlet extends ServletBase  {
 						}
 						out.write("</ul></td>");
 						
-						ContactRecord gridadmin = cmodel.get(rec.gridadmin_contact_id);
+						ContactRecord gridadmin = model.findGridAdmin(rec);
+						//ContactRecord gridadmin = cmodel.get(rec.gridadmin_contact_id);
 						out.write("<td>"+StringEscapeUtils.escapeHtml(gridadmin.name)+"</td>");
 						
 						/*
@@ -527,6 +538,9 @@ public class CertificateHostServlet extends ServletBase  {
 				} catch (SQLException e1) {
 					out.write("<div class=\"alert\">Failed to load my certificate requests</div>");
 					log.error(e1);
+				} catch (CertificateRequestException ce) {
+					out.write("<div class=\"alert\">Probably failed to lookup gridadmin</div>");
+					log.error(ce);
 				}
 				
 				out.write("</table>");

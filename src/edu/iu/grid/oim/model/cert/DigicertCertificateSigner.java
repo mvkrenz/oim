@@ -69,7 +69,21 @@ public class DigicertCertificateSigner implements ICertificateSigner {
 		}
 		callback.certificateRequested();
 		
+		///////////////////////////////////////////////////////////////////////////////////////////
+		//
+		// TODO -- DigiCert will provide API to do this in more efficient way
+		//
+		
+		//wait for 60 seconds before start quering (per Greg)
+		try {
+			log.debug("Sleeping for 60 seconds");
+			Thread.sleep(1000*60);
+		} catch (InterruptedException e) {
+			log.error("Sleep interrupted", e);
+		}
+		
 		//wait until all certificate is returned (or timeout)
+		log.debug("start looking for certificate that's issued");
 		for(int retry = 0; retry < 40; ++retry) {	
 			//count number of certificates issued so far
 			int issued = 0;
