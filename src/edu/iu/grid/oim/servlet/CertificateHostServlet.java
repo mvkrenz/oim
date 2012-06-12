@@ -177,8 +177,12 @@ public class CertificateHostServlet extends ServletBase  {
 				out.write("<th>Requester</th>");
 				try {
 					ContactModel cmodel = new ContactModel(context);
-					ContactRecord requester = cmodel.get(rec.requester_contact_id);
-					out.write("<td>"+StringEscapeUtils.escapeHtml(requester.name)+" ("+StringEscapeUtils.escapeHtml(requester.primary_email)+")</td>");
+					if(rec.requester_contact_id != null) {
+						ContactRecord requester = cmodel.get(rec.requester_contact_id);
+						out.write("<td>"+StringEscapeUtils.escapeHtml(requester.name)+" ("+StringEscapeUtils.escapeHtml(requester.primary_email)+")</td>");
+					} else {
+						out.write("<td>Guest called "+rec.requester_name+"</td>");
+					}
 
 				} catch (SQLException e1) {
 					out.write("<td>(sql error)</td>");
