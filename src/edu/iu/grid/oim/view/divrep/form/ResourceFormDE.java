@@ -245,7 +245,7 @@ public class ResourceFormDE extends DivRepForm
 				}
 			}
 			if(contact_type.id != 5 && contact_type.id != 9) { //5 = misc, 9 = resource report
-				editor.setMinContacts(Rank.PRIMARY, 1);
+				editor.setMinContacts(Rank.Primary, 1);
 			}
 			contact_editors.put(contact_type.id, editor);
 		}

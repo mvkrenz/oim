@@ -28,17 +28,17 @@ import edu.iu.grid.oim.model.db.record.ContactRecord;
 public class ContactEditor extends DivRepFormElement<HashMap<ContactEditor.Rank, ArrayList<ContactEditor.ContactDE>>> {
 	static Logger log = Logger.getLogger(ContactEditor.class);
 	
-	public enum Rank {PRIMARY, SECONDARY, TERTIARY };
+	public enum Rank {Primary, Secondary, Tertiary };
 	private HashMap<Rank/*rank_id*/, ArrayList<ContactDE>> selected;
 	
-	private String primary_label = "Primary";
-	private String secondary_label = "Secondary";
-	private String tertiary_label = "Tertiary";
+	private String primary_label = Rank.Primary.toString();
+	private String secondary_label = Rank.Secondary.toString();
+	private String tertiary_label = Rank.Tertiary.toString();
 	public void setLabel(Rank rank, String label) {
 		switch(rank) {
-		case PRIMARY: primary_label = label; break;
-		case SECONDARY: secondary_label = label; break;
-		case TERTIARY: tertiary_label = label; break;
+		case Primary: primary_label = label; break;
+		case Secondary: secondary_label = label; break;
+		case Tertiary: tertiary_label = label; break;
 		}
 	}
 	
@@ -60,10 +60,10 @@ public class ContactEditor extends DivRepFormElement<HashMap<ContactEditor.Rank,
 		addValidator(new MinValidator(rank, min));
 	}
 	public void setMaxContacts(Rank rank, int max) {
-		if (rank == Rank.PRIMARY) { 
+		if (rank == Rank.Primary) { 
 			max_primary = max;
 		}
-		else if (rank == Rank.SECONDARY) { 
+		else if (rank == Rank.Secondary) { 
 			max_secondary= max;
 		}
 		else { 
@@ -90,16 +90,16 @@ public class ContactEditor extends DivRepFormElement<HashMap<ContactEditor.Rank,
 		has_secondary = _has_secondary;
 		has_tertiary = _has_tertiary;
 		
-		primary_newcontact = new NewContactDE(this, pmodel, Rank.PRIMARY);
-		selected.put(Rank.PRIMARY, new ArrayList());
+		primary_newcontact = new NewContactDE(this, pmodel, Rank.Primary);
+		selected.put(Rank.Primary, new ArrayList());
 		
 		if(has_secondary) {
-			secondary_newcontact = new NewContactDE(this, pmodel, Rank.SECONDARY);
-			selected.put(Rank.SECONDARY, new ArrayList());
+			secondary_newcontact = new NewContactDE(this, pmodel, Rank.Secondary);
+			selected.put(Rank.Secondary, new ArrayList());
 		}
 		if(has_tertiary) {
-			tertiary_newcontact = new NewContactDE(this, pmodel, Rank.TERTIARY);
-			selected.put(Rank.TERTIARY, new ArrayList());
+			tertiary_newcontact = new NewContactDE(this, pmodel, Rank.Tertiary);
+			selected.put(Rank.Tertiary, new ArrayList());
 		}
 	}
 	
@@ -223,16 +223,16 @@ public class ContactEditor extends DivRepFormElement<HashMap<ContactEditor.Rank,
 				}
 		
 				//remove people that are already selected 
-				for(ContactDE rec : selected.get(Rank.PRIMARY)) {
+				for(ContactDE rec : selected.get(Rank.Primary)) {
 					persons.remove(rec.person.id);
 				}
 				if(has_secondary) {
-					for(ContactDE rec : selected.get(Rank.SECONDARY)) {
+					for(ContactDE rec : selected.get(Rank.Secondary)) {
 						persons.remove(rec.person.id);
 					}					
 				}
 				if(has_tertiary) {
-					for(ContactDE rec : selected.get(Rank.TERTIARY)) {
+					for(ContactDE rec : selected.get(Rank.Tertiary)) {
 						persons.remove(rec.person.id);
 					}					
 				}
@@ -313,11 +313,11 @@ public class ContactEditor extends DivRepFormElement<HashMap<ContactEditor.Rank,
 	{
 		switch(contact_rank_id) {
 		case 1:
-			return ContactEditor.Rank.PRIMARY;
+			return ContactEditor.Rank.Primary;
 		case 2:
-			return ContactEditor.Rank.SECONDARY;
+			return ContactEditor.Rank.Secondary;
 		case 3:
-			return ContactEditor.Rank.TERTIARY;
+			return ContactEditor.Rank.Tertiary;
 		}	
 		throw new IllegalArgumentException("Uknown contact_rank_id: " + contact_rank_id);
 	}
@@ -325,11 +325,11 @@ public class ContactEditor extends DivRepFormElement<HashMap<ContactEditor.Rank,
 	private int Enum2DBRank(Rank rank)
 	{
 		switch(rank) {
-		case PRIMARY:
+		case Primary:
 			return 1;
-		case SECONDARY:
+		case Secondary:
 			return 2;
-		case TERTIARY:
+		case Tertiary:
 			return 3;
 		}
 		throw new IllegalArgumentException("Uknown rank: " + rank);
@@ -384,12 +384,12 @@ public class ContactEditor extends DivRepFormElement<HashMap<ContactEditor.Rank,
 		} else {
 			out.print("<table class='contact_table'>");
 		}
-		renderContactList(out, primary_newcontact, selected.get(Rank.PRIMARY), Rank.PRIMARY, primary_label, max_primary);
+		renderContactList(out, primary_newcontact, selected.get(Rank.Primary), Rank.Primary, primary_label, max_primary);
 		if(has_secondary) {
-			renderContactList(out, secondary_newcontact, selected.get(Rank.SECONDARY), Rank.SECONDARY, secondary_label, max_secondary);
+			renderContactList(out, secondary_newcontact, selected.get(Rank.Secondary), Rank.Secondary, secondary_label, max_secondary);
 		}
 		if(has_tertiary) {
-			renderContactList(out, tertiary_newcontact, selected.get(Rank.TERTIARY), Rank.TERTIARY, tertiary_label, max_tertiary);
+			renderContactList(out, tertiary_newcontact, selected.get(Rank.Tertiary), Rank.Tertiary, tertiary_label, max_tertiary);
 		}
 		out.print("</table>");
 		error.render(out);

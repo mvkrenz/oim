@@ -591,13 +591,13 @@ public class VOFormDE extends DivRepForm
 					editor.setDisabled(true);
 				}
 				
-				editor.setLabel(Rank.PRIMARY, "Primary RA");
-				editor.setLabel(Rank.SECONDARY, "Secondary RA");
-				editor.setLabel(Rank.TERTIARY, "Sponsors");
+				editor.setLabel(Rank.Primary, "Primary RA");
+				editor.setLabel(Rank.Secondary, "Secondary RA");
+				editor.setLabel(Rank.Tertiary, "Sponsors");
 			}
 			
 			if(contact_type.id != 5 && contact_type.id != 10 && contact_type.id != 11) { //5 = misc, 9 = resource report, 11 = ra agent
-				editor.setMinContacts(Rank.PRIMARY, 1);
+				editor.setMinContacts(Rank.Primary, 1);
 			}
 			contact_editors.put(contact_type.id, editor);
 		}

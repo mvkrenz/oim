@@ -60,7 +60,7 @@ public class GridAdminFormDE extends DivRepForm
 		
 		contact = new ContactEditor(this, new ContactModel(context), false, false);
 		contact.setLabel("Grid Admin");		
-		contact.setMinContacts(Rank.PRIMARY, 1);
+		contact.setMinContacts(Rank.Primary, 1);
 		contact.setShowRank(false);
 		if(rec.contact_id != null) {
 			ContactRecord crec = cmodel.get(rec.contact_id);

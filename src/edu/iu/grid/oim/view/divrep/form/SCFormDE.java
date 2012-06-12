@@ -178,7 +178,7 @@ public class SCFormDE extends DivRepForm
 				}
 			}
 			if(contact_type.id != 5) { //5 = misc
-				editor.setMinContacts(Rank.PRIMARY, 1);
+				editor.setMinContacts(Rank.Primary, 1);
 			}
 			contact_editors.put(contact_type.id, editor);
 		}
