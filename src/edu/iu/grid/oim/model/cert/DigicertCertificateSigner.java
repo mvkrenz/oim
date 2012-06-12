@@ -442,9 +442,9 @@ public class DigicertCertificateSigner implements ICertificateSigner {
 				throw new DigicertCPException("Request failed..\n" + errors.toString());
 			} else if(result.getTextContent().equals("success")) {
 				//nothing particular to do
+			} else {
+				throw new DigicertCPException("Unknown return code: " +result.getTextContent());
 			}
-			
-			throw new DigicertCPException("Unknown return code: " +result.getTextContent());	
 		} catch (HttpException e) {
 			throw new DigicertCPException("Failed to make request", e);
 		} catch (IOException e) {
