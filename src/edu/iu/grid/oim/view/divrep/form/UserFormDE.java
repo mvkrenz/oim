@@ -68,7 +68,7 @@ public class UserFormDE extends DivRepForm
 		new DivRepStaticContent(this, "<h3>Contact's Name</h3>");
 		contact = new ContactEditor(this, new ContactModel(context), false, false);
 		contact.setShowRank(false);
-		contact.setMinContacts(ContactEditor.Rank.PRIMARY, 1);
+		contact.setMinContacts(ContactEditor.Rank.Primary, 1);
 		ContactModel cmodel = new ContactModel(context);
 		if (id != null) {
 			ContactRecord crec = cmodel.get(rec.contact_id);

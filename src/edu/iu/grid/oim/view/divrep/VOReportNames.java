@@ -77,8 +77,8 @@ public class VOReportNames extends DivRepFormElement {
 			new DivRepStaticContent(this, "<h4>Subscribers (type to search)</h4>");
 			vorc_editor = new ContactEditor (this, cmodel, false, false);
 			vorc_editor.setShowRank(false);
-			vorc_editor.setMinContacts(ContactEditor.Rank.PRIMARY, 0);
-			vorc_editor.setMaxContacts(ContactEditor.Rank.PRIMARY, 128);
+			vorc_editor.setMinContacts(ContactEditor.Rank.Primary, 0);
+			vorc_editor.setMaxContacts(ContactEditor.Rank.Primary, 128);
 			if(vorc_list != null) {
 				for(VOReportContactRecord vorc_record : vorc_list) {
 					ContactRecord keyrec = new ContactRecord();
