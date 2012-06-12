@@ -270,15 +270,15 @@ background-repeat:no-repeat;
 padding-left:23px;
 min-height: 20px;
 }
-div.contact_PRIMARY
+div.contact_Primary
 {
 background-image:url(../images/star_red.png);
 }
-div.contact_SECONDARY
+div.contact_Secondary
 {
 background-image:url(../images/star_blue.png);
 }
-div.contact_TERTIARY
+div.contact_Tertiary
 {
 background-image:url(../images/star_green.png);
 }
