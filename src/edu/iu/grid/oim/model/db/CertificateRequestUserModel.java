@@ -416,7 +416,13 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 	//NO-AC
 	//return true if success
 	public boolean reject(CertificateRequestUserRecord rec) {
-		rec.status = CertificateRequestStatus.REJECTED;
+		if(rec.status.equals(CertificateRequestStatus.RENEW_REQUESTED)) {
+			//go back to issued status if it's from renew_requested
+			rec.status = CertificateRequestStatus.ISSUED;
+		} else {
+			//all others
+			rec.status = CertificateRequestStatus.REJECTED;
+		}
 		try {
 			//context.setComment("Certificate Approved");
 			super.update(get(rec.id), rec);
