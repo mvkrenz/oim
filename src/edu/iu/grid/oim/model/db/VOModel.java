@@ -120,12 +120,9 @@ public class VOModel extends SmallTableModelBase<VORecord>
 			ArrayList<Integer> field_of_science,
 			ArrayList<VOReport> voreports) throws Exception
 	{
-		Connection conn = null;
+		Connection conn = connectOIM();
+		conn.setAutoCommit(false);
 		try {			
-			//process detail information
-			conn = connectOIM();
-			conn.setAutoCommit(false);
-			
 			//insert VO itself and get the new ID
 			insert(rec);
 			
@@ -173,19 +170,16 @@ public class VOModel extends SmallTableModelBase<VORecord>
 			updateVOReports(rec.id, voreports); //yes, we can use update function to do the insert
 			
 			conn.commit();
-			conn.setAutoCommit(true);
 		} catch (Exception e) {
 			log.error(e);
 			log.info("Rolling back VO insert transaction.");
-			if(conn != null) {
-				conn.rollback();
-				conn.setAutoCommit(true);
-
-			}
-			
+			conn.rollback();
 			//re-throw original exception
 			throw new Exception(e);
-		}	
+		} finally {
+			conn.setAutoCommit(true);
+			conn.close();
+		}
 	}
 	
 	public void updateDetail(VORecord rec,
@@ -194,12 +188,9 @@ public class VOModel extends SmallTableModelBase<VORecord>
 			ArrayList<Integer> field_of_science, 
 			ArrayList<VOReport> voreports) throws Exception
 	{
-		Connection conn = null;
+		Connection conn = connectOIM();
+		conn.setAutoCommit(false);
 		try {
-		
-			conn = connectOIM();
-			conn.setAutoCommit(false);
-			
 			update(get(rec), rec);
 			
 			//process contact information
@@ -248,17 +239,17 @@ public class VOModel extends SmallTableModelBase<VORecord>
 			updateVOReports(rec.id, voreports);
 			
 			conn.commit();
-			conn.setAutoCommit(true);
 		} catch (Exception e) {
 			log.error(e);
 			log.info("Rolling back VO insert transaction.");
-			if(conn != null) {
-				conn.rollback();
-				conn.setAutoCommit(true);
-			}
+			conn.rollback();
+	
 			//re-throw original exception
 			throw new Exception(e);
-		}			
+		} finally {
+			conn.setAutoCommit(true);
+			conn.close();
+		}
 	}
 	
 	public void updateVOReports(int vo_id, ArrayList<VOReport> voreports) throws SQLException

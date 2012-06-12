@@ -52,6 +52,7 @@ public abstract class ModelBase<T extends RecordBase> {
     public void remove(RecordBase rec) throws SQLException
     {
 		//auth.check("write_"+table_name);
+		Connection conn = connectOIM();
 		
     	try {
 			//remove all current contacts
@@ -61,7 +62,6 @@ public abstract class ModelBase<T extends RecordBase> {
 	    		keysql += "`"+key.getName()+"`" + "=?";
 	    	}
 			String sql = "DELETE FROM "+table_name+" where " + keysql;
-			Connection conn = connectOIM();
 			PreparedStatement stmt = conn.prepareStatement(sql);
 			int count = 1;
 			for(Field key : rec.getRecordKeys()) {
@@ -71,13 +71,14 @@ public abstract class ModelBase<T extends RecordBase> {
 			}
 			stmt.executeUpdate();
 			stmt.close();
-			conn.close();
 		} catch (IllegalArgumentException e) {
 			throw new SQLException(e);
 		} catch (IllegalAccessException e) {
 			throw new SQLException(e);
 		} catch (SecurityException e) {
 			throw new SQLException(e);
+		} finally {
+			conn.close();
 		}
 		
 		logRemove(rec);
@@ -87,62 +88,67 @@ public abstract class ModelBase<T extends RecordBase> {
     //returns *one of* last inserted record's key. If primary key consists of multiple column, then don't use this
     public Integer insert(RecordBase rec) throws SQLException
     { 	
-		//insert new contact records in batch
-    	String fields = "";
-    	String values = "";
-    	for(Field field : rec.getClass().getFields()) {
-    		if(fields.length() != 0) {
-    			fields += ", ";
-    			values += ", ";
-    		}
-    		fields += "`"+field.getName()+"`";
-    		values += "?";
-    	}
-		String sql = "INSERT INTO "+table_name+" ("+fields+") VALUES ("+values+")";
-		Connection conn = connectOIM();
-		PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS); 
-    	try {
-	    	//set field values
-	    	int count = 1;
-	       	for(Field f : rec.getClass().getFields()) {
-	       		Object value = f.get(rec);
-	       		stmt.setObject(count, value);
-	    		++count;
-	    	}         
-			stmt.executeUpdate(); 
-		} catch (IllegalArgumentException e) {
-			throw new SQLException(e);
-		} catch (IllegalAccessException e) {
-			throw new SQLException(e);
-		} catch (SecurityException e) {
-			throw new SQLException(e);
-		}
-		
-		//attempt to update rec's key fields with newly inserted table keys (if exists) in the order of the key fields.
-		//this should work *most of the time*, but if the key fields are not "auto_increment" or if the key is out-of-order
-		//(if it's even possible), then this wouldn't work. we could add a new annotation to the record table and
-		//do this in more reliable way..
     	Integer a_id = null;
-		ResultSet ids = stmt.getGeneratedKeys();  
-		if(ids.next()) {
-			int count = 1;
-	    	for(Field key : rec.getRecordKeys()) {
-	    		try {
-	    			Integer value = ids.getInt(count);
-	    			if(a_id == null) a_id = value;
-					key.set(rec, value);
-				} catch (IllegalArgumentException e) {
-					log.error(e);
-				} catch (IllegalAccessException e) {
-					log.error(e);
-				}
-				++count;
+    
+		Connection conn = connectOIM();
+		try {
+			//insert new contact records in batch
+	    	String fields = "";
+	    	String values = "";
+	    	for(Field field : rec.getClass().getFields()) {
+	    		if(fields.length() != 0) {
+	    			fields += ", ";
+	    			values += ", ";
+	    		}
+	    		fields += "`"+field.getName()+"`";
+	    		values += "?";
 	    	}
+			String sql = "INSERT INTO "+table_name+" ("+fields+") VALUES ("+values+")";
+			PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS); 
+	    	try {
+		    	//set field values
+		    	int count = 1;
+		       	for(Field f : rec.getClass().getFields()) {
+		       		Object value = f.get(rec);
+		       		stmt.setObject(count, value);
+		    		++count;
+		    	}         
+				stmt.executeUpdate(); 
+			} catch (IllegalArgumentException e) {
+				throw new SQLException(e);
+			} catch (IllegalAccessException e) {
+				throw new SQLException(e);
+			} catch (SecurityException e) {
+				throw new SQLException(e);
+			} 
+			
+			//attempt to update rec's key fields with newly inserted table keys (if exists) in the order of the key fields.
+			//this should work *most of the time*, but if the key fields are not "auto_increment" or if the key is out-of-order
+			//(if it's even possible), then this wouldn't work. we could add a new annotation to the record table and
+			//do this in more reliable way..
+			ResultSet ids = stmt.getGeneratedKeys();  
+			if(ids.next()) {
+				int count = 1;
+		    	for(Field key : rec.getRecordKeys()) {
+		    		try {
+		    			Integer value = ids.getInt(count);
+		    			if(a_id == null) a_id = value;
+						key.set(rec, value);
+					} catch (IllegalArgumentException e) {
+						log.error(e);
+					} catch (IllegalAccessException e) {
+						log.error(e);
+					}
+					++count;
+		    	}
+			}
+			stmt.close();
+			logInsert(rec);
+		} catch (Exception e) {
+			log.error("unhandled exception", e);
+		} finally {
+			conn.close();
 		}
-		
-		logInsert(rec);
-		stmt.close();
-		conn.close();
 		return a_id;
     }
     
@@ -152,59 +158,63 @@ public abstract class ModelBase<T extends RecordBase> {
 		//auth.check("write_"+table_name);
     	
     	ArrayList<Field> changed_fields = oldrec.diff(newrec);
-
 		//if nothing has being changed, don't update
     	if(changed_fields.size() == 0) return;
     
-    	//construct sql
-    	String values = ""; 	
-    	for(Field f : changed_fields) {
-    		if(values.length() != 0) values += ", ";
-    		values += f.getName() + "=?";
-    	}
-    	String keysql = "";
-    	for(Field key : oldrec.getRecordKeys()) {
-    		if(keysql.length() != 0) keysql += " and ";
-    		keysql += "`"+key.getName()+"`" + "=?";
-    	}
-    	String sql = "UPDATE " + table_name + " SET " + values + " WHERE " + keysql;
-    	PreparedStatement stmt;
-    	for(Field f : changed_fields) {
-    		if(values.length() != 0) values += ", ";
-    		values += f.getName() + "=?";
-    	}  	
     	Connection conn = connectOIM();
-    	stmt = conn.prepareStatement(sql);
     	try {
-	    	//set field values
-	    	int count = 1;
-	       	for(Field f : changed_fields) {
-	       		Object value;
-				
-				value = f.get(newrec);
-	       		stmt.setObject(count, value);
-	    		++count;
-	    	}    
-	       	
-	       	//set key values
-	    	for(Field key : oldrec.getRecordKeys()) {
-	    		Object value = (Object) key.get(oldrec);
-	    		stmt.setObject(count, value);
-	    		++count;
-	    	}
-	      
-			stmt.executeUpdate(); 
-			stmt.close(); 	
-		} catch (IllegalArgumentException e) {
-			throw new SQLException(e);
-		} catch (IllegalAccessException e) {
-			throw new SQLException(e);
-		} catch (SecurityException e) {
-			throw new SQLException(e);
-		}
-		
-		logUpdate(oldrec, newrec);
-		conn.close();
+        	//construct sql
+        	String values = ""; 	
+        	for(Field f : changed_fields) {
+        		if(values.length() != 0) values += ", ";
+        		values += f.getName() + "=?";
+        	}
+        	String keysql = "";
+        	for(Field key : oldrec.getRecordKeys()) {
+        		if(keysql.length() != 0) keysql += " and ";
+        		keysql += "`"+key.getName()+"`" + "=?";
+        	}
+        	String sql = "UPDATE " + table_name + " SET " + values + " WHERE " + keysql;
+        	PreparedStatement stmt;
+        	for(Field f : changed_fields) {
+        		if(values.length() != 0) values += ", ";
+        		values += f.getName() + "=?";
+        	}  	
+	    	stmt = conn.prepareStatement(sql);
+	    	try {
+		    	//set field values
+		    	int count = 1;
+		       	for(Field f : changed_fields) {
+		       		Object value;
+					
+					value = f.get(newrec);
+		       		stmt.setObject(count, value);
+		    		++count;
+		    	}    
+		       	
+		       	//set key values
+		    	for(Field key : oldrec.getRecordKeys()) {
+		    		Object value = (Object) key.get(oldrec);
+		    		stmt.setObject(count, value);
+		    		++count;
+		    	}
+		      
+				stmt.executeUpdate(); 
+				stmt.close(); 	
+			} catch (IllegalArgumentException e) {
+				throw new SQLException(e);
+			} catch (IllegalAccessException e) {
+				throw new SQLException(e);
+			} catch (SecurityException e) {
+				throw new SQLException(e);
+			}
+			
+			logUpdate(oldrec, newrec);
+    	} catch(Exception e) {
+    		log.error("unhandled exception", e);
+    	} finally {
+			conn.close();
+    	}
     }
     
     protected void logInsert(RecordBase rec) throws SQLException 

@@ -296,7 +296,7 @@ public class GenerateCSR {
 Create CSR 
 > openssl req -out CSR.csr -new -newkey rsa:2048 -nodes -keyout privateKey.key
 
-decode content of CSR.csr
+decode content of request.csr
 > openssl req -in request.csr -noout -text 
 
 decode content of privateKey.key
