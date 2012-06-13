@@ -217,29 +217,7 @@ public class CertificateRequestUserForm extends DivRepForm
 				cn.setValue(contact.name + " " + contact.id);
 			}
 		}
-		
-		new DivRepStaticContent(this, "<h2>OSG Policy Agreement</h2>");
-		
-		//agreement doc comes from https://twiki.grid.iu.edu/twiki/pub/Operations/DigiCertAgreements/IGTF_Certificate_Subscriber_Agreement_-_Mar_26_2012.doc
-		InputStream aup_stream =getClass().getResourceAsStream("osg.certificate.agreement.html");
-		StringBuilder aup = ResourceReader.loadContent(aup_stream);
-		new DivRepStaticContent(this, aup.toString());
-		
-		agreement = new DivRepCheckBox(this);
-		agreement.setLabel("I AGREE");
-		agreement.setRequired(true);
-		agreement.addValidator(new DivRepIValidator<Boolean>(){
-
-			@Override
-			public Boolean isValid(Boolean value) {
-				return value;
-			}
-
-			@Override
-			public String getErrorMessage() {
-				return "You must agree to these policies";
-			}});
-		
+			
 		new DivRepStaticContent(this, "<h2>Sponsor</h2>");
 		new DivRepStaticContent(this, "<p class=\"help-block\">Please select VO that should approve your request.</p>");
 		
@@ -262,6 +240,28 @@ public class CertificateRequestUserForm extends DivRepForm
 		} catch (SQLException e) {
 			log.error("Failed to load vo list while constructing certificat request form", e);
 		}
+		
+		new DivRepStaticContent(this, "<h2>OSG Policy Agreement</h2>");
+		
+		//agreement doc comes from https://twiki.grid.iu.edu/twiki/pub/Operations/DigiCertAgreements/IGTF_Certificate_Subscriber_Agreement_-_Mar_26_2012.doc
+		InputStream aup_stream =getClass().getResourceAsStream("osg.certificate.agreement.html");
+		StringBuilder aup = ResourceReader.loadContent(aup_stream);
+		new DivRepStaticContent(this, aup.toString());
+		
+		agreement = new DivRepCheckBox(this);
+		agreement.setLabel("I AGREE");
+		agreement.setRequired(true);
+		agreement.addValidator(new DivRepIValidator<Boolean>(){
+
+			@Override
+			public Boolean isValid(Boolean value) {
+				return value;
+			}
+
+			@Override
+			public String getErrorMessage() {
+				return "You must agree to these policies";
+			}});
 	}
 
 	protected void onEvent(DivRepEvent e) {
@@ -380,4 +380,10 @@ class CNEditor extends DivRepFormElement<String> {
 	
 	@Override
 	public String getValue() { return cn.getValue(); }
+	
+	@Override
+	public boolean validate()
+	{
+		return cn.validate();
+	}
 }

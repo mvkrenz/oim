@@ -1,5 +1,6 @@
 package edu.iu.grid.oim.model.db.record;
 
+import java.util.Date;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
@@ -24,6 +25,9 @@ public class CertificateRequestUserRecord extends RecordBase {
 	public String status;
 	public Integer vo_id;
 	public String goc_ticket_id;
+	
+	public Date cert_notbefore;
+	public Date cert_notafter;
 	
 	//load from existing record
 	public CertificateRequestUserRecord(ResultSet rs) throws SQLException {

@@ -2,47 +2,22 @@ package edu.iu.grid.oim.servlet;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.sql.SQLException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
-import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 
-import com.divrep.DivRepEvent;
-import com.divrep.DivRepEventListener;
-import com.divrep.common.DivRepButton;
-import com.divrep.common.DivRepPassword;
-import com.divrep.common.DivRepTextArea;
-
-import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.AuthorizationException;
 import edu.iu.grid.oim.lib.StaticConfig;
-import edu.iu.grid.oim.model.CertificateRequestStatus;
 import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.CertificateQuotaModel;
-import edu.iu.grid.oim.model.db.CertificateRequestUserModel;
-import edu.iu.grid.oim.model.db.ContactModel;
-import edu.iu.grid.oim.model.db.VOModel;
-import edu.iu.grid.oim.model.db.record.CertificateRequestUserRecord;
-import edu.iu.grid.oim.model.db.record.ContactRecord;
-import edu.iu.grid.oim.model.db.record.VORecord;
-import edu.iu.grid.oim.view.BootBreadCrumbView;
 import edu.iu.grid.oim.view.BootMenuView;
 import edu.iu.grid.oim.view.BootPage;
 import edu.iu.grid.oim.view.CertificateMenuView;
-import edu.iu.grid.oim.view.ContentView;
-import edu.iu.grid.oim.view.DivRepWrapper;
-import edu.iu.grid.oim.view.GenericView;
-import edu.iu.grid.oim.view.HtmlView;
 import edu.iu.grid.oim.view.IView;
 import edu.iu.grid.oim.view.divrep.form.CertificateRequestUserForm;
-import edu.iu.grid.oim.view.divrep.form.validator.DivRepPassStrengthValidator;
 
 public class CertificateRequestUserServlet extends ServletBase  {
 	private static final long serialVersionUID = 1L;

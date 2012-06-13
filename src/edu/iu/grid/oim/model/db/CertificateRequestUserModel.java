@@ -9,6 +9,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -33,6 +34,7 @@ import org.bouncycastle.asn1.x509.Certificate;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cms.CMSException;
 import org.bouncycastle.cms.CMSSignedData;
+import org.bouncycastle.pkcs.PKCS10CertificationRequest;
 import org.bouncycastle.util.Store;
 import org.bouncycastle.util.encoders.Base64;
 
@@ -93,43 +95,8 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 	//determines if user should be able to view request details, logs, and download certificate (pkcs12 is session specific)
 	public boolean canView(CertificateRequestUserRecord rec) {
 		return true; //let's allow everyone to view.
-		/*
-		if(auth.isGuest()) {
-			//right now, guest can't view certificate requests
-			//TODO - we need to allow guest user to somehow gain access to ones own request
-		} else if(auth.isUser()) {
-			//super ra can see all requests
-			if(auth.allows("admin_all_user_cert_requests")) return true;
-			
-			//is user the requester?
-			ContactRecord contact = auth.getContact();
-			if(rec.requester_contact_id.equals(contact.id)) return true;
-			
-			//ra or sponsor for specified vo can view it
-			VOContactModel model = new VOContactModel(context);
-			ContactModel cmodel = new ContactModel(context);
-			ArrayList<VOContactRecord> crecs;
-			try {
-				crecs = model.getByVOID(rec.vo_id);
-				for(VOContactRecord crec : crecs) {
-					ContactRecord contactrec = cmodel.get(crec.contact_id);
-					if(crec.contact_type_id.equals(11) && crec.contact_rank_id.equals(1)) { //primary
-						if(contactrec.id.equals(contact.id)) return true;
-					}
-					
-					if(crec.contact_type_id.equals(11) && crec.contact_rank_id.equals(3)) { //sponsor
-						if(contactrec.id.equals(contact.id)) return true;
-					}
-				}
-			} catch (SQLException e1) {
-				log.error("Failed to lookup RA/sponsor information", e1);
-			}
-		}
-		return false;
-		*/
 	}
-	
-	
+		
 	//empty if not found
 	public ArrayList<ContactRecord> findRAs(CertificateRequestUserRecord rec) throws SQLException {
 		ArrayList<ContactRecord> ras = new ArrayList<ContactRecord>();
@@ -612,6 +579,17 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 					rec.cert_pkcs7 = cert.pkcs7;
 					rec.cert_serial_id = cert.serial;
 					
+					//get some information we need from the issued certificate
+					try {
+						java.security.cert.Certificate[]  chain = parsePKCS7(rec);
+						X509Certificate c0 = (X509Certificate)chain[0];
+						rec.cert_notafter = c0.getNotAfter();
+						rec.cert_notbefore = c0.getNotBefore();
+				
+					} catch (CMSException e) {
+						log.error("Failed to lookup certificate information for issued user cert request id:" + rec.id, e);
+					}
+					
 					//all done at this point
 					rec.status = CertificateRequestStatus.ISSUED;
 					context.setComment("Certificate has been issued by signer");
@@ -648,35 +626,41 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 		return (String)session.getAttribute("PASS_USER:"+id);		
 	}
 	
+	private java.security.cert.Certificate[]  parsePKCS7(CertificateRequestUserRecord rec) throws CMSException, CertificateException, IOException {
+		//need to strip first and last line (-----BEGIN PKCS7-----, -----END PKCS7-----)
+		String []lines = rec.cert_pkcs7.split("\n");
+		String payload = "";
+		for(String line : lines) {
+			if(line.startsWith("-----")) continue;
+			payload += line;
+		}
+		
+		//convert cms to certificate chain
+		CMSSignedData cms = new CMSSignedData(Base64.decode(payload));
+		Store s = cms.getCertificates();
+		Collection collection = s.getMatches(null);
+		java.security.cert.Certificate[] chain = new java.security.cert.Certificate[collection.size()];
+		Iterator itr = collection.iterator(); 
+		int i = 0;
+	    CertificateFactory cf = CertificateFactory.getInstance("X.509"); 
+		while(itr.hasNext()) {
+			X509CertificateHolder it = (X509CertificateHolder)itr.next();
+			Certificate c = it.toASN1Structure();
+			
+			//convert to java.security certificate
+		    InputStream is1 = new ByteArrayInputStream(c.getEncoded()); 
+			chain[i++] = cf.generateCertificate(is1);
+		}
+		return chain;
+	}
+	
+	//construct pkcs12 using private key stored in session and issued certificate
 	//return null if unsuccessful - errors are logged
 	public KeyStore getPkcs12(CertificateRequestUserRecord rec) {			
 		//pull certificate chain from pkcs7
 
 		try {
-			//need to strip first and last line (-----BEGIN PKCS7-----, -----END PKCS7-----)
-			String []lines = rec.cert_pkcs7.split("\n");
-			String payload = "";
-			for(String line : lines) {
-				if(line.startsWith("-----")) continue;
-				payload += line;
-			}
-			
-			//convert cms to certificate chain
-			CMSSignedData cms = new CMSSignedData(Base64.decode(payload));
-			Store s = cms.getCertificates();
-			Collection collection = s.getMatches(null);
-			java.security.cert.Certificate[] chain = new java.security.cert.Certificate[collection.size()];
-			Iterator itr = collection.iterator(); 
-			int i = 0;
-		    CertificateFactory cf = CertificateFactory.getInstance("X.509"); 
-			while(itr.hasNext()) {
-				X509CertificateHolder it = (X509CertificateHolder)itr.next();
-				Certificate c = it.toASN1Structure();
-				
-				//convert to java.security certificate
-			    InputStream is1 = new ByteArrayInputStream(c.getEncoded()); 
-				chain[i++] = cf.generateCertificate(is1);
-			}
+			java.security.cert.Certificate[] chain = parsePKCS7(rec);
 			
 			HttpSession session = context.getSession();
 			String password = getPassword(rec.id);
@@ -684,31 +668,14 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 			KeyStore p12 = KeyStore.getInstance("PKCS12");
 			p12.load(null, null);  //not sure what this does.
 			PrivateKey private_key = getPrivateKey(rec.id);
-			//p12.setKeyEntry("USER"+rec.id, private_key.getEncoded(), chain); 
-			
-			/*
-			//DEBUG -- fake it to test
-			password = "password";
-			try {
-				GenerateCSR gcsr = new GenerateCSR(
-							new X500Name("CN=\"Soichi Hayashi/emailAddress=hayashis@indiana.edu\", OU=PKITesting, O=OSG, L=Bloomington, ST=IN, C=United States"));
-		    	private_key = gcsr.getPrivateKey();
-				
-			} catch (OperatorCreationException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			*/
-
 			
 			p12.setKeyEntry("USER"+rec.id, private_key, password.toCharArray(), chain); 
-			//p12.setKeyEntry("USER"+rec.id, private_key, null, chain); 
 			
 			return p12;
 		} catch (IOException e) {
-			log.error("Failed to get encoded byte array from bouncy castle certificate.");
+			log.error("Failed to get encoded byte array from bouncy castle certificate.", e);
 		} catch (CertificateException e) {
-			log.error("Failed to generate java security certificate from byte array");
+			log.error("Failed to generate java security certificate from byte array", e);
 		} catch (KeyStoreException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -716,9 +683,8 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (CMSException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+			log.error("Failed to get encoded byte array from bouncy castle certificate.", e);
+		} 
 		return null;
 	}
 
@@ -966,4 +932,28 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
     	throw new UnsupportedOperationException("disallowing remove cert request..");
     }
     
+
+    public void _test() {
+    	try {
+			CertificateRequestUserRecord rec = get(21);
+			try {
+				java.security.cert.Certificate[]  chain = parsePKCS7(rec);
+				X509Certificate c0 = (X509Certificate)chain[0];
+				Date not_after = c0.getNotAfter();
+				Date not_before = c0.getNotBefore();
+		
+			} catch (CMSException e) {
+				log.error("Failed to lookup certificate information for issued user cert request id:" + rec.id, e);
+			} catch (CertificateException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    }
 }

@@ -185,6 +185,17 @@ public class CertificateUserServlet extends ServletBase  {
 				out.write("</tr>");
 				
 				out.write("<tr>");
+				out.write("<th>Valid Dates</th>");
+				out.write("<td>");
+				if(rec.cert_notafter != null && rec.cert_notbefore != null) {
+					out.write("Between " + rec.cert_notbefore.toString() + " and " + rec.cert_notafter.toString()); 
+				} else {
+					out.write("(N/A)");
+				}
+				out.write("</td>");
+				out.write("</tr>");
+				
+				out.write("<tr>");
 				out.write("<th>Status</th>");
 				out.write("<td>"+StringEscapeUtils.escapeHtml(rec.status));
 				if(rec.status.equals(CertificateRequestStatus.ISSUING)) {

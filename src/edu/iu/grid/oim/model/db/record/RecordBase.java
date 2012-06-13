@@ -8,6 +8,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 
 import org.apache.log4j.Logger;
@@ -47,6 +48,8 @@ public abstract class RecordBase implements Comparable<RecordBase> {
 		        	fld.set(this, rs.getTimestamp(name));
 		        } else if(type == Boolean.class) {
 		        	fld.set(this, rs.getBoolean(name));
+		        } else if(type == Date.class) {
+		        	fld.set(this, rs.getDate(name));
 		        } else {
 		        	log.error("Uknown record variable type (ctor):" + type + " called " + name);
 		        }
