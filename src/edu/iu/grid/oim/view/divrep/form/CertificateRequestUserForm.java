@@ -1,6 +1,7 @@
 package edu.iu.grid.oim.view.divrep.form;
 
 import java.io.InputStream;
+import java.io.PrintWriter;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -12,10 +13,12 @@ import java.util.TimeZone;
 
 import org.apache.log4j.Logger;
 
+import com.divrep.DivRep;
 import com.divrep.DivRepEvent;
 import com.divrep.DivRepEventListener;
 import com.divrep.common.DivRepCheckBox;
 import com.divrep.common.DivRepForm;
+import com.divrep.common.DivRepFormElement;
 import com.divrep.common.DivRepPassword;
 import com.divrep.common.DivRepSelectBox;
 import com.divrep.common.DivRepStaticContent;
@@ -52,6 +55,8 @@ public class CertificateRequestUserForm extends DivRepForm
 	private DivRepSelectBox timezone;
 	private HashMap<Integer, String> timezone_id2tz;
 	
+	private CNEditor cn; //only for OIM user
+	
 	private DivRepTextArea profile;
 	private DivRepCheckBox use_twiki;
 	private DivRepTextBox twiki_id;
@@ -67,7 +72,7 @@ public class CertificateRequestUserForm extends DivRepForm
 		super(context.getPageRoot(), origin_url);
 		this.context = context;
 		auth = context.getAuthorization();
-		ContactRecord contact = auth.getContact();
+		//ContactRecord contact = auth.getContact();
 	
 		if(!auth.isUser()) {
 			new DivRepStaticContent(this, "<h2>Contact Information</h2>");
@@ -76,23 +81,29 @@ public class CertificateRequestUserForm extends DivRepForm
 			fullname = new DivRepTextBox(this);
 			fullname.setLabel("Full Name");
 			fullname.setRequired(true);
+			/*
 			if(contact != null) {
 				fullname.setValue(contact.name);
 			}
+			*/
 			
 			email = new DivRepTextBox(this);
 			email.setLabel("Email");
 			email.setRequired(true);
+			/*
 			if(contact != null) {
 				email.setValue(contact.primary_email);
 			}
+			*/
 			
 			phone = new DivRepTextBox(this);
 			phone.setLabel("Phone");
 			phone.setRequired(true);
+			/*
 			if(contact != null) {
 				phone.setValue(contact.primary_phone);
 			}
+			*/
 			
 			new DivRepStaticContent(this, "<h2>Profile Information</h2>");
 			new DivRepStaticContent(this, "<p class=\"help-block\">Following information will be used to register you as a new OIM user.</p>");
@@ -100,16 +111,20 @@ public class CertificateRequestUserForm extends DivRepForm
 			city = new DivRepTextBox(this);
 			city.setLabel("City");
 			city.setRequired(true);
+			/*
 			if(contact != null) {
 				city.setValue(contact.city);
 			}
+			*/
 	
 			state = new DivRepTextBox(this);
 			state.setLabel("State");
 			state.setRequired(true);
+			/*
 			if(contact != null) {
 				state.setValue(contact.state);
 			}
+			*/
 			
 			zipcode = new DivRepTextBox(this);
 			zipcode.setLabel("Zipcode");
@@ -118,9 +133,11 @@ public class CertificateRequestUserForm extends DivRepForm
 			country = new DivRepTextBox(this);
 			country.setLabel("Country");
 			country.setRequired(true);
+			/*
 			if(contact != null) {
 				country.setValue(contact.country);
 			}
+			*/
 			
 			timezone = new DivRepSelectBox(this);
 			timezone_id2tz = new HashMap<Integer, String>();
@@ -190,6 +207,15 @@ public class CertificateRequestUserForm extends DivRepForm
 
 			new DivRepStaticContent(this, "<h2>Captcha</h2>");
 			new DivRepSimpleCaptcha(this, context.getSession());
+		} else {
+			//OIM user can specify CN
+			new DivRepStaticContent(this, "<h2>DN</h2>");
+			cn = new CNEditor(this);
+			cn.setRequired(true);
+			if(auth.isUser()) {
+				ContactRecord contact = auth.getContact();
+				cn.setValue(contact.name + " " + contact.id);
+			}
 		}
 		
 		new DivRepStaticContent(this, "<h2>OSG Policy Agreement</h2>");
@@ -284,7 +310,9 @@ public class CertificateRequestUserForm extends DivRepForm
 					if(dnmodel.getByContactID(rec.id) != null) {
 						alert("The email address specified is already associated with a different DN. Please try different email address.");
 						return false;
-					} 						
+					} else {
+						//contact exist, but not yet associated with any DN (not approved?)
+					}
 					user = rec;
 				}
 			} catch (SQLException e) {
@@ -302,7 +330,7 @@ public class CertificateRequestUserForm extends DivRepForm
 				//requester_passphrase = HashHelper.sha1(passphrase.getValue());
 				rec = certmodel.requestGuestWithNOCSR(vo.getValue(), user, passphrase.getValue());
 			} else {
-				rec = certmodel.requestUsertWithNOCSR(vo.getValue(), user);
+				rec = certmodel.requestUsertWithNOCSR(vo.getValue(), user, cn.getValue());
 			}
 			if(rec != null) {
 				redirect("certificateuser?id="+rec.id); //TODO - does this work? I haven't tested it
@@ -315,4 +343,41 @@ public class CertificateRequestUserForm extends DivRepForm
 
 		return ret;
 	}
+}
+
+class CNEditor extends DivRepFormElement<String> {
+
+	boolean user_modified = false;
+	public boolean hasUserModified() { return user_modified; }
+	
+	DivRepTextBox cn;
+	protected CNEditor(DivRep parent) {
+		super(parent);
+		cn = new DivRepTextBox(this);
+	}
+
+	@Override
+	public void render(PrintWriter out) {
+		out.write("<div id=\""+getNodeID()+"\">");
+		out.write("<div style=\"float: left;margin: 5px 4px\">/DC=com/DC=DigiCert-Grid/OU=People/CN=</div>");		
+		cn.render(out);
+		out.write("</div>");
+	}
+
+	@Override
+	protected void onEvent(DivRepEvent e) {
+		user_modified = true;
+	}
+	
+	@Override
+	public void setRequired(Boolean b) { 
+		super.setRequired(b);
+		cn.setRequired(true);
+	}
+	
+	@Override
+	public void setValue(String value) { cn.setValue(value); }
+	
+	@Override
+	public String getValue() { return cn.getValue(); }
 }

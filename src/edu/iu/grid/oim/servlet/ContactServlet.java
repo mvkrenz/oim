@@ -1,6 +1,7 @@
 package edu.iu.grid.oim.servlet;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -284,12 +285,18 @@ public class ContactServlet extends ServletBase {
 			}
 
 			if(context.getAuthorization().allows("admin")) {
-				String dn_string = null;
-				DNRecord dnrec = dnmodel.getByContactID(rec.id);
-				if(dnrec != null) {
-					dn_string = dnrec.dn_string;
-				}
-				table.addRow("Associated DN", dn_string);		
+				final ArrayList<DNRecord> dnrecs = dnmodel.getByContactID(rec.id);
+				table.addRow("Associated DN", new IView() {
+
+					@Override
+					public void render(PrintWriter out) {
+						out.write("<ul>");
+						for(DNRecord rec : dnrecs) {
+							out.write("<li>"+StringEscapeUtils.escapeHtml(rec.dn_string)+"</li>");
+						}
+						out.write("</ul>");
+					}
+				});		
 			}
 			
 			//Certificate Quota

@@ -59,16 +59,17 @@ public class DNModel extends SmallTableModelBase<DNRecord> {
 		}
 		return null;
 	}
-	public DNRecord getByContactID(int contact_id) throws SQLException
+	public ArrayList<DNRecord> getByContactID(int contact_id) throws SQLException
 	{
+		ArrayList<DNRecord> list = new ArrayList<DNRecord>();
 		for(RecordBase it : getCache()) 
 		{
 			DNRecord rec = (DNRecord)it;
 			if(rec.contact_id.compareTo(contact_id) == 0) {
-				return rec;
+				list.add(rec);
 			}
 		}
-		return null;
+		return list;
 	}
 	
 	public DNRecord get(int id) throws SQLException {

@@ -119,8 +119,8 @@ public class ContactModel extends SmallTableModelBase<ContactRecord> {
 			//allow editing if user is submitter_dn
 			if(rec.submitter_dn_id != null && rec.submitter_dn_id.compareTo(auth.getDNID()) == 0)  {
 				//only allow editing if the contact is not yet associated with DN
-				DNRecord dnrec = dnmodel.getByContactID(rec.id);
-				if(dnrec == null) {
+				ArrayList<DNRecord> dnrecs = dnmodel.getByContactID(rec.id);
+				if(dnrecs.size() == 0) {
 					list.add(rec.id);
 				}
 			}

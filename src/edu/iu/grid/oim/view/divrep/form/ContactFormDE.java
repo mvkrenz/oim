@@ -79,15 +79,40 @@ public class ContactFormDE extends DivRepForm
 			
 		}	
 		
-		PersonalInfo(DivRep _parent, final ContactRecord rec, DNRecord associated_dn_rec) {
+		PersonalInfo(DivRep _parent, final ContactRecord rec, final ArrayList<DNRecord> associated_dn_recs) {
 			super(_parent);
 			
+			/*
 			String associated_dn_string = "Contact not registered on OIM";
-			if (associated_dn_rec != null ) {
+			if (associated_dn_recs != null ) {
 				associated_dn_string = associated_dn_rec.dn_string;
 			}
 			new DivRepStaticContent(this, "<div class=\"divrep_form_element\"><label>Associated DN</label><br/><input type=\"text\" disabled=\"disabled\" style=\"width: 400px;\" value=\""+ associated_dn_string +"\"/><br/><sub>* Can only be modified by GOC Staff on request using Admin interface</sub></div>");
+			*/
+			new DivRep(this) {
 
+				@Override
+				public void render(PrintWriter out) {
+					out.write("<div id=\""+getNodeID()+"\" class=\"divrep_form_element\">");
+					out.write("<label>Associated DNs</label><br>");
+					out.write("<ul>");
+					for(DNRecord dn : associated_dn_recs) {
+						out.write("<li>"+dn.dn_string+"</li>");
+					}
+					out.write("</ul>");
+					//out.write("<sub>* Can only be modified by GOC Staff on request using Admin interface</sub>");
+					out.write("</div>");
+				}
+
+				@Override
+				protected void onEvent(DivRepEvent e) {
+					// TODO Auto-generated method stub
+					
+				}
+				
+			};
+
+			
 			address_line_1 = new DivRepTextBox(this);
 			address_line_1.setLabel("Address Line 1");
 			address_line_1.setValue(rec.address_line_1);
@@ -310,12 +335,11 @@ public class ContactFormDE extends DivRepForm
 		auth = context.getAuthorization();
 		id = rec.id;
 
-		DNRecord associated_dn_rec = null;
+		ArrayList<DNRecord> associated_dn_recs = null;
 		if (id != null) {
 			try {
-				associated_dn_rec = new DNRecord();
 				DNModel dnmodel = new DNModel(context);;
-				associated_dn_rec= dnmodel.getByContactID(id);
+				associated_dn_recs = dnmodel.getByContactID(id);
 			} catch (SQLException e) {
 				log.error(e);
 			}
@@ -376,13 +400,13 @@ public class ContactFormDE extends DivRepForm
 				showHidePersonalDetail();
 			}}
 		);
-		if (associated_dn_rec != null) {
+		if (associated_dn_recs != null && associated_dn_recs.size() > 0) {
 			person.setValue(true);
 			person.setLabel("Person contact flag (Cannot modify: Always true for users whose DN is registered with OIM)");
 			person.setDisabled(true);
 		}
 		
-		personal_info = new PersonalInfo(this, rec, associated_dn_rec);
+		personal_info = new PersonalInfo(this, rec, associated_dn_recs);
 		if(rec.person == null || rec.person == false) {
 			showHidePersonalDetail();
 		}

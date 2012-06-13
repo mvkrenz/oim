@@ -798,12 +798,12 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
     	return false;
     }
     
-    public CertificateRequestUserRecord requestUsertWithNOCSR(Integer vo_id, ContactRecord requester) throws SQLException, CertificateRequestException {
+    public CertificateRequestUserRecord requestUsertWithNOCSR(Integer vo_id, ContactRecord requester, String cn) throws SQLException, CertificateRequestException {
     	
     	//TODO -- check access
 
 		CertificateRequestUserRecord rec = new CertificateRequestUserRecord();
-    	request(vo_id, rec, requester);
+    	request(vo_id, rec, requester, cn);
     	return rec;
     }
        
@@ -811,15 +811,17 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
     public CertificateRequestUserRecord requestGuestWithNOCSR(Integer vo_id, ContactRecord requester, String passphrase) throws SQLException, CertificateRequestException { 
     	//TODO -- check access
  
+    	String cn = requester.getName() + " " + requester.id;
+    	
 		CertificateRequestUserRecord rec = new CertificateRequestUserRecord();		
 		String salt = BCrypt.gensalt(12);//let's hard code this for now..
 		rec.requester_passphrase_salt = salt;
 		rec.requester_passphrase = BCrypt.hashpw(passphrase, salt);
-    	request(vo_id, rec, requester);
+    	request(vo_id, rec, requester, cn);
     	return rec;
     } 
     
-    private X500Name generateDN(String fullname, Integer serial) {
+    private X500Name generateDN(String cn) {
         X500NameBuilder x500NameBld = new X500NameBuilder(BCStyle.INSTANCE);
 
         //DigiCert overrides the DN, so none of these matters - except CN which is used to send common_name parameter
@@ -827,7 +829,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
         x500NameBld.addRDN(BCStyle.DC, "com");
         x500NameBld.addRDN(BCStyle.DC, "DigiCert-Grid");
         x500NameBld.addRDN(BCStyle.OU, "People");   
-        x500NameBld.addRDN(BCStyle.CN, fullname + " " + serial.toString()); //don't use "," or "/" which is used for DN delimiter
+        x500NameBld.addRDN(BCStyle.CN, cn); //don't use "," or "/" which is used for DN delimiter
         
         return x500NameBld.build();
     }
@@ -853,7 +855,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
     
     //NO-AC NO-QUOTA
     //return true for success
-    private void request(Integer vo_id, CertificateRequestUserRecord rec, ContactRecord requester) throws SQLException, CertificateRequestException 
+    private void request(Integer vo_id, CertificateRequestUserRecord rec, ContactRecord requester, String cn) throws SQLException, CertificateRequestException 
     {
     	//check quota
     	CertificateQuotaModel quota = new CertificateQuotaModel(context);
@@ -871,7 +873,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 		ticket.email = requester.primary_email;
 		ticket.phone = requester.primary_phone;
 		
-		X500Name name = generateDN(requester.name, requester.id);
+		X500Name name = generateDN(cn);
 		rec.dn = RFC1779_to_ApacheDN(name.toString());
 		rec.requester_contact_id = requester.id;
 		rec.vo_id = vo_id;
