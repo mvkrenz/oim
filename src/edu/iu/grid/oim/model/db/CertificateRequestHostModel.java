@@ -31,6 +31,7 @@ import edu.iu.grid.oim.model.cert.ICertificateSigner.Certificate;
 import edu.iu.grid.oim.model.cert.ICertificateSigner.CertificateProviderException;
 import edu.iu.grid.oim.model.cert.ICertificateSigner.IHostCertificatesCallBack;
 import edu.iu.grid.oim.model.db.record.CertificateRequestHostRecord;
+import edu.iu.grid.oim.model.db.record.CertificateRequestUserRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.RecordBase;
 import edu.iu.grid.oim.model.exceptions.CertificateRequestException;
@@ -260,7 +261,8 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 		Footprints fp = new Footprints(context);
 		FPTicket ticket = fp.new FPTicket();
 		ticket.description = "Dear " + rec.requester_name + ",\n\n";
-		ticket.description += "Your host certificate request has been approved. Please issue & download your certificate";
+		ticket.description += "Your host certificate request has been approved. \n\n";
+		ticket.description += "To retrieve your certificate please visit " + getTicketUrl(rec) + " and click on Issue Certificate button.";
 		ticket.nextaction = "Requester to download certificate";
 		Calendar nad = Calendar.getInstance();
 		nad.add(Calendar.DATE, 7);
@@ -310,6 +312,10 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 		ticket.metadata.put("SUBMITTER_NAME", requester_name);
 		
     	return request(csrs, rec, ticket);
+    }
+    
+    private String getTicketUrl(CertificateRequestHostRecord rec) {
+    	return StaticConfig.getApplicationBase() + "/certificatehost?id=" + rec.id;
     }
     
     //NO-AC
@@ -396,9 +402,8 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
         	log.debug("request_id: " + request_id);
         	ContactRecord ga = findGridAdmin(rec);
 			ticket.description = "Dear " + ga.name + " (GridAdmin), \n\n";
-			ticket.description += "Host certificate request has been submitted.";
-			String url = StaticConfig.getApplicationBase() + "/certificatehost?id=" + rec.id;
-			ticket.description += "Please determine this request's authenticity, and approve / disapprove at " + url;
+			ticket.description += "Host certificate request has been submitted.\n\n";
+			ticket.description += "Please determine this request's authenticity, and approve / disapprove at " + getTicketUrl(rec);
 			ticket.assignees.add(StaticConfig.conf.getProperty("certrequest.host.assignee"));
 			ticket.ccs.add(ga.primary_email);
 			
@@ -516,12 +521,13 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 		Authorization auth = context.getAuthorization();
 		if(auth.isUser()) {
 			ContactRecord contact = auth.getContact();
-			ticket.description = contact.name + " has requested renewal for this certificate request.\n\n";
+			ticket.description = contact.name + " has requested renewal for this certificate request.";
 		} else {
 			ticket.description = "Guest user with IP:" + context.getRemoteAddr() + " has requested renewal of this certificate request.";		
 
 		}
-		ticket.description += "> " + context.getComment();
+		ticket.description += "\n\n> " + context.getComment();
+		ticket.description += "\n\nPlease approve / disapprove this request at " + getTicketUrl(rec);
 		ticket.nextaction = "GridAdmin to verify and approve/reject"; //nad will be set to 7 days from today by default
 		
 		//Update CC gridadmin (it might have been changed since last time request was made)
@@ -555,6 +561,7 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 		} else {
 			ticket.description = "Guest user with IP:" + context.getRemoteAddr() + " has requested revocation of this certificate request.";		
 		}
+		ticket.description += "\n\nPlease approve / disapprove this request at " + getTicketUrl(rec);
 		ticket.nextaction = "Grid Admin to process request."; //nad will be set to 7 days from today by default
 		fp.update(ticket, rec.goc_ticket_id);
 	}
@@ -580,11 +587,11 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 		Authorization auth = context.getAuthorization();
 		if(auth.isUser()) {
 			ContactRecord contact = auth.getContact();
-			ticket.description = contact.name + " has canceled this request.\n\n";
+			ticket.description = contact.name + " has canceled this request.";
 		} else {
 			ticket.description = "guest shouldn't be canceling";
 		}
-		ticket.description += "> " + context.getComment();
+		ticket.description += "\n\n> " + context.getComment();
 		ticket.status = "Resolved";
 		fp.update(ticket, rec.goc_ticket_id);
 	}

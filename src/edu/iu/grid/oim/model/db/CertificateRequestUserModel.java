@@ -834,28 +834,8 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
         return x500NameBld.build();
     }
     
-    /*
-    private Integer getMaxID() throws SQLException {
-		CertificateRequestUserRecord rec = null;
-		ResultSet rs = null;
-		Integer max = null;
-		Connection conn = connectOIM();
-		Statement stmt = conn.createStatement();
-	    if (stmt.execute("SELECT max(id) FROM "+table_name)) {
-	    	rs = stmt.getResultSet();
-	    	if(rs.next()) {
-	    		max = rs.getInt(1);
-			}
-	    }	
-	    stmt.close();
-	    conn.close();
-	    return max;
-    }
-    */
-    
     private String getTicketUrl(CertificateRequestUserRecord rec) {
-		String url = StaticConfig.getApplicationBase() + "/certificateuser?id=" + rec.id;
-		return url;
+		return StaticConfig.getApplicationBase() + "/certificateuser?id=" + rec.id;
     }
     
     //NO-AC NO-QUOTA
