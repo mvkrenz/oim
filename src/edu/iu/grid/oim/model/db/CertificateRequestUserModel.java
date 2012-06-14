@@ -336,8 +336,9 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 			Footprints fp = new Footprints(context);
 			FPTicket ticket = fp.new FPTicket();
 			ticket.description = "Dear " + requester.name + ",\n\n";
-			ticket.description += "Your user certificate request has been approved. Please issue & download your certificate.\n\n";
+			ticket.description += "Your user certificate request has been approved.\n\n";
 			ticket.description += "> " + context.getComment();
+			ticket.description += "\n\nTo retrieve your certificate please visit " + getTicketUrl(rec) + " and click on Issue Certificate button.";
 			ticket.nextaction = "Requester to download certificate"; // NAD will be set 7 days from today by default
 			fp.update(ticket, rec.goc_ticket_id);
 			
@@ -429,34 +430,44 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 			throw new CertificateRequestException("Failed to update request status", e);
 		}
 		
-		Authorization auth = context.getAuthorization();
-		ContactRecord contact = auth.getContact();
-		
+	
 		Footprints fp = new Footprints(context);
 		FPTicket ticket = fp.new FPTicket();
-		ticket.description = contact.name + " has requested renewal for this certificate request.\n\n";
-		ticket.description += "> " + context.getComment();
-		ticket.nextaction = "RA/Sponsor to verify&approve"; //nad will be set to 7 days from today by default
 		
 		//Update CC ra & sponsor (it might have been changed since last time request was made)
 		VOContactModel model = new VOContactModel(context);
 		ContactModel cmodel = new ContactModel(context);
 		ArrayList<VOContactRecord> crecs;
+		String ras = "";
 		try {
 			crecs = model.getByVOID(rec.vo_id);
 			for(VOContactRecord crec : crecs) {
 				ContactRecord contactrec = cmodel.get(crec.contact_id);
-				if(crec.contact_type_id.equals(11) && crec.contact_rank_id.equals(1)) { //primary
-					//rec.ra_contact_id = crec.contact_id;
+				if(crec.contact_type_id.equals(11)) { //RA contacts
 					ticket.ccs.add(contactrec.primary_email);
-				}
-				if(crec.contact_type_id.equals(11) && crec.contact_rank_id.equals(3)) { //sponsor
-					ticket.ccs.add(contactrec.primary_email);
+					if(crec.contact_rank_id.equals(1) || crec.contact_rank_id.equals(2)) {
+						if(!ras.isEmpty()) {
+							ras += ", ";
+						}
+						ras += contactrec.name;
+					}
 				}
 			}
 		} catch (SQLException e1) {
 			log.error("Failed to lookup RA/sponsor information - ignoring", e1);
 		}
+		
+		ticket.description = "Dear "+ras+ " (RAs)\n\n";
+		Authorization auth = context.getAuthorization();
+		if(auth.isUser()) {
+			ContactRecord contact = auth.getContact();
+			ticket.description += "An authenticated user; " + contact.name + " has requested renewal for this certificate request.\n\n";
+		} else {
+			ticket.description += "A guest user with IP address: " + context.getRemoteAddr() + " has requested renewal for this certificate request.\n\n";
+		}
+		ticket.description += "> " + context.getComment();
+		ticket.description += "\n\nPlease approve / disapporove this request at " + getTicketUrl(rec);
+		ticket.nextaction = "RA/Sponsor to verify&approve"; //nad will be set to 7 days from today by default
 		
 		fp.update(ticket, rec.goc_ticket_id);
 	}
@@ -472,10 +483,32 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 			throw new CertificateRequestException("Failed to update request status", e);
 		}
 		
-		
 		Footprints fp = new Footprints(context);
 		FPTicket ticket = fp.new FPTicket();
 	
+		//Update CC ra & sponsor (it might have been changed since last time request was made)
+		VOContactModel model = new VOContactModel(context);
+		ContactModel cmodel = new ContactModel(context);
+		ArrayList<VOContactRecord> crecs;
+		String ras = "";
+		try {
+			crecs = model.getByVOID(rec.vo_id);
+			for(VOContactRecord crec : crecs) {
+				ContactRecord contactrec = cmodel.get(crec.contact_id);
+				if(crec.contact_type_id.equals(11)) { //RA contacts
+					ticket.ccs.add(contactrec.primary_email);
+					if(crec.contact_rank_id.equals(1) || crec.contact_rank_id.equals(2)) {
+						if(!ras.isEmpty()) {
+							ras += ", ";
+						}
+						ras += contactrec.name;
+					}
+				}
+			}
+		} catch (SQLException e1) {
+			log.error("Failed to lookup RA/sponsor information - ignoring", e1);
+		}
+		ticket.description = "Dear "+ras+ " (RAs)\n\n";
 		Authorization auth = context.getAuthorization();
 		if(auth.isUser()) {
 			ContactRecord contact = auth.getContact();
@@ -483,6 +516,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 		} else {
 			ticket.description = "Guest user with IP:" + context.getRemoteAddr() + " has requested revocation of this certificate request.";		
 		}
+		ticket.description += "\n\nPlease approve / disapporove this request at " + getTicketUrl(rec);
 		ticket.nextaction = "RA to process"; //nad will be set to 7 days from today by default
 		fp.update(ticket, rec.goc_ticket_id);
 	}
@@ -819,6 +853,11 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
     }
     */
     
+    private String getTicketUrl(CertificateRequestUserRecord rec) {
+		String url = StaticConfig.getApplicationBase() + "/certificateuser?id=" + rec.id;
+		return url;
+    }
+    
     //NO-AC NO-QUOTA
     //return true for success
     private void request(Integer vo_id, CertificateRequestUserRecord rec, ContactRecord requester, String cn) throws SQLException, CertificateRequestException 
@@ -826,7 +865,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
     	//check quota
     	CertificateQuotaModel quota = new CertificateQuotaModel(context);
     	if(!quota.canRequestUserCert()) {
-    		throw new CertificateRequestException("Can't request any more user certificate.");
+    		throw new CertificateRequestException("Exceeded quota. You can't request any more user certificate.");
     	}
     	
 		Date current = new Date();
@@ -878,10 +917,9 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 		}
 		VOModel vmodel = new VOModel(context);
 		VORecord vrec = vmodel.get(rec.vo_id);
-		ticket.description = "Dear " + ranames + " (" + vrec.name + " VO RA),\n\n";
+		ticket.description = "Dear " + ranames + " (" + vrec.name + " VO RAs),\n\n";
 		ticket.description += auth_status + requester.name + " <"+requester.primary_email+"> has requested a user certificate. ";
-		String url = StaticConfig.getApplicationBase() + "/certificateuser?id=" + rec.id;
-		ticket.description += "Please determine this request's authenticity, and approve / disapprove at " + url;
+		ticket.description += "Please determine this request's authenticity, and approve / disapprove at " + getTicketUrl(rec);
 		/*
 		if(StaticConfig.isDebug()) {
 			ticket.assignees.add("hayashis");

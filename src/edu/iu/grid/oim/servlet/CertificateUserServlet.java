@@ -233,7 +233,7 @@ public class CertificateUserServlet extends ServletBase  {
 				out.write("<td><a target=\"_blank\" href=\""+StaticConfig.conf.getProperty("url.gocticket")+"/"+rec.goc_ticket_id+"\">"+rec.goc_ticket_id+"</a></td>");
 				out.write("</tr>");
 				
-				if(rec.cert_pkcs7 != null) {
+				if(rec.status.equals(CertificateRequestStatus.ISSUED)) {
 					out.write("<tr>");
 					out.write("<th>Certificates</th>");
 					out.write("<td>");
