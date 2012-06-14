@@ -51,41 +51,25 @@ public class ProfileEditServlet extends ServletBase implements Servlet {
 		Authorization auth = context.getAuthorization();
 		auth.check("edit_my_contact");
 		
-		ContactRecord rec;
-		try {
-			rec = auth.getContact();
-				
-			//String origin_url = StaticConfig.getApplicationBase()+"/"+parent_page;
-			form = new ContactFormDE(context, rec, parent_page);
+		ContactRecord rec = auth.getContact();
+
+		form = new ContactFormDE(context, rec, parent_page);
+		
+		//put the form in a view and display
+		ContentView contentview = new ContentView();
+		contentview.add(new HtmlView("<h1>My Profile</h1>"));	
+		contentview.add(new DivRepWrapper(form));
+		
+		BootPage page = new BootPage(context, new BootMenuView(context, "profileedit"), contentview, null);
+		page.render(response.getWriter());	
 			
-			//put the form in a view and display
-			ContentView contentview = new ContentView();
-			contentview.add(new HtmlView("<h1>My Profile</h1>"));	
-			/*
-			if(auth.isDisabled()) {
-				contentview.add(new HtmlView(auth.getDisabledUserWarning()));
-			} 
-			*/
-			contentview.add(new DivRepWrapper(form));
-			
-			BootPage page = new BootPage(context, new BootMenuView(context, "profileedit"), contentview, createSideView(context));
-			page.render(response.getWriter());	
-			
-		} catch (SQLException e) {
-			throw new ServletException(e);
-		}
 	}
 	
+	/*
 	private SideContentView createSideView(UserContext context) throws SQLException
 	{
 		Authorization auth = context.getAuthorization();
 		SideContentView view = new SideContentView();
-		/*
-		view.add("About", new HtmlView("<p>This page lets you edit your OIM profile.</p>"+
-				"<p>On your OIM profile, you can set contact information like email, phone number and extension, an email address for SMS text messages, and postal address (only applicable to human contacts).</p>"+
-				"<p>You can also set your local timezone so other applications like GOCTicket and MyOSG can display timestamps in your local timezone.</p>"+
-				"<p>You can also provide a link to an image that you would like to use as your profile picture!</p>"));
-		*/
 		HashSet<String> auth_types = auth.getAuthorizationTypesForCurrentDN();
 		view.add("<h3>Your Authentication Types</h3>");
 		if(auth_types.size() > 0) {
@@ -103,4 +87,5 @@ public class ProfileEditServlet extends ServletBase implements Servlet {
 		
 		return view;
 	}
+	*/
 }

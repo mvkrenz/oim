@@ -242,7 +242,7 @@ public class CertificateUserServlet extends ServletBase  {
 					CertificateRequestUserModel model = new CertificateRequestUserModel(context);
 					if(model.getPrivateKey(rec.id) != null) {
 						out.write("<a href=\"certificatedownload?id="+rec.id+"&type=user&download=pkcs12\">Download Certificate (PKCS12)</a><br>");
-						out.write("<p class=\"alert\">You can only download certificate in PKCS12 format (with both public & private keys) while your browser session is active. Afterward, you can only download PKCS7 (with only public key).</p>");
+						out.write("<p class=\"alert\">You need to download your certificate and private key now, while your browser session is active. If your session times out, the server will delete your private key for security reasons and  you will need to request a new certificate.</p>");
 						
 					} else {
 						out.write("<a href=\"certificatedownload?id="+rec.id+"&type=user&download=pkcs7\">Download Certificate (PKCS7)</a><br>");

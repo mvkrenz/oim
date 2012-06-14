@@ -595,3 +595,8 @@ background-color: #f3f3f3;
 div.certificate_agreement_content {
 margin: 15px;
 }
+
+div.well-active {
+background-color: #90bfd7;
+}
+}

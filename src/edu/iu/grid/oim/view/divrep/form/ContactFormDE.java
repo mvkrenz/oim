@@ -4,9 +4,13 @@ import java.io.PrintWriter;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.TimeZone;
+
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 
 import com.divrep.DivRep;
@@ -27,9 +31,12 @@ import com.divrep.validator.DivRepUrlValidator;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.model.UserContext;
+import edu.iu.grid.oim.model.db.AuthorizationTypeModel;
 import edu.iu.grid.oim.model.db.ConfigModel;
 import edu.iu.grid.oim.model.db.ContactModel;
+import edu.iu.grid.oim.model.db.DNAuthorizationTypeModel;
 import edu.iu.grid.oim.model.db.DNModel;
+import edu.iu.grid.oim.model.db.record.AuthorizationTypeRecord;
 import edu.iu.grid.oim.model.db.record.DNRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.view.ContactAssociationView;
@@ -89,17 +96,44 @@ public class ContactFormDE extends DivRepForm
 			}
 			new DivRepStaticContent(this, "<div class=\"divrep_form_element\"><label>Associated DN</label><br/><input type=\"text\" disabled=\"disabled\" style=\"width: 400px;\" value=\""+ associated_dn_string +"\"/><br/><sub>* Can only be modified by GOC Staff on request using Admin interface</sub></div>");
 			*/
+		
 			new DivRep(this) {
-
+				Integer user_dnid = auth.getDNID();
+				
 				@Override
 				public void render(PrintWriter out) {
 					out.write("<div id=\""+getNodeID()+"\" class=\"divrep_form_element\">");
 					out.write("<label>Associated DNs</label><br>");
-					out.write("<ul>");
+					
+					DNAuthorizationTypeModel dnauthtypemodel = new DNAuthorizationTypeModel(context);
+					AuthorizationTypeModel authtypemodel = new AuthorizationTypeModel(context); 
+					
 					for(DNRecord dn : associated_dn_recs) {
-						out.write("<li>"+dn.dn_string+"</li>");
+						String active = "";
+						String tag = "";
+						if(user_dnid != null && user_dnid.equals(dn.id)) {
+							active = "well-active";
+							tag = "<span style=\"float: right;\" class=\"label label-info\">You are currently logged in with this DN</span>";
+						}
+						out.write("<div class=\"well "+active+"\">");
+						out.write(tag);
+						out.write("<h4>"+StringEscapeUtils.escapeHtml(dn.dn_string)+"</h4>");
+						
+						//pull all authentication types for this DN
+						try {
+							Collection<Integer> authtype_ids = dnauthtypemodel.getAuthorizationTypesByDNID(dn.id);
+							//out.write("<h3>Authorizations</h3>");
+							out.write("<ul>");
+							for (Integer authtype_id : authtype_ids) {
+								AuthorizationTypeRecord authrec = authtypemodel.get(authtype_id);
+								out.write("<li>"+authrec.name+"</li>");
+							}
+							out.write("</ul>");
+						} catch (SQLException e) {
+							log.error("Failed to lookup authentication type info", e);
+						}
+						out.write("</div>");
 					}
-					out.write("</ul>");
 					//out.write("<sub>* Can only be modified by GOC Staff on request using Admin interface</sub>");
 					out.write("</div>");
 				}
@@ -402,8 +436,9 @@ public class ContactFormDE extends DivRepForm
 		);
 		if (associated_dn_recs != null && associated_dn_recs.size() > 0) {
 			person.setValue(true);
-			person.setLabel("Person contact flag (Cannot modify: Always true for users whose DN is registered with OIM)");
+			person.setLabel("Personal Contact");
 			person.setDisabled(true);
+			new DivRepStaticContent(this, "<p>* Always checked for users whose DN is registered with OIM</p>");
 		}
 		
 		personal_info = new PersonalInfo(this, rec, associated_dn_recs);
