@@ -153,7 +153,7 @@ public class CertificateUserServlet extends ServletBase  {
 				out.write("<div class=\"span9\">");
 				
 				BootBreadCrumbView bread_crumb = new BootBreadCrumbView();
-				bread_crumb.addCrumb("User Certificat Requests", "certificateuser");
+				bread_crumb.addCrumb("User Certificate Requests", "certificateuser");
 				bread_crumb.addCrumb(Integer.toString(rec.id),  null);
 				bread_crumb.render(out);		
 				
