@@ -342,8 +342,18 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 	    		PKCS10CertificationRequest csr = new PKCS10CertificationRequest(Base64.decode(csr_string));
 
 	    		//pull CN
-	    		X500Name name = csr.getSubject();
-	    		RDN[] cn_rdn = name.getRDNs(BCStyle.CN);
+	    		X500Name name;
+	    		RDN[] cn_rdn;
+	    		try {
+	    			name = csr.getSubject();
+	    			cn_rdn = name.getRDNs(BCStyle.CN);
+	    		} catch(Exception e) {
+					throw new CertificateRequestException("Failed to decode CSR", e);
+				}
+	    		
+	    		if(cn_rdn.length != 1) {
+	    			throw new CertificateRequestException("Please specify exactly one CN containing the hostname. You have provided DN: " + name.toString());
+	    		}
 	    		cn = cn_rdn[0].getFirst().getValue().toString(); //wtf?
 	    		
 	        	log.debug("cn found: " + cn);
@@ -355,8 +365,6 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 			} catch (NullPointerException e) {
 				log.error("(probably) couldn't find CN inside the CSR:"+csr_string, e);
 				throw new CertificateRequestException("Failed to base64 decode CSR", e);	
-			} catch(Exception e) {
-				throw new CertificateRequestException("Failed to decode CSR", e);
 			}
 			/*
 			//lookup gridadmin

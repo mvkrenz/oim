@@ -1,4 +1,6 @@
-input.divrep_sample, textarea.divrep_sample { color: #aaa;}
+input.divrep_sample, textarea.divrep_sample { 
+color: #ccc !important;
+}
 .divrep_processing {color: gray;}
 
 .divrep_form_element

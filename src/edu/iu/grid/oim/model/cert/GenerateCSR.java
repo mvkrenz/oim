@@ -290,39 +290,3 @@ public class GenerateCSR {
     }
 }
 
-
-/*
-
-Create CSR 
-> openssl req -out CSR.csr -new -newkey rsa:2048 -nodes -keyout privateKey.key
-
-decode content of request.csr
-> openssl req -in request.csr -noout -text 
-
-decode content of privateKey.key
-> openssl rsa -in privateKey.key -noout -text
-
-> convert java generated (pkcs8 der) private key to openssl format (private.pem)
-openssl pkcs8 -nocrypt -inform der < private.der > private.pem
-openssl rsa -in ~/tmp/private.pem -text #dump the private key I just converted
-
-> convert java generate (pkcs8 der) public key to openssl format (public.pem)
-openssl rsa -pubin -inform der < public.der > public.pem
- 
- > dump pem formatted pkcs7 
- openssl pkcs7 -text -noout -print_certs -in pkcs7.txt
- 
- > dump pkcs12
- openssl pkcs12 -in soichi.2012.p12 -noout -info
-  
- //to install ca cert for httpd server
- 1) export cert fromo the browser as base64 encoded der (.pem)
- 2) install it on /etc/grid-security/certificates
- 3) create hash-link 
- ln -s thecert.pem `openssl x509 -hash -noout -in thecert.pem`.0
- 4) verify the ca 
-    $ openssl verify -CApath . thecert.pem
-DigiCertGridTESTRootCA.pem: OK
-
- 
- */
