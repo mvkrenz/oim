@@ -54,9 +54,10 @@ public class DivRepSimpleCaptcha extends DivRepFormElement {
 			if(!captcha.isCorrect(answer.getValue())) {
 				valid = false;
 				error.set("Incorrect answer. Please try again.");
-				session.removeAttribute(Captcha.NAME);//use different 
 				answer.setValue("");
 				redraw();
+				//NOTE - don't invalidate catpcha here.. if you want to invalidate do following
+				//remove captcha from session, and refresh whole page
 			}
 		} else {
 			valid = false;

@@ -100,13 +100,12 @@ public class StickyCaptchaServlet extends HttpServlet {
 
         if (session.getAttribute(NAME) == null) {
             captcha = buildAndSetCaptcha(session);
+        } else {
+        	captcha = (Captcha) session.getAttribute(NAME);
+	        if (shouldExpire(captcha)) {
+	            captcha = buildAndSetCaptcha(session);
+	        }
         }
-
-        captcha = (Captcha) session.getAttribute(NAME);
-        if (shouldExpire(captcha)) {
-            captcha = buildAndSetCaptcha(session);
-        }
-
         CaptchaServletUtil.writeImage(resp, captcha.getImage());
     }
 
