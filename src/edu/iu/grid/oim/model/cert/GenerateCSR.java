@@ -1,12 +1,8 @@
 package edu.iu.grid.oim.model.cert;
 
-import java.io.ByteArrayOutputStream;
-import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.PrintStream;
-import java.io.StringWriter;
+
 import java.security.AlgorithmParameters;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
@@ -24,10 +20,7 @@ import javax.crypto.spec.PBEParameterSpec;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.log4j.Logger;
 
-import org.bouncycastle.asn1.pkcs.CertificationRequest;
-import org.bouncycastle.asn1.pkcs.RSAPrivateKey;
 import org.bouncycastle.asn1.x500.X500Name;
-import org.bouncycastle.openssl.PEMWriter;
 import org.bouncycastle.operator.ContentSigner;
 import org.bouncycastle.operator.OperatorCreationException;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
@@ -49,36 +42,16 @@ public class GenerateCSR {
     
     public GenerateCSR(X500Name name) throws NoSuchAlgorithmException, OperatorCreationException, IOException {
 
-    	/*
-    	//generate public/private key pair
-        try {
-            keyGen = KeyPairGenerator.getInstance("RSA");
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        }
-        keyGen.initialize(2048, random);
-        keypair = keyGen.generateKeyPair();
-
-        // generate PKCS10 certificate request (CSR)
-        PKCS10 pkcs10 = new PKCS10(keypair.getPublic());
-        Signature signature = Signature.getInstance("MD5WithRSA");
-        signature.initSign(keypair.getPrivate());
-        
-            	
-        pkcs10.encodeAndSign(new X500Signer(signature, x500));
-        ByteArrayOutputStream bs = new ByteArrayOutputStream();
-        PrintStream ps = new PrintStream(bs);
-        pkcs10.print(ps);
-        csr = bs.toByteArray();
-        */
-    	//signame	"SHA1withRSA" 	 
     	random = new SecureRandom();
     	
     	KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
         keyGen.initialize(2048, random); //keep it small for test
         keypair = keyGen.genKeyPair();
 
+        //It doesn't matter if I use sha1 or sha256.. DigiCert will return certificate
+        //in sha1
         JcaContentSignerBuilder signer_builder = new JcaContentSignerBuilder("SHA1withRSA"); 
+        //JcaContentSignerBuilder signer_builder = new JcaContentSignerBuilder("SHA256withRSA"); 
         signer_builder.setSecureRandom(random);
         ContentSigner signer = signer_builder.build(keypair.getPrivate());
         
@@ -123,7 +96,7 @@ public class GenerateCSR {
     	return keypair.getPrivate();
     }
    
-    
+    /*
     //http://stackoverflow.com/questions/5127379/how-to-generate-a-rsa-keypair-with-a-privatekey-encrypted-with-password
     public byte[] getEncryptedPrivateKey(String password) throws Exception {
     	byte[] encodedprivkey = keypair.getPrivate().getEncoded();
@@ -131,7 +104,8 @@ public class GenerateCSR {
     	// We must use a PasswordBasedEncryption algorithm in order to encrypt the private key, 
     	// you may use any common algorithm supported by openssl, 
     	// you can check them in the openssl documentation http://www.openssl.org/docs/apps/pkcs8.html
-    	String MYPBEALG = "PBEWithSHA1AndDESede";
+    	//String MYPBEALG = "PBEWithSHA1AndDESede";
+    	String MYPBEALG = "PBEWithSHA2AndDESede";
     	int count = 20;// hash iteration count
     	
     	//generate salt
@@ -155,7 +129,8 @@ public class GenerateCSR {
     	EncryptedPrivateKeyInfo encinfo = new EncryptedPrivateKeyInfo(algparms, ciphertext);
     	return encinfo.getEncoded();
     }
- 
+ 	*/
+    
     /*
 	private static String GetHexString(byte[] b) {
 		String result = "";
