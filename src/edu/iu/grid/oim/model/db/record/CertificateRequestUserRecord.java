@@ -5,6 +5,12 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 
+import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringUtils;
+import org.bouncycastle.asn1.x500.RDN;
+import org.bouncycastle.asn1.x500.X500Name;
+import org.bouncycastle.asn1.x500.style.BCStyle;
+
 public class CertificateRequestUserRecord extends RecordBase {
 
 	@Key public Integer id;
@@ -35,5 +41,26 @@ public class CertificateRequestUserRecord extends RecordBase {
 	}
 	//for creating new record
 	public CertificateRequestUserRecord() {}
+	
+	/////////////////////////////////////////////////////////////////////////////////////
+	// Utility functions
+	//convert apache format (delimited by /) to comma delimited DN (RFC1779)
+	private String ApacheDN_to_RFC1779(String dn) {
+		String tokens[] = dn.split("/");
+		tokens = (String[]) ArrayUtils.remove(tokens, 0);//remove first one which is empty
+		String out = StringUtils.join(tokens, ",");
+		return out;
+	}
+	public X500Name getX500Name() {
+		String rfc_dn = ApacheDN_to_RFC1779(dn);
+		return new X500Name(rfc_dn);
+	}
+	public String getCN() {
+		X500Name name = getX500Name();
+		RDN cn_rdn = name.getRDNs(BCStyle.CN)[0];
+		String cn = cn_rdn.getFirst().getValue().toString(); //wtf?
+		return cn;
+	}
+	
 
 }

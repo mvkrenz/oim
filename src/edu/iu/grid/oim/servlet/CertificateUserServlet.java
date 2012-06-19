@@ -13,6 +13,7 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
+import org.bouncycastle.asn1.x500.X500Name;
 
 import com.divrep.DivRep;
 import com.divrep.DivRepEvent;
@@ -48,6 +49,7 @@ import edu.iu.grid.oim.view.DivRepWrapper;
 import edu.iu.grid.oim.view.GenericView;
 import edu.iu.grid.oim.view.HtmlView;
 import edu.iu.grid.oim.view.IView;
+import edu.iu.grid.oim.view.divrep.CNEditor;
 import edu.iu.grid.oim.view.divrep.form.validator.DivRepPassStrengthValidator;
 
 public class CertificateUserServlet extends ServletBase  {
@@ -180,7 +182,17 @@ public class CertificateUserServlet extends ServletBase  {
 				out.write("<tr>");
 				out.write("<th>DN</th>");
 				out.write("<td>");
-				out.write(StringEscapeUtils.escapeHtml(rec.dn));
+				CNEditor cn_override = new CNEditor(context.getPageRoot());
+				cn_override.setDisabled(true);
+				//cn_override.setLabel("Override CN");
+				cn_override.setRequired(true);
+				cn_override.setValue(rec.getCN());
+				CertificateRequestUserModel model = new CertificateRequestUserModel(context);
+				if(model.canOverrideCN(rec)) {
+					cn_override.setDisabled(false);
+				}
+				cn_override.render(out);
+				//out.write(StringEscapeUtils.escapeHtml(rec.dn));
 				out.write("</td>");
 				out.write("</tr>");
 				
@@ -239,7 +251,6 @@ public class CertificateUserServlet extends ServletBase  {
 					out.write("<td>");
 					HttpSession session = context.getSession();
 
-					CertificateRequestUserModel model = new CertificateRequestUserModel(context);
 					if(model.getPrivateKey(rec.id) != null) {
 						out.write("<a class=\"btn btn-primary\" href=\"certificatedownload?id="+rec.id+"&type=user&download=pkcs12\">Download Certificate (PKCS12)</a><br>");
 						out.write("<p class=\"alert\">You need to download your certificate and private key now, while your browser session is active. If your session times out, the server will delete your private key for security reasons and  you will need to request a new certificate.</p>");
@@ -308,7 +319,7 @@ public class CertificateUserServlet extends ServletBase  {
 				}
 				
 				
-				GenericView action_control = nextActionControl(context, rec);
+				GenericView action_control = nextActionControl(context, rec, cn_override);
 				out.write("<tr>");
 				out.write("<th>Next Action</th>");
 				out.write("<td>");
@@ -355,7 +366,7 @@ public class CertificateUserServlet extends ServletBase  {
 		};
 	}
 	
-	protected GenericView nextActionControl(final UserContext context, final CertificateRequestUserRecord rec) {
+	protected GenericView nextActionControl(final UserContext context, final CertificateRequestUserRecord rec, final CNEditor cn_override) {
 		GenericView v = new GenericView();
 		
 		if(rec.status.equals(CertificateRequestStatus.REQUESTED) ||
@@ -383,6 +394,7 @@ public class CertificateUserServlet extends ServletBase  {
 		note.setRequired(true);
 		note.setHidden(true);
 		v.add(note);
+	
 		
 		//controls
 		final CertificateRequestUserModel model = new CertificateRequestUserModel(context);
@@ -394,6 +406,18 @@ public class CertificateUserServlet extends ServletBase  {
                 public void handleEvent(DivRepEvent e) {
                 	if(note.validate()) {
                 		context.setComment(note.getValue());
+                		
+                		if(model.canOverrideCN(rec)) {
+                			if(cn_override.validate()) {
+		                		//Regenerate DN using provided CN
+		                		X500Name name = model.generateDN(cn_override.getValue());
+		                		rec.dn = model.RFC1779_to_ApacheDN(name.toString());
+                			} else {
+                				button.alert("Failed to validate provided CN.");
+                				return;
+                			}
+                		}
+                		
 	                	if(model.approve(rec)) {
 	                		button.redirect(url);
 	                	} else {

@@ -128,6 +128,14 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 		return sponsors;
 	}
 	
+	//true if user can override CN
+	public boolean canOverrideCN(CertificateRequestUserRecord rec) {
+		if(canApprove(rec) && rec.status.equals(CertificateRequestStatus.REQUESTED)) {
+			return true;
+		}
+		return false;
+	}
+	
 	//true if user can approve request
 	public boolean canApprove(CertificateRequestUserRecord rec) {
 		if(!canView(rec)) return false;
@@ -284,19 +292,12 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 	}
 	
 	//convert comma delimited DN (RFC1779) to apache format (delimited by /)
-	private String RFC1779_to_ApacheDN(String dn) {
+	public String RFC1779_to_ApacheDN(String dn) {
 		String tokens[] = dn.split(",");
 		String out = StringUtils.join(tokens, "/");
 		return "/"+out;
 	}
 	
-	//convert apache format (delimited by /) to comma delimited DN (RFC1779)
-	private String ApacheDN_to_RFC1779(String dn) {
-		String tokens[] = dn.split("/");
-		tokens = (String[]) ArrayUtils.remove(tokens, 0);//remove first one which is empty
-		String out = StringUtils.join(tokens, ",");
-		return out;
-	}
 	
 	
 	//NO-AC
@@ -553,6 +554,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 		fp.update(ticket, rec.goc_ticket_id);
 	}
 
+
 	// NO-AC
 	// return true if success
 	public void startissue(final CertificateRequestUserRecord rec, final String password) throws CertificateRequestException {
@@ -587,14 +589,17 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 			}
 			public void run() {
 				try {
+					/*
 					String dn = ApacheDN_to_RFC1779(rec.dn);
 					log.debug("RF1779 dn: " + dn);
 					X500Name name = new X500Name(dn);
 					RDN[] cn_rdn = name.getRDNs(BCStyle.CN);
 					String cn = cn_rdn[0].getFirst().getValue().toString(); //wtf?
+					*/
 					
 					//if csr is not set, we need to create one and private key for user
 					if (rec.csr == null) {
+						X500Name name = rec.getX500Name();
 						GenerateCSR csrgen = new GenerateCSR(name);
 						rec.csr = csrgen.getCSR();
 						context.setComment("Generated CSR and private key");
@@ -607,6 +612,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 					}
 					
 					//now we can sign it
+					String cn = rec.getCN();//TODO - check for null?
 					CertificateManager cm = new CertificateManager();
 					ICertificateSigner.Certificate cert = cm.signUserCertificate(rec.csr, cn);
 					rec.cert_certificate = cert.certificate;
@@ -822,7 +828,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
     	return rec;
     } 
     
-    private X500Name generateDN(String cn) {
+    public X500Name generateDN(String cn) {
         X500NameBuilder x500NameBld = new X500NameBuilder(BCStyle.INSTANCE);
 
         //DigiCert overrides the DN, so none of these matters - except CN which is used to send common_name parameter
