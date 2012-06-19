@@ -215,7 +215,7 @@ public class CertificateHostServlet extends ServletBase  {
 				for(String cn : cns) {
 					out.write("<li>"+StringEscapeUtils.escapeHtml(cn));
 					if(rec.status.equals(CertificateRequestStatus.ISSUED)) {
-						out.write(" <a href=\"certificatedownload?id="+rec.id+"&type=host&download=pkcs7&idx="+i+"\">Download PKCS7</a>");
+						out.write(" <a class=\"btn btn-primary\" href=\"certificatedownload?id="+rec.id+"&type=host&download=pkcs7&idx="+i+"\">Download Certificate (PKCS7)</a>");
 					}
 					out.write("</li>");
 				}
