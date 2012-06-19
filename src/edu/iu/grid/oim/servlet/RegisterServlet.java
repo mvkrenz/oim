@@ -322,6 +322,7 @@ public class RegisterServlet extends ServletBase  {
 				redirect("profileedit");
 				
 			} catch (SQLException e) {
+				log.error("SQLException while submitting registration", e);
 				alert(e.toString());
 				//redirect(origin_url);
 				ret = false;
