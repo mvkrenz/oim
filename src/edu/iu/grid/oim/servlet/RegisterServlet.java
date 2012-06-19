@@ -282,6 +282,12 @@ public class RegisterServlet extends ServletBase  {
 					rec.contact_preference = profile.getValue();
 					rec.use_twiki = use_twiki.getValue();
 					rec.twiki_id = twiki_id.getValue();
+					
+					//reset  counter
+					rec.count_hostcert_day = 0;
+					rec.count_hostcert_year = 0;
+					rec.count_usercert_year = 0;
+					
 					rec.person = true;
 					rec.disable = false;
 					model.insert(rec);
