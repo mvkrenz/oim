@@ -283,7 +283,14 @@ public class ResourceServlet extends ServletBase implements Servlet {
 						ContactRecord person = pmodel.get(vcrec.contact_id);
 						ContactRankRecord rank = crmodel.get(vcrec.contact_rank_id);
 
-						cliststr += "<div class='contact_rank contact_"+rank.name+"'>"+person.name+"</div>";
+						cliststr += "<div class='contact_rank contact_"+rank.name+"'>";
+						cliststr += StringEscapeUtils.escapeHtml(person.name.trim());
+						if(person.primary_email != null) {
+							cliststr += " <code><a href=\"mailto:"+person.primary_email+"\">"+StringEscapeUtils.escapeHtml("<"+person.primary_email+">")+"</a></code>";
+						} else {
+							cliststr += " <code>(no email address specified)</code>";
+						}
+						cliststr += "</div>";
 					}
 					
 					ToolTip tip = new ToolTip(contact_type.desc);
@@ -318,21 +325,6 @@ public class ResourceServlet extends ServletBase implements Servlet {
 			r = table.addRow(new HtmlView("Disable" + tip.render()), rec.disable);
 
 			if(show_edit_button) {
-				/*
-				class EditButtonDE extends DivRepButton
-				{
-					String url;
-					public EditButtonDE(DivRep parent, String _url)
-					{
-						super(parent, "Edit");
-						url = _url;
-					}
-					protected void onEvent(DivRepEvent e) {
-						redirect(url);
-					}
-				};
-				table.add(new DivRepWrapper(new EditButtonDE(context.getPageRoot(), StaticConfig.getApplicationBase()+"/resourceedit?id=" + rec.id)));
-				*/
 				table.add(new HtmlView("<a class=\"btn\" href=\"resourceedit?id=" + rec.id+"\">Edit</a>"));
 			}
 		} catch (SQLException e) {
@@ -451,19 +443,9 @@ public class ResourceServlet extends ServletBase implements Servlet {
 	private SideContentView createSideView(UserContext context, ResourceRecord rec)
 	{
 		SideContentView view = new SideContentView();
-				
-		//view.add(new HtmlView("<h3>Other Actions</h3>"));
-		//view.add(new HtmlView("<div class=\"indent\">"));
 		if(context.getAuthorization().isUser()) {
 			view.add(new HtmlView("<p><a class=\"btn\" href=\"resourceedit\">Register New Resource</a></p>"));
 		}
-		/*
-		if(rec != null) {
-			view.add(new HtmlView("<p><a href=\""+StaticConfig.getApplicationBase()+"/log?type=4&id="+rec.id+"\">View Update History</a></p>"));
-		}
-		*/
-		//view.add(new HtmlView("</div>"));
-		
 		view.addContactLegend();
 		return view;
 	}

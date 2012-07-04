@@ -599,4 +599,13 @@ margin: 15px;
 div.well-active {
 background-color: #90bfd7;
 }
+div.contact_rank code {
+color: gray;
+background-color: inherit;
+border: none;
+}
+div.contact code {
+background-color: inherit;
+border: none;
+color: gray;
 }

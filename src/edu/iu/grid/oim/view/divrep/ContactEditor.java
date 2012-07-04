@@ -286,7 +286,12 @@ public class ContactEditor extends DivRepFormElement<HashMap<ContactEditor.Rank,
 			if(person.name == null) {
 				out.print("(No Name)");
 			} else {
-				out.print(person.name.replace(" ", "&nbsp;").trim());	
+				out.print(StringEscapeUtils.escapeHtml(person.name.trim()));
+				if(person.primary_email != null) {
+					out.print(" <code>"+StringEscapeUtils.escapeHtml("<"+person.primary_email+">")+"</code>");
+				} else {
+					out.print(" <code>(no email address specified)</code>");
+				}
 			}
 			if(!isDisabled()) {
 				out.write("&nbsp;");
