@@ -24,10 +24,8 @@ import java.util.Iterator;
 
 import javax.servlet.http.HttpSession;
 
-import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-import org.bouncycastle.asn1.x500.RDN;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x500.X500NameBuilder;
 import org.bouncycastle.asn1.x500.style.BCStyle;
@@ -35,7 +33,6 @@ import org.bouncycastle.asn1.x509.Certificate;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cms.CMSException;
 import org.bouncycastle.cms.CMSSignedData;
-import org.bouncycastle.pkcs.PKCS10CertificationRequest;
 import org.bouncycastle.util.Store;
 import org.bouncycastle.util.encoders.Base64;
 
@@ -220,6 +217,20 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 		}
 		return false;
 	}
+	
+	public boolean canReRequest(CertificateRequestUserRecord rec) {
+		if(!canView(rec)) return false;
+		
+		if(		rec.status.equals(CertificateRequestStatus.REJECTED) ||
+				rec.status.equals(CertificateRequestStatus.CANCELED) ||
+				rec.status.equals(CertificateRequestStatus.REVOKED) ||
+				rec.status.equals(CertificateRequestStatus.EXPIRED) ) {
+			//guest user needs to be able to re-request expired cert.. but how can I prevent spammer?
+			return true;
+		}
+		return false;
+	}
+	
 	public boolean canRequestRevoke(CertificateRequestUserRecord rec) {
 		if(!canView(rec)) return false;
 		
@@ -428,6 +439,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 		rec.status = CertificateRequestStatus.RENEW_REQUESTED;
 		try {
 			super.update(get(rec.id), rec);
+			quota.incrementUserCertRequest();
 		} catch (SQLException e) {
 			log.error("Failed to request user certificate request renewal: " + rec.id);
 			throw new CertificateRequestException("Failed to update request status", e);
@@ -895,12 +907,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 				note += "NOTE: Additional user certificate request\n";
 			} else {
 				//oops.. there is duplicate request
-				if(existing_rec.status.equals(CertificateRequestStatus.EXPIRED)) {
-					//user is probably trying to request new certificate after current one has expired. let him make request 
-					note += "NOTE: The user has an expired certificate request with an identical DN: U" + existing_rec.id + "\n";
-				} else {
-					throw new CertificateRequestException("There is already another user certificate with identical DN (U"+existing_rec.id+"). Please choose different CN, or contact GOC for more assistance.");
-				}
+				throw new CertificateRequestException("There is already another user certificate with identical DN (U"+existing_rec.id+"). Please choose different CN, or contact GOC for more assistance.");
 			}
 		} else {
 			//for guest
@@ -939,10 +946,12 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 					note += "NOTE: User is claiming unused contact id: "+existing_crec.id+"\n";
 				} else {
 					CertificateRequestUserRecord existing_rec = getByDN(rec.dn);
-					if(existing_rec != null && existing_rec.status.equals(CertificateRequestStatus.EXPIRED)) {
-						note += "NOTE: The user has an expired certificate request with an identical DN: U" + existing_rec.id + "\n";
+					if(existing_rec != null) {
+						//oim cert is already associated.
+						throw new CertificateRequestException("Provided email address is already associated with existing certificate (U"+existing_rec.id+"). Please contact GOC for more assistance.");						
 					} else {
-						throw new CertificateRequestException("Provided email address is already associated with existing certificate. Please contact GOC for more assistance.");
+						//probably non digicert DN
+						throw new CertificateRequestException("Provided email address is already associated with existing non OIM certificate. Please contact GOC for more assistance.");
 					}
 				}
 			}
@@ -1038,6 +1047,73 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 		super.update(get(rec.id), rec);
     }
     
+    
+    //no-ac
+    public boolean rerequest(CertificateRequestUserRecord rec) throws CertificateRequestException 
+    {
+    	//check quota
+    	CertificateQuotaModel quota = new CertificateQuotaModel(context);
+    	if(!quota.canRequestUserCert()) {
+    		throw new CertificateRequestException("Exceeded quota. You can't request any more user certificate.");
+    	}
+    	
+		rec.status = CertificateRequestStatus.REQUESTED;
+		try {
+			//context.setComment("Certificate Approved");
+			super.update(get(rec.id), rec);
+			quota.incrementUserCertRequest();
+		} catch (SQLException e) {
+			log.error("Failed to re-request user certificate request: " + rec.id);
+			return false;
+		}
+		
+		///////////////////////////////////////////////////////////////////////////////////////////
+		// Notification
+		
+		try {
+			Footprints fp = new Footprints(context);
+			FPTicket ticket = fp.new FPTicket();
+			
+			//Create ra & sponsor list
+			String ranames = "";
+			VOContactModel model = new VOContactModel(context);
+			ContactModel cmodel = new ContactModel(context);
+			ArrayList<VOContactRecord> crecs;
+			crecs = model.getByVOID(rec.vo_id);
+			for(VOContactRecord crec : crecs) {
+				ContactRecord contactrec = cmodel.get(crec.contact_id);
+				if(crec.contact_type_id.equals(11)) { //primary, secondary, and sponsors
+					ticket.ccs.add(contactrec.primary_email);
+					
+					if(ranames.length() != 0) {
+						ranames += ", ";
+					}
+					ranames += contactrec.name;
+				}
+			}
+			
+			ContactRecord requester = cmodel.get(rec.requester_contact_id);
+			ticket.title = "User Certificate Re-request for "+requester.name;
+			String auth_status = "An unauthenticated user; ";
+			if(auth.isUser()) {
+				auth_status = "An OIM Authenticated user; ";
+			}
+			VOModel vmodel = new VOModel(context);
+			VORecord vrec = vmodel.get(rec.vo_id);
+			ticket.description = "Dear " + ranames + " (" + vrec.name + " VO RAs),\n\n";
+			ticket.description += auth_status + requester.name + " <"+requester.primary_email+"> has re-requested a user certificate. ";
+			ticket.description += "Please determine this request's authenticity, and approve / disapprove at " + getTicketUrl(rec);
+			ticket.assignees.add(StaticConfig.conf.getProperty("certrequest.user.assignee"));
+			ticket.nextaction = "RA/Sponsors to verify requester";	 //NAD will be set to 7 days in advance by default
+
+			fp.update(ticket, rec.goc_ticket_id);
+			
+		} catch (SQLException e1) {
+			log.error("Failed to create ticket update content - ignoring", e1);
+		}
+		
+		return true;
+    }
 	//prevent low level access - please use model specific actions
     @Override
     public Integer insert(RecordBase rec) throws SQLException

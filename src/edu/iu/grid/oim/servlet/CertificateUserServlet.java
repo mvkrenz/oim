@@ -34,9 +34,7 @@ import edu.iu.grid.oim.model.db.CertificateRequestModelBase;
 import edu.iu.grid.oim.model.db.CertificateRequestModelBase.LogDetail;
 import edu.iu.grid.oim.model.db.CertificateRequestUserModel;
 import edu.iu.grid.oim.model.db.ContactModel;
-import edu.iu.grid.oim.model.db.VOContactModel;
 import edu.iu.grid.oim.model.db.VOModel;
-import edu.iu.grid.oim.model.db.record.CertificateRequestHostRecord;
 import edu.iu.grid.oim.model.db.record.CertificateRequestUserRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
@@ -45,7 +43,6 @@ import edu.iu.grid.oim.view.BootBreadCrumbView;
 import edu.iu.grid.oim.view.BootMenuView;
 import edu.iu.grid.oim.view.BootPage;
 import edu.iu.grid.oim.view.CertificateMenuView;
-import edu.iu.grid.oim.view.DivRepWrapper;
 import edu.iu.grid.oim.view.GenericView;
 import edu.iu.grid.oim.view.HtmlView;
 import edu.iu.grid.oim.view.IView;
@@ -379,9 +376,10 @@ public class CertificateUserServlet extends ServletBase  {
 			v.add(new HtmlView("<p class=\"alert alert-info\">Requester to issue certificate & download</p>"));
 		} else if(rec.status.equals(CertificateRequestStatus.REJECTED) ||
 				rec.status.equals(CertificateRequestStatus.REVOKED) ||
-				rec.status.equals(CertificateRequestStatus.EXPIRED)
+				rec.status.equals(CertificateRequestStatus.EXPIRED) ||
+				rec.status.equals(CertificateRequestStatus.CANCELED)
 				) {
-			v.add(new HtmlView("<p class=\"alert alert-info\">No further action.</p>"));
+			//v.add(new HtmlView("<p class=\"alert alert-info\">Re-request</p>"));
 		}  else if(rec.status.equals(CertificateRequestStatus.FAILED)) {
 			v.add(new HtmlView("<p class=\"alert alert-info\">GOC engineer to troubleshoot & resubmit</p>"));
 		}
@@ -555,6 +553,26 @@ public class CertificateUserServlet extends ServletBase  {
                 			button.redirect(url);
                 		} catch (CertificateRequestException ex) {
 	                		button.alert("Failed to cancel request: " + ex.getMessage());
+	                	}
+                	}
+                }
+            });
+			v.add(button);
+			note.setHidden(false);
+		}
+		if(model.canReRequest(rec)) {
+			final DivRepButton button = new DivRepButton(context.getPageRoot(), "<button class=\"btn btn-primary\"><i class=\"icon-refresh icon-white\"></i> Re-request</button>");
+			button.setStyle(DivRepButton.Style.HTML);
+			button.addClass("inline");
+			button.addEventListener(new DivRepEventListener() {
+                public void handleEvent(DivRepEvent e) {
+                	if(note.validate()) {
+                		context.setComment(note.getValue());
+                		try {
+                			model.rerequest(rec);
+                			button.redirect(url);
+                		} catch (CertificateRequestException ex) {
+	                		button.alert("Failed to re-request: " + ex.getMessage());
 	                	}
                 	}
                 }
