@@ -37,6 +37,7 @@ import edu.iu.grid.oim.model.db.VOModel;
 import edu.iu.grid.oim.model.db.record.CertificateRequestUserRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
+import edu.iu.grid.oim.model.exceptions.CertificateRequestException;
 
 import edu.iu.grid.oim.view.HtmlFileView;
 import edu.iu.grid.oim.view.divrep.CNEditor;
@@ -77,6 +78,7 @@ public class CertificateRequestUserForm extends DivRepForm
 		//ContactRecord contact = auth.getContact();
 	
 		if(!auth.isUser()) {
+			new DivRepStaticContent(this, "<div class=\"alert\">This is a public certificate request form. If you are already an OIM user, please login first.</div>");
 			new DivRepStaticContent(this, "<h2>Contact Information</h2>");
 			new DivRepStaticContent(this, "<p class=\"help-block\">Following information will be used to contact you during the approval process.</p>");
 					
@@ -279,9 +281,30 @@ public class CertificateRequestUserForm extends DivRepForm
 		if(auth.isUser()) {
 			user = auth.getContact();
 		} else {
-			ContactModel model = new ContactModel(context);
-			DNModel dnmodel = new DNModel(context);
+			//create new contact record (may or may not be registered)
+			user = new ContactRecord();
+			user.name = fullname.getValue();
+			user.primary_email = email.getValue();
+			user.primary_phone = phone.getValue();
+			user.city = city.getValue();
+			user.state = state.getValue();
+			user.zipcode = zipcode.getValue();
+			user.country = country.getValue();
+			user.timezone = timezone_id2tz.get(timezone.getValue());
+			user.profile = profile.getValue();
+			user.use_twiki = use_twiki.getValue();
+			user.twiki_id = twiki_id.getValue();
+			user.person = true;
+
+			
+			user.count_hostcert_day = 0;
+			user.count_hostcert_year = 0;
+			user.count_usercert_year = 0;
+			
+			/*
 			try {
+				ContactModel model = new ContactModel(context);
+				DNModel dnmodel = new DNModel(context);
 				//Find contact record with the same email address
 				ContactRecord rec = model.getByemail(email.getValue());
 				//Create new one if none is found
@@ -305,7 +328,8 @@ public class CertificateRequestUserForm extends DivRepForm
 					rec.count_hostcert_year = 0;
 					rec.count_usercert_year = 0;
 					
-					rec.id = model.insert(rec);
+					//request() will register if 
+					//rec.id = model.insert(rec);
 					user = rec;
 				} else {
 					//Make sure that this contact is not used by any DN already
@@ -322,6 +346,7 @@ public class CertificateRequestUserForm extends DivRepForm
 				log.error(e);
 				return false;
 			}
+			*/
 		} 
 	
 		//do certificate request with no csr
@@ -337,9 +362,13 @@ public class CertificateRequestUserForm extends DivRepForm
 			if(rec != null) {
 				redirect("certificateuser?id="+rec.id); //TODO - does this work? I haven't tested it
 			}
+		} catch (CertificateRequestException e) {
+			log.warn("User failed to submit request", e);
+			alert(e.getMessage());
+			ret = false;
 		} catch (Exception e) {
 			log.error("Failed to submit request..", e);
-			alert("Sorry, failed to submit request..");
+			alert("Sorry, failed to submit request: " + e.toString());
 			ret = false;
 		}
 

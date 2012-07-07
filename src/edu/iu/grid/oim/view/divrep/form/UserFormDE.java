@@ -52,7 +52,7 @@ public class UserFormDE extends DivRepForm
 	private DivRepTextBox dn_string;
 	private ContactEditor contact;
 	private HashMap<Integer/*auth_type*/, DivRepCheckBox> auth_types = new HashMap();
-	private Integer usercert_request_id;
+	//private Integer usercert_request_id;
 	
 	public UserFormDE(UserContext _context, DNRecord rec, String origin_url) throws AuthorizationException, SQLException
 	{	
@@ -93,7 +93,7 @@ public class UserFormDE extends DivRepForm
 		}
 		
 		//for now, let's just pass through
-		usercert_request_id = rec.usercert_request_id;
+		//usercert_request_id = rec.usercert_request_id;
 	
 	}
 	
@@ -114,7 +114,7 @@ public class UserFormDE extends DivRepForm
 		}
 		
 		//passthru
-		rec.usercert_request_id = usercert_request_id;
+		//rec.usercert_request_id = usercert_request_id;
 
 		ArrayList<Integer/*auth_type*/> auths = new ArrayList();
 		for(Integer auth_type : auth_types.keySet()) {

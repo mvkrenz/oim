@@ -11,6 +11,7 @@ import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -317,7 +318,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 			DNRecord dnrec = new DNRecord();
 			dnrec.contact_id = rec.requester_contact_id;
 			dnrec.dn_string = rec.dn;
-			dnrec.usercert_request_id = rec.id;
+			//dnrec.usercert_request_id = rec.id;
 			DNModel dnmodel = new DNModel(context);
 			dnrec.id = dnmodel.insert(dnrec);
 			
@@ -746,6 +747,22 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 	    return rec;
 	}
 	
+	//NO-AC
+	public CertificateRequestUserRecord getByDN(String apache_dn) throws SQLException {
+		CertificateRequestUserRecord rec = null;
+		ResultSet rs = null;
+		Connection conn = connectOIM();
+		PreparedStatement stmt = conn.prepareStatement("SELECT * FROM "+table_name+ " WHERE dn = ?");
+		stmt.setString(1, apache_dn);
+	    rs = stmt.executeQuery();
+	    if(rs.next()) {
+    		rec = new CertificateRequestUserRecord(rs);
+	    }
+	    stmt.close();
+	    conn.close();
+	    return rec;
+	}
+	
 	//return requests that I have submitted
 	public ArrayList<CertificateRequestUserRecord> getMine(Integer id) throws SQLException {
 		ArrayList<CertificateRequestUserRecord> ret = new ArrayList<CertificateRequestUserRecord>();
@@ -817,14 +834,12 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
     //returns insertec request record if successful. if not, null
     public CertificateRequestUserRecord requestGuestWithNOCSR(Integer vo_id, ContactRecord requester, String passphrase) throws SQLException, CertificateRequestException { 
     	//TODO -- check access
- 
-    	String cn = requester.getName() + " " + requester.id;
     	
 		CertificateRequestUserRecord rec = new CertificateRequestUserRecord();		
 		String salt = BCrypt.gensalt(12);//let's hard code this for now..
 		rec.requester_passphrase_salt = salt;
 		rec.requester_passphrase = BCrypt.hashpw(passphrase, salt);
-    	request(vo_id, rec, requester, cn);
+    	request(vo_id, rec, requester, null);//cn is not known until we check the contact
     	return rec;
     } 
     
@@ -845,33 +860,119 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 		return StaticConfig.getApplicationBase() + "/certificateuser?id=" + rec.id;
     }
     
-    //NO-AC NO-QUOTA
+    //NO-AC 
     //return true for success
     private void request(Integer vo_id, CertificateRequestUserRecord rec, ContactRecord requester, String cn) throws SQLException, CertificateRequestException 
     {
+		///////////////////////////////////////////////////////////////////////////////////////////
+		// Check conditions & finalize DN (register contact if needed)
+    	String note = "";
+    
     	//check quota
     	CertificateQuotaModel quota = new CertificateQuotaModel(context);
     	if(!quota.canRequestUserCert()) {
     		throw new CertificateRequestException("Exceeded quota. You can't request any more user certificate.");
     	}
-    	
+    
+		/*
+		//make sure there are no other certificate already requested or renew_requested
+		CertificateRequestUserRecord existing_rec = getByDN(rec.dn);
+		if(existing_rec.status.equals(CertificateRequestStatus.REQUESTED) || existing_rec.status.equals(CertificateRequestStatus.RENEW_REQUESTED)) {
+			throw new CertificateRequestException("There is already another certificate request pending with the same DN. ID: U"+existing_rec.id);
+		}
+		*/
+		
+		if(auth.isUser()) {
+			//for oim user
+			
+			//we can generate dn immediately
+			X500Name name = generateDN(cn);
+			rec.dn = RFC1779_to_ApacheDN(name.toString());
+			
+			CertificateRequestUserRecord existing_rec = getByDN(rec.dn);
+			if(existing_rec == null) {
+				//user is requesting another user certificate.. proceed
+				note += "NOTE: Additional user certificate request\n";
+			} else {
+				//oops.. there is duplicate request
+				if(existing_rec.status.equals(CertificateRequestStatus.EXPIRED)) {
+					//user is probably trying to request new certificate after current one has expired. let him make request 
+					note += "NOTE: The user has an expired certificate request with an identical DN: U" + existing_rec.id + "\n";
+				} else {
+					throw new CertificateRequestException("There is already another user certificate with identical DN (U"+existing_rec.id+"). Please choose different CN, or contact GOC for more assistance.");
+				}
+			}
+		} else {
+			//for guest
+			
+			//Find contact record with the same email address including disabled one
+			ContactModel cmodel = new ContactModel(context);
+			ContactRecord existing_crec = cmodel.getByemail(requester.primary_email);//this is from the form, so I just have to check against primary_email
+			if(existing_crec == null) {
+				//register new disabled contact
+				requester.disable = true; //don't enable until the request gets approved
+				requester.id = cmodel.insert(requester);
+				
+				//and generate dn
+		    	cn = requester.getName() + " " + requester.id;
+		    	X500Name name = generateDN(cn);
+				rec.dn = RFC1779_to_ApacheDN(name.toString());
+				
+				note += "NOTE: User is registering OIM contact & requesting new certificate: contact id:"+requester.id+"\n";
+		    	
+			} else {
+				//generate dn
+		    	cn = requester.getName() + " " + requester.id;
+		    	X500Name name = generateDN(cn);
+				rec.dn = RFC1779_to_ApacheDN(name.toString());
+				
+				//find if there is any DN associated with the contact
+				DNModel dnmodel = new DNModel(context);
+				ArrayList<DNRecord> dnrecs = dnmodel.getByContactID(existing_crec.id);
+				if(dnrecs.isEmpty()) {
+					//pre-pregistered contact - just let user associate with this contact id
+					requester.id = existing_crec.id;
+					
+					//update contact information with information that user just gave me
+					cmodel.update(existing_crec, rec);
+					
+					note += "NOTE: User is claiming unused contact id: "+existing_crec.id+"\n";
+				} else {
+					CertificateRequestUserRecord existing_rec = getByDN(rec.dn);
+					if(existing_rec != null && existing_rec.status.equals(CertificateRequestStatus.EXPIRED)) {
+						note += "NOTE: The user has an expired certificate request with an identical DN: U" + existing_rec.id + "\n";
+					} else {
+						throw new CertificateRequestException("Provided email address is already associated with existing certificate. Please contact GOC for more assistance.");
+					}
+				}
+			}
+			
+		}
+		
+		note += "NOTE: Requested DN: " + rec.dn + "\n";
+		
+		///////////////////////////////////////////////////////////////////////////////////////////
+		// Make Request
 		Date current = new Date();
 		rec.request_time = new Timestamp(current.getTime());
-		rec.status = CertificateRequestStatus.REQUESTED;
+		rec.status = CertificateRequestStatus.REQUESTED;	
+		rec.requester_contact_id = requester.id;
+		rec.vo_id = vo_id;
 		
+		context.setComment("Making Request for " + requester.name);
+    	super.insert(rec);
+		quota.incrementUserCertRequest();
+		
+		///////////////////////////////////////////////////////////////////////////////////////////
+		// Notification
 		Footprints fp = new Footprints(context);
 		FPTicket ticket = fp.new FPTicket();
 		ticket.name = requester.name;
 		ticket.email = requester.primary_email;
 		ticket.phone = requester.primary_phone;
 		
-		X500Name name = generateDN(cn);
-		rec.dn = RFC1779_to_ApacheDN(name.toString());
-		rec.requester_contact_id = requester.id;
-		rec.vo_id = vo_id;
-		
+		//Create ra & sponsor list
 		String ranames = "";
-		//CC ra & sponsor
 		VOContactModel model = new VOContactModel(context);
 		ContactModel cmodel = new ContactModel(context);
 		ArrayList<VOContactRecord> crecs;
@@ -891,10 +992,6 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 		} catch (SQLException e1) {
 			log.error("Failed to lookup RA/sponsor information - ignoring", e1);
 		}
-				
-		context.setComment("Making Request for " + requester.name);
-    	super.insert(rec);
-		quota.incrementUserCertRequest();
     	
 		//submit goc ticket
 		ticket.title = "User Certificate Request for "+requester.name;
@@ -907,6 +1004,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 		ticket.description = "Dear " + ranames + " (" + vrec.name + " VO RAs),\n\n";
 		ticket.description += auth_status + requester.name + " <"+requester.primary_email+"> has requested a user certificate. ";
 		ticket.description += "Please determine this request's authenticity, and approve / disapprove at " + getTicketUrl(rec);
+		ticket.description += "\n\n"+note;
 		/*
 		if(StaticConfig.isDebug()) {
 			ticket.assignees.add("hayashis");

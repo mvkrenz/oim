@@ -39,15 +39,11 @@ public class CertificateRequestUserServlet extends ServletBase  {
 	
 	protected IView createContent(final UserContext context) throws ServletException
 	{
-		//final Authorization auth = context.getAuthorization();
-
 		return new IView(){
 			@Override
 			public void render(PrintWriter out) {
 				out.write("<div id=\"content\">");
-				
 				out.write("<div class=\"row-fluid\">");
-				
 				out.write("<div class=\"span3\">");
 				
  				CertificateMenuView menu = new CertificateMenuView(context, "certificaterequestuser");
@@ -64,9 +60,7 @@ public class CertificateRequestUserServlet extends ServletBase  {
 				}
 
 				out.write("</div>"); //span9
-				
 				out.write("</div>"); //row-fluid
-				
 				out.write("</div>"); //content
 			}
 		};

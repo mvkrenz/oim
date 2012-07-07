@@ -308,7 +308,7 @@ public class RegisterServlet extends ServletBase  {
 				dnrec.contact_id = rec.id;
 				Authorization auth = context.getAuthorization();
 				dnrec.dn_string = auth.getUserDN();
-				dnrec.usercert_request_id = null; //not set if registered using user generated cert
+				//dnrec.usercert_request_id = null; //not set if registered using user generated cert
 				dnmodel.insert(dnrec);
 				
 				//Give user OSG end user access

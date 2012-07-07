@@ -14,7 +14,7 @@ public class DNRecord extends RecordBase {
 	@Key public Integer id;
 	public String dn_string;
 	public Integer contact_id;
-	public Integer usercert_request_id;//only set if it's added by cert management 
+	//public Integer usercert_request_id;//only set if it's added by cert management 
 	
 	//load from existing record
 	public DNRecord(ResultSet rs) throws SQLException { super(rs); }
