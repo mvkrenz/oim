@@ -64,6 +64,7 @@ public class CertificateRequestHostForm extends DivRepForm
 	
 
 		if(!auth.isUser()) {
+			new DivRepStaticContent(this, "<div class=\"alert\">This is a public certificate request form. If you are already an OIM user, please login first.</div>");
 			new DivRepStaticContent(this, "<h2>Contact Information</h2>");
 			new DivRepStaticContent(this, "<p class=\"help-block\">Following information will be used to contact you during the approval process.</p>");
 					
