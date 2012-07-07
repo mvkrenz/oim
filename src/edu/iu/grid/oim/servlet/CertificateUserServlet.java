@@ -410,6 +410,18 @@ public class CertificateUserServlet extends ServletBase  {
 		                		//Regenerate DN using provided CN
 		                		X500Name name = model.generateDN(cn_override.getValue());
 		                		rec.dn = model.RFC1779_to_ApacheDN(name.toString());
+		                		
+		                		//make sure we don't have duplicate CN requested already.
+								try {
+			                		CertificateRequestUserRecord duplicate = model.getByDN(rec.dn);
+			                		if(duplicate != null && !duplicate.id.equals(rec.id)) {
+			                			button.alert("The same DN is already used by U"+duplicate.id + ". Please specify different CN");
+			                		}
+								} catch (SQLException e1) {
+									log.error("Failed to test duplicate DN during approval process", e1);
+									button.alert("Failed to test duplicate DN.");
+									return;
+								}	                		
                 			} else {
                 				button.alert("Failed to validate provided CN.");
                 				return;
