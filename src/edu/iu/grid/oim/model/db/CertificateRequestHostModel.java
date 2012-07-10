@@ -474,7 +474,7 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 				throw new CertificateRequestException("Failed to lookup GridAdmin to approve host:" + cn, e);	
 			}
 			if(ga == null) {
-				throw new CertificateRequestException("No GridAdmin can approve host:" + cn);	
+				throw new CertificateRequestException("The hostname you have provided in the CSR/CN=" + cn + " does not match any domain OIM is currently configured to issue certificates for.\n\nPlease double check the CN you have specified. If you'd like to be a GridAdmin for this domain, please open GOC Ticket at https://ticket.grid.iu.edu ");	
 			}
 			
 			//make sure single gridadmin approves all host

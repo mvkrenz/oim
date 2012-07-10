@@ -36,6 +36,7 @@ import edu.iu.grid.oim.model.db.record.CertificateRequestHostRecord;
 import edu.iu.grid.oim.model.db.record.CertificateRequestUserRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
+import edu.iu.grid.oim.model.exceptions.CertificateRequestException;
 
 import edu.iu.grid.oim.view.divrep.DivRepSimpleCaptcha;
 import edu.iu.grid.oim.view.divrep.form.validator.PKIPassStrengthValidator;
@@ -193,8 +194,12 @@ public class CertificateRequestHostForm extends DivRepForm
 			if(rec != null) {
 				redirect("certificatehost?id="+rec.id); //TODO - does this work? I haven't tested it
 			}
-		} catch (Exception e) {
+		} catch (CertificateRequestException e) {
 			log.error("Failed to submit request..", e);
+			alert(e.getMessage());
+			ret = false;	
+		} catch (Exception e) {
+			log.error("Failed to submit request (unhandled exception)", e);
 			alert(e.toString());
 			ret = false;
 		}
