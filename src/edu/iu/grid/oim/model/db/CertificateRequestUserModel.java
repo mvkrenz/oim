@@ -678,6 +678,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 		HttpSession session = context.getSession();
 		return (PrivateKey)session.getAttribute("PRIVATE_USER:"+id);	
 	}
+	
 	public String getPassword(Integer id) {
 		HttpSession session = context.getSession();
 		return (String)session.getAttribute("PASS_USER:"+id);		
@@ -719,7 +720,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 		try {
 			java.security.cert.Certificate[] chain = parsePKCS7(rec);
 			
-			HttpSession session = context.getSession();
+			//HttpSession session = context.getSession();
 			String password = getPassword(rec.id);
 			
 			KeyStore p12 = KeyStore.getInstance("PKCS12");

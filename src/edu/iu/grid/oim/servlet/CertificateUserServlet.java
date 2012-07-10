@@ -251,16 +251,20 @@ public class CertificateUserServlet extends ServletBase  {
 					HttpSession session = context.getSession();
 
 					if(model.getPrivateKey(rec.id) != null) {
-						out.write("<a class=\"btn btn-primary\" href=\"certificatedownload?id="+rec.id+"&type=user&download=pkcs12\">Download Certificate (PKCS12)</a><br>");
-						out.write("<p class=\"alert\">You need to download your certificate and private key now, while your browser session is active. If your session times out, the server will delete your private key for security reasons and  you will need to request a new certificate.</p>");
+						out.write("<a class=\"btn btn-primary\" href=\"certificatedownload?id="+rec.id+"&type=user&download=pkcs12\">Download Certificate &amp; Private Key (PKCS12)</a>");
+						//out.write("<a class=\"btn btn-primary\" href=\"certificatedownload?id="+rec.id+"&type=user&download=pem12\">Download Certificate &amp; Private Key (PEM)</a>");
+						out.write("<br>");
+						out.write("<p class=\"alert\">You need to download your certificate and private key now, while your browser session is active. If your session times out, the server will delete your private key for security reasons and you will need to request a new certificate.</p>");
 						
 					} else {
-						out.write("<a class=\"btn btn-primary\" href=\"certificatedownload?id="+rec.id+"&type=user&download=pkcs7\">Download Certificate (PKCS7)</a><br>");
+						out.write("<a class=\"btn btn-primary\" href=\"certificatedownload?id="+rec.id+"&type=user&download=pkcs7\">Download Certificate (PKCS7)</a> ");
+						out.write("<a class=\"btn\" href=\"certificatedownload?id="+rec.id+"&type=user&download=pem7\">Download Certificate (PEM)</a>");
+						out.write("<br>");
 					}
 					
 					String urlformat = "https://confluence.grid.iu.edu/display/CENTRAL/Importing+User+Certificate+on+{0}";
 					String urlformat_in = new Base64(Integer.MAX_VALUE).encodeToString(urlformat.getBytes());
-					out.write("<p><br><a target=\"_blank\" href=\"browserjump?urlformat="+urlformat_in+"\">How to import certificate</a></p>");
+					out.write("<p><br><a target=\"_blank\" href=\"browserjump?urlformat="+urlformat_in+"\">How to import user certificate on your browser</a></p>");
 					out.write("</td>");
 					out.write("</tr>");
 				}

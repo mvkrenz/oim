@@ -50,6 +50,10 @@ public class CertificateRequestHostRecord extends RecordBase {
 		StringArray sa = new StringArray(cert_pkcs7);
 		return sa.getAll();
 	}
+	public String[] getCertificates() {
+		StringArray sa = new StringArray(cert_certificate);
+		return sa.getAll();
+	}
 	public String[] getCSRs() {
 		StringArray sa = new StringArray(csrs);
 		return sa.getAll();

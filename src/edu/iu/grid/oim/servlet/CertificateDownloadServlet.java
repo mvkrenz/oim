@@ -5,6 +5,8 @@ import java.io.PrintWriter;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
+import java.security.SecureRandom;
 import java.security.cert.CertificateException;
 import java.sql.SQLException;
 
@@ -13,6 +15,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
+import org.bouncycastle.openssl.PEMWriter;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.StringArray;
@@ -44,12 +47,12 @@ public class CertificateDownloadServlet extends ServletBase  {
 					if(model.canView(rec)) {
 						if(download.equals("pkcs7")) {
 							response.setContentType("application/pkcs7-signature");
-							response.setHeader("Content-Disposition", "attachment; filename=user_certificate."+rec.id+".p7s");
+							response.setHeader("Content-Disposition", "attachment; filename=user_certificate.U"+rec.id+".p7b");
 							PrintWriter out = response.getWriter();
 							out.write(rec.cert_pkcs7);
 						} else if(download.equals("pkcs12")) {
 							response.setContentType("application/x-pkcs12");
-							response.setHeader("Content-Disposition", "attachment; filename=user_certificate."+rec.id+".p12");
+							response.setHeader("Content-Disposition", "attachment; filename=user_certificate_and_key.U"+rec.id+".p12");
 							KeyStore p12 = model.getPkcs12(rec);
 							if(p12 == null) {
 								log.error("Failed to create pkcs12");
@@ -57,7 +60,18 @@ public class CertificateDownloadServlet extends ServletBase  {
 								String password = model.getPassword(id);
 								p12.store(response.getOutputStream(), password.toCharArray());
 							}
-						}
+						} else if(download.equals("pem7")) {
+							PrintWriter out = response.getWriter();
+							response.setContentType("application/pem-signature");
+							response.setHeader("Content-Disposition", "attachment; filename=user_certificate.U"+rec.id+".pem");
+							out.write(rec.cert_certificate);
+						}/* else if(download.equals("pem12")) {
+							PrintWriter out = response.getWriter();
+							response.setContentType("application/pem-signature");
+							response.setHeader("Content-Disposition", "attachment; filename=user_certificate_and_key.U"+rec.id+".pem");
+							model.writeEncryptedRSAPrivateKeyInPEM(out, rec);
+							out.write(rec.cert_certificate);
+						}*/
 					}
 				} catch (SQLException e) {
 					log.error("Failed to load certificate record", e);
@@ -79,8 +93,17 @@ public class CertificateDownloadServlet extends ServletBase  {
 						if(download.equals("pkcs7")) {
 							PrintWriter out = response.getWriter();
 							String[] pkc7s = rec.getPKCS7s();
+							String[] cns = rec.getCNs();
 							response.setContentType("application/pkcs7-signature");
+							response.setHeader("Content-Disposition", "attachment; filename=host_certificate.H"+rec.id+"."+cns[idx]+".p7b");
 							out.write(pkc7s[idx]);
+						} else if(download.equals("pem")) {
+							PrintWriter out = response.getWriter();
+							String[] certificates = rec.getCertificates();
+							String[] cns = rec.getCNs();
+							response.setContentType("application/pem-signature");
+							response.setHeader("Content-Disposition", "attachment; filename=host_certificate.H"+rec.id+"."+cns[idx]+".pem");
+							out.write(certificates[idx]);
 						}
 					}
 				} catch (SQLException e) {
