@@ -38,7 +38,7 @@ import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
 
 import edu.iu.grid.oim.view.divrep.DivRepSimpleCaptcha;
-import edu.iu.grid.oim.view.divrep.form.validator.DivRepPassStrengthValidator;
+import edu.iu.grid.oim.view.divrep.form.validator.PKIPassStrengthValidator;
 
 public class CertificateRequestHostForm extends DivRepForm
 {

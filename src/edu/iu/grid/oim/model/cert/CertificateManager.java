@@ -34,8 +34,8 @@ public class CertificateManager {
 		cp.signHostCertificates(certs, callback);
 	}
 	
-	public ICertificateSigner.Certificate signUserCertificate(String csr, String cn) throws CertificateProviderException {
-		ICertificateSigner.Certificate cert = cp.signUserCertificate(csr, cn);
+	public ICertificateSigner.Certificate signUserCertificate(String csr, String cn, String email_address) throws CertificateProviderException {
+		ICertificateSigner.Certificate cert = cp.signUserCertificate(csr, cn, email_address);
 		return cert;
 	}
 	public void revokeUserCertificate(String serial_id) throws CertificateProviderException {

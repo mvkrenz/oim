@@ -624,10 +624,14 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 						session.setAttribute("PASS_USER:" + rec.id, password);
 					}
 					
+					//lookup requester contact information
+					ContactModel cmodel = new ContactModel(context);
+					ContactRecord requester = cmodel.get(rec.requester_contact_id);
+					
 					//now we can sign it
 					String cn = rec.getCN();//TODO - check for null?
 					CertificateManager cm = new CertificateManager();
-					ICertificateSigner.Certificate cert = cm.signUserCertificate(rec.csr, cn);
+					ICertificateSigner.Certificate cert = cm.signUserCertificate(rec.csr, cn, requester.primary_email);
 					rec.cert_certificate = cert.certificate;
 					rec.cert_intermediate = cert.intermediate;
 					rec.cert_pkcs7 = cert.pkcs7;
@@ -638,8 +642,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 						java.security.cert.Certificate[]  chain = parsePKCS7(rec);
 						X509Certificate c0 = (X509Certificate)chain[0];
 						rec.cert_notafter = c0.getNotAfter();
-						rec.cert_notbefore = c0.getNotBefore();
-				
+						rec.cert_notbefore = c0.getNotBefore();				
 					} catch (CMSException e) {
 						log.error("Failed to lookup certificate information for issued user cert request id:" + rec.id, e);
 					}

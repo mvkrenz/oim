@@ -66,7 +66,7 @@ public class OIMCertificateSigner implements ICertificateSigner {
 	}
 
 	@Override
-	public Certificate signUserCertificate(String csr, String dn) throws CertificateProviderException {
+	public Certificate signUserCertificate(String csr, String dn, String email_address) throws CertificateProviderException {
 		try {
 			PKCS10CertificationRequest pkcs10 = new PKCS10CertificationRequest(Base64.decode(csr));
 		} catch (IOException e) {

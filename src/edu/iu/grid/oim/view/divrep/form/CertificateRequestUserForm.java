@@ -42,7 +42,7 @@ import edu.iu.grid.oim.model.exceptions.CertificateRequestException;
 import edu.iu.grid.oim.view.HtmlFileView;
 import edu.iu.grid.oim.view.divrep.CNEditor;
 import edu.iu.grid.oim.view.divrep.DivRepSimpleCaptcha;
-import edu.iu.grid.oim.view.divrep.form.validator.DivRepPassStrengthValidator;
+import edu.iu.grid.oim.view.divrep.form.validator.PKIPassStrengthValidator;
 
 public class CertificateRequestUserForm extends DivRepForm
 {
@@ -65,6 +65,7 @@ public class CertificateRequestUserForm extends DivRepForm
 	private DivRepTextBox twiki_id;
 	
 	private DivRepPassword passphrase; //for guest
+	private DivRepPassword passphrase_confirm; //for guest
 	private DivRepCheckBox agreement;
 	
 	private DivRepSelectBox vo;//, sponsor;
@@ -206,9 +207,33 @@ public class CertificateRequestUserForm extends DivRepForm
 				new DivRepStaticContent(this, "<p class=\"help-block\">This passphrase will also be used to encrypt your certificate.</p>");
 			}
 			passphrase = new DivRepPassword(this);
-			passphrase.addValidator(new DivRepPassStrengthValidator());
+			passphrase.addValidator(new PKIPassStrengthValidator());
 			passphrase.setRequired(true);
+			passphrase.addEventListener(new DivRepEventListener() {
 
+				@Override
+				public void handleEvent(DivRepEvent e) {
+					if(passphrase_confirm.getValue() != null) {
+						passphrase_confirm.validate();
+					}
+				}});
+			passphrase_confirm = new DivRepPassword(this);
+			passphrase_confirm.setLabel("Confirm Passphrase");
+			passphrase_confirm.addValidator(new DivRepIValidator<String>() {
+				String message;
+				@Override
+				public Boolean isValid(String value) {
+					if(value.equals(passphrase.getValue())) return true;
+					message = "Passphrase does not match";
+					return false;
+				}
+
+				@Override
+				public String getErrorMessage() {
+					return message;
+				}});
+			passphrase_confirm.setRequired(true);
+		
 			new DivRepStaticContent(this, "<h2>Captcha</h2>");
 			new DivRepSimpleCaptcha(this, context.getSession());
 		} else {

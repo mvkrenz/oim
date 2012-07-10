@@ -36,7 +36,7 @@ import edu.iu.grid.oim.view.BootPage;
 import edu.iu.grid.oim.view.ContentView;
 import edu.iu.grid.oim.view.GenericView;
 import edu.iu.grid.oim.view.HtmlView;
-import edu.iu.grid.oim.view.divrep.form.validator.DivRepPassStrengthValidator;
+import edu.iu.grid.oim.view.divrep.form.validator.PKIPassStrengthValidator;
 
 public class CertificateServlet extends ServletBase  {
 	private static final long serialVersionUID = 1L;

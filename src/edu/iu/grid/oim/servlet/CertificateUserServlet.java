@@ -24,6 +24,7 @@ import com.divrep.common.DivRepPassword;
 import com.divrep.common.DivRepStaticContent;
 import com.divrep.common.DivRepTextArea;
 import com.divrep.common.DivRepTextBox;
+import com.divrep.validator.DivRepIValidator;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.AuthorizationException;
@@ -47,7 +48,7 @@ import edu.iu.grid.oim.view.GenericView;
 import edu.iu.grid.oim.view.HtmlView;
 import edu.iu.grid.oim.view.IView;
 import edu.iu.grid.oim.view.divrep.CNEditor;
-import edu.iu.grid.oim.view.divrep.form.validator.DivRepPassStrengthValidator;
+import edu.iu.grid.oim.view.divrep.form.validator.PKIPassStrengthValidator;
 
 public class CertificateUserServlet extends ServletBase  {
 	private static final long serialVersionUID = 1L;
@@ -177,7 +178,7 @@ public class CertificateUserServlet extends ServletBase  {
 				out.write("<tbody>");
 
 				out.write("<tr>");
-				out.write("<th>DN</th>");
+				out.write("<th style=\"min-width: 100px;\">DN</th>");
 				out.write("<td>");
 				CNEditor cn_override = new CNEditor(context.getPageRoot());
 				cn_override.setDisabled(true);
@@ -491,8 +492,34 @@ public class CertificateUserServlet extends ServletBase  {
 			final DivRepPassword pass = new DivRepPassword(context.getPageRoot());
 			pass.setLabel("Passphrase");
 			pass.setRequired(true);
-			pass.addValidator(new DivRepPassStrengthValidator());
+			pass.addValidator(new PKIPassStrengthValidator());
 			v.add(pass);
+			
+			final DivRepPassword pass_confirm = new DivRepPassword(context.getPageRoot());
+			pass.addEventListener(new DivRepEventListener() {
+				@Override
+				public void handleEvent(DivRepEvent e) {
+					if(pass_confirm.getValue() != null) {
+						pass_confirm.validate();
+					}
+				}
+			});
+			pass_confirm.setLabel("Passphrase (Confirm)");
+			pass_confirm.addValidator(new DivRepIValidator<String>() {
+				String message;
+				@Override
+				public Boolean isValid(String value) {
+					if(value.equals(pass.getValue())) return true;
+					message = "Passphrase does not match";
+					return false;
+				}
+
+				@Override
+				public String getErrorMessage() {
+					return message;
+				}});
+			pass_confirm.setRequired(true);
+			v.add(pass_confirm);
 			
 			final DivRepButton button = new DivRepButton(context.getPageRoot(), "<button class=\"btn btn-primary\"><i class=\"icon-download-alt icon-white\"></i> Issue Certificate ...</button>");
 			button.setStyle(DivRepButton.Style.HTML);

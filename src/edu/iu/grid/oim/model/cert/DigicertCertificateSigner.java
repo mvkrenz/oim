@@ -35,8 +35,8 @@ public class DigicertCertificateSigner implements ICertificateSigner {
 		}
 	};
 	
-	public Certificate signUserCertificate(String csr, String dn) throws CertificateProviderException {
-		return requestUserCert(csr, dn);
+	public Certificate signUserCertificate(String csr, String dn, String email_address) throws CertificateProviderException {
+		return requestUserCert(csr, dn, email_address);
 	}
 	
 	//pass csrs, and 
@@ -186,7 +186,7 @@ public class DigicertCertificateSigner implements ICertificateSigner {
 		return db.parse(in);
 	}
 	
-	public Certificate requestUserCert(String csr, String cn) throws DigicertCPException {
+	public Certificate requestUserCert(String csr, String cn, String email_address) throws DigicertCPException {
 		HttpClient cl = new HttpClient();
 		//cl.getHttpConnectionManager().getParams().setConnectionTimeout(1000*10);
 	    cl.getParams().setParameter("http.useragent", "OIM (OSG Information Management System)");
@@ -198,7 +198,7 @@ public class DigicertCertificateSigner implements ICertificateSigner {
 		post.setParameter("customer_api_key", "MG9ij2Of4rakV7tXARyE347QQu00097U");
 		post.setParameter("response_type", "xml");
 		post.setParameter("validity", "1"); //security by obscurity -- from the DigiCert dev team
-		post.setParameter("email", "hayashis@iu.edu");
+		post.setParameter("email", email_address);
 		post.setParameter("full_name", cn);
 		post.setParameter("csr", csr);
 

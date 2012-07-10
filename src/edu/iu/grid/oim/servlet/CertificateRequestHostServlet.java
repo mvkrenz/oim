@@ -42,7 +42,7 @@ import edu.iu.grid.oim.view.HtmlView;
 import edu.iu.grid.oim.view.IView;
 import edu.iu.grid.oim.view.divrep.form.CertificateRequestHostForm;
 import edu.iu.grid.oim.view.divrep.form.CertificateRequestUserForm;
-import edu.iu.grid.oim.view.divrep.form.validator.DivRepPassStrengthValidator;
+import edu.iu.grid.oim.view.divrep.form.validator.PKIPassStrengthValidator;
 
 public class CertificateRequestHostServlet extends ServletBase  {
 	private static final long serialVersionUID = 1L;

@@ -38,5 +38,6 @@
 	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/simplecaptcha-1.2.1.jar"/>
 	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/junit-4.10.jar"/>
 	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/json-rpc-1.0.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/vt-password-3.1.1.jar"/>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>
