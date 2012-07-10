@@ -122,7 +122,7 @@ public class CertificateRequestHostForm extends DivRepForm
 "Nb4jr2oKlBc4Vqo4OjfpakA4n6yseH0F\n"+
 "-----END CERTIFICATE REQUEST-----");
 		csr.setWidth(600);
-		new DivRepStaticContent(this, "<p>* Create your CSR on your target hosts using tools such as openssl. <br><pre>openssl req -out request.csr -new -newkey rsa:2048 -nodes -keyout private.key</pre> DN will be overriden by the certificate signer except CN.</p>");
+		new DivRepStaticContent(this, "<p>* Create your CSR on your target hosts using tools such as openssl. <br><pre>openssl req -new -newkey rsa:2048 -nodes -keyout hostkey.pem -subj \"/CN=osg-ce.example.edu\"</pre> DN will be overriden by the certificate signer except CN.</p>");
 		
 		new DivRepStaticContent(this, "<h2>OSG Policy Agreement</h2>");
 		//agreement doc comes from https://twiki.grid.iu.edu/twiki/pub/Operations/DigiCertAgreements/IGTF_Certificate_Subscriber_Agreement_-_Mar_26_2012.doc
