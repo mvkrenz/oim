@@ -11,6 +11,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 import org.bouncycastle.asn1.x500.X500Name;
@@ -257,6 +258,9 @@ public class CertificateUserServlet extends ServletBase  {
 						out.write("<a class=\"btn btn-primary\" href=\"certificatedownload?id="+rec.id+"&type=user&download=pkcs7\">Download Certificate (PKCS7)</a><br>");
 					}
 					
+					String urlformat = "https://confluence.grid.iu.edu/display/CENTRAL/Importing+User+Certificate+on+{0}";
+					String urlformat_in = new Base64(Integer.MAX_VALUE).encodeToString(urlformat.getBytes());
+					out.write("<p><br><a target=\"_blank\" href=\"browserjump?urlformat="+urlformat_in+"\">How to import certificate</a></p>");
 					out.write("</td>");
 					out.write("</tr>");
 				}
