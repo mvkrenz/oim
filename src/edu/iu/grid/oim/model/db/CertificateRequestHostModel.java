@@ -262,7 +262,8 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 		FPTicket ticket = fp.new FPTicket();
 		ticket.description = "Dear " + rec.requester_name + ",\n\n";
 		ticket.description += "Your host certificate request has been approved. \n\n";
-		ticket.description += "To retrieve your certificate please visit " + getTicketUrl(rec) + " and click on Issue Certificate button.";
+		ticket.description += "To retrieve your certificate please visit " + getTicketUrl(rec) + " and click on Issue Certificate button.\n\n";
+		ticket.description += "Or if you are using the command-line: cert-retrieve-new.py -i "+rec.id+"\n\n";
 		ticket.nextaction = "Requester to download certificate";
 		Calendar nad = Calendar.getInstance();
 		nad.add(Calendar.DATE, 7);
