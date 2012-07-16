@@ -68,8 +68,8 @@ public class PKIPassStrengthValidator implements DivRepIValidator<String>
 		// don't allow qwerty sequences
 		QwertySequenceRule qwertySeqRule = new QwertySequenceRule();
 
-		// don't allow 4 repeat characters
-		RepeatCharacterRegexRule repeatRule = new RepeatCharacterRegexRule(4);
+		// don't allow 5 repeat characters
+		RepeatCharacterRegexRule repeatRule = new RepeatCharacterRegexRule(5);
 
 		// group all rules together in a List
 		List<Rule> ruleList = new ArrayList<Rule>();
