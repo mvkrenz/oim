@@ -249,6 +249,7 @@ public class CertificateRequestUserForm extends DivRepForm
 			
 		new DivRepStaticContent(this, "<h2>Sponsor</h2>");
 		new DivRepStaticContent(this, "<p class=\"help-block\">Please select VO that should approve your request.</p>");
+		new DivRepStaticContent(this, "<p class=\"muted\">If you do not know which VO to select, please open a <a href=\"https://ticket.grid.iu.edu\">GOC Ticket</a> for an assistance.</p>");
 		
 		VOModel vo_model = new VOModel(context);
 		LinkedHashMap<Integer, String> kv = new LinkedHashMap();
