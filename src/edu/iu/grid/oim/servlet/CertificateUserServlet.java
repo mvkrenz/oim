@@ -492,9 +492,9 @@ public class CertificateUserServlet extends ServletBase  {
 			Authorization auth = context.getAuthorization();
 			
 			if(rec.requester_passphrase != null) {
-				v.add(new HtmlView("<p class=\"help-block\">Please enter passphrase to retrieve & encrypt your new certificate (pkcs12)</p>"));
+				v.add(new HtmlView("<p class=\"help-block\">Please enter password to retrieve & encrypt your new certificate (pkcs12)</p>"));
 			} else {
-				v.add(new HtmlView("<p class=\"help-block\">Please choose a passphrase to associate with your new certificate (pkcs12)</p>"));
+				v.add(new HtmlView("<p class=\"help-block\">Please choose a password to associate with your new certificate (pkcs12)</p>"));
 			}
 			
 			final DivRepPassword pass = new DivRepPassword(context.getPageRoot());
@@ -512,13 +512,13 @@ public class CertificateUserServlet extends ServletBase  {
 					}
 				}
 			});
-			pass_confirm.setLabel("Passphrase (Confirm)");
+			pass_confirm.setLabel("Re-enter password");
 			pass_confirm.addValidator(new DivRepIValidator<String>() {
 				String message;
 				@Override
 				public Boolean isValid(String value) {
 					if(value.equals(pass.getValue())) return true;
-					message = "Passphrase does not match";
+					message = "Password does not match";
 					return false;
 				}
 

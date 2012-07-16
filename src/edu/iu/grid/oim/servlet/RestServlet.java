@@ -199,16 +199,25 @@ public class RestServlet extends ServletBase  {
 				//count number of certificate issued so far
 				StringArray pkcs7s = new StringArray(rec.cert_pkcs7);
 				int issued = 0;
-				for(String pkcs7 : pkcs7s.getAll()) {
+				JSONArray certstatus = new JSONArray();
+				for(int i = 0;i < pkcs7s.length(); ++i) {
+					String pkcs7 = pkcs7s.get(i);
 					if(pkcs7 != null) {
 						issued++;
+						certstatus.put(i, "ISSUED");
+					} else {
+						certstatus.put(i, "ISSUING");
 					}
 				}
+				reply.params.put("cert_status", certstatus);
 				reply.status = Status.PENDING;
 				reply.detail = issued + " of " + pkcs7s.length() + " certificates has been issued";
 			} else {
 				reply.status = Status.FAILED;
-				reply.detail = "Can't retrieve certificates for this request. Request status:" + rec.status + " last note: " + rec.status_note;
+				reply.detail = "Can't retrieve certificates on request that are not in ISSUED or ISSUING status. Current request status is " + rec.status + ".";
+				if(rec.status_note != null) {
+					reply.detail += " Last note: " + rec.status_note;
+				}
 			}
 			
 		} catch (SQLException e) {

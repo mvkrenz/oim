@@ -201,7 +201,7 @@ public class CertificateRequestUserForm extends DivRepForm
 					}
 				}});
 			
-			new DivRepStaticContent(this, "<h2>Passphrase</h2>");
+			new DivRepStaticContent(this, "<h2>Choose a password</h2>");
 			new DivRepStaticContent(this, "<p class=\"help-block\">Please choose a passphrase to retrieve your certificate once it's issued.</p>");
 			if(!auth.isUser()) {
 				new DivRepStaticContent(this, "<p class=\"help-block\">This passphrase will also be used to encrypt your certificate.</p>");
@@ -218,7 +218,7 @@ public class CertificateRequestUserForm extends DivRepForm
 					}
 				}});
 			passphrase_confirm = new DivRepPassword(this);
-			passphrase_confirm.setLabel("Confirm Passphrase");
+			passphrase_confirm.setLabel("Re-enter password");
 			passphrase_confirm.addValidator(new DivRepIValidator<String>() {
 				String message;
 				@Override
