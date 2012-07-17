@@ -249,15 +249,13 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 	public boolean canRevoke(CertificateRequestUserRecord rec) {
 		if(!canView(rec)) return false;
 		
+		//disable until DigiCert provides a real API for this
+		/*
+		
 		if(	rec.status.equals(CertificateRequestStatus.ISSUED) ||
 			rec.status.equals(CertificateRequestStatus.REVOCATION_REQUESTED)) {
 			
 			if(auth.isUser()) {
-				/*
-				if(auth.allows("revoke_all_certificate")) {
-					return true;
-				}
-				*/
 				
 				//requester oneself can revoke it
 				ContactRecord contact = auth.getContact();
@@ -281,6 +279,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 				}
 			}
 		}
+		*/
 		return false;
 	}
 	
