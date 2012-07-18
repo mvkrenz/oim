@@ -257,7 +257,7 @@ public class VOServlet extends ServletBase implements Servlet {
 						ContactRankRecord rank = crmodel.get(vcrec.contact_rank_id);
 	
 						cliststr += "<div class='contact_rank contact_"+rank.name+"'>";
-						cliststr += person.name;
+						cliststr +=  StringEscapeUtils.escapeHtml(person.name.trim());
 						cliststr += "</div>";
 					}
 					ToolTip tip = new ToolTip(contact_type.desc);
