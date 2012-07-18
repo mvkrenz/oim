@@ -772,10 +772,10 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 			} else {
 				if(auth.isUser()) {
 					ContactRecord contact = auth.getContact();
-						//requester can issue
-						if(rec.requester_contact_id.equals(contact.id)) return true;
-					}
+					//requester can issue
+					if(rec.requester_contact_id.equals(contact.id)) return true;
 				}
+			}
 		}
 		return false;
 	}

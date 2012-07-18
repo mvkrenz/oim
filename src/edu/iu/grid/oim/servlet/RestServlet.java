@@ -218,6 +218,7 @@ public class RestServlet extends ServletBase  {
 				if(rec.status_note != null) {
 					reply.detail += " Last note: " + rec.status_note;
 				}
+				reply.params.put("request_status", rec.status.toString());
 			}
 			
 		} catch (SQLException e) {
