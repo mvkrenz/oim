@@ -285,11 +285,13 @@ public class ResourceServlet extends ServletBase implements Servlet {
 
 						cliststr += "<div class='contact_rank contact_"+rank.name+"'>";
 						cliststr += StringEscapeUtils.escapeHtml(person.name.trim());
+						/*//shouldn't be public
 						if(person.primary_email != null) {
 							cliststr += " <code><a href=\"mailto:"+person.primary_email+"\">"+StringEscapeUtils.escapeHtml("<"+person.primary_email+">")+"</a></code>";
 						} else {
 							cliststr += " <code>(no email address specified)</code>";
 						}
+						*/
 						cliststr += "</div>";
 					}
 					
