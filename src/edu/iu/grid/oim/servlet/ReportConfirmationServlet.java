@@ -175,7 +175,7 @@ public class ReportConfirmationServlet extends ServletBase implements Servlet {
 	}
 	protected ContentView createContentView(UserContext context, ArrayList<ContactRecord> expired_recs) throws ServletException, SQLException
 	{	
-		ContentView contentview = new ContentView();	
+		ContentView contentview = new ContentView(context);	
 		contentview.add(new HtmlView("<h1>Confirmation Report</h1>"));
 		
 		ArrayList<ContactRecord> normal_list = new ArrayList<ContactRecord>();

@@ -24,6 +24,7 @@ import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Footprints;
 import edu.iu.grid.oim.lib.AuthorizationException;
 import edu.iu.grid.oim.model.UserContext;
+import edu.iu.grid.oim.model.UserContext.MessageType;
 import edu.iu.grid.oim.model.db.FacilityModel;
 import edu.iu.grid.oim.model.db.record.RecordBase;
 import edu.iu.grid.oim.model.db.record.FacilityRecord;
@@ -101,7 +102,6 @@ public class FacilityFormDE extends DivRepForm
 	
 	protected Boolean doSubmit() 
 	{
-		Boolean ret = true;
 		try {
 			//Construct SiteRecord
 			FacilityRecord rec = new FacilityRecord();
@@ -120,16 +120,18 @@ public class FacilityFormDE extends DivRepForm
 
 			if(rec.id == null) {
 				model.insert(rec);
+				context.message(MessageType.SUCCESS, "Successfully registered new facility.");
+				
 				//create footprint ticket
 				Footprints fp = new Footprints(context);
 			} else {
 				model.update(model.get(rec), rec);
+				context.message(MessageType.SUCCESS, "Successfully updated a facility.");
 			}
+			return true;
 		} catch (Exception e) {
 			alert(e.getMessage());
-			ret =  false;
+			return false;
 		}
-		//context.close();
-		return ret;
 	}
 }

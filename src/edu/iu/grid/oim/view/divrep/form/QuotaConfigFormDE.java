@@ -12,6 +12,7 @@ import com.divrep.common.DivRepTextBox;
 import com.divrep.validator.DivRepIntegerValidator;
 
 import edu.iu.grid.oim.model.UserContext;
+import edu.iu.grid.oim.model.UserContext.MessageType;
 import edu.iu.grid.oim.model.db.ConfigModel;
 
 public class QuotaConfigFormDE extends DivRepForm 
@@ -100,6 +101,8 @@ public class QuotaConfigFormDE extends DivRepForm
 			config.QuotaUserCertYearMax.set(usercert_max_year.getValue());
 			config.QuotaUserHostDayMax.set(hostcert_max_day.getValue());
 			config.QuotaUserHostYearMax.set(hostcert_max_year.getValue());
+			
+			context.message(MessageType.SUCCESS, "Successfully updated configuration.");
 		} catch (SQLException e) {
 			log.error("Failed to update quota config", e);
 			alert(e.getMessage());

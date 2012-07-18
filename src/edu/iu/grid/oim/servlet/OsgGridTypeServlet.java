@@ -74,19 +74,7 @@ public class OsgGridTypeServlet extends ServletBase implements Servlet {
 		OsgGridTypeModel model = new OsgGridTypeModel(context);
 		Collection<OsgGridTypeRecord> ogts = model.getAll();
 		
-		ContentView contentview = new ContentView();	
-		//contentview.add(new HtmlView("<h1>OSG Grid Types</h1>"));
-		
-		/*
-		for(OsgGridTypeRecord rec : ogts) {
-			contentview.add(new HtmlView("<h2>"+StringEscapeUtils.escapeHtml(rec.name)+"</h2>"));
-			
-			RecordTableView table = new RecordTableView();
-			contentview.add(table);
-			table.addRow("Description", rec.description);
-			table.add(new HtmlView("<a class=\"btn\" href=\"osggridtypeedit?osg_grid_type_id=" + rec.id + "\">Edit</a>"));
-		}
-		*/
+		ContentView contentview = new ContentView(context);	
 		
 		contentview.add(new HtmlView("<table class=\"table nohover\">"));
 		contentview.add(new HtmlView("<thead><tr><th>Name</th><th>Description</th><th></th></tr></thead>"));	

@@ -30,6 +30,7 @@ import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Footprints;
 import edu.iu.grid.oim.lib.AuthorizationException;
 import edu.iu.grid.oim.model.UserContext;
+import edu.iu.grid.oim.model.UserContext.MessageType;
 import edu.iu.grid.oim.model.db.ContactTypeModel;
 import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.FieldOfScienceModel;
@@ -769,7 +770,6 @@ public class VOFormDE extends DivRepForm
 			}
 		}
 		
-		Boolean ret = true;
 		VOModel model = new VOModel(context);
 		try {
 			if(rec.id == null) {
@@ -778,6 +778,7 @@ public class VOFormDE extends DivRepForm
 						parent_vo.getValue(), 
 						field_of_science_ids,
 						vo_report_name_div.getVOReports(model));
+				context.message(MessageType.SUCCESS, "Successfully registered new VO. You should receive a notification with an instruction on how to active your VO.");
 				
 				try {
 					//Find the Footprint ID of the associated SC
@@ -796,14 +797,14 @@ public class VOFormDE extends DivRepForm
 						parent_vo.getValue(), 
 						field_of_science_ids,
 						vo_report_name_div.getVOReports(model));
+				context.message(MessageType.SUCCESS, "Successfully updated a VO.");
 			}
+			return true;
 		} catch (Exception e) {
 			alert(e.getMessage());
 			log.error("Failed to insert/update record", e);
-			ret = false;
+			return false;
 		}
-		//context.close();
-		return ret;
 	}
 	
 	//retrieve contact records from the contact editor.

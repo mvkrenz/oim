@@ -12,6 +12,7 @@ import com.divrep.validator.DivRepUniqueValidator;
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.AuthorizationException;
 import edu.iu.grid.oim.model.UserContext;
+import edu.iu.grid.oim.model.UserContext.MessageType;
 import edu.iu.grid.oim.model.db.AuthorizationTypeModel;
 import edu.iu.grid.oim.model.db.record.AuthorizationTypeRecord;
 
@@ -58,7 +59,6 @@ public class AuthtypeFormDE extends DivRepForm
 	
 	protected Boolean doSubmit() 
 	{	
-		Boolean ret = true;
 		AuthorizationTypeRecord rec = new AuthorizationTypeRecord();
 		rec.id = id;
 		rec.name = name.getValue();
@@ -70,16 +70,17 @@ public class AuthtypeFormDE extends DivRepForm
 			AuthorizationTypeModel model = new AuthorizationTypeModel(context);
 			if(rec.id == null) {
 				model.insert(rec);
+				context.message(MessageType.SUCCESS, "Successfully registered new authorization type.");
 			} else {
 				model.update(model.get(rec), rec);
+				context.message(MessageType.SUCCESS, "Successfully updated an authorization type.");
 			}
+			return true;
 		 } catch (Exception e) {
 			log.error(e);
 			alert(e.getMessage());
-			ret = false;
+			return false;
 		}
-		//context.close();
-		return ret;
 	}
 
 	@Override

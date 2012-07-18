@@ -45,7 +45,7 @@ public class SiteEditServlet extends ServletBase implements Servlet {
 		
 		SiteRecord rec;
 
-		ContentView contentview = new ContentView();
+		ContentView contentview = new ContentView(context);
 		contentview.add(new HtmlView("<script src=\"http://maps.google.com/maps?file=api&v=2&key="+StaticConfig.getGMapAPIKey()+"\" type=\"text/javascript\"></script>"));
 		try {
 			String title;

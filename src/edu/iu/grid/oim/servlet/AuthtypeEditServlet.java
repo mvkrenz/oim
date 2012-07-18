@@ -66,7 +66,7 @@ public class AuthtypeEditServlet extends ServletBase {
 		}
 		
 		//put the form in a view and display
-		ContentView contentview = new ContentView();
+		ContentView contentview = new ContentView(context);
 		//contentview.add(new HtmlView("<h2>"+title+"</h2>"));	
 		contentview.add(new DivRepWrapper(form));
 		

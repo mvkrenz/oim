@@ -18,6 +18,7 @@ import com.divrep.validator.DivRepUniqueValidator;
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.AuthorizationException;
 import edu.iu.grid.oim.model.UserContext;
+import edu.iu.grid.oim.model.UserContext.MessageType;
 import edu.iu.grid.oim.model.db.MetricModel;
 import edu.iu.grid.oim.model.db.MetricServiceModel;
 import edu.iu.grid.oim.model.db.ServiceGroupModel;
@@ -119,7 +120,6 @@ public class ServiceFormDE extends DivRepForm
 	
 	protected Boolean doSubmit() 
 	{
-		Boolean ret = true;
 		try {
 			auth.check("admin");
 			
@@ -137,16 +137,17 @@ public class ServiceFormDE extends DivRepForm
 			ServiceModel model = new ServiceModel(context);
 			if(rec.id == null) {
 				model.insertDetail(rec, metric_service.getMetricServiceRecords());
+				context.message(MessageType.SUCCESS, "Successfully registered new service.");
 			} else {
 				model.updateDetail(rec, metric_service.getMetricServiceRecords());
+				context.message(MessageType.SUCCESS, "Successfully updated a service.");
 			}
+			return true;
 		} catch (Exception e) {
 			log.error(e);
 			alert(e.getMessage());
-			ret = false;
+			return false;
 		}
-		//context.close();
-		return ret;
 	}
 
 	@Override

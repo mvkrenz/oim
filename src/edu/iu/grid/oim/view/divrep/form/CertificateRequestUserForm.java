@@ -30,6 +30,7 @@ import com.divrep.validator.DivRepIValidator;
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.ResourceReader;
 import edu.iu.grid.oim.model.UserContext;
+import edu.iu.grid.oim.model.UserContext.MessageType;
 import edu.iu.grid.oim.model.db.CertificateRequestUserModel;
 import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.DNModel;
@@ -301,8 +302,6 @@ public class CertificateRequestUserForm extends DivRepForm
 
 	@Override
 	protected Boolean doSubmit() {
-		Boolean ret = true;
-
 		ContactRecord user;
 		if(auth.isUser()) {
 			user = auth.getContact();
@@ -388,16 +387,16 @@ public class CertificateRequestUserForm extends DivRepForm
 			if(rec != null) {
 				redirect("certificateuser?id="+rec.id); //TODO - does this work? I haven't tested it
 			}
+			context.message(MessageType.SUCCESS, "Successfully requested new user certificate.");
+			return true;
 		} catch (CertificateRequestException e) {
 			log.warn("User failed to submit request", e);
 			alert(e.getMessage());
-			ret = false;
+			return false;
 		} catch (Exception e) {
 			log.error("Failed to submit request..", e);
 			alert("Sorry, failed to submit request: " + e.toString());
-			ret = false;
+			return false;
 		}
-
-		return ret;
 	}
 }

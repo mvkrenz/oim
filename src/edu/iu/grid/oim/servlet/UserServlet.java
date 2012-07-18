@@ -69,7 +69,7 @@ public class UserServlet extends ServletBase implements Servlet {
 	protected ContentView createContentView(UserContext context) 
 		throws ServletException, SQLException
 	{
-		ContentView contentview = new ContentView();	
+		ContentView contentview = new ContentView(context);	
 		//contentview.add(new HtmlView("<h2>DN/AuthType Mapping</h2>"));
 		contentview.add(new HtmlView("<p><a class=\"btn pull-right\" href=\"useredit\">Add DN/AuthType Mapping</a></p>"));		
 		

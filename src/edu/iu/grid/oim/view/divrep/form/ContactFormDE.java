@@ -31,6 +31,7 @@ import com.divrep.validator.DivRepUrlValidator;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.model.UserContext;
+import edu.iu.grid.oim.model.UserContext.MessageType;
 import edu.iu.grid.oim.model.db.AuthorizationTypeModel;
 import edu.iu.grid.oim.model.db.ConfigModel;
 import edu.iu.grid.oim.model.db.ContactModel;
@@ -557,7 +558,6 @@ public class ContactFormDE extends DivRepForm
 
 	protected Boolean doSubmit() 
 	{
-		Boolean ret = true;
 		ContactRecord rec = new ContactRecord();
 		rec.id = id;
 	
@@ -594,15 +594,16 @@ public class ContactFormDE extends DivRepForm
 		try {
 			if(rec.id == null) {
 				model.insert(rec);
+				context.message(MessageType.SUCCESS, "Successfully registered new contact.");
 			} else {
 				ContactRecord old = model.get(rec);
 				model.update(old, rec);
+				context.message(MessageType.SUCCESS, "Successfully updated a contact");
 			}
+			return true;
 		} catch (Exception e) {
 			alert(e.getMessage());
-			ret = false;
 		}
-		//context.close();
-		return ret;
+		return false;
 	}
 }

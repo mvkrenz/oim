@@ -72,7 +72,7 @@ public class FieldOfScienceServlet extends ServletBase {
 		FieldOfScienceModel model = new FieldOfScienceModel(context);
 		Collection<FieldOfScienceRecord> recs = model.getAll();
 		
-		ContentView contentview = new ContentView();	
+		ContentView contentview = new ContentView(context);	
 		//contentview.add(new HtmlView("<h1>Field Of Science VOs can be associated with</h1>"));
 	
 		/*

@@ -13,6 +13,7 @@ import com.divrep.validator.DivRepUniqueValidator;
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.AuthorizationException;
 import edu.iu.grid.oim.model.UserContext;
+import edu.iu.grid.oim.model.UserContext.MessageType;
 import edu.iu.grid.oim.model.db.ActionModel;
 import edu.iu.grid.oim.model.db.record.ActionRecord;
 
@@ -66,7 +67,6 @@ public class ActionFormDE extends DivRepForm
 	
 	protected Boolean doSubmit() 
 	{	
-		Boolean ret = true;
 		ActionRecord rec = new ActionRecord();
 		rec.id = id;
 		rec.name = name.getValue();
@@ -79,16 +79,17 @@ public class ActionFormDE extends DivRepForm
 			ActionModel model = new ActionModel(context);
 			if(rec.id == null) {
 				model.insert(rec);
+				context.message(MessageType.SUCCESS, "Successfully registered new action.");
 			} else {
 				model.update(model.get(rec), rec);
+				context.message(MessageType.SUCCESS, "Successfully updated an action.");
 			}
+			return true;
 		 } catch (Exception e) {
 			log.error(e);
 			alert(e.getMessage());
-			ret = false;
+			return false;
 		}
-		//context.close();
-		return ret;
 	}
 
 	@Override

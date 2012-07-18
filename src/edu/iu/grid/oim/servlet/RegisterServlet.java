@@ -14,7 +14,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.log4j.Logger;
 import com.divrep.DivRepEvent;
 import com.divrep.DivRepEventListener;
-import com.divrep.DivRepPage;
 import com.divrep.common.DivRepCheckBox;
 import com.divrep.common.DivRepForm;
 import com.divrep.common.DivRepSelectBox;
@@ -25,8 +24,8 @@ import com.divrep.validator.DivRepEmailValidator;
 import com.divrep.validator.DivRepIValidator;
 
 import edu.iu.grid.oim.lib.Authorization;
-import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.model.UserContext;
+import edu.iu.grid.oim.model.UserContext.MessageType;
 import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.DNAuthorizationTypeModel;
 import edu.iu.grid.oim.model.db.DNModel;
@@ -38,8 +37,6 @@ import edu.iu.grid.oim.view.BootPage;
 import edu.iu.grid.oim.view.ContentView;
 import edu.iu.grid.oim.view.DivRepWrapper;
 import edu.iu.grid.oim.view.HtmlView;
-import edu.iu.grid.oim.view.MenuView;
-import edu.iu.grid.oim.view.Page;
 import edu.iu.grid.oim.view.SideContentView;
 
 public class RegisterServlet extends ServletBase  {
@@ -57,6 +54,13 @@ public class RegisterServlet extends ServletBase  {
 			return;
 		}
 		
+		/*//sample
+		context.message(MessageType.SUCCESS, "This is a success message");
+		context.message(MessageType.ERROR, "This is a error message");
+		context.message(MessageType.INFO, "This is a info message");
+		context.message(MessageType.WARNING, "This is a warning message");
+		*/
+		
 		BootMenuView menuview = new BootMenuView(context, "register");
 		ContentView contentview = createContentView(context);
 		BootPage page = new BootPage(context, menuview, contentview, new SideContentView());
@@ -65,7 +69,7 @@ public class RegisterServlet extends ServletBase  {
 	
 	protected ContentView createContentView(UserContext context)
 	{
-		ContentView contentview = new ContentView();
+		ContentView contentview = new ContentView(context);
 		
 		contentview.add(new HtmlView("<h2>OIM Registration</h2>"));
 		//contentview.add(new HtmlView("<p>Your X509 certificate is not registered on OIM. </p>"));
@@ -251,9 +255,7 @@ public class RegisterServlet extends ServletBase  {
 		}
 
 		@Override
-		protected Boolean doSubmit() {
-			Boolean ret = true;
-			
+		protected Boolean doSubmit() {			
 			ContactModel model = new ContactModel(context);
 			DNModel dnmodel = new DNModel(context);
 			try {
@@ -295,10 +297,6 @@ public class RegisterServlet extends ServletBase  {
 					//Make sure that this contact is not used by any DN already
 					if(dnmodel.getByContactID(rec.id) != null) {
 						alert("The email address specified is already associated with a different DN. Please try different email address.");
-						//primary_email.setValue("");
-						//primary_email_check.setValue("");
-
-						//context.close();
 						return false;
 					}
 				}
@@ -308,7 +306,6 @@ public class RegisterServlet extends ServletBase  {
 				dnrec.contact_id = rec.id;
 				Authorization auth = context.getAuthorization();
 				dnrec.dn_string = auth.getUserDN();
-				//dnrec.usercert_request_id = null; //not set if registered using user generated cert
 				dnmodel.insert(dnrec);
 				
 				//Give user OSG end user access
@@ -319,17 +316,15 @@ public class RegisterServlet extends ServletBase  {
 				dnauthmodel.insert(dnauthrec);
 				
 				//jump to profile page for more details
-				redirect("profileedit");
+				context.message(MessageType.SUCCESS, "Thank you for registering your DN. Your registration was successful.");
+				redirect("home");
+				return true;
 				
 			} catch (SQLException e) {
 				log.error("SQLException while submitting registration", e);
 				alert(e.toString());
-				//redirect(origin_url);
-				ret = false;
+				return false;
 			}
-			
-			//context.close();
-			return ret;
 		}
 	}
 }

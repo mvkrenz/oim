@@ -30,8 +30,8 @@ public class ActionEditServlet extends ServletBase {
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{
-		UserContext user = new UserContext(request);
-		user.getAuthorization().check("admin");
+		UserContext context = new UserContext(request);
+		context.getAuthorization().check("admin");
 		
 		ActionRecord rec;
 		String title;
@@ -42,7 +42,7 @@ public class ActionEditServlet extends ServletBase {
 		if(id_str != null) {
 			//pull record to update
 			int id = Integer.parseInt(id_str);
-			ActionModel model = new ActionModel(user);
+			ActionModel model = new ActionModel(context);
 			try {
 				rec = model.get(id);
 			} catch (SQLException e) {
@@ -57,13 +57,13 @@ public class ActionEditServlet extends ServletBase {
 		ActionFormDE form;
 		//String origin_url = StaticConfig.getApplicationBase()+"/"+current_page;
 		try {
-			form = new ActionFormDE(user, rec, current_page);
+			form = new ActionFormDE(context, rec, current_page);
 		} catch (SQLException e) {
 			throw new ServletException(e);
 		}
 		
 		//put the form in a view and display
-		ContentView contentview = new ContentView();
+		ContentView contentview = new ContentView(context);
 		//contentview.add(new HtmlView("<h1>"+title+"</h1>"));	
 		contentview.add(new DivRepWrapper(form));
 		
@@ -75,7 +75,7 @@ public class ActionEditServlet extends ServletBase {
 
 		contentview.setBreadCrumb(bread_crumb);
 		
-		BootPage page = new BootPage(user, new BootMenuView(user, "admin"), contentview, createSideView());	
+		BootPage page = new BootPage(context, new BootMenuView(context, "admin"), contentview, createSideView());	
 		page.render(response.getWriter());	
 		//user.storeDivRepSession();
 	}

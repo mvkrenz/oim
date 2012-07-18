@@ -24,6 +24,7 @@ import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Footprints;
 import edu.iu.grid.oim.lib.AuthorizationException;
 import edu.iu.grid.oim.model.UserContext;
+import edu.iu.grid.oim.model.UserContext.MessageType;
 import edu.iu.grid.oim.model.db.AuthorizationTypeModel;
 import edu.iu.grid.oim.model.db.ContactTypeModel;
 import edu.iu.grid.oim.model.db.ContactModel;
@@ -99,8 +100,6 @@ public class UserFormDE extends DivRepForm
 	
 	protected Boolean doSubmit() 
 	{
-		Boolean ret = true;
-		
 		//Construct OsgGridTypeRecord
 		DNRecord rec = new DNRecord();
 		rec.id = id;
@@ -113,9 +112,6 @@ public class UserFormDE extends DivRepForm
 			break;
 		}
 		
-		//passthru
-		//rec.usercert_request_id = usercert_request_id;
-
 		ArrayList<Integer/*auth_type*/> auths = new ArrayList();
 		for(Integer auth_type : auth_types.keySet()) {
 			DivRepCheckBox elem = auth_types.get(auth_type);
@@ -131,18 +127,20 @@ public class UserFormDE extends DivRepForm
 			DNModel model = new DNModel(context);
 			if(rec.id == null) {
 				model.insertDetail(rec, auths);
+				context.message(MessageType.SUCCESS, "Successfully registered new DN.");
+				
 				//create footprint ticket
-				Footprints fp = new Footprints(context);
+				//Footprints fp = new Footprints(context);
 			} else {
 				model.updateDetail(rec, auths);
+				context.message(MessageType.SUCCESS, "Successfully updated a DN.");
 			}
+			return true;
 		} catch (Exception e) {
 			log.error(e);
 			alert(e.getMessage());
-			ret = false;
+			return false;
 		}
-		//context.close();
-		return ret;
 	}
 
 	@Override

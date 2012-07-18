@@ -24,6 +24,7 @@ import com.divrep.validator.DivRepUrlValidator;
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.AuthorizationException;
 import edu.iu.grid.oim.model.UserContext;
+import edu.iu.grid.oim.model.UserContext.MessageType;
 import edu.iu.grid.oim.model.db.ContactTypeModel;
 import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.MetricModel;
@@ -159,16 +160,17 @@ public class MetricFormDE extends DivRepForm
 			MetricModel model = new MetricModel(context);
 			if(rec.id == null) {
 				model.insert(rec);
+				context.message(MessageType.SUCCESS, "Successfully registered new metric.");
 			} else {
 				model.update(model.get(rec), rec);
+				context.message(MessageType.SUCCESS, "Successfully updated a metric.");
 			}
+			return true;
 		 } catch (Exception e) {
 			log.error(e);
 			alert(e.getMessage());
-			ret = false;
+			return false;
 		}
-		//context.close();
-		return ret;
 	}
 
 	@Override

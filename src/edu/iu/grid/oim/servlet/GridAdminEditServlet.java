@@ -68,7 +68,7 @@ public class GridAdminEditServlet extends ServletBase {
 			rec = new GridAdminRecord();
 			title = "New GridAdmin";	
 		}
-		ContentView contentview = new ContentView();
+		ContentView contentview = new ContentView(context);
 		
 		/*
 		GridAdminFormDE form;

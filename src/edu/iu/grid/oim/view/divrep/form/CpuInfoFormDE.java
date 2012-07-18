@@ -15,6 +15,7 @@ import com.divrep.validator.DivRepUniqueValidator;
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.AuthorizationException;
 import edu.iu.grid.oim.model.UserContext;
+import edu.iu.grid.oim.model.UserContext.MessageType;
 import edu.iu.grid.oim.model.db.CpuInfoModel;
 import edu.iu.grid.oim.model.db.record.CpuInfoRecord;
 
@@ -84,7 +85,6 @@ public class CpuInfoFormDE extends DivRepForm
 	
 	protected Boolean doSubmit() 
 	{	
-		Boolean ret = true;
 		CpuInfoRecord rec = new CpuInfoRecord();
 		rec.id = id;
 		rec.name = name.getValue();
@@ -97,16 +97,17 @@ public class CpuInfoFormDE extends DivRepForm
 			CpuInfoModel model = new CpuInfoModel(context);
 			if(rec.id == null) {
 				model.insert(rec);
+				context.message(MessageType.SUCCESS, "Successfully registered new cpu info.");
 			} else {
 				model.update(model.get(rec), rec);
+				context.message(MessageType.SUCCESS, "Successfully update a contact.");
 			}
+			return true;
 		 } catch (Exception e) {
 			log.error(e);
 			alert(e.getMessage());
-			ret = false;
+			return false;
 		}
-		//context.close();
-		return ret;
 	}
 
 	@Override

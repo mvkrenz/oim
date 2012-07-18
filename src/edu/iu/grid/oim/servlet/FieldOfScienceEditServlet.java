@@ -67,7 +67,7 @@ public class FieldOfScienceEditServlet extends ServletBase {
 		}
 		
 		//put the form in a view and display
-		ContentView contentview = new ContentView();
+		ContentView contentview = new ContentView(context);
 		//contentview.add(new HtmlView("<h1>"+title+"</h1>"));	
 		contentview.add(new DivRepWrapper(form));
 		

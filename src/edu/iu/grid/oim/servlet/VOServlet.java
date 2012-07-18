@@ -87,7 +87,7 @@ public class VOServlet extends ServletBase implements Servlet {
 				Integer vo_id = Integer.parseInt(vo_id_str);
 				VOModel model = new VOModel(context);
 				rec = model.get(vo_id);
-				contentview = new ContentView();
+				contentview = new ContentView(context);
 				
 				// setup crumbs
 				BootBreadCrumbView bread_crumb = new BootBreadCrumbView();
@@ -145,7 +145,7 @@ public class VOServlet extends ServletBase implements Servlet {
 			}
 		}
 		
-		ContentView contentview = new ContentView();
+		ContentView contentview = new ContentView(context);
 		
 		if(context.getAuthorization().isUser()) {
 			contentview.add(new HtmlView("<a href=\"voedit\" class=\"btn pull-right\"><i class=\"icon-plus-sign\"></i> Add New Virtual Organization</a>"));

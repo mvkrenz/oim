@@ -16,6 +16,7 @@ import com.divrep.validator.DivRepUniqueValidator;
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.AuthorizationException;
 import edu.iu.grid.oim.model.UserContext;
+import edu.iu.grid.oim.model.UserContext.MessageType;
 import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.CpuInfoModel;
 import edu.iu.grid.oim.model.db.GridAdminModel;
@@ -81,7 +82,6 @@ public class GridAdminFormDE extends DivRepForm
 	
 	protected Boolean doSubmit() 
 	{	
-		Boolean ret = true;
 		GridAdminRecord rec = new GridAdminRecord();
 		rec.id = id;
 		rec.domain = domain.getValue();
@@ -96,16 +96,17 @@ public class GridAdminFormDE extends DivRepForm
 			GridAdminModel model = new GridAdminModel(context);
 			if(rec.id == null) {
 				model.insert(rec);
+				context.message(MessageType.SUCCESS, "Successfully registered new grid admin.");
 			} else {
 				model.update(model.get(rec), rec);
+				context.message(MessageType.SUCCESS, "Successfully updated a grid admin.");
 			}
+			return true;
 		 } catch (Exception e) {
 			log.error(e);
 			alert(e.getMessage());
-			ret = false;
+			return false;
 		}
-		//context.close();
-		return ret;
 	}
 
 	@Override

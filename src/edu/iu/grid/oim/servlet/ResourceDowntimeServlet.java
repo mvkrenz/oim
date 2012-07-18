@@ -87,7 +87,7 @@ public class ResourceDowntimeServlet extends ServletBase implements Servlet {
 		
 		RemoveDowntimeDialog remove_dialog = new RemoveDowntimeDialog(context.getPageRoot(), context);
 		
-		ContentView contentview = new ContentView();	
+		ContentView contentview = new ContentView(context);	
 		if(resources.size() == 0) {
 			contentview.add(new HtmlView("<p>You currently don't have any resources that list your contact in any of the contact types.</p>"));
 		} else {

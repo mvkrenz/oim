@@ -1,6 +1,5 @@
 package edu.iu.grid.oim.view;
 
-import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
@@ -8,11 +7,13 @@ import java.util.HashMap;
 
 import java.net.URLEncoder;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.model.UserContext;
+import edu.iu.grid.oim.model.UserContext.Message;
 
 public class BootPage implements IView {
 	static Logger log = Logger.getLogger(BootPage.class);  
@@ -135,4 +136,5 @@ public class BootPage implements IView {
 
 		footer.render(out);
 	}
+	
 }

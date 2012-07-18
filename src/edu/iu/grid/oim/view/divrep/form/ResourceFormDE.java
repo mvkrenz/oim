@@ -22,6 +22,7 @@ import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Footprints;
 import edu.iu.grid.oim.lib.AuthorizationException;
 import edu.iu.grid.oim.model.UserContext;
+import edu.iu.grid.oim.model.UserContext.MessageType;
 import edu.iu.grid.oim.model.db.ContactTypeModel;
 import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.ResourceAliasModel;
@@ -375,6 +376,7 @@ public class ResourceFormDE extends DivRepForm
 						resource_services.getResourceServiceRecords(),
 						resource_services.getResourceServiceDetailsRecords(),
 						owners.getOwners());
+				context.message(MessageType.SUCCESS, "Successfully registered new resource. You should receive a notification with an instruction on how to active your resource.");
 				
 				try {
 					//Traverse OIM hirearchy to find the Footprint ID of the associated SC
@@ -384,26 +386,6 @@ public class ResourceFormDE extends DivRepForm
 					SiteRecord srec = smodel.get(rgrec.site_id);
 					SCModel scmodel = new SCModel(context);
 					SCRecord screc = scmodel.get(srec.sc_id);
-					
-					/*
-					//find VO that owns this resource
-					VOResourceOwnershipModel voromodel = new VOResourceOwnershipModel(context);
-					Collection<VOResourceOwnershipRecord> list = voromodel.getAllByResourceID(rec.id);
-					double max = 0;
-					Integer max_vo_id = null;
-					for(VOResourceOwnershipRecord rorec : list) {
-						if(max_vo_id == null || rorec.percent > max) {
-							max_vo_id = rorec.vo_id;
-							max = rorec.percent;
-						}
-					}
-					String vo_name = null;
-					if(max_vo_id != null) {
-						VOModel vomodel = new VOModel(context);
-						VORecord vorec = vomodel.get(max_vo_id);
-						vo_name = vorec.footprints_id;
-					}
-					*/
 					
 					//create footprint ticket
 					Footprints fp = new Footprints(context);
@@ -419,14 +401,14 @@ public class ResourceFormDE extends DivRepForm
 						resource_services.getResourceServiceRecords(),
 						resource_services.getResourceServiceDetailsRecords(),
 						owners.getOwners());
+				context.message(MessageType.SUCCESS, "Successfully updated a resource.");
 			}
+			return true;
 		} catch (Exception e) {
 			alert(e.getMessage());
 			log.error("Failed to insert/update record", e);
-			ret = false;
+			return false;
 		}
-		//context.close();
-		return ret;
 	}
 	
 	//retrieve contact records from the contact editor.

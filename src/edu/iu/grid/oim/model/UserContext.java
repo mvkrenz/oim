@@ -2,7 +2,7 @@ package edu.iu.grid.oim.model;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.TimeZone;
+import java.util.ArrayList;
 
 import javax.naming.Context;
 import javax.naming.InitialContext;
@@ -33,7 +33,6 @@ public class UserContext {
 	
 	//let's lookup once per user request (not session)
     private DataSource oimds;
-    //private Connection oim;
 
 	//stores the reason for current transaction (used for log table)
 	//why should this work? because *usually* all update within a session occurs under common purpose.
@@ -68,14 +67,6 @@ public class UserContext {
 		    	throw new RuntimeException( "Unable to aquire data source", ne );
 		    }	
 		}
-		/*
-		if(oim == null || oim.isClosed()) {
-	    	log.debug("Connecting..");
-			oim = oimds.getConnection();
-	    	log.debug(oim.toString());
-		}
-		return oim;
-		*/
     	log.debug("Connecting..");
 		Connection oim = oimds.getConnection();
     	log.debug(oim.toString());
@@ -86,26 +77,9 @@ public class UserContext {
 	{
 		return new UserContext();
 	}
-	private UserContext()
-	{
-	}
-
-	/*
-	//call this function to ensure that any update made to divrep object will be serialized across container
-	public void storeDivRepSession()
-	{		
-		try {
-			if(divrep_root != null) {	
-				divrep_root.setSession(session);
-			}
-		} catch (IllegalStateException e) {
-			log.info("Failed to reset session for divrep (it's okay if this caused by invalidated session)", e);
-		}
-	}
-	*/
 	
-	
-	//make sure to close the connection as soon as you are done (inside the same function that you call connectOIM)
+	//used to create guest context
+	private UserContext(){}	
 	
 	public Authorization getAuthorization()
 	{
@@ -132,6 +106,41 @@ public class UserContext {
 			if(request.getQueryString() != null) {
 				request_url += "?" + request.getQueryString();
 			}
+		}
+	}
+	
+	public enum MessageType {WARNING, ERROR, SUCCESS, INFO};	
+	public class Message {
+		Message(MessageType type, String text) {
+			this.type = type;
+			this.text = text;
+		}
+		public MessageType type;
+		public String text;
+	}
+	public void message(MessageType type, String text) {
+		if(session != null) {
+			Message msg = new Message(type, text);
+			ArrayList<Message> messages = (ArrayList<Message>)session.getAttribute("messages");
+			if(messages == null) {
+				messages = new ArrayList<Message>();
+			}
+			messages.add(msg);
+			session.setAttribute("messages", messages);
+		} else {
+			log.error("Failed to add message since no session is associated with this UserContext");
+		}
+	}
+	
+	//could return null if session is not set, or no message
+	public ArrayList<Message> flushMessages() {
+		if(session != null) {
+			ArrayList<Message> messages = (ArrayList<Message>)session.getAttribute("messages");
+			session.removeAttribute("messages");
+			return messages;
+		} else {
+			log.error("Failed to flush messages since no session is associated with this UserContext");
+			return null;
 		}
 	}
 }

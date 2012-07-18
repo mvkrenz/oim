@@ -79,7 +79,7 @@ public class SCServlet extends ServletBase implements Servlet {
 				Integer sc_id = Integer.parseInt(sc_id_str);
 				SCModel model = new SCModel(context);
 				rec = model.get(sc_id);
-				contentview = new ContentView();
+				contentview = new ContentView(context);
 				
 				// setup crumbs
 				BootBreadCrumbView bread_crumb = new BootBreadCrumbView();
@@ -133,7 +133,7 @@ public class SCServlet extends ServletBase implements Servlet {
 			}
 		}
 		
-		ContentView contentview = new ContentView();
+		ContentView contentview = new ContentView(context);
 		if(context.getAuthorization().isUser()) {
 			contentview.add(new HtmlView("<a href=\"scedit\" class=\"btn pull-right\"><i class=\"icon-plus-sign\"></i> Add New Support Center</a>"));
 			contentview.add(new HtmlView("<h2>My Support Centers</h2>"));

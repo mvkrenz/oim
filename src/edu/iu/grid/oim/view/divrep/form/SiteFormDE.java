@@ -22,6 +22,7 @@ import edu.iu.grid.oim.lib.AuthorizationException;
 import edu.iu.grid.oim.lib.StaticConfig;
 
 import edu.iu.grid.oim.model.UserContext;
+import edu.iu.grid.oim.model.UserContext.MessageType;
 import edu.iu.grid.oim.model.db.SCModel;
 import edu.iu.grid.oim.model.db.SiteModel;
 import edu.iu.grid.oim.model.db.FacilityModel;
@@ -204,8 +205,6 @@ public class SiteFormDE extends DivRepForm
 
 	protected Boolean doSubmit() 
 	{
-		Boolean ret = true;
-		
 		// Moved try block beginning from line 208 to handled SQL exception.. -agopu
 		try {
 			//Construct SiteRecord
@@ -240,17 +239,18 @@ public class SiteFormDE extends DivRepForm
 			SiteModel model = new SiteModel(context);
 			if(rec.id == null) {
 				model.insert(rec);
+				context.message(MessageType.SUCCESS, "Successfully registered new site.");
 				
 				//create footprint ticket
 				Footprints fp = new Footprints(context);
 			} else {
 				model.update(model.get(rec), rec);
+				context.message(MessageType.SUCCESS, "Successfully updated a site.");
 			}
+			return true;
 		} catch (Exception e) {
 			alert(e.getMessage());
-			ret = false;
+			return false;
 		}
-		//context.close();
-		return ret;
 	}
 }

@@ -16,6 +16,7 @@ import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Footprints;
 import edu.iu.grid.oim.lib.AuthorizationException;
 import edu.iu.grid.oim.model.UserContext;
+import edu.iu.grid.oim.model.UserContext.MessageType;
 import edu.iu.grid.oim.model.db.ContactTypeModel;
 import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.SCModel;
@@ -255,8 +256,6 @@ public class SCFormDE extends DivRepForm
 	
 	protected Boolean doSubmit() 
 	{
-		Boolean ret = true;
-		
 		//Construct VORecord
 		SCRecord rec = new SCRecord();
 		rec.id = id;
@@ -283,6 +282,7 @@ public class SCFormDE extends DivRepForm
 		try {
 			if(rec.id == null) {
 				model.insertDetail(rec, contacts);
+				context.message(MessageType.SUCCESS, "Successfully registered new support center.");
 				
 				try {
 					//create footprint ticket
@@ -293,14 +293,15 @@ public class SCFormDE extends DivRepForm
 				}
 			} else {
 				model.updateDetail(rec, contacts);
+				context.message(MessageType.SUCCESS, "Successfully updated a support center.");
 			}
+			return true;
 		} catch (Exception e) {
 			alert(e.getMessage());
 			log.error("Failed to insert/update record", e);
-			ret = false;
+			return false;
 		}
-		//context.close();
-		return ret;
+
 	}
 	
 	//retrieve contact records from the contact editor.

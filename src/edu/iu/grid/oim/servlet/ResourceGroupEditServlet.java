@@ -78,7 +78,7 @@ public class ResourceGroupEditServlet extends ServletBase implements Servlet {
 			ResourceGroupFormDE form = new ResourceGroupFormDE(context, rec, parent_page);
 			
 			//put the form in a view and display
-			ContentView contentview = new ContentView();
+			ContentView contentview = new ContentView(context);
 			//contentview.add(new HtmlView("<h1>"+title+"</h1>"));
 			if(rec.disable != null && rec.disable == true) {
 				contentview.add(new HtmlView("<div class=\"alert\">This Resource Group is currently disabled.</div>"));

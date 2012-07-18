@@ -70,7 +70,7 @@ public class AuthtypeServlet extends ServletBase {
 		AuthorizationTypeModel model = new AuthorizationTypeModel(context);
 		Collection<AuthorizationTypeRecord> recs = model.getAll();
 		
-		ContentView contentview = new ContentView();	
+		ContentView contentview = new ContentView(context);	
 		//contentview.add(new HtmlView("<h1>Authorization Type</h1>"));
 	
 		contentview.add(new HtmlView("<table class=\"table nohover\">"));

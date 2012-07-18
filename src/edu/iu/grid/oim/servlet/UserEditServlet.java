@@ -62,7 +62,7 @@ public class UserEditServlet extends ServletBase implements Servlet {
 				title = "New User";	
 			}
 		
-			ContentView contentview = new ContentView();
+			ContentView contentview = new ContentView(context);
 			
 			if(rec != null) {
 				UserFormDE form = new UserFormDE(context, rec, current_page);

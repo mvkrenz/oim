@@ -28,16 +28,17 @@ public class ErrorServlet extends HttpServlet {
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{
+		UserContext context = new UserContext(request);
 		BootMenuView menuview = new BootMenuView(UserContext.getGuestContext(), "_error_");
-		ContentView contentview = createContentView(request);		
+		
+		ContentView contentview = createContentView(context, request);		
 		BootPage page = new BootPage(UserContext.getGuestContext(), menuview, contentview, new SideContentView());
 		page.render(response.getWriter());	
 	}
 	
-	protected ContentView createContentView(HttpServletRequest request)
+	protected ContentView createContentView(UserContext context, HttpServletRequest request)
 	{
-		ContentView contentview = new ContentView();
-		
+		ContentView contentview = new ContentView(context);
 
 		//extract exception info (from attribute)
 	    Throwable throwable = (Throwable) request.getAttribute("javax.servlet.error.exception");

@@ -11,6 +11,7 @@ import com.divrep.validator.DivRepUniqueValidator;
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.AuthorizationException;
 import edu.iu.grid.oim.model.UserContext;
+import edu.iu.grid.oim.model.UserContext.MessageType;
 import edu.iu.grid.oim.model.db.OsgGridTypeModel;
 import edu.iu.grid.oim.model.db.record.OsgGridTypeRecord;
 
@@ -63,9 +64,7 @@ public class OsgGridTypeFormDE extends DivRepForm
 	}
 	
 	protected Boolean doSubmit() 
-	{
-		Boolean ret = true;
-		
+	{		
 		//Construct OsgGridTypeRecord
 		OsgGridTypeRecord rec = new OsgGridTypeRecord();
 		rec.id = id;
@@ -79,16 +78,17 @@ public class OsgGridTypeFormDE extends DivRepForm
 			OsgGridTypeModel model = new OsgGridTypeModel(context);
 			if(rec.id == null) {
 				model.insert(rec);
+				context.message(MessageType.SUCCESS, "Successfully registered new OSG Grid Type.");
 			} else {
 				model.update(model.get(rec), rec);
+				context.message(MessageType.SUCCESS, "Successfully updated a OSG Grid Typec.");
 			}
+			return true;
 		 } catch (Exception e) {
 			log.error(e);
 			alert(e.getMessage());
-			ret = false;
+			return false;
 		}
-		//context.close();
-		return ret;
 	}
 
 	@Override

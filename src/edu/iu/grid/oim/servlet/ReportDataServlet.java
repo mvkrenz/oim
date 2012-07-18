@@ -83,7 +83,7 @@ public class ReportDataServlet extends ServletBase implements Servlet {
 			
 			//construct view
 			BootMenuView menuview = new BootMenuView(context, "reportdata");
-			ContentView contentview = createContentView();
+			ContentView contentview = createContentView(context);
 		
 			PrintWriter out = response.getWriter();
 			if(request.getParameter("plain") != null) {
@@ -105,10 +105,10 @@ public class ReportDataServlet extends ServletBase implements Servlet {
 		}
 	}
 	
-	protected ContentView createContentView() 
+	protected ContentView createContentView(UserContext context) 
 		throws ServletException, SQLException
 	{	
-		ContentView contentview = new ContentView();	
+		ContentView contentview = new ContentView(context);	
 		contentview.add(new HtmlView("<h2>Data Issues</h2>"));
 		contentview.add(new HtmlView("<p class=\"help-block\">This report is generated daily and cached.</p>"));
 		

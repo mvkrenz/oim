@@ -69,7 +69,7 @@ public class ResourceGroupServlet extends ServletBase implements Servlet {
 	protected ContentView createContentView(UserContext context) 
 		throws ServletException, SQLException
 	{
-		ContentView contentview = new ContentView();	
+		ContentView contentview = new ContentView(context);	
 		contentview.add(new HtmlView("<h1>Resource Groups</h1>"));
 	
 		ResourceGroupModel model = new ResourceGroupModel(context);

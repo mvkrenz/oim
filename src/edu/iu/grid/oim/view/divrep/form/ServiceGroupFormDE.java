@@ -20,6 +20,7 @@ import com.divrep.validator.DivRepUrlValidator;
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.AuthorizationException;
 import edu.iu.grid.oim.model.UserContext;
+import edu.iu.grid.oim.model.UserContext.MessageType;
 import edu.iu.grid.oim.model.db.ContactTypeModel;
 import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.OsgGridTypeModel;
@@ -87,8 +88,6 @@ public class ServiceGroupFormDE extends DivRepForm
 	
 	protected Boolean doSubmit() 
 	{
-		Boolean ret = true;
-		
 		//Construct VORecord
 		ServiceGroupRecord rec = new ServiceGroupRecord();
 		rec.id = id;
@@ -100,15 +99,17 @@ public class ServiceGroupFormDE extends DivRepForm
 		try {
 			if(rec.id == null) {
 				model.insert(rec);
+				context.message(MessageType.SUCCESS, "Successfully registered new service group.");
 			} else {
 				model.update(model.get(rec), rec);
+				context.message(MessageType.SUCCESS, "Successfully updated a service group.");
 			}
+			return true;
 		} catch (Exception e) {
 			alert(e.getMessage());
-			ret = false;
+			return false;
 		}
-		//context.close();
-		return ret;
+
 	}
 	
 	private HashMap<Integer, String> getResourceGroups() throws SQLException

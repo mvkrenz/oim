@@ -29,6 +29,7 @@ import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.AuthorizationException;
 import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.MenuItem;
+import edu.iu.grid.oim.model.UserContext.MessageType;
 import edu.iu.grid.oim.model.db.ActionModel;
 import edu.iu.grid.oim.model.db.AuthorizationTypeActionModel;
 import edu.iu.grid.oim.model.db.AuthorizationTypeModel;
@@ -176,7 +177,7 @@ public class AuthorizationMatrixServlet extends ServletBase  {
 				alert(e.getMessage());
 				return false;
 			}
-			
+			context.message(MessageType.SUCCESS, "Successfully registered new an authorization type.");
 			return true;
 		}
     }

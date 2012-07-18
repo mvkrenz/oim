@@ -117,7 +117,7 @@ public class TopologyServlet extends ServletBase implements Servlet {
 		throws ServletException, SQLException
 	{
 		Authorization auth = context.getAuthorization();
-		ContentView contentview = new ContentView();
+		ContentView contentview = new ContentView(context);
 		//contentview.add(new HtmlView("<h1>OSG Topology</h1>"));
 		
 		FacilityModel fmodel = new FacilityModel(context);

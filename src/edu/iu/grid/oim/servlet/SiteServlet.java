@@ -86,7 +86,7 @@ public class SiteServlet extends ServletBase implements Servlet {
 				Integer site_id = Integer.parseInt(site_id_str);
 				SiteModel model = new SiteModel(context);
 				rec = model.get(site_id);
-				contentview = new ContentView();
+				contentview = new ContentView(context);
 				
 				// setup crumbs
 				BootBreadCrumbView bread_crumb = new BootBreadCrumbView();
@@ -122,7 +122,7 @@ public class SiteServlet extends ServletBase implements Servlet {
 		});
 		*/
 
-		ContentView contentview = new ContentView();	
+		ContentView contentview = new ContentView(context);	
 
 		contentview.add(new HtmlView("<h2>"+StringEscapeUtils.escapeHtml(rec.name)+"</h2>"));
 
@@ -178,7 +178,7 @@ public class SiteServlet extends ServletBase implements Servlet {
 			}
 		});
 
-		ContentView contentview = new ContentView();	
+		ContentView contentview = new ContentView(context);	
 		contentview.add(new HtmlView("<h2>Administrative Sites</h2>"));
 		
 		//contentview.add(new HtmlView("<p>Following are the currently registered virtual organizations on OIM - you do not have edit access on these records.</p>"));

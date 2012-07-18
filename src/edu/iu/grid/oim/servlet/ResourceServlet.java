@@ -102,7 +102,7 @@ public class ResourceServlet extends ServletBase implements Servlet {
 				Integer resource_id = Integer.parseInt(resource_id_str);
 				ResourceModel model = new ResourceModel(context);
 				rec = model.get(resource_id);
-				contentview = new ContentView();
+				contentview = new ContentView(context);
 				
 				// setup crumbs
 				BootBreadCrumbView bread_crumb = new BootBreadCrumbView();
@@ -153,7 +153,7 @@ public class ResourceServlet extends ServletBase implements Servlet {
 			}
 		}
 	
-		ContentView contentview = new ContentView();
+		ContentView contentview = new ContentView(context);
 		contentview.add(new HtmlView("<h1>Resources I am authorized to edit</h1>"));
 		if(editable_resources.size() == 0) {
 			contentview.add(new HtmlView("<p>You currently are not listed as a contact of any contact type (except submitter) on any resource or the resources that a VO owns where you are the VO manager - therefore you are not authorized to edit any resources.</p>"));

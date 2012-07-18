@@ -82,7 +82,7 @@ public class ContactServlet extends ServletBase {
 				ContactModel model = new ContactModel(context);
 				Integer contact_id = Integer.parseInt(contact_id_str);
 				rec = model.get(contact_id);
-				contentview = new ContentView();
+				contentview = new ContentView(context);
 				
 				// setup crumbs
 				BootBreadCrumbView bread_crumb = new BootBreadCrumbView();
@@ -137,7 +137,7 @@ public class ContactServlet extends ServletBase {
 			}
 		});
 
-		ContentView contentview = new ContentView();	
+		ContentView contentview = new ContentView(context);	
 		
 		ArrayList<ContactRecord> editable_contacts = new ArrayList<ContactRecord>();
 		ArrayList<ContactRecord> editable_disabled_contacts = new ArrayList<ContactRecord>();

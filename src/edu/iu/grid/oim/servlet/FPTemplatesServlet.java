@@ -19,6 +19,7 @@ import com.divrep.common.DivRepTextArea;
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.AuthorizationException;
 import edu.iu.grid.oim.model.UserContext;
+import edu.iu.grid.oim.model.UserContext.MessageType;
 import edu.iu.grid.oim.model.db.ConfigModel;
 import edu.iu.grid.oim.view.BootBreadCrumbView;
 import edu.iu.grid.oim.view.BootMenuView;
@@ -64,7 +65,7 @@ public class FPTemplatesServlet extends ServletBase {
 	protected ContentView createContentView(UserContext context) 
 		throws ServletException, SQLException
 	{	
-		ContentView contentview = new ContentView();	
+		ContentView contentview = new ContentView(context);	
 		//contentview.add(new HtmlView("<h1>Footprints Ticket Templates</h1>"));
 		contentview.add(new HtmlView("<p>Following templates will be used to generate Footprints tickets after each Resource, VO, and SC registrartion.</p>"));
 		
@@ -126,6 +127,7 @@ public class FPTemplatesServlet extends ServletBase {
 				this.alert("Sorry, failed to update config");
 				return false;
 			}
+			context.message(MessageType.SUCCESS, "Successfully updated Footprints template.");
 			return true;
 		}
 		

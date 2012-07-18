@@ -69,7 +69,7 @@ public class ContactEditServlet extends ServletBase {
 		ContactFormDE form = new ContactFormDE(context, rec, parent_page);
 		
 		//put the form in a view and display
-		ContentView contentview = new ContentView();
+		ContentView contentview = new ContentView(context);
 		if(rec.id != null) {
 			contentview.add(new HtmlView("<p class=\"pull-right\"><a class=\"btn\" href=\"contact?id="+rec.id+"\">Show Readonly View</a></p>"));
 		}

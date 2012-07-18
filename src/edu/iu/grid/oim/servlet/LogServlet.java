@@ -687,7 +687,7 @@ public class LogServlet extends ServletBase  {
 	
 	protected ContentView createContentView(UserContext context, Parameters params) throws ServletException, SQLException
 	{
-		ContentView view = new ContentView();	
+		ContentView view = new ContentView(context);	
 		view.add(new HtmlView("<h2>"+params.getTitle()+"</h2>"));    	
     	
 		try {

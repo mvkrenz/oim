@@ -13,6 +13,7 @@ import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.AuthorizationException;
 import edu.iu.grid.oim.model.UserContext;
 
+import edu.iu.grid.oim.model.UserContext.MessageType;
 import edu.iu.grid.oim.model.db.FieldOfScienceModel;
 import edu.iu.grid.oim.model.db.record.FieldOfScienceRecord;
 
@@ -59,7 +60,6 @@ public class FieldOfScienceFormDE extends DivRepForm
 	
 	protected Boolean doSubmit() 
 	{	
-		Boolean ret = true;
 		FieldOfScienceRecord rec = new FieldOfScienceRecord();
 		rec.id = id;
 		rec.name = name.getValue();
@@ -71,16 +71,17 @@ public class FieldOfScienceFormDE extends DivRepForm
 			FieldOfScienceModel model = new FieldOfScienceModel(context);
 			if(rec.id == null) {
 				model.insert(rec);
+				context.message(MessageType.SUCCESS, "Successfully inserted new field of science.");
 			} else {
 				model.update(model.get(rec), rec);
+				context.message(MessageType.SUCCESS, "Successfully updated a field of science.");
 			}
+			return true;
 		 } catch (Exception e) {
 			log.error(e);
 			alert(e.getMessage());
-			ret = false;
+			return false;
 		}
-		//context.close();
-		return ret;
 	}
 
 	@Override

@@ -84,7 +84,7 @@ public class FacilityServlet extends ServletBase {
 			}
 		});
 
-		ContentView contentview = new ContentView();	
+		ContentView contentview = new ContentView(context);	
 		contentview.add(new HtmlView("<h1>Facilities</h1>"));
 	
 		for(FacilityRecord rec : facilities) {

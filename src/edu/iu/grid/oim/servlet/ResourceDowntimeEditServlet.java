@@ -51,7 +51,7 @@ public class ResourceDowntimeEditServlet extends ServletBase implements Servlet 
 		ResourceDowntimeFormDE form;
 		
 		ResourceRecord rec;
-		String title;
+		//String title;
 
 		String rid_str = request.getParameter("rid");
 		if(rid_str != null) {
@@ -68,7 +68,7 @@ public class ResourceDowntimeEditServlet extends ServletBase implements Servlet 
 			} catch (SQLException e) {
 				throw new ServletException(e);
 			}	
-			title = rec.name + " Downtime";
+			//title = rec.name + " Downtime";
 		} else {
 			throw new ServletException("resourc id not set");
 		}
@@ -84,7 +84,7 @@ public class ResourceDowntimeEditServlet extends ServletBase implements Servlet 
 			form = new ResourceDowntimeFormDE(context, parent_page, resource_id, downtime_id, auth.getTimeZone());
 			
 			//put the form in a view and display
-			ContentView contentview = new ContentView();
+			ContentView contentview = new ContentView(context);
 
 			//contentview.add(new HtmlView("<h2>"+title+"</h2>"));	
 			contentview.add(new DivRepWrapper(form));

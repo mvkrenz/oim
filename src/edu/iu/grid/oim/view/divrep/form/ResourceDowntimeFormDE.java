@@ -10,6 +10,7 @@ import com.divrep.common.DivRepForm;
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.AuthorizationException;
 import edu.iu.grid.oim.model.UserContext;
+import edu.iu.grid.oim.model.UserContext.MessageType;
 import edu.iu.grid.oim.model.db.ResourceDowntimeModel;
 import edu.iu.grid.oim.model.db.ResourceDowntimeModel.ResourceDowntime;
 import edu.iu.grid.oim.model.db.record.ResourceDowntimeRecord;
@@ -50,20 +51,20 @@ public class ResourceDowntimeFormDE extends DivRepForm
 	
 	protected Boolean doSubmit() 
 	{
-		Boolean ret = true;
 		ResourceDowntimeModel model = new ResourceDowntimeModel(context);
 		try {
 			ResourceDowntime info = editor.getResourceDowntime(model);
 			if(downtime_id == null) {
 				model.insertDowntime(info);
+				context.message(MessageType.SUCCESS, "Successfully registered new downtime.");
 			} else {
 				model.updateDowntime(info);
+				context.message(MessageType.SUCCESS, "Successfully updated a downtime.");
 			}
+			return true;
 		} catch (Exception e) {
 			alert(e.getMessage());
-			ret = false;
+			return false;
 		}
-		//context.close();
-		return ret;
 	}
 }

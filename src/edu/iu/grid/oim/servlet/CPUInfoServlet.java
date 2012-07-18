@@ -77,7 +77,7 @@ public class CPUInfoServlet extends ServletBase {
 			}
 		});
 
-		ContentView contentview = new ContentView();	
+		ContentView contentview = new ContentView(context);	
 		if(context.getAuthorization().isUser()) {
 			contentview.add(new HtmlView("<a class=\"btn pull-right\" href=\"cpuinfoedit\"><i class=\"icon-plus-sign\"></i> Add New CPU Info</a>"));
 		}

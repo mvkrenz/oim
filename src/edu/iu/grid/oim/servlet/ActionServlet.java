@@ -76,7 +76,7 @@ public class ActionServlet extends ServletBase {
 		ActionModel model = new ActionModel(context);
 		Collection<ActionRecord> recs = model.getAll();
 		
-		ContentView contentview = new ContentView();	
+		ContentView contentview = new ContentView(context);	
 		//contentview.add(new HtmlView("<h1>Action</h1>"));
 	
 		/*

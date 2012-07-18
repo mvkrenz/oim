@@ -27,6 +27,7 @@ import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.HashHelper;
 import edu.iu.grid.oim.lib.ResourceReader;
 import edu.iu.grid.oim.model.UserContext;
+import edu.iu.grid.oim.model.UserContext.MessageType;
 import edu.iu.grid.oim.model.db.CertificateRequestHostModel;
 import edu.iu.grid.oim.model.db.CertificateRequestUserModel;
 import edu.iu.grid.oim.model.db.ContactModel;
@@ -155,7 +156,6 @@ public class CertificateRequestHostForm extends DivRepForm
 
 	@Override
 	protected Boolean doSubmit() {
-		Boolean ret = true;
 
 		String requester_name;
 		String requester_email;
@@ -194,17 +194,16 @@ public class CertificateRequestHostForm extends DivRepForm
 			if(rec != null) {
 				redirect("certificatehost?id="+rec.id); //TODO - does this work? I haven't tested it
 			}
+			context.message(MessageType.SUCCESS, "Successfully requested new host certificate.");
+			return true;
 		} catch (CertificateRequestException e) {
 			log.error("Failed to submit request..", e);
 			alert(e.getMessage());
-			ret = false;	
+			return false;	
 		} catch (Exception e) {
 			log.error("Failed to submit request (unhandled exception)", e);
 			alert(e.toString());
-			ret = false;
+			return false;
 		}
-	
-		//context.storeDivRepSession();
-		return ret;
 	}
 }
