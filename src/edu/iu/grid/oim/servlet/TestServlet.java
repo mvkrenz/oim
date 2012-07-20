@@ -1,46 +1,22 @@
 package edu.iu.grid.oim.servlet;
 
+import java.io.BufferedInputStream;
 import java.io.IOException;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Set;
+import java.io.InputStream;
+import java.io.StringWriter;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLConnection;
 
-import javax.servlet.Servlet;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.log4j.Logger;
 
-import com.divrep.DivRep;
-import com.divrep.DivRepEvent;
-import com.divrep.DivRepRoot;
-import com.divrep.common.DivRepButton;
-
 import edu.iu.grid.oim.lib.Authorization;
-import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.model.UserContext;
-import edu.iu.grid.oim.model.db.ActionModel;
-import edu.iu.grid.oim.model.db.CertificateRequestUserModel;
-import edu.iu.grid.oim.model.db.CpuInfoModel;
-import edu.iu.grid.oim.model.db.record.ActionRecord;
-import edu.iu.grid.oim.model.db.record.CpuInfoRecord;
-
-import edu.iu.grid.oim.view.BootBreadCrumbView;
-import edu.iu.grid.oim.view.BootMenuView;
-import edu.iu.grid.oim.view.BootPage;
-import edu.iu.grid.oim.view.BreadCrumbView;
-import edu.iu.grid.oim.view.ContentView;
-import edu.iu.grid.oim.view.DivRepWrapper;
-import edu.iu.grid.oim.view.HtmlView;
-import edu.iu.grid.oim.view.MenuView;
-import edu.iu.grid.oim.view.Page;
-import edu.iu.grid.oim.view.RecordTableView;
-import edu.iu.grid.oim.view.SideContentView;
 
 public class TestServlet extends ServletBase {
 	private static final long serialVersionUID = 1L;
@@ -52,8 +28,23 @@ public class TestServlet extends ServletBase {
 		Authorization auth = context.getAuthorization();
 		auth.check("admin");
 
-		CertificateRequestUserModel model = new CertificateRequestUserModel(context);
-		model._test();
+		//if(auth.isLocal()) {
+			/*
+			CertificateRequestUserModel model = new CertificateRequestUserModel(context);
+			model._test();
+			*/
+		//URL url = new URL("http://localhost:8080/oim/rest?action=quota_info"); //use get
+		//URL url = new URL("http://localhost:8080/oim/rest?action=find_expired_cert_request"); //use post
+		//URL url = new URL("http://localhost:8080/oim/rest?action=reset_daily_quota"); //use post
+		URL url = new URL("http://localhost:8080/oim/rest?action=reset_yearly_quota"); //use post
+		HttpURLConnection con = (HttpURLConnection) url.openConnection();
+		con.setDoOutput(true);
+		con.setRequestMethod("POST");
+		InputStream is = con.getInputStream();
+		StringWriter writer = new StringWriter();
+		IOUtils.copy(is, writer, "UTF-8");
+		response.getWriter().write(writer.toString());
+		//}
 	}
 	
 }

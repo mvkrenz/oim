@@ -778,6 +778,32 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 	    return rec;
 	}
 	
+	public void processExpired() throws SQLException {
+		
+		//search for expired certificates
+		ResultSet rs = null;
+		Connection conn = connectOIM();
+		Statement stmt = conn.createStatement();
+	    if (stmt.execute("SELECT * FROM "+table_name+ " WHERE cert_notafter < CURDATE()")) {
+	    	rs = stmt.getResultSet();
+	    	while(rs.next()) {
+	    		CertificateRequestUserRecord rec = new CertificateRequestUserRecord(rs);
+	    		if(rec.status.equals(CertificateRequestStatus.ISSUED)) {
+	    			rec.status = CertificateRequestStatus.EXPIRED;
+	    			super.update(get(rec.id), rec);
+	    			
+					// update ticket
+					Footprints fp = new Footprints(context);
+					FPTicket ticket = fp.new FPTicket();
+					ticket.description = "Certificate has been expired";
+					fp.update(ticket, rec.goc_ticket_id);
+	    		}
+			}
+	    }	
+	    stmt.close();
+	    conn.close();
+	}
+	
 	//return requests that I have submitted
 	public ArrayList<CertificateRequestUserRecord> getMine(Integer id) throws SQLException {
 		ArrayList<CertificateRequestUserRecord> ret = new ArrayList<CertificateRequestUserRecord>();

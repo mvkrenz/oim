@@ -17,8 +17,11 @@ import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.lib.StringArray;
 import edu.iu.grid.oim.model.CertificateRequestStatus;
 import edu.iu.grid.oim.model.UserContext;
+import edu.iu.grid.oim.model.db.CertificateQuotaModel;
+import edu.iu.grid.oim.model.db.CertificateRequestUserModel;
 import edu.iu.grid.oim.model.db.ConfigModel;
 import edu.iu.grid.oim.model.db.CertificateRequestHostModel;
+import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.record.CertificateRequestHostRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.exceptions.CertificateRequestException;
@@ -80,6 +83,9 @@ public class RestServlet extends ServletBase  {
 				doResetYearlyQuota(request, reply);
 			} else if(action.equals("find_expired_cert_request")) {
 				doFindExpiredCertificateRequests(request, reply);
+			} else {
+				reply.status = Status.FAILED;
+				reply.detail = "No such action";
 			}
 		
 		} catch (RestException e) {
@@ -111,6 +117,9 @@ public class RestServlet extends ServletBase  {
 			String action = request.getParameter("action");
 			if(action.equals("quota_info")) {
 				doQuotaInfo(request, reply);
+			} else {
+				reply.status = Status.FAILED;
+				reply.detail = "No such action";
 			}
 		} catch(AuthorizationException e) {
 			reply.status = Status.FAILED;
@@ -367,33 +376,62 @@ public class RestServlet extends ServletBase  {
 		reply.params.put("global_hostcert_year_max", config.QuotaGlobalHostCertYearMax.getInteger());
 	}
 	
-	private void doResetDailyQuota(HttpServletRequest request, Reply reply) throws AuthorizationException {
+	private void doResetDailyQuota(HttpServletRequest request, Reply reply) throws AuthorizationException, RestException {
 		UserContext context = new UserContext(request);	
 		Authorization auth = context.getAuthorization();
 		if(!auth.isLocal()) {
 			throw new AuthorizationException("You can't access this interface from there");
 		}
 		
-		//TODO
+		//reset user counter
+		ContactModel model = new ContactModel(context);
+		try {
+			model.resetCertsDailyCount();
+		} catch (SQLException e) {
+			throw new RestException("SQLException while resetting user daily count", e);
+		}
 	}
 	
-	private void doResetYearlyQuota(HttpServletRequest request, Reply reply) throws AuthorizationException {
+	private void doResetYearlyQuota(HttpServletRequest request, Reply reply) throws AuthorizationException, RestException {
 		UserContext context = new UserContext(request);	
 		Authorization auth = context.getAuthorization();
 		if(!auth.isLocal()) {
 			throw new AuthorizationException("You can't access this interface from there");
 		}
 		
-		//TODO
+		//reset user counter
+		ContactModel model = new ContactModel(context);
+		try {
+			model.resetCertsYearlyCount();
+		} catch (SQLException e) {
+			throw new RestException("SQLException while resetting user yearly count", e);
+		}
+		
+		//reset global counter
+		ConfigModel config = new ConfigModel(context);
+		try {
+			config.QuotaGlobalHostCertYearCount.set("0");
+			config.QuotaGlobalUserCertYearCount.set("0");
+		} catch (SQLException e) {
+			throw new RestException("SQLException while resetting global yearly count", e);
+		}
 	}
 
-	private void doFindExpiredCertificateRequests(HttpServletRequest request, Reply reply) throws AuthorizationException {
+	private void doFindExpiredCertificateRequests(HttpServletRequest request, Reply reply) throws AuthorizationException, RestException {
 		UserContext context = new UserContext(request);	
 		Authorization auth = context.getAuthorization();
 		if(!auth.isLocal()) {
 			throw new AuthorizationException("You can't access this interface from there");
 		}
+			
+		//process expired user certificates?
+		CertificateRequestUserModel model = new CertificateRequestUserModel(context);
+		try {
+			model.processExpired();
+		} catch (SQLException e) {
+			throw new RestException("SQLException while processing expired certificates", e);
+		}
 		
-		//TODO
+		//TODO - process expired host certificates?
 	}
 }

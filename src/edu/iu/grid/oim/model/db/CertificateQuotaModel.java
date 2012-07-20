@@ -40,6 +40,11 @@ public class CertificateQuotaModel {
 		global_count++;
 		config.QuotaGlobalUserCertYearCount.set(global_count.toString());
 		
+		//increment global total count(won't get reset every year)
+		Integer global_total_count = config.QuotaGlobalUserCertTotalCount.getInteger();		
+		global_total_count++;
+		config.QuotaGlobalUserCertTotalCount.set(global_total_count.toString());	
+		
 		//increment user count
 		Authorization auth = context.getAuthorization();
 		if(auth.isUser()) {
@@ -77,6 +82,11 @@ public class CertificateQuotaModel {
 		Integer global_count = config.QuotaGlobalHostCertYearCount.getInteger();		
 		global_count+=inc;
 		config.QuotaGlobalHostCertYearCount.set(global_count.toString());
+		
+		//increment global total count(won't get reset every year)
+		Integer global_total_count = config.QuotaGlobalHostCertTotalCount.getInteger();		
+		global_total_count+=inc;
+		config.QuotaGlobalHostCertTotalCount.set(global_total_count.toString());	
 		
 		//increment user count
 		Authorization auth = context.getAuthorization();

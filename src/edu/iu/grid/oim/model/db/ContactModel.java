@@ -1,6 +1,8 @@
 package edu.iu.grid.oim.model.db;
 
+import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashSet;
 
@@ -180,5 +182,23 @@ public class ContactModel extends SmallTableModelBase<ContactRecord> {
 			}
 		}
 		return false;
+	}
+	
+	//NO-AC
+	public void resetCertsDailyCount() throws SQLException {
+		Connection conn = connectOIM();
+		Statement stmt = conn.createStatement();
+	    stmt.execute("UPDATE "+table_name+" SET `count_hostcert_day` = 0;");	
+	    stmt.close();
+	    conn.close();
+	}
+	
+	//NO-AC
+	public void resetCertsYearlyCount() throws SQLException {
+		Connection conn = connectOIM();
+		Statement stmt = conn.createStatement();
+	    stmt.execute("UPDATE "+table_name+" SET `count_hostcert_year` = 0, `count_usercert_year` = 0");	
+	    stmt.close();
+	    conn.close();
 	}
 }

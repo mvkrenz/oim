@@ -68,9 +68,11 @@ public class ConfigModel extends ModelBase<ConfigRecord> {
 	//Certificate Request Global Quotas
 	public Config QuotaGlobalUserCertYearMax = new Config(this, "QuotaGlobalUserCertYearMax", "3500");
 	public Config QuotaGlobalUserCertYearCount = new Config(this, "QuotaGlobalUserCertYearCount", "0");
+	public Config QuotaGlobalUserCertTotalCount = new Config(this, "QuotaGlobalUserCertTotalCount", "0");
 	
 	public Config QuotaGlobalHostCertYearMax = new Config(this, "QuotaGlobalHostCertYearMax", "11500");
 	public Config QuotaGlobalHostCertYearCount = new Config(this, "QuotaGlobalHostCertYearCount", "0");
+	public Config QuotaGlobalHostCertTotalCount = new Config(this, "QuotaGlobalHostCertTotalCount", "0");
 	
 	public Config QuotaUserCertYearMax = new Config(this, "QuotaUserCertYearMax", "3");
 	public Config QuotaUserHostDayMax = new Config(this, "QuotaUserHostDayMax", "50");
