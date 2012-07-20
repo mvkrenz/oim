@@ -139,8 +139,8 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 		if(!canView(rec)) return false;
 		
 		if(	rec.status.equals(CertificateRequestStatus.REQUESTED) ||
-			rec.status.equals(CertificateRequestStatus.RENEW_REQUESTED) ||
-			rec.status.equals(CertificateRequestStatus.REVOCATION_REQUESTED)) {
+			rec.status.equals(CertificateRequestStatus.RENEW_REQUESTED)) {
+			//RA doesn't *approve* REVOKACTION - RA just click on revoke button
 			if(auth.isUser()) {
 				ContactRecord contact = auth.getContact();
 				

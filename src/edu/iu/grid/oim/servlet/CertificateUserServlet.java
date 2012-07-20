@@ -376,8 +376,7 @@ public class CertificateUserServlet extends ServletBase  {
 		GenericView v = new GenericView();
 		
 		if(rec.status.equals(CertificateRequestStatus.REQUESTED) ||
-			rec.status.equals(CertificateRequestStatus.RENEW_REQUESTED) ||
-			rec.status.equals(CertificateRequestStatus.REVOCATION_REQUESTED)) {
+			rec.status.equals(CertificateRequestStatus.RENEW_REQUESTED)) {
 			v.add(new HtmlView("<p class=\"alert alert-info\">RA to approve certificate request</p>"));
 		} else if(rec.status.equals(CertificateRequestStatus.APPROVED)) {
 			v.add(new HtmlView("<p class=\"alert alert-info\">Requester to issue certificate & download</p>"));
@@ -391,6 +390,8 @@ public class CertificateUserServlet extends ServletBase  {
 			//v.add(new HtmlView("<p class=\"alert alert-info\">Re-request</p>"));
 		}  else if(rec.status.equals(CertificateRequestStatus.FAILED)) {
 			v.add(new HtmlView("<p class=\"alert alert-info\">GOC engineer to troubleshoot & resubmit</p>"));
+		} else if(rec.status.equals(CertificateRequestStatus.REVOCATION_REQUESTED)) {
+			v.add(new HtmlView("<p class=\"alert alert-info\">RA to revoke certificate</p>"));
 		}
 		
 		final String url = "certificateuser?id="+rec.id;
