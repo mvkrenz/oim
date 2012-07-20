@@ -250,9 +250,6 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 	public boolean canRevoke(CertificateRequestUserRecord rec) {
 		if(!canView(rec)) return false;
 		
-		//disable until DigiCert provides a real API for this
-		/*
-		
 		if(	rec.status.equals(CertificateRequestStatus.ISSUED) ||
 			rec.status.equals(CertificateRequestStatus.REVOCATION_REQUESTED)) {
 			
@@ -280,7 +277,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 				}
 			}
 		}
-		*/
+	
 		return false;
 	}
 	

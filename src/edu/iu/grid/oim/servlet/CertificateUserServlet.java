@@ -594,6 +594,8 @@ public class CertificateUserServlet extends ServletBase  {
 			button.addClass("inline");
 			button.addEventListener(new DivRepEventListener() {
                 public void handleEvent(DivRepEvent e) {
+                	button.alert("Currently we can not revoke user certificate. We are waiting for DigiCert to provide us the user certificate revocation API.");
+                	/*
                 	if(note.validate()) {
                 		context.setComment(note.getValue());
                 		try {
@@ -603,6 +605,7 @@ public class CertificateUserServlet extends ServletBase  {
 	                		button.alert("Failed to cancel request: " + ex.getMessage());
 	                	}
                 	}
+                	*/
                 }
             });
 			v.add(button);
