@@ -750,7 +750,7 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 				//requester can cancel one's own request
 				if(rec.requester_contact_id != null) {//could be null if guest submitted it
 					ContactRecord contact = auth.getContact();
-					if(rec.requester_contact_id == contact.id) return true;
+					if(rec.requester_contact_id.equals(contact.id)) return true;
 				}
 				
 				//grid admin can cancel it

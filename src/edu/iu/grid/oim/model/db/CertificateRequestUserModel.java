@@ -185,7 +185,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 				ContactRecord contact = auth.getContact();
 				
 				//requester can cancel one's own request
-				if(rec.requester_contact_id == contact.id) return true;
+				if(rec.requester_contact_id.equals(contact.id)) return true;
 				
 				//ra can cancel
 				VOContactModel model = new VOContactModel(context);
