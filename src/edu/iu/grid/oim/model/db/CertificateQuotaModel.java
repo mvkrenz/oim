@@ -19,15 +19,15 @@ public class CertificateQuotaModel {
     public boolean canRequestUserCert() {
 		//reached global max?
 		ConfigModel config = new ConfigModel(context);
-		Integer global_max = Integer.parseInt(config.QuotaGlobalUserCertYearMax.get());
-		Integer global_count = Integer.parseInt(config.QuotaGlobalUserCertYearCount.get());		
+		Integer global_max = config.QuotaGlobalUserCertYearMax.getInteger();
+		Integer global_count = config.QuotaGlobalUserCertYearCount.getInteger();		
 		if(global_count >= global_max) return false;
 		
 		//reached personal max?
 		Authorization auth = context.getAuthorization();
 		if(auth.isUser()) {
 			ContactRecord user = auth.getContact();
-			Integer user_max = Integer.parseInt(config.QuotaUserCertYearMax.get());
+			Integer user_max = config.QuotaUserCertYearMax.getInteger();
 			if(user.count_usercert_year >= user_max) return false;
 		}
 		return true;
@@ -36,7 +36,7 @@ public class CertificateQuotaModel {
     public void incrementUserCertRequest() throws SQLException {
 		//increment global count
 		ConfigModel config = new ConfigModel(context);
-		Integer global_count = Integer.parseInt(config.QuotaGlobalUserCertYearCount.get());		
+		Integer global_count = config.QuotaGlobalUserCertYearCount.getInteger();		
 		global_count++;
 		config.QuotaGlobalUserCertYearCount.set(global_count.toString());
 		
@@ -54,18 +54,18 @@ public class CertificateQuotaModel {
     public boolean canApproveHostCert(int count) {
 		//reached global max?
 		ConfigModel config = new ConfigModel(context);
-		Integer global_max = Integer.parseInt(config.QuotaGlobalHostCertYearMax.get());
-		Integer global_count = Integer.parseInt(config.QuotaGlobalHostCertYearCount.get());		
+		Integer global_max = config.QuotaGlobalHostCertYearMax.getInteger();
+		Integer global_count = config.QuotaGlobalHostCertYearCount.getInteger();		
 		if(global_count + count >= global_max) return false;   	
 		
 		//reached personal day max?
 		Authorization auth = context.getAuthorization();
 		ContactRecord user = auth.getContact();
-		Integer day_max = Integer.parseInt(config.QuotaUserHostDayMax.get());
+		Integer day_max = config.QuotaUserHostDayMax.getInteger();
 		if(user.count_hostcert_day + count >= day_max) return false;
 		
 		//reached personal year max?
-		Integer year_max = Integer.parseInt(config.QuotaUserHostYearMax.get());
+		Integer year_max = config.QuotaUserHostYearMax.getInteger();
 		if(user.count_hostcert_year + count >= year_max) return false;
 		
 		return true;
@@ -74,7 +74,7 @@ public class CertificateQuotaModel {
     public void incrementHostCertApproval(int inc) throws SQLException {
 		//increment global count
 		ConfigModel config = new ConfigModel(context);
-		Integer global_count = Integer.parseInt(config.QuotaGlobalHostCertYearCount.get());		
+		Integer global_count = config.QuotaGlobalHostCertYearCount.getInteger();		
 		global_count+=inc;
 		config.QuotaGlobalHostCertYearCount.set(global_count.toString());
 		

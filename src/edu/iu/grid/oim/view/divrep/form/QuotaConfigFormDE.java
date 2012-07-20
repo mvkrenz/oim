@@ -43,26 +43,26 @@ public class QuotaConfigFormDE extends DivRepForm
 		new DivRepStaticContent(this, "<h2>Global Quota</h2>");
 		global_usercert_max = new DivRepTextBox(this);
 		global_usercert_max.setLabel("Maximum number of user certificates OSG can request per year");
-		global_usercert_max.setValue(config.QuotaGlobalUserCertYearMax.get());
+		global_usercert_max.setValue(config.QuotaGlobalUserCertYearMax.getString());
 		global_usercert_max.setRequired(true);
 		global_usercert_max.addValidator(new DivRepIntegerValidator());
 		
 		global_usercert_count = new DivRepTextBox(this);
 		global_usercert_count.setLabel("Number of user certificate OSG has requested this year");
-		global_usercert_count.setValue(config.QuotaGlobalUserCertYearCount.get());
+		global_usercert_count.setValue(config.QuotaGlobalUserCertYearCount.getString());
 		global_usercert_count.setRequired(true);
 		global_usercert_count.addValidator(new DivRepIntegerValidator());
 		new DivRepStaticContent(this, "<p>* This counter will be reset to 0 on January 1st of every year.</p>");
 		
 		global_hostcert_max = new DivRepTextBox(this);
 		global_hostcert_max.setLabel("Maximum number of host certificates OSG can approve this year");
-		global_hostcert_max.setValue(config.QuotaGlobalHostCertYearMax.get());
+		global_hostcert_max.setValue(config.QuotaGlobalHostCertYearMax.getString());
 		global_hostcert_max.setRequired(true);
 		global_hostcert_max.addValidator(new DivRepIntegerValidator());
 		
 		global_hostcert_count = new DivRepTextBox(this);
 		global_hostcert_count.setLabel("Number of host certificate OSG has approved this year");
-		global_hostcert_count.setValue(config.QuotaGlobalHostCertYearCount.get());
+		global_hostcert_count.setValue(config.QuotaGlobalHostCertYearCount.getString());
 		global_hostcert_count.setRequired(true);
 		global_hostcert_count.addValidator(new DivRepIntegerValidator());
 		new DivRepStaticContent(this, "<p>* This counter will be reset to 0 on January 1st of every year.</p>");
@@ -70,19 +70,19 @@ public class QuotaConfigFormDE extends DivRepForm
 		new DivRepStaticContent(this, "<h2>Per User Quota</h2>");
 		usercert_max_year = new DivRepTextBox(this);
 		usercert_max_year.setLabel("Maximum number of user certificates each user can request this year");
-		usercert_max_year.setValue(config.QuotaUserCertYearMax.get());
+		usercert_max_year.setValue(config.QuotaUserCertYearMax.getString());
 		usercert_max_year.setRequired(true);
 		usercert_max_year.addValidator(new DivRepIntegerValidator());
 		
 		hostcert_max_year = new DivRepTextBox(this);
 		hostcert_max_year.setLabel("Maximum number of host certificates each user can approve this year");
-		hostcert_max_year.setValue(config.QuotaUserHostYearMax.get());
+		hostcert_max_year.setValue(config.QuotaUserHostYearMax.getString());
 		hostcert_max_year.setRequired(true);
 		hostcert_max_year.addValidator(new DivRepIntegerValidator());
 		
 		hostcert_max_day = new DivRepTextBox(this);
 		hostcert_max_day.setLabel("Maximum number of host certificates each user can approve each day");
-		hostcert_max_day.setValue(config.QuotaUserHostDayMax.get());
+		hostcert_max_day.setValue(config.QuotaUserHostDayMax.getString());
 		hostcert_max_day.setRequired(true);
 		hostcert_max_day.addValidator(new DivRepIntegerValidator());
 		new DivRepStaticContent(this, "<p>* Per user counters are stored in user contact record.</p>");

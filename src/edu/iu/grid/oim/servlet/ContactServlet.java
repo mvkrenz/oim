@@ -301,9 +301,9 @@ public class ContactServlet extends ServletBase {
 			
 			//Certificate Quota
 			ConfigModel config = new ConfigModel(context);
-			table.addRow("User Certificate Requests", rec.count_usercert_year + " (max "+config.QuotaUserCertYearMax.get()+" per year)");
-			table.addRow("Host Certificate Approvals (Year)", rec.count_hostcert_year + " (max "+config.QuotaUserHostYearMax.get()+" per year)");
-			table.addRow("Host Certificate Approvals (Today)", rec.count_hostcert_day + " (max "+config.QuotaUserHostDayMax.get()+" per day)");
+			table.addRow("User Certificate Requests", rec.count_usercert_year + " (max "+config.QuotaUserCertYearMax.getString()+" per year)");
+			table.addRow("Host Certificate Approvals (Year)", rec.count_hostcert_year + " (max "+config.QuotaUserHostYearMax.getString()+" per year)");
+			table.addRow("Host Certificate Approvals (Today)", rec.count_hostcert_day + " (max "+config.QuotaUserHostDayMax.getString()+" per day)");
 			
 		} catch (SQLException e) {
 			return new DivRepStaticContent(context.getPageRoot(), e.toString());

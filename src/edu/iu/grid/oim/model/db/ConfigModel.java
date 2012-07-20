@@ -40,7 +40,7 @@ public class ConfigModel extends ModelBase<ConfigRecord> {
 		}
 		
 		//return current config value. returns default is not set yet
-		public String get() {
+		public String getString() {
 			try {
 				return model.get(key);
 			} catch (ConfigException e) {
@@ -49,6 +49,10 @@ public class ConfigModel extends ModelBase<ConfigRecord> {
 				log.error("Failed to obtain value for " + key, e);
 				return null;
 			}
+		}
+		public Integer getInteger() {
+			String v = getString();
+			return Integer.parseInt(v);
 		}
 		
 		public void set(String value) throws SQLException {

@@ -74,6 +74,12 @@ public class RestServlet extends ServletBase  {
 				doHostCertsRevoke(request, reply);
 			} else if(action.equals("host_certs_issue")) {
 				doHostCertsIssue(request, reply);
+			} else if(action.equals("reset_daily_quota")) {
+				doResetDailyQuota(request, reply);
+			} else if(action.equals("reset_yearly_quota")) {
+				doResetYearlyQuota(request, reply);
+			} else if(action.equals("find_expired_cert_request")) {
+				doFindExpiredCertificateRequests(request, reply);
 			}
 		
 		} catch (RestException e) {
@@ -355,9 +361,39 @@ public class RestServlet extends ServletBase  {
 			throw new AuthorizationException("You can't access this interface from there");
 		}
 		ConfigModel config = new ConfigModel(context);
-		reply.params.put("global_usercert_year_count", config.QuotaGlobalUserCertYearCount.get());
-		reply.params.put("global_usercert_year_max", config.QuotaGlobalUserCertYearMax.get());
-		reply.params.put("global_hostcert_year_count", config.QuotaGlobalHostCertYearCount.get());
-		reply.params.put("global_hostcert_year_max", config.QuotaGlobalHostCertYearMax.get());
+		reply.params.put("global_usercert_year_count", config.QuotaGlobalUserCertYearCount.getInteger());
+		reply.params.put("global_usercert_year_max", config.QuotaGlobalUserCertYearMax.getInteger());
+		reply.params.put("global_hostcert_year_count", config.QuotaGlobalHostCertYearCount.getInteger());
+		reply.params.put("global_hostcert_year_max", config.QuotaGlobalHostCertYearMax.getInteger());
+	}
+	
+	private void doResetDailyQuota(HttpServletRequest request, Reply reply) throws AuthorizationException {
+		UserContext context = new UserContext(request);	
+		Authorization auth = context.getAuthorization();
+		if(!auth.isLocal()) {
+			throw new AuthorizationException("You can't access this interface from there");
+		}
+		
+		//TODO
+	}
+	
+	private void doResetYearlyQuota(HttpServletRequest request, Reply reply) throws AuthorizationException {
+		UserContext context = new UserContext(request);	
+		Authorization auth = context.getAuthorization();
+		if(!auth.isLocal()) {
+			throw new AuthorizationException("You can't access this interface from there");
+		}
+		
+		//TODO
+	}
+
+	private void doFindExpiredCertificateRequests(HttpServletRequest request, Reply reply) throws AuthorizationException {
+		UserContext context = new UserContext(request);	
+		Authorization auth = context.getAuthorization();
+		if(!auth.isLocal()) {
+			throw new AuthorizationException("You can't access this interface from there");
+		}
+		
+		//TODO
 	}
 }

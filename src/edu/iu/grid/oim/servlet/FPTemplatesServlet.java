@@ -94,7 +94,7 @@ public class FPTemplatesServlet extends ServletBase {
 			new DivRepStaticContent(this, "<h2>Resource Registration</h2>");
 			new DivRepStaticContent(this, "<p><b>##RESOURCE_NAME##</b> will be replaced by the actual resource name registered.</p>");
 			resource_template = new DivRepTextArea(this);
-			resource_template.setValue(config.ResourceFPTemplate.get());
+			resource_template.setValue(config.ResourceFPTemplate.getString());
 			resource_template.addClass("fptemplate");
 			resource_template.setHeight(200);
 			
@@ -102,7 +102,7 @@ public class FPTemplatesServlet extends ServletBase {
 			new DivRepStaticContent(this, "<h2>VO Registration</h2>");
 			new DivRepStaticContent(this, "<p><b>##VO_NAME##</b> will be replaced by the actual VO name registered.</p>");
 			vo_template = new DivRepTextArea(this);
-			vo_template.setValue(config.VOFPTemplate.get());
+			vo_template.setValue(config.VOFPTemplate.getString());
 			vo_template.addClass("fptemplate");
 			vo_template.setHeight(200);
 
@@ -111,7 +111,7 @@ public class FPTemplatesServlet extends ServletBase {
 			new DivRepStaticContent(this, "<p><b>##SC_NAME##</b> will be replaced by the actual SC name registered.</p>");
 
 			sc_template = new DivRepTextArea(this);
-			sc_template.setValue(config.SCFPTemplate.get());
+			sc_template.setValue(config.SCFPTemplate.getString());
 			sc_template.addClass("fptemplate");
 			sc_template.setHeight(200);
 	

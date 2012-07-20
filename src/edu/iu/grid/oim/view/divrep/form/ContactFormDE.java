@@ -514,9 +514,9 @@ public class ContactFormDE extends DivRepForm
 		new DivRepStaticContent(this, "<p>* Only PKI staff can update these information</p>");
 
 		ConfigModel config = new ConfigModel(context);
-		String usercert_max_year = config.QuotaUserCertYearMax.get();
-		String hostcert_max_year = config.QuotaUserHostYearMax.get();
-		String hostcert_max_day = config.QuotaUserHostDayMax.get();
+		String usercert_max_year = config.QuotaUserCertYearMax.getString();
+		String hostcert_max_year = config.QuotaUserHostYearMax.getString();
+		String hostcert_max_day = config.QuotaUserHostDayMax.getString();
 		
 		count_usercert_year = new DivRepTextBox(this);
 		count_usercert_year.setLabel("User Certificate Request Count (This Year)");
