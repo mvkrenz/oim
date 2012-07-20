@@ -22,6 +22,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.lib.StringArray;
 
 public class DigicertCertificateSigner implements ICertificateSigner {
@@ -138,9 +139,8 @@ public class DigicertCertificateSigner implements ICertificateSigner {
 	    //cl.getParams().setParameter("http.contenttype", "application/x-www-form-urlencoded")
 		
 		PostMethod post = new PostMethod("https://www.digicert.com/enterprise/api/?action=grid_certificate_details");
-
-		post.addParameter("customer_name", "052062");
-		post.setParameter("customer_api_key", "MG9ij2Of4rakV7tXARyE347QQu00097U");
+		post.addParameter("customer_name", StaticConfig.conf.getProperty("digicert.customer_name"));
+		post.setParameter("customer_api_key", StaticConfig.conf.getProperty("digicert.customer_api_key"));
 		post.setParameter("response_type", "xml");
 		post.setParameter("validity", "1"); //security by obscurity -- from the DigiCert dev team
 		post.setParameter("id", order_id);
@@ -194,8 +194,8 @@ public class DigicertCertificateSigner implements ICertificateSigner {
 		
 		PostMethod post = new PostMethod("https://www.digicert.com/enterprise/api/?action=grid_request_email_cert");
 
-		post.addParameter("customer_name", "052062");
-		post.setParameter("customer_api_key", "MG9ij2Of4rakV7tXARyE347QQu00097U");
+		post.addParameter("customer_name", StaticConfig.conf.getProperty("digicert.customer_name"));
+		post.setParameter("customer_api_key", StaticConfig.conf.getProperty("digicert.customer_api_key"));
 		post.setParameter("response_type", "xml");
 		post.setParameter("validity", "1"); //security by obscurity -- from the DigiCert dev team
 		post.setParameter("email", email_address);
@@ -259,9 +259,8 @@ public class DigicertCertificateSigner implements ICertificateSigner {
 	    //cl.getParams().setParameter("http.contenttype", "application/x-www-form-urlencoded")
 		
 		PostMethod post = new PostMethod("https://www.digicert.com/enterprise/api/?action=grid_request_host_cert");
-
-		post.addParameter("customer_name", "052062");
-		post.setParameter("customer_api_key", "MG9ij2Of4rakV7tXARyE347QQu00097U");
+		post.addParameter("customer_name", StaticConfig.conf.getProperty("digicert.customer_name"));
+		post.setParameter("customer_api_key", StaticConfig.conf.getProperty("digicert.customer_api_key"));
 		post.setParameter("response_type", "xml");
 		post.setParameter("validity", "1"); //security by obscurity -- from the DigiCert dev team
 		post.setParameter("common_name", cn);
@@ -310,9 +309,8 @@ public class DigicertCertificateSigner implements ICertificateSigner {
 	    //cl.getParams().setParameter("http.contenttype", "application/x-www-form-urlencoded")
 		
 		PostMethod post = new PostMethod("https://www.digicert.com/enterprise/api/?action=grid_approve_request");
-
-		post.addParameter("customer_name", "052062");
-		post.setParameter("customer_api_key", "MG9ij2Of4rakV7tXARyE347QQu00097U");
+		post.addParameter("customer_name", StaticConfig.conf.getProperty("digicert.customer_name"));
+		post.setParameter("customer_api_key", StaticConfig.conf.getProperty("digicert.customer_api_key"));
 		post.setParameter("response_type", "xml");
 		post.setParameter("validity", "1"); //security by obscurity -- from the DigiCert dev team
 		post.setParameter("comment", comment);
@@ -360,9 +358,8 @@ public class DigicertCertificateSigner implements ICertificateSigner {
 	    cl.getParams().setParameter("http.useragent", "OIM (OSG Information Management System)");
 		
 		PostMethod post = new PostMethod("https://www.digicert.com/enterprise/api/?action=grid_retrieve_host_cert");
-
-		post.addParameter("customer_name", "052062");
-		post.setParameter("customer_api_key", "MG9ij2Of4rakV7tXARyE347QQu00097U");
+		post.addParameter("customer_name", StaticConfig.conf.getProperty("digicert.customer_name"));
+		post.setParameter("customer_api_key", StaticConfig.conf.getProperty("digicert.customer_api_key"));
 		post.setParameter("response_type", "xml");
 		post.setParameter("validity", "1"); //security by obscurity -- from the DigiCert dev team
 		post.setParameter("id", order_id);
@@ -421,9 +418,8 @@ public class DigicertCertificateSigner implements ICertificateSigner {
 	    cl.getParams().setParameter("http.useragent", "OIM (OSG Information Management System)");
 		
 		PostMethod post = new PostMethod("https://www.digicert.com/enterprise/api/?action=grid_request_host_revoke");
-
-		post.addParameter("customer_name", "052062");
-		post.setParameter("customer_api_key", "MG9ij2Of4rakV7tXARyE347QQu00097U");
+		post.addParameter("customer_name", StaticConfig.conf.getProperty("digicert.customer_name"));
+		post.setParameter("customer_api_key", StaticConfig.conf.getProperty("digicert.customer_api_key"));
 		post.setParameter("response_type", "xml");
 		post.setParameter("validity", "1"); //security by obscurity -- from the DigiCert dev team
 		post.setParameter("serial", serial_id);
