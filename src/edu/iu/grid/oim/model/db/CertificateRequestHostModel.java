@@ -606,7 +606,14 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 	}
 	
 	public void reject(CertificateRequestHostRecord rec) throws CertificateRequestException {
-		rec.status = CertificateRequestStatus.REJECTED;
+		if(	rec.status.equals(CertificateRequestStatus.RENEW_REQUESTED)||
+				rec.status.equals(CertificateRequestStatus.REVOCATION_REQUESTED)) {
+				//go back to issued status if it's from renew_requested
+				rec.status = CertificateRequestStatus.ISSUED;
+			} else {
+				//all others
+				rec.status = CertificateRequestStatus.REJECTED;
+			}
 		try {
 			//context.setComment("Certificate Approved");
 			super.update(get(rec.id), rec);
@@ -711,7 +718,8 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 		if(!canView(rec)) return false;
 		
 		if(	rec.status.equals(CertificateRequestStatus.REQUESTED) ||
-			rec.status.equals(CertificateRequestStatus.RENEW_REQUESTED)) {
+			rec.status.equals(CertificateRequestStatus.RENEW_REQUESTED)||
+			rec.status.equals(CertificateRequestStatus.REVOCATION_REQUESTED)) {
 			if(auth.isUser()) {
 				//grid admin can appove it
 				ContactRecord user = auth.getContact();

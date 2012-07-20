@@ -139,7 +139,8 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 		if(!canView(rec)) return false;
 		
 		if(	rec.status.equals(CertificateRequestStatus.REQUESTED) ||
-			rec.status.equals(CertificateRequestStatus.RENEW_REQUESTED)) {
+			rec.status.equals(CertificateRequestStatus.RENEW_REQUESTED) ||
+			rec.status.equals(CertificateRequestStatus.REVOCATION_REQUESTED)) {
 			if(auth.isUser()) {
 				ContactRecord contact = auth.getContact();
 				
@@ -397,7 +398,8 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 	//NO-AC
 	//return true if success
 	public boolean reject(CertificateRequestUserRecord rec) {
-		if(rec.status.equals(CertificateRequestStatus.RENEW_REQUESTED)) {
+		if(	rec.status.equals(CertificateRequestStatus.RENEW_REQUESTED)||
+			rec.status.equals(CertificateRequestStatus.REVOCATION_REQUESTED)) {
 			//go back to issued status if it's from renew_requested
 			rec.status = CertificateRequestStatus.ISSUED;
 		} else {
