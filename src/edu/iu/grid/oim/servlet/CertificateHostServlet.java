@@ -456,24 +456,51 @@ public class CertificateHostServlet extends ServletBase  {
 		final Authorization auth = context.getAuthorization();
 		final SimpleDateFormat dformat = new SimpleDateFormat();
 		dformat.setTimeZone(auth.getTimeZone());
-		
-		//guest has to enter request ID
-		class IDForm extends DivRepForm {
+	
+		class IDForm extends DivRep {
 			final DivRepTextBox id;
+			final DivRepButton open;
 			public IDForm(DivRep parent) {
-				super(parent, null);
-				new DivRepStaticContent(this, "<p>Please enter host certificate request ID to view details</p>");
+				super(parent);
 				id = new DivRepTextBox(this);
-				id.setLabel("Request ID");
-				id.setRequired(true);
-				
-				setSubmitLabel("Open");
+				//id.setLabel("Open by Request ID");
+				id.setWidth(150);
+				open = new DivRepButton(this, "Open");
+				open.addEventListener(new DivRepEventListener() {
+					@Override
+					public void handleEvent(DivRepEvent e) {
+						if(id.getValue() == null || id.getValue().trim().isEmpty()) {
+							alert("Please enter request ID to open");
+						} else {
+							redirect("certificatehost?id="+id.getValue());
+						}
+					}
+				});
+				open.addClass("btn");
 			}
-			
+	
 			@Override
-			protected Boolean doSubmit() {
-				redirect("certificatehost?id="+id.getValue());
-				return true;
+			public void render(PrintWriter out) {
+				out.write("<div id=\""+getNodeID()+"\" class=\"pull-right\">");
+				//out.write("<p>Please enter host certificate request ID to view details</p>");
+				
+				out.write("<table><tr>");
+				out.write("<td>Open By Request ID </td>");
+				out.write("<td>");
+				id.render(out);
+				out.write("</td>");
+				out.write("<td style=\"vertical-align: top;\">");
+				open.render(out);
+				out.write("</td>");
+				out.write("</tr></table>");
+				
+				out.write("</div>");
+			}
+
+			@Override
+			protected void onEvent(DivRepEvent e) {
+				// TODO Auto-generated method stub
+				
 			}
 		};
 		
@@ -490,11 +517,10 @@ public class CertificateHostServlet extends ServletBase  {
 				out.write("</div>"); //span3
 				
 				out.write("<div class=\"span9\">");
+				IDForm form = new IDForm(context.getPageRoot());
+				form.render(out);
 				if(auth.isUser()) {
 					renderMyList(out);
-				} else {
-					IDForm form = new IDForm(context.getPageRoot());
-					form.render(out);
 				}
 				out.write("</div>"); //span9
 				
@@ -504,14 +530,19 @@ public class CertificateHostServlet extends ServletBase  {
 			public void renderMyList(PrintWriter out) {
 				CertificateRequestHostModel model = new CertificateRequestHostModel(context);
 				ContactModel cmodel = new ContactModel(context);
+				out.write("<h2>My Host Certificate Requests</h2>");
 				out.write("<table class=\"table certificate\">");
-				out.write("<thead><tr><th>ID</th><th>Status</th><th>GOC Ticket</th><th>FQDNs</th><th>Grid Admin</th></tr></thead>");
 				try {
 					ArrayList<CertificateRequestHostRecord> recs = model.getMine(auth.getContact().id);
-					out.write("<tbody>");
+					if(recs.size() == 0) {
+						out.write("<thead><tr><td colspan=5><p class=\"muted\">You have not requested any host certificate.</p></td></tr></thead>");
+					} else {
+						out.write("<thead><tr><th>ID</th><th>Status</th><th>GOC Ticket</th><th>FQDNs</th><th>Grid Admin</th></tr></thead>");
+						out.write("<tbody>");
+					}
 					for(CertificateRequestHostRecord rec : recs) {
 						out.write("<tr onclick=\"document.location='certificatehost?id="+rec.id+"';\">");
-						out.write("<td>HOST"+rec.id+"</td>");
+						out.write("<td>"+rec.id+"</td>");
 						out.write("<td>"+rec.status+"</td>");
 						//TODO - use configured goc ticket URL
 						out.write("<td><a target=\"_blank\" href=\""+StaticConfig.conf.getProperty("url.gocticket")+"/"+rec.goc_ticket_id+"\">"+rec.goc_ticket_id+"</a></td>");
@@ -531,10 +562,14 @@ public class CertificateHostServlet extends ServletBase  {
 						}
 						out.write("</ul></td>");
 						
-						ContactRecord gridadmin = model.findGridAdmin(rec);
-						//ContactRecord gridadmin = cmodel.get(rec.gridadmin_contact_id);
-						out.write("<td>"+StringEscapeUtils.escapeHtml(gridadmin.name)+"</td>");
-						
+						try {
+							ContactRecord gridadmin = model.findGridAdmin(rec);
+							//ContactRecord gridadmin = cmodel.get(rec.gridadmin_contact_id);
+							out.write("<td>"+StringEscapeUtils.escapeHtml(gridadmin.name)+"</td>");
+							
+						} catch (CertificateRequestException ce) {
+							out.write("<td><span class=\"label label-important\">No GridAdmin</span></td>");
+						}
 						/*
 						try {
 							VOModel vomodel = new VOModel(context);
@@ -550,9 +585,6 @@ public class CertificateHostServlet extends ServletBase  {
 				} catch (SQLException e1) {
 					out.write("<div class=\"alert\">Failed to load my certificate requests</div>");
 					log.error(e1);
-				} catch (CertificateRequestException ce) {
-					out.write("<div class=\"alert\">Probably failed to lookup gridadmin</div>");
-					log.error(ce);
 				}
 				
 				out.write("</table>");

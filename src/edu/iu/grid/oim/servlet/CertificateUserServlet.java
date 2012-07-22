@@ -642,24 +642,53 @@ public class CertificateUserServlet extends ServletBase  {
 		dformat.setTimeZone(auth.getTimeZone());
 		
 		//guest has to enter request ID
-		class IDForm extends DivRepForm {
+		class IDForm extends DivRep {
 			final DivRepTextBox id;
+			final DivRepButton open;
 			public IDForm(DivRep parent) {
-				super(parent, null);
-				new DivRepStaticContent(this, "<p>Please enter user certificate request ID to view details</p>");
+				super(parent);
 				id = new DivRepTextBox(this);
-				id.setLabel("Request ID");
-				id.setRequired(true);
-				
-				setSubmitLabel("Open");
+				//id.setLabel("Open by Request ID");
+				id.setWidth(150);
+				open = new DivRepButton(this, "Open");
+				open.addEventListener(new DivRepEventListener() {
+					@Override
+					public void handleEvent(DivRepEvent e) {
+						if(id.getValue() == null || id.getValue().trim().isEmpty()) {
+							alert("Please enter request ID to open");
+						} else {
+							redirect("certificateuser?id="+id.getValue());
+						}
+					}
+				});
+				open.addClass("btn");
 			}
-			
+	
 			@Override
-			protected Boolean doSubmit() {
-				redirect("certificateuser?id="+id.getValue());
-				return true;
+			public void render(PrintWriter out) {
+				out.write("<div id=\""+getNodeID()+"\" class=\"pull-right\">");
+				//out.write("<p>Please enter host certificate request ID to view details</p>");
+				
+				out.write("<table><tr>");
+				out.write("<td>Open By Request ID </td>");
+				out.write("<td>");
+				id.render(out);
+				out.write("</td>");
+				out.write("<td style=\"vertical-align: top;\">");
+				open.render(out);
+				out.write("</td>");
+				out.write("</tr></table>");
+				
+				out.write("</div>");
+			}
+
+			@Override
+			protected void onEvent(DivRepEvent e) {
+				// TODO Auto-generated method stub
+				
 			}
 		};
+		
 		
 		return new IView(){
 			@Override
@@ -674,11 +703,10 @@ public class CertificateUserServlet extends ServletBase  {
 				out.write("</div>"); //span3
 				
 				out.write("<div class=\"span9\">");
+				IDForm form = new IDForm(context.getPageRoot());
+				form.render(out);
 				if(auth.isUser()) {
 					renderMyList(out);
-				} else {
-					IDForm form = new IDForm(context.getPageRoot());
-					form.render(out);
 				}
 				out.write("</div>"); //span9
 				
@@ -687,11 +715,16 @@ public class CertificateUserServlet extends ServletBase  {
 			
 			public void renderMyList(PrintWriter out) {
 				CertificateRequestUserModel usermodel = new CertificateRequestUserModel(context);
+				out.write("<h2>My User Certificate Requests</h2>");
 				out.write("<table class=\"table certificate\">");
-				out.write("<thead><tr><th>ID</th><th>Status</th><th>GOC Ticket</th><th>DN</th><th>VO</th><th>RA</th></tr></thead>");
 				try {
 					ArrayList<CertificateRequestUserRecord> recs = usermodel.getMine(auth.getContact().id);
-					out.write("<tbody>");
+					if(recs.size() == 0) {
+						out.write("<thead><tr><td colspan=6><p class=\"muted\">You have not requested any user certificate.</p></td></tr></thead>");
+					} else {
+						out.write("<thead><tr><th>ID</th><th>Status</th><th>GOC Ticket</th><th>DN</th><th>VO</th><th>RA</th></tr></thead>");
+						out.write("<tbody>");
+					}
 					for(CertificateRequestUserRecord rec : recs) {
 						/*
 						String cls = "";
@@ -700,7 +733,7 @@ public class CertificateUserServlet extends ServletBase  {
 						}
 						*/
 						out.write("<tr onclick=\"document.location='certificateuser?id="+rec.id+"';\">");
-						out.write("<td>U"+rec.id+"</td>");
+						out.write("<td>"+rec.id+"</td>");
 						out.write("<td>"+rec.status+"</td>");
 						//TODO - use configured goc ticket URL
 						out.write("<td><a target=\"_blank\" href=\""+StaticConfig.conf.getProperty("url.gocticket")+"/"+rec.goc_ticket_id+"\">"+rec.goc_ticket_id+"</a></td>");
@@ -723,7 +756,7 @@ public class CertificateUserServlet extends ServletBase  {
 						try {
 							ArrayList<ContactRecord> ras = usermodel.findRAs(rec);
 							if(ras.isEmpty()) {
-								out.write("<td>N/A</td>");
+								out.write("<td><span class=\"label label-important>No RA</span></td>");
 							} else {
 								out.write("<td>");
 								boolean first = true;
