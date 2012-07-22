@@ -208,6 +208,21 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 		return false;
 	}
 	
+	public boolean canCancelWithPass(CertificateRequestUserRecord rec) {
+		if(!canView(rec)) return false;
+		if(	rec.status.equals(CertificateRequestStatus.REQUESTED) ||
+			rec.status.equals(CertificateRequestStatus.RENEW_REQUESTED) ||
+			rec.status.equals(CertificateRequestStatus.REVOCATION_REQUESTED)) {
+			if(!auth.isUser()) {
+				//guest can cancel guest submitted request with a valid pass
+				if(rec.requester_passphrase != null) {
+					return true;	
+				}
+			}
+		}
+		return false;
+	}
+	
 	public boolean canRequestRenew(CertificateRequestUserRecord rec) {
 		if(!canView(rec)) return false;
 		
@@ -565,7 +580,18 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 		fp.update(ticket, rec.goc_ticket_id);
 	}
 
-
+	//NO-AC
+	public void cancelWithPass(final  CertificateRequestUserRecord rec, final String password) throws CertificateRequestException {
+		//verify passphrase if necessary
+		if(rec.requester_passphrase != null) {
+			String hashed = BCrypt.hashpw(password, rec.requester_passphrase_salt);
+			if(!hashed.equals(rec.requester_passphrase)) {
+				throw new CertificateRequestException("Failed to match passphrase.");
+			}
+		}
+		cancel(rec);
+	}
+	
 	// NO-AC
 	// return true if success
 	public void startissue(final CertificateRequestUserRecord rec, final String password) throws CertificateRequestException {

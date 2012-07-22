@@ -499,11 +499,73 @@ public class CertificateUserServlet extends ServletBase  {
 			}
 			
 			final DivRepPassword pass = new DivRepPassword(context.getPageRoot());
-			pass.setLabel("Passphrase");
+			pass.setLabel("Password");
 			pass.setRequired(true);
-			pass.addValidator(new PKIPassStrengthValidator());
 			v.add(pass);
 			
+			if(rec.requester_passphrase == null) {
+				//new password - need to validate
+				pass.addValidator(new PKIPassStrengthValidator());
+				
+				//let user confirm the new password.
+				final DivRepPassword pass_confirm = new DivRepPassword(context.getPageRoot());
+				pass.addEventListener(new DivRepEventListener() {
+					@Override
+					public void handleEvent(DivRepEvent e) {
+						if(pass_confirm.getValue() != null) {
+							pass_confirm.validate();
+						}
+					}
+				});
+				pass_confirm.setLabel("Re-enter password");
+				pass_confirm.addValidator(new DivRepIValidator<String>() {
+					String message;
+					@Override
+					public Boolean isValid(String value) {
+						if(value.equals(pass.getValue())) return true;
+						message = "Password does not match";
+						return false;
+					}
+	
+					@Override
+					public String getErrorMessage() {
+						return message;
+					}});
+				pass_confirm.setRequired(true);
+				v.add(pass_confirm);
+			}
+			
+			final DivRepButton button = new DivRepButton(context.getPageRoot(), "<button class=\"btn btn-primary\"><i class=\"icon-download-alt icon-white\"></i> Issue Certificate ...</button>");
+			button.setStyle(DivRepButton.Style.HTML);
+			button.addClass("inline");
+			button.addEventListener(new DivRepEventListener() {
+                public void handleEvent(DivRepEvent e) {
+                	if(pass.validate()) {
+                		context.setComment("User requested to issue certificate");
+                		//start process thread 
+                		try {
+	                      	model.startissue(rec, pass.getValue());
+	                    	button.redirect(url);
+                    	} catch(CertificateRequestException ex) {
+                    		log.warn("CertificateRequestException while issuging certificate:", ex);
+                    		button.alert(ex.getMessage());
+                    	}
+                	}
+                }
+            });
+			v.add(button);
+		}
+		if(model.canCancelWithPass(rec)) {
+			Authorization auth = context.getAuthorization();
+			
+			v.add(new HtmlView("<p class=\"help-block\">Please enter password used to submit this request in order to cancel this request.</p>"));
+			final DivRepPassword pass = new DivRepPassword(context.getPageRoot());
+			pass.setLabel("Password");
+			pass.setRequired(true);
+			//pass.addValidator(new PKIPassStrengthValidator());
+			v.add(pass);
+			
+			/*
 			final DivRepPassword pass_confirm = new DivRepPassword(context.getPageRoot());
 			pass.addEventListener(new DivRepEventListener() {
 				@Override
@@ -529,26 +591,27 @@ public class CertificateUserServlet extends ServletBase  {
 				}});
 			pass_confirm.setRequired(true);
 			v.add(pass_confirm);
+			*/
 			
-			final DivRepButton button = new DivRepButton(context.getPageRoot(), "<button class=\"btn btn-primary\"><i class=\"icon-download-alt icon-white\"></i> Issue Certificate ...</button>");
+			final DivRepButton button = new DivRepButton(context.getPageRoot(), "<button class=\"btn btn-primary\"><i class=\"icon-download-alt icon-white\"></i> Cancel Request</button>");
 			button.setStyle(DivRepButton.Style.HTML);
 			button.addClass("inline");
 			button.addEventListener(new DivRepEventListener() {
                 public void handleEvent(DivRepEvent e) {
-                	if(pass.validate()) {
-                		context.setComment("User requested to issue certificate");
-                		//start process thread 
+                	if(pass.validate() && note.validate()) {
+                		context.setComment(note.getValue());
                 		try {
-	                      	model.startissue(rec, pass.getValue());
+	                      	model.cancelWithPass(rec, pass.getValue());
 	                    	button.redirect(url);
                     	} catch(CertificateRequestException ex) {
-                    		log.warn("CertificateRequestException while issuging certificate:", ex);
+                    		log.warn("CertificateRequestException while canceling certificate request:", ex);
                     		button.alert(ex.getMessage());
                     	}
                 	}
                 }
             });
 			v.add(button);
+			note.setHidden(false);
 		}
 		if(model.canCancel(rec)) {
 			final DivRepButton button = new DivRepButton(context.getPageRoot(), "<button class=\"btn\">Cancel Request</button>");
