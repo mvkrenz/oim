@@ -42,6 +42,17 @@ public class RestServlet extends ServletBase  {
     		params.put("status", status.toString());
     		params.put("detail", detail);
     		out.write(params.toString());
+    		
+    		//set httpresponse code
+    		switch(status) {
+    		case OK: 
+    		case PENDING:
+    			response.setStatus(HttpServletResponse.SC_FOUND);
+    			break;
+    		case FAILED:
+    			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+    			break;
+    		}
     	}
     }
     
