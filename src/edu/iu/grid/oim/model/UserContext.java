@@ -53,6 +53,17 @@ public class UserContext {
 		divrep_root = DivRepRoot.getInstance(request.getSession());
 		divrep_pageid = request.getRequestURI() + request.getQueryString();
 		remote_addr = request.getRemoteAddr();
+		
+		//make sure user can bind only 1 IP address (to prevent session fixation attack)
+		String addr = (String)session.getAttribute("remote_addr");
+		if(addr == null) {
+			//never initialized - just store it
+			session.setAttribute("remote_addr", remote_addr);
+		} else {
+			if(!addr.equals(remote_addr)) {
+				throw new AuthorizationException("Invalid IP address");
+			}
+		}
 	}
 	
 	public Connection getConnection() throws SQLException {

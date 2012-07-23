@@ -564,35 +564,7 @@ public class CertificateUserServlet extends ServletBase  {
 			pass.setRequired(true);
 			//pass.addValidator(new PKIPassStrengthValidator());
 			v.add(pass);
-			
-			/*
-			final DivRepPassword pass_confirm = new DivRepPassword(context.getPageRoot());
-			pass.addEventListener(new DivRepEventListener() {
-				@Override
-				public void handleEvent(DivRepEvent e) {
-					if(pass_confirm.getValue() != null) {
-						pass_confirm.validate();
-					}
-				}
-			});
-			pass_confirm.setLabel("Re-enter password");
-			pass_confirm.addValidator(new DivRepIValidator<String>() {
-				String message;
-				@Override
-				public Boolean isValid(String value) {
-					if(value.equals(pass.getValue())) return true;
-					message = "Password does not match";
-					return false;
-				}
-
-				@Override
-				public String getErrorMessage() {
-					return message;
-				}});
-			pass_confirm.setRequired(true);
-			v.add(pass_confirm);
-			*/
-			
+						
 			final DivRepButton button = new DivRepButton(context.getPageRoot(), "<button class=\"btn btn-primary\"><i class=\"icon-download-alt icon-white\"></i> Cancel Request</button>");
 			button.setStyle(DivRepButton.Style.HTML);
 			button.addClass("inline");
