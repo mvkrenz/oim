@@ -47,7 +47,7 @@ public class RestServlet extends ServletBase  {
     		switch(status) {
     		case OK: 
     		case PENDING:
-    			response.setStatus(HttpServletResponse.SC_FOUND);
+    			response.setStatus(HttpServletResponse.SC_OK);
     			break;
     		case FAILED:
     			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
