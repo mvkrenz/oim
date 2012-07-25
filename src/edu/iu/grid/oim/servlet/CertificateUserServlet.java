@@ -290,13 +290,24 @@ public class CertificateUserServlet extends ServletBase  {
 					if(ras.isEmpty()) {
 						out.write("<td>N/A</td>");
 					} else {
-						out.write("<td>");
-						out.write("<ul>");
-						for(ContactRecord ra : ras) {
-							out.write("<li>"+ra.name+"</li>");
+						if(auth.isUser()) {
+							out.write("<td><table class=\"table table-bordered\"><tr><th width=\"33%\"></th><th width=\"33%\">Email Address</th><th>Phone Number</th></tr>");
+							for(ContactRecord ra : ras) {
+								out.write("<tr><th>"+ra.name+"</th>");
+								out.write("<td><a href=\"mailto:"+ra.primary_email+"\">" + ra.primary_email + "</a></td>");
+								out.write("<td>" + ra.primary_phone + "</td>");
+								out.write("</tr>");
+							}
+							out.write("</table></td>");	
+						} else {
+							out.write("<td>");
+							out.write("<ul>");
+							for(ContactRecord ra : ras) {
+								out.write("<li>"+ra.name+"</li>");
+							}
+							out.write("</ul>");
+							out.write("</td>");	
 						}
-						out.write("</ul>");
-						out.write("</td>");	
 					}
 					out.write("</tr>");
 				} catch (SQLException e) {
@@ -311,13 +322,24 @@ public class CertificateUserServlet extends ServletBase  {
 					if(sponsors.isEmpty()) {
 						out.write("<td>N/A</td>");
 					} else {
-						out.write("<td>");
-						out.write("<ul>");
-						for(ContactRecord sponsor : sponsors) {
-							out.write("<li>"+sponsor.name+"</li>");
+						if(auth.isUser()) {
+							out.write("<td><table class=\"table table-bordered\"><tr><th width=\"33%\"></th><th width=\"33%\">Email Address</th><th>Phone Number</th></tr>");
+							for(ContactRecord sponsor : sponsors) {
+								out.write("<tr><th>"+sponsor.name+"</th>");
+								out.write("<td><a href=\"mailto:"+sponsor.primary_email+"\">" + sponsor.primary_email + "</a></td>");
+								out.write("<td>" + sponsor.primary_phone + "</td>");
+								out.write("</tr>");
+							}
+							out.write("</table></td>");	
+						} else {
+							out.write("<td>");
+							out.write("<ul>");
+							for(ContactRecord sponsor : sponsors) {
+								out.write("<li>"+sponsor.name+"</li>");
+							}
+							out.write("</ul>");
+							out.write("</td>");	
 						}
-						out.write("</ul>");
-						out.write("</td>");	
 					}
 					out.write("</tr>");
 				} catch (SQLException e) {
@@ -793,7 +815,7 @@ public class CertificateUserServlet extends ServletBase  {
 						try {
 							ArrayList<ContactRecord> ras = usermodel.findRAs(rec);
 							if(ras.isEmpty()) {
-								out.write("<td><span class=\"label label-important>No RA</span></td>");
+								out.write("<td><span class=\"label label-important\">No RA</span></td>");
 							} else {
 								out.write("<td>");
 								boolean first = true;

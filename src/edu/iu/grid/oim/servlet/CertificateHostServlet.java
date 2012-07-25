@@ -180,9 +180,15 @@ public class CertificateHostServlet extends ServletBase  {
 					ContactModel cmodel = new ContactModel(context);
 					if(rec.requester_contact_id != null) {
 						ContactRecord requester = cmodel.get(rec.requester_contact_id);
-						out.write("<td>"+StringEscapeUtils.escapeHtml(requester.name)+" ("+StringEscapeUtils.escapeHtml(requester.primary_email)+")</td>");
+						if(auth.isUser()) {
+							out.write("<td><h4>"+StringEscapeUtils.escapeHtml(requester.name)+"</h4>Email: <a href=\"mailto:"+requester.primary_email+"\">"+requester.primary_email+"</a><br>");
+							out.write("Phone: "+requester.primary_phone);
+							out.write("</td>");
+						} else {
+							out.write("<td>"+StringEscapeUtils.escapeHtml(requester.name)+"</td>");
+						}
 					} else {
-						out.write("<td>Guest called "+rec.requester_name+"</td>");
+						out.write("<td><span class=\"label\">Guest</span> "+rec.requester_name+"</td>");
 					}
 
 				} catch (SQLException e1) {
@@ -197,8 +203,14 @@ public class CertificateHostServlet extends ServletBase  {
 				
 				out.write("<tr>");
 				out.write("<th>Grid Admin</th>");
-				out.write("<td>"+StringEscapeUtils.escapeHtml(gridadmin.name)+" ("+StringEscapeUtils.escapeHtml(gridadmin.primary_email)+")</td>");
-	
+				if(auth.isUser()) {
+					out.write("<td><h4>"+StringEscapeUtils.escapeHtml(gridadmin.name)+"</h4>Email: <a href=\"mailto:"+gridadmin.primary_email+"\">"+gridadmin.primary_email+"</a><br>");
+					out.write("Phone: "+gridadmin.primary_phone);
+					out.write("</td>");
+				} else {
+					out.write("<td>"+StringEscapeUtils.escapeHtml(gridadmin.name)+"</td>");
+				}
+				
 				out.write("</tr>");
 				
 				out.write("<tr>");
