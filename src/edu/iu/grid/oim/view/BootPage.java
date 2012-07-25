@@ -24,7 +24,7 @@ public class BootPage implements IView {
     
 	private HtmlFileView header;
 	private IView menu;
-	private IView content;
+	private ContentView content;
 	private HtmlFileView footer;
 	private IView side;
 	private IView pageheader;
@@ -41,7 +41,11 @@ public class BootPage implements IView {
 		header = new HtmlFileView(getClass().getResourceAsStream("boot_header.txt"));
 		footer = new HtmlFileView(getClass().getResourceAsStream("boot_footer.txt"));
 		menu = _menu;
-		content = _content;
+		
+		//we should ask client to give us ContentView instead.. but it will be a lot of work
+		content = new ContentView(_context);
+		content.add(_content);
+		
 		side = _side;
 	}
 	public void putSideViewLeft(boolean b) {

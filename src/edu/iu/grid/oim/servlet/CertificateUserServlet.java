@@ -570,8 +570,9 @@ public class CertificateUserServlet extends ServletBase  {
 			button.addClass("inline");
 			button.addEventListener(new DivRepEventListener() {
                 public void handleEvent(DivRepEvent e) {
-                	if(pass.validate() && note.validate()) {
-                		context.setComment(note.getValue());
+                	if(pass.validate()/* && note.validate()*/) {
+                		//context.setComment(note.getValue());
+                		context.setComment("Submitter canceled request.");
                 		try {
 	                      	model.cancelWithPass(rec, pass.getValue());
 	                    	button.redirect(url);
@@ -583,7 +584,7 @@ public class CertificateUserServlet extends ServletBase  {
                 }
             });
 			v.add(button);
-			note.setHidden(false);
+			//note.setHidden(false);
 		}
 		if(model.canCancel(rec)) {
 			final DivRepButton button = new DivRepButton(context.getPageRoot(), "<button class=\"btn\">Cancel Request</button>");
@@ -591,18 +592,19 @@ public class CertificateUserServlet extends ServletBase  {
 			button.addClass("inline");
 			button.addEventListener(new DivRepEventListener() {
                 public void handleEvent(DivRepEvent e) {
-                	if(note.validate()) {
-                		context.setComment(note.getValue());
-	                	if(model.cancel(rec)) {
-	                		button.redirect(url);
-	                	} else {
-	                		button.alert("Failed to cancel request");
-	                	}
+                	//if(note.validate()) {
+            		//context.setComment(note.getValue());
+                	context.setComment("Submitter or RA canceled request.");
+                	if(model.cancel(rec)) {
+                		button.redirect(url);
+                	} else {
+                		button.alert("Failed to cancel request");
                 	}
+                	//}
                 }
             });
 			v.add(button);
-			note.setHidden(false);
+			//note.setHidden(false);
 		}
 		if(model.canReject(rec)) {
 			final DivRepButton button = new DivRepButton(context.getPageRoot(), "<button class=\"btn btn-danger\"><i class=\"icon-remove icon-white\"></i> Reject Request</button>");

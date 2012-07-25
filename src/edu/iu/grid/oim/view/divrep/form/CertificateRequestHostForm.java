@@ -194,7 +194,7 @@ public class CertificateRequestHostForm extends DivRepForm
 			if(rec != null) {
 				redirect("certificatehost?id="+rec.id); //TODO - does this work? I haven't tested it
 			}
-			context.message(MessageType.SUCCESS, "Successfully requested new host certificate.");
+			context.message(MessageType.SUCCESS, "Successfully requested new host certificate. Your GridAdmin will contact you to process your request.");
 			return true;
 		} catch (CertificateRequestException e) {
 			log.error("Failed to submit request..", e);
