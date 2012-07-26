@@ -586,7 +586,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 		if(rec.requester_passphrase != null) {
 			String hashed = BCrypt.hashpw(password, rec.requester_passphrase_salt);
 			if(!hashed.equals(rec.requester_passphrase)) {
-				throw new CertificateRequestException("Failed to match passphrase.");
+				throw new CertificateRequestException("Failed to match password.");
 			}
 		}
 		cancel(rec);
@@ -600,7 +600,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 		if(rec.requester_passphrase != null) {
 			String hashed = BCrypt.hashpw(password, rec.requester_passphrase_salt);
 			if(!hashed.equals(rec.requester_passphrase)) {
-				throw new CertificateRequestException("Failed to match passphrase.");
+				throw new CertificateRequestException("Failed to match password.");
 			}
 		}
 

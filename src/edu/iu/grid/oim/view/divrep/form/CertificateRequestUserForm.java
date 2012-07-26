@@ -203,9 +203,9 @@ public class CertificateRequestUserForm extends DivRepForm
 				}});
 			
 			new DivRepStaticContent(this, "<h2>Choose a password</h2>");
-			new DivRepStaticContent(this, "<p class=\"help-block\">Please choose a passphrase to retrieve your certificate once it's issued.</p>");
+			new DivRepStaticContent(this, "<p class=\"help-block\">Please choose a password to retrieve your certificate once it's issued.</p>");
 			if(!auth.isUser()) {
-				new DivRepStaticContent(this, "<p class=\"help-block\">This passphrase will also be used to encrypt your certificate.</p>");
+				new DivRepStaticContent(this, "<p class=\"help-block\">This password will also be used to encrypt your certificate.</p>");
 			}
 			passphrase = new DivRepPassword(this);
 			passphrase.addValidator(new PKIPassStrengthValidator());

@@ -201,7 +201,7 @@ public class CertificateUserServlet extends ServletBase  {
 				if(rec.cert_notafter != null && rec.cert_notbefore != null) {
 					out.write("Between " + rec.cert_notbefore.toString() + " and " + rec.cert_notafter.toString()); 
 				} else {
-					out.write("(N/A)");
+					out.write("<span class=\"muted\">N/A</span>");
 				}
 				out.write("</td>");
 				out.write("</tr>");
@@ -227,8 +227,17 @@ public class CertificateUserServlet extends ServletBase  {
 				try {
 					ContactModel cmodel = new ContactModel(context);
 					ContactRecord requester = cmodel.get(rec.requester_contact_id);
-					out.write("<td>"+StringEscapeUtils.escapeHtml(requester.name)+" ("+StringEscapeUtils.escapeHtml(requester.primary_email)+")</td>");
-
+					out.write("<td>");
+					if(requester.disable) {
+						out.write("<span class=\"label label-warning\">Unconfirmed</span>");
+					}
+					if(auth.isUser()) {
+						out.write("<h4>"+StringEscapeUtils.escapeHtml(requester.name)+"</h4>Email: <a href=\"mailto:"+requester.primary_email+"\">"+requester.primary_email+"</a><br>");
+						out.write("Phone: "+requester.primary_phone);
+					} else {
+						out.write("<td>"+StringEscapeUtils.escapeHtml(requester.name));
+					}
+					out.write("</td>");
 				} catch (SQLException e1) {
 					out.write("<td>(sql error)</td>");
 				}
@@ -278,7 +287,7 @@ public class CertificateUserServlet extends ServletBase  {
 					out.write("<td>"+StringEscapeUtils.escapeHtml(vo.name)+"</td>");
 				} catch (SQLException e) {
 					log.error("Failed to find vo information for certificate view", e);
-					out.write("<td>N/A</td>");
+					out.write("<td><span class=\"muted\">N/A</span></td>");
 				}
 				out.write("</tr>");
 				
@@ -288,7 +297,7 @@ public class CertificateUserServlet extends ServletBase  {
 					CertificateRequestUserModel usermodel = new CertificateRequestUserModel(context);
 					ArrayList<ContactRecord> ras = usermodel.findRAs(rec);
 					if(ras.isEmpty()) {
-						out.write("<td>N/A</td>");
+						out.write("<td><span class=\"muted\">N/A</span></td>");
 					} else {
 						if(auth.isUser()) {
 							out.write("<td><table class=\"table table-bordered\"><tr><th width=\"33%\"></th><th width=\"33%\">Email Address</th><th>Phone Number</th></tr>");
@@ -320,7 +329,7 @@ public class CertificateUserServlet extends ServletBase  {
 					CertificateRequestUserModel usermodel = new CertificateRequestUserModel(context);
 					ArrayList<ContactRecord> sponsors = usermodel.findSponsors(rec);
 					if(sponsors.isEmpty()) {
-						out.write("<td>N/A</td>");
+						out.write("<td><span class=\"muted\">N/A</span></td>");
 					} else {
 						if(auth.isUser()) {
 							out.write("<td><table class=\"table table-bordered\"><tr><th width=\"33%\"></th><th width=\"33%\">Email Address</th><th>Phone Number</th></tr>");

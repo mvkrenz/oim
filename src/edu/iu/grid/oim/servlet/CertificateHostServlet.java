@@ -180,15 +180,16 @@ public class CertificateHostServlet extends ServletBase  {
 					ContactModel cmodel = new ContactModel(context);
 					if(rec.requester_contact_id != null) {
 						ContactRecord requester = cmodel.get(rec.requester_contact_id);
+						out.write("<td>");
 						if(auth.isUser()) {
-							out.write("<td><h4>"+StringEscapeUtils.escapeHtml(requester.name)+"</h4>Email: <a href=\"mailto:"+requester.primary_email+"\">"+requester.primary_email+"</a><br>");
+							out.write("<h4>"+StringEscapeUtils.escapeHtml(requester.name)+"</h4>Email: <a href=\"mailto:"+requester.primary_email+"\">"+requester.primary_email+"</a><br>");
 							out.write("Phone: "+requester.primary_phone);
-							out.write("</td>");
 						} else {
-							out.write("<td>"+StringEscapeUtils.escapeHtml(requester.name)+"</td>");
+							out.write(StringEscapeUtils.escapeHtml(requester.name)+"</td>");
 						}
+						out.write("</td>");
 					} else {
-						out.write("<td><span class=\"label\">Guest</span> "+rec.requester_name+"</td>");
+						out.write("<td><span class=\"label label-warning\">Unconfirmed</span> "+rec.requester_name+"</td>");
 					}
 
 				} catch (SQLException e1) {
