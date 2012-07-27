@@ -26,11 +26,6 @@ public class CertificateRequestUserServlet extends ServletBase  {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{
 		UserContext context = new UserContext(request);
-
-		//only run on debug
-		if(!StaticConfig.isDebug()) {
-			throw new AuthorizationException("this feature is not yet available on production");
-		}
 				
 		BootMenuView menuview = new BootMenuView(context, "certificate");
 		BootPage page = new BootPage(context, menuview, createContent(context), null);
