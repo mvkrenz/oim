@@ -317,25 +317,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 		}
 		return false;
 	}
-	
-	//convert comma delimited DN (RFC1779) to apache format (delimited by /)
-	public String RFC1779_to_ApacheDN(String dn) {
-		String tokens[] = dn.split(",");
-		String out = StringUtils.join(tokens, "/");
-		return "/"+out;
-	}
-	public String X500Principal_to_ApacheDN(X500Principal dn) {
-		String dn_string = dn.toString();
-		String tokens[] = dn_string.split(",");
-		StringBuffer out = new StringBuffer();
-		for(int i = tokens.length;i != 0;i--) {
-			out.append("/"+tokens[i-1].trim());
-		}
-		return out.toString();
-	}
-	
-	
-	
+		
 	//NO-AC
 	//return true if success
 	public boolean approve(CertificateRequestUserRecord rec) {
@@ -675,7 +657,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 					
 					//get some information we need from the issued certificate
 					try {
-						java.security.cert.Certificate[]  chain = parsePKCS7(rec);
+						java.security.cert.Certificate[]  chain = CertificateManager.parsePKCS7(rec.cert_pkcs7);
 						X509Certificate c0 = (X509Certificate)chain[0];
 						rec.cert_notafter = c0.getNotAfter();
 						rec.cert_notbefore = c0.getNotBefore();
@@ -692,13 +674,13 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 						
 						//update dn with the one returned by DigiCert
 						X500Principal dn = c0.getSubjectX500Principal();
-						String apache_dn = X500Principal_to_ApacheDN(dn);
+						String apache_dn = CertificateManager.X500Principal_to_ApacheDN(dn);
 						rec.dn = apache_dn;
 						
 						//make sure dn starts with correct base
-						String dn_base = StaticConfig.conf.getProperty("digicert.dn_base");
-						if(!apache_dn.startsWith(dn_base)) {
-							log.warn("User certificate issued for request " + rec.id + " has DN:"+apache_dn+" which doesn't have an expected DN base: "+dn_base);
+						String user_dn_base = StaticConfig.conf.getProperty("digicert.user_dn_base");
+						if(!apache_dn.startsWith(user_dn_base)) {
+							log.warn("User certificate issued for request " + rec.id + " has DN:"+apache_dn+" which doesn't have an expected DN base: "+user_dn_base);
 						}
 						
 					} catch (CMSException e) {
@@ -743,41 +725,14 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 		return (String)session.getAttribute("PASS_USER:"+id);		
 	}
 	
-	private java.security.cert.Certificate[]  parsePKCS7(CertificateRequestUserRecord rec) throws CMSException, CertificateException, IOException {
-		//need to strip first and last line (-----BEGIN PKCS7-----, -----END PKCS7-----)
-		String []lines = rec.cert_pkcs7.split("\n");
-		String payload = "";
-		for(String line : lines) {
-			if(line.startsWith("-----")) continue;
-			payload += line;
-		}
-		
-		//convert cms to certificate chain
-		CMSSignedData cms = new CMSSignedData(Base64.decode(payload));
-		Store s = cms.getCertificates();
-		Collection collection = s.getMatches(null);
-		java.security.cert.Certificate[] chain = new java.security.cert.Certificate[collection.size()];
-		Iterator itr = collection.iterator(); 
-		int i = 0;
-	    CertificateFactory cf = CertificateFactory.getInstance("X.509"); 
-		while(itr.hasNext()) {
-			X509CertificateHolder it = (X509CertificateHolder)itr.next();
-			Certificate c = it.toASN1Structure();
-			
-			//convert to java.security certificate
-		    InputStream is1 = new ByteArrayInputStream(c.getEncoded()); 
-			chain[i++] = cf.generateCertificate(is1);
-		}
-		return chain;
-	}
-	
+
 	//construct pkcs12 using private key stored in session and issued certificate
 	//return null if unsuccessful - errors are logged
 	public KeyStore getPkcs12(CertificateRequestUserRecord rec) {			
 		//pull certificate chain from pkcs7
 
 		try {
-			java.security.cert.Certificate[] chain = parsePKCS7(rec);
+			java.security.cert.Certificate[] chain = CertificateManager.parsePKCS7(rec.cert_pkcs7);
 			
 			//HttpSession session = context.getSession();
 			String password = getPassword(rec.id);
@@ -989,7 +944,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 			
 			//we can generate dn immediately
 			X500Name name = generateDN(cn);
-			rec.dn = RFC1779_to_ApacheDN(name.toString());
+			rec.dn = CertificateManager.RFC1779_to_ApacheDN(name.toString());
 			
 			CertificateRequestUserRecord existing_rec = getByDN(rec.dn);
 			if(existing_rec == null) {
@@ -1013,7 +968,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 				//and generate dn
 		    	cn = requester.getName() + " " + requester.id;
 		    	X500Name name = generateDN(cn);
-				rec.dn = RFC1779_to_ApacheDN(name.toString());
+				rec.dn = CertificateManager.RFC1779_to_ApacheDN(name.toString());
 				
 				note += "NOTE: User is registering OIM contact & requesting new certificate: contact id:"+requester.id+"\n";
 		    	
@@ -1021,7 +976,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 				//generate dn
 		    	cn = requester.getName() + " " + requester.id;
 		    	X500Name name = generateDN(cn);
-				rec.dn = RFC1779_to_ApacheDN(name.toString());
+				rec.dn = CertificateManager.RFC1779_to_ApacheDN(name.toString());
 				
 				//find if there is any DN associated with the contact
 				DNModel dnmodel = new DNModel(context);
@@ -1226,7 +1181,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
     	try {
 			CertificateRequestUserRecord rec = get(21);
 			try {
-				java.security.cert.Certificate[]  chain = parsePKCS7(rec);
+				java.security.cert.Certificate[]  chain = CertificateManager.parsePKCS7(rec.cert_pkcs7);
 				X509Certificate c0 = (X509Certificate)chain[0];
 				Date not_after = c0.getNotAfter();
 				Date not_before = c0.getNotBefore();

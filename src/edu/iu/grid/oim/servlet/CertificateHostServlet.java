@@ -182,8 +182,9 @@ public class CertificateHostServlet extends ServletBase  {
 						ContactRecord requester = cmodel.get(rec.requester_contact_id);
 						out.write("<td>");
 						if(auth.isUser()) {
-							out.write("<h4>"+StringEscapeUtils.escapeHtml(requester.name)+"</h4>Email: <a href=\"mailto:"+requester.primary_email+"\">"+requester.primary_email+"</a><br>");
-							out.write("Phone: "+requester.primary_phone);
+							out.write("<b>"+StringEscapeUtils.escapeHtml(requester.name)+"</b>");
+							out.write(" <code><a href=\"mailto:"+requester.primary_email+"\">"+requester.primary_email+"</a></code>");
+							out.write(" Phone: "+requester.primary_phone);
 						} else {
 							out.write(StringEscapeUtils.escapeHtml(requester.name)+"</td>");
 						}
@@ -204,15 +205,16 @@ public class CertificateHostServlet extends ServletBase  {
 				
 				out.write("<tr>");
 				out.write("<th>Grid Admin</th>");
+				out.write("<td>");
 				if(auth.isUser()) {
-					out.write("<td><h4>"+StringEscapeUtils.escapeHtml(gridadmin.name)+"</h4>Email: <a href=\"mailto:"+gridadmin.primary_email+"\">"+gridadmin.primary_email+"</a><br>");
-					out.write("Phone: "+gridadmin.primary_phone);
-					out.write("</td>");
+					out.write("<b>"+StringEscapeUtils.escapeHtml(gridadmin.name)+"</b>");
+					out.write(" <code><a href=\"mailto:"+gridadmin.primary_email+"\">"+gridadmin.primary_email+"</a></code>");
+					out.write(" Phone: "+gridadmin.primary_phone);
 				} else {
-					out.write("<td>"+StringEscapeUtils.escapeHtml(gridadmin.name)+"</td>");
+					out.write(StringEscapeUtils.escapeHtml(gridadmin.name));
 				}
 				
-				out.write("</tr>");
+				out.write("</td></tr>");
 				
 				out.write("<tr>");
 				out.write("<th>GOC Ticket</th>");

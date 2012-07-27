@@ -1,6 +1,8 @@
 package edu.iu.grid.oim.model.db;
 
 import java.io.IOException;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -10,9 +12,12 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 
+import javax.security.auth.x500.X500Principal;
+
 import org.bouncycastle.asn1.x500.RDN;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x500.style.BCStyle;
+import org.bouncycastle.cms.CMSException;
 import org.bouncycastle.pkcs.PKCS10CertificationRequest;
 import org.bouncycastle.util.encoders.Base64;
 
@@ -153,6 +158,41 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 								log.error("Failed to update certificate update while monitoring issue progress:" + rec.id);
 							};
 							*/
+							
+							//pull some information from the cert for validation purpose
+							java.security.cert.Certificate[] chain;
+							try {
+								chain = CertificateManager.parsePKCS7(cert.pkcs7);
+								
+								X509Certificate c0 = (X509Certificate)chain[0];
+								Date cert_notafter = c0.getNotAfter();
+								Date cert_notbefore = c0.getNotBefore();
+								
+								//do a bit of validation
+								Calendar today = Calendar.getInstance();
+								if(Math.abs(today.getTimeInMillis() - cert_notbefore.getTime()) > 1000*3600*24) {
+									log.warn("Host certificate issued for request "+rec.id+"(idx:"+idx+") has cert_notbefore set too distance from current timestamp");
+								}
+								long dayrange = (cert_notafter.getTime() - cert_notbefore.getTime()) / (1000*3600*24);
+								if(dayrange < 360 || dayrange > 370) {
+									log.warn("Host certificate issued for request "+rec.id+ "(idx:"+idx+")  has valid range of "+dayrange+" days (too far from 365 days)");
+								}
+							
+								//make sure dn starts with correct base
+								X500Principal dn = c0.getSubjectX500Principal();
+								String apache_dn = CertificateManager.X500Principal_to_ApacheDN(dn);
+								String host_dn_base = StaticConfig.conf.getProperty("digicert.host_dn_base");
+								if(!apache_dn.startsWith(host_dn_base)) {
+									log.warn("Host certificate issued for request " + rec.id + "(idx:"+idx+")  has DN:"+apache_dn+" which doesn't have an expected DN base: "+host_dn_base);
+								}
+							} catch (CertificateException e1) {
+								log.error("Failed to validate host certificate (pkcs7) issued. ID:" + rec.id+"(idx:"+idx+")", e1);
+							} catch (CMSException e1) {
+								log.error("Failed to validate host certificate (pkcs7) issued. ID:" + rec.id+"(idx:"+idx+")", e1);
+							} catch (IOException e1) {
+								log.error("Failed to validate host certificate (pkcs7) issued. ID:" + rec.id+"(idx:"+idx+")", e1);
+							}
+
 							
 							//update status note
 							try {

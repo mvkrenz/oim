@@ -32,6 +32,7 @@ import edu.iu.grid.oim.lib.AuthorizationException;
 import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.model.CertificateRequestStatus;
 import edu.iu.grid.oim.model.UserContext;
+import edu.iu.grid.oim.model.cert.CertificateManager;
 import edu.iu.grid.oim.model.db.CertificateRequestModelBase;
 import edu.iu.grid.oim.model.db.CertificateRequestModelBase.LogDetail;
 import edu.iu.grid.oim.model.db.CertificateRequestUserModel;
@@ -233,10 +234,11 @@ public class CertificateUserServlet extends ServletBase  {
 						out.write("<span class=\"label label-warning\">Unconfirmed</span>");
 					}
 					if(auth.isUser()) {
-						out.write("<h4>"+StringEscapeUtils.escapeHtml(requester.name)+"</h4>Email: <a href=\"mailto:"+requester.primary_email+"\">"+requester.primary_email+"</a><br>");
-						out.write("Phone: "+requester.primary_phone);
+						out.write("<b>"+StringEscapeUtils.escapeHtml(requester.name)+"</b>");
+						out.write(" <code><a href=\"mailto:"+requester.primary_email+"\">"+requester.primary_email+"</a></code>");
+						out.write(" Phone: "+requester.primary_phone);
 					} else {
-						out.write("<td>"+StringEscapeUtils.escapeHtml(requester.name));
+						out.write(StringEscapeUtils.escapeHtml(requester.name));
 					}
 					out.write("</td>");
 				} catch (SQLException e1) {
@@ -299,24 +301,20 @@ public class CertificateUserServlet extends ServletBase  {
 					if(ras.isEmpty()) {
 						out.write("<td><span class=\"muted\">N/A</span></td>");
 					} else {
-						if(auth.isUser()) {
-							out.write("<td><table class=\"table table-bordered\"><tr><th width=\"33%\"></th><th width=\"33%\">Email Address</th><th>Phone Number</th></tr>");
-							for(ContactRecord ra : ras) {
-								out.write("<tr><th>"+ra.name+"</th>");
-								out.write("<td><a href=\"mailto:"+ra.primary_email+"\">" + ra.primary_email + "</a></td>");
-								out.write("<td>" + ra.primary_phone + "</td>");
-								out.write("</tr>");
-							}
-							out.write("</table></td>");	
-						} else {
-							out.write("<td>");
-							out.write("<ul>");
-							for(ContactRecord ra : ras) {
+						out.write("<td>");
+						out.write("<ul>");
+						for(ContactRecord ra : ras) {
+							if(auth.isUser()) {
+								out.write("<li>");
+								out.write("<a href=\"mailto:"+ra.primary_email+"\">"+StringEscapeUtils.escapeHtml(ra.name)+"</a>");
+								out.write(" Phone: "+ra.primary_phone+"</li>");
+							} else {
 								out.write("<li>"+ra.name+"</li>");
 							}
-							out.write("</ul>");
-							out.write("</td>");	
 						}
+						out.write("</ul>");
+						out.write("</td>");	
+						
 					}
 					out.write("</tr>");
 				} catch (SQLException e) {
@@ -331,24 +329,19 @@ public class CertificateUserServlet extends ServletBase  {
 					if(sponsors.isEmpty()) {
 						out.write("<td><span class=\"muted\">N/A</span></td>");
 					} else {
-						if(auth.isUser()) {
-							out.write("<td><table class=\"table table-bordered\"><tr><th width=\"33%\"></th><th width=\"33%\">Email Address</th><th>Phone Number</th></tr>");
-							for(ContactRecord sponsor : sponsors) {
-								out.write("<tr><th>"+sponsor.name+"</th>");
-								out.write("<td><a href=\"mailto:"+sponsor.primary_email+"\">" + sponsor.primary_email + "</a></td>");
-								out.write("<td>" + sponsor.primary_phone + "</td>");
-								out.write("</tr>");
-							}
-							out.write("</table></td>");	
-						} else {
-							out.write("<td>");
-							out.write("<ul>");
-							for(ContactRecord sponsor : sponsors) {
+						out.write("<td>");
+						out.write("<ul>");
+						for(ContactRecord sponsor : sponsors) {
+							if(auth.isUser()) {
+								out.write("<li>");
+								out.write("<a href=\"mailto:"+sponsor.primary_email+"\">"+StringEscapeUtils.escapeHtml(sponsor.name)+"</a>");
+								out.write(" Phone: "+sponsor.primary_phone+"</li>");
+							} else {
 								out.write("<li>"+sponsor.name+"</li>");
 							}
-							out.write("</ul>");
-							out.write("</td>");	
 						}
+						out.write("</ul>");
+						out.write("</td>");	
 					}
 					out.write("</tr>");
 				} catch (SQLException e) {
@@ -450,7 +443,7 @@ public class CertificateUserServlet extends ServletBase  {
                 			if(cn_override.validate()) {
 		                		//Regenerate DN using provided CN
 		                		X500Name name = model.generateDN(cn_override.getValue());
-		                		rec.dn = model.RFC1779_to_ApacheDN(name.toString());
+		                		rec.dn = CertificateManager.RFC1779_to_ApacheDN(name.toString());
 		                		
 		                		//make sure we don't have duplicate CN requested already.
 								try {

@@ -56,7 +56,7 @@ public class CNEditor extends DivRepFormElement<String> {
 			if(getLabel() != null) {
 				out.print("<label>"+StringEscapeUtils.escapeHtml(getLabel())+"</label><br/>");
 			}
-			String dn_base = StaticConfig.conf.getProperty("digicert.dn_base");
+			String dn_base = StaticConfig.conf.getProperty("digicert.user_dn_base");
 			out.write("<div style=\"float: left;margin: 5px 4px\">"+dn_base+"/CN=</div>");		
 			cn.render(out);
 		}
