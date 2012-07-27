@@ -181,17 +181,18 @@ public class CertificateUserServlet extends ServletBase  {
 				out.write("<tr>");
 				out.write("<th style=\"min-width: 100px;\">DN</th>");
 				out.write("<td>");
-				CNEditor cn_override = new CNEditor(context.getPageRoot());
-				cn_override.setDisabled(true);
-				//cn_override.setLabel("Override CN");
-				cn_override.setRequired(true);
-				cn_override.setValue(rec.getCN());
 				CertificateRequestUserModel model = new CertificateRequestUserModel(context);
+				CNEditor cn_override = null;
 				if(model.canOverrideCN(rec)) {
-					cn_override.setDisabled(false);
+					cn_override = new CNEditor(context.getPageRoot());
+					cn_override.setRequired(true);
+					cn_override.setValue(rec.getCN());
+					//cn_override.setDisabled(false);
+					cn_override.render(out);
+				} else {
+					out.write(StringEscapeUtils.escapeHtml(rec.dn));	
 				}
-				cn_override.render(out);
-				//out.write(StringEscapeUtils.escapeHtml(rec.dn));
+				
 				out.write("</td>");
 				out.write("</tr>");
 				
@@ -260,20 +261,19 @@ public class CertificateUserServlet extends ServletBase  {
 					HttpSession session = context.getSession();
 
 					if(model.getPrivateKey(rec.id) != null) {
-						out.write("<a class=\"btn btn-primary\" href=\"certificatedownload?id="+rec.id+"&type=user&download=pkcs12\">Download Certificate &amp; Private Key (PKCS12)</a>");
+						out.write("<p><a class=\"btn btn-primary\" href=\"certificatedownload?id="+rec.id+"&type=user&download=pkcs12\">Download Certificate &amp; Private Key (PKCS12)</a></p>");
 						//out.write("<a class=\"btn btn-primary\" href=\"certificatedownload?id="+rec.id+"&type=user&download=pem12\">Download Certificate &amp; Private Key (PEM)</a>");
-						out.write("<br>");
 						out.write("<p class=\"alert\">You need to download your certificate and private key now, while your browser session is active. If your session times out, the server will delete your private key for security reasons and you will need to request a new certificate.</p>");
 						
 					} else {
-						out.write("<a class=\"btn btn-primary\" href=\"certificatedownload?id="+rec.id+"&type=user&download=pkcs7\">Download Certificate (PKCS7)</a> ");
+						out.write("<p><a class=\"btn btn-primary\" href=\"certificatedownload?id="+rec.id+"&type=user&download=pkcs7\">Download Certificate (PKCS7)</a> ");
 						out.write("<a class=\"btn\" href=\"certificatedownload?id="+rec.id+"&type=user&download=pem7\">Download Certificate (PEM)</a>");
-						out.write("<br>");
+						out.write("</p>");
 					}
 					
 					String urlformat = "https://confluence.grid.iu.edu/display/CENTRAL/Importing+User+Certificate+on+{0}";
 					String urlformat_in = new Base64(Integer.MAX_VALUE).encodeToString(urlformat.getBytes());
-					out.write("<p><br><a target=\"_blank\" href=\"browserjump?urlformat="+urlformat_in+"\">How to import user certificate on your browser</a></p>");
+					out.write("<p><a target=\"_blank\" href=\"browserjump?urlformat="+urlformat_in+"\">How to import user certificate on your browser</a></p>");
 					out.write("</td>");
 					out.write("</tr>");
 				}

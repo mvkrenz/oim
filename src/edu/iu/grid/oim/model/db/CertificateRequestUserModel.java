@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.security.Principal;
 import java.security.PrivateKey;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
@@ -17,11 +18,13 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 
+import javax.security.auth.x500.X500Principal;
 import javax.servlet.http.HttpSession;
 
 import org.apache.commons.lang.StringUtils;
@@ -320,6 +323,15 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 		String tokens[] = dn.split(",");
 		String out = StringUtils.join(tokens, "/");
 		return "/"+out;
+	}
+	public String X500Principal_to_ApacheDN(X500Principal dn) {
+		String dn_string = dn.toString();
+		String tokens[] = dn_string.split(",");
+		StringBuffer out = new StringBuffer();
+		for(int i = tokens.length;i != 0;i--) {
+			out.append("/"+tokens[i-1].trim());
+		}
+		return out.toString();
 	}
 	
 	
@@ -666,10 +678,33 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 						java.security.cert.Certificate[]  chain = parsePKCS7(rec);
 						X509Certificate c0 = (X509Certificate)chain[0];
 						rec.cert_notafter = c0.getNotAfter();
-						rec.cert_notbefore = c0.getNotBefore();				
+						rec.cert_notbefore = c0.getNotBefore();
+						
+						//do a bit of validation
+						Calendar today = Calendar.getInstance();
+						if(Math.abs(today.getTimeInMillis() - rec.cert_notbefore.getTime()) > 1000*3600*24) {
+							log.warn("User certificate issued for request "+rec.id+" has cert_notbefore set too distance from current timestamp");
+						}
+						long dayrange = (rec.cert_notafter.getTime() - rec.cert_notbefore.getTime()) / (1000*3600*24);
+						if(dayrange < 360 || dayrange > 370) {
+							log.warn("User certificate issued for request "+rec.id+ " has valid range of "+dayrange+" days (too far from 365 days)");
+						}
+						
+						//update dn with the one returned by DigiCert
+						X500Principal dn = c0.getSubjectX500Principal();
+						String apache_dn = X500Principal_to_ApacheDN(dn);
+						rec.dn = apache_dn;
+						
+						//make sure dn starts with correct base
+						String dn_base = StaticConfig.conf.getProperty("digicert.dn_base");
+						if(!apache_dn.startsWith(dn_base)) {
+							log.warn("User certificate issued for request " + rec.id + " has DN:"+apache_dn+" which doesn't have an expected DN base: "+dn_base);
+						}
+						
 					} catch (CMSException e) {
 						log.error("Failed to lookup certificate information for issued user cert request id:" + rec.id, e);
 					}
+					
 					
 					//all done at this point
 					rec.status = CertificateRequestStatus.ISSUED;
@@ -916,6 +951,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
         //We are creating this so that we can create private key
         x500NameBld.addRDN(BCStyle.DC, "com");
         x500NameBld.addRDN(BCStyle.DC, "DigiCert-Grid");
+        x500NameBld.addRDN(BCStyle.O, "Open Science Grid"); //will be "OSG Pilot" for test  
         x500NameBld.addRDN(BCStyle.OU, "People");   
         x500NameBld.addRDN(BCStyle.CN, cn); //don't use "," or "/" which is used for DN delimiter
         

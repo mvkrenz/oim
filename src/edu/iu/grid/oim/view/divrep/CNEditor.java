@@ -11,6 +11,8 @@ import com.divrep.common.DivRepFormElement;
 import com.divrep.common.DivRepTextBox;
 import com.divrep.validator.DivRepIValidator;
 
+import edu.iu.grid.oim.lib.StaticConfig;
+
 public class CNEditor extends DivRepFormElement<String> {
 
 	boolean user_modified = false;
@@ -54,7 +56,8 @@ public class CNEditor extends DivRepFormElement<String> {
 			if(getLabel() != null) {
 				out.print("<label>"+StringEscapeUtils.escapeHtml(getLabel())+"</label><br/>");
 			}
-			out.write("<div style=\"float: left;margin: 5px 4px\">/DC=com/DC=DigiCert-Grid/OU=People/CN=</div>");		
+			String dn_base = StaticConfig.conf.getProperty("digicert.dn_base");
+			out.write("<div style=\"float: left;margin: 5px 4px\">"+dn_base+"/CN=</div>");		
 			cn.render(out);
 		}
 		out.write("</div>");
