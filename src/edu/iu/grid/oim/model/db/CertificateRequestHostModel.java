@@ -578,6 +578,7 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 		ticket.description += "\n\n> " + context.getComment();
 		ticket.description += "\n\nPlease approve / disapprove this request at " + getTicketUrl(rec);
 		ticket.nextaction = "GridAdmin to verify and approve/reject"; //nad will be set to 7 days from today by default
+		ticket.status = "Engineering"; //I need to reopen resolved ticket.
 		
 		//Update CC gridadmin (it might have been changed since last time request was made)
 		VOContactModel model = new VOContactModel(context);
@@ -612,6 +613,7 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 		}
 		ticket.description += "\n\nPlease approve / disapprove this request at " + getTicketUrl(rec);
 		ticket.nextaction = "Grid Admin to process request."; //nad will be set to 7 days from today by default
+		ticket.status = "Engineering"; //I need to reopen resolved ticket.
 		fp.update(ticket, rec.goc_ticket_id);
 	}
 	

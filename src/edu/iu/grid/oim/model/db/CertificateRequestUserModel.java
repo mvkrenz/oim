@@ -490,6 +490,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 		ticket.description += "> " + context.getComment();
 		ticket.description += "\n\nPlease approve / disapporove this request at " + getTicketUrl(rec);
 		ticket.nextaction = "RA/Sponsor to verify&approve"; //nad will be set to 7 days from today by default
+		ticket.status = "Engineering";
 		
 		fp.update(ticket, rec.goc_ticket_id);
 	}
@@ -540,6 +541,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 		}
 		ticket.description += "\n\nPlease approve / disapporove this request at " + getTicketUrl(rec);
 		ticket.nextaction = "RA to process"; //nad will be set to 7 days from today by default
+		ticket.status = "Engineering"; //probably need to reopen
 		fp.update(ticket, rec.goc_ticket_id);
 	}
 	
@@ -1150,7 +1152,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 			ticket.description += "Please determine this request's authenticity, and approve / disapprove at " + getTicketUrl(rec);
 			ticket.assignees.add(StaticConfig.conf.getProperty("certrequest.user.assignee"));
 			ticket.nextaction = "RA/Sponsors to verify requester";	 //NAD will be set to 7 days in advance by default
-
+			ticket.status = "Engineering"; //I need to reopen resolved ticket.
 			fp.update(ticket, rec.goc_ticket_id);
 			
 		} catch (SQLException e1) {
