@@ -60,8 +60,21 @@ public class DigicertCertificateSigner implements ICertificateSigner {
 				throw new CertificateProviderException("Failed to obtain cn from given csr:" + csr, e2);
 			}
 			
+			//split optional service name (like.. rsv/ce.grid.iu.edu)
+			String tokens[] = cn.split("/");
+			String service_name = null;
+			String thecn = null;
+			if(tokens.length == 1) {
+				thecn = tokens[0];
+			} if (tokens.length == 2) {
+				service_name = tokens[0];
+				thecn = tokens[1];
+			} else {
+				throw new CertificateProviderException("Failed to parse Service Name from CN");
+			}
+			
 			//do request & approve
-			String request_id = requestHostCert(csr, cn);
+			String request_id = requestHostCert(csr, service_name, thecn);
 			log.debug("Requested host certificate. Digicert Request ID:" + request_id);
 			String order_id = approve(request_id, "Approving for test purpose"); //like 00295828
 			log.debug("Approved host certificate. Digicert Order ID:" + order_id);
@@ -252,7 +265,7 @@ public class DigicertCertificateSigner implements ICertificateSigner {
 	}
 	
 	
-	private String requestHostCert(String csr, String cn) throws DigicertCPException {
+	private String requestHostCert(String csr, String service_name, String cn) throws DigicertCPException {
 		HttpClient cl = new HttpClient();
 		//cl.getHttpConnectionManager().getParams().setConnectionTimeout(1000*10);
 	    cl.getParams().setParameter("http.useragent", "OIM (OSG Information Management System)");
@@ -264,6 +277,9 @@ public class DigicertCertificateSigner implements ICertificateSigner {
 		post.setParameter("response_type", "xml");
 		post.setParameter("validity", "1"); //security by obscurity -- from the DigiCert dev team
 		post.setParameter("common_name", cn);
+		if(service_name != null) {
+			post.setParameter("service_name", service_name);
+		}
 		post.setParameter("csr", csr);
 		
 		try {
