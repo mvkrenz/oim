@@ -27,6 +27,7 @@ import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.StaticConfig;
 
 import edu.iu.grid.oim.model.UserContext;
+import edu.iu.grid.oim.model.UserContext.MessageType;
 import edu.iu.grid.oim.model.db.DNModel;
 import edu.iu.grid.oim.model.db.DowntimeClassModel;
 import edu.iu.grid.oim.model.db.DowntimeSeverityModel;
@@ -61,6 +62,10 @@ public class ResourceDowntimeServlet extends ServletBase implements Servlet {
 		UserContext context = new UserContext(request);
 		Authorization auth = context.getAuthorization();
 		//auth.check("edit_my_resource");
+		if(!auth.isUser()) {
+			//context.message(MessageType.ERROR, "This page is for OIM user only. Please use MyOSG to see current downtimes.");
+			throw new ServletException("This page is for OIM user only. Please use MyOSG to see current downtimes.");
+		}
 		
 		try {			
 			//construct view
@@ -89,7 +94,7 @@ public class ResourceDowntimeServlet extends ServletBase implements Servlet {
 		
 		ContentView contentview = new ContentView(context);	
 		if(resources.size() == 0) {
-			contentview.add(new HtmlView("<p>You currently don't have any resources that list your contact in any of the contact types.</p>"));
+			context.message(MessageType.ERROR, "You currently don't have any resources that list your contact in any of the contact types.");
 		} else {
 
 			contentview.add(new HtmlView("<table class=\"table nohover\">"));
@@ -166,19 +171,18 @@ public class ResourceDowntimeServlet extends ServletBase implements Servlet {
 		view.add(new HtmlView("<tr><th>End Time</th><td>"+end+"</td></tr>"));
 		
 		DowntimeClassModel dtcmodel = new DowntimeClassModel(context);
-		view.add(new HtmlView("<tr><th>Downtime&nbsp;Class</th><td>"+dtcmodel.get(rec.downtime_class_id).name+"</td></tr>"));
-		//table.addRow("Downtime Class", dtcmodel.get(rec.downtime_class_id).name);
-		
 		DowntimeSeverityModel dtsmodel = new DowntimeSeverityModel(context);
-		view.add(new HtmlView("<tr><th>Downtime&nbsp;Severity</th><td>"+dtsmodel.get(rec.downtime_severity_id).name+"</td></tr>"));
-		//table.addRow("Downtime Severity", dtsmodel.get(rec.downtime_severity_id).name);
+		view.add(new HtmlView("<tr><th>Class / Severity</th><td>"+dtcmodel.get(rec.downtime_class_id).name+" / "+dtsmodel.get(rec.downtime_severity_id).name +"</td></tr>"));
+		//table.addRow("Downtime Class", dtcmodel.get(rec.downtime_class_id).name);
 		
 		view.add(new HtmlView("<tr><th>Affected&nbsp;Services</th><td>"+createAffectedServices(context, rec.id)+"</td></tr>"));
 		//table.addRow("Affected Services", createAffectedServices(rec.id));
 		
 		DNModel dnmodel = new DNModel(context);
-		view.add(new HtmlView("<tr><th>DN</th><td>"+dnmodel.get(rec.dn_id).dn_string+"</td></tr>"));
+		view.add(new HtmlView("<tr><th>Entered By</th><td class=\"muted\">"+dnmodel.get(rec.dn_id).dn_string+"</td></tr>"));
 		//table.addRow("DN", dnmodel.get(rec.dn_id).dn_string);
+		
+		view.add(new HtmlView("<tr><th>Updated At</th><td class=\"muted\">"+dformat.format(rec.timestamp)+"</td></tr>"));
 		
 		view.add(new HtmlView("</table>"));
 	
