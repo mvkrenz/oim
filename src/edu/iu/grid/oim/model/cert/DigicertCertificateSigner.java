@@ -66,7 +66,7 @@ public class DigicertCertificateSigner implements ICertificateSigner {
 			String thecn = null;
 			if(tokens.length == 1) {
 				thecn = tokens[0];
-			} if (tokens.length == 2) {
+			} else if (tokens.length == 2) {
 				service_name = tokens[0];
 				thecn = tokens[1];
 			} else {
