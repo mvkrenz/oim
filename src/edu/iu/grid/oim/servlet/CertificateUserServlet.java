@@ -231,7 +231,7 @@ public class CertificateUserServlet extends ServletBase  {
 					ContactRecord requester = cmodel.get(rec.requester_contact_id);
 					out.write("<td>");
 					if(requester.disable) {
-						out.write("<span class=\"label label-warning\">Unconfirmed</span>");
+						out.write("<span class=\"label label-warning\">Guest</span>");
 					}
 					if(auth.isUser()) {
 						out.write("<b>"+StringEscapeUtils.escapeHtml(requester.name)+"</b>");
