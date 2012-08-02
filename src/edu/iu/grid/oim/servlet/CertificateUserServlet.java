@@ -276,6 +276,10 @@ public class CertificateUserServlet extends ServletBase  {
 					String urlformat = "https://confluence.grid.iu.edu/display/CENTRAL/Importing+User+Certificate+on+{0}";
 					String urlformat_in = new Base64(Integer.MAX_VALUE).encodeToString(urlformat.getBytes());
 					out.write("<p><a target=\"_blank\" href=\"browserjump?urlformat="+urlformat_in+"\">How to import user certificate on your browser</a></p>");
+					
+					out.write("<p><a target=\"_blank\" href=\"https://confluence.grid.iu.edu/display/CENTRAL/Importing+User+Certificate+for+Command+Line+Use\">How to import user certificate for command line use (grid-proxy-init).</a></p>");
+					
+					//https://confluence.grid.iu.edu/display/CENTRAL/Importing+User+Certificate+for+Command+Line+Use
 					out.write("</td>");
 					out.write("</tr>");
 				}
