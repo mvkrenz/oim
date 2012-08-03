@@ -424,6 +424,8 @@ public class CertificateUserServlet extends ServletBase  {
 			v.add(new HtmlView("<p class=\"alert alert-info\">GOC engineer to troubleshoot & resubmit</p>"));
 		} else if(rec.status.equals(CertificateRequestStatus.REVOCATION_REQUESTED)) {
 			v.add(new HtmlView("<p class=\"alert alert-info\">RA to revoke certificate</p>"));
+		} else if(rec.status.equals(CertificateRequestStatus.ISSUING)) {
+			v.add(new HtmlView("<p class=\"alert alert-info\">Please wait for a fews seconds.</p>"));
 		}
 		
 		final String url = "certificateuser?id="+rec.id;

@@ -310,6 +310,8 @@ public class CertificateHostServlet extends ServletBase  {
 				v.add(new HtmlView("<p class=\"alert alert-info\">GOC engineer to troubleshoot & resubmit</p>"));
 			} else if(rec.status.equals(CertificateRequestStatus.REVOCATION_REQUESTED)) {
 				v.add(new HtmlView("<p class=\"alert alert-info\">GridAdmin to revoke certificates</p>"));
+			} else if(rec.status.equals(CertificateRequestStatus.ISSUING)) {
+				v.add(new HtmlView("<p class=\"alert alert-info\">Please wait for a minute for signer to sign.</p>"));
 			}
 		
 		final String url = "certificatehost?id="+rec.id;
