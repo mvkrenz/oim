@@ -220,10 +220,10 @@ public class CertificateUserServlet extends ServletBase  {
 					out.write("}");
 					out.write("loadstatus();");
 					out.write("</script>");
-				}
+				} 
 				out.write("</td>");
 				out.write("</tr>");
-
+				
 				out.write("<tr>");
 				out.write("<th>Requester</th>");
 				try {
@@ -231,7 +231,7 @@ public class CertificateUserServlet extends ServletBase  {
 					ContactRecord requester = cmodel.get(rec.requester_contact_id);
 					out.write("<td>");
 					if(requester.disable) {
-						out.write("<span class=\"label label-warning\">Guest</span>");
+						out.write("<span class=\"label label-warning pull-right\">Guest</span>");
 					}
 					if(auth.isUser()) {
 						out.write("<b>"+StringEscapeUtils.escapeHtml(requester.name)+"</b>");
@@ -282,6 +282,10 @@ public class CertificateUserServlet extends ServletBase  {
 					//https://confluence.grid.iu.edu/display/CENTRAL/Importing+User+Certificate+for+Command+Line+Use
 					out.write("</td>");
 					out.write("</tr>");
+					
+					out.write("<tr><th>Issuer Serial ID</th><td>");
+					out.write(rec.cert_serial_id);
+					out.write("</td></tr>");
 				}
 				
 				out.write("<tr>");

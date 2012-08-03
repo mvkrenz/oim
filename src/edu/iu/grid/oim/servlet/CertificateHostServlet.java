@@ -227,7 +227,7 @@ public class CertificateHostServlet extends ServletBase  {
 				out.write("<td>");
 				String[] cns = rec.getCNs();
 				out.write("<table class=\"table table-bordered table-striped\">");
-				out.write("<thead><tr><th>CN</th><th colspan=\"2\">Certificates</th></tr></thead>");
+				out.write("<thead><tr><th>CN</th><th colspan=\"2\">Certificates</th><th>Serial ID</th></tr></thead>");
 				int i = 0;
 				out.write("<tbody>");
 				for(String cn : cns) {
@@ -236,10 +236,11 @@ public class CertificateHostServlet extends ServletBase  {
 					if(rec.status.equals(CertificateRequestStatus.ISSUED)) {
 						out.write("<td><a href=\"certificatedownload?id="+rec.id+"&type=host&download=pkcs7&idx="+i+"\">Download PKCS7</a></td>");
 						out.write("<td><a href=\"certificatedownload?id="+rec.id+"&type=host&download=pem&idx="+i+"\">Download PEM</a></td>");
+						out.write("<td>"+rec.cert_serial_ids+"</td>");
 					} else {
-						out.write("<td colspan=\"2\"><span class=\"help-block\">Not yet issued</span></td>");
+						out.write("<td colspan=\"3\"><span class=\"muted\">Not yet issued</span></td>");
 					}
-					out.write("</li>");
+					out.write("</tr>");
 				}
 				out.write("</tbody></table>");
 				out.write("</td>");
