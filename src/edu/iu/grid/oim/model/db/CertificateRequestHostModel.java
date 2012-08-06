@@ -174,8 +174,8 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 									log.warn("Host certificate issued for request "+rec.id+"(idx:"+idx+") has cert_notbefore set too distance from current timestamp");
 								}
 								long dayrange = (cert_notafter.getTime() - cert_notbefore.getTime()) / (1000*3600*24);
-								if(dayrange < 360 || dayrange > 370) {
-									log.warn("Host certificate issued for request "+rec.id+ "(idx:"+idx+")  has valid range of "+dayrange+" days (too far from 365 days)");
+								if(dayrange < 390 || dayrange > 400) {
+									log.warn("Host certificate issued for request "+rec.id+ "(idx:"+idx+")  has valid range of "+dayrange+" days (too far from 395 days)");
 								}
 							
 								//make sure dn starts with correct base
