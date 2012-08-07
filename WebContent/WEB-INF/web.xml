@@ -823,5 +823,12 @@
 		<location>/error</location>
 	</error-page>
 	
+	<listener>
+		<listener-class>
+		edu.iu.grid.oim.listener.SessionLog
+		</listener-class>
+	</listener>
+	
+	
 
 </web-app>
