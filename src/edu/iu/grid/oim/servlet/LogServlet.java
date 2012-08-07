@@ -720,15 +720,17 @@ public class LogServlet extends ServletBase  {
 						Document log = builder.parse(bais);
 										
 						//display the log
-						String dn_string_to_print = "N/A";
+						String dn_string_to_print = null;
 						if (rec.dn_id != null) {
 							DNRecord dnrec = dmodel.get(rec.dn_id);
 							if(dnrec != null) {
 								dn_string_to_print = dnrec.dn_string;
 							}
 						} else {
-							dn_string_to_print = rec.ip + "(DN not available)";
+							dn_string_to_print = "<span class=\"muted\">DN not available</span>";
 						}
+						dn_string_to_print += " <span class=\"label\">IP: "+rec.ip+"</span>";
+						
 						view.add(new HtmlView("<h3 class=\"logheader\">" + somemodel.getName() + " ("+rec.type+")<a href=\"log?type=3&id="+rec.id+"\" class=\"sidenote\">"+rec.id+"</a></h3>"));
 						
 						view.add(new HtmlView("<div class=\"sidenote\">By "+dn_string_to_print+"<br/>"+dformat.format(rec.timestamp)+ " (" + auth.getTimeZone().getID() + ")</div>"));
