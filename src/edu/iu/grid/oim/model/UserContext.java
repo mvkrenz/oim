@@ -185,7 +185,8 @@ public class UserContext {
 			messages.add(msg);
 			session.setAttribute("messages", messages);
 		} else {
-			log.error("Failed to add message since no session is associated with this UserContext");
+			//guest context doesn't have session - used on error page, for example
+			//log.error("Failed to add message since no session is associated with this UserContext");
 		}
 	}
 	
@@ -196,8 +197,9 @@ public class UserContext {
 			session.removeAttribute("messages");
 			return messages;
 		} else {
-			log.error("Failed to flush messages since no session is associated with this UserContext");
-			return null;
+			//guest context doesn't have session - used on error page, for example
+			//log.error("Failed to flush messages since no session is associated with this UserContext");
 		}
+		return null;
 	}
 }
