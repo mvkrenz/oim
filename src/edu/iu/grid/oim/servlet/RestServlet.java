@@ -36,7 +36,7 @@ public class RestServlet extends ServletBase  {
     	JSONObject params = new JSONObject();
     	
     	void out(HttpServletResponse response) throws IOException {
-    		response.setContentType("text/xml");
+    		response.setContentType("application/json");
     		PrintWriter out = response.getWriter();
     		params.put("status", status.toString());
     		params.put("detail", detail);
