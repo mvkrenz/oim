@@ -60,6 +60,7 @@ public class BootPage implements IView {
 	{
 		Authorization auth = context.getAuthorization();
 		
+		/*
 		if(auth.isSecure()) {
 			params.put("__BASE__", StaticConfig.getApplicationBase());
 			params.put("__GOCTICKET__", "https://ticket.grid.iu.edu/goc");
@@ -67,6 +68,9 @@ public class BootPage implements IView {
 			params.put("__BASE__", StaticConfig.conf.getProperty("application.guestbase"));	
 			params.put("__GOCTICKET__", "http://ticket.grid.iu.edu/goc");
 		}
+		*/
+		params.put("__BASE__", StaticConfig.conf.getProperty("application.base"));
+		params.put("__GOCTICKET__", "https://ticket.grid.iu.edu/goc");
 		
 		if(StaticConfig.isDebug()) {
 			params.put("__APPNAME__", StaticConfig.getApplicationName() + " (Debug)");

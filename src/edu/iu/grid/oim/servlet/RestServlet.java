@@ -17,7 +17,6 @@ import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.lib.StringArray;
 import edu.iu.grid.oim.model.CertificateRequestStatus;
 import edu.iu.grid.oim.model.UserContext;
-import edu.iu.grid.oim.model.db.CertificateQuotaModel;
 import edu.iu.grid.oim.model.db.CertificateRequestUserModel;
 import edu.iu.grid.oim.model.db.ConfigModel;
 import edu.iu.grid.oim.model.db.CertificateRequestHostModel;
@@ -43,6 +42,7 @@ public class RestServlet extends ServletBase  {
     		params.put("detail", detail);
     		out.write(params.toString());
     		
+    		/*
     		//set httpresponse code
     		switch(status) {
     		case OK: 
@@ -53,6 +53,7 @@ public class RestServlet extends ServletBase  {
     			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
     			break;
     		}
+    		*/
     	}
     }
     

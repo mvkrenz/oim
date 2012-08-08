@@ -356,7 +356,7 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
     }
     
     private String getTicketUrl(CertificateRequestHostRecord rec) {
-    	return StaticConfig.getApplicationBase() + "/certificatehost?id=" + rec.id;
+    	return "certificatehost?id=" + rec.id;
     }
     
     //NO-AC

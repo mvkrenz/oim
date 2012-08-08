@@ -17,6 +17,7 @@ import com.divrep.DivRepRoot;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.AuthorizationException;
+import edu.iu.grid.oim.lib.StaticConfig;
 
 //provides easy access to various object that are user specific
 public class UserContext {
@@ -27,7 +28,11 @@ public class UserContext {
 	
 	private Authorization auth = new Authorization();
 	//private Connection connection;
+	
 	private String request_url;
+	private String secure_url; //counter part for request_url in https (same if request_url is secure already)
+	private String guesthome_url;
+	
 	private HttpSession session;
 	private String remote_addr;
 	
@@ -49,7 +54,39 @@ public class UserContext {
 		
 		session = request.getSession();
 		auth = new Authorization(request);
-		setRequestURL(request);
+
+		//set request url
+		request_url = request.getRequestURI();
+		if(request.getQueryString() != null) {
+			request_url += "?" + request.getQueryString();
+		}
+		if(request.isSecure()) {
+			secure_url = request_url;
+		} else {
+			//need to compose secure version of current url (with https)
+			/*
+			log.debug(request.getRequestURI());
+			log.debug(request.getRequestURL());
+			log.debug(request.getLocalAddr());
+			log.debug(request.getLocalName());
+			log.debug(request.getPathInfo());
+			log.debug(request.getQueryString());
+			*/
+			secure_url = "https://" + request.getLocalName();
+			if(StaticConfig.conf.getProperty("application.secureport") != null) {
+				secure_url += ":"+StaticConfig.conf.getProperty("application.secureport");
+			}
+			secure_url += request.getRequestURI();
+			if(request.getQueryString() != null) {
+				secure_url += "?" + request.getQueryString();
+			}
+		}
+		guesthome_url = "http://"+request.getLocalName();
+		if(StaticConfig.conf.getProperty("application.guestport") != null) {
+			guesthome_url += ":"+StaticConfig.conf.getProperty("application.guestport");
+		}
+		guesthome_url += StaticConfig.conf.getProperty("application.base");
+		
 		divrep_root = DivRepRoot.getInstance(request.getSession());
 		divrep_pageid = request.getRequestURI() + request.getQueryString();
 		remote_addr = request.getRemoteAddr();
@@ -88,6 +125,13 @@ public class UserContext {
 	{
 		return new UserContext();
 	}
+	public String getSecureUrl() {
+		return secure_url;
+	}
+	public String getGuesHomeUrl() {
+		//TODO
+		return guesthome_url;
+	}
 	
 	//used to create guest context
 	private UserContext(){}	
@@ -110,6 +154,7 @@ public class UserContext {
 		return request_url;
 	}
 	
+	/*
 	private void setRequestURL(HttpServletRequest request) {
 		request_url = "";
 		if(request != null) {
@@ -119,6 +164,7 @@ public class UserContext {
 			}
 		}
 	}
+	*/
 	
 	public enum MessageType {WARNING, ERROR, SUCCESS, INFO};	
 	public class Message {

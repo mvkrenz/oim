@@ -916,7 +916,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
     }
     
     private String getTicketUrl(CertificateRequestUserRecord rec) {
-		return StaticConfig.getApplicationBase() + "/certificateuser?id=" + rec.id;
+		return "certificateuser?id=" + rec.id;
     }
     
     //NO-AC 
