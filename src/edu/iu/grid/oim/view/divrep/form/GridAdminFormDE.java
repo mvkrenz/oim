@@ -7,24 +7,19 @@ import org.apache.log4j.Logger;
 
 import com.divrep.DivRepEvent;
 import com.divrep.common.DivRepForm;
-import com.divrep.common.DivRepTextArea;
 import com.divrep.common.DivRepTextBox;
-import com.divrep.validator.DivRepDoubleValidator;
-import com.divrep.validator.DivRepIntegerValidator;
 import com.divrep.validator.DivRepUniqueValidator;
 
 import edu.iu.grid.oim.lib.Authorization;
-import edu.iu.grid.oim.lib.AuthorizationException;
 import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.UserContext.MessageType;
 import edu.iu.grid.oim.model.db.ContactModel;
-import edu.iu.grid.oim.model.db.CpuInfoModel;
 import edu.iu.grid.oim.model.db.GridAdminModel;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
-import edu.iu.grid.oim.model.db.record.CpuInfoRecord;
 import edu.iu.grid.oim.model.db.record.GridAdminRecord;
 import edu.iu.grid.oim.view.divrep.ContactEditor;
 import edu.iu.grid.oim.view.divrep.ContactEditor.Rank;
+import edu.iu.grid.oim.view.divrep.form.validator.DomainNameValidator;
 
 public class GridAdminFormDE extends DivRepForm 
 {
@@ -55,6 +50,7 @@ public class GridAdminFormDE extends DivRepForm
 		domain.setValue(rec.domain);
 		domain.setSampleValue("grid.iu.edu");
 		domain.addValidator(new DivRepUniqueValidator<String>(domains.values()));
+		domain.addValidator(new DomainNameValidator());
 		domain.setRequired(true);
 		
 		ContactModel cmodel = new ContactModel(context);
