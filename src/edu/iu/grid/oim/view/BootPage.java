@@ -122,19 +122,19 @@ public class BootPage implements IView {
 
 		if(side != null) {
 			if(putsideviewleft) {
-				out.println("<div class=\"span3\">");
+				out.println("<div class=\"span4\">");
 				side.render(out);
 				out.println("</div>");//span9		
 				
-				out.println("<div class=\"span9\">");
+				out.println("<div class=\"span8\">");
 				content.render(out);
 				out.println("</div>");//span9	
 			} else {
-				out.println("<div class=\"span9\">");
+				out.println("<div class=\"span8\">");
 				content.render(out);
 				out.println("</div>");//span9
 				
-				out.println("<div class=\"span3\">");
+				out.println("<div class=\"span4\">");
 				side.render(out);
 				out.println("</div>");//span9
 			}

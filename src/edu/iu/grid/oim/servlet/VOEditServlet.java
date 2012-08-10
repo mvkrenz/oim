@@ -1,7 +1,11 @@
 package edu.iu.grid.oim.servlet;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -10,7 +14,9 @@ import org.apache.log4j.Logger;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.model.UserContext;
+import edu.iu.grid.oim.model.db.LogModel;
 import edu.iu.grid.oim.model.db.VOModel;
+import edu.iu.grid.oim.model.db.record.LogRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
 import edu.iu.grid.oim.view.BootBreadCrumbView;
 import edu.iu.grid.oim.view.BootMenuView;
@@ -18,6 +24,8 @@ import edu.iu.grid.oim.view.BootPage;
 import edu.iu.grid.oim.view.ContentView;
 import edu.iu.grid.oim.view.DivRepWrapper;
 import edu.iu.grid.oim.view.HtmlView;
+import edu.iu.grid.oim.view.IView;
+import edu.iu.grid.oim.view.LogView;
 import edu.iu.grid.oim.view.SideContentView;
 import edu.iu.grid.oim.view.divrep.form.VOFormDE;
 
@@ -33,8 +41,8 @@ public class VOEditServlet extends ServletBase implements Servlet {
 		auth.check("edit_my_vo");		
 		
 		VORecord rec;
-		//String title;
-
+		ArrayList<LogRecord> logs = null;
+		
 		//if vo_id is provided then we are doing update, otherwise do new.
 		String vo_id_str = request.getParameter("id");
 		if(vo_id_str != null) {
@@ -55,6 +63,11 @@ public class VOEditServlet extends ServletBase implements Servlet {
 				VORecord keyrec = new VORecord();
 				keyrec.id = vo_id;
 				rec = model.get(keyrec);
+				
+				//pull logs
+				LogModel logmodel = new LogModel(context);
+				logs = logmodel.search("edu.iu.grid.oim.model.db.VO%", String.valueOf(vo_id)+"%");
+				
 			} catch (SQLException e) {
 				throw new ServletException(e);
 			}	
@@ -93,20 +106,19 @@ public class VOEditServlet extends ServletBase implements Servlet {
 		bread_crumb.addCrumb(rec.name,  null);
 		contentview.setBreadCrumb(bread_crumb);
 		
-		BootPage page = new BootPage(context, new BootMenuView(context, parent_page), contentview, createSideView());
+		BootPage page = new BootPage(context, new BootMenuView(context, parent_page), contentview, createSideView(logs));
 		page.render(response.getWriter());	
 		
 		//context.storeDivRepSession();
 	}
 	
-	private SideContentView createSideView()
+	private SideContentView createSideView(ArrayList<LogRecord> logs)
 	{
 		SideContentView view = new SideContentView();
-
-
-		//view.add("About", new HtmlView("This form allows you to edit this VO's registration information.</p>"));		
 		view.addContactNote();		
-		// view.addContactLegent();		
+		if(logs != null) {
+			view.add(new LogView(logs));	
+		}
 		return view;
 	}
 }

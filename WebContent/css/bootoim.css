@@ -503,7 +503,8 @@ margin-bottom: 0px !important;
 .margin-bottom9 {
 margin-bottom: 9px !important;
 }
-table.certificate tr{
+table.certificate tr,
+.table tr[onclick] {
 cursor: pointer;
 }
 tr.latest {

@@ -2,6 +2,7 @@ package edu.iu.grid.oim.servlet;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
@@ -16,7 +17,9 @@ import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.AuthorizationException;
 import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.model.UserContext;
+import edu.iu.grid.oim.model.db.LogModel;
 import edu.iu.grid.oim.model.db.SCModel;
+import edu.iu.grid.oim.model.db.record.LogRecord;
 import edu.iu.grid.oim.model.db.record.SCRecord;
 import edu.iu.grid.oim.view.divrep.form.SCFormDE;
 import edu.iu.grid.oim.view.BootBreadCrumbView;
@@ -26,6 +29,7 @@ import edu.iu.grid.oim.view.BreadCrumbView;
 import edu.iu.grid.oim.view.ContentView;
 import edu.iu.grid.oim.view.DivRepWrapper;
 import edu.iu.grid.oim.view.HtmlView;
+import edu.iu.grid.oim.view.LogView;
 import edu.iu.grid.oim.view.MenuView;
 import edu.iu.grid.oim.view.Page;
 import edu.iu.grid.oim.view.SideContentView;
@@ -42,7 +46,7 @@ public class SCEditServlet extends ServletBase implements Servlet {
 		auth.check("edit_my_sc");
 		
 		SCRecord rec;
-		//String title;
+		ArrayList<LogRecord> logs = null;
 
 		//if sc_id is provided then we are doing update, otherwise do new.
 		String sc_id_str = request.getParameter("id");
@@ -59,6 +63,10 @@ public class SCEditServlet extends ServletBase implements Servlet {
 				SCRecord keyrec = new SCRecord();
 				keyrec.id = sc_id;
 				rec = model.get(keyrec);
+				
+				//pull logs
+				LogModel logmodel = new LogModel(context);
+				logs = logmodel.search("edu.iu.grid.oim.model.db.SC%", String.valueOf(sc_id)+"%");
 			} catch (SQLException e) {
 				throw new ServletException(e);
 			}	
@@ -101,17 +109,17 @@ public class SCEditServlet extends ServletBase implements Servlet {
 		contentview.setBreadCrumb(bread_crumb);
 		
 		
-		BootPage page = new BootPage(context, new BootMenuView(context, parent_page), contentview, createSideView(rec));		
+		BootPage page = new BootPage(context, new BootMenuView(context, parent_page), contentview, createSideView(logs));		
 		page.render(response.getWriter());	
 	}
 	
-	private SideContentView createSideView(SCRecord rec)
+	private SideContentView createSideView(ArrayList<LogRecord> logs)
 	{
 		SideContentView view = new SideContentView();
-		
-		//view.add("About", new HtmlView("This form allows you to edit this support center's registration information.</p>"))
 		view.addContactNote();		
-		// view.addContactLegent();		
+		if(logs != null) {
+			view.add(new LogView(logs));	
+		}
 		return view;
 	}
 }

@@ -88,7 +88,7 @@ public class ResourceServlet extends ServletBase implements Servlet {
 	{	
 		UserContext context = new UserContext(request);
 		Authorization auth = context.getAuthorization();
-		//auth.check("edit_my_resource");
+		boolean show_edit_button = false;
 		
 		try {
 			//construct view
@@ -118,13 +118,14 @@ public class ResourceServlet extends ServletBase implements Servlet {
 				if(rec.disable == true) {
 					contentview.add(new HtmlView("<div class=\"alert\">This resource is currently disabled.</div>"));
 				}
+				show_edit_button = model.canEdit(resource_id);
 				contentview.add(createResourceContent(context, rec, model.canEdit(resource_id))); //false = no edit button
 
 			} else {
 				contentview = createListContentView(context);
 			}
 			
-			BootPage page = new BootPage(context, menuview, contentview, createSideView(context, rec));
+			BootPage page = new BootPage(context, menuview, contentview, createSideView(context, rec, show_edit_button));
 			page.render(response.getWriter());			
 		} catch (SQLException e) {
 			log.error(e);
@@ -442,9 +443,12 @@ public class ResourceServlet extends ServletBase implements Servlet {
 		return new HtmlView("<img src=\""+url+"\"/>");
 	}
 
-	private SideContentView createSideView(UserContext context, ResourceRecord rec)
+	private SideContentView createSideView(UserContext context, ResourceRecord rec, boolean show_edit_button)
 	{
 		SideContentView view = new SideContentView();
+		if(show_edit_button) {
+			view.add(new HtmlView("<p><a class=\"btn\" href=\"resourceedit?id=" + rec.id+"\">Edit</a></p>"));
+		}
 		if(context.getAuthorization().isUser()) {
 			view.add(new HtmlView("<p><a class=\"btn\" href=\"resourceedit\">Register New Resource</a></p>"));
 		}
