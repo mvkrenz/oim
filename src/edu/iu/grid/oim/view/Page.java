@@ -62,7 +62,7 @@ public class Page implements IView {
 		params.put("__VERSION__", StaticConfig.getVersion());
 		
 		try {
-			String request_uri = context.getRequestURL();
+			String request_uri = context.getRequestURL().toString();
 			if(request_uri != null) {
 				request_uri = URLEncoder.encode(request_uri, "UTF-8");
 				params.put("__REF__", request_uri);

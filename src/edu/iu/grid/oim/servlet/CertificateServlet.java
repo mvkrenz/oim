@@ -67,7 +67,7 @@ public class CertificateServlet extends ServletBase  {
 			*/
 			try {
 				ContactRecord crec = auth.getContact();
-				ArrayList<CertificateRequestUserRecord> list = model.getMine(crec.id);
+				ArrayList<CertificateRequestUserRecord> list = model.getISubmitted(crec.id);
 				if(list.size() == 0) {
 					response.sendRedirect("certificaterequestuser"); //request new
 					return;

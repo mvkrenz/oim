@@ -36,21 +36,11 @@ public class CertificateMenuView implements IView {
 		*/
 	}
 	public void render(PrintWriter out) {		
+		Authorization auth = context.getAuthorization();
+		
 		out.write("<div class=\"well\" style=\"padding: 8px 0;\">");
 		out.write("<ul class=\"nav nav-list\">");
 		out.write("<li class=\"nav-header\">User Certificates</li>");
-		
-		/*
-		if(userrec != null) {
-			if(current.equals("certificateuser_current")) {
-				out.write("<li class=\"active\">");
-				out.write("<a href=\"certificateuser?id="+userrec.id+"\"><i class=\"icon-white icon-home\"></i> Current</a></li>");
-			} else {
-				out.write("<li>");
-				out.write("<a href=\"certificateuser?id="+userrec.id+"\"><i class=\"icon-home\"></i> Current</a></li>");
-			}
-		}
-		*/
 		
 		if(current.equals("certificaterequestuser")) {
 			out.write("<li class=\"active\">");
@@ -60,13 +50,23 @@ public class CertificateMenuView implements IView {
 			out.write("<a href=\"certificaterequestuser\"><i class=\"icon-plus\"></i> Request New</a></li>");
 		}				
 		
-		if(current.equals("certificateuser")) {
+		if(auth.isUser()) {
+			if(current.equals("certificateuser")) {
+				out.write("<li class=\"active\">");
+				out.write("<a href=\"certificateuser\"><i class=\"icon-white icon-list\"></i> My Requests</a></li>");	
+			} else {
+				out.write("<li>");
+				out.write("<a href=\"certificateuser\"><i class=\"icon-list\"></i> My Requests</a></li>");	
+			}		
+		}
+		
+		if(current.equals("certificatesearchuser")) {
 			out.write("<li class=\"active\">");
-			out.write("<a href=\"certificateuser\"><i class=\"icon-white icon-list\"></i> Show Requests</a></li>");	
+			out.write("<a href=\"certificatesearchuser\"><i class=\"icon-white icon-list\"></i> Search</a></li>");	
 		} else {
 			out.write("<li>");
-			out.write("<a href=\"certificateuser\"><i class=\"icon-list\"></i> Show Requests</a></li>");	
-		}		
+			out.write("<a href=\"certificatesearchuser\"><i class=\"icon-list\"></i> Search</a></li>");	
+		}	
 		
 		
 		out.write("<li class=\"nav-header\">Host Certificates</li>");
@@ -79,15 +79,24 @@ public class CertificateMenuView implements IView {
 			out.write("<a href=\"certificaterequesthost\"><i class=\"icon-plus\"></i> Request New</a></li>");
 		}				
 		
-		if(current.equals("certificatehost")) {
+		if(auth.isUser()) {
+			if(current.equals("certificatehost")) {
+				out.write("<li class=\"active\">");
+				out.write("<a href=\"certificatehost\"><i class=\"icon-white icon-list\"></i> My Requests</a></li>");	
+			} else {
+				out.write("<li>");
+				out.write("<a href=\"certificatehost\"><i class=\"icon-list\"></i> My Requests</a></li>");	
+			}		
+		}
+		
+		if(current.equals("certificatesearchhost")) {
 			out.write("<li class=\"active\">");
-			out.write("<a href=\"certificatehost\"><i class=\"icon-white icon-list\"></i> Show Requests</a></li>");	
+			out.write("<a href=\"certificatesearchhost\"><i class=\"icon-white icon-list\"></i> Search</a></li>");	
 		} else {
 			out.write("<li>");
-			out.write("<a href=\"certificatehost\"><i class=\"icon-list\"></i> Show Requests</a></li>");	
+			out.write("<a href=\"certificatesearchhost\"><i class=\"icon-list\"></i> Search</a></li>");	
 		}		
 		
-		Authorization auth = context.getAuthorization();
 		if(auth.allows("admin_gridadmin") || auth.allows("admin_pki_quota ")) {
 			out.write("<li class=\"nav-header\">Administration</li>");
 			if(current.equals("gridadmin")) {

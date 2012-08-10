@@ -58,7 +58,7 @@ public class ResourceWLCG extends DivRepFormElement {
 
 			interop_accounting = new DivRepCheckBox(this);
 			interop_accounting.setLabel("Enable Interop Accounting - Forward Gratia Accounting Data to WLCG Accounting");
-			new DivRepStaticContent(this, "<p class=\"help-block\">Included this resource in <b>Capacity and Benchmarking Report</b> sent to [osg-wlcg-reports@OPENSCIENCEGRID.ORG]. Please check this only if your site is MOU agreed Tier 1/2 sites.</p>");
+			new DivRepStaticContent(this, "<p class=\"help-block\">Include this resource in <b>Capacity and Benchmarking Report</b> sent to [osg-wlcg-reports@OPENSCIENCEGRID.ORG]. Please check this only if your site is MOU agreed Tier 1/2 sites.</p>");
 			interop_accounting.addEventListener(new DivRepEventListener() {
 				public void handleEvent(DivRepEvent e) {	
 					if(((String)e.value).compareTo("true") == 0) {

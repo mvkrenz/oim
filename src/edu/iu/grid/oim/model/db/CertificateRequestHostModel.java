@@ -4,13 +4,16 @@ import java.io.IOException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashSet;
 
 import javax.security.auth.x500.X500Principal;
 
@@ -21,6 +24,8 @@ import org.bouncycastle.cms.CMSException;
 import org.bouncycastle.pkcs.PKCS10CertificationRequest;
 import org.bouncycastle.util.encoders.Base64;
 
+import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import edu.iu.grid.oim.lib.Authorization;
@@ -38,7 +43,9 @@ import edu.iu.grid.oim.model.cert.ICertificateSigner.IHostCertificatesCallBack;
 import edu.iu.grid.oim.model.db.record.CertificateRequestHostRecord;
 import edu.iu.grid.oim.model.db.record.CertificateRequestUserRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
+import edu.iu.grid.oim.model.db.record.GridAdminRecord;
 import edu.iu.grid.oim.model.db.record.RecordBase;
+import edu.iu.grid.oim.model.db.record.VOContactRecord;
 import edu.iu.grid.oim.model.exceptions.CertificateRequestException;
 
 public class CertificateRequestHostModel extends CertificateRequestModelBase<CertificateRequestHostRecord> {
@@ -66,7 +73,7 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 	}
 	
 	//return requests that I have submitted
-	public ArrayList<CertificateRequestHostRecord> getMine(Integer id) throws SQLException {
+	public ArrayList<CertificateRequestHostRecord> getISubmitted(Integer id) throws SQLException {
 		ArrayList<CertificateRequestHostRecord> ret = new ArrayList<CertificateRequestHostRecord>();
 		ResultSet rs = null;
 		Connection conn = connectOIM();
@@ -79,6 +86,40 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 	    stmt.close();
 	    conn.close();
 	    return ret;
+	}
+	
+	//return requests that I am GA
+	public ArrayList<CertificateRequestHostRecord> getIApprove(Integer id) throws SQLException {
+		ArrayList<CertificateRequestHostRecord> recs = new ArrayList<CertificateRequestHostRecord>();
+		
+		//list all domains that user is gridadmin of
+		StringBuffer cond = new StringBuffer();
+		GridAdminModel model = new GridAdminModel(context);
+		try {
+			for(GridAdminRecord grec : model.getGridAdminsByContactID(id)) {
+				if(cond.length() != 0) {
+					cond.append(" OR ");
+				}
+				cond.append("cns LIKE '%"+StringEscapeUtils.escapeSql(grec.domain)+"</String>%'");
+			}
+		} catch (SQLException e1) {
+			log.error("Failed to lookup GridAdmin domains", e1);
+		}	
+		
+		if(cond.length() != 0) {
+			ResultSet rs = null;
+			Connection conn = connectOIM();
+			Statement stmt = conn.createStatement();
+			stmt.execute("SELECT * FROM "+table_name + " WHERE "+cond.toString() + " AND status in ('REQUESTED','RENEW_REQUESTED','REVOKE_REQUESTED')");	
+	    	rs = stmt.getResultSet();
+	    	while(rs.next()) {
+	    		recs.add(new CertificateRequestHostRecord(rs));
+	    	}
+		    stmt.close();
+		    conn.close();
+		}
+
+	    return recs;
 	}
 
 	/*
@@ -887,6 +928,55 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 			}
 		}
 		return false;
+	}
+	
+    //NO AC
+	public CertificateRequestHostRecord getBySerialID(String serial_id) throws SQLException {
+		CertificateRequestHostRecord rec = null;
+		ResultSet rs = null;
+		Connection conn = connectOIM();
+		PreparedStatement pstmt = conn.prepareStatement("SELECT * FROM "+table_name+ " WHERE cert_serial_ids like ?");
+		pstmt.setString(1, "%>"+serial_id+"<%");
+	    if (pstmt.executeQuery() != null) {
+	    	rs = pstmt.getResultSet();
+	    	if(rs.next()) {
+	    		rec = new CertificateRequestHostRecord(rs);
+			}
+	    }	
+	    pstmt.close();
+	    conn.close();
+	    return rec;
+		
+	}
+	
+	//pass null to not filter
+	public ArrayList<CertificateRequestHostRecord> search(String cns_contains, String status, Date request_after, Date request_before) throws SQLException {
+		ArrayList<CertificateRequestHostRecord> recs = new ArrayList<CertificateRequestHostRecord>();
+		ResultSet rs = null;
+		Connection conn = connectOIM();
+		String sql = "SELECT * FROM "+table_name+" WHERE 1 = 1";
+		if(cns_contains != null) {
+			sql += " AND cns like \"%"+StringEscapeUtils.escapeSql(cns_contains)+"%\"";
+		}
+		if(status != null) {
+			sql += " AND status = \""+status+"\"";
+		}
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		if(request_after != null) {
+			sql += " AND request_time >= \""+sdf.format(request_after) + "\"";
+		}
+		if(request_before != null) {
+			sql += " AND request_time <= \""+sdf.format(request_before) + "\"";
+		}
+		
+		PreparedStatement stmt = conn.prepareStatement(sql);
+	    rs = stmt.executeQuery();
+	    while(rs.next()) {
+    		recs.add(new CertificateRequestHostRecord(rs));
+	    }
+	    stmt.close();
+	    conn.close();
+	    return recs;
 	}
 	
 	//prevent low level access - please use model specific actions

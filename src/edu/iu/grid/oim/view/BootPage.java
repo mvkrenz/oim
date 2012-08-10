@@ -5,6 +5,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import java.net.URL;
 import java.net.URLEncoder;
 
 import org.apache.commons.lang.StringEscapeUtils;
@@ -82,12 +83,15 @@ public class BootPage implements IView {
 	
 		
 		try {
-			String request_uri = context.getRequestURL();
-			if(request_uri != null) {
-				request_uri = URLEncoder.encode(request_uri, "UTF-8");
-				params.put("__REF__", request_uri);
-			} else {
-				params.put("__REF__", "unknown_url");		
+			URL url = context.getRequestURL();
+			if(url != null) {
+				String request_uri = url.toString();
+				if(request_uri != null) {
+					request_uri = URLEncoder.encode(request_uri, "UTF-8");
+					params.put("__REF__", request_uri);
+				} else {
+					params.put("__REF__", "unknown_url");		
+				}
 			}
 		} catch (UnsupportedEncodingException e) {
 			log.error(e);

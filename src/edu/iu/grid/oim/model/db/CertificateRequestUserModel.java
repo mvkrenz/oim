@@ -1,15 +1,11 @@
 package edu.iu.grid.oim.model.db;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
-import java.security.Principal;
 import java.security.PrivateKey;
 import java.security.cert.CertificateException;
-import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -17,27 +13,22 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
-import java.util.Iterator;
 
 import javax.security.auth.x500.X500Principal;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x500.X500NameBuilder;
 import org.bouncycastle.asn1.x500.style.BCStyle;
-import org.bouncycastle.asn1.x509.Certificate;
-import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cms.CMSException;
-import org.bouncycastle.cms.CMSSignedData;
-import org.bouncycastle.util.Store;
-import org.bouncycastle.util.encoders.Base64;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.BCrypt;
@@ -821,41 +812,54 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 	    conn.close();
 	}
 	
-	//return requests that I have submitted
-	public ArrayList<CertificateRequestUserRecord> getMine(Integer id) throws SQLException {
-		ArrayList<CertificateRequestUserRecord> ret = new ArrayList<CertificateRequestUserRecord>();
+	//return requests that I am ra/sponsor
+	public ArrayList<CertificateRequestUserRecord> getIApprove(Integer id) throws SQLException {
+		ArrayList<CertificateRequestUserRecord> recs = new ArrayList<CertificateRequestUserRecord>();
 		
-		//list all vo that user is ra of
+		//list all vo that user is ra/sponsor of
 		HashSet<Integer> vo_ids = new HashSet<Integer>();
 		VOContactModel model = new VOContactModel(context);
-		ArrayList<VOContactRecord> crecs;
 		try {
 			for(VOContactRecord crec : model.getByContactID(id)) {
-				if(crec.contact_type_id.equals(11) && //RA
-						(crec.contact_rank_id.equals(1) || crec.contact_rank_id.equals(2))) { //primary or secondary
+				if(crec.contact_type_id.equals(11)) { //RA
 					vo_ids.add(crec.vo_id);	
 				}
 			}
 		} catch (SQLException e1) {
 			log.error("Failed to lookup RA/sponsor information", e1);
 		}	
-		String vo_ids_str = StringUtils.join(vo_ids, ",");
+		
+		if(vo_ids.size() != 0) {
+			ResultSet rs = null;
+			Connection conn = connectOIM();
+			Statement stmt = conn.createStatement();
+			String vo_ids_str = StringUtils.join(vo_ids, ",");
+			stmt.execute("SELECT * FROM "+table_name + " WHERE vo_id IN ("+vo_ids_str+") AND status in ('REQUESTED','RENEW_REQUESTED','REVOKE_REQUESTED')");	
+	    	rs = stmt.getResultSet();
+	    	while(rs.next()) {
+	    		recs.add(new CertificateRequestUserRecord(rs));
+	    	}
+		    stmt.close();
+		    conn.close();
+		}
+
+	    return recs;
+	}
+	
+	public ArrayList<CertificateRequestUserRecord> getISubmitted(Integer contact_id) throws SQLException {
+		ArrayList<CertificateRequestUserRecord> recs = new ArrayList<CertificateRequestUserRecord>();
 		
 		ResultSet rs = null;
 		Connection conn = connectOIM();
 		Statement stmt = conn.createStatement();
-		if(vo_ids.size() == 0) {
-			stmt.execute("SELECT * FROM "+table_name + " WHERE requester_contact_id = " + id);	
-		} else {
-			stmt.execute("SELECT * FROM "+table_name + " WHERE requester_contact_id = " + id + " OR vo_id IN ("+vo_ids_str+")");	
-		}
+		stmt.execute("SELECT * FROM "+table_name + " WHERE requester_contact_id = " + contact_id);	
     	rs = stmt.getResultSet();
     	while(rs.next()) {
-    		ret.add(new CertificateRequestUserRecord(rs));
+    		recs.add(new CertificateRequestUserRecord(rs));
     	}
 	    stmt.close();
 	    conn.close();
-	    return ret;
+	    return recs;
 	}
 	
 	//return requests that guest has submitted
@@ -1202,4 +1206,56 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 			e.printStackTrace();
 		}
     }
+
+    //NO AC
+	public CertificateRequestUserRecord getBySerialID(String serial_id) throws SQLException {
+		CertificateRequestUserRecord rec = null;
+		ResultSet rs = null;
+		Connection conn = connectOIM();
+		PreparedStatement pstmt = conn.prepareStatement("SELECT * FROM "+table_name+ " WHERE cert_serial_id = ?");
+		pstmt.setString(1, serial_id);
+	    if (pstmt.executeQuery() != null) {
+	    	rs = pstmt.getResultSet();
+	    	if(rs.next()) {
+	    		rec = new CertificateRequestUserRecord(rs);
+			}
+	    }	
+	    pstmt.close();
+	    conn.close();
+	    return rec;
+		
+	}
+
+	//pass null to not filter
+	public ArrayList<CertificateRequestUserRecord> search(String dn_contains, String status, Integer vo_id, Date request_after, Date request_before) throws SQLException {
+		ArrayList<CertificateRequestUserRecord> recs = new ArrayList<CertificateRequestUserRecord>();
+		ResultSet rs = null;
+		Connection conn = connectOIM();
+		String sql = "SELECT * FROM "+table_name+" WHERE 1 = 1";
+		if(dn_contains != null) {
+			sql += " AND dn like \"%"+StringEscapeUtils.escapeSql(dn_contains)+"%\"";
+		}
+		if(status != null) {
+			sql += " AND status = \""+status+"\"";
+		}
+		if(vo_id != null) {
+			sql += " AND vo_id = "+vo_id;
+		}
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		if(request_after != null) {
+			sql += " AND request_time >= \""+sdf.format(request_after) + "\"";
+		}
+		if(request_before != null) {
+			sql += " AND request_time <= \""+sdf.format(request_before) + "\"";
+		}
+		
+		PreparedStatement stmt = conn.prepareStatement(sql);
+	    rs = stmt.executeQuery();
+	    while(rs.next()) {
+    		recs.add(new CertificateRequestUserRecord(rs));
+	    }
+	    stmt.close();
+	    conn.close();
+	    return recs;
+	}
 }

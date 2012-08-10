@@ -1,5 +1,7 @@
 package edu.iu.grid.oim.model;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -29,7 +31,7 @@ public class UserContext {
 	private Authorization auth = new Authorization();
 	//private Connection connection;
 	
-	private String request_url;
+	private URL request_url;
 	private String secure_url; //counter part for request_url in https (same if request_url is secure already)
 	private String guesthome_url;
 	
@@ -55,24 +57,19 @@ public class UserContext {
 		session = request.getSession();
 		auth = new Authorization(request);
 
-		//set request url
-		request_url = request.getRequestURI();
-		if(request.getQueryString() != null) {
-			request_url += "?" + request.getQueryString();
-		}
-		if(request.isSecure()) {
-			secure_url = request_url;
-		} else {
-			//need to compose secure version of current url (with https)
-			/*
-			log.debug(request.getRequestURI());
+		//parse request_url
+		try {
 			log.debug(request.getRequestURL());
-			log.debug(request.getLocalAddr());
-			log.debug(request.getLocalName());
-			log.debug(request.getPathInfo());
-			log.debug(request.getQueryString());
-			*/
-			secure_url = "https://" + request.getLocalName();
+			log.debug(request.getRequestURI());
+			request_url = new URL(request.getRequestURL().toString() + "?" + request.getQueryString());
+		} catch (MalformedURLException e) {
+			log.error("Failed to parse request URL in order to compose secure URL");
+		}
+		
+		if(request.isSecure()) {
+			secure_url = request_url.toString();
+		} else {
+			secure_url = "https://" + request_url.getHost();
 			if(StaticConfig.conf.getProperty("application.secureport") != null) {
 				secure_url += ":"+StaticConfig.conf.getProperty("application.secureport");
 			}
@@ -81,7 +78,7 @@ public class UserContext {
 				secure_url += "?" + request.getQueryString();
 			}
 		}
-		guesthome_url = "http://"+request.getLocalName();
+		guesthome_url = "http://"+request_url.getHost();
 		if(StaticConfig.conf.getProperty("application.guestport") != null) {
 			guesthome_url += ":"+StaticConfig.conf.getProperty("application.guestport");
 		}
@@ -149,11 +146,11 @@ public class UserContext {
 		return divrep_pageroot;
 	}
 	
-	public String getRequestURL()
+	public URL getRequestURL()
 	{
 		return request_url;
 	}
-	
+		
 	/*
 	private void setRequestURL(HttpServletRequest request) {
 		request_url = "";
