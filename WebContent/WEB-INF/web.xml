@@ -819,7 +819,25 @@
         <servlet-name>CertificateSearchHostServlet</servlet-name>
         <url-pattern>/certificatesearchhost</url-pattern>
     </servlet-mapping>  
-       
+    
+    <servlet>
+        <servlet-name>CampusGridServlet</servlet-name>
+        <servlet-class>edu.iu.grid.oim.servlet.CampusGridServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>CampusGridServlet</servlet-name>
+        <url-pattern>/campusgrid</url-pattern>
+    </servlet-mapping>  
+   
+    <servlet>
+        <servlet-name>CampusGridEditServlet</servlet-name>
+        <servlet-class>edu.iu.grid.oim.servlet.CampusGridEditServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>CampusGridEditServlet</servlet-name>
+        <url-pattern>/campusgridedit</url-pattern>
+    </servlet-mapping>  
+        
 	<welcome-file-list>
 		<welcome-file>index.jsp</welcome-file>
 	</welcome-file-list>

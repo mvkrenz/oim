@@ -241,7 +241,7 @@ public class VOModel extends SmallTableModelBase<VORecord>
 			conn.commit();
 		} catch (Exception e) {
 			log.error(e);
-			log.info("Rolling back VO insert transaction.");
+			log.info("Rolling back VO update transaction.");
 			conn.rollback();
 	
 			//re-throw original exception

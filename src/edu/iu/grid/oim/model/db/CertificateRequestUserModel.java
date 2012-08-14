@@ -371,23 +371,28 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 				rec.status = CertificateRequestStatus.CANCELED;
 			}
 			super.update(get(rec.id), rec);
+			
+			
+			///////////////////////////////////////////////////////////////////////////////////////
+			// All good - now close ticket
+			Footprints fp = new Footprints(context);
+			FPTicket ticket = fp.new FPTicket();
+			Authorization auth = context.getAuthorization();
+			if(auth.isUser()) {
+				ContactRecord contact = auth.getContact();
+				ticket.description = contact.name + " has canceled this certificate request.\n\n";
+			} else {
+				ticket.description = "guest shouldn't be canceling";
+			}
+			ticket.description += "> " + context.getComment();
+			ticket.status = "Resolved";
+			fp.update(ticket, rec.goc_ticket_id);
+			
 		} catch (SQLException e) {
 			log.error("Failed to cancel user certificate request:" + rec.id);
 			return false;
 		}
 		
-		Footprints fp = new Footprints(context);
-		FPTicket ticket = fp.new FPTicket();
-		Authorization auth = context.getAuthorization();
-		if(auth.isUser()) {
-			ContactRecord contact = auth.getContact();
-			ticket.description = contact.name + " has canceled this certificate request.\n\n";
-		} else {
-			ticket.description = "guest shouldn't be canceling";
-		}
-		ticket.description += "> " + context.getComment();
-		ticket.status = "Resolved";
-		fp.update(ticket, rec.goc_ticket_id);
 		
 		return true;
 	}
@@ -543,28 +548,32 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 		CertificateManager cm = new CertificateManager();
 		try {
 			cm.revokeUserCertificate(rec.cert_serial_id);
+			
+			///////////////////////////////////////////////////////////////////////////////////////
+			// Revoke complete.
+			rec.status = CertificateRequestStatus.REVOKED;
+			try {
+				//context.setComment("Certificate Approved");
+				super.update(get(rec.id), rec);
+			} catch (SQLException e) {
+				log.error("Failed to update user certificate status: " + rec.id);
+				throw new CertificateRequestException("Failed to update user certificate status", e);
+			}
+			
+			Authorization auth = context.getAuthorization();
+			ContactRecord contact = auth.getContact();
+			
+			Footprints fp = new Footprints(context);
+			FPTicket ticket = fp.new FPTicket();
+			ticket.description = contact.name + " has revoked this certificate.";
+			ticket.status = "Resolved";
+			fp.update(ticket, rec.goc_ticket_id);
+			
 		} catch (CertificateProviderException e1) {
 			log.error("Failed to revoke user certificate", e1);
 			throw new CertificateRequestException("Failed to revoke user certificate", e1);
 		}	
-		
-		rec.status = CertificateRequestStatus.REVOKED;
-		try {
-			//context.setComment("Certificate Approved");
-			super.update(get(rec.id), rec);
-		} catch (SQLException e) {
-			log.error("Failed to update user certificate status: " + rec.id);
-			throw new CertificateRequestException("Failed to update user certificate status", e);
-		}
-		
-		Authorization auth = context.getAuthorization();
-		ContactRecord contact = auth.getContact();
-		
-		Footprints fp = new Footprints(context);
-		FPTicket ticket = fp.new FPTicket();
-		ticket.description = contact.name + " has revoked this certificate.";
-		ticket.status = "Resolved";
-		fp.update(ticket, rec.goc_ticket_id);
+	
 	}
 
 	//NO-AC
