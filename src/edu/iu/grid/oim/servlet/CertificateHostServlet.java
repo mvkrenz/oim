@@ -230,7 +230,7 @@ public class CertificateHostServlet extends ServletBase  {
 				out.write("<td>");
 				String[] cns = rec.getCNs();
 				out.write("<table class=\"table table-bordered table-striped\">");
-				out.write("<thead><tr><th>CN</th><th colspan=\"2\">Certificates</th><th>Serial ID</th></tr></thead>");
+				out.write("<thead><tr><th>CN</th><th colspan=\"2\">Certificates</th><th>Serial Number</th></tr></thead>");
 				int i = 0;
 				out.write("<tbody>");
 				for(String cn : cns) {

@@ -169,7 +169,7 @@ public class CertificateSearchHostForm extends DivRep
 	
 	class SerialTab extends Tab {
 		public SerialTab() {
-			super("serial", "Serial ID");
+			super("serial", "Serial Number");
 		}
 
 		@Override
@@ -209,7 +209,7 @@ public class CertificateSearchHostForm extends DivRep
 		//request_id.setWidth(200);
 		
 		serial_id = new DivRepTextBox(this);
-		serial_id.setLabel("Issuer Serial ID");
+		serial_id.setLabel("Serial Number");
 		
 		cn_contains = new DivRepTextBox(this);
 		cn_contains.setLabel("CN Contains");

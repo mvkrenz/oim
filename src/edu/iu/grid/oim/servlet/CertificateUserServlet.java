@@ -289,7 +289,7 @@ public class CertificateUserServlet extends ServletBase  {
 					out.write("</td>");
 					out.write("</tr>");
 					
-					out.write("<tr><th>Issuer Serial ID</th><td>");
+					out.write("<tr><th>Serial Number</th><td>");
 					out.write(rec.cert_serial_id);
 					out.write("</td></tr>");
 				}

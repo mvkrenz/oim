@@ -37,7 +37,7 @@ public class CertificateSearchUserForm extends DivRep
 	private static final long serialVersionUID = -7040235927943722402L;
 	static Logger log = Logger.getLogger(CertificateSearchUserForm.class);
 	private UserContext context;
-	private Authorization auth;
+	//private Authorization auth;
 	private String base_url;
 	
 	private DivRepStaticContent message;
@@ -171,7 +171,7 @@ public class CertificateSearchUserForm extends DivRep
 	
 	class SerialTab extends Tab {
 		public SerialTab() {
-			super("serial", "Serial ID");
+			super("serial", "Serial Number");
 		}
 
 		@Override
@@ -189,7 +189,7 @@ public class CertificateSearchUserForm extends DivRep
 					if(rec != null) {	
 						recs.add(rec);	
 					} else {
-						message.setHtml("<p class=\"alert\">No matching user certificate with serial ID: " + serial_id.getValue() + "</p>");
+						message.setHtml("<p class=\"alert\">No matching user certificate with serial number: " + serial_id.getValue() + "</p>");
 					}
 				} catch (SQLException e) {
 					log.error("Failed to search by serial_id", e);
@@ -211,7 +211,7 @@ public class CertificateSearchUserForm extends DivRep
 		//request_id.setWidth(200);
 		
 		serial_id = new DivRepTextBox(this);
-		serial_id.setLabel("Issuer Serial ID");
+		serial_id.setLabel("Serial Number");
 		
 		dn_contains = new DivRepTextBox(this);
 		dn_contains.setLabel("DN Contains");
