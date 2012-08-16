@@ -586,18 +586,12 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 	//NO-AC
 	//return host rec if success
 	public CertificateRequestHostRecord requestRenew(CertificateRequestHostRecord rec) throws CertificateRequestException {
-		/*
-    	//check quota
-    	CertificateQuotaModel quota = new CertificateQuotaModel(context);
-    	if(!quota.canApproveHostCert()) {
-    		throw new CertificateRequestException("Can't request any more host certificate.");
-    	}
-    	*/
     
 		//lookup gridadmin first
 		ContactRecord gridadmin = findGridAdmin(rec);
 		
 		rec.status = CertificateRequestStatus.RENEW_REQUESTED;
+		//TODO - are we re-using the same CSR sent by the user? if not, user should provide them and we update them here
 		try {
 			super.update(get(rec.id), rec);
 		} catch (SQLException e) {

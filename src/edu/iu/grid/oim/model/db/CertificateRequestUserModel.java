@@ -440,6 +440,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
     	}
     	
 		rec.status = CertificateRequestStatus.RENEW_REQUESTED;
+		rec.csr = null; //similar to request(), set csr to null so that oim will generate key
 		try {
 			super.update(get(rec.id), rec);
 			quota.incrementUserCertRequest();
