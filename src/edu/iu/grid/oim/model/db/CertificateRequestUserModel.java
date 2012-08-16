@@ -312,12 +312,22 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 	//NO-AC
 	//return true if success
 	public boolean approve(CertificateRequestUserRecord rec) {
+		if(rec.status.equals(CertificateRequestStatus.REQUESTED)) {
+			return approveNewRequest(rec);
+		} else if(rec.status.equals(CertificateRequestStatus.RENEW_REQUESTED)) {
+			return approveRenewRequest(rec);
+		} else {
+			log.error("Don't know how to approve quest which is currently in stauts: "+rec.status);
+			return false;
+		}
+	}
+	
+	private boolean approveNewRequest(CertificateRequestUserRecord rec) {
 		rec.status = CertificateRequestStatus.APPROVED;
 		try {
-			//context.setComment("Certificate Approved");
 			super.update(get(rec.id), rec);
 		} catch (SQLException e) {
-			log.error("Failed to approve user certificate request: " + rec.id);
+			log.error("Failed to approve user certificate request: " + rec.id, e);
 			return false;
 		}
 		
@@ -356,7 +366,41 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 		} catch (SQLException e) {
 			log.error("Failed to associate new DN with requeter contact", e);
 		}
+		
+		return true;
+	}
 	
+	private boolean approveRenewRequest(CertificateRequestUserRecord rec) {
+		
+		//update request status
+		rec.status = CertificateRequestStatus.APPROVED;
+		try {
+			super.update(get(rec.id), rec);
+		} catch (SQLException e) {
+			log.error("Failed to approve user certificate request: " + rec.id, e);
+			return false;
+		}
+		
+		//notify user
+		try {
+			//pull requester info
+			ContactModel cmodel = new ContactModel(context);
+			ContactRecord requester = cmodel.get(rec.requester_contact_id);
+			
+			//update ticket
+			Footprints fp = new Footprints(context);
+			FPTicket ticket = fp.new FPTicket();
+			ticket.description = "Dear " + requester.name + ",\n\n";
+			ticket.description += "Your user certificate request has been approved.\n\n";
+			ticket.description += "> " + context.getComment();
+			ticket.description += "\n\nTo retrieve your certificate please visit " + getTicketUrl(rec) + " and click on Issue Certificate button.";
+			ticket.nextaction = "Requester to download certificate"; // NAD will be set 7 days from today by default
+			fp.update(ticket, rec.goc_ticket_id);
+		} catch (SQLException e) {
+			log.error("Failed to approve user certificate request: " + rec.id + " while obtaining requester info", e);
+			return false;
+		}
+		
 		return true;
 	}
 	
