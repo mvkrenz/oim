@@ -237,7 +237,7 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 							
 							//update status note
 							try {
-								rec.status_note = "Certificate idx:"+idx+" has been issued";
+								rec.status_note = "Certificate idx:"+idx+" has been issued. Serial Number: " + cert.serial;
 								context.setComment(rec.status_note);
 								CertificateRequestHostModel.super.update(get(rec.id), rec);
 							} catch (SQLException e) {

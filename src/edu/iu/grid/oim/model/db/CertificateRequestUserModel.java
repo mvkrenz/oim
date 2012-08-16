@@ -692,7 +692,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 					
 					//all done at this point
 					rec.status = CertificateRequestStatus.ISSUED;
-					context.setComment("Certificate has been issued by signer");
+					context.setComment("Certificate has been issued by signer. serial number: " + rec.cert_serial_id);
 					CertificateRequestUserModel.super.update(get(rec.id), rec);
 	
 					// update ticket
