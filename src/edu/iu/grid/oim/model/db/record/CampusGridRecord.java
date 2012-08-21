@@ -11,6 +11,7 @@ public class CampusGridRecord extends RecordBase
 	public String gratia; //gratia accounting probe ID
 	public Integer maturity; //defined here > https://twiki.grid.iu.edu/bin/view/CampusGrids/DeployedCampusInfrastructures
 	public Double longitude, latitude; // Need to change this to float but it is text in the DB right now
+	public Integer gateway_submitnode_id;
 	public Boolean disable;
 	
 	//load from existing record

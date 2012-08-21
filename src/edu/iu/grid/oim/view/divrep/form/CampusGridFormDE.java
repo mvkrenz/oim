@@ -85,6 +85,7 @@ public class CampusGridFormDE extends DivRepForm
 	private FieldOfScience field_of_science_de;
 	private DivRepLocationSelector latlng;
 	private CampusGridSubmitNodes submithosts;
+	private DivRepSelectBox gateway_submitnode;	
 	private DivRepCheckBox disable;
 
 	private DivRepTextArea comment;
@@ -149,11 +150,6 @@ public class CampusGridFormDE extends DivRepForm
 		maturity.setValue(rec.maturity);
 		maturity.setRequired(true);
 		
-		ArrayList<Integer> fos_selected = new ArrayList<Integer>();
-		field_of_science_de = new FieldOfScience(this, context, fos_selected);
-		
-		new DivRepStaticContent(this, "<h3>Submit Nodes</h3>");		
-			
 		//load submit node resources
 		ResourceServiceModel rsmodel = new ResourceServiceModel(context);
 		ResourceModel rmodel = new ResourceModel(context);
@@ -162,6 +158,15 @@ public class CampusGridFormDE extends DivRepForm
 			ResourceRecord r = rmodel.get(rs.resource_id);
 			submitnodes.put(rs.resource_id, r.name);
 		}
+		
+		
+		gateway_submitnode = new DivRepSelectBox(this);
+		gateway_submitnode.setLabel("Gateway Submit Node");
+		gateway_submitnode.setValues(submitnodes);
+		gateway_submitnode.setRequired(true);
+		gateway_submitnode.setValue(rec.gateway_submitnode_id);
+		
+		new DivRepStaticContent(this, "<h3>Submit Nodes</h3>");		
 		
 		//create submithost selector
 		submithosts = new CampusGridSubmitNodes(this, submitnodes);
@@ -174,6 +179,22 @@ public class CampusGridFormDE extends DivRepForm
 		if(id == null) {
 			submithosts.addNode(null); //add placeholder
 		}
+		
+		ArrayList<Integer> fos_selected = new ArrayList<Integer>();
+		if(id != null) {
+			//populate field of science
+			try {
+				//select currently selected field of science
+				CampusGridFieldOfScienceModel cgfsmodel = new CampusGridFieldOfScienceModel(context);
+				for(CampusGridFieldOfScienceRecord fsrec : cgfsmodel.getByCampusGridID(rec.id)) {
+					fos_selected.add(fsrec.field_of_science_id);
+				}
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		field_of_science_de = new FieldOfScience(this, context, fos_selected);
 		
 		//latlng = new LatLngSelector(this);
 		new DivRepStaticContent(this, "<h3>Latitude / Longitude</h3>");		
@@ -196,18 +217,6 @@ public class CampusGridFormDE extends DivRepForm
 			CampusGridContactModel vocmodel = new CampusGridContactModel(context);
 			ArrayList<CampusGridContactRecord> voclist = vocmodel.getByCampusGridID(id);
 			cgclist_grouped = vocmodel.groupByContactTypeID(voclist);
-			
-			//populate field of science
-			try {
-				//select currently selected field of science
-				CampusGridFieldOfScienceModel cgfsmodel = new CampusGridFieldOfScienceModel(context);
-				for(CampusGridFieldOfScienceRecord fsrec : cgfsmodel.getByCampusGridID(rec.id)) {
-					fos_selected.add(fsrec.field_of_science_id);
-				}
-			} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
 		} else {
 			//set user's contact as submitter
 			cgclist_grouped = new HashMap<Integer, ArrayList<CampusGridContactRecord>>();
@@ -356,6 +365,7 @@ public class CampusGridFormDE extends DivRepForm
 		rec.latitude = latlng.getValue().latitude;
 		rec.longitude = latlng.getValue().longitude;
 		rec.disable = disable.getValue();
+		rec.gateway_submitnode_id = gateway_submitnode.getValue();
 	
 		context.setComment(comment.getValue());
 		
