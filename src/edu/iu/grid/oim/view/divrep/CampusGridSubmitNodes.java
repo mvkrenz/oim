@@ -10,14 +10,14 @@ import com.divrep.DivRepEventListener;
 import com.divrep.common.DivRepButton;
 import com.divrep.common.DivRepFormElement;
 import com.divrep.common.DivRepSelectBox;
+import com.divrep.common.DivRepTextBox;
 
 public class CampusGridSubmitNodes extends DivRepFormElement {
 	private DivRepButton add_button;
-	LinkedHashMap<Integer, String> submitnodes;
 
-	class HostEditor extends DivRepFormElement<Integer>
+	class HostEditor extends DivRepFormElement<String>
 	{
-		private DivRepSelectBox host;
+		private DivRepTextBox fqdn;
 		private DivRepButton remove_button;
 		private HostEditor myself;
 		
@@ -25,14 +25,12 @@ public class CampusGridSubmitNodes extends DivRepFormElement {
 			super(parent);
 			myself = this;
 			
-			host = new DivRepSelectBox(this);
-			host.setValues(submitnodes);
-			host.addClass("divrep_inline");
-			host.setRequired(true);
+			fqdn = new DivRepTextBox(this);
+			fqdn.addClass("divrep_inline");
 			
 			remove_button = new DivRepButton(this, "images/delete.png");
 			remove_button.setStyle(DivRepButton.Style.IMAGE);
-			remove_button.addClass("pull-right");
+			//remove_button.addClass("pull-right");
 			remove_button.addEventListener(new DivRepEventListener() {
 				public void handleEvent(DivRepEvent e) {
 					removeNode(myself);	
@@ -40,16 +38,16 @@ public class CampusGridSubmitNodes extends DivRepFormElement {
 			});
 		}
 
-		public void setValue(Integer id) {
-			host.setValue(id);
+		public void setValue(String f) {
+			fqdn.setValue(f);
 		}
-		public Integer getValue() {
-			return host.getValue();
+		public String getValue() {
+			return fqdn.getValue();
 		}
 		@Override 
 		public boolean validate()
 		{
-			return host.validate();
+			return fqdn.validate();
 		}
 		
 		@Override
@@ -59,9 +57,9 @@ public class CampusGridSubmitNodes extends DivRepFormElement {
 
 		@Override
 		public void render(PrintWriter out) {
-			out.write("<div id=\""+getNodeID()+"\" class=\"campusgrid_hosts\">");
+			out.write("<div id=\""+getNodeID()+"\">");
+			fqdn.render(out);
 			remove_button.render(out);
-			host.render(out);
 			out.write("</div>");
 		}
 		
@@ -73,17 +71,16 @@ public class CampusGridSubmitNodes extends DivRepFormElement {
 		redraw();
 	}
 	
-	public void addNode(Integer host_id) { 
+	public void addNode(String fqdn) { 
 		HostEditor elem = new HostEditor(this);
-		elem.setValue(host_id);
+		elem.setValue(fqdn);
 		redraw();
 	}
 	
-	public CampusGridSubmitNodes(DivRep parent, LinkedHashMap<Integer, String> submitnodes) {
+	public CampusGridSubmitNodes(DivRep parent) {
 		super(parent);
-		this.submitnodes = submitnodes;
 		
-		add_button = new DivRepButton(this, "Add Submit Node");
+		add_button = new DivRepButton(this, "Add FQDN");
 		//add_button.setStyle(DivRepButton.Style.ALINK);
 		add_button.addClass("btn");
 		add_button.addEventListener(new DivRepEventListener() {
@@ -95,15 +92,14 @@ public class CampusGridSubmitNodes extends DivRepFormElement {
 	}
 
 	//Note: caller need to set the resource_id for each records
-	public ArrayList<Integer> getSubmithosts()
+	public ArrayList<String> getSubmithosts()
 	{
-		ArrayList<Integer> records = new ArrayList<Integer>();
+		ArrayList<String> records = new ArrayList<String>();
 		for(DivRep node : childnodes) {
 			if(node instanceof HostEditor) {
 				HostEditor host = (HostEditor)node;
-				Integer id = host.getValue();
-				if(id != null) {
-					records.add(id);
+				if(host.getValue() != null) {
+					records.add(host.getValue());
 				}
 			}
 		}
@@ -125,7 +121,7 @@ public class CampusGridSubmitNodes extends DivRepFormElement {
 			}
 		}
 		if(c == 0) {
-			out.write("<p class=\"muted\">None Selected</p>");
+			//out.write("<p class=\"muted\">None Selected</p>");
 		}
 
 		add_button.render(out);

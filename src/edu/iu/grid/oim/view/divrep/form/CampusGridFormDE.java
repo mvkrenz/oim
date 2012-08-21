@@ -140,9 +140,10 @@ public class CampusGridFormDE extends DivRepForm
 		
 		gratia = new DivRepTextBox(this);
 		gratia.setLabel("URL of Campus Grid Gratia Accounting");
-		gratia.setRequired(true);
+		//gratia.setRequired(true);
 		gratia.setSampleValue("gratiaweb.grid.iu.edu/gratia/xml/glidein_hours_bar_smry?probe=condor:glidein.unl.edu");
 		gratia.setValue(rec.gratia);
+		//gratia.setWidth(450);
 
 		maturity = new DivRepSelectBox(this);
 		maturity.setLabel("Maturity");
@@ -163,22 +164,23 @@ public class CampusGridFormDE extends DivRepForm
 		gateway_submitnode = new DivRepSelectBox(this);
 		gateway_submitnode.setLabel("Gateway Submit Node");
 		gateway_submitnode.setValues(submitnodes);
-		gateway_submitnode.setRequired(true);
 		gateway_submitnode.setValue(rec.gateway_submitnode_id);
 		
-		new DivRepStaticContent(this, "<h3>Submit Nodes</h3>");		
+		new DivRepStaticContent(this, "<h3>Submit Node FQDNs</h3>");		
 		
 		//create submithost selector
-		submithosts = new CampusGridSubmitNodes(this, submitnodes);
+		submithosts = new CampusGridSubmitNodes(this);
 		CampusGridSubmitNodeModel cmodel = new CampusGridSubmitNodeModel(context);
 		if(id != null) {
 			for(CampusGridSubmitNodeRecord rarec : cmodel.getAllByCampusGridID(id)) {
-				submithosts.addNode(rarec.resource_id);
+				submithosts.addNode(rarec.fqdn);
 			}
 		}
+		/*
 		if(id == null) {
 			submithosts.addNode(null); //add placeholder
 		}
+		*/
 		
 		ArrayList<Integer> fos_selected = new ArrayList<Integer>();
 		if(id != null) {

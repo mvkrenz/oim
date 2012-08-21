@@ -146,6 +146,7 @@ public abstract class ModelBase<T extends RecordBase> {
 			logInsert(rec);
 		} catch (Exception e) {
 			log.error("unhandled exception", e);
+			throw new SQLException(e); //recast as sqlexception
 		} finally {
 			conn.close();
 		}
@@ -212,6 +213,7 @@ public abstract class ModelBase<T extends RecordBase> {
 			logUpdate(oldrec, newrec);
     	} catch(Exception e) {
     		log.error("unhandled exception", e);
+			throw new SQLException(e); //recast as sqlexception
     	} finally {
 			conn.close();
     	}

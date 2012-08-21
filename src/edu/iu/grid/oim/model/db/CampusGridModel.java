@@ -100,7 +100,7 @@ public class CampusGridModel extends SmallTableModelBase<CampusGridRecord> {
 	public void insertDetail(CampusGridRecord rec,
 			ArrayList<CampusGridContactRecord> contacts,
 			ArrayList<Integer> field_of_science_ids,
-			ArrayList<Integer> submit_hosts) throws Exception 
+			ArrayList<String> submit_hosts) throws Exception 
 	{
 		Connection conn = connectOIM();
 		conn.setAutoCommit(false);
@@ -129,10 +129,10 @@ public class CampusGridModel extends SmallTableModelBase<CampusGridRecord> {
 			
 			//process submit hosts
 			ArrayList<CampusGridSubmitNodeRecord> slist = new ArrayList<CampusGridSubmitNodeRecord>();
-			for(Integer host_id : submit_hosts) {
+			for(String fqdn : submit_hosts) {
 				CampusGridSubmitNodeRecord vfosrec = new CampusGridSubmitNodeRecord();
 				vfosrec.campusgrid_id = rec.id;
-				vfosrec.resource_id = host_id;
+				vfosrec.fqdn = fqdn;
 				slist.add(vfosrec);
 			}
 			CampusGridSubmitNodeModel cgsnmodel = new CampusGridSubmitNodeModel(context);
@@ -153,7 +153,7 @@ public class CampusGridModel extends SmallTableModelBase<CampusGridRecord> {
 	public void updateDetail(CampusGridRecord rec,
 			ArrayList<CampusGridContactRecord> contacts,
 			ArrayList<Integer> field_of_science_ids, 
-			ArrayList<Integer> submit_hosts) throws Exception
+			ArrayList<String> submit_hosts) throws Exception
 	{
 		Connection conn = connectOIM();
 		conn.setAutoCommit(false);
@@ -183,10 +183,10 @@ public class CampusGridModel extends SmallTableModelBase<CampusGridRecord> {
 			
 			//process submit hosts
 			ArrayList<CampusGridSubmitNodeRecord> slist = new ArrayList<CampusGridSubmitNodeRecord>();
-			for(Integer host_id : submit_hosts) {
+			for(String fqdn : submit_hosts) {
 				CampusGridSubmitNodeRecord vfosrec = new CampusGridSubmitNodeRecord();
 				vfosrec.campusgrid_id = rec.id;
-				vfosrec.resource_id = host_id;
+				vfosrec.fqdn = fqdn;
 				slist.add(vfosrec);
 			}
 			CampusGridSubmitNodeModel cgsnmodel = new CampusGridSubmitNodeModel(context);

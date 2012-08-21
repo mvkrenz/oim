@@ -82,7 +82,8 @@ public class ResourceAlias extends DivRepFormElement {
 	public ResourceAlias(DivRep parent) {
 		super(parent);
 		add_button = new DivRepButton(this, "Add New Alias");
-		add_button.setStyle(DivRepButton.Style.ALINK);
+		//add_button.setStyle(DivRepButton.Style.ALINK);
+		add_button.addClass("btn");
 		add_button.addEventListener(new DivRepEventListener() {
 			public void handleEvent(DivRepEvent e) {
 				addAlias("");
@@ -113,7 +114,7 @@ public class ResourceAlias extends DivRepFormElement {
 	}
 
 	public void render(PrintWriter out) {
-		out.print("<div id=\""+getNodeID()+"\">");
+		out.print("<div id=\""+getNodeID()+"\" class=\"well\">");
 		for(DivRep node : childnodes) {
 			if(node instanceof AliasEditor) {
 				node.render(out);

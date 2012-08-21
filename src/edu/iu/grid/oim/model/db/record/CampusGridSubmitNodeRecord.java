@@ -13,7 +13,7 @@ import edu.iu.grid.oim.model.db.SCModel;
 public class CampusGridSubmitNodeRecord extends RecordBase {
 
 	@Key public Integer campusgrid_id;
-	@Key public Integer resource_id;
+	@Key public String fqdn;
 	
 	//load from existing record
 	public CampusGridSubmitNodeRecord(ResultSet rs) throws SQLException { super(rs); }
