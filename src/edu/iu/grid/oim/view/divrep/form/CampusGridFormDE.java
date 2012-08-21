@@ -80,7 +80,6 @@ public class CampusGridFormDE extends DivRepForm
 	
 	private DivRepTextBox name;
 	private DivRepTextArea description;
-	private DivRepTextBox fqdn;
 	private DivRepTextBox gratia;
 	private DivRepSelectBox maturity;	
 	private FieldOfScience field_of_science_de;
@@ -139,9 +138,9 @@ public class CampusGridFormDE extends DivRepForm
 		description.setSampleValue("Collider Detector at Fermilab");
 		
 		gratia = new DivRepTextBox(this);
-		gratia.setLabel("Gratia Accounting Probe ID");
+		gratia.setLabel("URL of Campus Grid Gratia Accounting");
 		gratia.setRequired(true);
-		gratia.setSampleValue("ce.grid.iu.edu");
+		gratia.setSampleValue("gratiaweb.grid.iu.edu/gratia/xml/glidein_hours_bar_smry?probe=condor:glidein.unl.edu");
 		gratia.setValue(rec.gratia);
 
 		maturity = new DivRepSelectBox(this);

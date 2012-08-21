@@ -1108,13 +1108,14 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 		}
     	
 		//submit goc ticket
-		ticket.title = "User Certificate Request for "+requester.name;
+		VOModel vmodel = new VOModel(context);
+		VORecord vrec = vmodel.get(rec.vo_id);
+		
+		ticket.title = "OSG:"+vrec.name+" User Certificate Request for "+requester.name;
 		String auth_status = "An unauthenticated user; ";
 		if(auth.isUser()) {
 			auth_status = "An OIM Authenticated user; ";
 		}
-		VOModel vmodel = new VOModel(context);
-		VORecord vrec = vmodel.get(rec.vo_id);
 		ticket.description = "Dear " + ranames + " (" + vrec.name + " VO RA/Sponsors),\n\n";
 		ticket.description += auth_status + requester.name + " <"+requester.primary_email+"> has requested a user certificate. ";
 		ticket.description += "Please determine this request's authenticity, and approve / disapprove at " + getTicketUrl(rec);
@@ -1198,7 +1199,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 			}
 			
 			ContactRecord requester = cmodel.get(rec.requester_contact_id);
-			ticket.title = "User Certificate Re-request for "+requester.name;
+			//ticket.title = "User Certificate Re-request for "+requester.name;s
 			String auth_status = "An unauthenticated user; ";
 			if(auth.isUser()) {
 				auth_status = "An OIM Authenticated user; ";
