@@ -167,6 +167,7 @@ public class BootMenuView implements IView {
 		} else {
 			out.println("<li><a href=\"home\">Home</a></li>");	
 		}
+		
 		if(current.equals("certificate")) {
 			out.println("<li class=\"active\"><a href=\"certificate\">Certificate</a></li>");
 		} else {
@@ -204,7 +205,10 @@ public class BootMenuView implements IView {
 		if(current.equals("campusgrid")) {
 			out.println("<li class=\"active\"><a href=\"campusgrid\">Campus Grids</a></li>");
 		} else {
-			out.println("<li><a href=\"campusgrid\">Campus Grids</a></li>");	
+			//for now, only show if it's debug
+			if(StaticConfig.isDebug()) {
+				out.println("<li><a href=\"campusgrid\">Campus Grids</a></li>");
+			}
 		}
 				
 				

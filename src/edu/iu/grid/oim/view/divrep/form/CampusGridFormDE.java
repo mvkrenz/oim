@@ -159,7 +159,7 @@ public class CampusGridFormDE extends DivRepForm
 		ResourceServiceModel rsmodel = new ResourceServiceModel(context);
 		ResourceModel rmodel = new ResourceModel(context);
 		LinkedHashMap<Integer, String> submitnodes = new LinkedHashMap<Integer, String>();
-		for(ResourceServiceRecord rs : rsmodel.getByServiceID(109)) { //submit node
+		for(ResourceServiceRecord rs : rsmodel.getByServiceID(109)) { //submit node (TODO - make this configurable)
 			ResourceRecord r = rmodel.get(rs.resource_id);
 			submitnodes.put(rs.resource_id, r.name);
 		}
