@@ -51,7 +51,7 @@ public class CampusGridServlet extends ServletBase implements Servlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{	
 		UserContext context = new UserContext(request);
-		Authorization auth = context.getAuthorization();
+		//Authorization auth = context.getAuthorization();
 		
 		try {	
 			//construct view
@@ -105,7 +105,6 @@ public class CampusGridServlet extends ServletBase implements Servlet {
 
 	 	table.addRow("Name", rec.name);
 		table.addRow("Description", rec.description);
-		table.addRow("Submit Host FQDN", rec.fqdn);
 		table.addRow("Gratia Probe URL", rec.gratia);
 		table.addRow("Longitude", rec.longitude);
 		table.addRow("Latitude", rec.latitude);
@@ -144,7 +143,6 @@ public class CampusGridServlet extends ServletBase implements Servlet {
 				table.addRow(ctrec.name + " " + tip.render(), new HtmlView(cliststr));
 			}
 		}		
-		table.addRow("Active", rec.active);
 		table.addRow("Disable", rec.disable);
 	
 		
@@ -191,7 +189,7 @@ public class CampusGridServlet extends ServletBase implements Servlet {
 			contentview.add(new HtmlView("<h2>Campus Grids</h2>"));
 			ItemTableView table = new ItemTableView(5);
 			for(final CampusGridRecord rec : readonly_cgs) {
-				table.add(renderLink(rec, true));
+				table.add(renderLink(rec, model.canEdit(rec.id)));
 			}	
 			contentview.add(table);
 		}
@@ -207,10 +205,6 @@ public class CampusGridServlet extends ServletBase implements Servlet {
 		if(rec.disable) {
 			disable_css += " disabled";
 			tag += " (Disabled)";
-		}
-		if(!rec.active) {
-			disable_css += " inactive";
-			tag += " (Inactive)";
 		}
 		if(editable) {
 			cg.add(new HtmlView("<a class=\""+disable_css+"\" title=\""+StringEscapeUtils.escapeHtml(rec.name)+"\" href=\"campusgridedit?id="+rec.id+"\">"+StringEscapeUtils.escapeHtml(name)+tag+"</a>"));

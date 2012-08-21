@@ -15,6 +15,7 @@ import org.w3c.dom.Document;
 import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.record.CampusGridContactRecord;
 import edu.iu.grid.oim.model.db.record.CampusGridFieldOfScienceRecord;
+import edu.iu.grid.oim.model.db.record.CampusGridSubmitNodeRecord;
 import edu.iu.grid.oim.model.db.record.RecordBase;
 import edu.iu.grid.oim.model.db.record.CampusGridRecord;
 
@@ -98,7 +99,8 @@ public class CampusGridModel extends SmallTableModelBase<CampusGridRecord> {
 	
 	public void insertDetail(CampusGridRecord rec,
 			ArrayList<CampusGridContactRecord> contacts,
-			ArrayList<Integer> field_of_science_ids) throws Exception 
+			ArrayList<Integer> field_of_science_ids,
+			ArrayList<Integer> submit_hosts) throws Exception 
 	{
 		Connection conn = connectOIM();
 		conn.setAutoCommit(false);
@@ -124,6 +126,18 @@ public class CampusGridModel extends SmallTableModelBase<CampusGridRecord> {
 			}
 			CampusGridFieldOfScienceModel vofsmodel = new CampusGridFieldOfScienceModel(context);
 			vofsmodel.insert(list);	
+			
+			//process submit hosts
+			ArrayList<CampusGridSubmitNodeRecord> slist = new ArrayList<CampusGridSubmitNodeRecord>();
+			for(Integer host_id : submit_hosts) {
+				CampusGridSubmitNodeRecord vfosrec = new CampusGridSubmitNodeRecord();
+				vfosrec.campusgrid_id = rec.id;
+				vfosrec.resource_id = host_id;
+				slist.add(vfosrec);
+			}
+			CampusGridSubmitNodeModel cgsnmodel = new CampusGridSubmitNodeModel(context);
+			cgsnmodel.insert(slist);	
+			
 			conn.commit();
 		} catch (Exception e) {
 			log.error(e);
@@ -138,7 +152,8 @@ public class CampusGridModel extends SmallTableModelBase<CampusGridRecord> {
 	}
 	public void updateDetail(CampusGridRecord rec,
 			ArrayList<CampusGridContactRecord> contacts,
-			ArrayList<Integer> field_of_science_ids) throws Exception
+			ArrayList<Integer> field_of_science_ids, 
+			ArrayList<Integer> submit_hosts) throws Exception
 	{
 		Connection conn = connectOIM();
 		conn.setAutoCommit(false);
@@ -165,6 +180,17 @@ public class CampusGridModel extends SmallTableModelBase<CampusGridRecord> {
 			}
 			CampusGridFieldOfScienceModel vofsmodel = new CampusGridFieldOfScienceModel(context);
 			vofsmodel.update(vofsmodel.getByCampusGridID(rec.id), list);
+			
+			//process submit hosts
+			ArrayList<CampusGridSubmitNodeRecord> slist = new ArrayList<CampusGridSubmitNodeRecord>();
+			for(Integer host_id : submit_hosts) {
+				CampusGridSubmitNodeRecord vfosrec = new CampusGridSubmitNodeRecord();
+				vfosrec.campusgrid_id = rec.id;
+				vfosrec.resource_id = host_id;
+				slist.add(vfosrec);
+			}
+			CampusGridSubmitNodeModel cgsnmodel = new CampusGridSubmitNodeModel(context);
+			cgsnmodel.update(cgsnmodel.getAllByCampusGridID(rec.id), slist);	
 			
 			conn.commit();
 		} catch (Exception e) {

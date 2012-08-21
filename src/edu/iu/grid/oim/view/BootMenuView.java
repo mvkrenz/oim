@@ -200,6 +200,13 @@ public class BootMenuView implements IView {
 		} else {
 			out.println("<li><a href=\"sc\">Support Centers</a></li>");	
 		}
+		
+		if(current.equals("campusgrid")) {
+			out.println("<li class=\"active\"><a href=\"campusgrid\">Campus Grids</a></li>");
+		} else {
+			out.println("<li><a href=\"campusgrid\">Campus Grids</a></li>");	
+		}
+				
 				
 		out.println("</ul>");//end of left items
 		

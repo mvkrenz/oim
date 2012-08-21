@@ -1115,7 +1115,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 		}
 		VOModel vmodel = new VOModel(context);
 		VORecord vrec = vmodel.get(rec.vo_id);
-		ticket.description = "Dear " + ranames + " (" + vrec.name + " VO RAs),\n\n";
+		ticket.description = "Dear " + ranames + " (" + vrec.name + " VO RA/Sponsors),\n\n";
 		ticket.description += auth_status + requester.name + " <"+requester.primary_email+"> has requested a user certificate. ";
 		ticket.description += "Please determine this request's authenticity, and approve / disapprove at " + getTicketUrl(rec);
 		ticket.description += "\n\n"+note;
@@ -1205,7 +1205,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 			}
 			VOModel vmodel = new VOModel(context);
 			VORecord vrec = vmodel.get(rec.vo_id);
-			ticket.description = "Dear " + ranames + " (" + vrec.name + " VO RAs),\n\n";
+			ticket.description = "Dear " + ranames + " (" + vrec.name + " VO RA/Sponsors),\n\n";
 			ticket.description += auth_status + requester.name + " <"+requester.primary_email+"> has re-requested a user certificate. ";
 			ticket.description += "Please determine this request's authenticity, and approve / disapprove at " + getTicketUrl(rec);
 			ticket.assignees.add(StaticConfig.conf.getProperty("certrequest.user.assignee"));

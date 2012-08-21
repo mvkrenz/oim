@@ -3,6 +3,8 @@ package edu.iu.grid.oim.model.db;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
@@ -80,5 +82,31 @@ public class ResourceServiceModel extends SmallTableModelBase<ResourceServiceRec
 			return value + " (" + rec.name + ")";
 		}
 		return value;
+	}
+	public ArrayList<ResourceServiceRecord> getByServiceID(int service_id) throws SQLException {
+		ArrayList<ResourceServiceRecord> list = new ArrayList<ResourceServiceRecord>();
+		for(ResourceServiceRecord it : getAll()) {
+			if(it.service_id.compareTo(service_id) == 0) {
+				list.add(it);
+			}
+		}
+		
+		//sort list by resource name
+		final ResourceModel model = new ResourceModel(context);
+		Collections.sort(list, new Comparator<ResourceServiceRecord>() {
+			@Override
+			public int compare(ResourceServiceRecord o1, ResourceServiceRecord o2) {
+				try {
+					ResourceRecord rec1 = model.get(o1.resource_id);
+					ResourceRecord rec2 = model.get(o2.resource_id);
+					return rec1.name.compareTo(rec2.name);
+				} catch (SQLException e) {
+					log.error("Failed to load record for comparison");
+				}
+				return 0;
+			}
+			
+		});
+		return list;	
 	}
 }

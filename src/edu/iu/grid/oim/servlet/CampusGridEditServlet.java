@@ -77,9 +77,7 @@ public class CampusGridEditServlet extends ServletBase implements Servlet {
 		//put the form in a view and display
 		ContentView contentview = new ContentView(context);
 		//contentview.add(new HtmlView("<h1>"+title+"</h1>"));	
-		if(rec.active != null && rec.active == false) {
-			contentview.add(new HtmlView("<div class=\"alert\">This CampusGrid is currently inactive.</div>"));
-		}
+
 		if(rec.disable != null && rec.disable == true) {
 			contentview.add(new HtmlView("<div class=\"alert\">This CampusGrid is disabled.</div>"));
 		}

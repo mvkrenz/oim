@@ -7,7 +7,12 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 import java.util.TreeSet;
 
 import org.apache.log4j.Logger;
@@ -35,23 +40,34 @@ import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.UserContext.MessageType;
 import edu.iu.grid.oim.model.db.CampusGridFieldOfScienceModel;
+import edu.iu.grid.oim.model.db.CampusGridSubmitNodeModel;
 import edu.iu.grid.oim.model.db.ContactTypeModel;
 import edu.iu.grid.oim.model.db.ContactModel;
+import edu.iu.grid.oim.model.db.ResourceAliasModel;
+import edu.iu.grid.oim.model.db.ResourceModel;
+import edu.iu.grid.oim.model.db.ResourceServiceModel;
 import edu.iu.grid.oim.model.db.SCModel;
 import edu.iu.grid.oim.model.db.CampusGridContactModel;
 import edu.iu.grid.oim.model.db.CampusGridModel;
 import edu.iu.grid.oim.model.db.record.CampusGridFieldOfScienceRecord;
+import edu.iu.grid.oim.model.db.record.CampusGridSubmitNodeRecord;
 import edu.iu.grid.oim.model.db.record.ContactTypeRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
+import edu.iu.grid.oim.model.db.record.FacilityRecord;
 import edu.iu.grid.oim.model.db.record.FieldOfScienceRecord;
+import edu.iu.grid.oim.model.db.record.ResourceAliasRecord;
+import edu.iu.grid.oim.model.db.record.ResourceRecord;
+import edu.iu.grid.oim.model.db.record.ResourceServiceRecord;
 
 import edu.iu.grid.oim.model.db.record.CampusGridRecord;
 
 import edu.iu.grid.oim.model.db.record.SCRecord;
 import edu.iu.grid.oim.model.db.record.CampusGridContactRecord;
 import edu.iu.grid.oim.view.ToolTip;
+import edu.iu.grid.oim.view.divrep.CampusGridSubmitNodes;
 import edu.iu.grid.oim.view.divrep.ContactEditor;
 import edu.iu.grid.oim.view.divrep.FieldOfScience;
+import edu.iu.grid.oim.view.divrep.ResourceAlias;
 import edu.iu.grid.oim.view.divrep.ContactEditor.Rank;
 
 public class CampusGridFormDE extends DivRepForm 
@@ -69,7 +85,7 @@ public class CampusGridFormDE extends DivRepForm
 	private DivRepSelectBox maturity;	
 	private FieldOfScience field_of_science_de;
 	private DivRepLocationSelector latlng;
-	private DivRepCheckBox active;
+	private CampusGridSubmitNodes submithosts;
 	private DivRepCheckBox disable;
 
 	private DivRepTextArea comment;
@@ -79,8 +95,8 @@ public class CampusGridFormDE extends DivRepForm
 		ContactTypes = new ArrayList<ContactTypeRecord.Info>();
 		ContactTypes.add(new ContactTypeRecord.Info(1, "A contact who has registered this campus grid"));
 		ContactTypes.add(new ContactTypeRecord.Info(3, "Contacts for ticketing and assorted issues. This is typically a user/application support person or a help desk"));
-		ContactTypes.add(new ContactTypeRecord.Info(2, "Security notifications sent out by the OSG security team are sent to primary and secondary virtual organization security contacts"));
-		ContactTypes.add(new ContactTypeRecord.Info(5, "Contacts who do not fall under any of the above types but would like to be able to edit this virtual organization can be added as miscellaneous contact"));
+		ContactTypes.add(new ContactTypeRecord.Info(2, "Security notifications sent out by the OSG security team are sent to primary and secondary campus grid security contacts"));
+		ContactTypes.add(new ContactTypeRecord.Info(5, "Contacts who do not fall under any of the above types but would like to be able to edit this campus grid can be added as miscellaneous contact"));
 		//ContactTypes.add(new ContactTypeRecord.Info(11, "RA (Registration Authority) agent who can approve certificate requests."));
 	}	
 	private HashMap<Integer, ContactEditor> contact_editors = new HashMap();
@@ -102,7 +118,7 @@ public class CampusGridFormDE extends DivRepForm
 		auth = context.getAuthorization();
 		id = rec.id;
 		
-		new DivRepStaticContent(this, "<h2>Basic CampusGrid Information</h2>");
+		//new DivRepStaticContent(this, "<h2>Basic CampusGrid Information</h2>");
 		
 		//pull vos for unique validator
 		LinkedHashMap<Integer, String> campusgrids = getCampusGridNames();
@@ -117,19 +133,13 @@ public class CampusGridFormDE extends DivRepForm
 		name.setSampleValue("CDF");
 
 		description = new DivRepTextArea(this);
-		description.setLabel("Enter a Description for this CampusGrid");
+		description.setLabel("Description");
 		description.setValue(rec.description);
 		description.setRequired(true);
 		description.setSampleValue("Collider Detector at Fermilab");
 		
-		fqdn = new DivRepTextBox(this);
-		fqdn.setLabel("Submit Host FQDN");
-		fqdn.setRequired(true);
-		fqdn.setSampleValue("ce.grid.iu.edu");
-		fqdn.setValue(rec.fqdn);
-		
 		gratia = new DivRepTextBox(this);
-		gratia.setLabel("Gratia Probe URL");
+		gratia.setLabel("Gratia Accounting Probe ID");
 		gratia.setRequired(true);
 		gratia.setSampleValue("ce.grid.iu.edu");
 		gratia.setValue(rec.gratia);
@@ -141,6 +151,45 @@ public class CampusGridFormDE extends DivRepForm
 		maturity.setRequired(true);
 		
 		ArrayList<Integer> fos_selected = new ArrayList<Integer>();
+		field_of_science_de = new FieldOfScience(this, context, fos_selected);
+		
+		new DivRepStaticContent(this, "<h3>Submit Nodes</h3>");		
+			
+		//load submit node resources
+		ResourceServiceModel rsmodel = new ResourceServiceModel(context);
+		ResourceModel rmodel = new ResourceModel(context);
+		LinkedHashMap<Integer, String> submitnodes = new LinkedHashMap<Integer, String>();
+		for(ResourceServiceRecord rs : rsmodel.getByServiceID(109)) { //submit node
+			ResourceRecord r = rmodel.get(rs.resource_id);
+			submitnodes.put(rs.resource_id, r.name);
+		}
+		
+		//create submithost selector
+		submithosts = new CampusGridSubmitNodes(this, submitnodes);
+		CampusGridSubmitNodeModel cmodel = new CampusGridSubmitNodeModel(context);
+		if(id != null) {
+			for(CampusGridSubmitNodeRecord rarec : cmodel.getAllByCampusGridID(id)) {
+				submithosts.addNode(rarec.resource_id);
+			}
+		}
+		if(id == null) {
+			submithosts.addNode(null); //add placeholder
+		}
+		
+		//latlng = new LatLngSelector(this);
+		new DivRepStaticContent(this, "<h3>Latitude / Longitude</h3>");		
+		latlng = new DivRepLocationSelector(this, "images/target.png", StaticConfig.conf.getProperty("gmapapikey"));
+		latlng.setHttps(true);//should be always https
+		//latlng.setLabel("Latitude / Longitude");
+		int zoom = 10;
+		if(rec.latitude == null || rec.longitude == null) {
+			//set it to some *random* location
+			rec.latitude = 37.401394D;
+			rec.longitude = -116.867846D;
+			zoom = 2;
+		}
+		latlng.setValue(latlng.new LatLng(rec.latitude, rec.longitude, zoom));
+		latlng.setRequired(true);
 		
 		new DivRepStaticContent(this, "<h2>Contact Information</h2>");
 		HashMap<Integer/*contact_type_id*/, ArrayList<CampusGridContactRecord>> cgclist_grouped = null;
@@ -218,28 +267,15 @@ public class CampusGridFormDE extends DivRepForm
 			contact_editors.put(contact_type.id, editor);
 		}
 		
-		field_of_science_de = new FieldOfScience(this, context, fos_selected);
-		
-		//latlng = new LatLngSelector(this);
-		latlng = new DivRepLocationSelector(this, "images/target.png", StaticConfig.conf.getProperty("gmapapikey"));
-		latlng.setHttps(true);//should be always https
-		latlng.setLabel("Latitude / Longitude");
-		int zoom = 10;
-		if(rec.latitude == null || rec.longitude == null) {
-			//set it to some *random* location
-			rec.latitude = 37.401394D;
-			rec.longitude = -116.867846D;
-			zoom = 2;
-		}
-		latlng.setValue(latlng.new LatLng(rec.latitude, rec.longitude, zoom));
-		latlng.setRequired(true);
-
+		new DivRepStaticContent(this, "<h2>Administrative</h2>");
+		/*
 		active = new DivRepCheckBox(this);
 		active.setLabel("Active");
 		active.setValue(rec.active);
 		if(!auth.allows("admin")) {
 			active.setHidden(true);
 		}
+		*/
 		
 		disable = new DivRepCheckBox(this);
 		disable.setLabel("Disable");
@@ -316,12 +352,10 @@ public class CampusGridFormDE extends DivRepForm
 	
 		rec.name = name.getValue();
 		rec.description = description.getValue();
-		rec.fqdn = fqdn.getValue();
 		rec.gratia = gratia.getValue();
 		rec.maturity = maturity.getValue();
 		rec.latitude = latlng.getValue().latitude;
 		rec.longitude = latlng.getValue().longitude;
-		rec.active = active.getValue();
 		rec.disable = disable.getValue();
 	
 		context.setComment(comment.getValue());
@@ -339,24 +373,10 @@ public class CampusGridFormDE extends DivRepForm
 		CampusGridModel model = new CampusGridModel(context);
 		try {
 			if(rec.id == null) {
-				model.insertDetail(rec, contacts, field_of_science_ids);
-				context.message(MessageType.SUCCESS, "Successfully registered new CampusGrid. You should receive a notification with an instruction on how to active your CampusGrid.");
-				
-				/*
-				try {
-					//Find the Footprint ID of the associated SC
-					SCModel scmodel = new SCModel(context);
-					SCRecord screc = scmodel.get(rec.);
-					
-					//create footprint ticket
-					Footprints fp = new Footprints(context);
-					fp.createNewCampusGridTicket(rec.name, screc);
-				} catch (Exception fpe) {
-					log.error("Failed to open footprints ticket: ", fpe);
-				}
-				*/
+				model.insertDetail(rec, contacts, field_of_science_ids, submithosts.getSubmithosts());
+				context.message(MessageType.SUCCESS, "Successfully registered new CampusGrid.");
 			} else {
-				model.updateDetail(rec, contacts, field_of_science_ids);
+				model.updateDetail(rec, contacts, field_of_science_ids, submithosts.getSubmithosts());
 				context.message(MessageType.SUCCESS, "Successfully updated a CampusGrid.");
 			}
 			return true;
