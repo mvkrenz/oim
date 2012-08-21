@@ -17,8 +17,6 @@ import com.divrep.DivRep;
 import com.divrep.DivRepEvent;
 import com.divrep.DivRepEventListener;
 import com.divrep.common.DivRepButton;
-import com.divrep.common.DivRepForm;
-import com.divrep.common.DivRepStaticContent;
 import com.divrep.common.DivRepTextArea;
 import com.divrep.common.DivRepTextBox;
 
@@ -27,7 +25,6 @@ import edu.iu.grid.oim.lib.AuthorizationException;
 import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.model.CertificateRequestStatus;
 import edu.iu.grid.oim.model.UserContext;
-import edu.iu.grid.oim.model.UserContext.MessageType;
 import edu.iu.grid.oim.model.db.CertificateRequestModelBase;
 import edu.iu.grid.oim.model.db.CertificateRequestHostModel;
 import edu.iu.grid.oim.model.db.ContactModel;
@@ -39,6 +36,7 @@ import edu.iu.grid.oim.view.BootMenuView;
 import edu.iu.grid.oim.view.BootPage;
 import edu.iu.grid.oim.view.CertificateMenuView;
 import edu.iu.grid.oim.view.GenericView;
+import edu.iu.grid.oim.view.HostCertificateTable;
 import edu.iu.grid.oim.view.HtmlView;
 import edu.iu.grid.oim.view.IView;
 
@@ -80,7 +78,11 @@ public class CertificateHostServlet extends ServletBase  {
 						throw new AuthorizationException("You don't have access to view this certificate");
 					}
 					ArrayList<CertificateRequestModelBase<CertificateRequestHostRecord>.LogDetail> logs = model.getLogs(CertificateRequestHostModel.class, id);
-					content = createDetailView(context, rec, logs, gridadmin);
+					String submenu = "certificatehost";
+					if(request.getParameter("search") != null) {
+						submenu = "certificatesearchhost";
+					}
+					content = createDetailView(context, rec, logs, gridadmin, submenu);
 				} catch (SQLException e) {
 					throw new ServletException("Failed to load specified certificate", e);
 				} catch (CertificateRequestException ce) {
@@ -123,7 +125,8 @@ public class CertificateHostServlet extends ServletBase  {
 			final UserContext context, 
 			final CertificateRequestHostRecord rec, 
 			final ArrayList<CertificateRequestModelBase<CertificateRequestHostRecord>.LogDetail> logs,
-			final ContactRecord gridadmin) throws ServletException
+			final ContactRecord gridadmin,
+			final String submenu) throws ServletException
 	{
 		final Authorization auth = context.getAuthorization();
 		final SimpleDateFormat dformat = new SimpleDateFormat();
@@ -136,7 +139,7 @@ public class CertificateHostServlet extends ServletBase  {
 				out.write("<div class=\"row-fluid\">");
 				
 				out.write("<div class=\"span3\">");
- 				CertificateMenuView menu = new CertificateMenuView(context, "certificatehost");
+ 				CertificateMenuView menu = new CertificateMenuView(context, submenu);
 				menu.render(out);
 				out.write("</div>"); //span3
 				
@@ -227,7 +230,7 @@ public class CertificateHostServlet extends ServletBase  {
 				out.write("<td>");
 				String[] cns = rec.getCNs();
 				out.write("<table class=\"table table-bordered table-striped\">");
-				out.write("<thead><tr><th>CN</th><th colspan=\"2\">Certificates</th><th>Serial ID</th></tr></thead>");
+				out.write("<thead><tr><th>CN</th><th colspan=\"2\">Certificates</th><th>Serial Number</th></tr></thead>");
 				int i = 0;
 				out.write("<tbody>");
 				for(String cn : cns) {
@@ -474,7 +477,7 @@ public class CertificateHostServlet extends ServletBase  {
 		final Authorization auth = context.getAuthorization();
 		final SimpleDateFormat dformat = new SimpleDateFormat();
 		dformat.setTimeZone(auth.getTimeZone());
-	
+		/*
 		class IDForm extends DivRep {
 			final DivRepTextBox id;
 			final DivRepButton open;
@@ -521,6 +524,7 @@ public class CertificateHostServlet extends ServletBase  {
 				
 			}
 		};
+		*/
 		
 		return new IView(){
 			@Override
@@ -535,8 +539,10 @@ public class CertificateHostServlet extends ServletBase  {
 				out.write("</div>"); //span3
 				
 				out.write("<div class=\"span9\">");
+				/*
 				IDForm form = new IDForm(context.getPageRoot());
 				form.render(out);
+				*/
 				if(auth.isUser()) {
 					renderMyList(out);
 				}
@@ -547,65 +553,33 @@ public class CertificateHostServlet extends ServletBase  {
 			
 			public void renderMyList(PrintWriter out) {
 				CertificateRequestHostModel model = new CertificateRequestHostModel(context);
-				ContactModel cmodel = new ContactModel(context);
-				out.write("<h2>My Host Certificate Requests</h2>");
-				out.write("<table class=\"table certificate\">");
 				try {
-					ArrayList<CertificateRequestHostRecord> recs = model.getMine(auth.getContact().id);
-					if(recs.size() == 0) {
-						out.write("<thead><tr><td colspan=5><p class=\"muted\">You have not requested any host certificate.</p></td></tr></thead>");
-					} else {
-						out.write("<thead><tr><th>ID</th><th>Status</th><th>GOC Ticket</th><th>FQDNs</th><th>Grid Admin</th></tr></thead>");
-						out.write("<tbody>");
+					ArrayList<CertificateRequestHostRecord> recs = model.getIApprove(auth.getContact().id);
+					if(recs.size() != 0) {
+						out.write("<h2>Host Certificate Requests that I Approve</h2>");
+						HostCertificateTable table = new HostCertificateTable(context, recs, false);
+						table.render(out);
 					}
-					for(CertificateRequestHostRecord rec : recs) {
-						out.write("<tr onclick=\"document.location='certificatehost?id="+rec.id+"';\">");
-						out.write("<td>"+rec.id+"</td>");
-						out.write("<td>"+rec.status+"</td>");
-						//TODO - use configured goc ticket URL
-						out.write("<td><a target=\"_blank\" href=\""+StaticConfig.conf.getProperty("url.gocticket")+"/"+rec.goc_ticket_id+"\">"+rec.goc_ticket_id+"</a></td>");
-	
-						//fqdns
-						String[] cns = rec.getCNs();
-						int idx = 0;
-						out.write("<td><ul>");
-						for(String cn : cns) {
-							out.write("<li>"+cn+"</li>");
-							idx++;
-							if(idx > 5) {
-								out.write("<li>... <span class=\"badge badge-info\">Total "+cns.length+"</span></li>");
-								break;
-							}
-							
-						}
-						out.write("</ul></td>");
-						
-						try {
-							ContactRecord gridadmin = model.findGridAdmin(rec);
-							//ContactRecord gridadmin = cmodel.get(rec.gridadmin_contact_id);
-							out.write("<td>"+StringEscapeUtils.escapeHtml(gridadmin.name)+"</td>");
-							
-						} catch (CertificateRequestException ce) {
-							out.write("<td><span class=\"label label-important\">No GridAdmin</span></td>");
-						}
-						/*
-						try {
-							VOModel vomodel = new VOModel(context);
-							VORecord vo = vomodel.get(rec.vo_id);
-							out.write("<td>"+vo.name+"</td>");
-						} catch (SQLException e) {
-							out.write("<td>sql error</td>");
-						}
-						*/
-						out.write("</tr>");	
-					}
-					out.write("</tbody>");
 				} catch (SQLException e1) {
-					out.write("<div class=\"alert\">Failed to load my certificate requests</div>");
+					out.write("<div class=\"alert\">Failed to load host certificate requests that I am gridadmin of</div>");
 					log.error(e1);
 				}
 				
-				out.write("</table>");
+				try {
+					ArrayList<CertificateRequestHostRecord> recs = model.getISubmitted(auth.getContact().id);
+					if(recs.size() == 0) {
+						out.write("<p class=\"muted\">You have not requested any host certificate.</p>");
+					} else {
+						out.write("<h2>Host Certificate Requests that I Requested</h2>");
+						HostCertificateTable table = new HostCertificateTable(context, recs, false);
+						table.render(out);
+					}
+				} catch (SQLException e1) {
+					out.write("<div class=\"alert\">Failed to load my user certificate requests</div>");
+					log.error(e1);
+				}
+				
+				
 				out.write("</div>");//content
 			}
 		};

@@ -1,15 +1,11 @@
 package edu.iu.grid.oim.model.db;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
-import java.security.Principal;
 import java.security.PrivateKey;
 import java.security.cert.CertificateException;
-import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -17,27 +13,22 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
-import java.util.Iterator;
 
 import javax.security.auth.x500.X500Principal;
 import javax.servlet.http.HttpSession;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x500.X500NameBuilder;
 import org.bouncycastle.asn1.x500.style.BCStyle;
-import org.bouncycastle.asn1.x509.Certificate;
-import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cms.CMSException;
-import org.bouncycastle.cms.CMSSignedData;
-import org.bouncycastle.util.Store;
-import org.bouncycastle.util.encoders.Base64;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.BCrypt;
@@ -321,12 +312,22 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 	//NO-AC
 	//return true if success
 	public boolean approve(CertificateRequestUserRecord rec) {
+		if(rec.status.equals(CertificateRequestStatus.REQUESTED)) {
+			return approveNewRequest(rec);
+		} else if(rec.status.equals(CertificateRequestStatus.RENEW_REQUESTED)) {
+			return approveRenewRequest(rec);
+		} else {
+			log.error("Don't know how to approve quest which is currently in stauts: "+rec.status);
+			return false;
+		}
+	}
+	
+	private boolean approveNewRequest(CertificateRequestUserRecord rec) {
 		rec.status = CertificateRequestStatus.APPROVED;
 		try {
-			//context.setComment("Certificate Approved");
 			super.update(get(rec.id), rec);
 		} catch (SQLException e) {
-			log.error("Failed to approve user certificate request: " + rec.id);
+			log.error("Failed to approve user certificate request: " + rec.id, e);
 			return false;
 		}
 		
@@ -365,7 +366,41 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 		} catch (SQLException e) {
 			log.error("Failed to associate new DN with requeter contact", e);
 		}
+		
+		return true;
+	}
 	
+	private boolean approveRenewRequest(CertificateRequestUserRecord rec) {
+		
+		//update request status
+		rec.status = CertificateRequestStatus.APPROVED;
+		try {
+			super.update(get(rec.id), rec);
+		} catch (SQLException e) {
+			log.error("Failed to approve user certificate request: " + rec.id, e);
+			return false;
+		}
+		
+		//notify user
+		try {
+			//pull requester info
+			ContactModel cmodel = new ContactModel(context);
+			ContactRecord requester = cmodel.get(rec.requester_contact_id);
+			
+			//update ticket
+			Footprints fp = new Footprints(context);
+			FPTicket ticket = fp.new FPTicket();
+			ticket.description = "Dear " + requester.name + ",\n\n";
+			ticket.description += "Your user certificate request has been approved.\n\n";
+			ticket.description += "> " + context.getComment();
+			ticket.description += "\n\nTo retrieve your certificate please visit " + getTicketUrl(rec) + " and click on Issue Certificate button.";
+			ticket.nextaction = "Requester to download certificate"; // NAD will be set 7 days from today by default
+			fp.update(ticket, rec.goc_ticket_id);
+		} catch (SQLException e) {
+			log.error("Failed to approve user certificate request: " + rec.id + " while obtaining requester info", e);
+			return false;
+		}
+		
 		return true;
 	}
 	
@@ -380,23 +415,28 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 				rec.status = CertificateRequestStatus.CANCELED;
 			}
 			super.update(get(rec.id), rec);
+			
+			
+			///////////////////////////////////////////////////////////////////////////////////////
+			// All good - now close ticket
+			Footprints fp = new Footprints(context);
+			FPTicket ticket = fp.new FPTicket();
+			Authorization auth = context.getAuthorization();
+			if(auth.isUser()) {
+				ContactRecord contact = auth.getContact();
+				ticket.description = contact.name + " has canceled this certificate request.\n\n";
+			} else {
+				ticket.description = "guest shouldn't be canceling";
+			}
+			ticket.description += "> " + context.getComment();
+			ticket.status = "Resolved";
+			fp.update(ticket, rec.goc_ticket_id);
+			
 		} catch (SQLException e) {
 			log.error("Failed to cancel user certificate request:" + rec.id);
 			return false;
 		}
 		
-		Footprints fp = new Footprints(context);
-		FPTicket ticket = fp.new FPTicket();
-		Authorization auth = context.getAuthorization();
-		if(auth.isUser()) {
-			ContactRecord contact = auth.getContact();
-			ticket.description = contact.name + " has canceled this certificate request.\n\n";
-		} else {
-			ticket.description = "guest shouldn't be canceling";
-		}
-		ticket.description += "> " + context.getComment();
-		ticket.status = "Resolved";
-		fp.update(ticket, rec.goc_ticket_id);
 		
 		return true;
 	}
@@ -444,6 +484,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
     	}
     	
 		rec.status = CertificateRequestStatus.RENEW_REQUESTED;
+		rec.csr = null; //similar to request(), set csr to null so that oim will generate key
 		try {
 			super.update(get(rec.id), rec);
 			quota.incrementUserCertRequest();
@@ -552,28 +593,32 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 		CertificateManager cm = new CertificateManager();
 		try {
 			cm.revokeUserCertificate(rec.cert_serial_id);
+			
+			///////////////////////////////////////////////////////////////////////////////////////
+			// Revoke complete.
+			rec.status = CertificateRequestStatus.REVOKED;
+			try {
+				//context.setComment("Certificate Approved");
+				super.update(get(rec.id), rec);
+			} catch (SQLException e) {
+				log.error("Failed to update user certificate status: " + rec.id);
+				throw new CertificateRequestException("Failed to update user certificate status", e);
+			}
+			
+			Authorization auth = context.getAuthorization();
+			ContactRecord contact = auth.getContact();
+			
+			Footprints fp = new Footprints(context);
+			FPTicket ticket = fp.new FPTicket();
+			ticket.description = contact.name + " has revoked this certificate.";
+			ticket.status = "Resolved";
+			fp.update(ticket, rec.goc_ticket_id);
+			
 		} catch (CertificateProviderException e1) {
 			log.error("Failed to revoke user certificate", e1);
 			throw new CertificateRequestException("Failed to revoke user certificate", e1);
 		}	
-		
-		rec.status = CertificateRequestStatus.REVOKED;
-		try {
-			//context.setComment("Certificate Approved");
-			super.update(get(rec.id), rec);
-		} catch (SQLException e) {
-			log.error("Failed to update user certificate status: " + rec.id);
-			throw new CertificateRequestException("Failed to update user certificate status", e);
-		}
-		
-		Authorization auth = context.getAuthorization();
-		ContactRecord contact = auth.getContact();
-		
-		Footprints fp = new Footprints(context);
-		FPTicket ticket = fp.new FPTicket();
-		ticket.description = contact.name + " has revoked this certificate.";
-		ticket.status = "Resolved";
-		fp.update(ticket, rec.goc_ticket_id);
+	
 	}
 
 	//NO-AC
@@ -692,7 +737,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 					
 					//all done at this point
 					rec.status = CertificateRequestStatus.ISSUED;
-					context.setComment("Certificate has been issued by signer");
+					context.setComment("Certificate has been issued by signer. serial number: " + rec.cert_serial_id);
 					CertificateRequestUserModel.super.update(get(rec.id), rec);
 	
 					// update ticket
@@ -821,41 +866,54 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 	    conn.close();
 	}
 	
-	//return requests that I have submitted
-	public ArrayList<CertificateRequestUserRecord> getMine(Integer id) throws SQLException {
-		ArrayList<CertificateRequestUserRecord> ret = new ArrayList<CertificateRequestUserRecord>();
+	//return requests that I am ra/sponsor
+	public ArrayList<CertificateRequestUserRecord> getIApprove(Integer id) throws SQLException {
+		ArrayList<CertificateRequestUserRecord> recs = new ArrayList<CertificateRequestUserRecord>();
 		
-		//list all vo that user is ra of
+		//list all vo that user is ra/sponsor of
 		HashSet<Integer> vo_ids = new HashSet<Integer>();
 		VOContactModel model = new VOContactModel(context);
-		ArrayList<VOContactRecord> crecs;
 		try {
 			for(VOContactRecord crec : model.getByContactID(id)) {
-				if(crec.contact_type_id.equals(11) && //RA
-						(crec.contact_rank_id.equals(1) || crec.contact_rank_id.equals(2))) { //primary or secondary
+				if(crec.contact_type_id.equals(11)) { //RA
 					vo_ids.add(crec.vo_id);	
 				}
 			}
 		} catch (SQLException e1) {
 			log.error("Failed to lookup RA/sponsor information", e1);
 		}	
-		String vo_ids_str = StringUtils.join(vo_ids, ",");
+		
+		if(vo_ids.size() != 0) {
+			ResultSet rs = null;
+			Connection conn = connectOIM();
+			Statement stmt = conn.createStatement();
+			String vo_ids_str = StringUtils.join(vo_ids, ",");
+			stmt.execute("SELECT * FROM "+table_name + " WHERE vo_id IN ("+vo_ids_str+") AND status in ('REQUESTED','RENEW_REQUESTED','REVOKE_REQUESTED')");	
+	    	rs = stmt.getResultSet();
+	    	while(rs.next()) {
+	    		recs.add(new CertificateRequestUserRecord(rs));
+	    	}
+		    stmt.close();
+		    conn.close();
+		}
+
+	    return recs;
+	}
+	
+	public ArrayList<CertificateRequestUserRecord> getISubmitted(Integer contact_id) throws SQLException {
+		ArrayList<CertificateRequestUserRecord> recs = new ArrayList<CertificateRequestUserRecord>();
 		
 		ResultSet rs = null;
 		Connection conn = connectOIM();
 		Statement stmt = conn.createStatement();
-		if(vo_ids.size() == 0) {
-			stmt.execute("SELECT * FROM "+table_name + " WHERE requester_contact_id = " + id);	
-		} else {
-			stmt.execute("SELECT * FROM "+table_name + " WHERE requester_contact_id = " + id + " OR vo_id IN ("+vo_ids_str+")");	
-		}
+		stmt.execute("SELECT * FROM "+table_name + " WHERE requester_contact_id = " + contact_id);	
     	rs = stmt.getResultSet();
     	while(rs.next()) {
-    		ret.add(new CertificateRequestUserRecord(rs));
+    		recs.add(new CertificateRequestUserRecord(rs));
     	}
 	    stmt.close();
 	    conn.close();
-	    return ret;
+	    return recs;
 	}
 	
 	//return requests that guest has submitted
@@ -916,7 +974,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
     }
     
     private String getTicketUrl(CertificateRequestUserRecord rec) {
-		return StaticConfig.getApplicationBase() + "/certificateuser?id=" + rec.id;
+		return "certificateuser?id=" + rec.id;
     }
     
     //NO-AC 
@@ -1057,7 +1115,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 		}
 		VOModel vmodel = new VOModel(context);
 		VORecord vrec = vmodel.get(rec.vo_id);
-		ticket.description = "Dear " + ranames + " (" + vrec.name + " VO RAs),\n\n";
+		ticket.description = "Dear " + ranames + " (" + vrec.name + " VO RA/Sponsors),\n\n";
 		ticket.description += auth_status + requester.name + " <"+requester.primary_email+"> has requested a user certificate. ";
 		ticket.description += "Please determine this request's authenticity, and approve / disapprove at " + getTicketUrl(rec);
 		ticket.description += "\n\n"+note;
@@ -1147,7 +1205,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 			}
 			VOModel vmodel = new VOModel(context);
 			VORecord vrec = vmodel.get(rec.vo_id);
-			ticket.description = "Dear " + ranames + " (" + vrec.name + " VO RAs),\n\n";
+			ticket.description = "Dear " + ranames + " (" + vrec.name + " VO RA/Sponsors),\n\n";
 			ticket.description += auth_status + requester.name + " <"+requester.primary_email+"> has re-requested a user certificate. ";
 			ticket.description += "Please determine this request's authenticity, and approve / disapprove at " + getTicketUrl(rec);
 			ticket.assignees.add(StaticConfig.conf.getProperty("certrequest.user.assignee"));
@@ -1202,4 +1260,56 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 			e.printStackTrace();
 		}
     }
+
+    //NO AC
+	public CertificateRequestUserRecord getBySerialID(String serial_id) throws SQLException {
+		CertificateRequestUserRecord rec = null;
+		ResultSet rs = null;
+		Connection conn = connectOIM();
+		PreparedStatement pstmt = conn.prepareStatement("SELECT * FROM "+table_name+ " WHERE cert_serial_id = ?");
+		pstmt.setString(1, serial_id);
+	    if (pstmt.executeQuery() != null) {
+	    	rs = pstmt.getResultSet();
+	    	if(rs.next()) {
+	    		rec = new CertificateRequestUserRecord(rs);
+			}
+	    }	
+	    pstmt.close();
+	    conn.close();
+	    return rec;
+		
+	}
+
+	//pass null to not filter
+	public ArrayList<CertificateRequestUserRecord> search(String dn_contains, String status, Integer vo_id, Date request_after, Date request_before) throws SQLException {
+		ArrayList<CertificateRequestUserRecord> recs = new ArrayList<CertificateRequestUserRecord>();
+		ResultSet rs = null;
+		Connection conn = connectOIM();
+		String sql = "SELECT * FROM "+table_name+" WHERE 1 = 1";
+		if(dn_contains != null) {
+			sql += " AND dn like \"%"+StringEscapeUtils.escapeSql(dn_contains)+"%\"";
+		}
+		if(status != null) {
+			sql += " AND status = \""+status+"\"";
+		}
+		if(vo_id != null) {
+			sql += " AND vo_id = "+vo_id;
+		}
+		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+		if(request_after != null) {
+			sql += " AND request_time >= \""+sdf.format(request_after) + "\"";
+		}
+		if(request_before != null) {
+			sql += " AND request_time <= \""+sdf.format(request_before) + "\"";
+		}
+		
+		PreparedStatement stmt = conn.prepareStatement(sql);
+	    rs = stmt.executeQuery();
+	    while(rs.next()) {
+    		recs.add(new CertificateRequestUserRecord(rs));
+	    }
+	    stmt.close();
+	    conn.close();
+	    return recs;
+	}
 }

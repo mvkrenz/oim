@@ -2,6 +2,7 @@ package edu.iu.grid.oim.servlet;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
@@ -17,7 +18,9 @@ import edu.iu.grid.oim.lib.StaticConfig;
 
 import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.FacilityModel;
+import edu.iu.grid.oim.model.db.LogModel;
 import edu.iu.grid.oim.model.db.record.FacilityRecord;
+import edu.iu.grid.oim.model.db.record.LogRecord;
 
 import edu.iu.grid.oim.view.BootBreadCrumbView;
 import edu.iu.grid.oim.view.BootMenuView;
@@ -26,6 +29,7 @@ import edu.iu.grid.oim.view.BreadCrumbView;
 import edu.iu.grid.oim.view.ContentView;
 import edu.iu.grid.oim.view.DivRepWrapper;
 import edu.iu.grid.oim.view.HtmlView;
+import edu.iu.grid.oim.view.LogView;
 import edu.iu.grid.oim.view.MenuView;
 import edu.iu.grid.oim.view.Page;
 import edu.iu.grid.oim.view.SideContentView;
@@ -44,6 +48,8 @@ public class FacilityEditServlet extends ServletBase {
 		auth.check("edit_all_facility");
 
 		FacilityRecord rec;
+		ArrayList<LogRecord> logs = null;
+		
 		try {
 			String title;
 
@@ -58,6 +64,11 @@ public class FacilityEditServlet extends ServletBase {
 				keyrec.id = facility_id;
 				rec = model.get(keyrec);
 				title = "Edit Facility " + rec.name;
+				
+				//pull logs
+				LogModel logmodel = new LogModel(context);
+				logs = logmodel.search("edu.iu.grid.oim.model.db.Facility%", String.valueOf(facility_id)+"%");
+				
 			} else {
 				rec = new FacilityRecord();
 				title = "New Facility";
@@ -82,8 +93,7 @@ public class FacilityEditServlet extends ServletBase {
 			bread_crumb.addCrumb(title, null);
 			contentview.setBreadCrumb(bread_crumb);
 
-			BootPage page = new BootPage(context, new BootMenuView(context, parent_page),
-					contentview, createSideView());
+			BootPage page = new BootPage(context, new BootMenuView(context, parent_page), contentview, createSideView(logs));
 
 			page.render(response.getWriter());
 		} catch (SQLException e) {
@@ -91,13 +101,12 @@ public class FacilityEditServlet extends ServletBase {
 		}
 	}
 	
-	private SideContentView createSideView()
+	private SideContentView createSideView(ArrayList<LogRecord> logs)
 	{
 		SideContentView view = new SideContentView();
-		//view.add(new HtmlView("<p>A facility represents an instituition (like BNL, Fermilab, etc.) or a university.</p>"));
-//				new HtmlView("This form allows you to edit this support center's registration information.</p>"));		
-		//view.addContactNote();		
-		// view.addContactLegent();		
+		if(logs != null) {
+			view.add(new LogView(logs));	
+		}
 		return view;
 	}
 }

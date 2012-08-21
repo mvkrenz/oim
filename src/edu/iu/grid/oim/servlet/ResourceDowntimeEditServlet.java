@@ -2,6 +2,7 @@ package edu.iu.grid.oim.servlet;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
@@ -18,8 +19,10 @@ import com.divrep.common.DivRepButton;
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.model.UserContext;
+import edu.iu.grid.oim.model.db.LogModel;
 import edu.iu.grid.oim.model.db.ResourceDowntimeModel;
 import edu.iu.grid.oim.model.db.ResourceModel;
+import edu.iu.grid.oim.model.db.record.LogRecord;
 import edu.iu.grid.oim.model.db.record.ResourceDowntimeRecord;
 import edu.iu.grid.oim.model.db.record.ResourceRecord;
 import edu.iu.grid.oim.view.BootBreadCrumbView;
@@ -29,6 +32,7 @@ import edu.iu.grid.oim.view.BreadCrumbView;
 import edu.iu.grid.oim.view.ContentView;
 import edu.iu.grid.oim.view.DivRepWrapper;
 import edu.iu.grid.oim.view.HtmlView;
+import edu.iu.grid.oim.view.LogView;
 import edu.iu.grid.oim.view.MenuView;
 import edu.iu.grid.oim.view.Page;
 import edu.iu.grid.oim.view.SideContentView;
@@ -51,7 +55,7 @@ public class ResourceDowntimeEditServlet extends ServletBase implements Servlet 
 		ResourceDowntimeFormDE form;
 		
 		ResourceRecord rec;
-		//String title;
+		ArrayList<LogRecord> logs = null;
 
 		String rid_str = request.getParameter("rid");
 		if(rid_str != null) {
@@ -65,6 +69,10 @@ public class ResourceDowntimeEditServlet extends ServletBase implements Servlet 
 				ResourceRecord keyrec = new ResourceRecord();
 				keyrec.id = resource_id;
 				rec = model.get(keyrec);
+				
+				//pull logs
+				LogModel logmodel = new LogModel(context);
+				logs = logmodel.search("edu.iu.grid.oim.model.db.ResourceDowntime%", String.valueOf(rec.id)+"%");
 			} catch (SQLException e) {
 				throw new ServletException(e);
 			}	
@@ -95,7 +103,7 @@ public class ResourceDowntimeEditServlet extends ServletBase implements Servlet 
 			bread_crumb.addCrumb(rec.name,  null);
 			contentview.setBreadCrumb(bread_crumb);
 			
-			BootPage page = new BootPage(context, new BootMenuView(context, parent_page), contentview, createSideView());
+			BootPage page = new BootPage(context, new BootMenuView(context, parent_page), contentview, createSideView(logs));
 			page.render(response.getWriter());	
 			
 		} catch (SQLException e) {
@@ -103,12 +111,15 @@ public class ResourceDowntimeEditServlet extends ServletBase implements Servlet 
 		}
 	}
 	
-	private SideContentView createSideView()
+	private SideContentView createSideView(ArrayList<LogRecord> logs)
 	{
 		SideContentView view = new SideContentView();
-		view.add("<h3>Downtime Class</h3>", new HtmlView(
+		view.add("Downtime Class", new HtmlView(
 				"<p><b>SCHEDULED</b></p><p>Downtimes that has been scheduled long before the acutual downtime.</p>" + 
 				"<p><b>UNSCHEDULED</b></p><p>Downtimes that has occured due to an event such as a sudden hardware failure, or any unforseen circumstances.</p>"));		
+		if(logs != null) {
+			view.add(new LogView(logs));	
+		}
 		return view;
 	}
 }

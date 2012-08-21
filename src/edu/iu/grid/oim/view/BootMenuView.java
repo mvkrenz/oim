@@ -1,17 +1,11 @@
 package edu.iu.grid.oim.view;
 
 import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.HashMap;
-
-import org.apache.commons.lang.StringEscapeUtils;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.model.UserContext;
-import edu.iu.grid.oim.model.MenuItem;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
-import edu.iu.grid.oim.servlet.ServletBase;
 
 public class BootMenuView implements IView {
 	private String current;
@@ -24,6 +18,9 @@ public class BootMenuView implements IView {
 	
 	public void render(PrintWriter out) {		
 		Authorization auth = user.getAuthorization();
+		
+		//figure out secure / non-secure current URLs.
+		//String request_url = user.getRequestURL();
 		
 		out.println("<div class=\"navbar navbar-fixed-top\">");	
 		out.println("<div class=\"navbar-inner\">");
@@ -138,8 +135,7 @@ public class BootMenuView implements IView {
 				}
 	
 				out.println("<li class=\"divider\"></li>");
-				String httpurl = StaticConfig.conf.getProperty("application.guestbase");
-				out.println("<li><a href=\""+httpurl+"\">Logoff</a></li>");
+				out.println("<li><a href=\""+user.getGuesHomeUrl()+"\">Logoff</a></li>");
 				
 			out.println("</ul>");//dropdown-menu
 			out.println("</div>");//btn-group
@@ -150,17 +146,13 @@ public class BootMenuView implements IView {
 				out.println("<li>");		
 			}	
 			out.println("<a href=\"register\">Register</a></li>");
-			
-			String httpurl = StaticConfig.conf.getProperty("application.guestbase");
-			out.println("<li><a href=\""+httpurl+"\">Logoff</a></li>");
+			out.println("<li><a href=\""+user.getGuesHomeUrl()+"\">Logoff</a></li>");
 		} else if(auth.isDisabled()) {			
-			String httpurl = StaticConfig.conf.getProperty("application.guestbase");
-			out.println("<li><a href=\""+httpurl+"\">(Disabled)</a></li>");
+			out.println("<li><a href=\""+user.getGuesHomeUrl()+"\">(Disabled)</a></li>");
 		} else if(auth.isSecure()) {
-			String httpurl = StaticConfig.conf.getProperty("application.guestbase");
-			out.println("<li><a href=\""+httpurl+"\">(NoCert)</a></li>");
+			out.println("<li><a href=\""+user.getGuesHomeUrl()+"\">(NoCert)</a></li>");
 		} else {
-			out.println("<li><a href=\""+StaticConfig.conf.getProperty("application.base")+"\">Login</a></li>");	
+			out.println("<li><a href=\""+user.getSecureUrl()+"\">Login</a></li>");	
 		}
 		out.println("</ul>");//nav (pull-right)
 		
@@ -175,6 +167,7 @@ public class BootMenuView implements IView {
 		} else {
 			out.println("<li><a href=\"home\">Home</a></li>");	
 		}
+		
 		if(current.equals("certificate")) {
 			out.println("<li class=\"active\"><a href=\"certificate\">Certificate</a></li>");
 		} else {
@@ -208,6 +201,16 @@ public class BootMenuView implements IView {
 		} else {
 			out.println("<li><a href=\"sc\">Support Centers</a></li>");	
 		}
+		
+		if(current.equals("campusgrid")) {
+			out.println("<li class=\"active\"><a href=\"campusgrid\">Campus Grids</a></li>");
+		} else {
+			//for now, only show if it's debug
+			if(StaticConfig.isDebug()) {
+				out.println("<li><a href=\"campusgrid\">Campus Grids</a></li>");
+			}
+		}
+				
 				
 		out.println("</ul>");//end of left items
 		

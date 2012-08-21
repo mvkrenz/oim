@@ -2,6 +2,7 @@ package edu.iu.grid.oim.servlet;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
@@ -10,24 +11,21 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
 
-import com.divrep.DivRepRoot;
-import com.divrep.common.DivRepStaticContent;
-
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.StaticConfig;
 
 import edu.iu.grid.oim.model.UserContext;
+import edu.iu.grid.oim.model.db.LogModel;
 import edu.iu.grid.oim.model.db.SiteModel;
+import edu.iu.grid.oim.model.db.record.LogRecord;
 import edu.iu.grid.oim.model.db.record.SiteRecord;
 import edu.iu.grid.oim.view.BootBreadCrumbView;
 import edu.iu.grid.oim.view.BootMenuView;
 import edu.iu.grid.oim.view.BootPage;
-import edu.iu.grid.oim.view.BreadCrumbView;
 import edu.iu.grid.oim.view.ContentView;
 import edu.iu.grid.oim.view.DivRepWrapper;
 import edu.iu.grid.oim.view.HtmlView;
-import edu.iu.grid.oim.view.MenuView;
-import edu.iu.grid.oim.view.Page;
+import edu.iu.grid.oim.view.LogView;
 import edu.iu.grid.oim.view.SideContentView;
 
 import edu.iu.grid.oim.view.divrep.form.SiteFormDE;
@@ -44,9 +42,10 @@ public class SiteEditServlet extends ServletBase implements Servlet {
 		auth.check("edit_all_site");
 		
 		SiteRecord rec;
+		ArrayList<LogRecord> logs = null;
 
 		ContentView contentview = new ContentView(context);
-		contentview.add(new HtmlView("<script src=\"http://maps.google.com/maps?file=api&v=2&key="+StaticConfig.getGMapAPIKey()+"\" type=\"text/javascript\"></script>"));
+//		contentview.add(new HtmlView("<script src=\"http://maps.google.com/maps?file=api&v=2&key="+StaticConfig.getGMapAPIKey()+"\" type=\"text/javascript\"></script>"));
 		try {
 			String title;
 			
@@ -60,6 +59,10 @@ public class SiteEditServlet extends ServletBase implements Servlet {
 				keyrec.id = site_id;
 				rec = model.get(keyrec);
 				title = "Edit Site " + rec.name;
+				
+				//pull logs
+				LogModel logmodel = new LogModel(context);
+				logs = logmodel.search("edu.iu.grid.oim.model.db.Site%", String.valueOf(site_id)+"%");
 			} else {
 				rec = new SiteRecord();
 				title = "New Site";	
@@ -86,7 +89,7 @@ public class SiteEditServlet extends ServletBase implements Servlet {
 
 			contentview.add(new DivRepWrapper(form));
 			
-			BootPage page = new BootPage(context, new BootMenuView(context, parent_page), contentview, createSideView());
+			BootPage page = new BootPage(context, new BootMenuView(context, parent_page), contentview, createSideView(logs));
 			
 			page.render(response.getWriter());	
 		} catch (SQLException e) {
@@ -94,13 +97,12 @@ public class SiteEditServlet extends ServletBase implements Servlet {
 		}
 	}
 	
-	private SideContentView createSideView()
+	private SideContentView createSideView(ArrayList<LogRecord> logs)
 	{
 		SideContentView view = new SideContentView();
-		//view.add(new HtmlView("A site represents a department or a sub-organization within a an instituition (like BNL, Fermilab, etc.) or a university, referred to as facility."));		
-
-		//view.addContactNote();		
-		// view.addContactLegent();		
+		if(logs != null) {
+			view.add(new LogView(logs));	
+		}
 		return view;
 	}
 }

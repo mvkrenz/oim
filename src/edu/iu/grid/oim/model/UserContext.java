@@ -1,5 +1,7 @@
 package edu.iu.grid.oim.model;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -17,6 +19,7 @@ import com.divrep.DivRepRoot;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.AuthorizationException;
+import edu.iu.grid.oim.lib.StaticConfig;
 
 //provides easy access to various object that are user specific
 public class UserContext {
@@ -27,7 +30,11 @@ public class UserContext {
 	
 	private Authorization auth = new Authorization();
 	//private Connection connection;
-	private String request_url;
+	
+	private URL request_url;
+	private String secure_url; //counter part for request_url in https (same if request_url is secure already)
+	private String guesthome_url;
+	
 	private HttpSession session;
 	private String remote_addr;
 	
@@ -49,7 +56,34 @@ public class UserContext {
 		
 		session = request.getSession();
 		auth = new Authorization(request);
-		setRequestURL(request);
+
+		//parse request_url
+		try {
+			log.debug(request.getRequestURL());
+			log.debug(request.getRequestURI());
+			request_url = new URL(request.getRequestURL().toString() + "?" + request.getQueryString());
+		} catch (MalformedURLException e) {
+			log.error("Failed to parse request URL in order to compose secure URL");
+		}
+		
+		if(request.isSecure()) {
+			secure_url = request_url.toString();
+		} else {
+			secure_url = "https://" + request_url.getHost();
+			if(StaticConfig.conf.getProperty("application.secureport") != null) {
+				secure_url += ":"+StaticConfig.conf.getProperty("application.secureport");
+			}
+			secure_url += request.getRequestURI();
+			if(request.getQueryString() != null) {
+				secure_url += "?" + request.getQueryString();
+			}
+		}
+		guesthome_url = "http://"+request_url.getHost();
+		if(StaticConfig.conf.getProperty("application.guestport") != null) {
+			guesthome_url += ":"+StaticConfig.conf.getProperty("application.guestport");
+		}
+		guesthome_url += StaticConfig.conf.getProperty("application.base");
+		
 		divrep_root = DivRepRoot.getInstance(request.getSession());
 		divrep_pageid = request.getRequestURI() + request.getQueryString();
 		remote_addr = request.getRemoteAddr();
@@ -88,6 +122,13 @@ public class UserContext {
 	{
 		return new UserContext();
 	}
+	public String getSecureUrl() {
+		return secure_url;
+	}
+	public String getGuesHomeUrl() {
+		//TODO
+		return guesthome_url;
+	}
 	
 	//used to create guest context
 	private UserContext(){}	
@@ -105,11 +146,12 @@ public class UserContext {
 		return divrep_pageroot;
 	}
 	
-	public String getRequestURL()
+	public URL getRequestURL()
 	{
 		return request_url;
 	}
-	
+		
+	/*
 	private void setRequestURL(HttpServletRequest request) {
 		request_url = "";
 		if(request != null) {
@@ -119,6 +161,7 @@ public class UserContext {
 			}
 		}
 	}
+	*/
 	
 	public enum MessageType {WARNING, ERROR, SUCCESS, INFO};	
 	public class Message {
@@ -139,7 +182,8 @@ public class UserContext {
 			messages.add(msg);
 			session.setAttribute("messages", messages);
 		} else {
-			log.error("Failed to add message since no session is associated with this UserContext");
+			//guest context doesn't have session - used on error page, for example
+			//log.error("Failed to add message since no session is associated with this UserContext");
 		}
 	}
 	
@@ -150,8 +194,9 @@ public class UserContext {
 			session.removeAttribute("messages");
 			return messages;
 		} else {
-			log.error("Failed to flush messages since no session is associated with this UserContext");
-			return null;
+			//guest context doesn't have session - used on error page, for example
+			//log.error("Failed to flush messages since no session is associated with this UserContext");
 		}
+		return null;
 	}
 }

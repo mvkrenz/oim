@@ -49,6 +49,7 @@ import edu.iu.grid.oim.view.CertificateMenuView;
 import edu.iu.grid.oim.view.GenericView;
 import edu.iu.grid.oim.view.HtmlView;
 import edu.iu.grid.oim.view.IView;
+import edu.iu.grid.oim.view.UserCertificateTable;
 import edu.iu.grid.oim.view.divrep.CNEditor;
 import edu.iu.grid.oim.view.divrep.form.validator.PKIPassStrengthValidator;
 
@@ -90,7 +91,11 @@ public class CertificateUserServlet extends ServletBase  {
 						throw new AuthorizationException("You don't have access to view this certificate");
 					}
 					ArrayList<CertificateRequestModelBase<CertificateRequestUserRecord>.LogDetail> logs = model.getLogs(CertificateRequestUserModel.class, id);
-					content = createDetailView(context, rec, logs);
+					String submenu = "certificateuser";
+					if(request.getParameter("search") != null) {
+						submenu = "certificatesearchuser";
+					}
+					content = createDetailView(context, rec, logs, submenu);
 				} catch (SQLException e) {
 					throw new ServletException("Failed to load specified certificate", e);
 				}
@@ -134,7 +139,8 @@ public class CertificateUserServlet extends ServletBase  {
 	protected IView createDetailView(
 			final UserContext context, 
 			final CertificateRequestUserRecord rec, 
-			final ArrayList<CertificateRequestModelBase<CertificateRequestUserRecord>.LogDetail> logs) throws ServletException
+			final ArrayList<CertificateRequestModelBase<CertificateRequestUserRecord>.LogDetail> logs,
+			final String submenu) throws ServletException
 	{
 		final Authorization auth = context.getAuthorization();
 		final SimpleDateFormat dformat = new SimpleDateFormat();
@@ -148,7 +154,7 @@ public class CertificateUserServlet extends ServletBase  {
 				out.write("<div class=\"row-fluid\">");
 				
 				out.write("<div class=\"span3\">");
- 				CertificateMenuView menu = new CertificateMenuView(context, "certificateuser");
+ 				CertificateMenuView menu = new CertificateMenuView(context, submenu);
 				menu.render(out);
 				out.write("</div>"); //span3
 				
@@ -283,7 +289,7 @@ public class CertificateUserServlet extends ServletBase  {
 					out.write("</td>");
 					out.write("</tr>");
 					
-					out.write("<tr><th>Issuer Serial ID</th><td>");
+					out.write("<tr><th>Serial Number</th><td>");
 					out.write(rec.cert_serial_id);
 					out.write("</td></tr>");
 				}
@@ -712,6 +718,7 @@ public class CertificateUserServlet extends ServletBase  {
 		final SimpleDateFormat dformat = new SimpleDateFormat();
 		dformat.setTimeZone(auth.getTimeZone());
 		
+		/*
 		//guest has to enter request ID
 		class IDForm extends DivRep {
 			final DivRepTextBox id;
@@ -759,6 +766,7 @@ public class CertificateUserServlet extends ServletBase  {
 				
 			}
 		};
+		*/
 		
 		
 		return new IView(){
@@ -774,8 +782,8 @@ public class CertificateUserServlet extends ServletBase  {
 				out.write("</div>"); //span3
 				
 				out.write("<div class=\"span9\">");
-				IDForm form = new IDForm(context.getPageRoot());
-				form.render(out);
+				//IDForm form = new IDForm(context.getPageRoot());
+				//form.render(out);
 				if(auth.isUser()) {
 					renderMyList(out);
 				}
@@ -785,72 +793,34 @@ public class CertificateUserServlet extends ServletBase  {
 			}
 			
 			public void renderMyList(PrintWriter out) {
-				CertificateRequestUserModel usermodel = new CertificateRequestUserModel(context);
-				out.write("<h2>My User Certificate Requests</h2>");
-				out.write("<table class=\"table certificate\">");
+				CertificateRequestUserModel model = new CertificateRequestUserModel(context);
+				
 				try {
-					ArrayList<CertificateRequestUserRecord> recs = usermodel.getMine(auth.getContact().id);
+					ArrayList<CertificateRequestUserRecord> recs = model.getIApprove(auth.getContact().id);
+					if(recs.size() != 0) {
+						out.write("<h2>User Certificate Requests that I Approve</h2>");
+						UserCertificateTable table = new UserCertificateTable(context, recs, false);
+						table.render(out);
+					}
+				} catch (SQLException e1) {
+					out.write("<div class=\"alert\">Failed to load user certificate requests that I am ra/sponso of</div>");
+					log.error(e1);
+				}
+				
+				try {
+					ArrayList<CertificateRequestUserRecord> recs = model.getISubmitted(auth.getContact().id);
 					if(recs.size() == 0) {
-						out.write("<thead><tr><td colspan=6><p class=\"muted\">You have not requested any user certificate.</p></td></tr></thead>");
+						out.write("<p class=\"muted\">You have not requested any user certificate.</p>");
 					} else {
-						out.write("<thead><tr><th>ID</th><th>Status</th><th>GOC Ticket</th><th>DN</th><th>VO</th><th>RA</th></tr></thead>");
-						out.write("<tbody>");
+						out.write("<h2>User Certificate Requests that I Requested</h2>");
+						UserCertificateTable table = new UserCertificateTable(context, recs, false);
+						table.render(out);
 					}
-					for(CertificateRequestUserRecord rec : recs) {
-						/*
-						String cls = "";
-						if(userrec != null && rec.id.equals(userrec.id)) {
-							cls = "latest";
-						}
-						*/
-						out.write("<tr onclick=\"document.location='certificateuser?id="+rec.id+"';\">");
-						out.write("<td>"+rec.id+"</td>");
-						out.write("<td>"+rec.status+"</td>");
-						//TODO - use configured goc ticket URL
-						out.write("<td><a target=\"_blank\" href=\""+StaticConfig.conf.getProperty("url.gocticket")+"/"+rec.goc_ticket_id+"\">"+rec.goc_ticket_id+"</a></td>");
-						out.write("<td>"+rec.dn);
-						/*
-						if(userrec != null && rec.id.equals(userrec.id)) {
-							out.write(" <span class=\"badge badge-info\">Current</span>");
-						}
-						*/
-						out.write("</td>");
-						
-						try {
-							VOModel vomodel = new VOModel(context);
-							VORecord vo = vomodel.get(rec.vo_id);
-							out.write("<td>"+vo.name+"</td>");
-						} catch (SQLException e) {
-							out.write("<td>sql error</td>");
-						}
-						
-						try {
-							ArrayList<ContactRecord> ras = usermodel.findRAs(rec);
-							if(ras.isEmpty()) {
-								out.write("<td><span class=\"label label-important\">No RA</span></td>");
-							} else {
-								out.write("<td>");
-								boolean first = true;
-								for(ContactRecord ra : ras) {
-									if(first) first = false;
-									else out.write(" | ");
-									out.write(ra.name);
-								}
-								out.write("</td>");	
-							}
-						} catch (SQLException e) {
-							out.write("<td>sql error</td>");
-						}
-						
-						out.write("</tr>");	
-					}
-					out.write("</tbody>");
 				} catch (SQLException e1) {
 					out.write("<div class=\"alert\">Failed to load my certificate requests</div>");
 					log.error(e1);
 				}
 				
-				out.write("</table>");
 				out.write("</div>");//content
 			}
 		};

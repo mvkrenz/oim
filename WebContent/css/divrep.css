@@ -176,3 +176,14 @@ background-color: white;
 color: black;
 margin-bottom: 15px;
 }
+
+.map-container { position:relative; }
+.map-cross {
+    position:absolute;
+    width:21px;
+    height:29px;
+    left:50%;
+    top:50%;
+    margin-top:-29px;
+    margin-left: 0px;
+}

@@ -58,6 +58,7 @@ import edu.iu.grid.oim.view.divrep.Confirmation;
 import edu.iu.grid.oim.view.divrep.ContactEditor;
 import edu.iu.grid.oim.view.divrep.VOReportNames;
 import edu.iu.grid.oim.view.divrep.ContactEditor.Rank;
+import edu.iu.grid.oim.view.divrep.FieldOfScience;
 
 public class VOFormDE extends DivRepForm 
 {
@@ -133,7 +134,13 @@ public class VOFormDE extends DivRepForm
 
 			// Fields of Science
 			try {
-				field_of_science_de = new FieldOfScience(this, rec);
+				ArrayList<Integer> selected = new ArrayList<Integer>();
+				//select currently selected field of science
+				VOFieldOfScienceModel vofsmodel = new VOFieldOfScienceModel(context);
+				for(VOFieldOfScienceRecord fsrec : vofsmodel.getByVOID(rec.id)) {
+					selected.add(fsrec.field_of_science_id);
+				}
+				field_of_science_de = new FieldOfScience(this, context, selected);
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -192,7 +199,7 @@ public class VOFormDE extends DivRepForm
 			out.print("</div>");
 		}
 	}
-
+	/*
 	class FieldOfScience extends DivRepFormElement
 	{
 		DivRepButton add_fs;
@@ -343,6 +350,7 @@ public class VOFormDE extends DivRepForm
 		}
 		
 	}
+	*/
 	
 	class URLs extends DivRepFormElement
 	{
@@ -751,8 +759,6 @@ public class VOFormDE extends DivRepForm
 		rec.app_description = app_description.getValue();
 		rec.community = community.getValue();
 		rec.sc_id = sc_id.getValue();
-		//rec.footprints_id = footprints_id.getValue();
-		//rec.external_assignment_id = external_assignment_id.getValue();
 		rec.confirmed = confirmation.getTimestamp();
 		rec.active = active.getValue();
 		rec.disable = disable.getValue();
@@ -763,8 +769,8 @@ public class VOFormDE extends DivRepForm
 		ArrayList<VOContactRecord> contacts = getContactRecordsFromEditor();
 		
 		ArrayList<Integer> field_of_science_ids = new ArrayList();
-		for(Integer id : field_of_science_de.field_of_science.keySet()) {
-			DivRepCheckBox elem = field_of_science_de.field_of_science.get(id);
+		for(Integer id : field_of_science_de.getSciences().keySet()) {
+			DivRepCheckBox elem = field_of_science_de.getSciences().get(id);
 			if(elem.getValue()) {
 				field_of_science_ids.add(id);
 			}

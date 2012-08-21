@@ -143,6 +143,24 @@ public class LogModel extends ModelBase {
 	
 		return logid;
     }
+    public ArrayList<LogRecord> search(String model_like, String key_like) throws SQLException {
+    	ArrayList<LogRecord> recs = new ArrayList<LogRecord>();
+    	Connection conn = connectOIM();
+    	PreparedStatement stmt;
+
+		stmt = conn.prepareStatement("SELECT * FROM log WHERE model like ? AND `key` LIKE ? ORDER BY timestamp DESC"); 
+		stmt.setString(1, model_like);
+		stmt.setString(2, key_like);
+      
+		ResultSet rs = stmt.executeQuery();
+		while(rs.next()) {
+			recs.add(new LogRecord(rs));
+		}
+		stmt.close();
+		conn.close();
+		return recs;
+    }
+    
     public String getName()
     {
     	return "Log";

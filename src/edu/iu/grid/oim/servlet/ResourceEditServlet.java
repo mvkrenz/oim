@@ -2,6 +2,7 @@ package edu.iu.grid.oim.servlet;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
@@ -19,7 +20,9 @@ import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.AuthorizationException;
 import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.model.UserContext;
+import edu.iu.grid.oim.model.db.LogModel;
 import edu.iu.grid.oim.model.db.ResourceModel;
+import edu.iu.grid.oim.model.db.record.LogRecord;
 import edu.iu.grid.oim.model.db.record.ResourceRecord;
 import edu.iu.grid.oim.model.db.record.ResourceWLCGRecord;
 import edu.iu.grid.oim.view.BootBreadCrumbView;
@@ -30,6 +33,7 @@ import edu.iu.grid.oim.view.ContentView;
 import edu.iu.grid.oim.view.DivRepWrapper;
 import edu.iu.grid.oim.view.GenericView;
 import edu.iu.grid.oim.view.HtmlView;
+import edu.iu.grid.oim.view.LogView;
 import edu.iu.grid.oim.view.MenuView;
 import edu.iu.grid.oim.view.Page;
 import edu.iu.grid.oim.view.SideContentView;
@@ -48,6 +52,7 @@ public class ResourceEditServlet extends ServletBase implements Servlet {
 
 		ResourceRecord rec;
 		String title;
+		ArrayList<LogRecord> logs = null;
 		
 		String resource_id_str = request.getParameter("id");
 		if(resource_id_str != null) {
@@ -62,6 +67,10 @@ public class ResourceEditServlet extends ServletBase implements Servlet {
 				ResourceRecord keyrec = new ResourceRecord();
 				keyrec.id = resource_id;
 				rec = model.get(keyrec);
+				
+				//pull logs
+				LogModel logmodel = new LogModel(context);
+				logs = logmodel.search("edu.iu.grid.oim.model.db.Resource%", String.valueOf(resource_id)+"%");
 			} catch (SQLException e) {
 				throw new ServletException(e);
 			}	
@@ -101,11 +110,11 @@ public class ResourceEditServlet extends ServletBase implements Servlet {
 		bread_crumb.addCrumb(title,  null);
 		contentview.setBreadCrumb(bread_crumb);
 
-		BootPage page = new BootPage(context, new BootMenuView(context, parent_page), contentview, createSideView(rec));
+		BootPage page = new BootPage(context, new BootMenuView(context, parent_page), contentview, createSideView(rec, logs));
 		page.render(response.getWriter());
 	}
 	
-	private SideContentView createSideView(ResourceRecord rec)
+	private SideContentView createSideView(ResourceRecord rec, ArrayList<LogRecord> logs)
 	{
 		SideContentView view = new SideContentView();
 		
@@ -114,7 +123,10 @@ public class ResourceEditServlet extends ServletBase implements Servlet {
 			view.add(new HtmlView("<p><a class=\"btn\" href=\"resourcedowntimeedit?rid="+rec.id+"\">Add New Downtime</a></p>"));
 		}
 		
-		view.addContactNote();		
+		view.addContactNote();
+		if(logs != null) {
+			view.add(new LogView(logs));	
+		}
 		return view;
 	}
 }

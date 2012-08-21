@@ -79,4 +79,15 @@ public class GridAdminModel extends SmallTableModelBase<GridAdminRecord> {
 		}
 		return false;
 	}
+
+	public ArrayList<GridAdminRecord> getGridAdminsByContactID(Integer id) throws SQLException {
+		ArrayList<GridAdminRecord> list = new ArrayList<GridAdminRecord>();
+		for(RecordBase it : getCache()) {
+			GridAdminRecord rec = (GridAdminRecord)it;
+			if(rec.contact_id.equals(id)) {
+				list.add(rec);
+			}
+		}
+		return list;
+	}
 }

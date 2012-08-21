@@ -5,6 +5,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import java.net.URL;
 import java.net.URLEncoder;
 
 import org.apache.commons.lang.StringEscapeUtils;
@@ -60,6 +61,7 @@ public class BootPage implements IView {
 	{
 		Authorization auth = context.getAuthorization();
 		
+		/*
 		if(auth.isSecure()) {
 			params.put("__BASE__", StaticConfig.getApplicationBase());
 			params.put("__GOCTICKET__", "https://ticket.grid.iu.edu/goc");
@@ -67,6 +69,9 @@ public class BootPage implements IView {
 			params.put("__BASE__", StaticConfig.conf.getProperty("application.guestbase"));	
 			params.put("__GOCTICKET__", "http://ticket.grid.iu.edu/goc");
 		}
+		*/
+		params.put("__BASE__", StaticConfig.conf.getProperty("application.base"));
+		params.put("__GOCTICKET__", "https://ticket.grid.iu.edu/goc");
 		
 		if(StaticConfig.isDebug()) {
 			params.put("__APPNAME__", StaticConfig.getApplicationName() + " (Debug)");
@@ -78,12 +83,15 @@ public class BootPage implements IView {
 	
 		
 		try {
-			String request_uri = context.getRequestURL();
-			if(request_uri != null) {
-				request_uri = URLEncoder.encode(request_uri, "UTF-8");
-				params.put("__REF__", request_uri);
-			} else {
-				params.put("__REF__", "unknown_url");		
+			URL url = context.getRequestURL();
+			if(url != null) {
+				String request_uri = url.toString();
+				if(request_uri != null) {
+					request_uri = URLEncoder.encode(request_uri, "UTF-8");
+					params.put("__REF__", request_uri);
+				} else {
+					params.put("__REF__", "unknown_url");		
+				}
 			}
 		} catch (UnsupportedEncodingException e) {
 			log.error(e);
@@ -114,19 +122,19 @@ public class BootPage implements IView {
 
 		if(side != null) {
 			if(putsideviewleft) {
-				out.println("<div class=\"span3\">");
+				out.println("<div class=\"span4\">");
 				side.render(out);
 				out.println("</div>");//span9		
 				
-				out.println("<div class=\"span9\">");
+				out.println("<div class=\"span8\">");
 				content.render(out);
 				out.println("</div>");//span9	
 			} else {
-				out.println("<div class=\"span9\">");
+				out.println("<div class=\"span8\">");
 				content.render(out);
 				out.println("</div>");//span9
 				
-				out.println("<div class=\"span3\">");
+				out.println("<div class=\"span4\">");
 				side.render(out);
 				out.println("</div>");//span9
 			}

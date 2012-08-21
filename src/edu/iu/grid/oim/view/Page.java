@@ -46,7 +46,7 @@ public class Page implements IView {
 	{
 		Authorization auth = context.getAuthorization();
 		
-		//params.put("__STATICBASE__", StaticConfig.getStaticBase());
+		/*
 		if(auth.isSecure()) {
 			params.put("__BASE__", StaticConfig.getApplicationBase());
 			params.put("__GOCTICKET__", "https://ticket.grid.iu.edu/goc");
@@ -54,12 +54,15 @@ public class Page implements IView {
 			params.put("__BASE__", StaticConfig.conf.getProperty("application.guestbase"));	
 			params.put("__GOCTICKET__", "http://ticket.grid.iu.edu/goc");
 		}
+		*/
+		params.put("__BASE__", StaticConfig.conf.getProperty("application.base"));
+		params.put("__GOCTICKET__", "https://ticket.grid.iu.edu/goc");
 		
 		params.put("__APPNAME__", StaticConfig.getApplicationName());
 		params.put("__VERSION__", StaticConfig.getVersion());
 		
 		try {
-			String request_uri = context.getRequestURL();
+			String request_uri = context.getRequestURL().toString();
 			if(request_uri != null) {
 				request_uri = URLEncoder.encode(request_uri, "UTF-8");
 				params.put("__REF__", request_uri);

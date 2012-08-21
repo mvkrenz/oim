@@ -2,6 +2,7 @@ package edu.iu.grid.oim.servlet;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
@@ -10,29 +11,23 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
 
-import com.divrep.DivRepRoot;
-
 import edu.iu.grid.oim.lib.Authorization;
-import edu.iu.grid.oim.lib.StaticConfig;
 
 import edu.iu.grid.oim.model.UserContext;
+import edu.iu.grid.oim.model.db.LogModel;
 import edu.iu.grid.oim.model.db.ResourceGroupModel;
-import edu.iu.grid.oim.model.db.SiteModel;
+import edu.iu.grid.oim.model.db.record.LogRecord;
 import edu.iu.grid.oim.model.db.record.ResourceGroupRecord;
-import edu.iu.grid.oim.model.db.record.SiteRecord;
 import edu.iu.grid.oim.view.BootBreadCrumbView;
 import edu.iu.grid.oim.view.BootMenuView;
 import edu.iu.grid.oim.view.BootPage;
-import edu.iu.grid.oim.view.BreadCrumbView;
 import edu.iu.grid.oim.view.ContentView;
 import edu.iu.grid.oim.view.DivRepWrapper;
 import edu.iu.grid.oim.view.HtmlView;
-import edu.iu.grid.oim.view.MenuView;
-import edu.iu.grid.oim.view.Page;
+import edu.iu.grid.oim.view.LogView;
 import edu.iu.grid.oim.view.SideContentView;
 
 import edu.iu.grid.oim.view.divrep.form.ResourceGroupFormDE;
-import edu.iu.grid.oim.view.divrep.form.SiteFormDE;
 
 public class ResourceGroupEditServlet extends ServletBase implements Servlet {
 	private static final long serialVersionUID = 1L;
@@ -46,7 +41,8 @@ public class ResourceGroupEditServlet extends ServletBase implements Servlet {
 		auth.check("edit_all_resource_group");
 		
 		ResourceGroupRecord rec;
-
+		ArrayList<LogRecord> logs = null;
+		
 		try {
 			String title;
 			
@@ -60,6 +56,10 @@ public class ResourceGroupEditServlet extends ServletBase implements Servlet {
 				keyrec.id = id;
 				rec = model.get(keyrec);
 				title = "Edit Resource Group " + rec.name;
+				
+				//pull logs
+				LogModel logmodel = new LogModel(context);
+				logs = logmodel.search("edu.iu.grid.oim.model.db.ResourceGroup%", String.valueOf(id)+"%");
 			} else {
 				rec = new ResourceGroupRecord();
 				title = "New Resource Group";	
@@ -91,7 +91,7 @@ public class ResourceGroupEditServlet extends ServletBase implements Servlet {
 			bread_crumb.addCrumb(title,  null);
 			contentview.setBreadCrumb(bread_crumb);
 			
-			BootPage page = new BootPage(context, new BootMenuView(context, parent_page), contentview, createSideView());
+			BootPage page = new BootPage(context, new BootMenuView(context, parent_page), contentview, createSideView(logs));
 			
 			page.render(response.getWriter());	
 		} catch (SQLException e) {
@@ -99,12 +99,12 @@ public class ResourceGroupEditServlet extends ServletBase implements Servlet {
 		}
 	}
 	
-	private SideContentView createSideView()
+	private SideContentView createSideView(ArrayList<LogRecord> logs)
 	{
 		SideContentView view = new SideContentView();
-		//view.add("About", new HtmlView("This form allows you to edit this resource_group's registration information.</p>"));		
-		//view.addContactNote();		
-		// view.addContactLegent();		
+		if(logs != null) {
+			view.add(new LogView(logs));	
+		}
 		return view;
 	}
 }

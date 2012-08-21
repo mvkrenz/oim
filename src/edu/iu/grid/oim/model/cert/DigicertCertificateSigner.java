@@ -164,32 +164,33 @@ public class DigicertCertificateSigner implements ICertificateSigner {
 			NodeList result_nl = ret.getElementsByTagName("result");
 			Element result = (Element)result_nl.item(0);
 			if(result.getTextContent().equals("failure")) {
-				System.out.println("failed to execute grid_retrieve_host_cert request");
+				//System.out.println("failed to execute grid_certificate_details request");
 				NodeList error_code_nl = ret.getElementsByTagName("error_code");
 				StringBuffer errors  = new StringBuffer();
 				for(int i = 0;i < error_code_nl.getLength(); ++i) {
 					Element error_code = (Element)error_code_nl.item(i);
 					Element code = (Element)error_code.getElementsByTagName("code").item(0);
 					Element description = (Element)error_code.getElementsByTagName("description").item(0);
-					errors.append("Code:" + code.getTextContent());
+					errors.append(" Error while accessing: grid_certificate_details");
+					errors.append(" Code:" + code.getTextContent());
 					errors.append(" Description:" + description.getTextContent());
 					errors.append("\n");
 				}
-				throw new DigicertCPException("Request failed..\n" + errors.toString());
+				throw new DigicertCPException("Request failed for grid_certificate_details\n" + errors.toString());
 			} else if(result.getTextContent().equals("success")) {
 				log.debug("Successfully retrieved certificate detail for " + order_id);
 				return "success";
 			}
 			
-			throw new DigicertCPException("Unknown return code: " +result.getTextContent());	
+			throw new DigicertCPException("Unknown return code from grid_certificate_details: " +result.getTextContent());	
 		} catch (HttpException e) {
-			throw new DigicertCPException("Failed to make request", e);
+			throw new DigicertCPException("Failed to make grid_certificate_details request", e);
 		} catch (IOException e) {
-			throw new DigicertCPException("Failed to make request", e);
+			throw new DigicertCPException("Failed to make grid_certificate_details request", e);
 		} catch (ParserConfigurationException e) {
-			throw new DigicertCPException("Failed to parse returned String", e);
+			throw new DigicertCPException("Failed to parse returned String from grid_certificate_details", e);
 		} catch (SAXException e) {
-			throw new DigicertCPException("Failed to parse returned String", e);
+			throw new DigicertCPException("Failed to parse returned String from grid_certificate_details", e);
 		}
 	}
 	
@@ -221,18 +222,19 @@ public class DigicertCertificateSigner implements ICertificateSigner {
 			NodeList result_nl = ret.getElementsByTagName("result");
 			Element result = (Element)result_nl.item(0);
 			if(result.getTextContent().equals("failure")) {
-				System.out.println("failed to execute grid_retrieve_host_cert request");
+				//System.out.println("failed to execute grid_retrieve_host_cert request");
 				NodeList error_code_nl = ret.getElementsByTagName("error_code");
 				StringBuffer errors  = new StringBuffer();
 				for(int i = 0;i < error_code_nl.getLength(); ++i) {
 					Element error_code = (Element)error_code_nl.item(i);
 					Element code = (Element)error_code.getElementsByTagName("code").item(0);
 					Element description = (Element)error_code.getElementsByTagName("description").item(0);
-					errors.append("Code:" + code.getTextContent());
+					errors.append(" Error while accessing: grid_request_email_cert");
+					errors.append(" Code:" + code.getTextContent());
 					errors.append(" Description:" + description.getTextContent());
 					errors.append("\n");
 				}
-				throw new DigicertCPException("Request failed..\n" + errors.toString());
+				throw new DigicertCPException("Request failed for grid_request_email_cert\n" + errors.toString());
 			} else if(result.getTextContent().equals("success")) {
 				
 				ICertificateSigner.Certificate cert = new ICertificateSigner.Certificate();
@@ -252,18 +254,17 @@ public class DigicertCertificateSigner implements ICertificateSigner {
 				return cert;
 			}
 			
-			throw new DigicertCPException("Unknown return code: " +result.getTextContent());	
+			throw new DigicertCPException("Unknown return code from grid_request_email_cert: " +result.getTextContent());	
 		} catch (HttpException e) {
-			throw new DigicertCPException("Failed to make request", e);
+			throw new DigicertCPException("Failed to make grid_request_email_cert request", e);
 		} catch (IOException e) {
-			throw new DigicertCPException("Failed to make request", e);
+			throw new DigicertCPException("Failed to make grid_request_email_certrequest", e);
 		} catch (ParserConfigurationException e) {
-			throw new DigicertCPException("Failed to parse returned String", e);
+			throw new DigicertCPException("Failed to parse returned String from grid_request_email_cert", e);
 		} catch (SAXException e) {
-			throw new DigicertCPException("Failed to parse returned String", e);
+			throw new DigicertCPException("Failed to parse returned String from grid_request_email_cert", e);
 		}
 	}
-	
 	
 	private String requestHostCert(String csr, String service_name, String cn) throws DigicertCPException {
 		HttpClient cl = new HttpClient();
@@ -288,7 +289,7 @@ public class DigicertCertificateSigner implements ICertificateSigner {
 			NodeList result_nl = ret.getElementsByTagName("result");
 			Element result = (Element)result_nl.item(0);
 			if(result.getTextContent().equals("failure")) {
-				System.out.println("failed to execute grid_request_host_cert request");
+				//System.out.println("failed to execute grid_request_host_cert request");
 				NodeList error_code_nl = ret.getElementsByTagName("error_code");
 				StringBuffer errors  = new StringBuffer();
 				for(int i = 0;i < error_code_nl.getLength(); ++i) {
@@ -299,22 +300,22 @@ public class DigicertCertificateSigner implements ICertificateSigner {
 					errors.append("Description:" + description.getTextContent());
 					errors.append("\n");
 				}
-				throw new DigicertCPException("Request failed..\n" + errors.toString());
+				throw new DigicertCPException("Request failed for grid_request_host_cert..\n" + errors.toString());
 			} else if(result.getTextContent().equals("success")) {
 				Element request_id_e = (Element)ret.getElementsByTagName("request_id").item(0);
 				String request_id = request_id_e.getTextContent();
 				System.out.println("Obtained Digicert Request ID:" + request_id); //like "15757"
 				return request_id;
 			}
-			throw new DigicertCPException("Unknown return code: " +result.getTextContent());
+			throw new DigicertCPException("Unknown return code from grid_request_host_cert: " +result.getTextContent());
 		} catch (HttpException e) {
-			throw new DigicertCPException("Failed to make request", e);
+			throw new DigicertCPException("Failed to make grid_request_host_cert request", e);
 		} catch (IOException e) {
-			throw new DigicertCPException("Failed to make request", e);
+			throw new DigicertCPException("Failed to make grid_request_host_cert request", e);
 		} catch (ParserConfigurationException e) {
-			throw new DigicertCPException("Failed to parse returned String", e);
+			throw new DigicertCPException("Failed to parse returned String from grid_request_host_cert", e);
 		} catch (SAXException e) {
-			throw new DigicertCPException("Failed to parse returned String", e);
+			throw new DigicertCPException("Failed to parse returned String from grid_request_host_cert", e);
 		}
 	}
 	
@@ -338,7 +339,7 @@ public class DigicertCertificateSigner implements ICertificateSigner {
 			NodeList result_nl = ret.getElementsByTagName("result");
 			Element result = (Element)result_nl.item(0);
 			if(result.getTextContent().equals("failure")) {
-				System.out.println("failed to execute grid_approve_request request");
+				//System.out.println("failed to execute grid_approve_request request");
 				NodeList error_code_nl = ret.getElementsByTagName("error_code");
 				StringBuffer errors  = new StringBuffer();
 				for(int i = 0;i < error_code_nl.getLength(); ++i) {
@@ -349,22 +350,22 @@ public class DigicertCertificateSigner implements ICertificateSigner {
 					errors.append(" Description:" + description.getTextContent());
 					errors.append("\n");
 				}
-				throw new DigicertCPException("Request failed..\n" + errors.toString());
+				throw new DigicertCPException("Request failed for grid_approve_request\n" + errors.toString());
 			} else if(result.getTextContent().equals("success")) {
 				Element order_id_e = (Element)ret.getElementsByTagName("order_id").item(0);
 				String order_id = order_id_e.getTextContent();
 				return order_id;
 			}
 			
-			throw new DigicertCPException("Unknown return code: " +result.getTextContent());	
+			throw new DigicertCPException("Unknown return code from grid_approve_request: " +result.getTextContent());	
 		} catch (HttpException e) {
-			throw new DigicertCPException("Failed to make request", e);
+			throw new DigicertCPException("Failed to make grid_approve_request request", e);
 		} catch (IOException e) {
-			throw new DigicertCPException("Failed to make request", e);
+			throw new DigicertCPException("Failed to make grid_approve_request request", e);
 		} catch (ParserConfigurationException e) {
-			throw new DigicertCPException("Failed to parse returned String", e);
+			throw new DigicertCPException("Failed to parse returned String from grid_approve_request", e);
 		} catch (SAXException e) {
-			throw new DigicertCPException("Failed to parse returned String", e);
+			throw new DigicertCPException("Failed to parse returned String from grid_approve_request", e);
 		}
 	}
 	
@@ -396,7 +397,7 @@ public class DigicertCertificateSigner implements ICertificateSigner {
 					errors.append(" Description:" + description.getTextContent());
 					errors.append("\n");
 				}
-				throw new DigicertCPException("Request failed..\n" + errors.toString());
+				throw new DigicertCPException("Request failed for grid_retrieve_host_cert\n" + errors.toString());
 			} else if(result.getTextContent().equals("success")) {
 				
 				ICertificateSigner.Certificate cert = new ICertificateSigner.Certificate();
@@ -416,15 +417,15 @@ public class DigicertCertificateSigner implements ICertificateSigner {
 				return cert;
 			}
 			
-			throw new DigicertCPException("Unknown return code: " +result.getTextContent());	
+			throw new DigicertCPException("Unknown return code for grid_retrieve_host_cert: " +result.getTextContent());	
 		} catch (HttpException e) {
-			throw new DigicertCPException("Failed to make request", e);
+			throw new DigicertCPException("Failed to make grid_retrieve_host_cert request", e);
 		} catch (IOException e) {
-			throw new DigicertCPException("Failed to make request", e);
+			throw new DigicertCPException("Failed to make grid_retrieve_host_cert request", e);
 		} catch (ParserConfigurationException e) {
-			throw new DigicertCPException("Failed to parse returned String", e);
+			throw new DigicertCPException("Failed to parse returned String from grid_retrieve_host_cert", e);
 		} catch (SAXException e) {
-			throw new DigicertCPException("Failed to parse returned String", e);
+			throw new DigicertCPException("Failed to parse returned String from grid_retrieve_host_cert", e);
 		}
 	}
 
@@ -456,20 +457,20 @@ public class DigicertCertificateSigner implements ICertificateSigner {
 					errors.append(" Description:" + description.getTextContent());
 					errors.append("\n");
 				}
-				throw new DigicertCPException("Request failed..\n" + errors.toString());
+				throw new DigicertCPException("Request failed for grid_request_host_revoke\n" + errors.toString());
 			} else if(result.getTextContent().equals("success")) {
 				//nothing particular to do
 			} else {
-				throw new DigicertCPException("Unknown return code: " +result.getTextContent());
+				throw new DigicertCPException("Unknown return code from grid_request_host_revoke: " +result.getTextContent());
 			}
 		} catch (HttpException e) {
-			throw new DigicertCPException("Failed to make request", e);
+			throw new DigicertCPException("Failed to make grid_request_host_revoke request", e);
 		} catch (IOException e) {
-			throw new DigicertCPException("Failed to make request", e);
+			throw new DigicertCPException("Failed to make grid_request_host_revoke request", e);
 		} catch (ParserConfigurationException e) {
-			throw new DigicertCPException("Failed to parse returned String", e);
+			throw new DigicertCPException("Failed to parse returned String from grid_request_host_revoke", e);
 		} catch (SAXException e) {
-			throw new DigicertCPException("Failed to parse returned String", e);
+			throw new DigicertCPException("Failed to parse returned String from grid_request_host_revoke", e);
 		}
 	}
 
