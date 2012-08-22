@@ -62,10 +62,10 @@ public class CertificateMenuView implements IView {
 		
 		if(current.equals("certificatesearchuser")) {
 			out.write("<li class=\"active\">");
-			out.write("<a href=\"certificatesearchuser\"><i class=\"icon-white icon-list\"></i> Search</a></li>");	
+			out.write("<a href=\"certificatesearchuser\"><i class=\"icon-white icon-search\"></i> Search</a></li>");	
 		} else {
 			out.write("<li>");
-			out.write("<a href=\"certificatesearchuser\"><i class=\"icon-list\"></i> Search</a></li>");	
+			out.write("<a href=\"certificatesearchuser\"><i class=\"icon-search\"></i> Search</a></li>");	
 		}	
 		
 		
@@ -91,10 +91,10 @@ public class CertificateMenuView implements IView {
 		
 		if(current.equals("certificatesearchhost")) {
 			out.write("<li class=\"active\">");
-			out.write("<a href=\"certificatesearchhost\"><i class=\"icon-white icon-list\"></i> Search</a></li>");	
+			out.write("<a href=\"certificatesearchhost\"><i class=\"icon-white icon-search\"></i> Search</a></li>");	
 		} else {
 			out.write("<li>");
-			out.write("<a href=\"certificatesearchhost\"><i class=\"icon-list\"></i> Search</a></li>");	
+			out.write("<a href=\"certificatesearchhost\"><i class=\"icon-search\"></i> Search</a></li>");	
 		}		
 		
 		if(auth.allows("admin_gridadmin") || auth.allows("admin_pki_quota ")) {
