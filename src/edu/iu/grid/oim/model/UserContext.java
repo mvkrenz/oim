@@ -95,6 +95,7 @@ public class UserContext {
 			session.setAttribute("remote_addr", remote_addr);
 		} else {
 			if(!addr.equals(remote_addr)) {
+				log.error("User's current IP address: " + remote_addr + " is different from session address:" + addr);
 				throw new AuthorizationException("Invalid IP address");
 			}
 		}
