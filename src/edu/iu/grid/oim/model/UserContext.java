@@ -88,6 +88,8 @@ public class UserContext {
 		divrep_pageid = request.getRequestURI() + request.getQueryString();
 		remote_addr = request.getRemoteAddr();
 		
+		
+		/* This causes issue with users who are accessing via web proxy
 		//make sure user can bind only 1 IP address (to prevent session fixation attack)
 		String addr = (String)session.getAttribute("remote_addr");
 		if(addr == null) {
@@ -99,6 +101,7 @@ public class UserContext {
 				throw new AuthorizationException("Invalid IP address");
 			}
 		}
+		*/
 	}
 	
 	public Connection getConnection() throws SQLException {
