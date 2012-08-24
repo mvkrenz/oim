@@ -135,7 +135,7 @@ public class BootMenuView implements IView {
 				}
 	
 				out.println("<li class=\"divider\"></li>");
-				out.println("<li><a href=\""+user.getGuesHomeUrl()+"\">Logoff</a></li>");
+				out.println("<li><a href=\"logout\">Logout</a></li>");
 				
 			out.println("</ul>");//dropdown-menu
 			out.println("</div>");//btn-group
@@ -146,11 +146,11 @@ public class BootMenuView implements IView {
 				out.println("<li>");		
 			}	
 			out.println("<a href=\"register\">Register</a></li>");
-			out.println("<li><a href=\""+user.getGuesHomeUrl()+"\">Logoff</a></li>");
+			out.println("<li><a href=\"logout\">Logout</a></li>");
 		} else if(auth.isDisabled()) {			
-			out.println("<li><a href=\""+user.getGuesHomeUrl()+"\">(Disabled)</a></li>");
+			out.println("<li><a href=\"logout\">(Disabled)</a></li>");
 		} else if(auth.isSecure()) {
-			out.println("<li><a href=\""+user.getGuesHomeUrl()+"\">(NoCert)</a></li>");
+			out.println("<li><a href=\"logout\">(NoCert)</a></li>");
 		} else {
 			out.println("<li><a href=\""+user.getSecureUrl()+"\">Login</a></li>");	
 		}

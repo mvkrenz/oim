@@ -33,7 +33,7 @@ public class UserContext {
 	
 	private URL request_url;
 	private String secure_url; //counter part for request_url in https (same if request_url is secure already)
-	private String guesthome_url;
+	//private String guesthome_url;
 	
 	private HttpSession session;
 	private String remote_addr;
@@ -78,11 +78,6 @@ public class UserContext {
 				secure_url += "?" + request.getQueryString();
 			}
 		}
-		guesthome_url = "http://"+request_url.getHost();
-		if(StaticConfig.conf.getProperty("application.guestport") != null) {
-			guesthome_url += ":"+StaticConfig.conf.getProperty("application.guestport");
-		}
-		guesthome_url += StaticConfig.conf.getProperty("application.base");
 		
 		divrep_root = DivRepRoot.getInstance(request.getSession());
 		divrep_pageid = request.getRequestURI() + request.getQueryString();
@@ -128,10 +123,12 @@ public class UserContext {
 	public String getSecureUrl() {
 		return secure_url;
 	}
+	/*
 	public String getGuesHomeUrl() {
 		//TODO
 		return guesthome_url;
 	}
+	*/
 	
 	//used to create guest context
 	private UserContext(){}	

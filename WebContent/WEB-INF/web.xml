@@ -830,6 +830,15 @@
     </servlet-mapping>  
    
     <servlet>
+        <servlet-name>LogoutServlet</servlet-name>
+        <servlet-class>edu.iu.grid.oim.servlet.LogoutServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>LogoutServlet</servlet-name>
+        <url-pattern>/logout</url-pattern>
+    </servlet-mapping>     
+   
+    <servlet>
         <servlet-name>CampusGridEditServlet</servlet-name>
         <servlet-class>edu.iu.grid.oim.servlet.CampusGridEditServlet</servlet-class>
     </servlet>
