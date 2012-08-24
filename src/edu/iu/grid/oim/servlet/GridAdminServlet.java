@@ -32,8 +32,6 @@ public class GridAdminServlet extends ServletBase {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{	
 		UserContext context = new UserContext(request);
-		Authorization auth = context.getAuthorization();
-		auth.check("admin_gridadmin");
 		
 		//construct view
 		BootMenuView menuview = new BootMenuView(context, "certificate");;	
@@ -49,6 +47,7 @@ public class GridAdminServlet extends ServletBase {
 		
 		@Override
 		public void render(PrintWriter out) {
+			Authorization auth = context.getAuthorization();
 			ContactModel cmodel = new ContactModel(context);
 			GridAdminModel model = new GridAdminModel(context);
 			try {
@@ -73,14 +72,7 @@ public class GridAdminServlet extends ServletBase {
 				});
 				
 				out.write("<div id=\"content\">");
-				
-				/*
-				//setup crumbs
-				BootBreadCrumbView bread_crumb = new BootBreadCrumbView();
-				bread_crumb.addCrumb("Administration",  "admin");
-				bread_crumb.addCrumb("GridAdmin Administration",  null);
-				bread_crumb.render(out);
-				*/
+			
 				out.write("<div class=\"row-fluid\">");
 				
 				out.write("<div class=\"span3\">");
@@ -90,8 +82,12 @@ public class GridAdminServlet extends ServletBase {
 				
 				out.write("<div class=\"span9\">");
 				
-				out.write("<a class=\"pull-right btn\" href=\"gridadminedit\"><i class=\"icon-plus\"></i> Add New GridAdmin</a>");
-				out.write("<h2>GridAdmin Administration</h2>");
+				if(auth.allows("admin_gridadmin")) {
+					out.write("<a class=\"pull-right btn\" href=\"gridadminedit\"><i class=\"icon-plus\"></i> Add New GridAdmin</a>");
+				} else {
+					//TODO - output GridAdmin request button?
+				}
+				out.write("<h2>GridAdmins</h2>");
 				
 				out.write("<table class=\"table nohover\">");
 				out.write("<thead><tr><th>Domain</th><th>GridAdmin</th><th></th></tr></thead>");	
@@ -103,7 +99,9 @@ public class GridAdminServlet extends ServletBase {
 					out.write("<td>"+StringEscapeUtils.escapeHtml(crec.name)+"</td>");		
 					
 					out.write("<td>");
-					out.write("<a class=\"btn\" href=\"gridadminedit?id="+rec.id+"\">Edit</a>");
+					if(auth.allows("admin_gridadmin")) {
+						out.write("<a class=\"btn\" href=\"gridadminedit?id="+rec.id+"\">Edit</a>");
+					}
 					out.write("</td>");
 					
 					out.write("</tr>");	
