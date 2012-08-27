@@ -638,7 +638,7 @@ public class CertificateUserServlet extends ServletBase  {
                 	if(model.cancel(rec)) {
                 		button.redirect(url);
                 	} else {
-                		button.alert("Failed to cancel request");
+                		button.alert("Failed to cancel");
                 	}
                 	//}
                 }
@@ -657,7 +657,7 @@ public class CertificateUserServlet extends ServletBase  {
 	                  	if(model.reject(rec)) {
 	                		button.redirect(url);
 	                	} else {
-	                		button.alert("Failed to reject request");
+	                		button.alert("Failed to reject");
 	                	}
                 	}
                 }
@@ -671,18 +671,17 @@ public class CertificateUserServlet extends ServletBase  {
 			button.addClass("inline");
 			button.addEventListener(new DivRepEventListener() {
                 public void handleEvent(DivRepEvent e) {
-                	button.alert("Currently we can not revoke user certificate. We are waiting for DigiCert to provide us the user certificate revocation API.");
-                	/*
+                	//button.alert("Currently we can not revoke user certificate. We are waiting for DigiCert to provide us the user certificate revocation API.");
+                
                 	if(note.validate()) {
                 		context.setComment(note.getValue());
                 		try {
                 			model.revoke(rec);
                 			button.redirect(url);
                 		} catch (CertificateRequestException ex) {
-	                		button.alert("Failed to cancel request: " + ex.getMessage());
+	                		button.alert("Failed to revoke: " + ex.getMessage());
 	                	}
                 	}
-                	*/
                 }
             });
 			v.add(button);
