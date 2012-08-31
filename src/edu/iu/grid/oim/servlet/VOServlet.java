@@ -388,22 +388,7 @@ public class VOServlet extends ServletBase implements Servlet {
 			view.add(new HtmlView("<p><a class=\"btn\" href=\"voedit?id=" + rec.id + "\">Edit</a></p>"));
 		}
 		
-		Authorization auth = context.getAuthorization();
-		if(auth.isUser() && !auth.allows("admin_ra")) {
-			final RARequestForm form = new RARequestForm(context);
-			view.add(new DivRepWrapper(form));
-			
-			DivRepButton request = new DivRepButton(context.getPageRoot(), "Request for RA Enrollment");
-			request.addClass("btn");
-			//request.addClass("pull-right");
-			view.add(new DivRepWrapper(request));
-			request.addEventListener(new DivRepEventListener() {
-				@Override
-				public void handleEvent(DivRepEvent e) {
-					form.show();
-				}});
-		}
-	
+		view.addRARequest(context, rec);
 		view.addContactLegend();
 		return view;
 	}

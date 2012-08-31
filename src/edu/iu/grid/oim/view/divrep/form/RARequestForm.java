@@ -14,7 +14,10 @@ import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.lib.Footprints.FPTicket;
 import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.CertificateRequestUserModel;
+import edu.iu.grid.oim.model.db.VOContactModel;
+import edu.iu.grid.oim.model.db.VOModel;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
+import edu.iu.grid.oim.model.db.record.VOContactRecord;
 import edu.iu.grid.oim.view.divrep.BootDialogForm;
 
 //assume user is logged  in
@@ -23,10 +26,12 @@ public class RARequestForm extends BootDialogForm {
     
 	private DivRepTextArea desc;
 	private UserContext context;
+	private ContactRecord vomanager;
 	
-	public RARequestForm(UserContext context) {
+	public RARequestForm(UserContext context, ContactRecord vomanager) {
 		super(context.getPageRoot());
 		this.context = context;
+		this.vomanager = vomanager;
 		
 		setTitle("RA Enrollment Request");
 		
@@ -62,6 +67,9 @@ public class RARequestForm extends BootDialogForm {
 			ticket.metadata.put("SUBMITTER_NAME", requester.name);
 			ticket.metadata.put("SUBMITTER_DN", auth.getUserDN()); 
 			ticket.assignees.add(StaticConfig.conf.getProperty("certrequest.user.assignee"));
+			if(vomanager != null) {
+				ticket.ccs.add(vomanager.primary_email);
+			}
 			ticket.ccs.add("osg-ra@opensciencegrid.org");
 			ticket.nextaction = "OSG RA to process request";
 			String ticket_id = fp.open(ticket);
