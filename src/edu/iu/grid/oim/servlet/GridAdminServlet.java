@@ -14,6 +14,11 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 
+import com.divrep.DivRepEvent;
+import com.divrep.DivRepEventListener;
+import com.divrep.common.DivRepButton;
+import com.divrep.common.DivRepTextArea;
+
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.ContactModel;
@@ -24,6 +29,8 @@ import edu.iu.grid.oim.view.BootMenuView;
 import edu.iu.grid.oim.view.BootPage;
 import edu.iu.grid.oim.view.CertificateMenuView;
 import edu.iu.grid.oim.view.IView;
+import edu.iu.grid.oim.view.divrep.BootDialogForm;
+import edu.iu.grid.oim.view.divrep.form.GridAdminRequestForm;
 
 public class GridAdminServlet extends ServletBase {
 	private static final long serialVersionUID = 1L;
@@ -84,8 +91,19 @@ public class GridAdminServlet extends ServletBase {
 				
 				if(auth.allows("admin_gridadmin")) {
 					out.write("<a class=\"pull-right btn\" href=\"gridadminedit\"><i class=\"icon-plus\"></i> Add New GridAdmin</a>");
-				} else {
-					//TODO - output GridAdmin request button?
+				} else if(auth.isUser()) {
+					final GridAdminRequestForm form = new GridAdminRequestForm(context);
+					form.render(out);
+					
+					DivRepButton request = new DivRepButton(context.getPageRoot(), "Request for GridAdmin Enrollment");
+					request.addClass("btn");
+					request.addClass("pull-right");
+					request.render(out);
+					request.addEventListener(new DivRepEventListener() {
+						@Override
+						public void handleEvent(DivRepEvent e) {
+							form.show();
+						}});
 				}
 				out.write("<h2>GridAdmins</h2>");
 				

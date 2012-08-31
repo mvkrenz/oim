@@ -16,10 +16,12 @@ import org.apache.log4j.Logger;
 
 import com.divrep.DivRep;
 import com.divrep.DivRepEvent;
+import com.divrep.DivRepEventListener;
 import com.divrep.common.DivRepButton;
 import com.divrep.common.DivRepStaticContent;
 import com.divrep.common.DivRepToggler;
 
+import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.ContactRankModel;
@@ -64,6 +66,8 @@ import edu.iu.grid.oim.view.ToolTip;
 import edu.iu.grid.oim.view.URLView;
 import edu.iu.grid.oim.view.TableView.Row;
 import edu.iu.grid.oim.view.divrep.ViewWrapper;
+import edu.iu.grid.oim.view.divrep.form.GridAdminRequestForm;
+import edu.iu.grid.oim.view.divrep.form.RARequestForm;
 import edu.iu.grid.oim.view.divrep.form.VOFormDE;
 
 public class VOServlet extends ServletBase implements Servlet {
@@ -103,13 +107,10 @@ public class VOServlet extends ServletBase implements Servlet {
 				if(rec.disable == true) {
 					contentview.add(new HtmlView("<div class=\"alert\">This Virtual Organization is currently disabled.</div>"));
 				}
-				if(model.canEdit(vo_id)) {
-					contentview.add(new HtmlView("<p class=\"pull-right\"><a class=\"btn\" href=\"voedit?id=" + rec.id + "\">Edit</a></p>"));
-				}
 				contentview.add(new HtmlView("<h2>"+StringEscapeUtils.escapeHtml(rec.name)+"</h2>"));	
 				contentview.add(createVOContent(context, rec)); //false = no edit button	
 				
-				sideview = createSideView(context);
+				sideview = createSideView(context, rec);
 
 			} else {
 				contentview = createListContentView(context);
@@ -378,16 +379,31 @@ public class VOServlet extends ServletBase implements Servlet {
 		return table;
 	}
 
-	private SideContentView createSideView(UserContext context)
+	private SideContentView createSideView(UserContext context, VORecord rec)
 	{
 		SideContentView view = new SideContentView();
-		/*
-		if(context.getAuthorization().isUser()) {
-			view.add(new HtmlView("<p>"));
-			view.add(new HtmlView("<a class=\"btn\" href=\"voedit\">Register New Virtual Organization</a>"));
-			view.add(new HtmlView("</p>"));
+		
+		VOModel model = new VOModel(context);
+		if(model.canEdit(rec.id)) {
+			view.add(new HtmlView("<p><a class=\"btn\" href=\"voedit?id=" + rec.id + "\">Edit</a></p>"));
 		}
-		*/
+		
+		Authorization auth = context.getAuthorization();
+		if(auth.isUser() && !auth.allows("admin_ra")) {
+			final RARequestForm form = new RARequestForm(context);
+			view.add(new DivRepWrapper(form));
+			
+			DivRepButton request = new DivRepButton(context.getPageRoot(), "Request for RA Enrollment");
+			request.addClass("btn");
+			//request.addClass("pull-right");
+			view.add(new DivRepWrapper(request));
+			request.addEventListener(new DivRepEventListener() {
+				@Override
+				public void handleEvent(DivRepEvent e) {
+					form.show();
+				}});
+		}
+	
 		view.addContactLegend();
 		return view;
 	}
