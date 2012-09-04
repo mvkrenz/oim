@@ -130,6 +130,9 @@ public class ResourceServlet extends ServletBase implements Servlet {
 		} catch (SQLException e) {
 			log.error(e);
 			throw new ServletException(e);
+		} catch (NumberFormatException e) {
+			log.info(e);
+			//invalid resource id.. just be quiet
 		}
 	}
 	
