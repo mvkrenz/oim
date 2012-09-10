@@ -45,7 +45,7 @@ public class BootMenuView implements IView {
 				out.println("<li><a href=\"https://twiki.grid.iu.edu\">TWiki</a></li>");
 				out.println("<li class=\"divider\"></li>");
 				out.println("<li><a href=\"http://repo.grid.iu.edu\">Repo</a></li>");
-				out.println("<li><a href=\"http://software.grid.iu.edu\">Software Cache</a></li>");
+				//out.println("<li><a href=\"http://software.grid.iu.edu\">Software Cache</a></li>");
 				out.println("<li><a href=\"http://is.grid.iu.edu\">OSG BDII</a></li>");
 				out.println("<li class=\"divider\"></li>");
 				out.println("<li><a href=\"http://blogs.grid.iu.edu\">Blog</a></li>");
