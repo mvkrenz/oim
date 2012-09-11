@@ -966,7 +966,12 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
         //We are creating this so that we can create private key
         x500NameBld.addRDN(BCStyle.DC, "com");
         x500NameBld.addRDN(BCStyle.DC, "DigiCert-Grid");
-        x500NameBld.addRDN(BCStyle.O, "Open Science Grid"); //will be "OSG Pilot" for test  
+        if(StaticConfig.isDebug()) {
+        	//let's assume debug means we are using digicert pilot
+        	x500NameBld.addRDN(BCStyle.O, "OSG Pilot");
+        } else {
+        	x500NameBld.addRDN(BCStyle.O, "Open Science Grid");
+        }
         x500NameBld.addRDN(BCStyle.OU, "People");   
         x500NameBld.addRDN(BCStyle.CN, cn); //don't use "," or "/" which is used for DN delimiter
         
