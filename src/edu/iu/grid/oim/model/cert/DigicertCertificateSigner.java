@@ -29,10 +29,10 @@ public class DigicertCertificateSigner implements ICertificateSigner {
     static Logger log = Logger.getLogger(DigicertCertificateSigner.class);  
 	class DigicertCPException extends CertificateProviderException {
 		public DigicertCPException(String msg, Exception e) {
-			super(msg, e);
+			super("From DigiCert: " + msg, e);
 		}
 		public DigicertCPException(String msg) {
-			super(msg);
+			super("From DigiCert: " + msg);
 		}
 	};
 	
