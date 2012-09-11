@@ -397,7 +397,14 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
     }
     
     private String getTicketUrl(CertificateRequestHostRecord rec) {
-    	return "certificatehost?id=" + rec.id;
+    	String base;
+    	//this is not an exactly correct assumption, but it should be good enough
+    	if(StaticConfig.isDebug()) {
+    		base = "https://oim-itb.grid.iu.edu/oim/";
+    	} else {
+    		base = "https://oim.grid.iu.edu/oim/";
+    	}
+    	return base + "certificatehost?id=" + rec.id;
     }
     
     //NO-AC

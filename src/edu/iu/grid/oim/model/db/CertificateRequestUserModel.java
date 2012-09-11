@@ -979,7 +979,13 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
     }
     
     private String getTicketUrl(CertificateRequestUserRecord rec) {
-		return "certificateuser?id=" + rec.id;
+    	String base;
+    	if(StaticConfig.isDebug()) {
+    		base = "https://oim-itb.grid.iu.edu/oim/";
+    	} else {
+    		base = "https://oim.grid.iu.edu/oim/";
+    	}
+		return base + "certificateuser?id=" + rec.id;
     }
     
     //NO-AC 
