@@ -116,7 +116,7 @@ public class ServiceServlet extends ServletBase implements Servlet {
 			};
 			table.add(new DivRepWrapper(new EditButtonDE(context.getPageRoot(), StaticConfig.getApplicationBase()+"/serviceedit?id=" + rec.id)));
 			*/
-			table.add(new HtmlView("<a class=\"btn\" href=\"serviceedit?id=" + rec.id +"\">Edit</a>"));
+			table.add(new HtmlView("<a class=\"btn btn-mini\" href=\"serviceedit?id=" + rec.id +"\">Edit</a>"));
 		}
 		
 		return contentview;

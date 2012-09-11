@@ -71,7 +71,7 @@ public class UserServlet extends ServletBase implements Servlet {
 	{
 		ContentView contentview = new ContentView(context);	
 		//contentview.add(new HtmlView("<h2>DN/AuthType Mapping</h2>"));
-		contentview.add(new HtmlView("<p><a class=\"btn pull-right\" href=\"useredit\">Add DN/AuthType Mapping</a></p>"));		
+		contentview.add(new HtmlView("<p><a class=\"btn btn-mini pull-right\" href=\"useredit\">Add DN/AuthType Mapping</a></p>"));		
 		
 		//pull list of all DNs
 		DNModel model = new DNModel(context);

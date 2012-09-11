@@ -118,7 +118,7 @@ public class GridAdminServlet extends ServletBase {
 					
 					out.write("<td>");
 					if(auth.allows("admin_gridadmin")) {
-						out.write("<a class=\"btn\" href=\"gridadminedit?id="+rec.id+"\">Edit</a>");
+						out.write("<a class=\"btn btn-mini\" href=\"gridadminedit?id="+rec.id+"\">Edit</a>");
 					}
 					out.write("</td>");
 					

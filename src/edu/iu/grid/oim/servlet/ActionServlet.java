@@ -98,7 +98,7 @@ public class ActionServlet extends ServletBase {
 			contentview.add(new HtmlView("<td>"+StringEscapeUtils.escapeHtml(rec.description)+"</td>"));	
 			
 			contentview.add(new HtmlView("<td>"));
-			contentview.add(new HtmlView("<a class=\"btn\" href=\"actionedit?id="+rec.id+"\">Edit</a>"));
+			contentview.add(new HtmlView("<a class=\"btn btn-mini\" href=\"actionedit?id="+rec.id+"\">Edit</a>"));
 			contentview.add(new HtmlView("</td>"));
 			
 			contentview.add(new HtmlView("</tr>"));	

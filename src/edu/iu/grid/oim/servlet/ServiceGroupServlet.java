@@ -94,7 +94,7 @@ public class ServiceGroupServlet extends ServletBase implements Servlet
 			contentview.add(new HtmlView("<td>"+StringEscapeUtils.escapeHtml(rec.name)+"</td>"));		
 			contentview.add(new HtmlView("<td>"+StringEscapeUtils.escapeHtml(rec.description)+"</td>"));				
 			contentview.add(new HtmlView("<td>"));
-			contentview.add(new HtmlView("<a class=\"btn\" href=\"servicegroupedit?id="+rec.id+"\">Edit</a>"));
+			contentview.add(new HtmlView("<a class=\"btn btn-mini\" href=\"servicegroupedit?id="+rec.id+"\">Edit</a>"));
 			contentview.add(new HtmlView("</td>"));
 			
 			contentview.add(new HtmlView("</tr>"));	
