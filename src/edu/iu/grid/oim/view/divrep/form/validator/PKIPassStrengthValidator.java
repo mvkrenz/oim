@@ -20,7 +20,7 @@ import edu.vt.middleware.password.RepeatCharacterRegexRule;
 import edu.vt.middleware.password.Rule;
 import edu.vt.middleware.password.RuleResult;
 import edu.vt.middleware.password.UppercaseCharacterRule;
-import edu.vt.middleware.password.WhitespaceRule;
+//import edu.vt.middleware.password.WhitespaceRule;
 
 public class PKIPassStrengthValidator implements DivRepIValidator<String>
 {
@@ -44,8 +44,9 @@ public class PKIPassStrengthValidator implements DivRepIValidator<String>
 		lengthRule.setMinimumLength(12);
 
 		// don't allow whitespace
-		WhitespaceRule whitespaceRule = new WhitespaceRule();
+		//WhitespaceRule whitespaceRule = new WhitespaceRule();
 
+		/*
 		// control allowed characters
 		CharacterCharacteristicsRule charRule = new CharacterCharacteristicsRule();
 		// require at least 1 digit in passwords
@@ -58,7 +59,8 @@ public class PKIPassStrengthValidator implements DivRepIValidator<String>
 		charRule.getRules().add(new LowercaseCharacterRule(1));
 		// require at least 3 of the previous rules be met
 		charRule.setNumberOfCharacteristics(3);
-
+		*/
+		
 		// don't allow alphabetical sequences
 		AlphabeticalSequenceRule alphaSeqRule = new AlphabeticalSequenceRule();
 
@@ -74,8 +76,8 @@ public class PKIPassStrengthValidator implements DivRepIValidator<String>
 		// group all rules together in a List
 		List<Rule> ruleList = new ArrayList<Rule>();
 		ruleList.add(lengthRule);
-		ruleList.add(whitespaceRule);
-		ruleList.add(charRule);
+		//ruleList.add(whitespaceRule);
+		//ruleList.add(charRule);
 		ruleList.add(alphaSeqRule);
 		ruleList.add(numSeqRule);
 		ruleList.add(qwertySeqRule);
