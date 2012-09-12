@@ -231,10 +231,15 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 	public boolean canReRequest(CertificateRequestUserRecord rec) {
 		if(!canView(rec)) return false;
 		
-		if(		rec.status.equals(CertificateRequestStatus.REJECTED) ||
-				rec.status.equals(CertificateRequestStatus.CANCELED) ||
-				rec.status.equals(CertificateRequestStatus.REVOKED) ||
-				rec.status.equals(CertificateRequestStatus.EXPIRED) ) {
+		if(	rec.status.equals(CertificateRequestStatus.REJECTED) ||
+			rec.status.equals(CertificateRequestStatus.CANCELED) ||
+			rec.status.equals(CertificateRequestStatus.REVOKED) ) {
+			if(auth.isUser()) {
+				return true;
+			}
+		}		
+		
+		if (rec.status.equals(CertificateRequestStatus.EXPIRED) ) {
 			//guest user needs to be able to re-request expired cert.. but how can I prevent spammer?
 			return true;
 		}
