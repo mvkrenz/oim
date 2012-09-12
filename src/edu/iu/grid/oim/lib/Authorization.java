@@ -204,11 +204,11 @@ public class Authorization {
 					//request.setAttribute("SSL_CLIENT_S_DN", "/DC=org/DC=doegrids/OU=People/CN=christopher pipes 556895"); //disabled
 					
 					//request.setAttribute("SSL_CLIENT_S_DN", "/DC=org/DC=doegrids/OU=People/CN=Soichi Hayashi 461343");
-					request.setAttribute("SSL_CLIENT_S_DN", "/DC=com/DC=DigiCert-Grid/OU=People/CN=Soichi Hayashi 238");
+					//request.setAttribute("SSL_CLIENT_S_DN", "/DC=com/DC=DigiCert-Grid/OU=People/CN=Soichi Hayashi 238");
 					//request.setAttribute("SSL_CLIENT_S_DN", "/DC=org/DC=doegrids/OU=People/CN=Jeremy Fischer 478396");
 					
 					//request.setAttribute("SSL_CLIENT_S_DN", "/DC=org/DC=doegrids/OU=People/CN=Soichi Hayashi new2");
-					//request.setAttribute("SSL_CLIENT_S_DN", "/DC=org/DC=doegrids/OU=People/CN=Alain Roy 424511");
+					request.setAttribute("SSL_CLIENT_S_DN", "/DC=org/DC=doegrids/OU=People/CN=Alain Roy 424511");
 					request.setAttribute("SSL_CLIENT_I_DN_CN", "Test CA");
 					log.debug("Using debuggin credential");
 				} else {
