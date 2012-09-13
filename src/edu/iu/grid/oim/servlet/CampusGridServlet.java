@@ -80,8 +80,8 @@ public class CampusGridServlet extends ServletBase implements Servlet {
 				
 				// setup crumbs
 				BootBreadCrumbView bread_crumb = new BootBreadCrumbView();
-				bread_crumb.addCrumb("Topology", "topology");
-				bread_crumb.addCrumb("Campus Grid " + rec.name, null);
+				bread_crumb.addCrumb("Campus Grid", "campusgrid");
+				bread_crumb.addCrumb(rec.name, null);
 				contentview.setBreadCrumb(bread_crumb);
 
 				contentview.add(createContent(context, rec)); //false = no edit button	

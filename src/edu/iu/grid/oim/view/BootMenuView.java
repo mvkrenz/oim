@@ -202,10 +202,7 @@ public class BootMenuView implements IView {
 		if(current.equals("campusgrid")) {
 			out.println("<li class=\"active\"><a href=\"campusgrid\">Campus Grids</a></li>");
 		} else {
-			//for now, only show if it's debug
-			if(StaticConfig.isDebug()) {
-				out.println("<li><a href=\"campusgrid\">Campus Grids</a></li>");
-			}
+			out.println("<li><a href=\"campusgrid\">Campus Grids</a></li>");
 		}
 				
 				
