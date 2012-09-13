@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
@@ -15,21 +16,28 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 
-import edu.iu.grid.oim.lib.Authorization;
-
 import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.CampusGridContactModel;
+import edu.iu.grid.oim.model.db.CampusGridFieldOfScienceModel;
+import edu.iu.grid.oim.model.db.CampusGridSubmitNodeModel;
 import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.ContactRankModel;
 import edu.iu.grid.oim.model.db.ContactTypeModel;
 import edu.iu.grid.oim.model.db.CampusGridModel;
+import edu.iu.grid.oim.model.db.FieldOfScienceModel;
+import edu.iu.grid.oim.model.db.ResourceModel;
+import edu.iu.grid.oim.model.db.ResourceServiceModel;
 
 import edu.iu.grid.oim.model.db.record.CampusGridContactRecord;
+import edu.iu.grid.oim.model.db.record.CampusGridFieldOfScienceRecord;
 import edu.iu.grid.oim.model.db.record.CampusGridRecord;
+import edu.iu.grid.oim.model.db.record.CampusGridSubmitNodeRecord;
 import edu.iu.grid.oim.model.db.record.ContactRankRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.ContactTypeRecord;
-import edu.iu.grid.oim.model.db.record.VORecord;
+import edu.iu.grid.oim.model.db.record.FieldOfScienceRecord;
+import edu.iu.grid.oim.model.db.record.ResourceRecord;
+import edu.iu.grid.oim.model.db.record.ResourceServiceRecord;
 
 import edu.iu.grid.oim.view.BootBreadCrumbView;
 import edu.iu.grid.oim.view.BootMenuView;
@@ -37,11 +45,13 @@ import edu.iu.grid.oim.view.BootPage;
 import edu.iu.grid.oim.view.ContentView;
 import edu.iu.grid.oim.view.GenericView;
 import edu.iu.grid.oim.view.HtmlView;
+import edu.iu.grid.oim.view.IView;
 import edu.iu.grid.oim.view.ItemTableView;
 import edu.iu.grid.oim.view.ToolTip;
 
 import edu.iu.grid.oim.view.RecordTableView;
 import edu.iu.grid.oim.view.SideContentView;
+import edu.iu.grid.oim.view.divrep.CampusGridSubmitNodes;
 import edu.iu.grid.oim.view.divrep.form.CampusGridFormDE;
 
 public class CampusGridServlet extends ServletBase implements Servlet {
@@ -106,8 +116,22 @@ public class CampusGridServlet extends ServletBase implements Servlet {
 	 	table.addRow("Name", rec.name);
 		table.addRow("Description", rec.description);
 		table.addRow("Gratia Probe URL", rec.gratia);
+		
+		HashMap<Integer, String> maturities = CampusGridFormDE.Maturities;
+		table.addRow("Maturity Level", maturities.get(rec.maturity));
+		
+		//load submit node resources
+		ResourceServiceModel rsmodel = new ResourceServiceModel(context);
+		ResourceModel rmodel = new ResourceModel(context);
+		LinkedHashMap<Integer, String> submitnodes = new LinkedHashMap<Integer, String>();
+		ResourceRecord r = rmodel.get(rec.gateway_submitnode_id);
+		table.addRow("Gateway Submit Node", r.name);
+		
+		table.addRow("Submit Node FQDNS", getSubmitNodeFQDNs(context, rec.id));	
+		table.addRow("Field of Science", getFieldOfScience(context, rec.id));
 		table.addRow("Longitude", rec.longitude);
 		table.addRow("Latitude", rec.latitude);
+		
 		ContactTypeModel ctmodel = new ContactTypeModel(context);
 		ContactRankModel crmodel = new ContactRankModel(context);
 		ContactModel pmodel = new ContactModel(context);
@@ -149,6 +173,37 @@ public class CampusGridServlet extends ServletBase implements Servlet {
 		return contentview;
 	}
 		
+	private IView getSubmitNodeFQDNs(UserContext context, Integer id) throws SQLException {
+		StringBuffer out = new StringBuffer();
+		out.append("<ul>");
+		CampusGridSubmitNodeModel cmodel = new CampusGridSubmitNodeModel(context);
+		for(CampusGridSubmitNodeRecord rarec : cmodel.getAllByCampusGridID(id)) {
+			out.append("<li>"+rarec.fqdn+"</li>");
+		}
+		out.append("</ul>");
+		return new HtmlView(out.toString());
+	}
+
+	private IView getFieldOfScience(UserContext context, Integer cg_id) throws SQLException
+	{
+		CampusGridFieldOfScienceModel model = new CampusGridFieldOfScienceModel(context);
+		ArrayList<CampusGridFieldOfScienceRecord> list = model.getByCampusGridID(cg_id);
+		
+		if(list == null) {
+			return null;
+		}
+		String out = "";
+		FieldOfScienceModel fmodel = new FieldOfScienceModel(context);
+		out += "<ul>";
+		for(CampusGridFieldOfScienceRecord rec : list) {
+			FieldOfScienceRecord keyrec = new FieldOfScienceRecord();
+			keyrec.id = rec.field_of_science_id;
+			FieldOfScienceRecord frec = fmodel.get(keyrec);
+			out += "<li>" + frec.name + "</li>";
+		}
+		out += "</ul>";
+		return new HtmlView(out);
+	}
 	
 	protected ContentView createListContentView(UserContext context) 
 		throws ServletException, SQLException
