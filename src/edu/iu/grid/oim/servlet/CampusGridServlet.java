@@ -86,13 +86,13 @@ public class CampusGridServlet extends ServletBase implements Servlet {
 
 				contentview.add(createContent(context, rec)); //false = no edit button	
 				
-				sideview = createSideView(context);
+				sideview = createSideView(context, rec);
 
 			} else {
 				contentview = createListContentView(context);
 			}
 			
-			BootPage page = new BootPage(context, menuview, contentview, createSideView(context));
+			BootPage page = new BootPage(context, menuview, contentview, sideview);
 			page.render(response.getWriter());			
 		} catch (SQLException e) {
 			log.error(e);
@@ -102,11 +102,6 @@ public class CampusGridServlet extends ServletBase implements Servlet {
 	
 	protected ContentView createContent(UserContext context, final CampusGridRecord rec) throws ServletException, SQLException {
 		ContentView contentview = new ContentView(context);	
-
-		CampusGridModel model = new CampusGridModel(context);
-		if(model.canEdit(rec.id)) {
-			contentview.add(new HtmlView("<a class=\"btn pull-right\" href=\"campusgridedit?id=" + rec.id + "\">Edit</a>"));
-		}
 		
 		contentview.add(new HtmlView("<h2>"+StringEscapeUtils.escapeHtml(rec.name)+"</h2>"));
 
@@ -229,6 +224,7 @@ public class CampusGridServlet extends ServletBase implements Servlet {
 		ContentView contentview = new ContentView(context);	
 		
 		if(context.getAuthorization().isUser()) {
+			contentview.add(new HtmlView("<a class=\"btn pull-right\" href=\"campusgridedit\"><i class=\"icon-plus-sign\"></i> Add New Campus Grid</a>"));
 			contentview.add(new HtmlView("<h2>My Campus Grids</h2>"));
 			if(editable_cgs.size() == 0) {
 				contentview.add(new HtmlView("<p>There are no campusgrid where you are listed as a contact (except as submitter) - therefore you are not authorized to edit any campus grid.</p>"));
@@ -270,11 +266,13 @@ public class CampusGridServlet extends ServletBase implements Servlet {
 		return cg;
 	}
 	
-	private SideContentView createSideView(UserContext context)
+	private SideContentView createSideView(UserContext context, CampusGridRecord rec)
 	{
 		SideContentView view = new SideContentView();
-		if(context.getAuthorization().isUser()) {
-			view.add(new HtmlView("<a class=\"btn\" href=\"campusgridedit\"><i class=\"icon-plus-sign\"></i> Add New Campus Grid</a>"));
+
+		CampusGridModel model = new CampusGridModel(context);
+		if(model.canEdit(rec.id)) {
+			view.add(new HtmlView("<a class=\"btn\" href=\"campusgridedit?id=" + rec.id + "\">Edit</a>"));
 		}
 		return view;
 	}
