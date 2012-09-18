@@ -106,7 +106,7 @@ public class GridAdminEditServlet extends ServletBase {
 		@Override
 		public void render(PrintWriter out) {
 			out.write("<div id=\"content\">");
-
+		
 			out.write("<div class=\"row-fluid\">");
 			
 			out.write("<div class=\"span3\">");

@@ -162,7 +162,15 @@ public class RestServlet extends ServletBase  {
 			phone = user.primary_phone;
 			
 			context.setComment("OIM authenticated user; " + name + " submitted host certificatates request.");
-		} else {	
+		} else if(auth.isUnregistered()) {
+			throw new RestException("Accessed via https using unregistered user certificate :" + auth.getUserDN());
+		} else if(auth.isDisabled()) {
+			throw new RestException("Accessed via https using disabled user certificate: "+ auth.getUserDN());
+		} else if(auth.isSecure()) {
+			throw new RestException("Accessed via https without a user certificate (please use http for guest access)");
+		} else {
+			//must be guest then
+			
 			name = request.getParameter("name");
 			email = request.getParameter("email");
 			phone = request.getParameter("phone");

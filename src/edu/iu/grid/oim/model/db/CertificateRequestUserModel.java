@@ -172,7 +172,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 		if(!canView(rec)) return false;
 		
 		if(	rec.status.equals(CertificateRequestStatus.REQUESTED) ||
-			//rec.status.equals(CertificateRequestStatus.APPROVED) ||
+			rec.status.equals(CertificateRequestStatus.APPROVED) || //if renew_requesterd > approved cert is canceled, it should really go back to "issued", but currently it doesn't.
 			rec.status.equals(CertificateRequestStatus.RENEW_REQUESTED) ||
 			rec.status.equals(CertificateRequestStatus.REVOCATION_REQUESTED)) {
 			if(auth.isUser()) {
@@ -231,10 +231,15 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 	public boolean canReRequest(CertificateRequestUserRecord rec) {
 		if(!canView(rec)) return false;
 		
-		if(		rec.status.equals(CertificateRequestStatus.REJECTED) ||
-				rec.status.equals(CertificateRequestStatus.CANCELED) ||
-				rec.status.equals(CertificateRequestStatus.REVOKED) ||
-				rec.status.equals(CertificateRequestStatus.EXPIRED) ) {
+		if(	rec.status.equals(CertificateRequestStatus.REJECTED) ||
+			rec.status.equals(CertificateRequestStatus.CANCELED) ||
+			rec.status.equals(CertificateRequestStatus.REVOKED) ) {
+			if(auth.isUser()) {
+				return true;
+			}
+		}		
+		
+		if (rec.status.equals(CertificateRequestStatus.EXPIRED) ) {
 			//guest user needs to be able to re-request expired cert.. but how can I prevent spammer?
 			return true;
 		}
@@ -410,7 +415,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 		try {
 			if(rec.status.equals(CertificateRequestStatus.RENEW_REQUESTED) ||
 				rec.status.equals(CertificateRequestStatus.REVOCATION_REQUESTED)) {
-					rec.status = CertificateRequestStatus.ISSUED;
+				rec.status = CertificateRequestStatus.ISSUED;
 			} else {
 				rec.status = CertificateRequestStatus.CANCELED;
 			}
@@ -715,7 +720,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 							log.warn("User certificate issued for request "+rec.id+" has cert_notbefore set too distance from current timestamp");
 						}
 						long dayrange = (rec.cert_notafter.getTime() - rec.cert_notbefore.getTime()) / (1000*3600*24);
-						if(dayrange < 390 || dayrange > 400) {
+						if(dayrange < 390 || dayrange > 405) {
 							log.warn("User certificate issued for request "+rec.id+ " has valid range of "+dayrange+" days (too far from 395 days)");
 						}
 						
@@ -966,7 +971,12 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
         //We are creating this so that we can create private key
         x500NameBld.addRDN(BCStyle.DC, "com");
         x500NameBld.addRDN(BCStyle.DC, "DigiCert-Grid");
-        x500NameBld.addRDN(BCStyle.O, "Open Science Grid"); //will be "OSG Pilot" for test  
+        if(StaticConfig.isDebug()) {
+        	//let's assume debug means we are using digicert pilot
+        	x500NameBld.addRDN(BCStyle.O, "OSG Pilot");
+        } else {
+        	x500NameBld.addRDN(BCStyle.O, "Open Science Grid");
+        }
         x500NameBld.addRDN(BCStyle.OU, "People");   
         x500NameBld.addRDN(BCStyle.CN, cn); //don't use "," or "/" which is used for DN delimiter
         
@@ -974,7 +984,13 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
     }
     
     private String getTicketUrl(CertificateRequestUserRecord rec) {
-		return "certificateuser?id=" + rec.id;
+    	String base;
+    	if(StaticConfig.isDebug()) {
+    		base = "https://oim-itb.grid.iu.edu/oim/";
+    	} else {
+    		base = "https://oim.grid.iu.edu/oim/";
+    	}
+		return base + "certificateuser?id=" + rec.id;
     }
     
     //NO-AC 

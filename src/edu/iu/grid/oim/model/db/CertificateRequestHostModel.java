@@ -13,7 +13,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashSet;
 
 import javax.security.auth.x500.X500Principal;
 
@@ -25,7 +24,6 @@ import org.bouncycastle.pkcs.PKCS10CertificationRequest;
 import org.bouncycastle.util.encoders.Base64;
 
 import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import edu.iu.grid.oim.lib.Authorization;
@@ -215,7 +213,7 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 									log.warn("Host certificate issued for request "+rec.id+"(idx:"+idx+") has cert_notbefore set too distance from current timestamp");
 								}
 								long dayrange = (cert_notafter.getTime() - cert_notbefore.getTime()) / (1000*3600*24);
-								if(dayrange < 390 || dayrange > 400) {
+								if(dayrange < 390 || dayrange > 405) {
 									log.warn("Host certificate issued for request "+rec.id+ "(idx:"+idx+")  has valid range of "+dayrange+" days (too far from 395 days)");
 								}
 							
@@ -397,7 +395,14 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
     }
     
     private String getTicketUrl(CertificateRequestHostRecord rec) {
-    	return "certificatehost?id=" + rec.id;
+    	String base;
+    	//this is not an exactly correct assumption, but it should be good enough
+    	if(StaticConfig.isDebug()) {
+    		base = "https://oim-itb.grid.iu.edu/oim/";
+    	} else {
+    		base = "https://oim.grid.iu.edu/oim/";
+    	}
+    	return base + "certificatehost?id=" + rec.id;
     }
     
     //NO-AC
@@ -820,7 +825,7 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 		if(!canView(rec)) return false;
 		
 		if(	rec.status.equals(CertificateRequestStatus.REQUESTED) ||
-			//rec.status.equals(CertificateRequestStatus.APPROVED) ||
+			rec.status.equals(CertificateRequestStatus.APPROVED) || //if renew_requesterd > approved cert is canceled, it should really go back to "issued", but currently it doesn't.
 			rec.status.equals(CertificateRequestStatus.RENEW_REQUESTED) ||
 			rec.status.equals(CertificateRequestStatus.REVOCATION_REQUESTED)) {
 			if(auth.isUser()) {

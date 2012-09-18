@@ -89,7 +89,7 @@ public class SiteEditServlet extends ServletBase implements Servlet {
 
 			contentview.add(new DivRepWrapper(form));
 			
-			BootPage page = new BootPage(context, new BootMenuView(context, parent_page), contentview, createSideView(logs));
+			BootPage page = new BootPage(context, new BootMenuView(context, parent_page), contentview, createSideView(logs, rec));
 			
 			page.render(response.getWriter());	
 		} catch (SQLException e) {
@@ -97,9 +97,12 @@ public class SiteEditServlet extends ServletBase implements Servlet {
 		}
 	}
 	
-	private SideContentView createSideView(ArrayList<LogRecord> logs)
+	private SideContentView createSideView(ArrayList<LogRecord> logs, SiteRecord rec)
 	{
 		SideContentView view = new SideContentView();
+		if(rec.id != null) {
+			view.add(new HtmlView("<p><a class=\"btn\" href=\"site?site_id="+rec.id+"\">Show Readonly View</a></p>"));
+		}
 		if(logs != null) {
 			view.add(new LogView(logs));	
 		}

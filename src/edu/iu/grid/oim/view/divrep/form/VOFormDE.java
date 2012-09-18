@@ -603,6 +603,8 @@ public class VOFormDE extends DivRepForm
 				editor.setLabel(Rank.Primary, "Primary RA");
 				editor.setLabel(Rank.Secondary, "Secondary RA");
 				editor.setLabel(Rank.Tertiary, "Sponsors");
+				
+				editor.setMaxContacts(Rank.Secondary, 8);
 			}
 			
 			if(contact_type.id != 5 && contact_type.id != 10 && contact_type.id != 11) { //5 = misc, 9 = resource report, 11 = ra agent

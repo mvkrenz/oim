@@ -1,40 +1,25 @@
 package edu.iu.grid.oim.view.divrep.form;
 
-import java.io.PrintWriter;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
-import java.util.TreeSet;
+
 
 import org.apache.log4j.Logger;
 
-import com.divrep.DivRep;
-import com.divrep.DivRepEvent;
-import com.divrep.DivRepEventListener;
-import com.divrep.common.DivRepButton;
 import com.divrep.common.DivRepCheckBox;
 import com.divrep.common.DivRepForm;
-import com.divrep.common.DivRepFormElement;
 import com.divrep.common.DivRepLocationSelector;
 import com.divrep.common.DivRepSelectBox;
 import com.divrep.common.DivRepStaticContent;
 import com.divrep.common.DivRepTextArea;
 import com.divrep.common.DivRepTextBox;
-import com.divrep.common.DivRepLocationSelector.LatLng;
 import com.divrep.validator.DivRepUniqueValidator;
-import com.divrep.validator.DivRepUrlValidator;
 
 import edu.iu.grid.oim.lib.Authorization;
-import edu.iu.grid.oim.lib.Footprints;
 import edu.iu.grid.oim.lib.AuthorizationException;
 import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.model.UserContext;
@@ -43,7 +28,6 @@ import edu.iu.grid.oim.model.db.CampusGridFieldOfScienceModel;
 import edu.iu.grid.oim.model.db.CampusGridSubmitNodeModel;
 import edu.iu.grid.oim.model.db.ContactTypeModel;
 import edu.iu.grid.oim.model.db.ContactModel;
-import edu.iu.grid.oim.model.db.ResourceAliasModel;
 import edu.iu.grid.oim.model.db.ResourceModel;
 import edu.iu.grid.oim.model.db.ResourceServiceModel;
 import edu.iu.grid.oim.model.db.SCModel;
@@ -53,9 +37,6 @@ import edu.iu.grid.oim.model.db.record.CampusGridFieldOfScienceRecord;
 import edu.iu.grid.oim.model.db.record.CampusGridSubmitNodeRecord;
 import edu.iu.grid.oim.model.db.record.ContactTypeRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
-import edu.iu.grid.oim.model.db.record.FacilityRecord;
-import edu.iu.grid.oim.model.db.record.FieldOfScienceRecord;
-import edu.iu.grid.oim.model.db.record.ResourceAliasRecord;
 import edu.iu.grid.oim.model.db.record.ResourceRecord;
 import edu.iu.grid.oim.model.db.record.ResourceServiceRecord;
 
@@ -67,7 +48,6 @@ import edu.iu.grid.oim.view.ToolTip;
 import edu.iu.grid.oim.view.divrep.CampusGridSubmitNodes;
 import edu.iu.grid.oim.view.divrep.ContactEditor;
 import edu.iu.grid.oim.view.divrep.FieldOfScience;
-import edu.iu.grid.oim.view.divrep.ResourceAlias;
 import edu.iu.grid.oim.view.divrep.ContactEditor.Rank;
 
 public class CampusGridFormDE extends DivRepForm 
@@ -101,14 +81,14 @@ public class CampusGridFormDE extends DivRepForm
 	}	
 	private HashMap<Integer, ContactEditor> contact_editors = new HashMap();
 	
-	public HashMap<Integer, String> getMaturities() {
-		HashMap<Integer, String> kvs = new HashMap<Integer, String>();
-		kvs.put(1, "Level 1: No organized or coordinated campus grid effort.");
-		kvs.put(2, "Level 2: Some localized organization around campus grids.");
-		kvs.put(3, "Level 3: Campus wide organization and/or broad visibility to campus grids.");
-		kvs.put(4, "Level 4: Campus wide organization or visibility of campus grids initiatives.");
-		kvs.put(5, "Level 5: Campus grids are a 'way of life' for campus researchers.");
-		return kvs;
+	static public HashMap<Integer, String> Maturities;
+	static {
+		Maturities = new HashMap<Integer, String>();
+		Maturities.put(1, "Level 1: No organized or coordinated campus grid effort.");
+		Maturities.put(2, "Level 2: Some localized organization around campus grids.");
+		Maturities.put(3, "Level 3: Campus wide organization and/or broad visibility to campus grids.");
+		Maturities.put(4, "Level 4: Campus wide organization or visibility of campus grids initiatives.");
+		Maturities.put(5, "Level 5: Campus grids are a 'way of life' for campus researchers.");
 	}
 
 	public CampusGridFormDE(UserContext _context, CampusGridRecord rec, String origin_url) throws AuthorizationException, SQLException
@@ -147,7 +127,7 @@ public class CampusGridFormDE extends DivRepForm
 
 		maturity = new DivRepSelectBox(this);
 		maturity.setLabel("Maturity");
-		maturity.setValues(getMaturities());
+		maturity.setValues(Maturities);
 		maturity.setValue(rec.maturity);
 		maturity.setRequired(true);
 		
