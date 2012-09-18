@@ -119,8 +119,12 @@ public class CampusGridServlet extends ServletBase implements Servlet {
 		ResourceServiceModel rsmodel = new ResourceServiceModel(context);
 		ResourceModel rmodel = new ResourceModel(context);
 		LinkedHashMap<Integer, String> submitnodes = new LinkedHashMap<Integer, String>();
-		ResourceRecord r = rmodel.get(rec.gateway_submitnode_id);
-		table.addRow("Gateway Submit Node", r.name);
+		if(rec.gateway_submitnode_id != null) {
+			ResourceRecord r = rmodel.get(rec.gateway_submitnode_id);
+			table.addRow("Gateway Submit Node", r.name);
+		} else {
+			table.addRow("Gateway Submit Node", "");	
+		}
 		
 		table.addRow("Submit Node FQDNS", getSubmitNodeFQDNs(context, rec.id));	
 		table.addRow("Field of Science", getFieldOfScience(context, rec.id));
