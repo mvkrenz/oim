@@ -297,9 +297,9 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 					Authorization auth = context.getAuthorization();
 					if(auth.isUser()) {
 						ContactRecord contact = auth.getContact();
-						ticket.description = contact.name + " has issued certificate.";
+						ticket.description = contact.name + " has issued certificate. Resolving this ticket.";
 					} else {
-						ticket.description = "Someone with IP address: " + context.getRemoteAddr() + " has issued certificate";
+						ticket.description = "Someone with IP address: " + context.getRemoteAddr() + " has issued certificate. Resolving this ticket.";
 					}
 					ticket.status = "Resolved";
 					fp.update(ticket, rec.goc_ticket_id);
