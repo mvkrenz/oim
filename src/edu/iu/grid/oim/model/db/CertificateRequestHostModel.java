@@ -491,16 +491,21 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
     	rec.cert_serial_ids = ar.toXML();
     	
     	try {
-        	log.debug("inserting request record");
+        	//log.debug("inserting request record");
 			Integer request_id = super.insert(rec);
 			
-        	log.debug("request_id: " + request_id);
-        	ContactRecord ga = findGridAdmin(rec);
-			ticket.description = "Dear " + ga.name + " (GridAdmin), \n\n";
+        	//log.debug("request_id: " + request_id);
+			
+        	ticket.description = "Dear GridAdmin; ";
+			for(ContactRecord ga : findGridAdmin(rec)) {
+				ticket.description += ga.name + ", ";
+				ticket.ccs.add(ga.primary_email);
+			}
+			ticket.description += "\n\n";
+			
 			ticket.description += "Host certificate request has been submitted.\n\n";
 			ticket.description += "Please determine this request's authenticity, and approve / disapprove at " + getTicketUrl(rec);
 			ticket.assignees.add(StaticConfig.conf.getProperty("certrequest.host.assignee"));
-			ticket.ccs.add(ga.primary_email);
 			
 			ticket.nextaction = "RA/Sponsors to verify requester";
 			Calendar nad = Calendar.getInstance();
@@ -529,11 +534,17 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
     
     //find gridadmin who should process the request
     //null if none, or there are more than 1 
-    public ContactRecord findGridAdmin(CertificateRequestHostRecord rec) throws CertificateRequestException {
+    public ArrayList<ContactRecord> findGridAdmin(CertificateRequestHostRecord rec) throws CertificateRequestException {
 		GridAdminModel gamodel = new GridAdminModel(context);
-    	Integer gridadmin_contact_id = null;
+    	String gridadmin_domain = null;
     	int idx = 0;
-    	for(String csr_string : rec.getCSRs()) {
+    	
+       	String [] csrs = rec.getCSRs();
+    	if(csrs.length == 0) {
+    		throw new CertificateRequestException("Couldn't find any CSR");
+    	}
+    	
+    	for(String csr_string : csrs) {
     		String cn;
 			try {
 	    		PKCS10CertificationRequest csr = new PKCS10CertificationRequest(Base64.decode(csr_string));
@@ -553,39 +564,31 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 				throw new CertificateRequestException("Failed to decode CSR", e);
 			}
 			
-			//lookup gridadmin
-			ContactRecord ga;
+			//lookup registered gridadmin domain
+			String domain = null;
 			try {
-				ga = gamodel.getGridAdminByFQDN(cn);
+				domain = gamodel.getDomainByFQDN(cn);
 			} catch (SQLException e) {
 				throw new CertificateRequestException("Failed to lookup GridAdmin to approve host:" + cn, e);	
 			}
-			if(ga == null) {
+			if(domain == null) {
 				throw new CertificateRequestException("The hostname you have provided in the CSR/CN=" + cn + " does not match any domain OIM is currently configured to issue certificates for.\n\nPlease double check the CN you have specified. If you'd like to be a GridAdmin for this domain, please open GOC Ticket at https://ticket.grid.iu.edu ");	
 			}
 			
-			//make sure single gridadmin approves all host
-			if(gridadmin_contact_id == null) {
-				gridadmin_contact_id = ga.id;
+			//make sure same set of gridadmin approves all host
+			if(gridadmin_domain == null) {
+				gridadmin_domain = domain;
 			} else {
-				if(!gridadmin_contact_id.equals(ga.id)) {
-					throw new CertificateRequestException("All host must be approved by the same GridAdmin. Different for " + cn);	
+				if(!gridadmin_domain.equals(domain)) {
+					throw new CertificateRequestException("All host certificates must be approved by the same gridadmin. Different for " + cn);	
 				}
 			}
     	}
-    	
-    	if(gridadmin_contact_id == null) {
-    		throw new CertificateRequestException("Failed to find gridadmin for user certificate request" + rec.id);
-    	}
-    	
-		ContactModel cmodel = new ContactModel(context);
-		ContactRecord gridadmin;
 		try {
-			gridadmin = cmodel.get(gridadmin_contact_id);
+			return gamodel.getContactsByDomain(gridadmin_domain);
 		} catch (SQLException e) {
-			throw new CertificateRequestException("Failed to find user record for gridadmin id " + gridadmin_contact_id, e);
+			throw new CertificateRequestException("Failed to lookup gridadmin contacts for domain:" + gridadmin_domain, e);
 		}
-		return gridadmin;
     }
     
 	//NO-AC
@@ -593,7 +596,7 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 	public CertificateRequestHostRecord requestRenew(CertificateRequestHostRecord rec) throws CertificateRequestException {
     
 		//lookup gridadmin first
-		ContactRecord gridadmin = findGridAdmin(rec);
+		ArrayList<ContactRecord> gas = findGridAdmin(rec);
 		
 		rec.status = CertificateRequestStatus.RENEW_REQUESTED;
 		//TODO - are we re-using the same CSR sent by the user? if not, user should provide them and we update them here
@@ -623,7 +626,9 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 		//Update CC gridadmin (it might have been changed since last time request was made)
 		VOContactModel model = new VOContactModel(context);
 		ContactModel cmodel = new ContactModel(context);
-		ticket.ccs.add(gridadmin.primary_email);
+		for(ContactRecord ga : gas) {
+			ticket.ccs.add(ga.primary_email);
+		}
 		
 		//reopen now
 		fp.update(ticket, rec.goc_ticket_id);
@@ -805,9 +810,11 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 				//grid admin can appove it
 				ContactRecord user = auth.getContact();
 				try {
-					ContactRecord gridadmin = findGridAdmin(rec);
-					if(gridadmin.id.equals(user.id)) {
-						return true;
+					ArrayList<ContactRecord> gas = findGridAdmin(rec);
+					for(ContactRecord ga : gas) {
+						if(ga.id.equals(user.id)) {
+							return true;
+						}
 					}
 				} catch (CertificateRequestException e) {
 					log.error("Failed to lookup gridadmin for " + rec.id + " while processing canApprove()", e);
@@ -838,9 +845,11 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 				//grid admin can cancel it
 				ContactRecord user = auth.getContact();
 				try {
-					ContactRecord gridadmin = findGridAdmin(rec);
-					if(gridadmin.id.equals(user.id)) {
-						return true;
+					ArrayList<ContactRecord> gas = findGridAdmin(rec);
+					for(ContactRecord ga : gas) {
+						if(ga.id.equals(user.id)) {
+							return true;
+						}
 					}
 				} catch (CertificateRequestException e) {
 					log.error("Failed to lookup gridadmin for " + rec.id + " while processing canCancel()", e);
@@ -917,9 +926,11 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 				//grid admin can revoke it
 				ContactRecord user = auth.getContact();
 				try {
-					ContactRecord gridadmin = findGridAdmin(rec);
-					if(gridadmin.id.equals(user.id)) {
-						return true;
+					ArrayList<ContactRecord> gas = findGridAdmin(rec);
+					for(ContactRecord ga : gas) {
+						if(ga.id.equals(user.id)) {
+							return true;
+						}
 					}
 				} catch (CertificateRequestException e) {
 					log.error("Failed to lookup gridadmin for " + rec.id + " while processing canRevoke()", e);

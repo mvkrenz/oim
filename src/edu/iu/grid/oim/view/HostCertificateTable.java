@@ -31,7 +31,7 @@ public class HostCertificateTable implements IView {
 
 	public void render(PrintWriter out)  {
 		out.write("<table class=\"table certificate\">");
-		out.write("<thead><tr><th>ID</th><th>Status</th><th>GOC Ticket</th><th>FQDNs</th><th>Grid Admin</th></tr></thead>");
+		out.write("<thead><tr><th>ID</th><th>Status</th><th>GOC Ticket</th><th>FQDNs</th><th>Grid Admins</th></tr></thead>");
 		out.write("<tbody>");
 		CertificateRequestHostModel model = new CertificateRequestHostModel(context);
 		for(CertificateRequestHostRecord rec : recs) {
@@ -61,10 +61,18 @@ public class HostCertificateTable implements IView {
 			out.write("</ul></td>");
 			
 			try {
-				ContactRecord gridadmin = model.findGridAdmin(rec);
-				//ContactRecord gridadmin = cmodel.get(rec.gridadmin_contact_id);
-				out.write("<td>"+StringEscapeUtils.escapeHtml(gridadmin.name)+"</td>");
-				
+				ArrayList<ContactRecord> gas = model.findGridAdmin(rec);
+				out.write("<td>");
+				boolean first = true;
+				for(ContactRecord ga : gas) {
+					if(first) {
+						first = false;
+					} else {
+						out.write(" | ");
+					}
+					out.write(StringEscapeUtils.escapeHtml(ga.name));
+				}
+				out.write("</td>");
 			} catch (CertificateRequestException ce) {
 				out.write("<td><span class=\"label label-important\">No GridAdmin</span></td>");
 			}

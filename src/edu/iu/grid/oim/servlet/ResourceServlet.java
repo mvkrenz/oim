@@ -276,7 +276,7 @@ public class ResourceServlet extends ServletBase implements Servlet {
 					ArrayList<ResourceContactRecord> clist = resourceclist_grouped.get(contact_type.id);
 					Collections.sort(clist, new Comparator<ResourceContactRecord> (){
 						public int compare(ResourceContactRecord a, ResourceContactRecord b) {
-							if (a.getRank() > b.getRank()) // We are comparing based on rank id 
+							if (a.contact_rank_id > b.contact_rank_id) // We are comparing based on rank id 
 								return 1; 
 							return 0;
 						}

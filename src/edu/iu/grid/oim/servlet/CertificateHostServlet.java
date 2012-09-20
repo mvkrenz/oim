@@ -70,7 +70,6 @@ public class CertificateHostServlet extends ServletBase  {
 				try {
 					int id = Integer.parseInt(dirty_id);
 					CertificateRequestHostRecord rec = model.get(id);
-					ContactRecord gridadmin = model.findGridAdmin(rec);
 					if(rec == null) {
 						throw new ServletException("No request found with a specified request ID.");
 					}
@@ -82,12 +81,10 @@ public class CertificateHostServlet extends ServletBase  {
 					if(request.getParameter("search") != null) {
 						submenu = "certificatesearchhost";
 					}
-					content = createDetailView(context, rec, logs, gridadmin, submenu);
+					content = createDetailView(context, rec, logs, submenu);
 				} catch (SQLException e) {
 					throw new ServletException("Failed to load specified certificate", e);
-				} catch (CertificateRequestException ce) {
-					throw new ServletException("Most likely failed to lookup gridadmin", ce);
-				}
+				} 
 			} else {
 				content = createListView(context);
 			}
@@ -125,7 +122,6 @@ public class CertificateHostServlet extends ServletBase  {
 			final UserContext context, 
 			final CertificateRequestHostRecord rec, 
 			final ArrayList<CertificateRequestModelBase<CertificateRequestHostRecord>.LogDetail> logs,
-			final ContactRecord gridadmin,
 			final String submenu) throws ServletException
 	{
 		final Authorization auth = context.getAuthorization();
@@ -207,16 +203,26 @@ public class CertificateHostServlet extends ServletBase  {
 				out.write("</tr>");
 				
 				out.write("<tr>");
-				out.write("<th>Grid Admin</th>");
+				out.write("<th>Grid Admins</th>");
 				out.write("<td>");
-				if(auth.isUser()) {
-					out.write("<b>"+StringEscapeUtils.escapeHtml(gridadmin.name)+"</b>");
-					out.write(" <code><a href=\"mailto:"+gridadmin.primary_email+"\">"+gridadmin.primary_email+"</a></code>");
-					out.write(" Phone: "+gridadmin.primary_phone);
-				} else {
-					out.write(StringEscapeUtils.escapeHtml(gridadmin.name));
-				}
 				
+				CertificateRequestHostModel model = new CertificateRequestHostModel(context);
+				try {
+					ArrayList<ContactRecord> gas = model.findGridAdmin(rec);
+					out.write("<ul>");
+					for(ContactRecord ga : gas) {
+						out.write("<li>");
+						out.write("<b>"+StringEscapeUtils.escapeHtml(ga.name)+"</b>");
+						if(auth.isUser()) {
+							out.write(" <code><a href=\"mailto:"+ga.primary_email+"\">"+ga.primary_email+"</a></code>");
+							out.write(" Phone: "+ga.primary_phone);
+						}
+						out.write("</li>");
+					}
+					out.write("</ul>");
+				} catch (CertificateRequestException e) {
+					out.write("<span class=\"label label-important\">No GridAdmin</span>");
+				}
 				out.write("</td></tr>");
 				
 				out.write("<tr>");

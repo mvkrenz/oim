@@ -1,6 +1,5 @@
 package edu.iu.grid.oim.model.db;
 
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -12,16 +11,13 @@ import javax.xml.xpath.XPathExpressionException;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 
-import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.record.ContactRankRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.ContactTypeRecord;
 import edu.iu.grid.oim.model.db.record.RecordBase;
 import edu.iu.grid.oim.model.db.record.ResourceContactRecord;
-import edu.iu.grid.oim.model.db.record.ResourceGroupRecord;
 import edu.iu.grid.oim.model.db.record.ResourceRecord;
-import edu.iu.grid.oim.model.db.record.VOContactRecord;
 
 public class ResourceContactModel extends SmallTableModelBase<ResourceContactRecord> {
     static Logger log = Logger.getLogger(ResourceContactModel.class); 

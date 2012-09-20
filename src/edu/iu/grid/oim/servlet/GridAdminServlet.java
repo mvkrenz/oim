@@ -6,6 +6,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.LinkedHashMap;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -58,7 +59,8 @@ public class GridAdminServlet extends ServletBase {
 			ContactModel cmodel = new ContactModel(context);
 			GridAdminModel model = new GridAdminModel(context);
 			try {
-				ArrayList<GridAdminRecord> recs = model.getAll();
+				LinkedHashMap<String, ArrayList<ContactRecord>> recs = model.getAll();
+				/*
 				Collections.sort(recs, new Comparator<GridAdminRecord> (){
 					public int compare(GridAdminRecord a, GridAdminRecord b) {
 						//TODO - correct algorithm is to split domain by ., then compare each token in reverse order
@@ -77,6 +79,7 @@ public class GridAdminServlet extends ServletBase {
 						return reverse.toString();
 					}
 				});
+				*/
 				
 				out.write("<div id=\"content\">");
 			
@@ -107,18 +110,30 @@ public class GridAdminServlet extends ServletBase {
 				}
 				out.write("<h2>GridAdmins</h2>");
 				
-				out.write("<table class=\"table nohover\">");
-				out.write("<thead><tr><th>Domain</th><th>GridAdmin</th><th></th></tr></thead>");	
+				if(auth.allows("admin_gridadmin")) {
+					out.write("<table class=\"table\">");
+				} else {
+					out.write("<table class=\"table nohover\">");	
+				}
+				out.write("<thead><tr><th>Domain</th><th>GridAdmins</th><th></th></tr></thead>");	
 				out.write("<tbody>");
-				for(GridAdminRecord rec : recs) {
-					out.write("<tr>");	
-					out.write("<td>"+StringEscapeUtils.escapeHtml(rec.domain)+"</td>");		
-					ContactRecord crec = cmodel.get(rec.contact_id);
-					out.write("<td>"+StringEscapeUtils.escapeHtml(crec.name)+"</td>");		
+				for(String domain : recs.keySet()) {
+					if(auth.allows("admin_gridadmin")) {
+						out.write("<tr onclick=\"document.location='gridadminedit?domain="+domain+"'\">");	
+					} else {
+						out.write("<tr>");
+					}
+					out.write("<td>"+StringEscapeUtils.escapeHtml(domain)+"</td>");
+					
+					out.write("<td><ul>");
+					for(ContactRecord ga : recs.get(domain)) {
+						out.write("<li>"+StringEscapeUtils.escapeHtml(ga.name)+"</li>");							
+					}
+					out.write("</ul></td>");
 					
 					out.write("<td>");
 					if(auth.allows("admin_gridadmin")) {
-						out.write("<a class=\"btn btn-mini\" href=\"gridadminedit?id="+rec.id+"\">Edit</a>");
+						out.write("<a class=\"btn btn-mini\">Edit</a>");
 					}
 					out.write("</td>");
 					

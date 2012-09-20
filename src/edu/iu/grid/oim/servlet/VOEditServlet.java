@@ -56,12 +56,7 @@ public class VOEditServlet extends ServletBase implements Servlet {
 			int vo_id = Integer.parseInt(vo_id_str);
 			VOModel model = new VOModel(context);
 			if(!model.canEdit(vo_id)) {
-				//allow ra to edit vo - currently we can only give all or nothing access.
-				//we shouldn't add this check on canEdit - canEdit is used to determine "my vo".
-				if(!auth.allows("admin_ra")) {				
-					//throw new AuthorizationException("Sorry, you don't have permission to edit VO ID:" + vo_id);
-					response.sendRedirect("vo?id="+vo_id);
-				}
+				response.sendRedirect("vo?id="+vo_id);
 			}
 			
 			try {
