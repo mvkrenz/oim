@@ -15,6 +15,7 @@ import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.UserContext.Message;
+import edu.iu.grid.oim.model.UserContext.MessageType;
 
 public class BootPage implements IView {
 	static Logger log = Logger.getLogger(BootPage.class);  
@@ -48,6 +49,10 @@ public class BootPage implements IView {
 		content.add(_content);
 		
 		side = _side;
+		
+		if(StaticConfig.isDebug()) {
+			context.message(MessageType.SUCCESS, "This is a debug instance. For production use, please use https://oim.grid.iu.edu");
+		}
 	}
 	public void putSideViewLeft(boolean b) {
 		putsideviewleft = b;

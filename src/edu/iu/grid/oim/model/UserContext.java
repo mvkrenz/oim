@@ -96,10 +96,6 @@ public class UserContext {
 			}
 		}
 		*/
-		
-		if(StaticConfig.isDebug()) {
-			message(MessageType.WARNING, "This is a debug instance. For production use, please use https://oim.grid.iu.edu");
-		}
 	}
 	
 	public Connection getConnection() throws SQLException {

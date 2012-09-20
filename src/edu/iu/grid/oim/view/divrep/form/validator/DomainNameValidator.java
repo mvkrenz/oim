@@ -11,7 +11,7 @@ public class DomainNameValidator implements DivRepIValidator<String>
 	
 	public Boolean isValid(String value) {
 		message = null;
-		if(!value.matches("[0-9a-zA-Z\\.]*")) {
+		if(!value.matches("[-0-9a-zA-Z\\.]*")) {
 			message = "Contains invalid characters";
 			return false;
 		}
