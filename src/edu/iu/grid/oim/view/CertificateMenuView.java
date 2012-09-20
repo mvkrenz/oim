@@ -87,16 +87,17 @@ public class CertificateMenuView implements IView {
 				out.write("<li>");
 				out.write("<a href=\"certificatehost\"><i class=\"icon-list\"></i> My Requests</a></li>");	
 			}
-			if(!auth.allows("admin_gridadmin")) {
-				//all non-gridadmin_admin oim user can access read-only gridadmin page
-				if(current.equals("gridadmin")) {
-					out.write("<li class=\"active\">");
-					out.write("<a href=\"gridadmin\"><i class=\"icon-white icon-flag\"></i> GridAdmins</a></li>");	
-				} else {
-					out.write("<li>");
-					out.write("<a href=\"gridadmin\"><i class=\"icon-flag\"></i> GridAdmins</a></li>");	
-				}	
-			}
+		}
+		
+		if(!auth.allows("admin_gridadmin")) {
+			//all non-gridadmin_admin oim user can access read-only gridadmin page
+			if(current.equals("gridadmin")) {
+				out.write("<li class=\"active\">");
+				out.write("<a href=\"gridadmin\"><i class=\"icon-white icon-flag\"></i> GridAdmins</a></li>");	
+			} else {
+				out.write("<li>");
+				out.write("<a href=\"gridadmin\"><i class=\"icon-flag\"></i> GridAdmins</a></li>");	
+			}	
 		}
 		
 		if(current.equals("certificatesearchhost")) {
