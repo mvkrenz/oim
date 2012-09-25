@@ -1144,6 +1144,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 		}
 		*/
 		ticket.assignees.add(StaticConfig.conf.getProperty("certrequest.user.assignee"));
+		ticket.ccs.add("osg-ra@opensciencegrid.org");
 		
 		ticket.nextaction = "RA/Sponsors to verify requester";	 //NAD will be set to 7 days in advance by default
 		
