@@ -75,7 +75,7 @@ public class SideContentView implements IView {
 
 	public void addRARequest(UserContext context, VORecord vo) {
 		Authorization auth = context.getAuthorization();
-		if(auth.isUser() && !auth.allows("admin_ra")) {
+		if(vo.id != null && auth.isUser() && !auth.allows("admin_ra")) {
 			//lookup vomanager
 			VOContactModel model = new VOContactModel(context);
 			ContactRecord vomanager = null;
