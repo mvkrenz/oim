@@ -12,6 +12,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.cookie.CookiePolicy;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
@@ -64,10 +65,20 @@ public class Footprints
 		return db.parse(in);
 	}
 	
+	private HttpClient createHttpClient() {
+		HttpClient cl = new HttpClient();
+		cl.getParams().setParameter("http.protocol.single-cookie-header", true);
+		cl.getParams().setCookiePolicy(CookiePolicy.BROWSER_COMPATIBILITY);
+		//cl.getHttpConnectionManager().getParams().setConnectionTimeout(1000*10);
+	    cl.getParams().setParameter("http.useragent", "OIM (OSG Information Management System)");
+	    //cl.getParams().setParameter("http.contenttype", "application/x-www-form-urlencoded")
+	    
+	    return cl;
+	}
+	
 	//returns ticket id if successful. null if not
 	public String open(FPTicket ticket) {
-		HttpClient cl = new HttpClient();
-	    //cl.getParams().setParameter("http.useragent", "OIM (OSG Information Management System)");
+		HttpClient cl = createHttpClient();
 		PostMethod post = new PostMethod(StaticConfig.conf.getProperty("api.gocticket")+"/rest/open");
 
 		post.addParameter("title", ticket.title);
@@ -120,6 +131,8 @@ public class Footprints
 	//return true if successful
 	public Boolean update(FPTicket ticket, String ticket_id) {
 		HttpClient cl = new HttpClient();
+		cl.getParams().setParameter("http.protocol.single-cookie-header", true);
+		cl.getParams().setCookiePolicy(CookiePolicy.BROWSER_COMPATIBILITY);
 	    //cl.getParams().setParameter("http.useragent", "OIM (OSG Information Management System)");
 		PostMethod post = new PostMethod(StaticConfig.conf.getProperty("api.gocticket")+"/rest/update?id="+ticket_id);
 		post.setParameter("description", ticket.description);

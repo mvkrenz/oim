@@ -2,7 +2,6 @@ package edu.iu.grid.oim.model.cert;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -10,6 +9,7 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
+import org.apache.commons.httpclient.cookie.CookiePolicy;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.log4j.Logger;
 import org.bouncycastle.asn1.x500.RDN;
@@ -144,12 +144,21 @@ public class DigicertCertificateSigner implements ICertificateSigner {
 		throw new CertificateProviderException("DigiCert didn't return certificate after predefined re-tries");
 	}
 	
-	//used to check if certificate has been issued
-	private String getDetail_under_construction(String order_id) throws DigicertCPException {
+	private HttpClient createHttpClient() {
 		HttpClient cl = new HttpClient();
+		cl.getParams().setParameter("http.protocol.single-cookie-header", true);
+		cl.getParams().setCookiePolicy(CookiePolicy.BROWSER_COMPATIBILITY);
 		//cl.getHttpConnectionManager().getParams().setConnectionTimeout(1000*10);
 	    cl.getParams().setParameter("http.useragent", "OIM (OSG Information Management System)");
 	    //cl.getParams().setParameter("http.contenttype", "application/x-www-form-urlencoded")
+	    
+	    return cl;
+	}
+	
+	//used to check if certificate has been issued
+	private String getDetail_under_construction(String order_id) throws DigicertCPException {
+		
+		HttpClient cl = createHttpClient();
 		
 		PostMethod post = new PostMethod("https://www.digicert.com/enterprise/api/?action=grid_certificate_details");
 		post.addParameter("customer_name", StaticConfig.conf.getProperty("digicert.customer_name"));
@@ -201,10 +210,7 @@ public class DigicertCertificateSigner implements ICertificateSigner {
 	}
 	
 	public Certificate requestUserCert(String csr, String cn, String email_address) throws DigicertCPException {
-		HttpClient cl = new HttpClient();
-		//cl.getHttpConnectionManager().getParams().setConnectionTimeout(1000*10);
-	    cl.getParams().setParameter("http.useragent", "OIM (OSG Information Management System)");
-	    //cl.getParams().setParameter("http.contenttype", "application/x-www-form-urlencoded")
+		HttpClient cl = createHttpClient();
 		
 		PostMethod post = new PostMethod("https://www.digicert.com/enterprise/api/?action=grid_request_email_cert");
 
@@ -267,10 +273,7 @@ public class DigicertCertificateSigner implements ICertificateSigner {
 	}
 	
 	private String requestHostCert(String csr, String service_name, String cn) throws DigicertCPException {
-		HttpClient cl = new HttpClient();
-		//cl.getHttpConnectionManager().getParams().setConnectionTimeout(1000*10);
-	    cl.getParams().setParameter("http.useragent", "OIM (OSG Information Management System)");
-	    //cl.getParams().setParameter("http.contenttype", "application/x-www-form-urlencoded")
+		HttpClient cl = createHttpClient();
 		
 		PostMethod post = new PostMethod("https://www.digicert.com/enterprise/api/?action=grid_request_host_cert");
 		post.addParameter("customer_name", StaticConfig.conf.getProperty("digicert.customer_name"));
@@ -321,10 +324,7 @@ public class DigicertCertificateSigner implements ICertificateSigner {
 	}
 	
 	private String approve(String request_id, String comment) throws DigicertCPException {
-		HttpClient cl = new HttpClient();
-		//cl.getHttpConnectionManager().getParams().setConnectionTimeout(1000*10);
-	    cl.getParams().setParameter("http.useragent", "OIM (OSG Information Management System)");
-	    //cl.getParams().setParameter("http.contenttype", "application/x-www-form-urlencoded")
+		HttpClient cl = createHttpClient();
 		
 		PostMethod post = new PostMethod("https://www.digicert.com/enterprise/api/?action=grid_approve_request");
 		post.addParameter("customer_name", StaticConfig.conf.getProperty("digicert.customer_name"));
@@ -371,9 +371,7 @@ public class DigicertCertificateSigner implements ICertificateSigner {
 	}
 	
 	private Certificate retrieveByOrderID(String order_id) throws DigicertCPException {
-		HttpClient cl = new HttpClient();
-		//cl.getHttpConnectionManager().getParams().setConnectionTimeout(1000*10);
-	    cl.getParams().setParameter("http.useragent", "OIM (OSG Information Management System)");
+		HttpClient cl = createHttpClient();
 		
 		PostMethod post = new PostMethod("https://www.digicert.com/enterprise/api/?action=grid_retrieve_host_cert");
 		post.addParameter("customer_name", StaticConfig.conf.getProperty("digicert.customer_name"));
@@ -432,8 +430,7 @@ public class DigicertCertificateSigner implements ICertificateSigner {
 
 	@Override
 	public void revokeHostCertificate(String serial_id) throws CertificateProviderException {
-		HttpClient cl = new HttpClient();
-	    cl.getParams().setParameter("http.useragent", "OIM (OSG Information Management System)");
+		HttpClient cl = createHttpClient();
 		
 		PostMethod post = new PostMethod("https://www.digicert.com/enterprise/api/?action=grid_request_host_revoke");
 		post.addParameter("customer_name", StaticConfig.conf.getProperty("digicert.customer_name"));
@@ -477,8 +474,7 @@ public class DigicertCertificateSigner implements ICertificateSigner {
 
 	@Override
 	public void revokeUserCertificate(String serial_id) throws CertificateProviderException {
-		HttpClient cl = new HttpClient();
-	    cl.getParams().setParameter("http.useragent", "OIM (OSG Information Management System)");
+		HttpClient cl = createHttpClient();
 		
 		PostMethod post = new PostMethod("https://www.digicert.com/enterprise/api/?action=grid_email_revoke");
 		post.addParameter("customer_name", StaticConfig.conf.getProperty("digicert.customer_name"));
