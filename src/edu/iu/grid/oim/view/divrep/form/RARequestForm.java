@@ -14,10 +14,9 @@ import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.lib.Footprints.FPTicket;
 import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.CertificateRequestUserModel;
-import edu.iu.grid.oim.model.db.VOContactModel;
-import edu.iu.grid.oim.model.db.VOModel;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
-import edu.iu.grid.oim.model.db.record.VOContactRecord;
+import edu.iu.grid.oim.model.db.record.SCRecord;
+import edu.iu.grid.oim.model.db.record.VORecord;
 import edu.iu.grid.oim.view.divrep.BootDialogForm;
 
 //assume user is logged  in
@@ -27,11 +26,15 @@ public class RARequestForm extends BootDialogForm {
 	private DivRepTextArea desc;
 	private UserContext context;
 	private ContactRecord vomanager;
+	private VORecord vorec;
+	private SCRecord screc;
 	
-	public RARequestForm(UserContext context, ContactRecord vomanager) {
+	public RARequestForm(UserContext context, ContactRecord vomanager, VORecord vorec, SCRecord screc) {
 		super(context.getPageRoot());
 		this.context = context;
 		this.vomanager = vomanager;
+		this.vorec = vorec;
+		this.screc = screc;
 		
 		setTitle("RA Enrollment Request");
 		
@@ -66,6 +69,10 @@ public class RARequestForm extends BootDialogForm {
 			ticket.metadata.put("SUBMITTED_VIA","OIM/RARequestForm");
 			ticket.metadata.put("SUBMITTER_NAME", requester.name);
 			ticket.metadata.put("SUBMITTER_DN", auth.getUserDN()); 
+			ticket.metadata.put("ASSOCIATED_VO_ID", vorec.id.toString());
+			ticket.metadata.put("ASSOCIATED_VO_NAME", vorec.name);	
+			ticket.metadata.put("SUPPORTING_SC_ID", screc.id.toString());
+			ticket.metadata.put("SUPPORTING_SC_NAME", screc.name);	
 			ticket.assignees.add(StaticConfig.conf.getProperty("certrequest.user.assignee"));
 			if(vomanager != null) {
 				ticket.ccs.add(vomanager.primary_email);

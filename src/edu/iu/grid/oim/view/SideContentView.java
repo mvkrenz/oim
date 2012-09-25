@@ -16,8 +16,10 @@ import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.CertificateRequestUserModel;
 import edu.iu.grid.oim.model.db.ContactModel;
+import edu.iu.grid.oim.model.db.SCModel;
 import edu.iu.grid.oim.model.db.VOContactModel;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
+import edu.iu.grid.oim.model.db.record.SCRecord;
 import edu.iu.grid.oim.model.db.record.VOContactRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
 import edu.iu.grid.oim.view.divrep.form.RARequestForm;
@@ -87,22 +89,34 @@ public class SideContentView implements IView {
 						break;
 					}
 				}
+				
+				//lookup sc
+				SCModel smodel = new SCModel(context);
+				try {
+					SCRecord screc = smodel.get(vo.sc_id);
+					
+					final RARequestForm form = new RARequestForm(context, vomanager, vo, screc);
+					add(new DivRepWrapper(form));
+					
+					DivRepButton request = new DivRepButton(context.getPageRoot(), "Request for RA Enrollment");
+					request.addClass("btn");
+					//request.addClass("pull-right");
+					add(new DivRepWrapper(request));
+					request.addEventListener(new DivRepEventListener() {
+						@Override
+						public void handleEvent(DivRepEvent e) {
+							form.show();
+						}});
+					
+				} catch (SQLException e1) {
+					log.error("Failed to lookup SC for with SC ID" + vo.sc_id, e1);
+				}
+				
+				
 			} catch (SQLException e) {
 				log.error("Failed to lookup VO manager for VO: " + vo.id, e);
 			}
 			
-			final RARequestForm form = new RARequestForm(context, vomanager);
-			add(new DivRepWrapper(form));
-			
-			DivRepButton request = new DivRepButton(context.getPageRoot(), "Request for RA Enrollment");
-			request.addClass("btn");
-			//request.addClass("pull-right");
-			add(new DivRepWrapper(request));
-			request.addEventListener(new DivRepEventListener() {
-				@Override
-				public void handleEvent(DivRepEvent e) {
-					form.show();
-				}});
 		}
 	}
 
