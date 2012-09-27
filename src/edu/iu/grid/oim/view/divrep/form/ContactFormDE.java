@@ -116,7 +116,11 @@ public class ContactFormDE extends DivRepForm
 							String tag = "";
 							if(user_dnid != null && user_dnid.equals(dn.id)) {
 								active = "well-active";
-								tag = "<span style=\"float: right;\" class=\"label label-info\">You are currently logged in with this DN</span>";
+								tag += "<span style=\"float: right;\" class=\"label label-info\">You are currently logged in with this DN</span>";
+							}
+							if(dn.disable) {
+								active = "well-disabled";
+								tag += "<span style=\"float: right;\" class=\"label\">Disabled DN</span>";
 							}
 							out.write("<div class=\"well "+active+"\">");
 							out.write(tag);

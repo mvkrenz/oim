@@ -616,8 +616,9 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 				DNModel dnmodel = new DNModel(context);
 				DNRecord dnrec = dnmodel.getByDNString(rec.dn);
 				if(rec != null) {
-					log.info("Removing associated DN record");
-					dnmodel.removeDN(dnrec);
+					log.info("Disabling associated DN record");
+					dnrec.disable = true;
+					dnmodel.update(dnrec);
 				}
 			} catch (SQLException e) {
 				log.warn("Failed to remove associated DN.. continuing", e);
@@ -1055,7 +1056,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 				requester.id = cmodel.insert(requester);
 				
 				//and generate dn
-		    	cn = requester.getName() + " " + requester.id;
+		    	cn = requester.name + " " + requester.id;
 		    	X500Name name = generateDN(cn);
 				rec.dn = CertificateManager.RFC1779_to_ApacheDN(name.toString());
 				
@@ -1063,7 +1064,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 		    	
 			} else {
 				//generate dn
-		    	cn = requester.getName() + " " + requester.id;
+		    	cn = requester.name + " " + requester.id;
 		    	X500Name name = generateDN(cn);
 				rec.dn = CertificateManager.RFC1779_to_ApacheDN(name.toString());
 				
@@ -1075,7 +1076,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 					requester.id = existing_crec.id;
 					
 					//update contact information with information that user just gave me
-					cmodel.update(existing_crec, rec);
+					cmodel.update(requester);
 					
 					note += "NOTE: User is claiming unused contact id: "+existing_crec.id+"\n";
 				} else {
@@ -1252,17 +1253,17 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
     }
 	//prevent low level access - please use model specific actions
     @Override
-    public Integer insert(RecordBase rec) throws SQLException
+    public Integer insert(CertificateRequestUserRecord rec) throws SQLException
     { 
     	throw new UnsupportedOperationException("Please use model specific actions instead (request, approve, reject, etc..)");
     }
     @Override
-    public void update(RecordBase oldrec, RecordBase newrec) throws SQLException
+    public void update(CertificateRequestUserRecord oldrec, CertificateRequestUserRecord newrec) throws SQLException
     {
     	throw new UnsupportedOperationException("Please use model specific actions insetead (request, approve, reject, etc..)");
     }
     @Override
-    public void remove(RecordBase rec) throws SQLException
+    public void remove(CertificateRequestUserRecord rec) throws SQLException
     {
     	throw new UnsupportedOperationException("disallowing remove cert request..");
     }
@@ -1342,5 +1343,11 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 	    stmt.close();
 	    conn.close();
 	    return recs;
+	}
+
+	@Override
+	CertificateRequestUserRecord createRecord() throws SQLException {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

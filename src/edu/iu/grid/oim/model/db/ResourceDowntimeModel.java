@@ -6,7 +6,6 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
-import java.util.Date;
 
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
@@ -179,35 +178,15 @@ public class ResourceDowntimeModel extends SmallTableModelBase<ResourceDowntimeR
 		ResourceDowntimeModel model = new ResourceDowntimeModel(context);
 		model.update(oldrec, newrec);
 	}
-	/*
-	public void removeDowntime(ResourceDowntimeRecord rec) throws Exception
-	{
-		Connection conn = connectOIM();
-		try {		
-			conn.setAutoCommit(false);
-			
-			//remove all service record
-			ResourceDowntimeServiceModel rdsmodel = new ResourceDowntimeServiceModel(context);
-			Collection<ResourceDowntimeServiceRecord> services = rdsmodel.getByDowntimeID(rec.id);	
-			for(ResourceDowntimeServiceRecord srec : services) {
-				rdsmodel.remove(srec);
-			}
-			
-			//remove downtime itself
-			ResourceDowntimeModel dmodel = new ResourceDowntimeModel(context);
-			dmodel.remove(rec);
-			
-			conn.commit();
-			conn.setAutoCommit(true);
-		} catch (Exception e) {
-			log.error(e);
-			log.info("Rolling back resource downtime transaction.");
-			conn.rollback();
-			conn.setAutoCommit(true);
-			
-			//re-throw original exception
-			throw new Exception(e);
-		}	
+	
+	public ArrayList<ResourceDowntimeRecord> getByDNID(Integer id) throws SQLException {
+		ArrayList<ResourceDowntimeRecord> list = new ArrayList<ResourceDowntimeRecord>();
+	    for(RecordBase rec : getCache()) {
+	    	ResourceDowntimeRecord crec = (ResourceDowntimeRecord)rec;
+	    	if(crec.dn_id != null && crec.dn_id.equals(id)) {
+	    		list.add(crec);
+	    	}
+	    }	    	
+	    return list;
 	}
-	*/
 }

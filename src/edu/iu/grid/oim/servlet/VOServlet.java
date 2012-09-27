@@ -161,11 +161,11 @@ public class VOServlet extends ServletBase implements Servlet {
 				String tag = "";
 				if(rec.disable) {
 					disable_css += " disabled";
-					tag += " (Disabled)";
+					tag += " [Disabled]";
 				}
 				if(!rec.active) {
 					disable_css += " inactive";
-					tag += " (Inactive)";
+					tag += " [Inactive]";
 				}
 				table.add(new HtmlView("<a class=\""+disable_css+"\" title=\""+StringEscapeUtils.escapeHtml(rec.long_name)+"\" href=\"voedit?id="+rec.id+"\">"+StringEscapeUtils.escapeHtml(name)+tag+"</a>"));
 			}

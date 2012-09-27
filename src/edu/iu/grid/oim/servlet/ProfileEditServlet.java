@@ -64,28 +64,4 @@ public class ProfileEditServlet extends ServletBase implements Servlet {
 		page.render(response.getWriter());	
 			
 	}
-	
-	/*
-	private SideContentView createSideView(UserContext context) throws SQLException
-	{
-		Authorization auth = context.getAuthorization();
-		SideContentView view = new SideContentView();
-		HashSet<String> auth_types = auth.getAuthorizationTypesForCurrentDN();
-		view.add("<h3>Your Authentication Types</h3>");
-		if(auth_types.size() > 0) {
-			//compose list of auth types
-			StringBuffer auth_type_string = new StringBuffer();
-			auth_type_string.append("<ul>");
-			for (String auth_type: auth_types) {
-				auth_type_string.append("<li>" + auth_type + "</li>");
-			}
-			auth_type_string.append("</ul>");
-			view.add(new HtmlView(auth_type_string.toString()));	
-		} else {
-			view.add(new HtmlView("N/A (Your account is de-activated)"));		
-		}
-		
-		return view;
-	}
-	*/
 }

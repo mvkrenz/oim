@@ -15,10 +15,10 @@ vertical-align: baseline;
 }
 
 a.inactive {
-color: #aaa;
+color: #999;
 }
 a.disabled {
-color: #888;
+color: #fff;
 background-color: #ddd;
 }
 
@@ -605,6 +605,9 @@ margin: 15px;
 div.well-active {
 background-color: #90bfd7;
 }
+div.well-disabled {
+background-color: #ccc;
+}
 div.contact_rank code {
 color: gray;
 background-color: inherit;
@@ -614,4 +617,9 @@ div.contact code {
 background-color: inherit;
 border: none;
 color: gray;
+}
+
+table tr.disabled td {
+color: #999;
+}
 }

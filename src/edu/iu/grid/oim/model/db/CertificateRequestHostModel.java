@@ -991,18 +991,24 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 	
 	//prevent low level access - please use model specific actions
     @Override
-    public Integer insert(RecordBase rec) throws SQLException
+    public Integer insert(CertificateRequestHostRecord rec) throws SQLException
     { 
     	throw new UnsupportedOperationException("Please use model specific actions instead (request, approve, reject, etc..)");
     }
     @Override
-    public void update(RecordBase oldrec, RecordBase newrec) throws SQLException
+    public void update(CertificateRequestHostRecord oldrec, CertificateRequestHostRecord newrec) throws SQLException
     {
     	throw new UnsupportedOperationException("Please use model specific actions insetead (request, approve, reject, etc..)");
     }
     @Override
-    public void remove(RecordBase rec) throws SQLException
+    public void remove(CertificateRequestHostRecord rec) throws SQLException
     {
     	throw new UnsupportedOperationException("disallowing remove cert request..");
     }
+
+	@Override
+	CertificateRequestHostRecord createRecord() throws SQLException {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

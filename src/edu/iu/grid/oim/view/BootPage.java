@@ -22,7 +22,7 @@ public class BootPage implements IView {
 	
     protected UserContext context;
 	private HashMap<String, String> params = new HashMap<String, String>();
-	private ArrayList<String> css = new ArrayList<String>();
+	private ArrayList<String> css_ex = new ArrayList<String>();
     
 	private HtmlFileView header;
 	private IView menu;
@@ -33,8 +33,8 @@ public class BootPage implements IView {
 	
 	private boolean putsideviewleft = false;
 	
-	public void addCSS(String path) {
-		css.add(path);
+	public void addExCSS(String path) {
+		css_ex.add(path);
 	}
 	
 	public BootPage(UserContext _context, IView _menu, IView _content, IView _side)
@@ -51,7 +51,7 @@ public class BootPage implements IView {
 		side = _side;
 		
 		if(StaticConfig.isDebug()) {
-			context.message(MessageType.SUCCESS, "This is a debug instance. For production use, please use https://oim.grid.iu.edu");
+			context.message(MessageType.WARNING, "This is a debug instance. For production use, please use https://oim.grid.iu.edu");
 		}
 	}
 	public void putSideViewLeft(boolean b) {
@@ -103,7 +103,7 @@ public class BootPage implements IView {
 		} 
 		
 		String exhead = new String();
-		for(String css : this.css) {
+		for(String css : this.css_ex) {
 			exhead += "<link href=\"css/"+css+"\" rel=\"stylesheet\" type=\"text/css\"/>\n";
 		}
 		params.put("__EXHEAD__", exhead);

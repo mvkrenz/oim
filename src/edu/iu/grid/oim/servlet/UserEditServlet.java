@@ -82,8 +82,7 @@ public class UserEditServlet extends ServletBase implements Servlet {
 				contentview.add(new HtmlView("<h1>Can't find User ID</h1>"));
 				contentview.add(new HtmlView("<p>Perhaps the user has been removed?</p>"));
 			}
-		
-			
+	
 			BootPage page = new BootPage(context, new BootMenuView(context, "admin"), contentview, createSideView());			
 			page.render(response.getWriter());	
 		} catch (SQLException e) {
@@ -93,8 +92,6 @@ public class UserEditServlet extends ServletBase implements Servlet {
 	
 	private SideContentView createSideView()
 	{
-		SideContentView view = new SideContentView();
-		//view.add("TODO", new HtmlView("Whatever"));
-		return view;
+		return null;
 	}
 }

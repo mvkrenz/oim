@@ -122,7 +122,7 @@ public class ContactServlet extends ServletBase {
 
 		Collections.sort(contacts, new Comparator<ContactRecord> (){
 			public int compare(ContactRecord a, ContactRecord b) {
-				return a.getName().compareToIgnoreCase(b.getName()); // We are comparing based on name
+				return a.name.compareToIgnoreCase(b.name); // We are comparing based on name
 			}
 		});
 		Collections.sort(contacts, new Comparator<ContactRecord> (){
@@ -130,10 +130,9 @@ public class ContactServlet extends ServletBase {
 				return a.person.compareTo(b.person); // We are comparing based on bool person
 			}
 		});
-
 		Collections.sort(contacts, new Comparator<ContactRecord> (){
 			public int compare(ContactRecord a, ContactRecord b) {
-				return a.isDisabled().compareTo(b.isDisabled()); // We are comparing based on bool disable (disabled ones will go in the end)
+				return a.disable.compareTo(b.disable); // We are comparing based on bool disable (disabled ones will go in the end)
 			}
 		});
 
@@ -144,7 +143,7 @@ public class ContactServlet extends ServletBase {
 		ArrayList<ContactRecord> readonly_contacts = new ArrayList<ContactRecord>();
 		for(ContactRecord rec : contacts) {
 			if(model.canEdit(rec.id)) {
-				if (rec.isDisabled()) {
+				if (rec.disable) {
 					editable_disabled_contacts.add(rec);
 				} else {
 					editable_contacts.add(rec);
