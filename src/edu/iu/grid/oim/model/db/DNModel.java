@@ -86,8 +86,7 @@ public class DNModel extends SmallTableModelBase<DNRecord> {
 		return list;
 	}
 	
-	public void insertDetail(DNRecord rec, 
-			ArrayList<Integer> auth_types) throws Exception
+	public void insertDetail(DNRecord rec, ArrayList<Integer> auth_types) throws SQLException
 	{
 		Connection conn = connectOIM();
 		try {		
@@ -119,12 +118,11 @@ public class DNModel extends SmallTableModelBase<DNRecord> {
 			}
 			
 			//re-throw original exception
-			throw new Exception(e);
+			throw e;
 		}	
 	}
 	
-	public void updateDetail(DNRecord rec, 
-			ArrayList<Integer> auth_types) throws Exception
+	public void updateDetail(DNRecord rec, ArrayList<Integer> auth_types) throws SQLException
 	{
 		//Do insert / update to our DB
 		Connection conn = connectOIM();
@@ -155,7 +153,15 @@ public class DNModel extends SmallTableModelBase<DNRecord> {
 				conn.setAutoCommit(true);
 			}
 			//re-throw original exception
-			throw new Exception(e);
+			throw e;
 		}			
+	}
+
+	//remove DN and all authorization associated with that DN
+	public void removeDN(DNRecord rec) throws SQLException
+	{
+		updateDetail(rec, new ArrayList<Integer>());
+		//then remove the dn itself
+		super.remove(rec);
 	}
 }

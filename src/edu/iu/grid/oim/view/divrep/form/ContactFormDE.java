@@ -105,35 +105,39 @@ public class ContactFormDE extends DivRepForm
 					out.write("<div id=\""+getNodeID()+"\" class=\"divrep_form_element\">");
 					out.write("<label>Associated DNs</label><br>");
 					
-					DNAuthorizationTypeModel dnauthtypemodel = new DNAuthorizationTypeModel(context);
-					AuthorizationTypeModel authtypemodel = new AuthorizationTypeModel(context); 
-					
-					for(DNRecord dn : associated_dn_recs) {
-						String active = "";
-						String tag = "";
-						if(user_dnid != null && user_dnid.equals(dn.id)) {
-							active = "well-active";
-							tag = "<span style=\"float: right;\" class=\"label label-info\">You are currently logged in with this DN</span>";
-						}
-						out.write("<div class=\"well "+active+"\">");
-						out.write(tag);
-						out.write("<h4>"+StringEscapeUtils.escapeHtml(dn.dn_string)+"</h4>");
+					if(associated_dn_recs.size() == 0) {
+						out.write("<p class=\"muted\">No DNs are associated with this contact.</p>");
+					} else {
+						DNAuthorizationTypeModel dnauthtypemodel = new DNAuthorizationTypeModel(context);
+						AuthorizationTypeModel authtypemodel = new AuthorizationTypeModel(context); 
 						
-						//pull all authentication types for this DN
-						try {
-							Collection<Integer> authtype_ids = dnauthtypemodel.getAuthorizationTypesByDNID(dn.id);
-							//out.write("<h3>Authorizations</h3>");
-							out.write("<ul>");
-							for (Integer authtype_id : authtype_ids) {
-								AuthorizationTypeRecord authrec = authtypemodel.get(authtype_id);
-								out.write("<li>"+authrec.name+"</li>");
+						for(DNRecord dn : associated_dn_recs) {
+							String active = "";
+							String tag = "";
+							if(user_dnid != null && user_dnid.equals(dn.id)) {
+								active = "well-active";
+								tag = "<span style=\"float: right;\" class=\"label label-info\">You are currently logged in with this DN</span>";
 							}
-							out.write("</ul>");
-						} catch (SQLException e) {
-							log.error("Failed to lookup authentication type info", e);
+							out.write("<div class=\"well "+active+"\">");
+							out.write(tag);
+							out.write("<h4>"+StringEscapeUtils.escapeHtml(dn.dn_string)+"</h4>");
+							
+							//pull all authentication types for this DN
+							try {
+								Collection<Integer> authtype_ids = dnauthtypemodel.getAuthorizationTypesByDNID(dn.id);
+								//out.write("<h3>Authorizations</h3>");
+								out.write("<ul>");
+								for (Integer authtype_id : authtype_ids) {
+									AuthorizationTypeRecord authrec = authtypemodel.get(authtype_id);
+									out.write("<li>"+authrec.name+"</li>");
+								}
+								out.write("</ul>");
+							} catch (SQLException e) {
+								log.error("Failed to lookup authentication type info", e);
+							}
+							out.write("</div>");
 						}
-						out.write("</div>");
-					}
+					} 
 					//out.write("<sub>* Can only be modified by GOC Staff on request using Admin interface</sub>");
 					out.write("</div>");
 				}

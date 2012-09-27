@@ -93,7 +93,7 @@ public class GridAdminServlet extends ServletBase {
 				out.write("<div class=\"span9\">");
 				
 				if(auth.allows("admin_gridadmin")) {
-					out.write("<a class=\"pull-right btn\" href=\"gridadminedit\"><i class=\"icon-plus\"></i> Add New GridAdmin</a>");
+					out.write("<a class=\"pull-right btn\" href=\"gridadminedit\"><i class=\"icon-plus\"></i> Add New Domain</a>");
 				} else if(auth.isUser()) {
 					final GridAdminRequestForm form = new GridAdminRequestForm(context);
 					form.render(out);

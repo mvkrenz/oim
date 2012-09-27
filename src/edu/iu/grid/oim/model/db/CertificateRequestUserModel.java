@@ -598,16 +598,29 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 		CertificateManager cm = new CertificateManager();
 		try {
 			cm.revokeUserCertificate(rec.cert_serial_id);
+			log.info("Revoked " + rec.dn + " with serial id:" + rec.cert_serial_id);
 			
-			///////////////////////////////////////////////////////////////////////////////////////
-			// Revoke complete.
-			rec.status = CertificateRequestStatus.REVOKED;
+			//update record
 			try {
+				rec.status = CertificateRequestStatus.REVOKED;
 				//context.setComment("Certificate Approved");
 				super.update(get(rec.id), rec);
+			
 			} catch (SQLException e) {
-				log.error("Failed to update user certificate status: " + rec.id);
+				log.error("Failed to update user certificate status: " + rec.id, e);
 				throw new CertificateRequestException("Failed to update user certificate status", e);
+			}
+			
+			//remove associated dn (if any)
+			try {
+				DNModel dnmodel = new DNModel(context);
+				DNRecord dnrec = dnmodel.getByDNString(rec.dn);
+				if(rec != null) {
+					log.info("Removing associated DN record");
+					dnmodel.removeDN(dnrec);
+				}
+			} catch (SQLException e) {
+				log.warn("Failed to remove associated DN.. continuing", e);
 			}
 			
 			Authorization auth = context.getAuthorization();
@@ -1058,7 +1071,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 				DNModel dnmodel = new DNModel(context);
 				ArrayList<DNRecord> dnrecs = dnmodel.getByContactID(existing_crec.id);
 				if(dnrecs.isEmpty()) {
-					//pre-pregistered contact - just let user associate with this contact id
+					//pre-registered contact - just let user associate with this contact id
 					requester.id = existing_crec.id;
 					
 					//update contact information with information that user just gave me

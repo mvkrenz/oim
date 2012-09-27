@@ -320,7 +320,7 @@ public class CertificateRequestUserForm extends DivRepForm
 			user.use_twiki = use_twiki.getValue();
 			user.twiki_id = twiki_id.getValue();
 			user.person = true;
-
+			//user.disable = true will be set later - I believe it interfares with some lookup.
 			
 			user.count_hostcert_day = 0;
 			user.count_hostcert_year = 0;

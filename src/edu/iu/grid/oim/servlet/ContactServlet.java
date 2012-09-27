@@ -127,7 +127,7 @@ public class ContactServlet extends ServletBase {
 		});
 		Collections.sort(contacts, new Comparator<ContactRecord> (){
 			public int compare(ContactRecord a, ContactRecord b) {
-				return a.isPerson().compareTo(b.isPerson()); // We are comparing based on bool person
+				return a.person.compareTo(b.person); // We are comparing based on bool person
 			}
 		});
 
@@ -163,14 +163,14 @@ public class ContactServlet extends ServletBase {
 			Collection<ContactRecord> readonly_contacts) 
 		throws ServletException, SQLException
 	{  
-		contentview.add(new HtmlView("<h1>OSG Contacts</h1>"));
 		if(context.getAuthorization().isUser()) {
 			contentview.add(new HtmlView("<p class=\"pull-right\"><a class=\"btn\" href=\"contactedit\"><i class=\"icon-plus-sign\"></i> Register New Contact</a></p>"));
 		}
-	
+		contentview.add(new HtmlView("<h2>OSG Contacts</h2>"));
+		
 		if(editable_contacts.size() != 0) {
-			contentview.add(new HtmlView("<h2>Editable</h2>"));
-			contentview.add(new HtmlView("<p>You have edit access to following contacts</p>"));
+			//contentview.add(new HtmlView("<h2>Editable</h2>"));
+			//contentview.add(new HtmlView("<p>You have edit access to following contacts</p>"));
 	
 			ItemTableView table = new ItemTableView(4);
 			for(ContactRecord rec : editable_contacts) {
@@ -286,15 +286,19 @@ public class ContactServlet extends ServletBase {
 
 			if(context.getAuthorization().allows("admin")) {
 				final ArrayList<DNRecord> dnrecs = dnmodel.getByContactID(rec.id);
-				table.addRow("Associated DN", new IView() {
+				table.addRow("Associated DNs", new IView() {
 
 					@Override
 					public void render(PrintWriter out) {
-						out.write("<ul>");
-						for(DNRecord rec : dnrecs) {
-							out.write("<li>"+StringEscapeUtils.escapeHtml(rec.dn_string)+"</li>");
+						if(dnrecs.size() == 0) {
+							out.write("<p class=\"muted\">No DNs are associated with this contact.</p>");
+						} else {
+							out.write("<ul>");
+							for(DNRecord rec : dnrecs) {
+								out.write("<li>"+StringEscapeUtils.escapeHtml(rec.dn_string)+"</li>");
+							}
+							out.write("</ul>");
 						}
-						out.write("</ul>");
 					}
 				});		
 			}

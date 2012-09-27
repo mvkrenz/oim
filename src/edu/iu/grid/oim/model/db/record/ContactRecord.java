@@ -49,9 +49,11 @@ public class ContactRecord extends ConfirmableRecord {
 	public String getName() {
 		return name;
 	}
+	/*
 	public Boolean isPerson() {
 		return person;
 	}
+	*/
 	public Boolean isDisabled() {
 		return disable;
 	}

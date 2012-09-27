@@ -56,10 +56,10 @@ public class GridAdminEditServlet extends ServletBase {
 		String dirty_domain = request.getParameter("domain");
 		if(dirty_domain != null) {
 			domain = dirty_domain.trim(); //TODO - validate dirty_domain
-			title = "Update GridAmin";
+			title = "Update Domain/GridAdmins";
 		} else {
 			recs = new ArrayList<GridAdminRecord>();//empty list
-			title = "New GridAdmin";	
+			title = "New Dmoain/GridAdmins";	
 		}
 		ContentView contentview = new ContentView(context);
 		
