@@ -51,7 +51,7 @@ public class BootPage implements IView {
 		side = _side;
 		
 		if(StaticConfig.isDebug()) {
-			context.message(MessageType.WARNING, "This is a debug instance. For production use, please use https://oim.grid.iu.edu");
+			context.message(MessageType.SUCCESS, "This is a debug instance. For production use, please use https://oim.grid.iu.edu");
 		}
 	}
 	public void putSideViewLeft(boolean b) {
