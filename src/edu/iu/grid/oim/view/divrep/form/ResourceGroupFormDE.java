@@ -59,6 +59,7 @@ public class ResourceGroupFormDE extends DivRepForm
 	private DivRepTextArea description;
 	private SiteSelector site_id;
 	private DivRepSelectBox osg_grid_type_id;
+	
 	private DivRepTextBox normalization_factor;
 	private ArrayList<DivRepCheckBox> apel_resources;
 	
@@ -111,17 +112,33 @@ public class ResourceGroupFormDE extends DivRepForm
 		description.setRequired(true);
 		
 		new DivRepStaticContent(this, "<h2>WLCG / APEL Information</h2>");
-		new DivRepStaticContent(this, "<p class=\"help-block\">Please populate following if this resource group is part of WLCG.</p>");
+		new DivRepStaticContent(this, "<p class=\"help-block\">Please populate following only if this resource group is part of WLCG.</p>");
 
+		new DivRepStaticContent(this, "<a class=\"pull-right\" target=\"_blank\" href=\"https://twiki.grid.iu.edu/bin/view/Accounting/GratiaInterfacesApelLcg#Normalization_Factor\">What is this?</a>");
 		normalization_factor = new DivRepTextBox(this);
-		normalization_factor.setLabel("Normalization Factor");
+		normalization_factor.setLabel("Normalization Factor (HEPSpec2006)");
 		normalization_factor.setValue("999");
+
 		apel_resources = new ArrayList<DivRepCheckBox>();
 		if(id != null) {
 			new DivRepStaticContent(this, "<p class=\"help-block\">Select resources that above normalization factor applies to.</p>");
 			ResourceModel rmodel = new ResourceModel(context);
+			ResourceServiceModel rsmodel = new ResourceServiceModel(context);
 			ArrayList<ResourceRecord> rrecs = rmodel.getByGroupID(id);
 			for(ResourceRecord rrec : rrecs) {
+				
+				/*
+				//see if this resource provides CE
+				ArrayList<ResourceServiceRecord> rsrecs = rsmodel.getByResourceID(rrec.id);
+				for(ResourceServiceRecord rsrec : rsrecs) {
+					if(rsrec.service_id.equals(1))  { //1 -- CE
+						DivRepCheckBox box = new DivRepCheckBox(this);
+						box.setLabel(rrec.name);
+						apel_resources.add(box);
+						break;
+					}
+				}
+				*/
 				DivRepCheckBox box = new DivRepCheckBox(this);
 				box.setLabel(rrec.name);
 				apel_resources.add(box);
