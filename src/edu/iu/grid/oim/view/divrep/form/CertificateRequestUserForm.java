@@ -34,9 +34,11 @@ import edu.iu.grid.oim.model.UserContext.MessageType;
 import edu.iu.grid.oim.model.db.CertificateRequestUserModel;
 import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.DNModel;
+import edu.iu.grid.oim.model.db.VOContactModel;
 import edu.iu.grid.oim.model.db.VOModel;
 import edu.iu.grid.oim.model.db.record.CertificateRequestUserRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
+import edu.iu.grid.oim.model.db.record.VOContactRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
 import edu.iu.grid.oim.model.exceptions.CertificateRequestException;
 
@@ -253,7 +255,8 @@ public class CertificateRequestUserForm extends DivRepForm
 		new DivRepStaticContent(this, "<p class=\"muted\">If you do not know which VO to select, please open a <a href=\"https://ticket.grid.iu.edu\">GOC Ticket</a> for an assistance.</p>");
 		
 		VOModel vo_model = new VOModel(context);
-		LinkedHashMap<Integer, String> kv = new LinkedHashMap();
+		VOContactModel model = new VOContactModel(context);
+		LinkedHashMap<Integer, String> keyvalues = new LinkedHashMap();
 		try {
 			ArrayList<VORecord> recs = vo_model.getAll();
 			Collections.sort(recs, new Comparator<VORecord> () {
@@ -262,9 +265,22 @@ public class CertificateRequestUserForm extends DivRepForm
 				}
 			});
 			for(VORecord vo_rec : recs) {
-				kv.put(vo_rec.id, vo_rec.name);
+				//check if the VO has at least 1 ra(primary or secondary) specified
+				ArrayList<VOContactRecord> crecs = model.getByVOID(vo_rec.id);
+				boolean hasra = false;
+				for(VOContactRecord crec : crecs) {
+					if(crec.contact_type_id.equals(11) && //RA
+						(crec.contact_rank_id.equals(1) || crec.contact_rank_id.equals(2))) { //primary or secondary
+						//ContactRecord contactrec = cmodel.get(crec.contact_id);
+						hasra = true;
+						break;
+					}
+				}
+				if(hasra) {
+					keyvalues.put(vo_rec.id, vo_rec.name);
+				}
 			}
-			vo = new DivRepSelectBox(this, kv);
+			vo = new DivRepSelectBox(this, keyvalues);
 			vo.setLabel("Virtual Organization");
 			vo.setRequired(true);
 			
