@@ -99,7 +99,7 @@ function divrep_redirect(url)
 function divrep_redirect_wait()
 {
 	//wait for all divrep processing completes
-	if(divrep_processing_id != null) {
+	if(divrep_queue.length > 0) {
 		setTimeout(divrep_redirect_wait, 100);
 	} else {
 		divrep_doRedirect();
