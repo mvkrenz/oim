@@ -13,6 +13,7 @@ function divrepProcessQueue() {
 }
 
 function divrep(id, event, value, action) {
+	
 	//stop bubble - needs to happen before ignore / queueing events to prevent
 	//event such as double clicking to bubble up
 	if(!event) var event = window.event;//for IE
@@ -63,7 +64,7 @@ function divrep(id, event, value, action) {
 	    }
 	});
 	$("#"+id).addClass("divrep_processing");
-	console.log(id);
+	//console.log(id);
 	
 	divrepProcessQueue();
 }
