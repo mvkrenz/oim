@@ -25,6 +25,7 @@ import com.divrep.common.DivRepSelectBox;
 import com.divrep.common.DivRepStaticContent;
 import com.divrep.common.DivRepTextArea;
 import com.divrep.common.DivRepTextBox;
+import com.divrep.validator.DivRepEmailValidator;
 import com.divrep.validator.DivRepIValidator;
 
 import edu.iu.grid.oim.lib.Authorization;
@@ -84,34 +85,20 @@ public class CertificateRequestUserForm extends DivRepForm
 		if(!auth.isUser()) {
 			new DivRepStaticContent(this, "<div class=\"alert\">This is a public certificate request form. If you are already an OIM user, please login first.</div>");
 			new DivRepStaticContent(this, "<h2>Contact Information</h2>");
-			new DivRepStaticContent(this, "<p class=\"help-block\">Following information will be used to contact you during the approval process.</p>");
+			new DivRepStaticContent(this, "<p class=\"help-block\">Following information will be used to contact you during the approval process as well as to issue your certificate.</p>");
 					
 			fullname = new DivRepTextBox(this);
 			fullname.setLabel("Full Name");
 			fullname.setRequired(true);
-			/*
-			if(contact != null) {
-				fullname.setValue(contact.name);
-			}
-			*/
-			
-			email = new DivRepTextBox(this);
-			email.setLabel("Email");
-			email.setRequired(true);
-			/*
-			if(contact != null) {
-				email.setValue(contact.primary_email);
-			}
-			*/
-			
+
 			phone = new DivRepTextBox(this);
 			phone.setLabel("Phone");
 			phone.setRequired(true);
-			/*
-			if(contact != null) {
-				phone.setValue(contact.primary_phone);
-			}
-			*/
+
+			email = new DivRepTextBox(this);
+			email.setLabel("Email");
+			email.setRequired(true);
+			email.addValidator(new DivRepEmailValidator());
 			
 			new DivRepStaticContent(this, "<h2>Profile Information</h2>");
 			new DivRepStaticContent(this, "<p class=\"help-block\">Following information will be used to register you as a new OIM user.</p>");
@@ -253,7 +240,8 @@ public class CertificateRequestUserForm extends DivRepForm
 		new DivRepStaticContent(this, "<h2>Sponsor</h2>");
 		new DivRepStaticContent(this, "<p class=\"help-block\">Please select VO that should approve your request.</p>");
 		new DivRepStaticContent(this, "<p class=\"muted\">If you do not know which VO to select, please open a <a href=\"https://ticket.grid.iu.edu\">GOC Ticket</a> for an assistance.</p>");
-		
+		new DivRepStaticContent(this, "<p class=\"muted\">If your VO does not appear, it may not be operational in the OSG PKI at this time. You may continue to use the <a href=\"https://pki1.doegrids.org/ca\">DOE Grids PKI</a></p>");
+
 		VOModel vo_model = new VOModel(context);
 		VOContactModel model = new VOContactModel(context);
 		LinkedHashMap<Integer, String> keyvalues = new LinkedHashMap();

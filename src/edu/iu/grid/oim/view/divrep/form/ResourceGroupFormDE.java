@@ -4,12 +4,10 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.TreeMap;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 
-import com.divrep.DivRep;
 import com.divrep.common.DivRepCheckBox;
 import com.divrep.common.DivRepForm;
 import com.divrep.common.DivRepSelectBox;
@@ -17,34 +15,23 @@ import com.divrep.common.DivRepStaticContent;
 import com.divrep.common.DivRepTextArea;
 import com.divrep.common.DivRepTextBox;
 import com.divrep.validator.DivRepUniqueValidator;
-import com.divrep.validator.DivRepUrlValidator;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.AuthorizationException;
 import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.UserContext.MessageType;
-import edu.iu.grid.oim.model.db.ContactTypeModel;
 import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.OsgGridTypeModel;
-import edu.iu.grid.oim.model.db.ResourceAliasModel;
-import edu.iu.grid.oim.model.db.ResourceContactModel;
 import edu.iu.grid.oim.model.db.ResourceGroupModel;
 import edu.iu.grid.oim.model.db.ResourceServiceModel;
-import edu.iu.grid.oim.model.db.ServiceModel;
 import edu.iu.grid.oim.model.db.ResourceModel;
-import edu.iu.grid.oim.model.db.SiteModel;
 import edu.iu.grid.oim.model.db.record.ContactTypeRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.OsgGridTypeRecord;
-import edu.iu.grid.oim.model.db.record.ResourceAliasRecord;
 import edu.iu.grid.oim.model.db.record.ResourceContactRecord;
 import edu.iu.grid.oim.model.db.record.ResourceGroupRecord;
 import edu.iu.grid.oim.model.db.record.ResourceRecord;
-import edu.iu.grid.oim.model.db.record.ResourceServiceRecord;
-import edu.iu.grid.oim.model.db.record.SiteRecord;
 import edu.iu.grid.oim.view.divrep.ContactEditor;
-import edu.iu.grid.oim.view.divrep.ResourceAlias;
-import edu.iu.grid.oim.view.divrep.ResourceServices;
 import edu.iu.grid.oim.view.divrep.SiteSelector;
 
 public class ResourceGroupFormDE extends DivRepForm 
@@ -111,8 +98,9 @@ public class ResourceGroupFormDE extends DivRepForm
 		description.setValue(rec.description);
 		description.setRequired(true);
 		
+		/*
 		new DivRepStaticContent(this, "<h2>WLCG / APEL Information</h2>");
-		new DivRepStaticContent(this, "<p class=\"help-block\">Please populate following only if this resource group is part of WLCG.</p>");
+		new DivRepStaticContent(this, "<p class=\"help-block\">Please populate following if this resource group has an MOU agreement with WLCG.</p>");
 
 		new DivRepStaticContent(this, "<a class=\"pull-right\" target=\"_blank\" href=\"https://twiki.grid.iu.edu/bin/view/Accounting/GratiaInterfacesApelLcg#Normalization_Factor\">What is this?</a>");
 		normalization_factor = new DivRepTextBox(this);
@@ -126,19 +114,6 @@ public class ResourceGroupFormDE extends DivRepForm
 			ResourceServiceModel rsmodel = new ResourceServiceModel(context);
 			ArrayList<ResourceRecord> rrecs = rmodel.getByGroupID(id);
 			for(ResourceRecord rrec : rrecs) {
-				
-				/*
-				//see if this resource provides CE
-				ArrayList<ResourceServiceRecord> rsrecs = rsmodel.getByResourceID(rrec.id);
-				for(ResourceServiceRecord rsrec : rsrecs) {
-					if(rsrec.service_id.equals(1))  { //1 -- CE
-						DivRepCheckBox box = new DivRepCheckBox(this);
-						box.setLabel(rrec.name);
-						apel_resources.add(box);
-						break;
-					}
-				}
-				*/
 				DivRepCheckBox box = new DivRepCheckBox(this);
 				box.setLabel(rrec.name);
 				apel_resources.add(box);
@@ -146,6 +121,7 @@ public class ResourceGroupFormDE extends DivRepForm
 		} else {
 			new DivRepStaticContent(this, "<p class=\"alert alert-warning\">You need to register at least one resource before specifying resouces that should use this information.</p>");
 		}
+		*/
 		
 
 		if(auth.allows("admin")) {

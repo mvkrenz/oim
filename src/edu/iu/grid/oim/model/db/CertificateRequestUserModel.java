@@ -344,6 +344,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 			//dnrec.usercert_request_id = rec.id;
 			DNModel dnmodel = new DNModel(context);
 			dnrec.id = dnmodel.insert(dnrec);
+			dnrec.disable = false;
 			
 			//Give user OSG end user access
 			DNAuthorizationTypeModel dnauthmodel = new DNAuthorizationTypeModel(context);
@@ -1083,10 +1084,10 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 					CertificateRequestUserRecord existing_rec = getByDN(rec.dn);
 					if(existing_rec != null) {
 						//oim cert is already associated.
-						throw new CertificateRequestException("Provided email address is already associated with existing certificate (U"+existing_rec.id+"). Please contact GOC for more assistance.");						
+						throw new CertificateRequestException("Provided email address is already associated with existing certificate (U"+existing_rec.id+"). If you are already registered to OIM, please login before making your request. Please contact GOC for more assistance.");						
 					} else {
 						//probably non digicert DN
-						throw new CertificateRequestException("Provided email address is already associated with existing non OIM certificate. Please contact GOC for more assistance.");
+						throw new CertificateRequestException("Provided email address is already associated with existing non OIM certificate. If you are already registered to OIM, please login before making your request. Please contact GOC for more assistance.");
 					}
 				}
 			}
