@@ -61,17 +61,17 @@ public class CertificateQuotaModel {
 		ConfigModel config = new ConfigModel(context);
 		Integer global_max = config.QuotaGlobalHostCertYearMax.getInteger();
 		Integer global_count = config.QuotaGlobalHostCertYearCount.getInteger();		
-		if(global_count + count >= global_max) return false;   	
+		if(global_count + count > global_max) return false;   	
 		
 		//reached personal day max?
 		Authorization auth = context.getAuthorization();
 		ContactRecord user = auth.getContact();
 		Integer day_max = config.QuotaUserHostDayMax.getInteger();
-		if(user.count_hostcert_day + count >= day_max) return false;
+		if(user.count_hostcert_day + count > day_max) return false;
 		
 		//reached personal year max?
 		Integer year_max = config.QuotaUserHostYearMax.getInteger();
-		if(user.count_hostcert_year + count >= year_max) return false;
+		if(user.count_hostcert_year + count > year_max) return false;
 		
 		return true;
     }
