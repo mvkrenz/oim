@@ -341,10 +341,10 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 			DNRecord dnrec = new DNRecord();
 			dnrec.contact_id = rec.requester_contact_id;
 			dnrec.dn_string = rec.dn;
+			dnrec.disable = false;
 			//dnrec.usercert_request_id = rec.id;
 			DNModel dnmodel = new DNModel(context);
 			dnrec.id = dnmodel.insert(dnrec);
-			dnrec.disable = false;
 			
 			//Give user OSG end user access
 			DNAuthorizationTypeModel dnauthmodel = new DNAuthorizationTypeModel(context);
