@@ -712,6 +712,8 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 					rec.cert_intermediate = cert.intermediate;
 					rec.cert_pkcs7 = cert.pkcs7;
 					rec.cert_serial_id = cert.serial;
+					log.info("user cert issued by digicert: serial_id:" + cert.serial);
+					log.info("pkcs7:" + cert.pkcs7);
 					
 					//get some information we need from the issued certificate
 					java.security.cert.Certificate[]  chain = CertificateManager.parsePKCS7(rec.cert_pkcs7);
@@ -763,7 +765,6 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 				} catch (CMSException e) { //from parsePKCS7
 					failed("Failed to sign certificate -- can't parse returned pkcs7 for request id:" + rec.id, e);
 				} catch (Exception e) { //probably from parsePKCS7 (like StringIndexOutOfBoundsException)
-					log.error("While trying to pase pkcs7:"+ rec.cert_pkcs7);
 					failed("Failed to sign certificate -- can't parse returned pkcs7 request id:" + rec.id, e);
 				}
 			}
