@@ -45,7 +45,6 @@ import edu.iu.grid.oim.model.db.record.CertificateRequestUserRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.DNAuthorizationTypeRecord;
 import edu.iu.grid.oim.model.db.record.DNRecord;
-import edu.iu.grid.oim.model.db.record.RecordBase;
 import edu.iu.grid.oim.model.db.record.SCRecord;
 import edu.iu.grid.oim.model.db.record.VOContactRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
@@ -686,15 +685,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 				}
 			}
 			public void run() {
-				try {
-					/*
-					String dn = ApacheDN_to_RFC1779(rec.dn);
-					log.debug("RF1779 dn: " + dn);
-					X500Name name = new X500Name(dn);
-					RDN[] cn_rdn = name.getRDNs(BCStyle.CN);
-					String cn = cn_rdn[0].getFirst().getValue().toString(); //wtf?
-					*/
-					
+				try {					
 					//if csr is not set, we need to create one and private key for user
 					if (rec.csr == null) {
 						X500Name name = rec.getX500Name();
@@ -723,38 +714,32 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 					rec.cert_serial_id = cert.serial;
 					
 					//get some information we need from the issued certificate
-					try {
-						java.security.cert.Certificate[]  chain = CertificateManager.parsePKCS7(rec.cert_pkcs7);
-						X509Certificate c0 = (X509Certificate)chain[0];
-						rec.cert_notafter = c0.getNotAfter();
-						rec.cert_notbefore = c0.getNotBefore();
-						
-						//do a bit of validation
-						Calendar today = Calendar.getInstance();
-						if(Math.abs(today.getTimeInMillis() - rec.cert_notbefore.getTime()) > 1000*3600*24) {
-							log.warn("User certificate issued for request "+rec.id+" has cert_notbefore set too distance from current timestamp");
-						}
-						long dayrange = (rec.cert_notafter.getTime() - rec.cert_notbefore.getTime()) / (1000*3600*24);
-						if(dayrange < 390 || dayrange > 405) {
-							log.warn("User certificate issued for request "+rec.id+ " has valid range of "+dayrange+" days (too far from 395 days)");
-						}
-						
-						//update dn with the one returned by DigiCert
-						X500Principal dn = c0.getSubjectX500Principal();
-						String apache_dn = CertificateManager.X500Principal_to_ApacheDN(dn);
-						rec.dn = apache_dn;
-						
-						//make sure dn starts with correct base
-						String user_dn_base = StaticConfig.conf.getProperty("digicert.user_dn_base");
-						if(!apache_dn.startsWith(user_dn_base)) {
-							log.warn("User certificate issued for request " + rec.id + " has DN:"+apache_dn+" which doesn't have an expected DN base: "+user_dn_base);
-						}
-						
-					} catch (CMSException e) {
-						log.error("Failed to lookup certificate information for issued user cert request id:" + rec.id, e);
+					java.security.cert.Certificate[]  chain = CertificateManager.parsePKCS7(rec.cert_pkcs7);
+					X509Certificate c0 = (X509Certificate)chain[0];
+					rec.cert_notafter = c0.getNotAfter();
+					rec.cert_notbefore = c0.getNotBefore();
+					
+					//do a bit of validation
+					Calendar today = Calendar.getInstance();
+					if(Math.abs(today.getTimeInMillis() - rec.cert_notbefore.getTime()) > 1000*3600*24) {
+						log.warn("User certificate issued for request "+rec.id+" has cert_notbefore set too distance from current timestamp");
+					}
+					long dayrange = (rec.cert_notafter.getTime() - rec.cert_notbefore.getTime()) / (1000*3600*24);
+					if(dayrange < 390 || dayrange > 405) {
+						log.warn("User certificate issued for request "+rec.id+ " has valid range of "+dayrange+" days (too far from 395 days)");
 					}
 					
+					//update dn with the one returned by DigiCert
+					X500Principal dn = c0.getSubjectX500Principal();
+					String apache_dn = CertificateManager.X500Principal_to_ApacheDN(dn);
+					rec.dn = apache_dn;
 					
+					//make sure dn starts with correct base
+					String user_dn_base = StaticConfig.conf.getProperty("digicert.user_dn_base");
+					if(!apache_dn.startsWith(user_dn_base)) {
+						log.warn("User certificate issued for request " + rec.id + " has DN:"+apache_dn+" which doesn't have an expected DN base: "+user_dn_base);
+					}
+						
 					//all done at this point
 					rec.status = CertificateRequestStatus.ISSUED;
 					context.setComment("Certificate has been issued by signer. serial number: " + rec.cert_serial_id);
@@ -775,8 +760,11 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 					
 				} catch (ICertificateSigner.CertificateProviderException e) {
 					failed("Failed to sign certificate -- CertificateProviderException ", e);
-				} catch(Exception e) {
-					failed("Failed to sign certificate -- unhandled", e);	
+				} catch (CMSException e) { //from parsePKCS7
+					failed("Failed to sign certificate -- can't parse returned pkcs7 for request id:" + rec.id, e);
+				} catch (Exception e) { //probably from parsePKCS7 (like StringIndexOutOfBoundsException)
+					log.error("While trying to pase pkcs7:"+ rec.cert_pkcs7);
+					failed("Failed to sign certificate -- can't parse returned pkcs7 request id:" + rec.id, e);
 				}
 			}
 		}).start();
