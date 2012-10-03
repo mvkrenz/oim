@@ -182,21 +182,9 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 					cm.signHostCertificates(certs, new IHostCertificatesCallBack() {
 						@Override
 						public void certificateSigned(Certificate cert, int idx) {
-							/*
-							//update certs db contents
-							try {
-								pkcs7s.set(idx,  cert.pkcs7);
-								certificates.set(idx,  cert.certificate);
-								intermediates.set(idx,  cert.intermediate);
-								rec.cert_pkcs7 = pkcs7s.toXML();
-								rec.cert_certificate = certificates.toXML();
-								rec.cert_intermediate = intermediates.toXML();
-								context.setComment("Certificate idx:"+idx+" has been issued");
-								CertificateRequestHostModel.super.update(get(rec.id), rec);
-							} catch (SQLException e) {
-								log.error("Failed to update certificate update while monitoring issue progress:" + rec.id);
-							};
-							*/
+							
+							log.info("host cert issued by digicert: serial_id:" + cert.serial);
+							log.info("pkcs7:" + cert.pkcs7);
 							
 							//pull some information from the cert for validation purpose
 							java.security.cert.Certificate[] chain;
