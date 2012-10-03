@@ -5,18 +5,16 @@ import java.sql.SQLException;
 import org.apache.log4j.Logger;
 
 import com.divrep.DivRep;
-import com.divrep.DivRepPage;
+
 import com.divrep.common.DivRepDialog;
 import com.divrep.common.DivRepStaticContent;
 
-import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.ResourceDowntimeModel;
 import edu.iu.grid.oim.model.db.record.ResourceDowntimeRecord;
-import edu.iu.grid.oim.servlet.ResourceDowntimeServlet;
 
 public class RemoveDowntimeDialog extends DivRepDialog {
-	static Logger log = Logger.getLogger(ResourceDowntimeServlet.class);  
+	static Logger log = Logger.getLogger(RemoveDowntimeDialog.class);  
 	ResourceDowntimeRecord rec;
 	UserContext context;
 	

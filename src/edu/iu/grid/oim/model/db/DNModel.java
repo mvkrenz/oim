@@ -86,8 +86,7 @@ public class DNModel extends SmallTableModelBase<DNRecord> {
 		return list;
 	}
 	
-	public void insertDetail(DNRecord rec, 
-			ArrayList<Integer> auth_types) throws Exception
+	public void insertDetail(DNRecord rec, ArrayList<Integer> auth_types) throws SQLException
 	{
 		Connection conn = connectOIM();
 		try {		
@@ -119,12 +118,11 @@ public class DNModel extends SmallTableModelBase<DNRecord> {
 			}
 			
 			//re-throw original exception
-			throw new Exception(e);
+			throw e;
 		}	
 	}
 	
-	public void updateDetail(DNRecord rec, 
-			ArrayList<Integer> auth_types) throws Exception
+	public void updateDetail(DNRecord rec, ArrayList<Integer> auth_types) throws SQLException
 	{
 		//Do insert / update to our DB
 		Connection conn = connectOIM();
@@ -155,7 +153,45 @@ public class DNModel extends SmallTableModelBase<DNRecord> {
 				conn.setAutoCommit(true);
 			}
 			//re-throw original exception
-			throw new Exception(e);
+			throw e;
 		}			
 	}
+
+	/* - removing DN causes octompus-removing issue
+	public void removeDN(DNRecord rec) throws SQLException
+	{
+		//remove DN and all authorization associated with that DN
+		updateDetail(rec, new ArrayList<Integer>());
+		
+		//set submitter_dn_id to null for removed dn
+		ContactModel cmodel = new ContactModel(context);
+		ArrayList<ContactRecord> crecs = cmodel.getBySubmitterDNID(rec.id);
+		for(ContactRecord crec : crecs) {
+			crec.submitter_dn_id = null;
+			cmodel.update(crec);
+			log.info("contact id: " + crec.id + " submitter_dn_id has been reset to null");
+		}
+		
+		//set resource_downtime dn_id to null for removed dn
+		ResourceDowntimeModel dmodel = new ResourceDowntimeModel(context);
+		ArrayList<ResourceDowntimeRecord> drecs = dmodel.getByDNID(rec.id);
+		for(ResourceDowntimeRecord drec : drecs) {
+			drec.dn_id = null;
+			dmodel.update(drec);
+			log.info("downtime id: " + drec.id + " dn_id has been reset to null");
+		}
+		
+		//set resource_downtime dn_id to null for removed dn
+		SiteModel smodel = new SiteModel(context);
+		ArrayList<SiteRecord> srecs = smodel.getByDNID(rec.id);
+		for(SiteRecord srec : srecs) {
+			srec.submitter_dn_id = null;
+			smodel.update(srec);
+			log.info("site id: " + srec.id + " submitter_dn_id has been reset to null");
+		}
+		
+		//then remove the dn itself
+		super.remove(rec);
+	}
+	*/
 }

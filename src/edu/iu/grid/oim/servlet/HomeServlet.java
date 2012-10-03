@@ -35,6 +35,7 @@ public class HomeServlet extends ServletBase  {
 		
 		BootMenuView menuview = new BootMenuView(context, "home");
 		BootPage page = new BootPage(context, menuview, new Content(context), createSideView(context));
+		page.addExCSS("home.css");
 
 		GenericView header = new GenericView();
 		header.add(new HtmlView("<h1>OSG Information Management System</h1>"));
@@ -53,7 +54,7 @@ public class HomeServlet extends ServletBase  {
 		
 		@Override
 		public void render(PrintWriter out) {
-			out.write("<div id=\"content\">");
+			//out.write("<div>");
 			Authorization auth = context.getAuthorization();
 			if(auth.isUser()) {
 				try {
@@ -92,7 +93,7 @@ public class HomeServlet extends ServletBase  {
 				out.write("</div>");
 				out.write("</div>");
 			}
-			out.write("</div>");
+			//out.write("</div>");
 		}
 	}
 	
@@ -104,7 +105,7 @@ public class HomeServlet extends ServletBase  {
 		if(auth.isUnregistered()) {
 			contentview.add(new HtmlView("<div class=\"alert alert-info\"><p>Your certificate is not yet registered with OIM.</p><p><a class=\"btn btn-info\" href=\"register\">Register</a></p></div>"));
 		} else if(auth.isDisabled()) {
-			contentview.add(new HtmlView("<div class=\"alert alert-danger\"><p>Your contact is disabled. Please contact GOC for more information.</p><a class=\"btn btn-danger\" href=\"https://ticket.grid.iu.edu\">Contact GOC</a></p></div>"));
+			contentview.add(new HtmlView("<div class=\"alert alert-danger\"><p>Your contact or DN is disabled. Please contact GOC for more information.</p><a class=\"btn btn-danger\" href=\"https://ticket.grid.iu.edu\">Contact GOC</a></p></div>"));
 		} else if(!auth.isUser()) {
 			String text = "<p>OIM requires an X509 certificate issued by an <a target=\"_blank\" href='http://software.grid.iu.edu/cadist/'>OSG-approved Certifying Authority (CA)</a> to authenticate.</p>"+
 					"<p><a class=\"btn btn-info\" target=\"blank\" href=\"http://pki1.doegrids.org/ca/\">Request New Certificate</a></p>"+
@@ -118,7 +119,7 @@ public class HomeServlet extends ServletBase  {
 		contentview.add(new LinkView("https://twiki.grid.iu.edu/twiki/bin/view/Operations/OIMTermDefinition", "OIM Definitions", true));
 		contentview.add(new LinkView("https://twiki.grid.iu.edu/twiki/bin/view/Operations/OIMRegistrationInstructions", "Registration", true));
 		contentview.add(new LinkView("https://twiki.grid.iu.edu/twiki/bin/view/Operations/OIMMaintTool", "Resource Downtime", true));
-		contentview.add(new LinkView("https://twiki.grid.iu.edu/twiki/bin/view/Operations/OIMStandardOperatingProcedures", "Operating Procedures", true));
+		//contentview.add(new LinkView("https://twiki.grid.iu.edu/twiki/bin/view/Operations/OIMStandardOperatingProcedures", "Operating Procedures", true));
 
 		if(auth.isUser()) {
 			contentview.addContactLegend();

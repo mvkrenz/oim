@@ -2,7 +2,6 @@ package edu.iu.grid.oim.model.cert;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -10,6 +9,7 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
+import org.apache.commons.httpclient.cookie.CookiePolicy;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.log4j.Logger;
 import org.bouncycastle.asn1.x500.RDN;
@@ -29,10 +29,10 @@ public class DigicertCertificateSigner implements ICertificateSigner {
     static Logger log = Logger.getLogger(DigicertCertificateSigner.class);  
 	class DigicertCPException extends CertificateProviderException {
 		public DigicertCPException(String msg, Exception e) {
-			super(msg, e);
+			super("From DigiCert: " + msg, e);
 		}
 		public DigicertCPException(String msg) {
-			super(msg);
+			super("From DigiCert: " + msg);
 		}
 	};
 	
@@ -144,12 +144,21 @@ public class DigicertCertificateSigner implements ICertificateSigner {
 		throw new CertificateProviderException("DigiCert didn't return certificate after predefined re-tries");
 	}
 	
-	//used to check if certificate has been issued
-	private String getDetail_under_construction(String order_id) throws DigicertCPException {
+	private HttpClient createHttpClient() {
 		HttpClient cl = new HttpClient();
+		cl.getParams().setParameter("http.protocol.single-cookie-header", true);
+		cl.getParams().setCookiePolicy(CookiePolicy.BROWSER_COMPATIBILITY);
 		//cl.getHttpConnectionManager().getParams().setConnectionTimeout(1000*10);
 	    cl.getParams().setParameter("http.useragent", "OIM (OSG Information Management System)");
 	    //cl.getParams().setParameter("http.contenttype", "application/x-www-form-urlencoded")
+	    
+	    return cl;
+	}
+	
+	//used to check if certificate has been issued
+	private String getDetail_under_construction(String order_id) throws DigicertCPException {
+		
+		HttpClient cl = createHttpClient();
 		
 		PostMethod post = new PostMethod("https://www.digicert.com/enterprise/api/?action=grid_certificate_details");
 		post.addParameter("customer_name", StaticConfig.conf.getProperty("digicert.customer_name"));
@@ -201,10 +210,7 @@ public class DigicertCertificateSigner implements ICertificateSigner {
 	}
 	
 	public Certificate requestUserCert(String csr, String cn, String email_address) throws DigicertCPException {
-		HttpClient cl = new HttpClient();
-		//cl.getHttpConnectionManager().getParams().setConnectionTimeout(1000*10);
-	    cl.getParams().setParameter("http.useragent", "OIM (OSG Information Management System)");
-	    //cl.getParams().setParameter("http.contenttype", "application/x-www-form-urlencoded")
+		HttpClient cl = createHttpClient();
 		
 		PostMethod post = new PostMethod("https://www.digicert.com/enterprise/api/?action=grid_request_email_cert");
 
@@ -267,10 +273,7 @@ public class DigicertCertificateSigner implements ICertificateSigner {
 	}
 	
 	private String requestHostCert(String csr, String service_name, String cn) throws DigicertCPException {
-		HttpClient cl = new HttpClient();
-		//cl.getHttpConnectionManager().getParams().setConnectionTimeout(1000*10);
-	    cl.getParams().setParameter("http.useragent", "OIM (OSG Information Management System)");
-	    //cl.getParams().setParameter("http.contenttype", "application/x-www-form-urlencoded")
+		HttpClient cl = createHttpClient();
 		
 		PostMethod post = new PostMethod("https://www.digicert.com/enterprise/api/?action=grid_request_host_cert");
 		post.addParameter("customer_name", StaticConfig.conf.getProperty("digicert.customer_name"));
@@ -278,6 +281,7 @@ public class DigicertCertificateSigner implements ICertificateSigner {
 		post.setParameter("response_type", "xml");
 		post.setParameter("validity", "1"); //security by obscurity -- from the DigiCert dev team
 		post.setParameter("common_name", cn);
+		//post.setParameter("sans", "a.digicert.com,b.digicert.com,c.digicert.com");
 		if(service_name != null) {
 			post.setParameter("service_name", service_name);
 		}
@@ -320,10 +324,7 @@ public class DigicertCertificateSigner implements ICertificateSigner {
 	}
 	
 	private String approve(String request_id, String comment) throws DigicertCPException {
-		HttpClient cl = new HttpClient();
-		//cl.getHttpConnectionManager().getParams().setConnectionTimeout(1000*10);
-	    cl.getParams().setParameter("http.useragent", "OIM (OSG Information Management System)");
-	    //cl.getParams().setParameter("http.contenttype", "application/x-www-form-urlencoded")
+		HttpClient cl = createHttpClient();
 		
 		PostMethod post = new PostMethod("https://www.digicert.com/enterprise/api/?action=grid_approve_request");
 		post.addParameter("customer_name", StaticConfig.conf.getProperty("digicert.customer_name"));
@@ -370,9 +371,7 @@ public class DigicertCertificateSigner implements ICertificateSigner {
 	}
 	
 	private Certificate retrieveByOrderID(String order_id) throws DigicertCPException {
-		HttpClient cl = new HttpClient();
-		//cl.getHttpConnectionManager().getParams().setConnectionTimeout(1000*10);
-	    cl.getParams().setParameter("http.useragent", "OIM (OSG Information Management System)");
+		HttpClient cl = createHttpClient();
 		
 		PostMethod post = new PostMethod("https://www.digicert.com/enterprise/api/?action=grid_retrieve_host_cert");
 		post.addParameter("customer_name", StaticConfig.conf.getProperty("digicert.customer_name"));
@@ -431,8 +430,7 @@ public class DigicertCertificateSigner implements ICertificateSigner {
 
 	@Override
 	public void revokeHostCertificate(String serial_id) throws CertificateProviderException {
-		HttpClient cl = new HttpClient();
-	    cl.getParams().setParameter("http.useragent", "OIM (OSG Information Management System)");
+		HttpClient cl = createHttpClient();
 		
 		PostMethod post = new PostMethod("https://www.digicert.com/enterprise/api/?action=grid_request_host_revoke");
 		post.addParameter("customer_name", StaticConfig.conf.getProperty("digicert.customer_name"));
@@ -476,7 +474,45 @@ public class DigicertCertificateSigner implements ICertificateSigner {
 
 	@Override
 	public void revokeUserCertificate(String serial_id) throws CertificateProviderException {
-		//just use the host revoke
-		revokeHostCertificate(serial_id);
+		HttpClient cl = createHttpClient();
+		
+		PostMethod post = new PostMethod("https://www.digicert.com/enterprise/api/?action=grid_email_revoke");
+		post.addParameter("customer_name", StaticConfig.conf.getProperty("digicert.customer_name"));
+		post.setParameter("customer_api_key", StaticConfig.conf.getProperty("digicert.customer_api_key"));
+		post.setParameter("response_type", "xml");
+		post.setParameter("validity", "1"); //security by obscurity -- from the DigiCert dev team
+		post.setParameter("serial", serial_id);
+		
+		try {
+			cl.executeMethod(post);
+			Document ret = parseXML(post.getResponseBodyAsStream());
+			NodeList result_nl = ret.getElementsByTagName("result");
+			Element result = (Element)result_nl.item(0);
+			if(result.getTextContent().equals("failure")) {
+				NodeList error_code_nl = ret.getElementsByTagName("error_code");
+				StringBuffer errors  = new StringBuffer();
+				for(int i = 0;i < error_code_nl.getLength(); ++i) {
+					Element error_code = (Element)error_code_nl.item(i);
+					Element code = (Element)error_code.getElementsByTagName("code").item(0);
+					Element description = (Element)error_code.getElementsByTagName("description").item(0);
+					errors.append("Code:" + code.getTextContent());
+					errors.append(" Description:" + description.getTextContent());
+					errors.append("\n");
+				}
+				throw new DigicertCPException("Request failed for grid_email_revoke\n" + errors.toString());
+			} else if(result.getTextContent().equals("success")) {
+				//nothing particular to do
+			} else {
+				throw new DigicertCPException("Unknown return code from grid_email_revoke: " +result.getTextContent());
+			}
+		} catch (HttpException e) {
+			throw new DigicertCPException("Failed to make grid_email_revoke request", e);
+		} catch (IOException e) {
+			throw new DigicertCPException("Failed to make grid_email_revoke request", e);
+		} catch (ParserConfigurationException e) {
+			throw new DigicertCPException("Failed to parse returned String from grid_email_revoke", e);
+		} catch (SAXException e) {
+			throw new DigicertCPException("Failed to parse returned String from grid_email_revoke", e);
+		}
 	}
 }

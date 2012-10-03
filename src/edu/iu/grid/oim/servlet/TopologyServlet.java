@@ -103,7 +103,7 @@ public class TopologyServlet extends ServletBase implements Servlet {
 			ContentView contentview = createContentView(context, facility_id);
 			
 			BootPage page = new BootPage(context, menuview, contentview, null);
-			page.addCSS("hierarchy.css");
+			page.addExCSS("hierarchy.css");
 			page.render(response.getWriter());			
 		} catch (SQLException e) {
 			log.error(e);

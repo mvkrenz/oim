@@ -172,7 +172,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 		if(!canView(rec)) return false;
 		
 		if(	rec.status.equals(CertificateRequestStatus.REQUESTED) ||
-			//rec.status.equals(CertificateRequestStatus.APPROVED) ||
+			rec.status.equals(CertificateRequestStatus.APPROVED) || //if renew_requesterd > approved cert is canceled, it should really go back to "issued", but currently it doesn't.
 			rec.status.equals(CertificateRequestStatus.RENEW_REQUESTED) ||
 			rec.status.equals(CertificateRequestStatus.REVOCATION_REQUESTED)) {
 			if(auth.isUser()) {
@@ -231,10 +231,15 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 	public boolean canReRequest(CertificateRequestUserRecord rec) {
 		if(!canView(rec)) return false;
 		
-		if(		rec.status.equals(CertificateRequestStatus.REJECTED) ||
-				rec.status.equals(CertificateRequestStatus.CANCELED) ||
-				rec.status.equals(CertificateRequestStatus.REVOKED) ||
-				rec.status.equals(CertificateRequestStatus.EXPIRED) ) {
+		if(	rec.status.equals(CertificateRequestStatus.REJECTED) ||
+			rec.status.equals(CertificateRequestStatus.CANCELED) ||
+			rec.status.equals(CertificateRequestStatus.REVOKED) ) {
+			if(auth.isUser()) {
+				return true;
+			}
+		}		
+		
+		if (rec.status.equals(CertificateRequestStatus.EXPIRED) ) {
 			//guest user needs to be able to re-request expired cert.. but how can I prevent spammer?
 			return true;
 		}
@@ -339,6 +344,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 			//dnrec.usercert_request_id = rec.id;
 			DNModel dnmodel = new DNModel(context);
 			dnrec.id = dnmodel.insert(dnrec);
+			dnrec.disable = false;
 			
 			//Give user OSG end user access
 			DNAuthorizationTypeModel dnauthmodel = new DNAuthorizationTypeModel(context);
@@ -410,7 +416,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 		try {
 			if(rec.status.equals(CertificateRequestStatus.RENEW_REQUESTED) ||
 				rec.status.equals(CertificateRequestStatus.REVOCATION_REQUESTED)) {
-					rec.status = CertificateRequestStatus.ISSUED;
+				rec.status = CertificateRequestStatus.ISSUED;
 			} else {
 				rec.status = CertificateRequestStatus.CANCELED;
 			}
@@ -593,16 +599,30 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 		CertificateManager cm = new CertificateManager();
 		try {
 			cm.revokeUserCertificate(rec.cert_serial_id);
+			log.info("Revoked " + rec.dn + " with serial id:" + rec.cert_serial_id);
 			
-			///////////////////////////////////////////////////////////////////////////////////////
-			// Revoke complete.
-			rec.status = CertificateRequestStatus.REVOKED;
+			//update record
 			try {
+				rec.status = CertificateRequestStatus.REVOKED;
 				//context.setComment("Certificate Approved");
 				super.update(get(rec.id), rec);
+			
 			} catch (SQLException e) {
-				log.error("Failed to update user certificate status: " + rec.id);
+				log.error("Failed to update user certificate status: " + rec.id, e);
 				throw new CertificateRequestException("Failed to update user certificate status", e);
+			}
+			
+			//remove associated dn (if any)
+			try {
+				DNModel dnmodel = new DNModel(context);
+				DNRecord dnrec = dnmodel.getByDNString(rec.dn);
+				if(rec != null) {
+					log.info("Disabling associated DN record");
+					dnrec.disable = true;
+					dnmodel.update(dnrec);
+				}
+			} catch (SQLException e) {
+				log.warn("Failed to remove associated DN.. continuing", e);
 			}
 			
 			Authorization auth = context.getAuthorization();
@@ -715,7 +735,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 							log.warn("User certificate issued for request "+rec.id+" has cert_notbefore set too distance from current timestamp");
 						}
 						long dayrange = (rec.cert_notafter.getTime() - rec.cert_notbefore.getTime()) / (1000*3600*24);
-						if(dayrange < 390 || dayrange > 400) {
+						if(dayrange < 390 || dayrange > 405) {
 							log.warn("User certificate issued for request "+rec.id+ " has valid range of "+dayrange+" days (too far from 395 days)");
 						}
 						
@@ -746,9 +766,9 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 					Authorization auth = context.getAuthorization();
 					if(auth.isUser()) {
 						ContactRecord contact = auth.getContact();
-						ticket.description = contact.name + " has issued certificate.";
+						ticket.description = contact.name + " has issued certificate. Resolving this ticket.";
 					} else {
-						ticket.description = "Guest with IP:" + context.getRemoteAddr() + " has issued certificate.";
+						ticket.description = "Guest with IP:" + context.getRemoteAddr() + " has issued certificate. Resolving this ticket.";
 					}
 					ticket.status = "Resolved";
 					fp.update(ticket, rec.goc_ticket_id);
@@ -966,7 +986,12 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
         //We are creating this so that we can create private key
         x500NameBld.addRDN(BCStyle.DC, "com");
         x500NameBld.addRDN(BCStyle.DC, "DigiCert-Grid");
-        x500NameBld.addRDN(BCStyle.O, "Open Science Grid"); //will be "OSG Pilot" for test  
+        if(StaticConfig.isDebug()) {
+        	//let's assume debug means we are using digicert pilot
+        	x500NameBld.addRDN(BCStyle.O, "OSG Pilot");
+        } else {
+        	x500NameBld.addRDN(BCStyle.O, "Open Science Grid");
+        }
         x500NameBld.addRDN(BCStyle.OU, "People");   
         x500NameBld.addRDN(BCStyle.CN, cn); //don't use "," or "/" which is used for DN delimiter
         
@@ -974,7 +999,13 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
     }
     
     private String getTicketUrl(CertificateRequestUserRecord rec) {
-		return "certificateuser?id=" + rec.id;
+    	String base;
+    	if(StaticConfig.isDebug()) {
+    		base = "https://oim-itb.grid.iu.edu/oim/";
+    	} else {
+    		base = "https://oim.grid.iu.edu/oim/";
+    	}
+		return base + "certificateuser?id=" + rec.id;
     }
     
     //NO-AC 
@@ -1026,7 +1057,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 				requester.id = cmodel.insert(requester);
 				
 				//and generate dn
-		    	cn = requester.getName() + " " + requester.id;
+		    	cn = requester.name + " " + requester.id;
 		    	X500Name name = generateDN(cn);
 				rec.dn = CertificateManager.RFC1779_to_ApacheDN(name.toString());
 				
@@ -1034,7 +1065,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 		    	
 			} else {
 				//generate dn
-		    	cn = requester.getName() + " " + requester.id;
+		    	cn = requester.name + " " + requester.id;
 		    	X500Name name = generateDN(cn);
 				rec.dn = CertificateManager.RFC1779_to_ApacheDN(name.toString());
 				
@@ -1042,21 +1073,21 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 				DNModel dnmodel = new DNModel(context);
 				ArrayList<DNRecord> dnrecs = dnmodel.getByContactID(existing_crec.id);
 				if(dnrecs.isEmpty()) {
-					//pre-pregistered contact - just let user associate with this contact id
+					//pre-registered contact - just let user associate with this contact id
 					requester.id = existing_crec.id;
 					
 					//update contact information with information that user just gave me
-					cmodel.update(existing_crec, rec);
+					cmodel.update(requester);
 					
 					note += "NOTE: User is claiming unused contact id: "+existing_crec.id+"\n";
 				} else {
 					CertificateRequestUserRecord existing_rec = getByDN(rec.dn);
 					if(existing_rec != null) {
 						//oim cert is already associated.
-						throw new CertificateRequestException("Provided email address is already associated with existing certificate (U"+existing_rec.id+"). Please contact GOC for more assistance.");						
+						throw new CertificateRequestException("Provided email address is already associated with existing certificate (U"+existing_rec.id+"). If you are already registered to OIM, please login before making your request. Please contact GOC for more assistance.");						
 					} else {
 						//probably non digicert DN
-						throw new CertificateRequestException("Provided email address is already associated with existing non OIM certificate. Please contact GOC for more assistance.");
+						throw new CertificateRequestException("Provided email address is already associated with existing non OIM certificate. If you are already registered to OIM, please login before making your request. Please contact GOC for more assistance.");
 					}
 				}
 			}
@@ -1128,6 +1159,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 		}
 		*/
 		ticket.assignees.add(StaticConfig.conf.getProperty("certrequest.user.assignee"));
+		ticket.ccs.add("osg-ra@opensciencegrid.org");
 		
 		ticket.nextaction = "RA/Sponsors to verify requester";	 //NAD will be set to 7 days in advance by default
 		
@@ -1222,17 +1254,17 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
     }
 	//prevent low level access - please use model specific actions
     @Override
-    public Integer insert(RecordBase rec) throws SQLException
+    public Integer insert(CertificateRequestUserRecord rec) throws SQLException
     { 
     	throw new UnsupportedOperationException("Please use model specific actions instead (request, approve, reject, etc..)");
     }
     @Override
-    public void update(RecordBase oldrec, RecordBase newrec) throws SQLException
+    public void update(CertificateRequestUserRecord oldrec, CertificateRequestUserRecord newrec) throws SQLException
     {
     	throw new UnsupportedOperationException("Please use model specific actions insetead (request, approve, reject, etc..)");
     }
     @Override
-    public void remove(RecordBase rec) throws SQLException
+    public void remove(CertificateRequestUserRecord rec) throws SQLException
     {
     	throw new UnsupportedOperationException("disallowing remove cert request..");
     }
@@ -1312,5 +1344,11 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 	    stmt.close();
 	    conn.close();
 	    return recs;
+	}
+
+	@Override
+	CertificateRequestUserRecord createRecord() throws SQLException {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

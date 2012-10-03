@@ -136,9 +136,11 @@ public class VOFormDE extends DivRepForm
 			try {
 				ArrayList<Integer> selected = new ArrayList<Integer>();
 				//select currently selected field of science
-				VOFieldOfScienceModel vofsmodel = new VOFieldOfScienceModel(context);
-				for(VOFieldOfScienceRecord fsrec : vofsmodel.getByVOID(rec.id)) {
-					selected.add(fsrec.field_of_science_id);
+				if(rec.id != null) {
+					VOFieldOfScienceModel vofsmodel = new VOFieldOfScienceModel(context);
+					for(VOFieldOfScienceRecord fsrec : vofsmodel.getByVOID(rec.id)) {
+						selected.add(fsrec.field_of_science_id);
+					}
 				}
 				field_of_science_de = new FieldOfScience(this, context, selected);
 			} catch (SQLException e) {
@@ -603,6 +605,8 @@ public class VOFormDE extends DivRepForm
 				editor.setLabel(Rank.Primary, "Primary RA");
 				editor.setLabel(Rank.Secondary, "Secondary RA");
 				editor.setLabel(Rank.Tertiary, "Sponsors");
+				
+				editor.setMaxContacts(Rank.Secondary, 8);
 			}
 			
 			if(contact_type.id != 5 && contact_type.id != 10 && contact_type.id != 11) { //5 = misc, 9 = resource report, 11 = ra agent

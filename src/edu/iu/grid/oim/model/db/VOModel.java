@@ -4,8 +4,6 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashSet;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
@@ -97,6 +95,7 @@ public class VOModel extends SmallTableModelBase<VORecord>
 	public boolean canEdit(int vo_id)
 	{
 		if(auth.allows("admin")) return true;
+		if(auth.allows("admin_ra")) return true;
 		try {
 			HashSet<Integer> ints = getEditableIDs();
 			if(ints.contains(vo_id)) return true;

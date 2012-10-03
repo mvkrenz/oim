@@ -1,10 +1,9 @@
 package edu.iu.grid.oim.model.db;
 
 import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
@@ -62,6 +61,7 @@ public class SCModel extends SmallTableModelBase<SCRecord> {
 		return false;
 	}
 	
+	/*
 	//returns all record id that the user has access to
 	private HashSet<Integer> getEditableIDs() throws SQLException
 	{
@@ -83,8 +83,25 @@ public class SCModel extends SmallTableModelBase<SCRecord> {
 				list.add(rec.sc_id);
 			}
 			stmt.close();
+			conn.close();
 		}
 		
+		return list;
+	}
+	*/
+	
+	//returns all record id that the user has access to
+	private HashSet<Integer> getEditableIDs() throws SQLException
+	{
+		HashSet<Integer> list = new HashSet<Integer>();
+		if(auth.getContact() != null) {	
+			SCContactModel model = new SCContactModel(context);
+			Collection<SCContactRecord> vcrecs = model.getByContactID(auth.getContact().id);
+			for(SCContactRecord rec : vcrecs) {
+				if(rec.contact_type_id == 1) continue; //submitter contact can't edit.
+				list.add(rec.sc_id);
+			}
+		}
 		return list;
 	}
 	

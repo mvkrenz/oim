@@ -206,7 +206,7 @@ public class ReportRegistrationServlet extends ServletBase implements Servlet {
 		    	xpath.reset();
 		    	
 		    	view.add(new HtmlView("<p class=\"right\">"+rec.timestamp+" UTC</p>"));
-				view.add(new HtmlView("<a href=\""+pageurl+"?id="+id+"\"><h3>"+header+"</h3></a>"));
+				view.add(new HtmlView("<a href=\"https://oim.grid.iu.edu/oim/"+pageurl+"?id="+id+"\"><h3>"+header+"</h3></a>"));
 				view.add(new HtmlView("<p>"+detail+"</p>"));
 			} catch (SAXException e) {
 				// TODO Auto-generated catch block

@@ -1,12 +1,19 @@
 //divrep.js requires jquery lib (for now..). please load it before you load this script
 
-var divrep_processing_id = null;
-function divrepClearProcessing() {
-	divrep_processing_id = null;
-	$(".divrep_processing").removeClass("divrep_processing");
+
+var divrep_queue = [];
+var divrep_processing = false;
+
+function divrepProcessQueue() {
+	if(divrep_processing == false && divrep_queue.length > 0) {
+		divrep_processing = true;
+		ajax = divrep_queue.shift();
+		jQuery.ajax(ajax);
+	}
 }
 
 function divrep(id, event, value, action) {
+	
 	//stop bubble - needs to happen before ignore / queueing events to prevent
 	//event such as double clicking to bubble up
 	if(!event) var event = window.event;//for IE
@@ -22,28 +29,17 @@ function divrep(id, event, value, action) {
 			action = "unknown";
 		}
 	}
+	/* -- this causes incorrect behavior of various controls such as DivRepPassword
 	//make sure there is only one request at the same time (prevent double clicking of submit button)
 	if(divrep_processing_id == id) {
 		//previous request on same target still running - ignore;
-		//console.log('event ignore on ' + id);
+		console.log('event ignore on ' + id);
 		return;
 	}
+	*/
 	
-	//weird thing about the browser's event handling is that, although javascript is single threaded,
-	//for some reason browser start running event handler while another handler is still executing.
-	//we need to make sure that this doesn't happen.
-	if(divrep_processing_id != null) {
-		//wait until the previous processing ends
-		//console.log('queusing event on ' + id);
-		setTimeout(function() { divrep(id, event, value,action);}, 100);
-		return;
-	}
-	
-	//set class while processing
-	$("#"+id).addClass("divrep_processing");
-	
-	divrep_processing_id = id;
-	jQuery.ajax({
+	//queue call
+	divrep_queue.push({
 		url: "divrep",
 		async: true,//now running in async mode to not hose up browser..
 		data: { nodeid: id,
@@ -53,13 +49,24 @@ function divrep(id, event, value, action) {
 		contentType: "application/x-www-form-urlencoded; charset=UTF-8",//IE doesn't set charset correctly..
 		dataType: "script",//Evaluates the response as JavaScript and returns it as plain text. Disables caching unless option "cache" is used. Note: This will turn POSTs into GETs for remote-domain requests. 
 	    success: function(msg) {
-		    divrepClearProcessing();
+			$("#"+id).removeClass("divrep_processing");
+			divrep_processing = false;
+	    	divrepProcessQueue();
+	    	
 		},
 	    error: function (XMLHttpRequest, textStatus, errorThrown) {
+			$("#"+id).removeClass("divrep_processing");
+		    divrep_processing = false;
+		    
 		    alert("Sorry! Server is having trouble processing your request.\n\n"+textStatus + ": " + errorThrown);
-		    divrepClearProcessing();
+		    
+		    divrepProcessQueue();
 	    }
 	});
+	$("#"+id).addClass("divrep_processing");
+	//console.log(id);
+	
+	divrepProcessQueue();
 }
 
 function divrep_replace(node, content, id) 
@@ -92,7 +99,7 @@ function divrep_redirect(url)
 function divrep_redirect_wait()
 {
 	//wait for all divrep processing completes
-	if(divrep_processing_id != null) {
+	if(divrep_queue.length > 0) {
 		setTimeout(divrep_redirect_wait, 100);
 	} else {
 		divrep_doRedirect();

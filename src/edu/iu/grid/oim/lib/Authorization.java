@@ -157,11 +157,11 @@ public class Authorization {
 								usertype = UserType.UNREGISTERED;
 								loadGuestAction();
 							} else {
-								//check for disabled contact
+								//check for disabled dn / contact
 								ContactModel cmodel = new ContactModel(guest_context);
 								contact = cmodel.get(dnrec.contact_id);
-								if (contact.isDisabled()) {
-									log.info("The DN found in \"dn\" table but is mapped to disabled contact. Set isDisabled to true.");
+								if (contact.disable || dnrec.disable) {
+									log.info("The DN found in \"dn\" table but is mapped to disabled contact or dn. Set isDisabled to true.");
 									usertype = UserType.DISABLED;
 									loadGuestAction(); //disabled user can still access guest content
 								} else {
@@ -204,11 +204,13 @@ public class Authorization {
 					//request.setAttribute("SSL_CLIENT_S_DN", "/DC=org/DC=doegrids/OU=People/CN=christopher pipes 556895"); //disabled
 					
 					request.setAttribute("SSL_CLIENT_S_DN", "/DC=org/DC=doegrids/OU=People/CN=Soichi Hayashi 461343");
-					//request.setAttribute("SSL_CLIENT_S_DN", "/DC=com/DC=DigiCert-Grid/OU=People/CN=Soichi Hayashi");
+					//request.setAttribute("SSL_CLIENT_S_DN", "/DC=org/DC=doegrids/OU=People/CN=Arvind Gopu 369621");
+					//request.setAttribute("SSL_CLIENT_S_DN", "/DC=com/DC=DigiCert-Grid/OU=People/CN=Soichi Hayashi 238");
 					//request.setAttribute("SSL_CLIENT_S_DN", "/DC=org/DC=doegrids/OU=People/CN=Jeremy Fischer 478396");
-					
+					//request.setAttribute("SSL_CLIENT_S_DN", "/C=US/O=National Center for Supercomputing Applications/OU=People/CN=Jim Basney");
 					//request.setAttribute("SSL_CLIENT_S_DN", "/DC=org/DC=doegrids/OU=People/CN=Soichi Hayashi new2");
 					//request.setAttribute("SSL_CLIENT_S_DN", "/DC=org/DC=doegrids/OU=People/CN=Alain Roy 424511");
+					//request.setAttribute("SSL_CLIENT_S_DN", "/DC=org/DC=doegrids/OU=People/CN=Horst Severini 926890");
 					request.setAttribute("SSL_CLIENT_I_DN_CN", "Test CA");
 					log.debug("Using debuggin credential");
 				} else {

@@ -17,11 +17,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 
-import com.divrep.DivRep;
 import com.divrep.DivRepEvent;
 import com.divrep.common.DivRepButton;
-import com.divrep.common.DivRepDialog;
-import com.divrep.common.DivRepStaticContent;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.StaticConfig;
@@ -47,9 +44,6 @@ import edu.iu.grid.oim.view.DivRepWrapper;
 import edu.iu.grid.oim.view.GenericView;
 import edu.iu.grid.oim.view.HtmlView;
 import edu.iu.grid.oim.view.IView;
-import edu.iu.grid.oim.view.MenuView;
-import edu.iu.grid.oim.view.Page;
-import edu.iu.grid.oim.view.RecordTableView;
 import edu.iu.grid.oim.view.SideContentView;
 import edu.iu.grid.oim.view.divrep.RemoveDowntimeDialog;
 

@@ -3,17 +3,6 @@ package edu.iu.grid.oim.model.db.record;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import java.util.ArrayList;
-
-import com.mysql.jdbc.Field;
-
-import edu.iu.grid.oim.lib.Authorization;
-import edu.iu.grid.oim.model.db.DNModel;
-import edu.iu.grid.oim.model.db.DowntimeClassModel;
-import edu.iu.grid.oim.model.db.DowntimeSeverityModel;
-import edu.iu.grid.oim.model.db.FacilityModel;
-import edu.iu.grid.oim.model.db.ResourceModel;
-import edu.iu.grid.oim.model.db.SCModel;
 
 public class ResourceDowntimeRecord extends RecordBase {
 

@@ -97,13 +97,13 @@ public class SiteServlet extends ServletBase implements Servlet {
 
 				contentview.add(createSiteContent(context, rec)); //false = no edit button	
 				
-				sideview = createSideView(context);
+				sideview = createSideView(context, rec);
 
 			} else {
 				contentview = createListContentView(context);
 			}
 			
-			BootPage page = new BootPage(context, menuview, contentview, createSideView(context));
+			BootPage page = new BootPage(context, menuview, contentview, sideview);
 			page.render(response.getWriter());			
 		} catch (SQLException e) {
 			log.error(e);
@@ -112,15 +112,6 @@ public class SiteServlet extends ServletBase implements Servlet {
 	}
 	
 	protected ContentView createSiteContent(UserContext context, final SiteRecord rec) throws ServletException, SQLException {
-		/*
-		SiteModel model = new SiteModel(context);
-		ArrayList<SiteRecord> sites = model.getAll();
-		Collections.sort(sites, new Comparator<SiteRecord> () {
-			public int compare(SiteRecord a, SiteRecord b) {
-				return a.getName().compareToIgnoreCase(b.getName());
-			}
-		});
-		*/
 
 		ContentView contentview = new ContentView(context);	
 
@@ -143,26 +134,7 @@ public class SiteServlet extends ServletBase implements Servlet {
 		table.addRow("Support Center", getSCName(context, rec.sc_id));
 		table.addRow("Active", rec.active);
 		table.addRow("Disable", rec.disable);
-		
-		/*
-		class EditButtonDE extends DivRepButton
-		{
-			String url;
-			public EditButtonDE(DivRep parent, String _url)
-			{
-				super(parent, "Edit");
-				url = _url;
-			}
-			protected void onEvent(DivRepEvent e) {
-				redirect(url);
-			}
-		};
-		table.add(new DivRepWrapper(new EditButtonDE(context.getPageRoot(), StaticConfig.getApplicationBase()+"/siteedit?site_id=" + rec.id)));
-		*/
-		if(context.getAuthorization().isUser()) {
-			table.add(new HtmlView("<a class=\"btn\" href=\"siteedit?id=" + rec.id + "\">Edit</a>"));
-		}
-		
+			
 		return contentview;
 	}
 		
@@ -229,11 +201,13 @@ public class SiteServlet extends ServletBase implements Servlet {
 		return facility.name;
 	}
 
-	private SideContentView createSideView(UserContext context)
+	private SideContentView createSideView(UserContext context, SiteRecord rec)
 	{
 		SideContentView view = new SideContentView();
+		
 		if(context.getAuthorization().isUser()) {
-			view.add(new HtmlView("<a class=\"btn\" href=\"siteedit\">Add New Administrative Site</a>"));
+			view.add(new HtmlView("<p><a class=\"btn\" href=\"siteedit?site_id=" + rec.id + "\">Edit</a></p>"));
+			view.add(new HtmlView("<p><a class=\"btn\" href=\"siteedit\">Add New Administrative Site</a></p>"));
 		}
 		/*
 		class NewButtonDE extends DivRepButton

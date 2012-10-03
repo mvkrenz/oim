@@ -103,9 +103,9 @@ public class ContactModel extends SmallTableModelBase<ContactRecord> {
 
     	//only select record that is editable
 	    for(RecordBase rec : getCache()) {
-	    	ContactRecord vorec = (ContactRecord)rec;
-	    	if(canEdit(vorec.id)) {
-	    		list.add(vorec);
+	    	ContactRecord crec = (ContactRecord)rec;
+	    	if(canEdit(crec.id)) {
+	    		list.add(crec);
 	    	}
 	    }	    	
 	    return list;
@@ -200,5 +200,15 @@ public class ContactModel extends SmallTableModelBase<ContactRecord> {
 	    stmt.execute("UPDATE "+table_name+" SET `count_hostcert_year` = 0, `count_usercert_year` = 0");	
 	    stmt.close();
 	    conn.close();
+	}
+	public ArrayList<ContactRecord> getBySubmitterDNID(Integer id) throws SQLException {
+		ArrayList<ContactRecord> list = new ArrayList<ContactRecord>();
+	    for(RecordBase rec : getCache()) {
+	    	ContactRecord crec = (ContactRecord)rec;
+	    	if(crec.submitter_dn_id != null && crec.submitter_dn_id.equals(id)) {
+	    		list.add(crec);
+	    	}
+	    }	    	
+	    return list;
 	}
 }

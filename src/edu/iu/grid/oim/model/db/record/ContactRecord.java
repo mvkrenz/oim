@@ -46,15 +46,7 @@ public class ContactRecord extends ConfirmableRecord {
 		profile = "";
 		confirmed = new Timestamp(Calendar.getInstance().getTimeInMillis());
 	}
-	public String getName() {
-		return name;
-	}
-	public Boolean isPerson() {
-		return person;
-	}
-	public Boolean isDisabled() {
-		return disable;
-	}
+
 	public String getFirstName()
 	{
 		if(name == null) return "";

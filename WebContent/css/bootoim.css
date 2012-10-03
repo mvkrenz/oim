@@ -15,10 +15,10 @@ vertical-align: baseline;
 }
 
 a.inactive {
-color: #aaa;
+color: #999;
 }
 a.disabled {
-color: #888;
+color: #fff;
 background-color: #ddd;
 }
 
@@ -40,6 +40,7 @@ width: 110px;
 padding-top: 5px;
 padding-bottom: 5px;
 padding-right: 10px;
+vertical-align: top;
 }
 table.auth_matrix th
 {
@@ -190,10 +191,12 @@ div.contact
 {
 background-color: #ddd;
 border: 1px solid #aaa;
-padding: 2px;
-margin-right: 4px;
+padding: 0px 2px;
+margin-right: 2px;
 font-weight: bold;
-font-size: 12px;
+display: inline-block;
+margin-bottom: 1px;
+line-height: 150%;
 }
 
 div.contact img
@@ -602,6 +605,9 @@ margin: 15px;
 div.well-active {
 background-color: #90bfd7;
 }
+div.well-disabled {
+background-color: #ccc;
+}
 div.contact_rank code {
 color: gray;
 background-color: inherit;
@@ -611,4 +617,9 @@ div.contact code {
 background-color: inherit;
 border: none;
 color: gray;
+}
+
+table tr.disabled td {
+color: #999;
+}
 }

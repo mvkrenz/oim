@@ -73,4 +73,14 @@ public class SiteModel extends SmallTableModelBase<SiteRecord> {
 		}
 		return list;
 	}
+	public ArrayList<SiteRecord> getByDNID(Integer id) throws SQLException {
+		ArrayList<SiteRecord> list = new ArrayList<SiteRecord>();
+	    for(RecordBase rec : getCache()) {
+	    	SiteRecord crec = (SiteRecord)rec;
+	    	if(crec.submitter_dn_id != null && crec.submitter_dn_id.equals(id)) {
+	    		list.add(crec);
+	    	}
+	    }	    	
+	    return list;
+	}
 }
