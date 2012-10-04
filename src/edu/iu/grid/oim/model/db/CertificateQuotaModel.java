@@ -92,8 +92,8 @@ public class CertificateQuotaModel {
 		Authorization auth = context.getAuthorization();
 		if(auth.isUser()) {
 			ContactRecord user = auth.getContact();
-			user.count_hostcert_year++;
-			user.count_hostcert_day++;
+			user.count_hostcert_year+=inc;
+			user.count_hostcert_day+=inc;
 			ContactModel cmodel = new ContactModel(context);
 			cmodel.emptyCache();//force next get() to pull from the DB instead of cache - which I just updated..
 			cmodel.update(cmodel.get(user), user);
