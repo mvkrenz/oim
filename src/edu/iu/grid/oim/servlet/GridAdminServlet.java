@@ -118,11 +118,7 @@ public class GridAdminServlet extends ServletBase {
 				out.write("<thead><tr><th>Domain</th><th>GridAdmins</th><th></th></tr></thead>");	
 				out.write("<tbody>");
 				for(String domain : recs.keySet()) {
-					if(auth.allows("admin_gridadmin")) {
-						out.write("<tr onclick=\"document.location='gridadminedit?domain="+domain+"'\">");	
-					} else {
-						out.write("<tr>");
-					}
+					out.write("<tr>");
 					out.write("<td>"+StringEscapeUtils.escapeHtml(domain)+"</td>");
 					
 					out.write("<td><ul>");
@@ -133,10 +129,9 @@ public class GridAdminServlet extends ServletBase {
 					
 					out.write("<td>");
 					if(auth.allows("admin_gridadmin")) {
-						out.write("<a class=\"btn btn-mini\">Edit</a>");
+						out.write("<a href=\"gridadminedit?domain="+domain+"\" class=\"btn btn-mini\">Edit</a>");
 					}
 					out.write("</td>");
-					
 					out.write("</tr>");	
 				}
 				out.write("</tbody>");
