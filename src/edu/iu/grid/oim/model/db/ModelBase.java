@@ -416,7 +416,16 @@ public abstract class ModelBase<T extends RecordBase> {
     private String formatValue(Object obj)
     {
     	if(obj == null) return LogModel.NULL_TOKEN;
-    	return StringEscapeUtils.escapeXml(obj.toString());
+    	String str = obj.toString();
+    	
+    	//truncate really long value -- to lessen overhead for log table and replication
+    	int maxlen = 2048;
+    	if(str.length() > maxlen) {
+    		str = str.substring(0,  maxlen);
+    		str += " (truncated at "+maxlen+" chars)";
+    	}
+    	
+    	return StringEscapeUtils.escapeXml(str);
     }
     
 

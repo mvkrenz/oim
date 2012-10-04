@@ -674,8 +674,7 @@ public class LogServlet extends ServletBase  {
 					out.write(StringEscapeUtils.escapeHtml(rec.comment));
 				}
 				out.write("</Comment>");
-				out.write(rec.xml);	
-				
+				out.write(rec.xml);
 				out.write("</Log>");
 			}
 		} catch (Exception e) {
