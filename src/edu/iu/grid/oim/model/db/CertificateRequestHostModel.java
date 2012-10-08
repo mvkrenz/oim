@@ -572,7 +572,7 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 				gridadmin_domain = domain;
 			} else {
 				if(!gridadmin_domain.equals(domain)) {
-					throw new CertificateRequestException("All host certificates must be approved by the same gridadmin. Different for " + cn);	
+					throw new CertificateRequestException("All host certificates must be approved by the same set of gridadmins. Different for " + cn);	
 				}
 			}
     	}
