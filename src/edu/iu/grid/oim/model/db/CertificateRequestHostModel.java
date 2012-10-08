@@ -749,6 +749,7 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 		} else {
 			throw new CertificateRequestException("Guest should'nt be revoking certificate");
 		}
+		ticket.description += "> " + context.getComment();
 		ticket.status = "Resolved";
 		fp.update(ticket, rec.goc_ticket_id);
 	}

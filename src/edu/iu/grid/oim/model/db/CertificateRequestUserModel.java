@@ -629,7 +629,8 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 			
 			Footprints fp = new Footprints(context);
 			FPTicket ticket = fp.new FPTicket();
-			ticket.description = contact.name + " has revoked this certificate.";
+			ticket.description = contact.name + " has revoked this certificate.\n\n";
+			ticket.description += "> " + context.getComment();
 			ticket.status = "Resolved";
 			fp.update(ticket, rec.goc_ticket_id);
 			
