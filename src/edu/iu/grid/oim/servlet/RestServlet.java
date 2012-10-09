@@ -21,6 +21,7 @@ import edu.iu.grid.oim.model.db.CertificateRequestUserModel;
 import edu.iu.grid.oim.model.db.ConfigModel;
 import edu.iu.grid.oim.model.db.CertificateRequestHostModel;
 import edu.iu.grid.oim.model.db.ContactModel;
+import edu.iu.grid.oim.model.db.SmallTableModelBase;
 import edu.iu.grid.oim.model.db.record.CertificateRequestHostRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.exceptions.CertificateRequestException;
@@ -407,6 +408,7 @@ public class RestServlet extends ServletBase  {
 		ContactModel model = new ContactModel(context);
 		try {
 			model.resetCertsDailyCount();
+			SmallTableModelBase.emptyAllCache();
 		} catch (SQLException e) {
 			throw new RestException("SQLException while resetting user daily count", e);
 		}
@@ -423,6 +425,7 @@ public class RestServlet extends ServletBase  {
 		ContactModel model = new ContactModel(context);
 		try {
 			model.resetCertsYearlyCount();
+			SmallTableModelBase.emptyAllCache();
 		} catch (SQLException e) {
 			throw new RestException("SQLException while resetting user yearly count", e);
 		}
