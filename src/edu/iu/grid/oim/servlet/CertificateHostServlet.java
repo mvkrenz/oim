@@ -240,14 +240,14 @@ public class CertificateHostServlet extends ServletBase  {
 					serial_ids = rec.getSerialIDs();
 				}
 				out.write("<table class=\"table table-bordered table-striped\">");
-				out.write("<thead><tr><th>CN</th><th colspan=\"2\">Certificates</th><th>Serial Number</th></tr></thead>");
+				out.write("<thead><tr><th>CN</th><th colspan=\"1\">Certificates</th><th>Serial Number</th></tr></thead>");
 				int i = 0;
 				out.write("<tbody>");
 				for(String cn : cns) {
 					out.write("<tr>");
 					out.write("<th>"+StringEscapeUtils.escapeHtml(cn)+"</th>");
 					if(rec.status.equals(CertificateRequestStatus.ISSUED)) {
-						out.write("<td><a href=\"certificatedownload?id="+rec.id+"&type=host&download=pkcs7&idx="+i+"\">Download PKCS7</a></td>");
+						//out.write("<td><a href=\"certificatedownload?id="+rec.id+"&type=host&download=pkcs7&idx="+i+"\">Download PKCS7</a></td>");
 						out.write("<td><a href=\"certificatedownload?id="+rec.id+"&type=host&download=pem&idx="+i+"\">Download PEM</a></td>");
 						out.write("<td>"+serial_ids[i]+"</td>");
 					} else {

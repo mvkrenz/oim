@@ -1065,6 +1065,8 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 				if(dnrecs.isEmpty()) {
 					//pre-registered contact - just let user associate with this contact id
 					requester.id = existing_crec.id;
+					requester.disable = false;
+					requester.person = true;
 					
 					//update contact information with information that user just gave me
 					cmodel.update(requester);
