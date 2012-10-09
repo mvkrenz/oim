@@ -59,7 +59,7 @@ public class GridAdminEditServlet extends ServletBase {
 			title = "Update Domain/GridAdmins";
 		} else {
 			recs = new ArrayList<GridAdminRecord>();//empty list
-			title = "New Dmoain/GridAdmins";	
+			title = "New Domain/GridAdmins";	
 		}
 		ContentView contentview = new ContentView(context);
 		
