@@ -1067,6 +1067,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 					
 					//update contact information with information that user just gave me
 					requester.disable = false;
+					requester.person = true;
 					cmodel.update(requester);
 					
 					note += "NOTE: User is claiming unused contact id: "+existing_crec.id+"\n";
