@@ -294,7 +294,11 @@ public class ContactServlet extends ServletBase {
 						} else {
 							out.write("<ul>");
 							for(DNRecord rec : dnrecs) {
-								out.write("<li>"+StringEscapeUtils.escapeHtml(rec.dn_string)+"</li>");
+								out.write("<li>");
+								if(rec.disable) {
+									out.write("<span class=\"pull-right label\">Disabled DN</span>");
+								}
+								out.write(StringEscapeUtils.escapeHtml(rec.dn_string)+"</li>");
 							}
 							out.write("</ul>");
 						}

@@ -1054,15 +1054,17 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 				note += "NOTE: User is registering OIM contact & requesting new certificate: contact id:"+requester.id+"\n";
 		    	
 			} else {
-				//generate dn
-		    	cn = requester.name + " " + requester.id;
+				//generate dn (with existing_crec id)
+		    	cn = requester.name + " " + existing_crec.id;
 		    	X500Name name = generateDN(cn);
 				rec.dn = CertificateManager.RFC1779_to_ApacheDN(name.toString());
 				
 				//find if there is any DN associated with the contact
 				DNModel dnmodel = new DNModel(context);
-				ArrayList<DNRecord> dnrecs = dnmodel.getByContactID(existing_crec.id);
+				ArrayList<DNRecord> dnrecs = dnmodel.getEnabledByContactID(existing_crec.id);
 				if(dnrecs.isEmpty()) {
+					//do contact record take over
+					
 					//pre-registered contact - just let user associate with this contact id
 					requester.id = existing_crec.id;
 					requester.disable = false;
@@ -1073,6 +1075,8 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 					
 					note += "NOTE: User is claiming unused contact id: "+existing_crec.id+"\n";
 				} else {
+					//we can't take over contact record that already has DN attached.
+					//find proper error message
 					CertificateRequestUserRecord existing_rec = getByDN(rec.dn);
 					if(existing_rec != null) {
 						//oim cert is already associated.

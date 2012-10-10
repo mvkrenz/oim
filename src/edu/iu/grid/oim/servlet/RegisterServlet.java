@@ -295,8 +295,8 @@ public class RegisterServlet extends ServletBase  {
 					model.insert(rec);
 				} else {
 					//Make sure that this contact is not used by any DN already
-					if(dnmodel.getByContactID(rec.id) != null) {
-						alert("The email address specified is already associated with a different DN. Please try different email address.");
+					if(dnmodel.getEnabledByContactID(rec.id) != null) {
+						alert("The email address specified is already associated with a different non-disabled DN. Please try different email address.");
 						return false;
 					}
 				}

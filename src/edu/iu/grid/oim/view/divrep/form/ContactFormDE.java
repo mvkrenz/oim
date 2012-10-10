@@ -248,7 +248,8 @@ public class ContactFormDE extends DivRepForm
 				ContactModel model = new ContactModel(context);
 				try {
 					for(ContactRecord crec : model.getAll()) {
-						if(rec == crec) continue;
+						if(rec == crec) continue;//allow using myown!
+						if(rec.disable) continue;//ignore disabled contact
 						values.add(crec.twiki_id);
 					}
 				} catch (SQLException e2) {
