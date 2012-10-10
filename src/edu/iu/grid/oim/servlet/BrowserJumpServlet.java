@@ -38,20 +38,18 @@ public class BrowserJumpServlet extends ServletBase {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		String userAgent = request.getHeader("User-Agent");
 		log.debug("BrowserJump: User-Agent:" + userAgent);
+		String urlformat_in = request.getParameter("urlformat");
+		String urlformat = new String(new Base64(Integer.MAX_VALUE).decode(urlformat_in));
 		try {
 			Properties props = BrowserJumpServlet.getProperties(userAgent);  
-			/*
-	        for (Object key : props.keySet()) {  
-	            System.out.println(key + "=" + props.getProperty((String) key));  
-	        } 
-	        */
-			String urlformat_in = request.getParameter("urlformat");
-			String urlformat = new String(new Base64(Integer.MAX_VALUE).decode(urlformat_in));
 			String url = MessageFormat.format(urlformat, props.getProperty("ua_family"));
 			log.debug("Redirecting to :"+ url);
 			response.sendRedirect(url);
 		} catch (Exception e) {
-			log.error("Exception while contacting user-agent-string.info ws", e);
+			log.warn("Exception while contacting user-agent-string.info webservice with useragent:"+userAgent, e);
+			String url = MessageFormat.format(urlformat, "Other Browsers");		
+			log.debug("Redirecting to :"+ url);
+			response.sendRedirect(url);
 		}
 	}
 
