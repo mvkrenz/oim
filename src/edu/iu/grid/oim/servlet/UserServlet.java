@@ -70,10 +70,7 @@ public class UserServlet extends ServletBase implements Servlet {
 				DNModel model = new DNModel(context);
 				DNAuthorizationTypeModel dnauthmodel = new DNAuthorizationTypeModel(context);
 				AuthorizationTypeModel authmodel = new AuthorizationTypeModel(context);
-				
-				//final RemoveDNDialog remove_dialog = new RemoveDNDialog(context.getPageRoot(), context);
-				//contentview.add(remove_dialog);
-
+			
 				out.write("<table class=\"table nohover\">");
 				out.write("<thead><tr><th>DN</th><th>Contact</th><th>Authorizatoin Types</th><th></th></tr></thead>");	
 
@@ -106,19 +103,7 @@ public class UserServlet extends ServletBase implements Servlet {
 						}
 						auth_html += "</ul>";
 						out.write("<td>"+auth_html+"</td>");	
-						/*
-						DivRepButton remove = new DivRepButton(context.getPageRoot(), "Remove");
-						remove.addClass("btn-mini");
-						remove.addClass("btn");
-						remove.addClass("btn-danger");
-						remove.addEventListener(new DivRepEventListener() {
-							@Override
-							public void handleEvent(DivRepEvent e) {
-								remove_dialog.setTitle("Remove");
-								remove_dialog.setRecord(rec);
-								remove_dialog.show();
-							}});
-						*/
+
 						out.write("<td>");
 						out.write("<a class=\"btn btn-mini\" href=\"useredit?id="+rec.id+"\">Edit</a>&nbsp;");
 						out.write("</td>");

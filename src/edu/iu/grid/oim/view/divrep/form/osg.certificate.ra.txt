@@ -1,6 +1,6 @@
 Dear OSG PKI Operations,
 
-I [Name] will be acting as an Agent of the Registration Authority for [VO/site]. I have been authorized by [VO/site] to represent them for the purposes of approving/revoking DOEGrids certificates in our community. I have read and agree to the following clauses:
+I [Name] will be acting as an Agent of the Registration Authority for [VO/site]. I have been authorized by [VO/site] to represent them for the purposes of approving/revoking OSG PKI certificates in our community. I have read and agree to the following clauses:
 
 1. In acting as the Agent of the RA for [VO/Site] I have read, understood and accept the responsibilities and tasks assigned to an Agent as laid out in the Trusted Agent Agreement: https://twiki.grid.iu.edu/twiki/pub/Operations/OSGPKIAgreements/DigiCert-OSG_Agent_Agreement.pdf
 
@@ -10,8 +10,8 @@ I [Name] will be acting as an Agent of the Registration Authority for [VO/site].
 
 4. I agree only to act on enrollment requests associated with the [VO/site].
 
-5. I understand that I am responsible for the revocation of certificates that are suspected of being compromised or issued in violation of the DOEGrids CP/CPS policies.
+5. I understand that I am responsible for the revocation of certificates that are suspected of being compromised or issued in violation of the OSG PKI CP/CPS policies.
 
-6. I understand that I am responsible for customer support for our [VO/site] related to DOEGrids certificate issuance, revocation, and information.
+6. I understand that I am responsible for customer support for our [VO/site] related to OSG PKI certificate issuance, revocation, and information.
 
 Thank you.
