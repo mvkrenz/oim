@@ -793,14 +793,17 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 			
 			//HttpSession session = context.getSession();
 			String password = getPassword(rec.id);
-			
-			KeyStore p12 = KeyStore.getInstance("PKCS12");
-			p12.load(null, null);  //not sure what this does.
-			PrivateKey private_key = getPrivateKey(rec.id);
-			
-			p12.setKeyEntry("USER"+rec.id, private_key, password.toCharArray(), chain); 
-			
-			return p12;
+			if(password == null) {
+				log.error("can't retrieve certificate encryption password while creating pkcs12");
+			} else {
+				KeyStore p12 = KeyStore.getInstance("PKCS12");
+				p12.load(null, null);  //not sure what this does.
+				PrivateKey private_key = getPrivateKey(rec.id);
+				
+				p12.setKeyEntry("USER"+rec.id, private_key, password.toCharArray(), chain); 
+				
+				return p12;
+			}
 		} catch (IOException e) {
 			log.error("Failed to get encoded byte array from bouncy castle certificate.", e);
 		} catch (CertificateException e) {
