@@ -2,6 +2,7 @@ package edu.iu.grid.oim.model.cert;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Date;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -100,7 +101,11 @@ public class DigicertCertificateSigner implements ICertificateSigner {
 		
 		//wait until all certificates are issued (or timeout)
 		log.debug("start looking for certificate that's issued");
-		for(int retry = 0; retry < 60; ++retry) {	
+		
+		int timeout_msec = 5*60*1000;
+		
+		Date start = new Date();
+		while(true) {	
 			
 			//wait few seconds between each loops
 			try {
@@ -127,7 +132,7 @@ public class DigicertCertificateSigner implements ICertificateSigner {
 						}
 					} catch(DigicertCPException e) {
 						//TODO - need to ask DigiCert to give me more specific error code so that I can distinguish between real error v.s. need_wait
-						log.warn("Failed to retrieve cert for order ID:" + cert.serial + ". try counter:" +retry+" probably not yet issued.. ignoring");
+						log.warn("Failed to retrieve cert for order ID:" + cert.serial + ". probably not yet issued.. ignoring");
 					}
  				} else {
  					issued++;
@@ -139,6 +144,12 @@ public class DigicertCertificateSigner implements ICertificateSigner {
 				return;
 			}
 			
+			//check timeout
+			Date now = new Date();
+			if(now.getTime() - start.getTime() > timeout_msec) {
+				//timed out..
+				throw new CertificateProviderException("DigiCert didn't return certificate after "+(timeout_msec/1000)+" seconds");
+			}
 			/*
 			//if we have less than 5 cert, wait few seconds between each loop in order to avoid
 			//hitting digicert too often on the same cert
@@ -152,9 +163,6 @@ public class DigicertCertificateSigner implements ICertificateSigner {
 			}
 			*/
 		}
-		
-		//timed out..
-		throw new CertificateProviderException("DigiCert didn't return certificate after 60 re-tries");
 	}
 	
 	private HttpClient createHttpClient() {

@@ -34,6 +34,7 @@ import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.BCrypt;
 import edu.iu.grid.oim.lib.Footprints;
 import edu.iu.grid.oim.lib.StaticConfig;
+import edu.iu.grid.oim.lib.StringArray;
 import edu.iu.grid.oim.lib.Footprints.FPTicket;
 import edu.iu.grid.oim.model.CertificateRequestStatus;
 import edu.iu.grid.oim.model.UserContext;
@@ -489,7 +490,15 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
     	}
     	
 		rec.status = CertificateRequestStatus.RENEW_REQUESTED;
-		rec.csr = null; //similar to request(), set csr to null so that oim will generate key
+		
+		//setting this to null so that oim will regenerate key which is generated when csr is created 
+		//we shoudn't do this if user is providing us the CSR (guessing user will re-use the same private key)
+		rec.csr = null; 
+		
+    	rec.cert_certificate = null;
+    	rec.cert_intermediate = null;
+    	rec.cert_pkcs7 = null;
+    	rec.cert_serial_id = null;
 		try {
 			super.update(get(rec.id), rec);
 			quota.incrementUserCertRequest();

@@ -591,7 +591,15 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 		ArrayList<ContactRecord> gas = findGridAdmin(rec);
 		
 		rec.status = CertificateRequestStatus.RENEW_REQUESTED;
-		//TODO - are we re-using the same CSR sent by the user? if not, user should provide them and we update them here
+		
+		//clear all previously issued cert (we are going to reuse the CSR)
+		StringArray csrs = new StringArray(rec.csrs);
+    	StringArray ar = new StringArray(csrs.length());
+    	rec.cert_certificate = ar.toXML();
+    	rec.cert_intermediate = ar.toXML();
+    	rec.cert_pkcs7 = ar.toXML();
+    	rec.cert_serial_ids = ar.toXML();
+    	
 		try {
 			super.update(get(rec.id), rec);
 		} catch (SQLException e) {
