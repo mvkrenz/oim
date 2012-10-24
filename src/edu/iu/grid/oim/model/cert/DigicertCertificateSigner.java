@@ -100,7 +100,7 @@ public class DigicertCertificateSigner implements ICertificateSigner {
 		
 		//wait until all certificates are issued (or timeout)
 		log.debug("start looking for certificate that's issued");
-		for(int retry = 0; retry < 40; ++retry) {	
+		for(int retry = 0; retry < 60; ++retry) {	
 			
 			//wait few seconds between each loops
 			try {
@@ -154,7 +154,7 @@ public class DigicertCertificateSigner implements ICertificateSigner {
 		}
 		
 		//timed out..
-		throw new CertificateProviderException("DigiCert didn't return certificate after predefined re-tries");
+		throw new CertificateProviderException("DigiCert didn't return certificate after 60 re-tries");
 	}
 	
 	private HttpClient createHttpClient() {
