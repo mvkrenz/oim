@@ -88,18 +88,29 @@ public class DigicertCertificateSigner implements ICertificateSigner {
 		// TODO -- DigiCert will provide API to do this in more efficient way
 		//
 		
+		/*
 		//wait for a while before start pinging (per Greg)
 		try {
-			log.debug("Sleeping for 60 seconds");
-			Thread.sleep(1000*60);
+			log.debug("Sleeping for 5 seconds");
+			Thread.sleep(1000*5);
 		} catch (InterruptedException e) {
 			log.error("Sleep interrupted", e);
 		}
+		*/
 		
 		//wait until all certificates are issued (or timeout)
 		log.debug("start looking for certificate that's issued");
 		for(int retry = 0; retry < 40; ++retry) {	
-			//count number of certificates issued so far
+			
+			//wait few seconds between each loops
+			try {
+				log.debug("Sleeping for 5 seconds");
+				Thread.sleep(1000*5);
+			} catch (InterruptedException e) {
+				log.error("Sleep interrupted", e);
+			}
+			
+			//loop all certs - count number of certificates issued so far
 			int issued = 0;
 			for(int c = 0; c < certs.length; ++c) {
 				Certificate cert = certs[c];
@@ -128,6 +139,7 @@ public class DigicertCertificateSigner implements ICertificateSigner {
 				return;
 			}
 			
+			/*
 			//if we have less than 5 cert, wait few seconds between each loop in order to avoid
 			//hitting digicert too often on the same cert
 			if(certs.length - issued < 5) {
@@ -138,6 +150,7 @@ public class DigicertCertificateSigner implements ICertificateSigner {
 					log.error("Sleep interrupted", e);
 				}
 			}
+			*/
 		}
 		
 		//timed out..
