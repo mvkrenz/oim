@@ -401,9 +401,9 @@ public class RestServlet extends ServletBase  {
 		reply.params.put("global_hostcert_year_count", config.QuotaGlobalHostCertYearCount.getInteger());
 		reply.params.put("global_hostcert_year_max", config.QuotaGlobalHostCertYearMax.getInteger());
 		
-		reply.params.put("quota_hostcert_year_max", config.QuotaUserHostYearMax);
-		reply.params.put("quota_hostcert_day_max", config.QuotaUserHostDayMax);
-		reply.params.put("quota_usercert_year_max", config.QuotaUserCertYearMax);
+		reply.params.put("quota_hostcert_year_max", config.QuotaUserHostYearMax.getInteger());
+		reply.params.put("quota_hostcert_day_max", config.QuotaUserHostDayMax.getInteger());
+		reply.params.put("quota_usercert_year_max", config.QuotaUserCertYearMax.getInteger());
 	}
 	
 	private void doUserInfo(HttpServletRequest request, Reply reply) throws AuthorizationException, RestException {
@@ -419,9 +419,9 @@ public class RestServlet extends ServletBase  {
 		reply.params.put("global_hostcert_year_count", config.QuotaGlobalHostCertYearCount.getInteger());
 		reply.params.put("global_hostcert_year_max", config.QuotaGlobalHostCertYearMax.getInteger());
 	
-		reply.params.put("quota_hostcert_year_max", config.QuotaUserHostYearMax);
-		reply.params.put("quota_hostcert_day_max", config.QuotaUserHostDayMax);
-		reply.params.put("quota_usercert_year_max", config.QuotaUserCertYearMax);
+		reply.params.put("quota_hostcert_year_max", config.QuotaUserHostYearMax.getInteger());
+		reply.params.put("quota_hostcert_day_max", config.QuotaUserHostDayMax.getInteger());
+		reply.params.put("quota_usercert_year_max", config.QuotaUserCertYearMax.getInteger());
 		
 		ContactRecord user = auth.getContact();
 		reply.params.put("count_hostcert_day", user.count_hostcert_day);
