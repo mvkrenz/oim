@@ -317,6 +317,23 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 	//NO-AC
 	//return true if success
 	public boolean approve(CertificateRequestUserRecord rec) {
+		//check quota
+    	CertificateQuotaModel quota = new CertificateQuotaModel(context);
+    	if(!quota.canRequestUserCert(rec.requester_contact_id)) {
+    		log.error("Exceeded user quota.");
+    		return false;
+    	}
+    	
+		//update request status
+		rec.status = CertificateRequestStatus.APPROVED;
+		try {
+			super.update(get(rec.id), rec);
+			quota.incrementUserCertRequest(rec.requester_contact_id);
+		} catch (SQLException e) {
+			log.error("Failed to approve user certificate request: " + rec.id, e);
+			return false;
+		}
+		
 		if(rec.status.equals(CertificateRequestStatus.REQUESTED)) {
 			return approveNewRequest(rec);
 		} else if(rec.status.equals(CertificateRequestStatus.RENEW_REQUESTED)) {
@@ -328,14 +345,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 	}
 	
 	private boolean approveNewRequest(CertificateRequestUserRecord rec) {
-		rec.status = CertificateRequestStatus.APPROVED;
-		try {
-			super.update(get(rec.id), rec);
-		} catch (SQLException e) {
-			log.error("Failed to approve user certificate request: " + rec.id, e);
-			return false;
-		}
-		
+	
 		try {
 			//Then insert a new DN record
 			DNRecord dnrec = new DNRecord();
@@ -377,15 +387,6 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 	}
 	
 	private boolean approveRenewRequest(CertificateRequestUserRecord rec) {
-		
-		//update request status
-		rec.status = CertificateRequestStatus.APPROVED;
-		try {
-			super.update(get(rec.id), rec);
-		} catch (SQLException e) {
-			log.error("Failed to approve user certificate request: " + rec.id, e);
-			return false;
-		}
 		
 		//notify user
 		try {
@@ -482,13 +483,6 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 	//NO-AC
 	//return true if success
 	public void requestRenew(CertificateRequestUserRecord rec) throws CertificateRequestException {
-		
-    	//check quota
-    	CertificateQuotaModel quota = new CertificateQuotaModel(context);
-    	if(!quota.canRequestUserCert()) {
-    		throw new CertificateRequestException("Can't request any more user certificate.");
-    	}
-    	
 		rec.status = CertificateRequestStatus.RENEW_REQUESTED;
 		
 		//setting this to null so that oim will regenerate key which is generated when csr is created 
@@ -501,7 +495,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
     	rec.cert_serial_id = null;
 		try {
 			super.update(get(rec.id), rec);
-			quota.incrementUserCertRequest();
+			//quota.incrementUserCertRequest();
 		} catch (SQLException e) {
 			log.error("Failed to request user certificate request renewal: " + rec.id);
 			throw new CertificateRequestException("Failed to update request status", e);
@@ -1018,12 +1012,6 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 		// Check conditions & finalize DN (register contact if needed)
     	String note = "";
     
-    	//check quota
-    	CertificateQuotaModel quota = new CertificateQuotaModel(context);
-    	if(!quota.canRequestUserCert()) {
-    		throw new CertificateRequestException("Exceeded quota. You can't request any more user certificate.");
-    	}
-    
 		/*
 		//make sure there are no other certificate already requested or renew_requested
 		CertificateRequestUserRecord existing_rec = getByDN(rec.dn);
@@ -1114,7 +1102,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 		
 		context.setComment("Making Request for " + requester.name);
     	super.insert(rec);
-		quota.incrementUserCertRequest();
+		//quota.incrementUserCertRequest();
 		
 		///////////////////////////////////////////////////////////////////////////////////////////
 		// Notification
@@ -1196,18 +1184,12 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
     
     //no-ac
     public boolean rerequest(CertificateRequestUserRecord rec) throws CertificateRequestException 
-    {
-    	//check quota
-    	CertificateQuotaModel quota = new CertificateQuotaModel(context);
-    	if(!quota.canRequestUserCert()) {
-    		throw new CertificateRequestException("Exceeded quota. You can't request any more user certificate.");
-    	}
-    	
+    {    	
 		rec.status = CertificateRequestStatus.REQUESTED;
 		try {
 			//context.setComment("Certificate Approved");
 			super.update(get(rec.id), rec);
-			quota.incrementUserCertRequest();
+			//quota.incrementUserCertRequest();
 		} catch (SQLException e) {
 			log.error("Failed to re-request user certificate request: " + rec.id);
 			return false;

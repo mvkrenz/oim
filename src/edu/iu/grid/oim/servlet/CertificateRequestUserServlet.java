@@ -45,12 +45,14 @@ public class CertificateRequestUserServlet extends ServletBase  {
 				
 				out.write("<div class=\"span9\">");
 				CertificateQuotaModel quota = new CertificateQuotaModel(context);
-				if(quota.canRequestUserCert()) {
-					CertificateRequestUserForm form = new CertificateRequestUserForm(context, "certificateuser");
-					form.render(out);	
+				//if(quota.canRequestUserCert()) {
+				CertificateRequestUserForm form = new CertificateRequestUserForm(context, "certificateuser");
+				form.render(out);	
+				/*
 				} else {
 					out.write("<div class=\"alert\">You have reached the maximum quota for user certificate request. Please contact GOC for more detail.</div>");
 				}
+				*/
 
 				out.write("</div>"); //span9
 				out.write("</div>"); //row-fluid
