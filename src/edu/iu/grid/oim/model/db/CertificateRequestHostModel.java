@@ -683,9 +683,9 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 		Authorization auth = context.getAuthorization();
 		if(auth.isUser()) {
 			ContactRecord contact = auth.getContact();
-			ticket.description = contact.name + " has canceled this request.";
+			ticket.description = contact.name + " has canceled this request.\n\n";
 		} else {
-			ticket.description = "guest shouldn't be canceling";
+			//Guest can still cancel by providing the password used to submit the request.
 		}
 		ticket.description += "\n\n> " + context.getComment();
 		ticket.status = "Resolved";
