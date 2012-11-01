@@ -420,16 +420,21 @@ public class RestServlet extends ServletBase  {
 		reply.params.put("count_hostcert_year", user.count_hostcert_year);
 		reply.params.put("count_usercert_year", user.count_usercert_year);
 		
+		reply.detail = "User quota details for "+ auth.getUserDN();
+		
 		//load domains that user can approve certificates for
 		try {
 			GridAdminModel gmodel = new GridAdminModel(context);
 			ArrayList<GridAdminRecord> recs = gmodel.getGridAdminsByContactID(user.id);
-			reply.params.put("gridadmin_domains", recs);
+			JSONArray domains = new JSONArray();
+			for(GridAdminRecord rec : recs) {
+				domains.put(rec.domain);
+			}
+			reply.params.put("gridadmin_domains", domains);
 		} catch (SQLException e) {
 			throw new RestException("Failed to load gridadmin list", e);
 		}
 	}
-	
 	
 	private void doResetDailyQuota(HttpServletRequest request, Reply reply) throws AuthorizationException, RestException {
 		UserContext context = new UserContext(request);	
