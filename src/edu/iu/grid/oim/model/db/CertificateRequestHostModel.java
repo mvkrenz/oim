@@ -420,18 +420,18 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 	//return request record if successful, otherwise null (guest interface)
     private CertificateRequestHostRecord request(String[] csrs, CertificateRequestHostRecord rec, FPTicket ticket, String request_comment) throws CertificateRequestException 
     {
-    	log.debug("request");
+    	//log.debug("request");
     	
 		Date current = new Date();
 		rec.request_time = new Timestamp(current.getTime());
 		rec.status = CertificateRequestStatus.REQUESTED;
 
-		rec.status_note = context.getComment();
 		if(request_comment != null) {
-			rec.status_note += "\n\n>"+request_comment;
+			rec.status_note = request_comment;
+			context.setComment(request_comment);
 		}
 		
-    	log.debug("request init");
+    	//log.debug("request init");
     	
     	GridAdminModel gmodel = new GridAdminModel(context);
     	StringArray csrs_sa = new StringArray(csrs.length);
@@ -511,15 +511,30 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 			
         	//log.debug("request_id: " + request_id);
 			
-        	ticket.description = "Dear GridAdmin; ";
-			for(ContactRecord ga : findGridAdmin(rec)) {
-				ticket.description += ga.name + ", ";
-				ticket.ccs.add(ga.primary_email);
+			ArrayList<ContactRecord> gas = findGridAdmin(rec);
+			//find if submitter is ga
+			boolean submitter_is_ga = false;
+			for(ContactRecord ga : gas) {
+				if(ga.id.equals(rec.requester_contact_id)) {
+					submitter_is_ga = true;
+					break;
+				}
 			}
-			ticket.description += "\n\n";
 			
-			ticket.description += "Host certificate request has been submitted.\n\n";
-			ticket.description += "Please determine this request's authenticity, and approve / disapprove at " + getTicketUrl(rec);
+			if(submitter_is_ga) {
+				ticket.description = "Host certificate request has been submitted by GridAdmin.\n\n";
+				//don't cc anyone.
+			} else {
+	        	ticket.description = "Dear GridAdmin; ";
+				for(ContactRecord ga : findGridAdmin(rec)) {
+					ticket.description += ga.name + ", ";
+					ticket.ccs.add(ga.primary_email);
+				}
+				ticket.description += "\n\n";
+				ticket.description += "Host certificate request has been submitted.\n\n";
+				ticket.description += "Please determine this request's authenticity, and approve / disapprove at " + getTicketUrl(rec);
+			}	
+			
 			if(request_comment != null) {
 				ticket.description += "\n\n>"+request_comment;
 			}
