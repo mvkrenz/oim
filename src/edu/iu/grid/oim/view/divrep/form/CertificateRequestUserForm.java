@@ -1,7 +1,6 @@
 package edu.iu.grid.oim.view.divrep.form;
 
 import java.io.InputStream;
-import java.io.PrintWriter;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -12,14 +11,11 @@ import java.util.LinkedHashMap;
 import java.util.TimeZone;
 
 import org.apache.log4j.Logger;
-import org.bouncycastle.asn1.x500.X500Name;
 
-import com.divrep.DivRep;
 import com.divrep.DivRepEvent;
 import com.divrep.DivRepEventListener;
 import com.divrep.common.DivRepCheckBox;
 import com.divrep.common.DivRepForm;
-import com.divrep.common.DivRepFormElement;
 import com.divrep.common.DivRepPassword;
 import com.divrep.common.DivRepSelectBox;
 import com.divrep.common.DivRepStaticContent;
@@ -34,7 +30,6 @@ import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.UserContext.MessageType;
 import edu.iu.grid.oim.model.db.CertificateRequestUserModel;
 import edu.iu.grid.oim.model.db.ContactModel;
-import edu.iu.grid.oim.model.db.DNModel;
 import edu.iu.grid.oim.model.db.VOContactModel;
 import edu.iu.grid.oim.model.db.VOModel;
 import edu.iu.grid.oim.model.db.record.CertificateRequestUserRecord;
@@ -43,7 +38,6 @@ import edu.iu.grid.oim.model.db.record.VOContactRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
 import edu.iu.grid.oim.model.exceptions.CertificateRequestException;
 
-import edu.iu.grid.oim.view.HtmlFileView;
 import edu.iu.grid.oim.view.divrep.CNEditor;
 import edu.iu.grid.oim.view.divrep.DivRepSimpleCaptcha;
 import edu.iu.grid.oim.view.divrep.form.validator.PKIPassStrengthValidator;
@@ -73,7 +67,6 @@ public class CertificateRequestUserForm extends DivRepForm
 	private DivRepCheckBox agreement;
 	
 	private DivRepSelectBox vo;//, sponsor;
-	
 	
 	public CertificateRequestUserForm(final UserContext context, String origin_url) {
 		

@@ -873,11 +873,21 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 		Statement stmt = conn.createStatement();
 	    if (stmt.execute("SELECT * FROM "+table_name+ " WHERE cert_notafter < CURDATE()")) {
 	    	rs = stmt.getResultSet();
+	    	
+	    	DNModel dnmodel = new DNModel(context);
+	    	
 	    	while(rs.next()) {
 	    		CertificateRequestUserRecord rec = new CertificateRequestUserRecord(rs);
 	    		if(rec.status.equals(CertificateRequestStatus.ISSUED)) {
 	    			rec.status = CertificateRequestStatus.EXPIRED;
 	    			super.update(get(rec.id), rec);
+	    			
+	    			//disable DN (TODO -- Not yet tested..)
+	    			DNRecord dnrec = dnmodel.getByDNString(rec.dn);
+	    			if(dnrec != null) {
+	    				dnrec.disable = true;
+	    				dnmodel.update(dnrec);
+	    			}
 	    			
 					// update ticket
 					Footprints fp = new Footprints(context);
