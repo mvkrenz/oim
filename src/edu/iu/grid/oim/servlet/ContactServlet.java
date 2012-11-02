@@ -195,7 +195,11 @@ public class ContactServlet extends ServletBase {
 			try {
 				ArrayList<DNRecord> dns = dnmodel.getEnabledByContactID(rec.id);
 				if(dns.size() > 0) {
-					image = "<span class=\"label label-success\">"+dns.size()+" DN</span>";
+					String tooltip = "";
+					for(DNRecord dn : dns) {
+						tooltip += dn.dn_string + "<br>";
+					}
+					image = "<span ref=\"tooltip\" title=\""+tooltip+"\" class=\"label label-success\">"+dns.size()+" DN</span></a>";
 				} else {
 					image = "<span class=\"label label-warning\">No DN</span>";
 				}

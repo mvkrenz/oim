@@ -354,7 +354,7 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
     
     //NO-AC (for authenticated user)
 	//return request record if successful, otherwise null
-    public CertificateRequestHostRecord requestAsUser(String[] csrs, ContactRecord requester) throws CertificateRequestException 
+    public CertificateRequestHostRecord requestAsUser(String[] csrs, ContactRecord requester, String request_comment, String[] request_ccs) throws CertificateRequestException 
     {
     	CertificateRequestHostRecord rec = new CertificateRequestHostRecord();
 		//Date current = new Date();
@@ -370,13 +370,18 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 		ticket.phone = requester.primary_phone;
 		ticket.title = "Host Certificate Request by " + requester.name + "(OIM user)";
 		ticket.metadata.put("SUBMITTER_NAME", requester.name);
+		if(request_ccs != null) {
+			for(String cc : request_ccs) {
+				ticket.ccs.add(cc);
+			}
+		}
 		
-    	return request(csrs, rec, ticket);
+    	return request(csrs, rec, ticket, request_comment);
     }
     
     //NO-AC (for guest user)
 	//return request record if successful, otherwise null
-    public CertificateRequestHostRecord requestAsGuest(String[] csrs, String requester_name, String requester_email, String requester_phone) throws CertificateRequestException 
+    public CertificateRequestHostRecord requestAsGuest(String[] csrs, String requester_name, String requester_email, String requester_phone, String request_comment, String[] request_ccs) throws CertificateRequestException 
     {
     	CertificateRequestHostRecord rec = new CertificateRequestHostRecord();
 		//Date current = new Date();
@@ -391,8 +396,13 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 		ticket.phone = requester_phone;
 		ticket.title = "Host Certificate Request by " + requester_name + "(Guest)";
 		ticket.metadata.put("SUBMITTER_NAME", requester_name);
+		if(request_ccs != null) {
+			for(String cc : request_ccs) {
+				ticket.ccs.add(cc);
+			}
+		}
 		
-    	return request(csrs, rec, ticket);
+    	return request(csrs, rec, ticket, request_comment);
     }
     
     private String getTicketUrl(CertificateRequestHostRecord rec) {
@@ -408,15 +418,19 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
     
     //NO-AC
 	//return request record if successful, otherwise null (guest interface)
-    private CertificateRequestHostRecord request(String[] csrs, CertificateRequestHostRecord rec, FPTicket ticket) throws CertificateRequestException 
+    private CertificateRequestHostRecord request(String[] csrs, CertificateRequestHostRecord rec, FPTicket ticket, String request_comment) throws CertificateRequestException 
     {
     	log.debug("request");
     	
 		Date current = new Date();
 		rec.request_time = new Timestamp(current.getTime());
 		rec.status = CertificateRequestStatus.REQUESTED;
-    	//rec.gridadmin_contact_id = null;
-    	
+
+		rec.status_note = context.getComment();
+		if(request_comment != null) {
+			rec.status_note += "\n\n>"+request_comment;
+		}
+		
     	log.debug("request init");
     	
     	GridAdminModel gmodel = new GridAdminModel(context);
@@ -506,6 +520,9 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 			
 			ticket.description += "Host certificate request has been submitted.\n\n";
 			ticket.description += "Please determine this request's authenticity, and approve / disapprove at " + getTicketUrl(rec);
+			if(request_comment != null) {
+				ticket.description += "\n\n>"+request_comment;
+			}
 			ticket.assignees.add(StaticConfig.conf.getProperty("certrequest.host.assignee"));
 			
 			ticket.nextaction = "RA/Sponsors to verify requester";

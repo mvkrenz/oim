@@ -189,13 +189,17 @@ public class RestServlet extends ServletBase  {
 			context.setComment("Guest user; " + name + " submitted host certificatates request.");
 		}
 		
+		//optional parameters
+		String request_comment = request.getParameter("request_comment");
+		String[] request_ccs = request.getParameterValues("request_ccs");
+		
 		CertificateRequestHostModel model = new CertificateRequestHostModel(context);
 		CertificateRequestHostRecord rec;
 		try {
 			if(auth.isUser()) {
-				rec = model.requestAsUser(csrs,  auth.getContact());
+				rec = model.requestAsUser(csrs,  auth.getContact(), request_comment, request_ccs);
 			} else {
-				rec = model.requestAsGuest(csrs, name, email, phone);
+				rec = model.requestAsGuest(csrs, name, email, phone, request_comment, request_ccs);
 			}
 			if(rec == null) {
 				throw new RestException("Failed to make request");
