@@ -324,22 +324,33 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
     		return false;
     	}
     	
-		//update request status
-		rec.status = CertificateRequestStatus.APPROVED;
-		try {
-			super.update(get(rec.id), rec);
-			quota.incrementUserCertRequest(rec.requester_contact_id);
-		} catch (SQLException e) {
-			log.error("Failed to approve user certificate request: " + rec.id, e);
-			return false;
-		}
 		
 		if(rec.status.equals(CertificateRequestStatus.REQUESTED)) {
+			//update request status
+			rec.status = CertificateRequestStatus.APPROVED;
+			try {
+				super.update(get(rec.id), rec);
+				quota.incrementUserCertRequest(rec.requester_contact_id);
+			} catch (SQLException e) {
+				log.error("Failed to approve user certificate request: " + rec.id, e);
+				return false;
+			}	
+			
 			return approveNewRequest(rec);
 		} else if(rec.status.equals(CertificateRequestStatus.RENEW_REQUESTED)) {
+			//update request status
+			rec.status = CertificateRequestStatus.APPROVED;
+			try {
+				super.update(get(rec.id), rec);
+				quota.incrementUserCertRequest(rec.requester_contact_id);
+			} catch (SQLException e) {
+				log.error("Failed to approve user certificate request: " + rec.id, e);
+				return false;
+			}
+			
 			return approveRenewRequest(rec);
 		} else {
-			log.error("Don't know how to approve quest which is currently in stauts: "+rec.status);
+			log.error("Don't know how to approve request which is currently in stauts: "+rec.status);
 			return false;
 		}
 	}
