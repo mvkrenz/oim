@@ -63,9 +63,11 @@ public class SideContentView implements IView {
 	public void addContactLegend () {
 		add(new HtmlView("<h2>Contact Ranks</h2><div class=\'contact_rank contact_Primary\'>Primary</div><div class=\'contact_rank contact_Secondary\'>Secondary</div><div class=\'contact_rank contact_Tertiary\'>Tertiary</div>"));		
 	}
+	/*
 	public void addContactGroupFlagLegend () {
 		add("Contact Grouping Legend", new HtmlView("Contacts are flagged based on whether they are tagged as a group contact or not:</p><p><div class=\'contact_rank contact_flag_Group\'>Group Contact (Mailing list, etc.)</div><div class=\'contact_rank contact_flag_Person\'>Non-Group Contact (Human user or Service-cert. mapped user)</div>"));		
 	}
+	*/
 	public void render(PrintWriter out)
 	{
 		out.println("<div id=\"sideContent\">");

@@ -122,7 +122,7 @@ public class ContactFormDE extends DivRepForm
 								active = "well-disabled";
 								tag += "<span style=\"float: right;\" class=\"label\">Disabled DN</span>";
 							}
-							out.write("<div class=\"well "+active+"\">");
+							out.write("<div class=\"well well-small"+active+"\">");
 							out.write(tag);
 							out.write("<h4>"+StringEscapeUtils.escapeHtml(dn.dn_string)+"</h4>");
 							
