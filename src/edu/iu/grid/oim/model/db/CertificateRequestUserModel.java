@@ -687,6 +687,15 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 				} catch (SQLException e1) {
 					log.error("Failed to update request status while processing failed condition :" + message, e1);
 				}
+				
+				//update ticket
+				Footprints fp = new Footprints(context);
+				FPTicket ticket = fp.new FPTicket();
+				ticket.description = "Failed to issue certificate\n\n";
+				ticket.description += message+"\n\n";
+				ticket.description += e.getMessage()+"\n\n";
+				ticket.description += "The alert has been sent to GOC alert for furthre actions on this issue.";
+				fp.update(ticket, rec.goc_ticket_id);
 			}
 			public void run() {
 				try {					
