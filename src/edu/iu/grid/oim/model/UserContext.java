@@ -54,7 +54,9 @@ public class UserContext {
 		//don't store request object because it can get stale really fast... (was causing issue when divrep tries to get session from it)
 		//request = _request;	
 		
-		session = request.getSession();
+		if(request.isRequestedSessionIdValid()) {
+			session = request.getSession();
+		}
 		auth = new Authorization(request);
 
 		//parse request_url
