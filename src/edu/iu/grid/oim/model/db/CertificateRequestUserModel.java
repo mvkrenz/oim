@@ -34,6 +34,7 @@ import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.BCrypt;
 import edu.iu.grid.oim.lib.Footprints;
 import edu.iu.grid.oim.lib.StaticConfig;
+import edu.iu.grid.oim.lib.StringArray;
 import edu.iu.grid.oim.lib.Footprints.FPTicket;
 import edu.iu.grid.oim.model.CertificateRequestStatus;
 import edu.iu.grid.oim.model.UserContext;
@@ -45,7 +46,6 @@ import edu.iu.grid.oim.model.db.record.CertificateRequestUserRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.DNAuthorizationTypeRecord;
 import edu.iu.grid.oim.model.db.record.DNRecord;
-import edu.iu.grid.oim.model.db.record.RecordBase;
 import edu.iu.grid.oim.model.db.record.SCRecord;
 import edu.iu.grid.oim.model.db.record.VOContactRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
@@ -172,7 +172,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 		if(!canView(rec)) return false;
 		
 		if(	rec.status.equals(CertificateRequestStatus.REQUESTED) ||
-			//rec.status.equals(CertificateRequestStatus.APPROVED) ||
+			rec.status.equals(CertificateRequestStatus.APPROVED) || //if renew_requesterd > approved cert is canceled, it should really go back to "issued", but currently it doesn't.
 			rec.status.equals(CertificateRequestStatus.RENEW_REQUESTED) ||
 			rec.status.equals(CertificateRequestStatus.REVOCATION_REQUESTED)) {
 			if(auth.isUser()) {
@@ -231,10 +231,15 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 	public boolean canReRequest(CertificateRequestUserRecord rec) {
 		if(!canView(rec)) return false;
 		
-		if(		rec.status.equals(CertificateRequestStatus.REJECTED) ||
-				rec.status.equals(CertificateRequestStatus.CANCELED) ||
-				rec.status.equals(CertificateRequestStatus.REVOKED) ||
-				rec.status.equals(CertificateRequestStatus.EXPIRED) ) {
+		if(	rec.status.equals(CertificateRequestStatus.REJECTED) ||
+			rec.status.equals(CertificateRequestStatus.CANCELED) ||
+			rec.status.equals(CertificateRequestStatus.REVOKED) ) {
+			if(auth.isUser()) {
+				return true;
+			}
+		}		
+		
+		if (rec.status.equals(CertificateRequestStatus.EXPIRED) ) {
 			//guest user needs to be able to re-request expired cert.. but how can I prevent spammer?
 			return true;
 		}
@@ -312,30 +317,52 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 	//NO-AC
 	//return true if success
 	public boolean approve(CertificateRequestUserRecord rec) {
+		//check quota
+    	CertificateQuotaModel quota = new CertificateQuotaModel(context);
+    	if(!quota.canRequestUserCert(rec.requester_contact_id)) {
+    		log.error("Exceeded user quota.");
+    		return false;
+    	}
+    	
+		
 		if(rec.status.equals(CertificateRequestStatus.REQUESTED)) {
+			//update request status
+			rec.status = CertificateRequestStatus.APPROVED;
+			try {
+				super.update(get(rec.id), rec);
+				quota.incrementUserCertRequest(rec.requester_contact_id);
+			} catch (SQLException e) {
+				log.error("Failed to approve user certificate request: " + rec.id, e);
+				return false;
+			}	
+			
 			return approveNewRequest(rec);
 		} else if(rec.status.equals(CertificateRequestStatus.RENEW_REQUESTED)) {
+			//update request status
+			rec.status = CertificateRequestStatus.APPROVED;
+			try {
+				super.update(get(rec.id), rec);
+				quota.incrementUserCertRequest(rec.requester_contact_id);
+			} catch (SQLException e) {
+				log.error("Failed to approve user certificate request: " + rec.id, e);
+				return false;
+			}
+			
 			return approveRenewRequest(rec);
 		} else {
-			log.error("Don't know how to approve quest which is currently in stauts: "+rec.status);
+			log.error("Don't know how to approve request which is currently in stauts: "+rec.status);
 			return false;
 		}
 	}
 	
 	private boolean approveNewRequest(CertificateRequestUserRecord rec) {
-		rec.status = CertificateRequestStatus.APPROVED;
-		try {
-			super.update(get(rec.id), rec);
-		} catch (SQLException e) {
-			log.error("Failed to approve user certificate request: " + rec.id, e);
-			return false;
-		}
-		
+	
 		try {
 			//Then insert a new DN record
 			DNRecord dnrec = new DNRecord();
 			dnrec.contact_id = rec.requester_contact_id;
 			dnrec.dn_string = rec.dn;
+			dnrec.disable = false;
 			//dnrec.usercert_request_id = rec.id;
 			DNModel dnmodel = new DNModel(context);
 			dnrec.id = dnmodel.insert(dnrec);
@@ -372,15 +399,6 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 	
 	private boolean approveRenewRequest(CertificateRequestUserRecord rec) {
 		
-		//update request status
-		rec.status = CertificateRequestStatus.APPROVED;
-		try {
-			super.update(get(rec.id), rec);
-		} catch (SQLException e) {
-			log.error("Failed to approve user certificate request: " + rec.id, e);
-			return false;
-		}
-		
 		//notify user
 		try {
 			//pull requester info
@@ -410,7 +428,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 		try {
 			if(rec.status.equals(CertificateRequestStatus.RENEW_REQUESTED) ||
 				rec.status.equals(CertificateRequestStatus.REVOCATION_REQUESTED)) {
-					rec.status = CertificateRequestStatus.ISSUED;
+				rec.status = CertificateRequestStatus.ISSUED;
 			} else {
 				rec.status = CertificateRequestStatus.CANCELED;
 			}
@@ -476,18 +494,19 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 	//NO-AC
 	//return true if success
 	public void requestRenew(CertificateRequestUserRecord rec) throws CertificateRequestException {
-		
-    	//check quota
-    	CertificateQuotaModel quota = new CertificateQuotaModel(context);
-    	if(!quota.canRequestUserCert()) {
-    		throw new CertificateRequestException("Can't request any more user certificate.");
-    	}
-    	
 		rec.status = CertificateRequestStatus.RENEW_REQUESTED;
-		rec.csr = null; //similar to request(), set csr to null so that oim will generate key
+		
+		//setting this to null so that oim will regenerate key which is generated when csr is created 
+		//we shoudn't do this if user is providing us the CSR (guessing user will re-use the same private key)
+		rec.csr = null; 
+		
+    	rec.cert_certificate = null;
+    	rec.cert_intermediate = null;
+    	rec.cert_pkcs7 = null;
+    	rec.cert_serial_id = null;
 		try {
 			super.update(get(rec.id), rec);
-			quota.incrementUserCertRequest();
+			//quota.incrementUserCertRequest();
 		} catch (SQLException e) {
 			log.error("Failed to request user certificate request renewal: " + rec.id);
 			throw new CertificateRequestException("Failed to update request status", e);
@@ -593,16 +612,30 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 		CertificateManager cm = new CertificateManager();
 		try {
 			cm.revokeUserCertificate(rec.cert_serial_id);
+			log.info("Revoked " + rec.dn + " with serial id:" + rec.cert_serial_id);
 			
-			///////////////////////////////////////////////////////////////////////////////////////
-			// Revoke complete.
-			rec.status = CertificateRequestStatus.REVOKED;
+			//update record
 			try {
+				rec.status = CertificateRequestStatus.REVOKED;
 				//context.setComment("Certificate Approved");
 				super.update(get(rec.id), rec);
+			
 			} catch (SQLException e) {
-				log.error("Failed to update user certificate status: " + rec.id);
+				log.error("Failed to update user certificate status: " + rec.id, e);
 				throw new CertificateRequestException("Failed to update user certificate status", e);
+			}
+			
+			//remove associated dn (if any)
+			try {
+				DNModel dnmodel = new DNModel(context);
+				DNRecord dnrec = dnmodel.getByDNString(rec.dn);
+				if(rec != null) {
+					log.info("Disabling associated DN record");
+					dnrec.disable = true;
+					dnmodel.update(dnrec);
+				}
+			} catch (SQLException e) {
+				log.warn("Failed to remove associated DN.. continuing", e);
 			}
 			
 			Authorization auth = context.getAuthorization();
@@ -610,7 +643,8 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 			
 			Footprints fp = new Footprints(context);
 			FPTicket ticket = fp.new FPTicket();
-			ticket.description = contact.name + " has revoked this certificate.";
+			ticket.description = contact.name + " has revoked this certificate.\n\n";
+			ticket.description += "> " + context.getComment();
 			ticket.status = "Resolved";
 			fp.update(ticket, rec.goc_ticket_id);
 			
@@ -664,17 +698,18 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 				} catch (SQLException e1) {
 					log.error("Failed to update request status while processing failed condition :" + message, e1);
 				}
+				
+				//update ticket
+				Footprints fp = new Footprints(context);
+				FPTicket ticket = fp.new FPTicket();
+				ticket.description = "Failed to issue certificate\n\n";
+				ticket.description += message+"\n\n";
+				ticket.description += e.getMessage()+"\n\n";
+				ticket.description += "The alert has been sent to GOC alert for furthre actions on this issue.";
+				fp.update(ticket, rec.goc_ticket_id);
 			}
 			public void run() {
-				try {
-					/*
-					String dn = ApacheDN_to_RFC1779(rec.dn);
-					log.debug("RF1779 dn: " + dn);
-					X500Name name = new X500Name(dn);
-					RDN[] cn_rdn = name.getRDNs(BCStyle.CN);
-					String cn = cn_rdn[0].getFirst().getValue().toString(); //wtf?
-					*/
-					
+				try {					
 					//if csr is not set, we need to create one and private key for user
 					if (rec.csr == null) {
 						X500Name name = rec.getX500Name();
@@ -701,40 +736,36 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 					rec.cert_intermediate = cert.intermediate;
 					rec.cert_pkcs7 = cert.pkcs7;
 					rec.cert_serial_id = cert.serial;
+					log.info("user cert issued by digicert: serial_id:" + cert.serial);
+					log.info("pkcs7:" + cert.pkcs7);
 					
 					//get some information we need from the issued certificate
-					try {
-						java.security.cert.Certificate[]  chain = CertificateManager.parsePKCS7(rec.cert_pkcs7);
-						X509Certificate c0 = (X509Certificate)chain[0];
-						rec.cert_notafter = c0.getNotAfter();
-						rec.cert_notbefore = c0.getNotBefore();
-						
-						//do a bit of validation
-						Calendar today = Calendar.getInstance();
-						if(Math.abs(today.getTimeInMillis() - rec.cert_notbefore.getTime()) > 1000*3600*24) {
-							log.warn("User certificate issued for request "+rec.id+" has cert_notbefore set too distance from current timestamp");
-						}
-						long dayrange = (rec.cert_notafter.getTime() - rec.cert_notbefore.getTime()) / (1000*3600*24);
-						if(dayrange < 390 || dayrange > 400) {
-							log.warn("User certificate issued for request "+rec.id+ " has valid range of "+dayrange+" days (too far from 395 days)");
-						}
-						
-						//update dn with the one returned by DigiCert
-						X500Principal dn = c0.getSubjectX500Principal();
-						String apache_dn = CertificateManager.X500Principal_to_ApacheDN(dn);
-						rec.dn = apache_dn;
-						
-						//make sure dn starts with correct base
-						String user_dn_base = StaticConfig.conf.getProperty("digicert.user_dn_base");
-						if(!apache_dn.startsWith(user_dn_base)) {
-							log.warn("User certificate issued for request " + rec.id + " has DN:"+apache_dn+" which doesn't have an expected DN base: "+user_dn_base);
-						}
-						
-					} catch (CMSException e) {
-						log.error("Failed to lookup certificate information for issued user cert request id:" + rec.id, e);
+					java.security.cert.Certificate[]  chain = CertificateManager.parsePKCS7(rec.cert_pkcs7);
+					X509Certificate c0 = (X509Certificate)chain[0];
+					rec.cert_notafter = c0.getNotAfter();
+					rec.cert_notbefore = c0.getNotBefore();
+					
+					//do a bit of validation
+					Calendar today = Calendar.getInstance();
+					if(Math.abs(today.getTimeInMillis() - rec.cert_notbefore.getTime()) > 1000*3600*24) {
+						log.warn("User certificate issued for request "+rec.id+" has cert_notbefore set too distance from current timestamp");
+					}
+					long dayrange = (rec.cert_notafter.getTime() - rec.cert_notbefore.getTime()) / (1000*3600*24);
+					if(dayrange < 390 || dayrange > 405) {
+						log.warn("User certificate issued for request "+rec.id+ " has valid range of "+dayrange+" days (too far from 395 days)");
 					}
 					
+					//update dn with the one returned by DigiCert
+					X500Principal dn = c0.getSubjectX500Principal();
+					String apache_dn = CertificateManager.X500Principal_to_ApacheDN(dn);
+					rec.dn = apache_dn;
 					
+					//make sure dn starts with correct base
+					String user_dn_base = StaticConfig.conf.getProperty("digicert.user_dn_base");
+					if(!apache_dn.startsWith(user_dn_base)) {
+						log.warn("User certificate issued for request " + rec.id + " has DN:"+apache_dn+" which doesn't have an expected DN base: "+user_dn_base);
+					}
+						
 					//all done at this point
 					rec.status = CertificateRequestStatus.ISSUED;
 					context.setComment("Certificate has been issued by signer. serial number: " + rec.cert_serial_id);
@@ -746,17 +777,19 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 					Authorization auth = context.getAuthorization();
 					if(auth.isUser()) {
 						ContactRecord contact = auth.getContact();
-						ticket.description = contact.name + " has issued certificate.";
+						ticket.description = contact.name + " has issued certificate. Resolving this ticket.";
 					} else {
-						ticket.description = "Guest with IP:" + context.getRemoteAddr() + " has issued certificate.";
+						ticket.description = "Guest with IP:" + context.getRemoteAddr() + " has issued certificate. Resolving this ticket.";
 					}
 					ticket.status = "Resolved";
 					fp.update(ticket, rec.goc_ticket_id);
 					
 				} catch (ICertificateSigner.CertificateProviderException e) {
 					failed("Failed to sign certificate -- CertificateProviderException ", e);
-				} catch(Exception e) {
-					failed("Failed to sign certificate -- unhandled", e);	
+				} catch (CMSException e) { //from parsePKCS7
+					failed("Failed to sign certificate -- can't parse returned pkcs7 for request id:" + rec.id, e);
+				} catch (Exception e) { //probably from parsePKCS7 (like StringIndexOutOfBoundsException)
+					failed("Failed to sign certificate -- can't parse returned pkcs7 request id:" + rec.id, e);
 				}
 			}
 		}).start();
@@ -783,14 +816,17 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 			
 			//HttpSession session = context.getSession();
 			String password = getPassword(rec.id);
-			
-			KeyStore p12 = KeyStore.getInstance("PKCS12");
-			p12.load(null, null);  //not sure what this does.
-			PrivateKey private_key = getPrivateKey(rec.id);
-			
-			p12.setKeyEntry("USER"+rec.id, private_key, password.toCharArray(), chain); 
-			
-			return p12;
+			if(password == null) {
+				log.error("can't retrieve certificate encryption password while creating pkcs12");
+			} else {
+				KeyStore p12 = KeyStore.getInstance("PKCS12");
+				p12.load(null, null);  //not sure what this does.
+				PrivateKey private_key = getPrivateKey(rec.id);
+				
+				p12.setKeyEntry("USER"+rec.id, private_key, password.toCharArray(), chain); 
+				
+				return p12;
+			}
 		} catch (IOException e) {
 			log.error("Failed to get encoded byte array from bouncy castle certificate.", e);
 		} catch (CertificateException e) {
@@ -848,11 +884,21 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 		Statement stmt = conn.createStatement();
 	    if (stmt.execute("SELECT * FROM "+table_name+ " WHERE cert_notafter < CURDATE()")) {
 	    	rs = stmt.getResultSet();
+	    	
+	    	DNModel dnmodel = new DNModel(context);
+	    	
 	    	while(rs.next()) {
 	    		CertificateRequestUserRecord rec = new CertificateRequestUserRecord(rs);
 	    		if(rec.status.equals(CertificateRequestStatus.ISSUED)) {
 	    			rec.status = CertificateRequestStatus.EXPIRED;
 	    			super.update(get(rec.id), rec);
+	    			
+	    			//disable DN (TODO -- Not yet tested..)
+	    			DNRecord dnrec = dnmodel.getByDNString(rec.dn);
+	    			if(dnrec != null) {
+	    				dnrec.disable = true;
+	    				dnmodel.update(dnrec);
+	    			}
 	    			
 					// update ticket
 					Footprints fp = new Footprints(context);
@@ -966,7 +1012,12 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
         //We are creating this so that we can create private key
         x500NameBld.addRDN(BCStyle.DC, "com");
         x500NameBld.addRDN(BCStyle.DC, "DigiCert-Grid");
-        x500NameBld.addRDN(BCStyle.O, "Open Science Grid"); //will be "OSG Pilot" for test  
+        if(StaticConfig.isDebug()) {
+        	//let's assume debug means we are using digicert pilot
+        	x500NameBld.addRDN(BCStyle.O, "OSG Pilot");
+        } else {
+        	x500NameBld.addRDN(BCStyle.O, "Open Science Grid");
+        }
         x500NameBld.addRDN(BCStyle.OU, "People");   
         x500NameBld.addRDN(BCStyle.CN, cn); //don't use "," or "/" which is used for DN delimiter
         
@@ -974,7 +1025,13 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
     }
     
     private String getTicketUrl(CertificateRequestUserRecord rec) {
-		return "certificateuser?id=" + rec.id;
+    	String base;
+    	if(StaticConfig.isDebug()) {
+    		base = "https://oim-itb.grid.iu.edu/oim/";
+    	} else {
+    		base = "https://oim.grid.iu.edu/oim/";
+    	}
+		return base + "certificateuser?id=" + rec.id;
     }
     
     //NO-AC 
@@ -984,12 +1041,6 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 		///////////////////////////////////////////////////////////////////////////////////////////
 		// Check conditions & finalize DN (register contact if needed)
     	String note = "";
-    
-    	//check quota
-    	CertificateQuotaModel quota = new CertificateQuotaModel(context);
-    	if(!quota.canRequestUserCert()) {
-    		throw new CertificateRequestException("Exceeded quota. You can't request any more user certificate.");
-    	}
     
 		/*
 		//make sure there are no other certificate already requested or renew_requested
@@ -1026,37 +1077,43 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 				requester.id = cmodel.insert(requester);
 				
 				//and generate dn
-		    	cn = requester.getName() + " " + requester.id;
+		    	cn = requester.name + " " + requester.id;
 		    	X500Name name = generateDN(cn);
 				rec.dn = CertificateManager.RFC1779_to_ApacheDN(name.toString());
 				
 				note += "NOTE: User is registering OIM contact & requesting new certificate: contact id:"+requester.id+"\n";
 		    	
 			} else {
-				//generate dn
-		    	cn = requester.getName() + " " + requester.id;
+				//generate dn (with existing_crec id)
+		    	cn = requester.name + " " + existing_crec.id;
 		    	X500Name name = generateDN(cn);
 				rec.dn = CertificateManager.RFC1779_to_ApacheDN(name.toString());
 				
 				//find if there is any DN associated with the contact
 				DNModel dnmodel = new DNModel(context);
-				ArrayList<DNRecord> dnrecs = dnmodel.getByContactID(existing_crec.id);
+				ArrayList<DNRecord> dnrecs = dnmodel.getEnabledByContactID(existing_crec.id);
 				if(dnrecs.isEmpty()) {
-					//pre-pregistered contact - just let user associate with this contact id
+					//do contact record take over
+					
+					//pre-registered contact - just let user associate with this contact id
 					requester.id = existing_crec.id;
+					requester.disable = false;
+					requester.person = true;
 					
 					//update contact information with information that user just gave me
-					cmodel.update(existing_crec, rec);
+					cmodel.update(requester);
 					
 					note += "NOTE: User is claiming unused contact id: "+existing_crec.id+"\n";
 				} else {
+					//we can't take over contact record that already has DN attached.
+					//find proper error message
 					CertificateRequestUserRecord existing_rec = getByDN(rec.dn);
 					if(existing_rec != null) {
 						//oim cert is already associated.
-						throw new CertificateRequestException("Provided email address is already associated with existing certificate (U"+existing_rec.id+"). Please contact GOC for more assistance.");						
+						throw new CertificateRequestException("Provided email address is already associated with existing certificate (U"+existing_rec.id+"). If you are already registered to OIM, please login before making your request. Please contact GOC for more assistance.");						
 					} else {
 						//probably non digicert DN
-						throw new CertificateRequestException("Provided email address is already associated with existing non OIM certificate. Please contact GOC for more assistance.");
+						throw new CertificateRequestException("Provided email address is already associated with existing non OIM certificate. If you are already registered to OIM, please login before making your request. Please contact GOC for more assistance.");
 					}
 				}
 			}
@@ -1075,7 +1132,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 		
 		context.setComment("Making Request for " + requester.name);
     	super.insert(rec);
-		quota.incrementUserCertRequest();
+		//quota.incrementUserCertRequest();
 		
 		///////////////////////////////////////////////////////////////////////////////////////////
 		// Notification
@@ -1128,6 +1185,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 		}
 		*/
 		ticket.assignees.add(StaticConfig.conf.getProperty("certrequest.user.assignee"));
+		ticket.ccs.add("osg-ra@opensciencegrid.org");
 		
 		ticket.nextaction = "RA/Sponsors to verify requester";	 //NAD will be set to 7 days in advance by default
 		
@@ -1156,18 +1214,12 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
     
     //no-ac
     public boolean rerequest(CertificateRequestUserRecord rec) throws CertificateRequestException 
-    {
-    	//check quota
-    	CertificateQuotaModel quota = new CertificateQuotaModel(context);
-    	if(!quota.canRequestUserCert()) {
-    		throw new CertificateRequestException("Exceeded quota. You can't request any more user certificate.");
-    	}
-    	
+    {    	
 		rec.status = CertificateRequestStatus.REQUESTED;
 		try {
 			//context.setComment("Certificate Approved");
 			super.update(get(rec.id), rec);
-			quota.incrementUserCertRequest();
+			//quota.incrementUserCertRequest();
 		} catch (SQLException e) {
 			log.error("Failed to re-request user certificate request: " + rec.id);
 			return false;
@@ -1222,17 +1274,17 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
     }
 	//prevent low level access - please use model specific actions
     @Override
-    public Integer insert(RecordBase rec) throws SQLException
+    public Integer insert(CertificateRequestUserRecord rec) throws SQLException
     { 
     	throw new UnsupportedOperationException("Please use model specific actions instead (request, approve, reject, etc..)");
     }
     @Override
-    public void update(RecordBase oldrec, RecordBase newrec) throws SQLException
+    public void update(CertificateRequestUserRecord oldrec, CertificateRequestUserRecord newrec) throws SQLException
     {
     	throw new UnsupportedOperationException("Please use model specific actions insetead (request, approve, reject, etc..)");
     }
     @Override
-    public void remove(RecordBase rec) throws SQLException
+    public void remove(CertificateRequestUserRecord rec) throws SQLException
     {
     	throw new UnsupportedOperationException("disallowing remove cert request..");
     }
@@ -1312,5 +1364,11 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 	    stmt.close();
 	    conn.close();
 	    return recs;
+	}
+
+	@Override
+	CertificateRequestUserRecord createRecord() throws SQLException {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

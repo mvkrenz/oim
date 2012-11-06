@@ -45,7 +45,6 @@ import edu.iu.grid.oim.model.db.record.ResourceDowntimeServiceRecord;
 import edu.iu.grid.oim.model.db.record.ResourceServiceRecord;
 import edu.iu.grid.oim.model.db.record.ResourceWLCGRecord;
 import edu.iu.grid.oim.model.db.record.ServiceRecord;
-import edu.iu.grid.oim.view.DivRepWrapper;
 
 public class ResourceDowntimeEditor extends DivRepFormElement {
     static Logger log = Logger.getLogger(ResourceDowntimeEditor.class); 
@@ -167,17 +166,6 @@ public class ResourceDowntimeEditor extends DivRepFormElement {
 			addService(rsrec.service_id);
 		}
 		
-		/*
-		remove_button = new DivRepButton(this, "images/delete.png");
-		remove_button.setStyle(DivRepButton.Style.IMAGE);
-		remove_button.addEventListener(new DivRepEventListener() {
-			public void handleEvent(DivRepEvent e) {
-				removeDowntime(DowntimeEditor.this);	
-				setFormModified();
-			}
-		});
-		*/
-		
 		if(rec.timestamp != null) {
 			timestamp = rec.timestamp;
 		} else {
@@ -238,8 +226,6 @@ public class ResourceDowntimeEditor extends DivRepFormElement {
 					"onSelect: function(value) {divrep('"+getNodeID()+"', null, value);},"+
 					"dateFormat: '"+default_jquery_format+"',"+
 					"showOn: 'button',"+
-					//"beforeShow: function() {$(this).attr('disabled', 'disabled');},"+
-					//"onClose: function() {$(this).attr('disabled', '');},"+
 					"changeYear: true,"+
 					"changeMonth: true"
 					);

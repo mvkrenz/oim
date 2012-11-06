@@ -1,7 +1,6 @@
 package edu.iu.grid.oim.view.divrep.form;
 
 import java.io.InputStream;
-import java.io.PrintWriter;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -12,19 +11,17 @@ import java.util.LinkedHashMap;
 import java.util.TimeZone;
 
 import org.apache.log4j.Logger;
-import org.bouncycastle.asn1.x500.X500Name;
 
-import com.divrep.DivRep;
 import com.divrep.DivRepEvent;
 import com.divrep.DivRepEventListener;
 import com.divrep.common.DivRepCheckBox;
 import com.divrep.common.DivRepForm;
-import com.divrep.common.DivRepFormElement;
 import com.divrep.common.DivRepPassword;
 import com.divrep.common.DivRepSelectBox;
 import com.divrep.common.DivRepStaticContent;
 import com.divrep.common.DivRepTextArea;
 import com.divrep.common.DivRepTextBox;
+import com.divrep.validator.DivRepEmailValidator;
 import com.divrep.validator.DivRepIValidator;
 
 import edu.iu.grid.oim.lib.Authorization;
@@ -33,14 +30,14 @@ import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.UserContext.MessageType;
 import edu.iu.grid.oim.model.db.CertificateRequestUserModel;
 import edu.iu.grid.oim.model.db.ContactModel;
-import edu.iu.grid.oim.model.db.DNModel;
+import edu.iu.grid.oim.model.db.VOContactModel;
 import edu.iu.grid.oim.model.db.VOModel;
 import edu.iu.grid.oim.model.db.record.CertificateRequestUserRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
+import edu.iu.grid.oim.model.db.record.VOContactRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
 import edu.iu.grid.oim.model.exceptions.CertificateRequestException;
 
-import edu.iu.grid.oim.view.HtmlFileView;
 import edu.iu.grid.oim.view.divrep.CNEditor;
 import edu.iu.grid.oim.view.divrep.DivRepSimpleCaptcha;
 import edu.iu.grid.oim.view.divrep.form.validator.PKIPassStrengthValidator;
@@ -71,7 +68,6 @@ public class CertificateRequestUserForm extends DivRepForm
 	
 	private DivRepSelectBox vo;//, sponsor;
 	
-	
 	public CertificateRequestUserForm(final UserContext context, String origin_url) {
 		
 		super(context.getPageRoot(), origin_url);
@@ -82,34 +78,20 @@ public class CertificateRequestUserForm extends DivRepForm
 		if(!auth.isUser()) {
 			new DivRepStaticContent(this, "<div class=\"alert\">This is a public certificate request form. If you are already an OIM user, please login first.</div>");
 			new DivRepStaticContent(this, "<h2>Contact Information</h2>");
-			new DivRepStaticContent(this, "<p class=\"help-block\">Following information will be used to contact you during the approval process.</p>");
+			new DivRepStaticContent(this, "<p class=\"help-block\">Following information will be used to contact you during the approval process as well as to issue your certificate.</p>");
 					
 			fullname = new DivRepTextBox(this);
 			fullname.setLabel("Full Name");
 			fullname.setRequired(true);
-			/*
-			if(contact != null) {
-				fullname.setValue(contact.name);
-			}
-			*/
-			
-			email = new DivRepTextBox(this);
-			email.setLabel("Email");
-			email.setRequired(true);
-			/*
-			if(contact != null) {
-				email.setValue(contact.primary_email);
-			}
-			*/
-			
+
 			phone = new DivRepTextBox(this);
 			phone.setLabel("Phone");
 			phone.setRequired(true);
-			/*
-			if(contact != null) {
-				phone.setValue(contact.primary_phone);
-			}
-			*/
+
+			email = new DivRepTextBox(this);
+			email.setLabel("Email");
+			email.setRequired(true);
+			email.addValidator(new DivRepEmailValidator());
 			
 			new DivRepStaticContent(this, "<h2>Profile Information</h2>");
 			new DivRepStaticContent(this, "<p class=\"help-block\">Following information will be used to register you as a new OIM user.</p>");
@@ -251,9 +233,12 @@ public class CertificateRequestUserForm extends DivRepForm
 		new DivRepStaticContent(this, "<h2>Sponsor</h2>");
 		new DivRepStaticContent(this, "<p class=\"help-block\">Please select VO that should approve your request.</p>");
 		new DivRepStaticContent(this, "<p class=\"muted\">If you do not know which VO to select, please open a <a href=\"https://ticket.grid.iu.edu\">GOC Ticket</a> for an assistance.</p>");
+		new DivRepStaticContent(this, "<p class=\"muted\">If your VO does not appear, it may not be operational in the OSG PKI at this time. You may continue to use the <a href=\"https://pki1.doegrids.org/ca\">DOE Grids PKI</a></p>");
+		new DivRepStaticContent(this, "<p class=\"muted\">If you just need to access OSG secure web servers (OIM, DocDB, etc.), you may select the <b>MIS</b> VO.</p>");
 		
 		VOModel vo_model = new VOModel(context);
-		LinkedHashMap<Integer, String> kv = new LinkedHashMap();
+		VOContactModel model = new VOContactModel(context);
+		LinkedHashMap<Integer, String> keyvalues = new LinkedHashMap();
 		try {
 			ArrayList<VORecord> recs = vo_model.getAll();
 			Collections.sort(recs, new Comparator<VORecord> () {
@@ -262,9 +247,22 @@ public class CertificateRequestUserForm extends DivRepForm
 				}
 			});
 			for(VORecord vo_rec : recs) {
-				kv.put(vo_rec.id, vo_rec.name);
+				//check if the VO has at least 1 ra(primary or secondary) specified
+				ArrayList<VOContactRecord> crecs = model.getByVOID(vo_rec.id);
+				boolean hasra = false;
+				for(VOContactRecord crec : crecs) {
+					if(crec.contact_type_id.equals(11) && //RA
+						(crec.contact_rank_id.equals(1) || crec.contact_rank_id.equals(2))) { //primary or secondary
+						//ContactRecord contactrec = cmodel.get(crec.contact_id);
+						hasra = true;
+						break;
+					}
+				}
+				if(hasra) {
+					keyvalues.put(vo_rec.id, vo_rec.name);
+				}
 			}
-			vo = new DivRepSelectBox(this, kv);
+			vo = new DivRepSelectBox(this, keyvalues);
 			vo.setLabel("Virtual Organization");
 			vo.setRequired(true);
 			
@@ -320,7 +318,7 @@ public class CertificateRequestUserForm extends DivRepForm
 			user.use_twiki = use_twiki.getValue();
 			user.twiki_id = twiki_id.getValue();
 			user.person = true;
-
+			//user.disable = true will be set later - I believe it interfares with some lookup.
 			
 			user.count_hostcert_day = 0;
 			user.count_hostcert_year = 0;

@@ -13,7 +13,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashSet;
 
 import javax.security.auth.x500.X500Principal;
 
@@ -25,7 +24,6 @@ import org.bouncycastle.pkcs.PKCS10CertificationRequest;
 import org.bouncycastle.util.encoders.Base64;
 
 import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import edu.iu.grid.oim.lib.Authorization;
@@ -176,6 +174,15 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 				} catch (SQLException e1) {
 					log.error("Failed to update request status while processing failed condition :" + message, e1);
 				}
+				
+				//update ticket
+				Footprints fp = new Footprints(context);
+				FPTicket ticket = fp.new FPTicket();
+				ticket.description = "Failed to issue certificate.\n\n";
+				ticket.description += message+"\n\n";
+				ticket.description += e.getMessage()+"\n\n";
+				ticket.description += "The alert has been sent to GOC alert for furthre actions on this issue.";
+				fp.update(ticket, rec.goc_ticket_id);
 			}
 			
 			public void run() {
@@ -184,21 +191,9 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 					cm.signHostCertificates(certs, new IHostCertificatesCallBack() {
 						@Override
 						public void certificateSigned(Certificate cert, int idx) {
-							/*
-							//update certs db contents
-							try {
-								pkcs7s.set(idx,  cert.pkcs7);
-								certificates.set(idx,  cert.certificate);
-								intermediates.set(idx,  cert.intermediate);
-								rec.cert_pkcs7 = pkcs7s.toXML();
-								rec.cert_certificate = certificates.toXML();
-								rec.cert_intermediate = intermediates.toXML();
-								context.setComment("Certificate idx:"+idx+" has been issued");
-								CertificateRequestHostModel.super.update(get(rec.id), rec);
-							} catch (SQLException e) {
-								log.error("Failed to update certificate update while monitoring issue progress:" + rec.id);
-							};
-							*/
+							
+							log.info("host cert issued by digicert: serial_id:" + cert.serial);
+							log.info("pkcs7:" + cert.pkcs7);
 							
 							//pull some information from the cert for validation purpose
 							java.security.cert.Certificate[] chain;
@@ -215,7 +210,7 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 									log.warn("Host certificate issued for request "+rec.id+"(idx:"+idx+") has cert_notbefore set too distance from current timestamp");
 								}
 								long dayrange = (cert_notafter.getTime() - cert_notbefore.getTime()) / (1000*3600*24);
-								if(dayrange < 390 || dayrange > 400) {
+								if(dayrange < 390 || dayrange > 405) {
 									log.warn("Host certificate issued for request "+rec.id+ "(idx:"+idx+")  has valid range of "+dayrange+" days (too far from 395 days)");
 								}
 							
@@ -299,9 +294,9 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 					Authorization auth = context.getAuthorization();
 					if(auth.isUser()) {
 						ContactRecord contact = auth.getContact();
-						ticket.description = contact.name + " has issued certificate.";
+						ticket.description = contact.name + " has issued certificate. Resolving this ticket.";
 					} else {
-						ticket.description = "Someone with IP address: " + context.getRemoteAddr() + " has issued certificate";
+						ticket.description = "Someone with IP address: " + context.getRemoteAddr() + " has issued certificate. Resolving this ticket.";
 					}
 					ticket.status = "Resolved";
 					fp.update(ticket, rec.goc_ticket_id);
@@ -344,7 +339,11 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 		ticket.description = "Dear " + rec.requester_name + ",\n\n";
 		ticket.description += "Your host certificate request has been approved. \n\n";
 		ticket.description += "To retrieve your certificate please visit " + getTicketUrl(rec) + " and click on Issue Certificate button.\n\n";
-		ticket.description += "Or if you are using the command-line: osg-cert-retrieve -i "+rec.id+"\n\n";
+    	if(StaticConfig.isDebug()) {
+    		ticket.description += "Or if you are using the command-line: osg-cert-retrieve -T -i "+rec.id+"\n\n";
+    	} else {
+    		ticket.description += "Or if you are using the command-line: osg-cert-retrieve -i "+rec.id+"\n\n";  		
+    	}
 		ticket.nextaction = "Requester to download certificate";
 		Calendar nad = Calendar.getInstance();
 		nad.add(Calendar.DATE, 7);
@@ -355,7 +354,7 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
     
     //NO-AC (for authenticated user)
 	//return request record if successful, otherwise null
-    public CertificateRequestHostRecord requestAsUser(String[] csrs, ContactRecord requester) throws CertificateRequestException 
+    public CertificateRequestHostRecord requestAsUser(String[] csrs, ContactRecord requester, String request_comment, String[] request_ccs) throws CertificateRequestException 
     {
     	CertificateRequestHostRecord rec = new CertificateRequestHostRecord();
 		//Date current = new Date();
@@ -371,13 +370,18 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 		ticket.phone = requester.primary_phone;
 		ticket.title = "Host Certificate Request by " + requester.name + "(OIM user)";
 		ticket.metadata.put("SUBMITTER_NAME", requester.name);
+		if(request_ccs != null) {
+			for(String cc : request_ccs) {
+				ticket.ccs.add(cc);
+			}
+		}
 		
-    	return request(csrs, rec, ticket);
+    	return request(csrs, rec, ticket, request_comment);
     }
     
     //NO-AC (for guest user)
 	//return request record if successful, otherwise null
-    public CertificateRequestHostRecord requestAsGuest(String[] csrs, String requester_name, String requester_email, String requester_phone) throws CertificateRequestException 
+    public CertificateRequestHostRecord requestAsGuest(String[] csrs, String requester_name, String requester_email, String requester_phone, String request_comment, String[] request_ccs) throws CertificateRequestException 
     {
     	CertificateRequestHostRecord rec = new CertificateRequestHostRecord();
 		//Date current = new Date();
@@ -392,26 +396,42 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 		ticket.phone = requester_phone;
 		ticket.title = "Host Certificate Request by " + requester_name + "(Guest)";
 		ticket.metadata.put("SUBMITTER_NAME", requester_name);
+		if(request_ccs != null) {
+			for(String cc : request_ccs) {
+				ticket.ccs.add(cc);
+			}
+		}
 		
-    	return request(csrs, rec, ticket);
+    	return request(csrs, rec, ticket, request_comment);
     }
     
     private String getTicketUrl(CertificateRequestHostRecord rec) {
-    	return "certificatehost?id=" + rec.id;
+    	String base;
+    	//this is not an exactly correct assumption, but it should be good enough
+    	if(StaticConfig.isDebug()) {
+    		base = "https://oim-itb.grid.iu.edu/oim/";
+    	} else {
+    		base = "https://oim.grid.iu.edu/oim/";
+    	}
+    	return base + "certificatehost?id=" + rec.id;
     }
     
     //NO-AC
 	//return request record if successful, otherwise null (guest interface)
-    private CertificateRequestHostRecord request(String[] csrs, CertificateRequestHostRecord rec, FPTicket ticket) throws CertificateRequestException 
+    private CertificateRequestHostRecord request(String[] csrs, CertificateRequestHostRecord rec, FPTicket ticket, String request_comment) throws CertificateRequestException 
     {
-    	log.debug("request");
+    	//log.debug("request");
     	
 		Date current = new Date();
 		rec.request_time = new Timestamp(current.getTime());
 		rec.status = CertificateRequestStatus.REQUESTED;
-    	//rec.gridadmin_contact_id = null;
-    	
-    	log.debug("request init");
+
+		if(request_comment != null) {
+			rec.status_note = request_comment;
+			context.setComment(request_comment);
+		}
+		
+    	//log.debug("request init");
     	
     	GridAdminModel gmodel = new GridAdminModel(context);
     	StringArray csrs_sa = new StringArray(csrs.length);
@@ -486,16 +506,39 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
     	rec.cert_serial_ids = ar.toXML();
     	
     	try {
-        	log.debug("inserting request record");
+        	//log.debug("inserting request record");
 			Integer request_id = super.insert(rec);
 			
-        	log.debug("request_id: " + request_id);
-        	ContactRecord ga = findGridAdmin(rec);
-			ticket.description = "Dear " + ga.name + " (GridAdmin), \n\n";
-			ticket.description += "Host certificate request has been submitted.\n\n";
-			ticket.description += "Please determine this request's authenticity, and approve / disapprove at " + getTicketUrl(rec);
+        	//log.debug("request_id: " + request_id);
+			
+			ArrayList<ContactRecord> gas = findGridAdmin(rec);
+			//find if submitter is ga
+			boolean submitter_is_ga = false;
+			for(ContactRecord ga : gas) {
+				if(ga.id.equals(rec.requester_contact_id)) {
+					submitter_is_ga = true;
+					break;
+				}
+			}
+			
+			if(submitter_is_ga) {
+				ticket.description = "Host certificate request has been submitted by GridAdmin.\n\n";
+				//don't cc anyone.
+			} else {
+	        	ticket.description = "Dear GridAdmin; ";
+				for(ContactRecord ga : findGridAdmin(rec)) {
+					ticket.description += ga.name + ", ";
+					ticket.ccs.add(ga.primary_email);
+				}
+				ticket.description += "\n\n";
+				ticket.description += "Host certificate request has been submitted.\n\n";
+				ticket.description += "Please determine this request's authenticity, and approve / disapprove at " + getTicketUrl(rec);
+			}	
+			
+			if(request_comment != null) {
+				ticket.description += "\n\n>"+request_comment;
+			}
 			ticket.assignees.add(StaticConfig.conf.getProperty("certrequest.host.assignee"));
-			ticket.ccs.add(ga.primary_email);
 			
 			ticket.nextaction = "RA/Sponsors to verify requester";
 			Calendar nad = Calendar.getInstance();
@@ -524,11 +567,17 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
     
     //find gridadmin who should process the request
     //null if none, or there are more than 1 
-    public ContactRecord findGridAdmin(CertificateRequestHostRecord rec) throws CertificateRequestException {
+    public ArrayList<ContactRecord> findGridAdmin(CertificateRequestHostRecord rec) throws CertificateRequestException {
 		GridAdminModel gamodel = new GridAdminModel(context);
-    	Integer gridadmin_contact_id = null;
+    	String gridadmin_domain = null;
     	int idx = 0;
-    	for(String csr_string : rec.getCSRs()) {
+    	
+       	String [] csrs = rec.getCSRs();
+    	if(csrs.length == 0) {
+    		throw new CertificateRequestException("Couldn't find any CSR");
+    	}
+    	
+    	for(String csr_string : csrs) {
     		String cn;
 			try {
 	    		PKCS10CertificationRequest csr = new PKCS10CertificationRequest(Base64.decode(csr_string));
@@ -548,39 +597,31 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 				throw new CertificateRequestException("Failed to decode CSR", e);
 			}
 			
-			//lookup gridadmin
-			ContactRecord ga;
+			//lookup registered gridadmin domain
+			String domain = null;
 			try {
-				ga = gamodel.getGridAdminByFQDN(cn);
+				domain = gamodel.getDomainByFQDN(cn);
 			} catch (SQLException e) {
 				throw new CertificateRequestException("Failed to lookup GridAdmin to approve host:" + cn, e);	
 			}
-			if(ga == null) {
+			if(domain == null) {
 				throw new CertificateRequestException("The hostname you have provided in the CSR/CN=" + cn + " does not match any domain OIM is currently configured to issue certificates for.\n\nPlease double check the CN you have specified. If you'd like to be a GridAdmin for this domain, please open GOC Ticket at https://ticket.grid.iu.edu ");	
 			}
 			
-			//make sure single gridadmin approves all host
-			if(gridadmin_contact_id == null) {
-				gridadmin_contact_id = ga.id;
+			//make sure same set of gridadmin approves all host
+			if(gridadmin_domain == null) {
+				gridadmin_domain = domain;
 			} else {
-				if(!gridadmin_contact_id.equals(ga.id)) {
-					throw new CertificateRequestException("All host must be approved by the same GridAdmin. Different for " + cn);	
+				if(!gridadmin_domain.equals(domain)) {
+					throw new CertificateRequestException("All host certificates must be approved by the same set of gridadmins. Different for " + cn);	
 				}
 			}
     	}
-    	
-    	if(gridadmin_contact_id == null) {
-    		throw new CertificateRequestException("Failed to find gridadmin for user certificate request" + rec.id);
-    	}
-    	
-		ContactModel cmodel = new ContactModel(context);
-		ContactRecord gridadmin;
 		try {
-			gridadmin = cmodel.get(gridadmin_contact_id);
+			return gamodel.getContactsByDomain(gridadmin_domain);
 		} catch (SQLException e) {
-			throw new CertificateRequestException("Failed to find user record for gridadmin id " + gridadmin_contact_id, e);
+			throw new CertificateRequestException("Failed to lookup gridadmin contacts for domain:" + gridadmin_domain, e);
 		}
-		return gridadmin;
     }
     
 	//NO-AC
@@ -588,10 +629,18 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 	public CertificateRequestHostRecord requestRenew(CertificateRequestHostRecord rec) throws CertificateRequestException {
     
 		//lookup gridadmin first
-		ContactRecord gridadmin = findGridAdmin(rec);
+		ArrayList<ContactRecord> gas = findGridAdmin(rec);
 		
 		rec.status = CertificateRequestStatus.RENEW_REQUESTED;
-		//TODO - are we re-using the same CSR sent by the user? if not, user should provide them and we update them here
+		
+		//clear all previously issued cert (we are going to reuse the CSR)
+		StringArray csrs = new StringArray(rec.csrs);
+    	StringArray ar = new StringArray(csrs.length());
+    	rec.cert_certificate = ar.toXML();
+    	rec.cert_intermediate = ar.toXML();
+    	rec.cert_pkcs7 = ar.toXML();
+    	rec.cert_serial_ids = ar.toXML();
+    	
 		try {
 			super.update(get(rec.id), rec);
 		} catch (SQLException e) {
@@ -618,7 +667,9 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 		//Update CC gridadmin (it might have been changed since last time request was made)
 		VOContactModel model = new VOContactModel(context);
 		ContactModel cmodel = new ContactModel(context);
-		ticket.ccs.add(gridadmin.primary_email);
+		for(ContactRecord ga : gas) {
+			ticket.ccs.add(ga.primary_email);
+		}
 		
 		//reopen now
 		fp.update(ticket, rec.goc_ticket_id);
@@ -673,9 +724,9 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 		Authorization auth = context.getAuthorization();
 		if(auth.isUser()) {
 			ContactRecord contact = auth.getContact();
-			ticket.description = contact.name + " has canceled this request.";
+			ticket.description = contact.name + " has canceled this request.\n\n";
 		} else {
-			ticket.description = "guest shouldn't be canceling";
+			//Guest can still cancel by providing the password used to submit the request.
 		}
 		ticket.description += "\n\n> " + context.getComment();
 		ticket.status = "Resolved";
@@ -747,6 +798,7 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 		} else {
 			throw new CertificateRequestException("Guest should'nt be revoking certificate");
 		}
+		ticket.description += "> " + context.getComment();
 		ticket.status = "Resolved";
 		fp.update(ticket, rec.goc_ticket_id);
 	}
@@ -800,9 +852,11 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 				//grid admin can appove it
 				ContactRecord user = auth.getContact();
 				try {
-					ContactRecord gridadmin = findGridAdmin(rec);
-					if(gridadmin.id.equals(user.id)) {
-						return true;
+					ArrayList<ContactRecord> gas = findGridAdmin(rec);
+					for(ContactRecord ga : gas) {
+						if(ga.id.equals(user.id)) {
+							return true;
+						}
 					}
 				} catch (CertificateRequestException e) {
 					log.error("Failed to lookup gridadmin for " + rec.id + " while processing canApprove()", e);
@@ -820,7 +874,7 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 		if(!canView(rec)) return false;
 		
 		if(	rec.status.equals(CertificateRequestStatus.REQUESTED) ||
-			//rec.status.equals(CertificateRequestStatus.APPROVED) ||
+			rec.status.equals(CertificateRequestStatus.APPROVED) || //if renew_requesterd > approved cert is canceled, it should really go back to "issued", but currently it doesn't.
 			rec.status.equals(CertificateRequestStatus.RENEW_REQUESTED) ||
 			rec.status.equals(CertificateRequestStatus.REVOCATION_REQUESTED)) {
 			if(auth.isUser()) {
@@ -833,9 +887,11 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 				//grid admin can cancel it
 				ContactRecord user = auth.getContact();
 				try {
-					ContactRecord gridadmin = findGridAdmin(rec);
-					if(gridadmin.id.equals(user.id)) {
-						return true;
+					ArrayList<ContactRecord> gas = findGridAdmin(rec);
+					for(ContactRecord ga : gas) {
+						if(ga.id.equals(user.id)) {
+							return true;
+						}
 					}
 				} catch (CertificateRequestException e) {
 					log.error("Failed to lookup gridadmin for " + rec.id + " while processing canCancel()", e);
@@ -912,9 +968,11 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 				//grid admin can revoke it
 				ContactRecord user = auth.getContact();
 				try {
-					ContactRecord gridadmin = findGridAdmin(rec);
-					if(gridadmin.id.equals(user.id)) {
-						return true;
+					ArrayList<ContactRecord> gas = findGridAdmin(rec);
+					for(ContactRecord ga : gas) {
+						if(ga.id.equals(user.id)) {
+							return true;
+						}
 					}
 				} catch (CertificateRequestException e) {
 					log.error("Failed to lookup gridadmin for " + rec.id + " while processing canRevoke()", e);
@@ -975,18 +1033,24 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 	
 	//prevent low level access - please use model specific actions
     @Override
-    public Integer insert(RecordBase rec) throws SQLException
+    public Integer insert(CertificateRequestHostRecord rec) throws SQLException
     { 
     	throw new UnsupportedOperationException("Please use model specific actions instead (request, approve, reject, etc..)");
     }
     @Override
-    public void update(RecordBase oldrec, RecordBase newrec) throws SQLException
+    public void update(CertificateRequestHostRecord oldrec, CertificateRequestHostRecord newrec) throws SQLException
     {
     	throw new UnsupportedOperationException("Please use model specific actions insetead (request, approve, reject, etc..)");
     }
     @Override
-    public void remove(RecordBase rec) throws SQLException
+    public void remove(CertificateRequestHostRecord rec) throws SQLException
     {
     	throw new UnsupportedOperationException("disallowing remove cert request..");
     }
+
+	@Override
+	CertificateRequestHostRecord createRecord() throws SQLException {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

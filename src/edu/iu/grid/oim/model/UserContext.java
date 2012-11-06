@@ -33,7 +33,7 @@ public class UserContext {
 	
 	private URL request_url;
 	private String secure_url; //counter part for request_url in https (same if request_url is secure already)
-	private String guesthome_url;
+	//private String guesthome_url;
 	
 	private HttpSession session;
 	private String remote_addr;
@@ -54,7 +54,9 @@ public class UserContext {
 		//don't store request object because it can get stale really fast... (was causing issue when divrep tries to get session from it)
 		//request = _request;	
 		
-		session = request.getSession();
+		if(request.isRequestedSessionIdValid()) {
+			session = request.getSession();
+		}
 		auth = new Authorization(request);
 
 		//parse request_url
@@ -78,16 +80,12 @@ public class UserContext {
 				secure_url += "?" + request.getQueryString();
 			}
 		}
-		guesthome_url = "http://"+request_url.getHost();
-		if(StaticConfig.conf.getProperty("application.guestport") != null) {
-			guesthome_url += ":"+StaticConfig.conf.getProperty("application.guestport");
-		}
-		guesthome_url += StaticConfig.conf.getProperty("application.base");
 		
 		divrep_root = DivRepRoot.getInstance(request.getSession());
 		divrep_pageid = request.getRequestURI() + request.getQueryString();
 		remote_addr = request.getRemoteAddr();
 		
+		/* This causes issue with users who are accessing via web proxy
 		//make sure user can bind only 1 IP address (to prevent session fixation attack)
 		String addr = (String)session.getAttribute("remote_addr");
 		if(addr == null) {
@@ -95,9 +93,11 @@ public class UserContext {
 			session.setAttribute("remote_addr", remote_addr);
 		} else {
 			if(!addr.equals(remote_addr)) {
+				log.error("User's current IP address: " + remote_addr + " is different from session address:" + addr);
 				throw new AuthorizationException("Invalid IP address");
 			}
 		}
+		*/
 	}
 	
 	public Connection getConnection() throws SQLException {
@@ -125,10 +125,12 @@ public class UserContext {
 	public String getSecureUrl() {
 		return secure_url;
 	}
+	/*
 	public String getGuesHomeUrl() {
 		//TODO
 		return guesthome_url;
 	}
+	*/
 	
 	//used to create guest context
 	private UserContext(){}	

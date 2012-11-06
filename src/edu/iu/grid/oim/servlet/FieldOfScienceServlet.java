@@ -94,7 +94,7 @@ public class FieldOfScienceServlet extends ServletBase {
 			contentview.add(new HtmlView("<tr>"));	
 			contentview.add(new HtmlView("<td>"+StringEscapeUtils.escapeHtml(rec.name)+"</td>"));		
 			contentview.add(new HtmlView("<td>"));
-			contentview.add(new HtmlView("<a class=\"btn\" href=\"fieldofscienceedit?id="+rec.id+"\">Edit</a>"));
+			contentview.add(new HtmlView("<a class=\"btn btn-mini\" href=\"fieldofscienceedit?id="+rec.id+"\">Edit</a>"));
 			contentview.add(new HtmlView("</td>"));
 			
 			contentview.add(new HtmlView("</tr>"));	

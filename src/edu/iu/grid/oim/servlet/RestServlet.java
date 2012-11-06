@@ -3,6 +3,7 @@ package edu.iu.grid.oim.servlet;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -21,8 +22,11 @@ import edu.iu.grid.oim.model.db.CertificateRequestUserModel;
 import edu.iu.grid.oim.model.db.ConfigModel;
 import edu.iu.grid.oim.model.db.CertificateRequestHostModel;
 import edu.iu.grid.oim.model.db.ContactModel;
+import edu.iu.grid.oim.model.db.GridAdminModel;
+import edu.iu.grid.oim.model.db.SmallTableModelBase;
 import edu.iu.grid.oim.model.db.record.CertificateRequestHostRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
+import edu.iu.grid.oim.model.db.record.GridAdminRecord;
 import edu.iu.grid.oim.model.exceptions.CertificateRequestException;
 
 public class RestServlet extends ServletBase  {
@@ -129,6 +133,8 @@ public class RestServlet extends ServletBase  {
 			String action = request.getParameter("action");
 			if(action.equals("quota_info")) {
 				doQuotaInfo(request, reply);
+			} else if(action.equals("user_info")) {
+				doUserInfo(request, reply);
 			} else {
 				reply.status = Status.FAILED;
 				reply.detail = "No such action";
@@ -162,7 +168,15 @@ public class RestServlet extends ServletBase  {
 			phone = user.primary_phone;
 			
 			context.setComment("OIM authenticated user; " + name + " submitted host certificatates request.");
-		} else {	
+		} else if(auth.isUnregistered()) {
+			throw new RestException("Accessed via https using unregistered user certificate :" + auth.getUserDN());
+		} else if(auth.isDisabled()) {
+			throw new RestException("Accessed via https using disabled user certificate: "+ auth.getUserDN());
+		} else if(auth.isSecure()) {
+			throw new RestException("Accessed via https without a user certificate (please use http for guest access)");
+		} else {
+			//must be guest then
+			
 			name = request.getParameter("name");
 			email = request.getParameter("email");
 			phone = request.getParameter("phone");
@@ -175,13 +189,17 @@ public class RestServlet extends ServletBase  {
 			context.setComment("Guest user; " + name + " submitted host certificatates request.");
 		}
 		
+		//optional parameters
+		String request_comment = request.getParameter("request_comment");
+		String[] request_ccs = request.getParameterValues("request_ccs");
+		
 		CertificateRequestHostModel model = new CertificateRequestHostModel(context);
 		CertificateRequestHostRecord rec;
 		try {
 			if(auth.isUser()) {
-				rec = model.requestAsUser(csrs,  auth.getContact());
+				rec = model.requestAsUser(csrs,  auth.getContact(), request_comment, request_ccs);
 			} else {
-				rec = model.requestAsGuest(csrs, name, email, phone);
+				rec = model.requestAsGuest(csrs, name, email, phone, request_comment, request_ccs);
 			}
 			if(rec == null) {
 				throw new RestException("Failed to make request");
@@ -386,6 +404,48 @@ public class RestServlet extends ServletBase  {
 		reply.params.put("global_usercert_year_max", config.QuotaGlobalUserCertYearMax.getInteger());
 		reply.params.put("global_hostcert_year_count", config.QuotaGlobalHostCertYearCount.getInteger());
 		reply.params.put("global_hostcert_year_max", config.QuotaGlobalHostCertYearMax.getInteger());
+		
+		reply.params.put("quota_hostcert_year_max", config.QuotaUserHostYearMax.getInteger());
+		reply.params.put("quota_hostcert_day_max", config.QuotaUserHostDayMax.getInteger());
+		reply.params.put("quota_usercert_year_max", config.QuotaUserCertYearMax.getInteger());
+	}
+	
+	private void doUserInfo(HttpServletRequest request, Reply reply) throws AuthorizationException, RestException {
+		UserContext context = new UserContext(request);	
+		Authorization auth = context.getAuthorization();
+		if(!auth.isUser()) {
+			throw new AuthorizationException("This API is only for registered users.");
+		}
+		
+		ConfigModel config = new ConfigModel(context);
+		reply.params.put("global_usercert_year_count", config.QuotaGlobalUserCertYearCount.getInteger());
+		reply.params.put("global_usercert_year_max", config.QuotaGlobalUserCertYearMax.getInteger());
+		reply.params.put("global_hostcert_year_count", config.QuotaGlobalHostCertYearCount.getInteger());
+		reply.params.put("global_hostcert_year_max", config.QuotaGlobalHostCertYearMax.getInteger());
+	
+		reply.params.put("quota_hostcert_year_max", config.QuotaUserHostYearMax.getInteger());
+		reply.params.put("quota_hostcert_day_max", config.QuotaUserHostDayMax.getInteger());
+		reply.params.put("quota_usercert_year_max", config.QuotaUserCertYearMax.getInteger());
+		
+		ContactRecord user = auth.getContact();
+		reply.params.put("count_hostcert_day", user.count_hostcert_day);
+		reply.params.put("count_hostcert_year", user.count_hostcert_year);
+		reply.params.put("count_usercert_year", user.count_usercert_year);
+		
+		reply.detail = "User quota details for "+ auth.getUserDN();
+		
+		//load domains that user can approve certificates for
+		try {
+			GridAdminModel gmodel = new GridAdminModel(context);
+			ArrayList<GridAdminRecord> recs = gmodel.getGridAdminsByContactID(user.id);
+			JSONArray domains = new JSONArray();
+			for(GridAdminRecord rec : recs) {
+				domains.put(rec.domain);
+			}
+			reply.params.put("gridadmin_domains", domains);
+		} catch (SQLException e) {
+			throw new RestException("Failed to load gridadmin list", e);
+		}
 	}
 	
 	private void doResetDailyQuota(HttpServletRequest request, Reply reply) throws AuthorizationException, RestException {
@@ -399,6 +459,7 @@ public class RestServlet extends ServletBase  {
 		ContactModel model = new ContactModel(context);
 		try {
 			model.resetCertsDailyCount();
+			SmallTableModelBase.emptyAllCache();
 		} catch (SQLException e) {
 			throw new RestException("SQLException while resetting user daily count", e);
 		}
@@ -415,6 +476,7 @@ public class RestServlet extends ServletBase  {
 		ContactModel model = new ContactModel(context);
 		try {
 			model.resetCertsYearlyCount();
+			SmallTableModelBase.emptyAllCache();
 		} catch (SQLException e) {
 			throw new RestException("SQLException while resetting user yearly count", e);
 		}

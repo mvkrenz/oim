@@ -20,7 +20,8 @@ import edu.iu.grid.oim.model.db.record.RecordBase;
 
 public abstract class ModelBase<T extends RecordBase> {
     static Logger log = Logger.getLogger(ModelBase.class); 
-    
+	abstract T createRecord() throws SQLException;
+	
     protected UserContext context;
 	protected Authorization auth;
     protected String table_name;
@@ -41,15 +42,51 @@ public abstract class ModelBase<T extends RecordBase> {
 	{
 		return value;
 	}
-	
-    //abstract T createRecord() throws SQLException;
-    
 	public String getName()
 	{
 		return getClass().getName();
 	}
+    public T get(T keyrec) throws SQLException
+    {
+		Connection conn = connectOIM();
+		T rec = null;
+    	try {
+    		//construct select statement using keyrec
+	    	String keysql = "";
+	    	for(Field key : keyrec.getRecordKeys()) {
+	    		if(keysql.length() != 0) keysql += " and ";
+	    		keysql += "`"+key.getName()+"`" + "=?";
+	    	}
+			String sql = "SELECT * FROM "+table_name+" where " + keysql;
+			PreparedStatement stmt = conn.prepareStatement(sql);
+			int count = 1;
+			for(Field key : keyrec.getRecordKeys()) {
+	       		Object value = key.get(keyrec);
+	       		stmt.setObject(count, value);
+	    		++count;
+			}
+			
+			//do select
+		    ResultSet rs = stmt.executeQuery();
+		    if(rs.next()) {
+		   		rec = createRecord();
+	    		rec.set(rs);
+		    }
+			stmt.close();
+		} catch (IllegalArgumentException e) {
+			throw new SQLException(e);
+		} catch (IllegalAccessException e) {
+			throw new SQLException(e);
+		} catch (SecurityException e) {
+			throw new SQLException(e);
+		} finally {
+			conn.close();
+		}
+		
+    	return rec;
+    }
 	
-    public void remove(RecordBase rec) throws SQLException
+    public void remove(T rec) throws SQLException
     {
 		//auth.check("write_"+table_name);
 		Connection conn = connectOIM();
@@ -86,7 +123,7 @@ public abstract class ModelBase<T extends RecordBase> {
     
     //generated keys are inserted back to rec
     //returns *one of* last inserted record's key. If primary key consists of multiple column, then don't use this
-    public Integer insert(RecordBase rec) throws SQLException
+    public Integer insert(T rec) throws SQLException
     { 	
     	Integer a_id = null;
     
@@ -154,7 +191,7 @@ public abstract class ModelBase<T extends RecordBase> {
     }
     
     //find out which fields are changed and do SQL update on those fields
-    public void update(RecordBase oldrec, RecordBase newrec) throws SQLException
+    public void update(T oldrec, T newrec) throws SQLException
     {
 		//auth.check("write_"+table_name);
     	
@@ -379,7 +416,16 @@ public abstract class ModelBase<T extends RecordBase> {
     private String formatValue(Object obj)
     {
     	if(obj == null) return LogModel.NULL_TOKEN;
-    	return StringEscapeUtils.escapeXml(obj.toString());
+    	String str = obj.toString();
+    	
+    	//truncate really long value -- to lessen overhead for log table and replication
+    	int maxlen = 2048;
+    	if(str.length() > maxlen) {
+    		str = str.substring(0,  maxlen);
+    		str += " (truncated at "+maxlen+" chars)";
+    	}
+    	
+    	return StringEscapeUtils.escapeXml(str);
     }
     
 

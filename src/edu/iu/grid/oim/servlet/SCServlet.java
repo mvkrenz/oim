@@ -95,12 +95,9 @@ public class SCServlet extends ServletBase implements Servlet {
 				if(rec.disable == true) {
 					contentview.add(new HtmlView("<div class=\"alert\">This Support Center is currently disabled.</div>"));
 				}
-				if(model.canEdit(sc_id)) {
-					contentview.add(new HtmlView("<p class=\"pull-right\"><a class=\"btn\" href=\"scedit?id=" + rec.id + "\">Edit</a></p>"));
-				}
 				contentview.add(new HtmlView("<h2>"+StringEscapeUtils.escapeHtml(rec.name)+"</h2>"));	
 				contentview.add(createSCContent(context, rec)); //false = no edit button	
-				sideview = createSideView(context);
+				sideview = createSideView(context, rec);
 			} else {
 				contentview = createListContent(context);
 			}
@@ -148,11 +145,11 @@ public class SCServlet extends ServletBase implements Servlet {
 				String tag = "";
 				if(rec.disable) {
 					disable_css += " disabled";
-					tag += " (Disabled)";
+					tag += " [Disabled]";
 				}
 				if(!rec.active) {
 					disable_css += " inactive";
-					tag += " (Inactive)";
+					tag += " [Inactive]";
 				}
 				table.add(new HtmlView("<a class=\""+disable_css+"\" title=\""+StringEscapeUtils.escapeHtml(rec.long_name)+"\" href=\"scedit?id="+rec.id+"\">"+StringEscapeUtils.escapeHtml(name)+tag+"</a>"));
 	
@@ -242,14 +239,13 @@ public class SCServlet extends ServletBase implements Servlet {
 		return new ViewWrapper(context.getPageRoot(), table);
 	}
 	
-	private SideContentView createSideView(UserContext context)
+	private SideContentView createSideView(UserContext context, SCRecord rec)
 	{
 		SideContentView view = new SideContentView();
-		/*
-		if(context.getAuthorization().isUser()) {
-			view.add(new HtmlView("<p><a class=\"btn\" href=\"scedit\">Register New Support Center</a></p>"));
+		SCModel model = new SCModel(context);
+		if(model.canEdit(rec.id)) {
+			view.add(new HtmlView("<p><a class=\"btn\" href=\"scedit?id=" + rec.id + "\">Edit</a></p>"));
 		}
-		*/
 		view.addContactLegend();
 		return view;
 	}

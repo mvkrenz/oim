@@ -103,9 +103,9 @@ public class ContactModel extends SmallTableModelBase<ContactRecord> {
 
     	//only select record that is editable
 	    for(RecordBase rec : getCache()) {
-	    	ContactRecord vorec = (ContactRecord)rec;
-	    	if(canEdit(vorec.id)) {
-	    		list.add(vorec);
+	    	ContactRecord crec = (ContactRecord)rec;
+	    	if(canEdit(crec.id)) {
+	    		list.add(crec);
 	    	}
 	    }	    	
 	    return list;
@@ -120,8 +120,8 @@ public class ContactModel extends SmallTableModelBase<ContactRecord> {
 		for(ContactRecord rec : getAll()) {
 			//allow editing if user is submitter_dn
 			if(rec.submitter_dn_id != null && rec.submitter_dn_id.compareTo(auth.getDNID()) == 0)  {
-				//only allow editing if the contact is not yet associated with DN
-				ArrayList<DNRecord> dnrecs = dnmodel.getByContactID(rec.id);
+				//only allow editing if the contact is not yet associated with any enabled DN
+				ArrayList<DNRecord> dnrecs = dnmodel.getEnabledByContactID(rec.id);
 				if(dnrecs.size() == 0) {
 					list.add(rec.id);
 				}
@@ -177,6 +177,7 @@ public class ContactModel extends SmallTableModelBase<ContactRecord> {
 		for(RecordBase it : getCache()) {
 			ContactRecord crec = (ContactRecord)it;
 			if(crec == rec_ignore) continue;
+			if(crec.disable) continue;//ignore disabled
 			if(crec.twiki_id.equals(twikiid)) {
 				return true;
 			}
@@ -200,5 +201,15 @@ public class ContactModel extends SmallTableModelBase<ContactRecord> {
 	    stmt.execute("UPDATE "+table_name+" SET `count_hostcert_year` = 0, `count_usercert_year` = 0");	
 	    stmt.close();
 	    conn.close();
+	}
+	public ArrayList<ContactRecord> getBySubmitterDNID(Integer id) throws SQLException {
+		ArrayList<ContactRecord> list = new ArrayList<ContactRecord>();
+	    for(RecordBase rec : getCache()) {
+	    	ContactRecord crec = (ContactRecord)rec;
+	    	if(crec.submitter_dn_id != null && crec.submitter_dn_id.equals(id)) {
+	    		list.add(crec);
+	    	}
+	    }	    	
+	    return list;
 	}
 }

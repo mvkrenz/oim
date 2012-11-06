@@ -20,32 +20,22 @@ import edu.vt.middleware.password.RepeatCharacterRegexRule;
 import edu.vt.middleware.password.Rule;
 import edu.vt.middleware.password.RuleResult;
 import edu.vt.middleware.password.UppercaseCharacterRule;
-import edu.vt.middleware.password.WhitespaceRule;
+//import edu.vt.middleware.password.WhitespaceRule;
 
 public class PKIPassStrengthValidator implements DivRepIValidator<String>
 {
-	String message;
+	private String message;
+	private PasswordValidator validator;
 	
 	public PKIPassStrengthValidator() {
-	}
-	
-	public Boolean isValid(String value) {
-		/*
-		int len = value.trim().length();
-		
-		if(len < 12) {
-			message = "Too short. Minimum of 12 characters required. Currently it is "+len+" characters";
-			return false;
-		}
-		//TODO.. what else?
-		*/
 		
 		LengthRule lengthRule = new LengthRule();//, 16);
 		lengthRule.setMinimumLength(12);
 
 		// don't allow whitespace
-		WhitespaceRule whitespaceRule = new WhitespaceRule();
+		//WhitespaceRule whitespaceRule = new WhitespaceRule();
 
+		/*
 		// control allowed characters
 		CharacterCharacteristicsRule charRule = new CharacterCharacteristicsRule();
 		// require at least 1 digit in passwords
@@ -58,7 +48,8 @@ public class PKIPassStrengthValidator implements DivRepIValidator<String>
 		charRule.getRules().add(new LowercaseCharacterRule(1));
 		// require at least 3 of the previous rules be met
 		charRule.setNumberOfCharacteristics(3);
-
+		*/
+		
 		// don't allow alphabetical sequences
 		AlphabeticalSequenceRule alphaSeqRule = new AlphabeticalSequenceRule();
 
@@ -74,20 +65,25 @@ public class PKIPassStrengthValidator implements DivRepIValidator<String>
 		// group all rules together in a List
 		List<Rule> ruleList = new ArrayList<Rule>();
 		ruleList.add(lengthRule);
-		ruleList.add(whitespaceRule);
-		ruleList.add(charRule);
+		//ruleList.add(whitespaceRule);
+		//ruleList.add(charRule);
 		ruleList.add(alphaSeqRule);
 		ruleList.add(numSeqRule);
 		ruleList.add(qwertySeqRule);
 		ruleList.add(repeatRule);
+		
+		validator = new PasswordValidator(ruleList);
+	}
+	
+	public Boolean isValid(String value) {
+		message = "";
 
-		PasswordValidator validator = new PasswordValidator(ruleList);
 		PasswordData passwordData = new PasswordData(new Password(value));
 		RuleResult result = validator.validate(passwordData);
 		if (result.isValid()) {
 			return true;
 		} else {
-			message = "Weak password: ";
+			message += "Weak password: ";
 			for (String msg : validator.getMessages(result)) {
 				message += msg;
 			}

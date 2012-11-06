@@ -16,10 +16,12 @@ import org.apache.log4j.Logger;
 
 import com.divrep.DivRep;
 import com.divrep.DivRepEvent;
+import com.divrep.DivRepEventListener;
 import com.divrep.common.DivRepButton;
 import com.divrep.common.DivRepStaticContent;
 import com.divrep.common.DivRepToggler;
 
+import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.ContactRankModel;
@@ -64,6 +66,8 @@ import edu.iu.grid.oim.view.ToolTip;
 import edu.iu.grid.oim.view.URLView;
 import edu.iu.grid.oim.view.TableView.Row;
 import edu.iu.grid.oim.view.divrep.ViewWrapper;
+import edu.iu.grid.oim.view.divrep.form.GridAdminRequestForm;
+import edu.iu.grid.oim.view.divrep.form.RARequestForm;
 import edu.iu.grid.oim.view.divrep.form.VOFormDE;
 
 public class VOServlet extends ServletBase implements Servlet {
@@ -103,13 +107,10 @@ public class VOServlet extends ServletBase implements Servlet {
 				if(rec.disable == true) {
 					contentview.add(new HtmlView("<div class=\"alert\">This Virtual Organization is currently disabled.</div>"));
 				}
-				if(model.canEdit(vo_id)) {
-					contentview.add(new HtmlView("<p class=\"pull-right\"><a class=\"btn\" href=\"voedit?id=" + rec.id + "\">Edit</a></p>"));
-				}
 				contentview.add(new HtmlView("<h2>"+StringEscapeUtils.escapeHtml(rec.name)+"</h2>"));	
 				contentview.add(createVOContent(context, rec)); //false = no edit button	
 				
-				sideview = createSideView(context);
+				sideview = createSideView(context, rec);
 
 			} else {
 				contentview = createListContentView(context);
@@ -149,7 +150,7 @@ public class VOServlet extends ServletBase implements Servlet {
 		
 		if(context.getAuthorization().isUser()) {
 			contentview.add(new HtmlView("<a href=\"voedit\" class=\"btn pull-right\"><i class=\"icon-plus-sign\"></i> Add New Virtual Organization</a>"));
-			contentview.add(new HtmlView("<h2>My Virtual Organizations</h2>"));
+			contentview.add(new HtmlView("<h2>Editable Virtual Organizations</h2>"));
 			if(editable_vos.size() == 0) {
 				contentview.add(new HtmlView("<p>You currently are not listed as a contact of any contact type (exept submitter) on any virtual organization - therefore you are not authorized to edit any VOs.</p>"));
 			}
@@ -160,11 +161,11 @@ public class VOServlet extends ServletBase implements Servlet {
 				String tag = "";
 				if(rec.disable) {
 					disable_css += " disabled";
-					tag += " (Disabled)";
+					tag += " [Disabled]";
 				}
 				if(!rec.active) {
 					disable_css += " inactive";
-					tag += " (Inactive)";
+					tag += " [Inactive]";
 				}
 				table.add(new HtmlView("<a class=\""+disable_css+"\" title=\""+StringEscapeUtils.escapeHtml(rec.long_name)+"\" href=\"voedit?id="+rec.id+"\">"+StringEscapeUtils.escapeHtml(name)+tag+"</a>"));
 			}
@@ -172,7 +173,7 @@ public class VOServlet extends ServletBase implements Servlet {
 		}
 		
 		if(readonly_vos.size() != 0) {
-			contentview.add(new HtmlView("<h2>Virtual Organizations</h2>"));
+			contentview.add(new HtmlView("<h2>Read-Only Virtual Organizations</h2>"));
 			//contentview.add(new HtmlView("<p>Following are the currently registered virtual organizations on OIM - you do not have edit access on these records.</p>"));
 	
 			ItemTableView table = new ItemTableView(5);
@@ -378,16 +379,16 @@ public class VOServlet extends ServletBase implements Servlet {
 		return table;
 	}
 
-	private SideContentView createSideView(UserContext context)
+	private SideContentView createSideView(UserContext context, VORecord rec)
 	{
 		SideContentView view = new SideContentView();
-		/*
-		if(context.getAuthorization().isUser()) {
-			view.add(new HtmlView("<p>"));
-			view.add(new HtmlView("<a class=\"btn\" href=\"voedit\">Register New Virtual Organization</a>"));
-			view.add(new HtmlView("</p>"));
+		
+		VOModel model = new VOModel(context);
+		if(model.canEdit(rec.id)) {
+			view.add(new HtmlView("<p><a class=\"btn\" href=\"voedit?id=" + rec.id + "\">Edit</a></p>"));
 		}
-		*/
+		
+		view.addRARequest(context, rec);
 		view.addContactLegend();
 		return view;
 	}

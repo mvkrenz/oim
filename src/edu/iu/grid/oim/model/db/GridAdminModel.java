@@ -2,6 +2,7 @@ package edu.iu.grid.oim.model.db;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathExpressionException;
@@ -13,7 +14,7 @@ import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.GridAdminRecord;
 import edu.iu.grid.oim.model.db.record.RecordBase;
-
+import edu.iu.grid.oim.model.db.record.ResourceContactRecord;
 
 public class GridAdminModel extends SmallTableModelBase<GridAdminRecord> {
     static Logger log = Logger.getLogger(GridAdminModel.class);  
@@ -27,6 +28,7 @@ public class GridAdminModel extends SmallTableModelBase<GridAdminRecord> {
 	{
 		return new GridAdminRecord();
 	}
+    /*
 	public ArrayList<GridAdminRecord> getAll() throws SQLException
 	{
 		ArrayList<GridAdminRecord> list = new ArrayList<GridAdminRecord>();
@@ -35,37 +37,69 @@ public class GridAdminModel extends SmallTableModelBase<GridAdminRecord> {
 		}
 		return list;
 	}
+	*/
+    public LinkedHashMap<String, ArrayList<ContactRecord>> getAll() throws SQLException
+    {
+    	ContactModel cmodel = new ContactModel(context);
+    	LinkedHashMap<String, ArrayList<ContactRecord>> list = new LinkedHashMap<String, ArrayList<ContactRecord>>();
+		for(RecordBase it : getCache()) {
+			GridAdminRecord rec = (GridAdminRecord)it;
+			if(list.containsKey(rec.domain)) {
+				ArrayList<ContactRecord> clist = list.get(rec.domain);
+				clist.add(cmodel.get(rec.contact_id));
+			} else {
+				ArrayList<ContactRecord> clist = new ArrayList<ContactRecord>();
+				clist.add(cmodel.get(rec.contact_id));
+				list.put(rec.domain, clist);
+			}
+		}
+    	
+    	return list;
+    }
+    
+	public ArrayList<GridAdminRecord> getByDomain(String domain) throws SQLException
+	{ 
+		ArrayList<GridAdminRecord> list = new ArrayList<GridAdminRecord>();
+		for(RecordBase rec : getCache()) {
+			GridAdminRecord vcrec = (GridAdminRecord)rec;
+			if(vcrec.domain.equals(domain)) list.add(vcrec);
+		}
+		return list;
+	}
+	
+	public ArrayList<ContactRecord> getContactsByDomain(String domain) throws SQLException
+	{ 
+		ArrayList<ContactRecord> list = new ArrayList<ContactRecord>();
+		ArrayList<GridAdminRecord> recs = getByDomain(domain);
+    	ContactModel cmodel = new ContactModel(context);
+		for(GridAdminRecord rec : recs) {
+			list.add(cmodel.get(rec.contact_id));
+		}
+		return list;
+	}
+	
+	/*
 	public GridAdminRecord get(int id) throws SQLException {
 		GridAdminRecord keyrec = new GridAdminRecord();
 		keyrec.id = id;
 		return get(keyrec);
 	}
+	*/
 	
 	//search for gridadmin with most specific domain name registered for given fqdn.
 	//return null if not found
-	public ContactRecord getGridAdminByFQDN(String fqdn) throws SQLException {
-
-		Integer contact_id = null;
+	public String getDomainByFQDN(String fqdn) throws SQLException {
 		String domain = null;
-    	log.debug("getting all gridadmin records");
-		ArrayList<GridAdminRecord> recs = getAll();
-    	log.debug("got " + recs.size());
-		for(GridAdminRecord rec : recs) {
-			if(fqdn.endsWith(rec.domain)) {
+		LinkedHashMap<String, ArrayList<ContactRecord>> list = getAll();
+		for(String rec_domain : list.keySet()) {
+			if(fqdn.endsWith(rec_domain)) {
 				//keep - if we find more specific domain
-				if(contact_id == null || domain.length() < rec.domain.length()) {
-					contact_id = rec.contact_id;
-					domain = rec.domain;
+				if(domain == null || domain.length() < rec_domain.length()) {
+					domain = rec_domain;
 				} 
 			}
 		}
-    	log.debug("iterated");
-		if(contact_id == null) {
-			return null;
-		}
-    	log.debug("pulling contact record");
-		ContactModel cmodel = new ContactModel(context);
-		return cmodel.get(contact_id);
+		return domain;
 	}
 	
     public String getName()

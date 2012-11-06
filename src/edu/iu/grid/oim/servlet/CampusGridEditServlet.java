@@ -82,10 +82,6 @@ public class CampusGridEditServlet extends ServletBase implements Servlet {
 			contentview.add(new HtmlView("<div class=\"alert\">This CampusGrid is disabled.</div>"));
 		}
 		
-		if(rec.id != null) {
-			contentview.add(new HtmlView("<p class=\"pull-right\"><a class=\"btn\" href=\"campusgrid?id="+rec.id+"\">Show Readonly View</a></p>"));
-		}
-		
 		contentview.add(new DivRepWrapper(form));
 		
 		//setup crumbs
@@ -94,13 +90,17 @@ public class CampusGridEditServlet extends ServletBase implements Servlet {
 		bread_crumb.addCrumb(rec.name,  null);
 		contentview.setBreadCrumb(bread_crumb);
 		
-		BootPage page = new BootPage(context, new BootMenuView(context, parent_page), contentview, createSideView(logs));
+		BootPage page = new BootPage(context, new BootMenuView(context, parent_page), contentview, createSideView(logs, rec));
 		page.render(response.getWriter());	
 	}
 	
-	private SideContentView createSideView(ArrayList<LogRecord> logs)
+	private SideContentView createSideView(ArrayList<LogRecord> logs, CampusGridRecord rec)
 	{
 		SideContentView view = new SideContentView();
+		if(rec.id != null) {
+			view.add(new HtmlView("<p class=\"\"><a class=\"btn\" href=\"campusgrid?id="+rec.id+"\">Show Readonly View</a></p>"));
+		}
+		
 		view.addContactNote();		
 		if(logs != null) {
 			view.add(new LogView(logs));	

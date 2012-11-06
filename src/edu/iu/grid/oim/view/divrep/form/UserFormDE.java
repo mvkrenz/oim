@@ -53,7 +53,7 @@ public class UserFormDE extends DivRepForm
 	private DivRepTextBox dn_string;
 	private ContactEditor contact;
 	private HashMap<Integer/*auth_type*/, DivRepCheckBox> auth_types = new HashMap();
-	//private Integer usercert_request_id;
+	private DivRepCheckBox disable;
 	
 	public UserFormDE(UserContext _context, DNRecord rec, String origin_url) throws AuthorizationException, SQLException
 	{	
@@ -93,19 +93,22 @@ public class UserFormDE extends DivRepForm
 			}
 		}
 		
-		//for now, let's just pass through
-		//usercert_request_id = rec.usercert_request_id;
-	
+		new DivRepStaticContent(this, "<h3>Administration</h3>");
+		disable = new DivRepCheckBox(this);
+		disable.setLabel("Disable");
+		if(id != null) {
+			disable.setValue(rec.disable);
+		}
 	}
 	
 	protected Boolean doSubmit() 
 	{
-		//Construct OsgGridTypeRecord
 		DNRecord rec = new DNRecord();
 		rec.id = id;
+		rec.dn_string = dn_string.getValue();
+		rec.disable = disable.getValue();
 		
 		//just grab first contact record (always one contact per one dn)
-		rec.dn_string = dn_string.getValue();
 		Collection<ContactRecord> contact_recs = contact.getContactRecords().keySet();
 		for(ContactRecord crec : contact_recs) {
 			rec.contact_id = crec.id;

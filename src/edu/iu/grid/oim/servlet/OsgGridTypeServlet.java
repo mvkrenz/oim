@@ -85,7 +85,7 @@ public class OsgGridTypeServlet extends ServletBase implements Servlet {
 			contentview.add(new HtmlView("<td>"+StringEscapeUtils.escapeHtml(rec.name)+"</td>"));		
 			contentview.add(new HtmlView("<td>"+StringEscapeUtils.escapeHtml(rec.description)+"</td>"));				
 			contentview.add(new HtmlView("<td>"));
-			contentview.add(new HtmlView("<a class=\"btn\" href=\"osggridtypeedit?osg_grid_type_id="+rec.id+"\">Edit</a>"));
+			contentview.add(new HtmlView("<a class=\"btn btn-mini\" href=\"osggridtypeedit?osg_grid_type_id="+rec.id+"\">Edit</a>"));
 			contentview.add(new HtmlView("</td>"));
 			
 			contentview.add(new HtmlView("</tr>"));	

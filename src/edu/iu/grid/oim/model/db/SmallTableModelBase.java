@@ -19,7 +19,6 @@ import edu.iu.grid.oim.model.db.record.RecordBase;
 public abstract class SmallTableModelBase<T extends RecordBase> extends ModelBase<T> {
     static Logger log = Logger.getLogger(SmallTableModelBase.class);  
 	private static HashMap<String, TreeSet<RecordBase>> cache = new HashMap();
-	abstract T createRecord() throws SQLException;
     
     static private String NonPublicInformation = "(Non-public information)";
     
@@ -72,7 +71,7 @@ public abstract class SmallTableModelBase<T extends RecordBase> extends ModelBas
 		fillCache();
 		return cache.get(table_name);
 	}
-    public T get(RecordBase keyrec) throws SQLException
+    public T get(T keyrec) throws SQLException
 	{
 		fillCache();
 		TreeSet<RecordBase> mycache = getCache();
@@ -170,19 +169,24 @@ public abstract class SmallTableModelBase<T extends RecordBase> extends ModelBas
 		conn.close();
 	}
   
-    public void remove(RecordBase rec) throws SQLException {
+    public void remove(T rec) throws SQLException {
     	super.remove(rec);
 		emptyCache();
     }
 
     //returns *one of* primary key for record inserted
-    public Integer insert(RecordBase rec) throws SQLException {
+    public Integer insert(T rec) throws SQLException {
     	Integer a_id = super.insert(rec);
     	emptyCache();
     	return a_id;
     }
    
-    public void update(RecordBase oldrec, RecordBase newrec) throws SQLException {
+    public void update(T newrec) throws SQLException {
+    	super.update(super.get(newrec),  newrec);
+    	emptyCache();
+    }
+    
+    public void update(T oldrec, T newrec) throws SQLException {
     	super.update(oldrec,  newrec);
     	emptyCache();
     }

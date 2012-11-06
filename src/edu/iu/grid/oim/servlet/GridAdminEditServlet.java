@@ -3,6 +3,7 @@ package edu.iu.grid.oim.servlet;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
@@ -48,65 +49,39 @@ public class GridAdminEditServlet extends ServletBase {
 		Authorization auth = context.getAuthorization();
 		auth.check("admin_gridadmin"); 
 		
-		GridAdminRecord rec;
+		ArrayList<GridAdminRecord> recs;
 		String title;
-
-		//if cpu_info_id is provided then we are doing update, otherwise do new.
-		// AG: Do we need any request parameter-value checks?
-		String dirty_id = request.getParameter("id");
-		if(dirty_id != null) {
-			//pull record to update
-			int id = Integer.parseInt(dirty_id);
-			GridAdminModel model = new GridAdminModel(context);
-			try {
-				rec = model.get(id);
-			} catch (SQLException e) {
-				throw new ServletException(e);
-			}	
-			title = "Update GridAmin";
+		String domain = null;
+		
+		String dirty_domain = request.getParameter("domain");
+		if(dirty_domain != null) {
+			domain = dirty_domain.trim(); //TODO - validate dirty_domain
+			title = "Update Domain/GridAdmins";
 		} else {
-			rec = new GridAdminRecord();
-			title = "New GridAdmin";	
+			recs = new ArrayList<GridAdminRecord>();//empty list
+			title = "New Domain/GridAdmins";	
 		}
 		ContentView contentview = new ContentView(context);
 		
-		/*
-		GridAdminFormDE form;
-		try {
-			form = new GridAdminFormDE(context, rec, "gridadmin");
-			contentview.add(new HtmlView("<h1>"+title+"</h1>"));	
-			contentview.add(new DivRepWrapper(form));
-		} catch (SQLException e) {
-			throw new ServletException(e);
-		}
-		*/
-		
-		/*
-		//setup crumbs
-		BootBreadCrumbView bread_crumb = new BootBreadCrumbView();
-		bread_crumb.addCrumb("Administration",  "admin");
-		bread_crumb.addCrumb("GridAdmin",  "gridadmin");
-		bread_crumb.addCrumb(title,  null);
-		contentview.setBreadCrumb(bread_crumb);
-		*/
-		
-		BootPage page = new BootPage(context, new BootMenuView(context, "certificate"), new Content(context, rec, title), null);	
+		BootPage page = new BootPage(context, new BootMenuView(context, "certificate"), new Content(context, domain, title), null);	
 		page.render(response.getWriter());	
 	}
 	
 	class Content implements IView {
 		UserContext context;
-		GridAdminRecord rec;
+		ArrayList<GridAdminRecord> recs;
+		String domain;
 		String page_title;
-		Content(UserContext context, GridAdminRecord rec, String page_title) {
+		Content(UserContext context, String domain, String page_title) {
 			this.context = context;
-			this.rec = rec;
+			this.recs = recs;
 			this.page_title = page_title;
+			this.domain = domain;
 		}
 		@Override
 		public void render(PrintWriter out) {
 			out.write("<div id=\"content\">");
-
+		
 			out.write("<div class=\"row-fluid\">");
 			
 			out.write("<div class=\"span3\">");
@@ -117,7 +92,7 @@ public class GridAdminEditServlet extends ServletBase {
 			out.write("<div class=\"span9\">");
 			out.write("<h2>"+page_title+"</h2>");	
 			try {
-				GridAdminFormDE form = new GridAdminFormDE(context, rec, "gridadmin");
+				GridAdminFormDE form = new GridAdminFormDE(context, domain, "gridadmin");
 				form.render(out);
 			} catch (SQLException e) {
 				log.error("SQLError file rendering quota config form", e);

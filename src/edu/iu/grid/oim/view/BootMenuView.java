@@ -45,7 +45,7 @@ public class BootMenuView implements IView {
 				out.println("<li><a href=\"https://twiki.grid.iu.edu\">TWiki</a></li>");
 				out.println("<li class=\"divider\"></li>");
 				out.println("<li><a href=\"http://repo.grid.iu.edu\">Repo</a></li>");
-				out.println("<li><a href=\"http://software.grid.iu.edu\">Software Cache</a></li>");
+				//out.println("<li><a href=\"http://software.grid.iu.edu\">Software Cache</a></li>");
 				out.println("<li><a href=\"http://is.grid.iu.edu\">OSG BDII</a></li>");
 				out.println("<li class=\"divider\"></li>");
 				out.println("<li><a href=\"http://blogs.grid.iu.edu\">Blog</a></li>");
@@ -135,7 +135,7 @@ public class BootMenuView implements IView {
 				}
 	
 				out.println("<li class=\"divider\"></li>");
-				out.println("<li><a href=\""+user.getGuesHomeUrl()+"\">Logoff</a></li>");
+				out.println("<li><a href=\"logout\">Logout</a></li>");
 				
 			out.println("</ul>");//dropdown-menu
 			out.println("</div>");//btn-group
@@ -146,11 +146,11 @@ public class BootMenuView implements IView {
 				out.println("<li>");		
 			}	
 			out.println("<a href=\"register\">Register</a></li>");
-			out.println("<li><a href=\""+user.getGuesHomeUrl()+"\">Logoff</a></li>");
+			out.println("<li><a href=\"logout\">Logout</a></li>");
 		} else if(auth.isDisabled()) {			
-			out.println("<li><a href=\""+user.getGuesHomeUrl()+"\">(Disabled)</a></li>");
+			out.println("<li><a href=\"logout\">(Disabled)</a></li>");
 		} else if(auth.isSecure()) {
-			out.println("<li><a href=\""+user.getGuesHomeUrl()+"\">(NoCert)</a></li>");
+			out.println("<li><a href=\"logout\">(NoCert)</a></li>");
 		} else {
 			out.println("<li><a href=\""+user.getSecureUrl()+"\">Login</a></li>");	
 		}
@@ -171,10 +171,7 @@ public class BootMenuView implements IView {
 		if(current.equals("certificate")) {
 			out.println("<li class=\"active\"><a href=\"certificate\">Certificate</a></li>");
 		} else {
-			//for now, only show if it's debug
-			if(StaticConfig.isDebug()) {
-				out.println("<li><a href=\"certificate\">Certificate</a></li>");	
-			}
+			out.println("<li><a href=\"certificate\">Certificate</a></li>");	
 		}
 		if(current.equals("topology")) {
 			out.println("<li class=\"active\"><a href=\"topology\">Topology</a></li>");
@@ -205,10 +202,7 @@ public class BootMenuView implements IView {
 		if(current.equals("campusgrid")) {
 			out.println("<li class=\"active\"><a href=\"campusgrid\">Campus Grids</a></li>");
 		} else {
-			//for now, only show if it's debug
-			if(StaticConfig.isDebug()) {
-				out.println("<li><a href=\"campusgrid\">Campus Grids</a></li>");
-			}
+			out.println("<li><a href=\"campusgrid\">Campus Grids</a></li>");
 		}
 				
 				

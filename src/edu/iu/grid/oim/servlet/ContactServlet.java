@@ -7,10 +7,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
 
-import javax.servlet.Servlet;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -18,44 +15,23 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 
 import com.divrep.DivRep;
-import com.divrep.DivRepEvent;
-import com.divrep.common.DivRepButton;
 import com.divrep.common.DivRepStaticContent;
-import com.divrep.common.DivRepToggler;
 
 import edu.iu.grid.oim.lib.Authorization;
-import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.ConfigModel;
 import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.DNModel;
-import edu.iu.grid.oim.model.db.ResourceContactModel;
-import edu.iu.grid.oim.model.db.ResourceModel;
-import edu.iu.grid.oim.model.db.SCContactModel;
-import edu.iu.grid.oim.model.db.SCModel;
-import edu.iu.grid.oim.model.db.VOContactModel;
-import edu.iu.grid.oim.model.db.VOModel;
 import edu.iu.grid.oim.model.db.record.DNRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
-import edu.iu.grid.oim.model.db.record.ResourceContactRecord;
-import edu.iu.grid.oim.model.db.record.ResourceRecord;
-import edu.iu.grid.oim.model.db.record.SCContactRecord;
-import edu.iu.grid.oim.model.db.record.SCRecord;
-import edu.iu.grid.oim.model.db.record.VOContactRecord;
-import edu.iu.grid.oim.model.db.record.VORecord;
 import edu.iu.grid.oim.view.BootBreadCrumbView;
 import edu.iu.grid.oim.view.BootMenuView;
 import edu.iu.grid.oim.view.BootPage;
-import edu.iu.grid.oim.view.BreadCrumbView;
 import edu.iu.grid.oim.view.ContactAssociationView;
 import edu.iu.grid.oim.view.ContentView;
-import edu.iu.grid.oim.view.DivRepWrapper;
-import edu.iu.grid.oim.view.GenericView;
 import edu.iu.grid.oim.view.HtmlView;
 import edu.iu.grid.oim.view.IView;
 import edu.iu.grid.oim.view.ItemTableView;
-import edu.iu.grid.oim.view.MenuView;
-import edu.iu.grid.oim.view.Page;
 import edu.iu.grid.oim.view.RecordTableView;
 import edu.iu.grid.oim.view.SideContentView;
 import edu.iu.grid.oim.view.divrep.ViewWrapper;
@@ -122,18 +98,19 @@ public class ContactServlet extends ServletBase {
 
 		Collections.sort(contacts, new Comparator<ContactRecord> (){
 			public int compare(ContactRecord a, ContactRecord b) {
-				return a.getName().compareToIgnoreCase(b.getName()); // We are comparing based on name
+				return a.name.compareToIgnoreCase(b.name); // We are comparing based on name
 			}
 		});
+		/*
 		Collections.sort(contacts, new Comparator<ContactRecord> (){
 			public int compare(ContactRecord a, ContactRecord b) {
-				return a.isPerson().compareTo(b.isPerson()); // We are comparing based on bool person
+				return a.person.compareTo(b.person); // We are comparing based on bool person
 			}
 		});
-
+		*/
 		Collections.sort(contacts, new Comparator<ContactRecord> (){
 			public int compare(ContactRecord a, ContactRecord b) {
-				return a.isDisabled().compareTo(b.isDisabled()); // We are comparing based on bool disable (disabled ones will go in the end)
+				return a.disable.compareTo(b.disable); // We are comparing based on bool disable (disabled ones will go in the end)
 			}
 		});
 
@@ -144,7 +121,7 @@ public class ContactServlet extends ServletBase {
 		ArrayList<ContactRecord> readonly_contacts = new ArrayList<ContactRecord>();
 		for(ContactRecord rec : contacts) {
 			if(model.canEdit(rec.id)) {
-				if (rec.isDisabled()) {
+				if (rec.disable) {
 					editable_disabled_contacts.add(rec);
 				} else {
 					editable_contacts.add(rec);
@@ -163,18 +140,20 @@ public class ContactServlet extends ServletBase {
 			Collection<ContactRecord> readonly_contacts) 
 		throws ServletException, SQLException
 	{  
-		contentview.add(new HtmlView("<h1>OSG Contacts</h1>"));
+		DNModel dnmodel = new DNModel(context);
+		
 		if(context.getAuthorization().isUser()) {
 			contentview.add(new HtmlView("<p class=\"pull-right\"><a class=\"btn\" href=\"contactedit\"><i class=\"icon-plus-sign\"></i> Register New Contact</a></p>"));
 		}
-	
+		contentview.add(new HtmlView("<h2>OSG Contacts</h2>"));
+		
 		if(editable_contacts.size() != 0) {
-			contentview.add(new HtmlView("<h2>Editable</h2>"));
-			contentview.add(new HtmlView("<p>You have edit access to following contacts</p>"));
+			//contentview.add(new HtmlView("<h2>Editable</h2>"));
+			//contentview.add(new HtmlView("<p>You have edit access to following contacts</p>"));
 	
-			ItemTableView table = new ItemTableView(4);
+			ItemTableView table = new ItemTableView(3);
 			for(ContactRecord rec : editable_contacts) {
-				table.add(new HtmlView(getContactHeader(rec, true)));
+				table.add(new HtmlView(getContactHeader(dnmodel, rec, true)));
 				//contentview.add(showContact(rec, true)); //true = show edit button
 			}
 			contentview.add(table);
@@ -186,7 +165,7 @@ public class ContactServlet extends ServletBase {
 	
 			ItemTableView table = new ItemTableView(4);
 			for(ContactRecord rec : readonly_contacts) {
-				table.add(new HtmlView(getContactHeader(rec, false)));
+				table.add(new HtmlView(getContactHeader(dnmodel, rec, false)));
 				//contentview.add(showContact(rec, false)); //false = no edit button
 			}
 			contentview.add(table);
@@ -198,7 +177,7 @@ public class ContactServlet extends ServletBase {
 	
 			ItemTableView table = new ItemTableView(4);
 			for(ContactRecord rec : editable_disabled_contacts) {
-				table.add(new HtmlView(getContactHeader(rec, true)));
+				table.add(new HtmlView(getContactHeader(dnmodel, rec, true)));
 				//contentview.add(showContact(rec, true)); //true = show edit button
 			}
 			contentview.add(table);
@@ -206,13 +185,31 @@ public class ContactServlet extends ServletBase {
 		
 		return contentview;
 	}
-	private String getContactHeader(ContactRecord rec, boolean edit)
+	private String getContactHeader(DNModel dnmodel, ContactRecord rec, boolean edit)
 	{
 		String image, name_to_display;
 		if(rec.person == true) {
-			image = "<img align=\"top\" src=\"images/user.png\"/> ";
+			//image = "<img align=\"top\" src=\"images/user.png\"/> ";
+			//count number of DNs associated
+			Integer count = null;
+			try {
+				ArrayList<DNRecord> dns = dnmodel.getEnabledByContactID(rec.id);
+				if(dns.size() > 0) {
+					String tooltip = "";
+					for(DNRecord dn : dns) {
+						tooltip += dn.dn_string + "<br>";
+					}
+					image = "<span ref=\"tooltip\" title=\""+tooltip+"\" class=\"label label-success\">"+dns.size()+" DN</span></a>";
+				} else {
+					image = "<span class=\"label label-warning\">No DN</span>";
+				}
+			} catch (SQLException e) {
+				log.error("Failed to load dn list for contact id:" + rec.id, e);
+				image = "?";
+			}
 		} else {
-			image = "<img align=\"top\" src=\"images/group.png\"/> "; 
+			//image = "<img align=\"top\" src=\"images/group.png\"/> "; 
+			image = "<span class=\"label\">Non Personal</span>";
 		}
 		String url = "";
 		if(edit) {
@@ -221,9 +218,9 @@ public class ContactServlet extends ServletBase {
 			url = "contact?id="+rec.id;
 		}
 		if(rec.disable == false) {
-			name_to_display = image+"<a href=\""+url+"\">"+StringEscapeUtils.escapeHtml(rec.name)+"</a>";
+			name_to_display = "<a href=\""+url+"\">"+StringEscapeUtils.escapeHtml(rec.name)+"</a> "+image;
 		} else {
-			name_to_display = image+"<a href=\""+url+"\" class=\"disabled\">"+StringEscapeUtils.escapeHtml(rec.name)+"</a>";
+			name_to_display = "<a href=\""+url+"\" class=\"disabled\">"+StringEscapeUtils.escapeHtml(rec.name)+"</a> "+image;
 		}
 		return name_to_display;
 	}
@@ -286,15 +283,23 @@ public class ContactServlet extends ServletBase {
 
 			if(context.getAuthorization().allows("admin")) {
 				final ArrayList<DNRecord> dnrecs = dnmodel.getByContactID(rec.id);
-				table.addRow("Associated DN", new IView() {
+				table.addRow("Associated DNs", new IView() {
 
 					@Override
 					public void render(PrintWriter out) {
-						out.write("<ul>");
-						for(DNRecord rec : dnrecs) {
-							out.write("<li>"+StringEscapeUtils.escapeHtml(rec.dn_string)+"</li>");
+						if(dnrecs.size() == 0) {
+							out.write("<p class=\"muted\">No DNs are associated with this contact.</p>");
+						} else {
+							out.write("<ul>");
+							for(DNRecord rec : dnrecs) {
+								out.write("<li>");
+								if(rec.disable) {
+									out.write("<span class=\"pull-right label\">Disabled DN</span>");
+								}
+								out.write(StringEscapeUtils.escapeHtml(rec.dn_string)+"</li>");
+							}
+							out.write("</ul>");
 						}
-						out.write("</ul>");
 					}
 				});		
 			}
@@ -314,7 +319,7 @@ public class ContactServlet extends ServletBase {
 	private SideContentView createListSideView(UserContext context) {
 		SideContentView view = new SideContentView();
 		view.add(new HtmlView("This page shows a list of contacts on OIM. Contacts can be a person or a mailing list or a service that needs to be registered on OIM to access privileged information on other OSG services. <p><br/> You as a registered OIM user will be able to edit any contact you added. GOC staff are able to edit all contacts including previous de-activated ones. <p><br/> If you want to map a certain person or group contact (and their email/phone number) to a resource, VO, SC, etc. but cannot find that contact already in OIM, then you can add a new contact. <p><br/>  Note that if you add a person as a new contact, that person will still not be able to perform any actions inside OIM until they register their X509 certificate on OIM."));		
-		view.addContactGroupFlagLegend();
+		//view.addContactGroupFlagLegend();
 		return view;
 	}
 }

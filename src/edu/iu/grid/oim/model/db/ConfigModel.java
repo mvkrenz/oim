@@ -149,6 +149,12 @@ public class ConfigModel extends ModelBase<ConfigRecord> {
 		*/
 		connection.close();
 	}
+
+	@Override
+	ConfigRecord createRecord() throws SQLException {
+		// TODO Auto-generated method stub
+		return null;
+	}
 	
 
 }

@@ -12,6 +12,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.log4j.Logger;
 
+import com.divrep.DivRepEvent;
+import com.divrep.DivRepEventListener;
+import com.divrep.common.DivRepButton;
+
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.LogModel;
@@ -27,6 +31,7 @@ import edu.iu.grid.oim.view.HtmlView;
 import edu.iu.grid.oim.view.IView;
 import edu.iu.grid.oim.view.LogView;
 import edu.iu.grid.oim.view.SideContentView;
+import edu.iu.grid.oim.view.divrep.form.RARequestForm;
 import edu.iu.grid.oim.view.divrep.form.VOFormDE;
 
 public class VOEditServlet extends ServletBase implements Servlet {
@@ -51,12 +56,7 @@ public class VOEditServlet extends ServletBase implements Servlet {
 			int vo_id = Integer.parseInt(vo_id_str);
 			VOModel model = new VOModel(context);
 			if(!model.canEdit(vo_id)) {
-				//allow ra to edit vo - currently we can only give all or nothing access.
-				//we shouldn't add this check on canEdit - canEdit is used to determine "my vo".
-				if(!auth.allows("admin_ra")) {				
-					//throw new AuthorizationException("Sorry, you don't have permission to edit VO ID:" + vo_id);
-					response.sendRedirect("vo?id="+vo_id);
-				}
+				response.sendRedirect("vo?id="+vo_id);
 			}
 			
 			try {
@@ -94,10 +94,6 @@ public class VOEditServlet extends ServletBase implements Servlet {
 			contentview.add(new HtmlView("<div class=\"alert\">This Virtual Organization is currently disabled.</div>"));
 		}
 		
-		if(rec.id != null) {
-			contentview.add(new HtmlView("<p class=\"pull-right\"><a class=\"btn\" href=\"vo?id="+rec.id+"\">Show Readonly View</a></p>"));
-		}
-		
 		contentview.add(new DivRepWrapper(form));
 		
 		//setup crumbs
@@ -106,15 +102,21 @@ public class VOEditServlet extends ServletBase implements Servlet {
 		bread_crumb.addCrumb(rec.name,  null);
 		contentview.setBreadCrumb(bread_crumb);
 		
-		BootPage page = new BootPage(context, new BootMenuView(context, parent_page), contentview, createSideView(logs));
+		BootPage page = new BootPage(context, new BootMenuView(context, parent_page), contentview, createSideView(context, logs, rec));
 		page.render(response.getWriter());	
 		
 		//context.storeDivRepSession();
 	}
 	
-	private SideContentView createSideView(ArrayList<LogRecord> logs)
+	private SideContentView createSideView(UserContext context, ArrayList<LogRecord> logs, VORecord rec)
 	{
 		SideContentView view = new SideContentView();
+		
+		if(rec.id != null) {
+			view.add(new HtmlView("<p><a class=\"btn\" href=\"vo?id="+rec.id+"\">Show Readonly View</a></p>"));
+		}
+		
+		view.addRARequest(context, rec);
 		view.addContactNote();		
 		if(logs != null) {
 			view.add(new LogView(logs));	

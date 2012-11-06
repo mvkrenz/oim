@@ -53,6 +53,8 @@ public class CertificateRequestHostForm extends DivRepForm
 	private DivRepTextBox email;
 	private DivRepTextBox phone;
 	
+	private DivRepTextArea request_comment;
+	
 	private DivRepTextArea csr;
 	//private DivRepTextBox fqdn;
 	private DivRepCheckBox agreement;
@@ -90,7 +92,7 @@ public class CertificateRequestHostForm extends DivRepForm
 			if(contact != null) {
 				phone.setValue(contact.primary_phone);
 			}
-	
+			
 			new DivRepStaticContent(this, "<h2>Captcha</h2>");
 			new DivRepSimpleCaptcha(this, context.getSession());
 		}
@@ -126,6 +128,10 @@ public class CertificateRequestHostForm extends DivRepForm
 		csr.setWidth(600);
 		new DivRepStaticContent(this, "<p>* Create your CSR on your target hosts using tools such as openssl and copy & paste generated CSR above. <br><pre>umask 077; openssl req -new -newkey rsa:2048 -nodes -keyout hostkey.pem -subj \"/CN=osg-ce.example.edu\"</pre> DN will be overriden by the certificate signer except CN.</p>");
 		
+		request_comment = new DivRepTextArea(this);
+		request_comment.setLabel("Comments");
+		request_comment.setSampleValue("Please enter any comments, or request you'd like to make for RA agents / Sponsors.");
+		
 		new DivRepStaticContent(this, "<h2>OSG Policy Agreement</h2>");
 		//agreement doc comes from https://twiki.grid.iu.edu/twiki/pub/Operations/DigiCertAgreements/IGTF_Certificate_Subscriber_Agreement_-_Mar_26_2012.doc
 		InputStream aup_stream =getClass().getResourceAsStream("osg.certificate.agreement.html");
@@ -146,7 +152,7 @@ public class CertificateRequestHostForm extends DivRepForm
 				return "You must agree to these policies";
 			}
 		});
-		
+	
 	}
 
 	protected void onEvent(DivRepEvent e) {
@@ -180,6 +186,9 @@ public class CertificateRequestHostForm extends DivRepForm
 		String []csrs = new String[1];
 		csrs[0] = clean_csr;
 		
+		//TODO - allow user to pass list of email addresses
+		String []request_ccs = null;
+		
 		//TODO - in the near future, we need to pass dn override (or is this just for user cert?)
 		
 		//do certificate request
@@ -187,9 +196,9 @@ public class CertificateRequestHostForm extends DivRepForm
 			CertificateRequestHostModel certmodel = new CertificateRequestHostModel(context);
 			CertificateRequestHostRecord rec;
 			if(auth.isUser()) {
-				rec = certmodel.requestAsUser(csrs, auth.getContact());
+				rec = certmodel.requestAsUser(csrs, auth.getContact(), request_comment.getValue(), request_ccs);
 			} else {
-				rec = certmodel.requestAsGuest(csrs, requester_name, requester_email, requester_phone);
+				rec = certmodel.requestAsGuest(csrs, requester_name, requester_email, requester_phone, request_comment.getValue(), request_ccs);
 			}
 			if(rec != null) {
 				redirect("certificatehost?id="+rec.id); //TODO - does this work? I haven't tested it

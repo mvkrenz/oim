@@ -15,6 +15,7 @@
 	function animateui() {
 	    $(".alert-message").alert();
 	    $(".dropdown-toggle").dropdown();
+	    $("[ref=tooltip]").tooltip();
 	}
 	</script>
 

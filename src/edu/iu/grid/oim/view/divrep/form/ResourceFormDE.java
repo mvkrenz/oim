@@ -110,8 +110,7 @@ public class ResourceFormDE extends DivRepForm
 		id = rec.id;
 		
 		new DivRepStaticContent(this, "<h2>Resource Information</h2>");
-		//new DivRepStaticContent(this, "<p class=\"help-block\">Add/modify basic information about this resource.</p>");
-		
+
 		//pull vos for unique validator
 		HashMap<Integer, String> resources = getResources();
 		if(id != null) {
