@@ -63,7 +63,7 @@ public class RegisterServlet extends ServletBase  {
 		
 		BootMenuView menuview = new BootMenuView(context, "register");
 		ContentView contentview = createContentView(context);
-		BootPage page = new BootPage(context, menuview, contentview, new SideContentView());
+		BootPage page = new BootPage(context, menuview, contentview, createSideView(context));
 		page.render(response.getWriter());	
 	}
 	
@@ -327,5 +327,11 @@ public class RegisterServlet extends ServletBase  {
 				return false;
 			}
 		}
+	}
+	
+	private SideContentView createSideView(UserContext context) {
+		SideContentView view = new SideContentView();
+		view.add(new HtmlView("<p class=\"alert\">If you already have an OIM account and wish to associate another DN to your existing account, please open a <a href=\"https://ticket.grid.iu.edu\">GOC ticket</a> requesting for contact DN association.</p>"));		
+		return view;
 	}
 }
