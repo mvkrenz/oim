@@ -75,10 +75,12 @@ public class CertificateRequestUserForm extends DivRepForm
 		this.context = context;
 		auth = context.getAuthorization();
 		//ContactRecord contact = auth.getContact();
+		
+		new DivRepStaticContent(this, "<h2>User Certificate Request</h2>");
 	
 		if(!auth.isUser()) {
 			new DivRepStaticContent(this, "<div class=\"alert\">This is a public certificate request form. If you are already an OIM user, please login first.</div>");
-			new DivRepStaticContent(this, "<h2>Contact Information</h2>");
+			new DivRepStaticContent(this, "<h3>Contact Information</h3>");
 			new DivRepStaticContent(this, "<p class=\"help-block\">Following information will be used to contact you during the approval process as well as to issue your certificate.</p>");
 					
 			fullname = new DivRepTextBox(this);
@@ -94,7 +96,7 @@ public class CertificateRequestUserForm extends DivRepForm
 			email.setRequired(true);
 			email.addValidator(new DivRepEmailValidator());
 			
-			new DivRepStaticContent(this, "<h2>Profile Information</h2>");
+			new DivRepStaticContent(this, "<h3>Profile Information</h3>");
 			new DivRepStaticContent(this, "<p class=\"help-block\">Following information will be used to register you as a new OIM user.</p>");
 			
 			city = new DivRepTextBox(this);
@@ -185,7 +187,7 @@ public class CertificateRequestUserForm extends DivRepForm
 					}
 				}});
 			
-			new DivRepStaticContent(this, "<h2>Choose a password</h2>");
+			new DivRepStaticContent(this, "<h3>Choose a password</h3>");
 			new DivRepStaticContent(this, "<p class=\"help-block\">Please choose a password to retrieve your certificate once it's issued.</p>");
 			if(!auth.isUser()) {
 				new DivRepStaticContent(this, "<p class=\"help-block\">This password will also be used to encrypt your certificate.</p>");
@@ -218,11 +220,11 @@ public class CertificateRequestUserForm extends DivRepForm
 				}});
 			passphrase_confirm.setRequired(true);
 		
-			new DivRepStaticContent(this, "<h2>Captcha</h2>");
+			new DivRepStaticContent(this, "<h3>Captcha</h3>");
 			new DivRepSimpleCaptcha(this, context.getSession());
 		} else {
 			//OIM user can specify CN
-			new DivRepStaticContent(this, "<h2>DN</h2>");
+			new DivRepStaticContent(this, "<h3>DN</h3>");
 			cn = new CNEditor(this);
 			cn.setRequired(true);
 			if(auth.isUser()) {
@@ -231,7 +233,7 @@ public class CertificateRequestUserForm extends DivRepForm
 			}
 		}
 			
-		new DivRepStaticContent(this, "<h2>Sponsor</h2>");
+		new DivRepStaticContent(this, "<h3>Sponsor</h3>");
 		new DivRepStaticContent(this, "<p class=\"help-block\">Please select VO that should approve your request.</p>");
 		new DivRepStaticContent(this, "<p class=\"muted\">If you do not know which VO to select, please open a <a href=\"https://ticket.grid.iu.edu\">GOC Ticket</a> for an assistance.</p>");
 		new DivRepStaticContent(this, "<p class=\"muted\">If your VO does not appear, it may not be operational in the OSG PKI at this time. You may continue to use the <a href=\"https://pki1.doegrids.org/ca\">DOE Grids PKI</a></p>");
