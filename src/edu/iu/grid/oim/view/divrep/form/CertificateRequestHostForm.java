@@ -66,10 +66,11 @@ public class CertificateRequestHostForm extends DivRepForm
 		auth = context.getAuthorization();
 		ContactRecord contact = auth.getContact();
 	
-
+		new DivRepStaticContent(this, "<h2>Host Certificate Request</h2>");
+		
 		if(!auth.isUser()) {
-			new DivRepStaticContent(this, "<div class=\"alert\">This is a public certificate request form. If you are already an OIM user, please login first.</div>");
-			new DivRepStaticContent(this, "<h2>Contact Information</h2>");
+			new DivRepStaticContent(this, "<div class=\"alert\">This is a public host certificate request form. If you are already an OIM user, please login first.</div>");
+			new DivRepStaticContent(this, "<h3>Contact Information</h3>");
 			new DivRepStaticContent(this, "<p class=\"help-block\">Following information will be used to contact you during the approval process.</p>");
 					
 			fullname = new DivRepTextBox(this);
@@ -93,19 +94,14 @@ public class CertificateRequestHostForm extends DivRepForm
 				phone.setValue(contact.primary_phone);
 			}
 			
-			new DivRepStaticContent(this, "<h2>Captcha</h2>");
+			new DivRepStaticContent(this, "<h3>Captcha</h3>");
 			new DivRepSimpleCaptcha(this, context.getSession());
 		}
+	
+		new DivRepStaticContent(this, "<h3>CSR (Certificate Signing Request)</h3>");
 		
-		new DivRepStaticContent(this, "<h2>Host Certificate Request</h2>");
-		/*	
-		fqdn = new DivRepTextBox(this);
-		fqdn.setLabel("FQDN");
-		fqdn.setSampleValue("soichi.grid.iu.edu");
-		fqdn.setRequired(true);
-		*/
 		csr = new DivRepTextArea(this);
-		csr.setLabel("CSR");
+		//csr.setLabel("CSR");
 		csr.setRequired(true);
 		csr.setSampleValue("-----BEGIN CERTIFICATE REQUEST-----\n"+
 "MIIC5DCCAcwCAQAwgZ4xCzAJBgNVBAYTAlVTMRAwDgYDVQQIEwdJbmRpYW5hMRQw\n"+
@@ -130,7 +126,7 @@ public class CertificateRequestHostForm extends DivRepForm
 		
 		request_comment = new DivRepTextArea(this);
 		request_comment.setLabel("Comments");
-		request_comment.setSampleValue("Please enter any comments, or request you'd like to make for RA agents / Sponsors.");
+		request_comment.setSampleValue("Please enter any comments, or request you'd like to make for GridAdmin");
 		
 		new DivRepStaticContent(this, "<h2>OSG Policy Agreement</h2>");
 		//agreement doc comes from https://twiki.grid.iu.edu/twiki/pub/Operations/DigiCertAgreements/IGTF_Certificate_Subscriber_Agreement_-_Mar_26_2012.doc

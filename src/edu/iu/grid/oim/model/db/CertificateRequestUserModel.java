@@ -984,24 +984,24 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
     	return false;
     }
     
-    public CertificateRequestUserRecord requestUsertWithNOCSR(Integer vo_id, ContactRecord requester, String cn) throws SQLException, CertificateRequestException {
+    public CertificateRequestUserRecord requestUsertWithNOCSR(Integer vo_id, ContactRecord requester, String cn, String request_comment) throws SQLException, CertificateRequestException {
     	
     	//TODO -- check access
 
 		CertificateRequestUserRecord rec = new CertificateRequestUserRecord();
-    	request(vo_id, rec, requester, cn);
+    	request(vo_id, rec, requester, cn, request_comment);
     	return rec;
     }
        
     //returns insertec request record if successful. if not, null
-    public CertificateRequestUserRecord requestGuestWithNOCSR(Integer vo_id, ContactRecord requester, String passphrase) throws SQLException, CertificateRequestException { 
+    public CertificateRequestUserRecord requestGuestWithNOCSR(Integer vo_id, ContactRecord requester, String passphrase, String request_comment) throws SQLException, CertificateRequestException { 
     	//TODO -- check access
     	
 		CertificateRequestUserRecord rec = new CertificateRequestUserRecord();		
 		String salt = BCrypt.gensalt(12);//let's hard code this for now..
 		rec.requester_passphrase_salt = salt;
 		rec.requester_passphrase = BCrypt.hashpw(passphrase, salt);
-    	request(vo_id, rec, requester, null);//cn is not known until we check the contact
+    	request(vo_id, rec, requester, null, request_comment);//cn is not known until we check the contact
     	return rec;
     } 
     
@@ -1036,7 +1036,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
     
     //NO-AC 
     //return true for success
-    private void request(Integer vo_id, CertificateRequestUserRecord rec, ContactRecord requester, String cn) throws SQLException, CertificateRequestException 
+    private void request(Integer vo_id, CertificateRequestUserRecord rec, ContactRecord requester, String cn, String request_comment) throws SQLException, CertificateRequestException 
     {
 		///////////////////////////////////////////////////////////////////////////////////////////
 		// Check conditions & finalize DN (register contact if needed)
@@ -1120,7 +1120,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 			
 		}
 		
-		note += "NOTE: Requested DN: " + rec.dn + "\n";
+		note += "NOTE: Requested DN: " + rec.dn + "\n\n";
 		
 		///////////////////////////////////////////////////////////////////////////////////////////
 		// Make Request
@@ -1130,7 +1130,12 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 		rec.requester_contact_id = requester.id;
 		rec.vo_id = vo_id;
 		
-		context.setComment("Making Request for " + requester.name);
+		if(request_comment != null) {
+			note += "Requester Comment: "+request_comment;
+			context.setComment(request_comment);
+		} else {
+			context.setComment("Making Request for " + requester.name);
+		}
     	super.insert(rec);
 		//quota.incrementUserCertRequest();
 		
