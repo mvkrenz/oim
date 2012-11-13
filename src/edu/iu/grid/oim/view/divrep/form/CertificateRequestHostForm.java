@@ -130,7 +130,7 @@ public class CertificateRequestHostForm extends DivRepForm
 		
 		request_comment = new DivRepTextArea(this);
 		request_comment.setLabel("Comments");
-		request_comment.setSampleValue("Please enter any comments, or request you'd like to make for RA agents / Sponsors.");
+		request_comment.setSampleValue("Please enter any comments, or request you'd like to make for GridAdmin");
 		
 		new DivRepStaticContent(this, "<h2>OSG Policy Agreement</h2>");
 		//agreement doc comes from https://twiki.grid.iu.edu/twiki/pub/Operations/DigiCertAgreements/IGTF_Certificate_Subscriber_Agreement_-_Mar_26_2012.doc

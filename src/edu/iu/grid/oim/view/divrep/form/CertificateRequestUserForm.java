@@ -57,6 +57,7 @@ public class CertificateRequestUserForm extends DivRepForm
 	private HashMap<Integer, String> timezone_id2tz;
 	
 	private CNEditor cn; //only for OIM user
+	private DivRepTextArea request_comment;
 	
 	private DivRepTextArea profile;
 	private DivRepCheckBox use_twiki;
@@ -270,6 +271,10 @@ public class CertificateRequestUserForm extends DivRepForm
 			log.error("Failed to load vo list while constructing certificat request form", e);
 		}
 		
+		request_comment = new DivRepTextArea(this);
+		request_comment.setLabel("Comments");
+		request_comment.setSampleValue("Please enter any comments, or request you'd like to make for RA agents / Sponsors.");
+		
 		new DivRepStaticContent(this, "<h2>OSG Policy Agreement</h2>");
 		
 		//agreement doc comes from https://twiki.grid.iu.edu/twiki/pub/Operations/DigiCertAgreements/IGTF_Certificate_Subscriber_Agreement_-_Mar_26_2012.doc
@@ -378,9 +383,9 @@ public class CertificateRequestUserForm extends DivRepForm
 			CertificateRequestUserRecord rec = null;
 			if(!auth.isUser()) {
 				//requester_passphrase = HashHelper.sha1(passphrase.getValue());
-				rec = certmodel.requestGuestWithNOCSR(vo.getValue(), user, passphrase.getValue());
+				rec = certmodel.requestGuestWithNOCSR(vo.getValue(), user, passphrase.getValue(), request_comment.getValue());
 			} else {
-				rec = certmodel.requestUsertWithNOCSR(vo.getValue(), user, cn.getValue());
+				rec = certmodel.requestUsertWithNOCSR(vo.getValue(), user, cn.getValue(), request_comment.getValue());
 			}
 			if(rec != null) {
 				redirect("certificateuser?id="+rec.id); //TODO - does this work? I haven't tested it

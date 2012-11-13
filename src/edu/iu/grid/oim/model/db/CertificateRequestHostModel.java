@@ -531,12 +531,12 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 					ticket.ccs.add(ga.primary_email);
 				}
 				ticket.description += "\n\n";
-				ticket.description += "Host certificate request has been submitted.\n\n";
-				ticket.description += "Please determine this request's authenticity, and approve / disapprove at " + getTicketUrl(rec);
+				ticket.description += "Host certificate request has been submitted. ";
+				ticket.description += "Please determine this request's authenticity, and approve / disapprove at " + getTicketUrl(rec) + "\n\n";
 			}	
 			
 			if(request_comment != null) {
-				ticket.description += "\n\n>"+request_comment;
+				ticket.description += "Requester Comment: "+request_comment;
 			}
 			ticket.assignees.add(StaticConfig.conf.getProperty("certrequest.host.assignee"));
 			
