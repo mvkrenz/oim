@@ -249,7 +249,7 @@ public class ContactFormDE extends DivRepForm
 				try {
 					for(ContactRecord crec : model.getAll()) {
 						if(rec == crec) continue;//allow using myown!
-						if(rec.disable) continue;//ignore disabled contact
+						if(crec.disable) continue;//ignore disabled contact
 						values.add(crec.twiki_id);
 					}
 				} catch (SQLException e2) {
