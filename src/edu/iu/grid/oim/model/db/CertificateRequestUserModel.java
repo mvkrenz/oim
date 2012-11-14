@@ -797,11 +797,13 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 
 	public PrivateKey getPrivateKey(Integer id) {
 		HttpSession session = context.getSession();
+		if(session == null) return null;
 		return (PrivateKey)session.getAttribute("PRIVATE_USER:"+id);	
 	}
 	
 	public String getPassword(Integer id) {
 		HttpSession session = context.getSession();
+		if(session == null) return null;
 		return (String)session.getAttribute("PASS_USER:"+id);		
 	}
 	
