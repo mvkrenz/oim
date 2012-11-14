@@ -167,8 +167,8 @@ public class DigicertCertificateSigner implements ICertificateSigner {
 	
 	private HttpClient createHttpClient() {
 		HttpClient cl = new HttpClient();
-		cl.getParams().setParameter("http.protocol.single-cookie-header", true);
-		cl.getParams().setCookiePolicy(CookiePolicy.BROWSER_COMPATIBILITY);
+		//cl.getParams().setParameter("http.protocol.single-cookie-header", true);
+		//cl.getParams().setCookiePolicy(CookiePolicy.BROWSER_COMPATIBILITY);
 		//cl.getHttpConnectionManager().getParams().setConnectionTimeout(1000*10);
 	    cl.getParams().setParameter("http.useragent", "OIM (OSG Information Management System)");
 	    //cl.getParams().setParameter("http.contenttype", "application/x-www-form-urlencoded")
@@ -188,6 +188,8 @@ public class DigicertCertificateSigner implements ICertificateSigner {
 		post.setParameter("validity", "1"); //security by obscurity -- from the DigiCert dev team
 		post.setParameter("id", order_id);
 
+		post.getParams().setCookiePolicy(CookiePolicy.IGNORE_COOKIES);
+		 
 		try {
 			cl.executeMethod(post);
 			Document ret = parseXML(post.getResponseBodyAsStream());
@@ -242,6 +244,8 @@ public class DigicertCertificateSigner implements ICertificateSigner {
 		post.setParameter("email", email_address);
 		post.setParameter("full_name", cn);
 		post.setParameter("csr", csr);
+		
+		post.getParams().setCookiePolicy(CookiePolicy.IGNORE_COOKIES);
 
 		try {
 			cl.executeMethod(post);
@@ -308,6 +312,8 @@ public class DigicertCertificateSigner implements ICertificateSigner {
 		}
 		post.setParameter("csr", csr);
 		
+		post.getParams().setCookiePolicy(CookiePolicy.IGNORE_COOKIES);
+		
 		try {
 			cl.executeMethod(post);
 			Document ret = parseXML(post.getResponseBodyAsStream());
@@ -355,6 +361,8 @@ public class DigicertCertificateSigner implements ICertificateSigner {
 		post.setParameter("comment", comment);
 		post.setParameter("request_id", request_id);
 		
+		post.getParams().setCookiePolicy(CookiePolicy.IGNORE_COOKIES);
+		
 		try {
 			cl.executeMethod(post);
 			Document ret = parseXML(post.getResponseBodyAsStream());
@@ -400,6 +408,8 @@ public class DigicertCertificateSigner implements ICertificateSigner {
 		post.setParameter("response_type", "xml");
 		post.setParameter("validity", "1"); //security by obscurity -- from the DigiCert dev team
 		post.setParameter("id", order_id);
+		
+		post.getParams().setCookiePolicy(CookiePolicy.IGNORE_COOKIES);
 		
 		try {
 			cl.executeMethod(post);
@@ -460,6 +470,8 @@ public class DigicertCertificateSigner implements ICertificateSigner {
 		post.setParameter("validity", "1"); //security by obscurity -- from the DigiCert dev team
 		post.setParameter("serial", serial_id);
 		
+		post.getParams().setCookiePolicy(CookiePolicy.IGNORE_COOKIES);
+		
 		try {
 			cl.executeMethod(post);
 			Document ret = parseXML(post.getResponseBodyAsStream());
@@ -503,6 +515,8 @@ public class DigicertCertificateSigner implements ICertificateSigner {
 		post.setParameter("response_type", "xml");
 		post.setParameter("validity", "1"); //security by obscurity -- from the DigiCert dev team
 		post.setParameter("serial", serial_id);
+		
+		post.getParams().setCookiePolicy(CookiePolicy.IGNORE_COOKIES);
 		
 		try {
 			cl.executeMethod(post);
