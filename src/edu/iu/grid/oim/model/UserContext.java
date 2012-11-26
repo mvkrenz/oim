@@ -54,8 +54,14 @@ public class UserContext {
 		//don't store request object because it can get stale really fast... (was causing issue when divrep tries to get session from it)
 		//request = _request;	
 		
+		/* -- this doesn't do what I think it does.. http://www.coderanch.com/t/357772/Servlets/java/getSession-isRequestedSessionIdValid
 		if(request.isRequestedSessionIdValid()) {
 			session = request.getSession();
+		}
+		*/
+		session = request.getSession(true); //get existing, or create new
+		if(session == null) {
+			throw new RuntimeException("Failed to obtain / create new session - tomcat5 bug?");
 		}
 		auth = new Authorization(request);
 
@@ -81,7 +87,7 @@ public class UserContext {
 			}
 		}
 		
-		divrep_root = DivRepRoot.getInstance(request.getSession());
+		divrep_root = DivRepRoot.getInstance(session);
 		divrep_pageid = request.getRequestURI() + request.getQueryString();
 		remote_addr = request.getRemoteAddr();
 		

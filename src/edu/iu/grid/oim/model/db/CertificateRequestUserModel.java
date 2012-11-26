@@ -689,11 +689,11 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 		}
 
 		new Thread(new Runnable() {
-			public void failed(String message, Throwable e) {
-				log.error(message, e);
+			public void failed(String message) {
+				log.error(message);
 				rec.status = CertificateRequestStatus.FAILED;
 				try {
-					context.setComment(message + " :: " + e.getMessage());
+					context.setComment(message);
 					CertificateRequestUserModel.super.update(get(rec.id), rec);
 				} catch (SQLException e1) {
 					log.error("Failed to update request status while processing failed condition :" + message, e1);
@@ -704,9 +704,16 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 				FPTicket ticket = fp.new FPTicket();
 				ticket.description = "Failed to issue certificate\n\n";
 				ticket.description += message+"\n\n";
-				ticket.description += e.getMessage()+"\n\n";
 				ticket.description += "The alert has been sent to GOC alert for furthre actions on this issue.";
+				ticket.ccs.add(StaticConfig.conf.getProperty("certrequest.fail.assignee"));
+				ticket.nextaction = "GOC developer to investigate";
 				fp.update(ticket, rec.goc_ticket_id);
+				
+			}
+			public void failed(String message, Throwable e) {				
+				message += " :: " + e.getMessage();
+				failed(message);
+				log.error(e);
 			}
 			public void run() {
 				try {					
@@ -720,6 +727,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 	
 						// store private key in memory to be used to create pkcs12 later
 						HttpSession session = context.getSession();
+						log.debug("user session ID:" + session.getId());
 						session.setAttribute("PRIVATE_USER:" + rec.id, csrgen.getPrivateKey());
 						session.setAttribute("PASS_USER:" + rec.id, password);
 					}

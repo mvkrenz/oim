@@ -24,7 +24,7 @@ import edu.iu.grid.oim.view.SideContentView;
  */
 public class ErrorServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-	static Logger log = Logger.getLogger(Authorization.class);  
+	//static Logger log = Logger.getLogger(Authorization.class);  
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{
@@ -76,7 +76,7 @@ public class ErrorServlet extends HttpServlet {
 	    
 		return contentview;
 	}
-	
+	/*
 	private void dump(HttpServletRequest request, Throwable throwable)
 	{		
 		//user info
@@ -101,4 +101,5 @@ public class ErrorServlet extends HttpServlet {
     	Date current = new Date();
     	log.error("Date: " + current.toString());
 	}
+	*/
 }
