@@ -385,7 +385,7 @@ public class ContactEditor extends DivRepFormElement<HashMap<ContactEditor.Rank,
 	{
 		out.write("<div ");
 		renderClass(out);
-		out.write("id=\""+getNodeID()+"\">");
+		out.write(" id=\""+getNodeID()+"\">");
 		if(!isHidden()) {
 			if(getLabel() != null) {
 				out.print("<label>"+StringEscapeUtils.escapeHtml(getLabel())+"</label><br/>");
