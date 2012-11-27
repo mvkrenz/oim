@@ -17,6 +17,7 @@ import edu.iu.grid.oim.model.db.record.RecordBase;
 import edu.iu.grid.oim.model.db.record.SCRecord;
 import edu.iu.grid.oim.model.db.record.VOContactRecord;
 import edu.iu.grid.oim.model.db.record.VOFieldOfScienceRecord;
+import edu.iu.grid.oim.model.db.record.VOOasisUserRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
 import edu.iu.grid.oim.model.db.record.VOVORecord;
 import edu.iu.grid.oim.model.db.record.VOReportNameRecord;
@@ -117,7 +118,8 @@ public class VOModel extends SmallTableModelBase<VORecord>
 			ArrayList<VOContactRecord> contacts, 
 			Integer parent_vo_id, 
 			ArrayList<Integer> field_of_science,
-			ArrayList<VOReport> voreports) throws Exception
+			ArrayList<VOReport> voreports,
+			ArrayList<ContactRecord> oasis_users) throws Exception
 	{
 		Connection conn = connectOIM();
 		conn.setAutoCommit(false);
@@ -168,6 +170,17 @@ public class VOModel extends SmallTableModelBase<VORecord>
 		
 			updateVOReports(rec.id, voreports); //yes, we can use update function to do the insert
 			
+			//process oasis_users
+			ArrayList<VOOasisUserRecord> olist = new ArrayList<VOOasisUserRecord>();
+			for(ContactRecord crec : oasis_users) {
+				VOOasisUserRecord orec = new VOOasisUserRecord();
+				orec.vo_id = rec.id;
+				orec.contact_id = crec.id;
+				olist.add(orec);
+			}
+			VOOasisUserModel voumodel = new VOOasisUserModel(context);
+			voumodel.insert(olist);
+			
 			conn.commit();
 		} catch (Exception e) {
 			log.error(e);
@@ -185,7 +198,8 @@ public class VOModel extends SmallTableModelBase<VORecord>
 			ArrayList<VOContactRecord> contacts, 
 			Integer parent_vo_id, 
 			ArrayList<Integer> field_of_science, 
-			ArrayList<VOReport> voreports) throws Exception
+			ArrayList<VOReport> voreports,
+			ArrayList<ContactRecord> oasis_users) throws Exception
 	{
 		Connection conn = connectOIM();
 		conn.setAutoCommit(false);
@@ -236,6 +250,17 @@ public class VOModel extends SmallTableModelBase<VORecord>
 			vofsmodel.update(vofsmodel.getByVOID(rec.id), list);
 
 			updateVOReports(rec.id, voreports);
+			
+			//process oasis_users
+			ArrayList<VOOasisUserRecord> olist = new ArrayList<VOOasisUserRecord>();
+			for(ContactRecord crec : oasis_users) {
+				VOOasisUserRecord orec = new VOOasisUserRecord();
+				orec.vo_id = rec.id;
+				orec.contact_id = crec.id;
+				olist.add(orec);
+			}
+			VOOasisUserModel voumodel = new VOOasisUserModel(context);
+			voumodel.update(voumodel.getByVOID(rec.id), olist);
 			
 			conn.commit();
 		} catch (Exception e) {

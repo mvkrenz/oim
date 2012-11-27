@@ -34,6 +34,7 @@ import edu.iu.grid.oim.model.UserContext.MessageType;
 import edu.iu.grid.oim.model.db.ContactTypeModel;
 import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.FieldOfScienceModel;
+import edu.iu.grid.oim.model.db.VOOasisUserModel;
 import edu.iu.grid.oim.model.db.VOReportContactModel;
 import edu.iu.grid.oim.model.db.VOReportNameModel;
 import edu.iu.grid.oim.model.db.VOReportNameFqanModel;
@@ -45,6 +46,7 @@ import edu.iu.grid.oim.model.db.record.ContactTypeRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.FieldOfScienceRecord;
 
+import edu.iu.grid.oim.model.db.record.VOOasisUserRecord;
 import edu.iu.grid.oim.model.db.record.VOReportContactRecord;
 import edu.iu.grid.oim.model.db.record.VOReportNameRecord;
 import edu.iu.grid.oim.model.db.record.VOReportNameFqanRecord;
@@ -111,6 +113,9 @@ public class VOFormDE extends DivRepForm
 	private DivRepTextBox membership_services_url;
 	private DivRepTextBox purpose_url;
 	private DivRepTextBox support_url;	
+	
+	private DivRepCheckBox use_oasis;
+	private ContactEditor oasis_users;
 
 	class ScienceVOInfo extends DivRepFormElement
 	{
@@ -201,159 +206,7 @@ public class VOFormDE extends DivRepForm
 			out.print("</div>");
 		}
 	}
-	/*
-	class FieldOfScience extends DivRepFormElement
-	{
-		DivRepButton add_fs;
-		DivRepTextBox new_fs; 
-		private HashMap<Integer, DivRepCheckBox> field_of_science;
-		
-		public FieldOfScience(DivRep _parent, final VORecord rec) throws SQLException {
-			super(_parent);
-			
-			populateList(rec);
-			
-			new_fs = new DivRepTextBox(this);
-			new_fs.setLabel("Or, you can add a new field of science");
-			new_fs.addClass("inline-block");
-			new_fs.setWidth(230);
-			
-			add_fs = new DivRepButton(this, "Add");
-			add_fs.setStyle(DivRepButton.Style.BUTTON);
-			add_fs.addClass("inline-block");
-			add_fs.addClass("btn");
-			add_fs.addClass("margin-bottom9");
-			add_fs.addEventListener(new DivRepEventListener() {
-				public void handleEvent(DivRepEvent e) {
-					String name = new_fs.getValue();
-					if(name == null || name.trim().length() == 0) {
-						alert("Please enter field of science to add");
-						return;
-					}
-					name = name.trim();
-					for(DivRepCheckBox elem : field_of_science.values()) {
-						if(name.equals(elem.getLabel())) {
-							alert("'" + name + "' already exists in the list");
-							return;
-						}
-					}
 
-					try {
-						//add new field of science						
-						FieldOfScienceModel fsmodel = new FieldOfScienceModel(context);	
-						FieldOfScienceRecord newrec = new FieldOfScienceRecord();
-						newrec.name = name;
-						fsmodel.insert(newrec);
-
-						//repopulate the list
-						populateList(rec);
-						FieldOfScience.this.redraw();
-						
-						//select newly created fs
-						DivRepCheckBox elem = findFieldOfScience(name);
-						elem.setValue(true);
-						
-						new_fs.setValue(null);
-					} catch (SQLException e1) {
-						log.error(e1);
-					}
-				}}
-			);
-		}
-		private void populateList(VORecord rec) throws SQLException
-		{
-			FieldOfScienceModel fsmodel = new FieldOfScienceModel(context);
-			field_of_science = new HashMap();
-			for(FieldOfScienceRecord fsrec : fsmodel.getAll()) {
-				DivRepCheckBox elem = new DivRepCheckBox(this);
-				field_of_science.put(fsrec.id, elem);
-				elem.setLabel(fsrec.name);
-			}
-			
-			if(rec.id != null) {
-				//select currently selected field of science
-				VOFieldOfScienceModel vofsmodel = new VOFieldOfScienceModel(context);
-				for(VOFieldOfScienceRecord fsrec : vofsmodel.getByVOID(rec.id)) {
-					DivRepCheckBox check = field_of_science.get(fsrec.field_of_science_id);
-					check.setValue(true);
-				}
-			}
-		}
-		
-		private DivRepCheckBox findFieldOfScience(String name)
-		{
-			for(DivRepCheckBox elem : field_of_science.values()) {
-				if(elem.getLabel().equals(name)) {
-					return elem;
-				}
-			}
-			return null;
-		}
-		
-		protected void onEvent(DivRepEvent e) {
-			// TODO Auto-generated method stub
-			
-		}
-
-		public void render(PrintWriter out) {
-			out.write("<div id=\""+getNodeID()+"\">");
-			
-			out.write("<h3>Field of Science</h3>");
-	
-			out.write("<p>Select Field Of Science(s) applicable to this VO</p>");
-			if(isRequired()) {
-				//out.print(" * Required");
-				out.print("* Required");
-			}
-			
-			out.write("<table class=\"layout\"><tr><td width=\"33%\">");
-			//sort the field_of_science by name and render
-			TreeSet<DivRepCheckBox> sorted = new TreeSet<DivRepCheckBox>(new Comparator<DivRepCheckBox>() {
-				public int compare(DivRepCheckBox o1,
-						DivRepCheckBox o2) {
-					return o1.getLabel().compareTo(o2.getLabel());
-				}
-			});
-			int items_per_column = field_of_science.size() / 3 + 1; //+1 is for rounding
-			sorted.addAll(field_of_science.values());
-			int count = 0;
-			for(DivRepCheckBox elem : sorted) {
-				elem.render(out);
-				++count;
-				if(count != 0 && count % items_per_column == 0) {
-					out.write("</td><td width=\"33%\">");
-				}
-			}
-			out.write("</td></tr></table>");
-
-			
-			new_fs.render(out);
-			add_fs.render(out);
-
-			error.render(out);
-			
-			out.write("</div>");
-		}	
-		
-		@Override
-		public boolean validate()
-		{
-			if(isRequired()) {
-				//make sure at least one element is selected
-				for(DivRepCheckBox check : field_of_science.values()) {
-					if(check.getValue() == true) {
-						return true;
-					}
-				}
-				error.set("Please select at least one field of science.");
-				return false;
-			}
-			return true;
-		}
-		
-	}
-	*/
-	
 	class URLs extends DivRepFormElement
 	{
 		public URLs(DivRep _parent, VORecord rec) {
@@ -413,22 +266,22 @@ public class VOFormDE extends DivRepForm
 		}
 	}
 
-	
 	public void showHideScienceVODetail()
 	{
 		Boolean required = science_vo.getValue();
 
 		app_description.setRequired(required);
 		primary_url.setRequired(required);
-		//aup_url.setRequired(required);
-		//membership_services_url.setRequired(required);
-		//purpose_url.setRequired(required);
-		//support_url.setRequired(required);
 		field_of_science_de.setRequired(required);
 		
-
 		science_vo_info.setHidden(!required);
 		science_vo_info.redraw();
+	}
+	
+	public void showHideOasisUsers() {
+		Boolean required = use_oasis.getValue();
+		oasis_users.setHidden(!required);
+		oasis_users.redraw();
 	}
 	
 	public VOFormDE(UserContext _context, VORecord rec, String origin_url) throws AuthorizationException, SQLException
@@ -512,6 +365,7 @@ public class VOFormDE extends DivRepForm
 		
 		new DivRepStaticContent(this, "<h2>Additional Information for VOs that include OSG Users</h2>");
 		
+		///////////////////////////////////////////////////////////////////////////////////////////
 		ToolTip tip = new ToolTip("Uncheck this checkbox if your VO does not intend to use any OSG resources, and just wants to provide services to the OSG.");
 		new DivRepStaticContent(this, "<span class=\"right\">"+tip.render()+"</span>");
 		science_vo = new DivRepCheckBox(this);
@@ -524,13 +378,31 @@ public class VOFormDE extends DivRepForm
 				showHideScienceVODetail();
 			}
 		});
-		
 		// New VO addition attempt - we want the checkbox checked by default for new VO additions
 		if(rec.id == null) { 
 			science_vo.setValue(true);
 		}
 		showHideScienceVODetail();
 
+		///////////////////////////////////////////////////////////////////////////////////////////
+		new DivRepStaticContent(this, "<h2>OASIS Information</h2>");
+		use_oasis = new DivRepCheckBox(this);
+		use_oasis.setLabel("OASIS Enabled");
+		use_oasis.setValue(rec.use_oasis);
+		use_oasis.addEventListener(new DivRepEventListener() {
+			public void handleEvent(DivRepEvent e) {
+				showHideOasisUsers();
+			}
+		});
+		ArrayList<VOOasisUserRecord> users = null;
+		if(rec.id != null) {
+			VOOasisUserModel vooumodel = new VOOasisUserModel(context);
+			users = vooumodel.getByVOID(rec.id);
+		}
+		oasis_users = createOASISUserEditor(users);
+		showHideOasisUsers();
+		
+		///////////////////////////////////////////////////////////////////////////////////////////
 		new DivRepStaticContent(this, "<h2>Contact Information</h2>");
 		HashMap<Integer/*contact_type_id*/, ArrayList<VOContactRecord>> voclist_grouped = null;
 		if(id != null) {
@@ -679,6 +551,27 @@ public class VOFormDE extends DivRepForm
 				}
 			}
 		}
+		return editor;
+	}
+	
+	private ContactEditor createOASISUserEditor(ArrayList<VOOasisUserRecord> users) throws SQLException
+	{
+		ContactModel pmodel = new ContactModel(context);		
+		ContactEditor editor = new ContactEditor(this, pmodel, false, false);
+		editor.setMaxContacts(Rank.Primary, 10);
+		editor.setLabel("OASIS Managers");
+		editor.addClass("indent");
+		editor.setShowRank(false);
+		
+		//if provided, populate currently selected contacts
+		if(users != null) {
+			for(VOOasisUserRecord user : users) {
+				ContactRecord keyrec = new ContactRecord();
+				keyrec.id = user.contact_id;
+				ContactRecord person = pmodel.get(keyrec);
+				editor.addSelected(person, Rank.Primary);
+			}
+		}
 	
 		return editor;
 	}
@@ -767,6 +660,7 @@ public class VOFormDE extends DivRepForm
 		rec.active = active.getValue();
 		rec.disable = disable.getValue();
 		rec.science_vo = science_vo.getValue();
+		rec.use_oasis = use_oasis.getValue();
 
 		context.setComment(comment.getValue());
 		
@@ -787,7 +681,8 @@ public class VOFormDE extends DivRepForm
 						contacts, 
 						parent_vo.getValue(), 
 						field_of_science_ids,
-						vo_report_name_div.getVOReports(model));
+						vo_report_name_div.getVOReports(model),
+						oasis_users.getContactRecordsByRank(1));//primary
 				context.message(MessageType.SUCCESS, "Successfully registered new VO. You should receive a notification with an instruction on how to active your VO.");
 				
 				try {
@@ -806,7 +701,8 @@ public class VOFormDE extends DivRepForm
 						contacts, 
 						parent_vo.getValue(), 
 						field_of_science_ids,
-						vo_report_name_div.getVOReports(model));
+						vo_report_name_div.getVOReports(model),
+						oasis_users.getContactRecordsByRank(1));
 				context.message(MessageType.SUCCESS, "Successfully updated a VO.");
 			}
 			return true;

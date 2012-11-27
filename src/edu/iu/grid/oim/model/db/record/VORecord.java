@@ -27,6 +27,8 @@ public class VORecord extends ConfirmableRecord {
 	public String support_url;
 	public String app_description;
 
+	public Boolean use_oasis;
+
 	//load from existing record
 	public VORecord(ResultSet rs) throws SQLException { super(rs); }
 	//for creating new record

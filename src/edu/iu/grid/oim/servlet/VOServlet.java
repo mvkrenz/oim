@@ -29,6 +29,7 @@ import edu.iu.grid.oim.model.db.ContactTypeModel;
 import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.FieldOfScienceModel;
 import edu.iu.grid.oim.model.db.ResourceModel;
+import edu.iu.grid.oim.model.db.VOOasisUserModel;
 import edu.iu.grid.oim.model.db.VOReportNameModel;
 import edu.iu.grid.oim.model.db.VOReportNameFqanModel;
 import edu.iu.grid.oim.model.db.SCModel;
@@ -41,6 +42,7 @@ import edu.iu.grid.oim.model.db.record.ContactTypeRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.FieldOfScienceRecord;
 import edu.iu.grid.oim.model.db.record.ResourceRecord;
+import edu.iu.grid.oim.model.db.record.VOOasisUserRecord;
 import edu.iu.grid.oim.model.db.record.VOReportNameRecord;
 import edu.iu.grid.oim.model.db.record.VOReportNameFqanRecord;
 import edu.iu.grid.oim.model.db.record.SCRecord;
@@ -283,6 +285,19 @@ public class VOServlet extends ServletBase implements Servlet {
 					vorepname_view.add(createVOReportNameView(context, vorepname_record));
 				}
 				table.addRow("Reports", vorepname_view);
+			}
+			
+			table.addRow("OASIS Enabled", rec.use_oasis);
+			if (rec.use_oasis) {
+				StringBuffer users_str = new StringBuffer();
+				VOOasisUserModel vooumodel = new VOOasisUserModel(context);
+				users_str.append("<ul>");
+				for(VOOasisUserRecord users : vooumodel.getByVOID(rec.id)) {
+					ContactRecord person = pmodel.get(users.contact_id);
+					users_str.append("<li>" + StringEscapeUtils.escapeHtml(person.name.trim()) + "</li>");
+				}
+				users_str.append("</ul>");
+				table.addRow("OASIS Managers", new HtmlView(users_str.toString()));
 			}
 			
 			table.addRow("Active", rec.active);

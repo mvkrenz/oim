@@ -340,17 +340,19 @@ public class ContactEditor extends DivRepFormElement<HashMap<ContactEditor.Rank,
 		}
 		throw new IllegalArgumentException("Uknown rank: " + rank);
 	}
-	
-	public void addSelected(ContactRecord rec, int contact_rank_id)
+	public void addSelected(ContactRecord rec, Rank rank)
 	{
-		Rank rank = DBRank2Enum(contact_rank_id);
-		
 		ArrayList<ContactDE> list = selected.get(rank);
 		if(list != null) {
 			list.add(new ContactDE(this, rec, rank));
 			validate();
 			redraw();
 		}
+	}
+	public void addSelected(ContactRecord rec, int contact_rank_id)
+	{
+		Rank rank = DBRank2Enum(contact_rank_id);
+		addSelected(rec, rank);
 	}
 	
 	public HashMap<ContactRecord, Integer/*rank*/> getContactRecords()
@@ -381,24 +383,28 @@ public class ContactEditor extends DivRepFormElement<HashMap<ContactEditor.Rank,
 	
 	public void render(PrintWriter out) 
 	{
-		out.print("<div id=\""+getNodeID()+"\">");
-		if(getLabel() != null) {
-			out.print("<label>"+StringEscapeUtils.escapeHtml(getLabel())+"</label><br/>");
+		out.write("<div ");
+		renderClass(out);
+		out.write("id=\""+getNodeID()+"\">");
+		if(!isHidden()) {
+			if(getLabel() != null) {
+				out.print("<label>"+StringEscapeUtils.escapeHtml(getLabel())+"</label><br/>");
+			}
+			if(isDisabled()) {
+				out.print("<table class='contact_table gray'>");		
+			} else {
+				out.print("<table class='contact_table'>");
+			}
+			renderContactList(out, primary_newcontact, selected.get(Rank.Primary), Rank.Primary, primary_label, max_primary);
+			if(has_secondary) {
+				renderContactList(out, secondary_newcontact, selected.get(Rank.Secondary), Rank.Secondary, secondary_label, max_secondary);
+			}
+			if(has_tertiary) {
+				renderContactList(out, tertiary_newcontact, selected.get(Rank.Tertiary), Rank.Tertiary, tertiary_label, max_tertiary);
+			}
+			out.print("</table>");
+			error.render(out);
 		}
-		if(isDisabled()) {
-			out.print("<table class='contact_table gray'>");		
-		} else {
-			out.print("<table class='contact_table'>");
-		}
-		renderContactList(out, primary_newcontact, selected.get(Rank.Primary), Rank.Primary, primary_label, max_primary);
-		if(has_secondary) {
-			renderContactList(out, secondary_newcontact, selected.get(Rank.Secondary), Rank.Secondary, secondary_label, max_secondary);
-		}
-		if(has_tertiary) {
-			renderContactList(out, tertiary_newcontact, selected.get(Rank.Tertiary), Rank.Tertiary, tertiary_label, max_tertiary);
-		}
-		out.print("</table>");
-		error.render(out);
 		out.print("</div>");
 	}
 	
