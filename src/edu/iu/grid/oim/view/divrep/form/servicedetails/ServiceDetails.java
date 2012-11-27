@@ -74,11 +74,8 @@ public class ServiceDetails extends DivRepFormElement {
 				case 1000: content = new MiscServiceDetails(this, srec); break;
 				case 1001: content = new SecurityMonitoringServiceDetails(this, srec); break;
 				case 1002: content = new SquidServiceDetails(this, srec); break;
-				case 130:
-				case 131:
-					content = new PerfsonarServiceDetails(this, srec);break;
-				case 132:
-					content = new CVMFSServiceDetails(this, srec);break;
+				case 1003: content = new PerfsonarServiceDetails(this, srec);break;
+				case 1004: content = new CVMFSServiceDetails(this, srec);break;
 				default: 
 					log.warn("Unknown service group id for service " + srec.name);
 				}
