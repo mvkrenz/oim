@@ -193,7 +193,11 @@ public abstract class ModelBase<T extends RecordBase> {
     //find out which fields are changed and do SQL update on those fields
     public void update(T oldrec, T newrec) throws SQLException
     {
-		//auth.check("write_"+table_name);
+    	if(oldrec == newrec) {
+    		//TODO - let's switch to exception once I am comfortable that this works
+    		//throw new SQLException("update() called using identical reference for oldrec and newrec - maybe not intended");
+    		log.error("update() called using identical reference for oldrec and newrec - maybe not intended");
+    	}
     	
     	ArrayList<Field> changed_fields = oldrec.diff(newrec);
 		//if nothing has being changed, don't update

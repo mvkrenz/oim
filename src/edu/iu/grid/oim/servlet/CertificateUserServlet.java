@@ -481,7 +481,7 @@ public class CertificateUserServlet extends ServletBase  {
 	                	if(model.approve(rec)) {
 	                		button.redirect(url);
 	                	} else {
-	                		button.alert("Failed to approve request");
+	                		button.alert("Failed to approve request. Maybe Quota exeeded?");
 	                	}
                 	}
                 }

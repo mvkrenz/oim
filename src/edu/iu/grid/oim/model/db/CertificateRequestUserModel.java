@@ -378,7 +378,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 			ContactModel cmodel = new ContactModel(context);
 			ContactRecord requester = cmodel.get(rec.requester_contact_id);
 			requester.disable = false;
-			cmodel.update(cmodel.get(rec.requester_contact_id), requester);
+			cmodel.update(requester);
 
 			//update ticket
 			Footprints fp = new Footprints(context);
