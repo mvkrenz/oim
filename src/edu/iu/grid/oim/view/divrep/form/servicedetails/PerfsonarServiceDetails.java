@@ -20,7 +20,7 @@ public class PerfsonarServiceDetails extends ServiceDetailsContent {
 		
 		endpoint = new DivRepTextBox(this);
 		endpoint.setLabel("Service Endpoint");
-		endpoint.setSampleValue("some.host.edu/something");
+		endpoint.setSampleValue("http://perfsonar.example.org");
 		endpoint.setRequired(true);
 		/*
 		endpoint.addValidator(new DivRepIValidator<String>() {
