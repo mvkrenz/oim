@@ -1080,7 +1080,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 			
 			//Find contact record with the same email address including disabled one
 			ContactModel cmodel = new ContactModel(context);
-			ContactRecord existing_crec = cmodel.getByemail(requester.primary_email);//this is from the form, so I just have to check against primary_email
+			ContactRecord existing_crec = cmodel.getEnabledByemail(requester.primary_email);//this is from the form, so I just have to check against primary_email
 			if(existing_crec == null) {
 				//register new disabled contact
 				requester.disable = true; //don't enable until the request gets approved

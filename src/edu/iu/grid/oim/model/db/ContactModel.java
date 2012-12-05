@@ -62,10 +62,11 @@ public class ContactModel extends SmallTableModelBase<ContactRecord> {
 		}
 		return list;
 	}
-	public ContactRecord getByemail(String email) throws SQLException
+	public ContactRecord getEnabledByemail(String email) throws SQLException
 	{
 		for(RecordBase it : getCache()) {
 			ContactRecord rec = (ContactRecord)it;
+			if(rec.disable) continue;
 			if(rec.primary_email != null && rec.primary_email.equals(email)) {
 				return rec;
 			}

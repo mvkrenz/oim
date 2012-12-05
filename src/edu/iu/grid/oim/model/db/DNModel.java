@@ -65,7 +65,7 @@ public class DNModel extends SmallTableModelBase<DNRecord> {
 		for(RecordBase it : getCache()) 
 		{
 			DNRecord rec = (DNRecord)it;
-			if(rec.contact_id.compareTo(contact_id) == 0) {
+			if(rec.contact_id.equals(contact_id)) {
 				list.add(rec);
 			}
 		}
@@ -77,7 +77,7 @@ public class DNModel extends SmallTableModelBase<DNRecord> {
 		for(RecordBase it : getCache()) 
 		{
 			DNRecord rec = (DNRecord)it;
-			if(rec.contact_id.compareTo(contact_id) == 0 && rec.disable == false) {
+			if(rec.contact_id.equals(contact_id) && rec.disable == false) {
 				list.add(rec);
 			}
 		}
