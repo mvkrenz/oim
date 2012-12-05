@@ -219,12 +219,13 @@ public class CertificateUserServlet extends ServletBase  {
 				out.write("<td>"+StringEscapeUtils.escapeHtml(rec.status));
 				if(rec.status.equals(CertificateRequestStatus.ISSUING)) {
 					out.write("<div id=\"status_progress\">Loading...</div>");
-					out.write("<script>");
+					out.write("<script type=\"text/javascript\">");
 					out.write("function loadstatus() { ");
-					out.write("$('#status_progress').load('certificateuser?id="+rec.id+"&status');");
+					//why adding new Date()? see http://stackoverflow.com/questions/1061525/jquerys-load-not-working-in-ie-but-fine-in-firefox-chrome-and-safari
+					out.write("$('#status_progress').load('certificateuser?id="+rec.id+"&status&'+new Date().getTime() );"); 
 					out.write("setTimeout('loadstatus()', 1000);");
 					out.write("}");
-					out.write("loadstatus();");
+					out.write("$(function() {loadstatus();});");
 					out.write("</script>");
 				} 
 				out.write("</td>");

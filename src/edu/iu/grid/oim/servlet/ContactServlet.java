@@ -101,13 +101,6 @@ public class ContactServlet extends ServletBase {
 				return a.name.compareToIgnoreCase(b.name); // We are comparing based on name
 			}
 		});
-		/*
-		Collections.sort(contacts, new Comparator<ContactRecord> (){
-			public int compare(ContactRecord a, ContactRecord b) {
-				return a.person.compareTo(b.person); // We are comparing based on bool person
-			}
-		});
-		*/
 		Collections.sort(contacts, new Comparator<ContactRecord> (){
 			public int compare(ContactRecord a, ContactRecord b) {
 				return a.disable.compareTo(b.disable); // We are comparing based on bool disable (disabled ones will go in the end)

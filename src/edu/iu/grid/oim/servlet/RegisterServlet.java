@@ -260,7 +260,7 @@ public class RegisterServlet extends ServletBase  {
 			DNModel dnmodel = new DNModel(context);
 			try {
 				//Find contact record with the same email address
-				ContactRecord rec = model.getByemail(primary_email.getValue());
+				ContactRecord rec = model.getEnabledByemail(primary_email.getValue());
 				//Create new one if none is found
 				if(rec == null) {
 					rec = new ContactRecord();
