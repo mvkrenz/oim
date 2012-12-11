@@ -360,8 +360,8 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 		//Date current = new Date();
     	rec.requester_contact_id = requester.id;
 	 	rec.requester_name = requester.name;
-    	rec.requester_email = requester.primary_email;
-    	rec.requester_phone = requester.primary_phone;
+    	//rec.requester_email = requester.primary_email;
+    	//rec.requester_phone = requester.primary_phone;
     	
 		Footprints fp = new Footprints(context);
 		FPTicket ticket = fp.new FPTicket();
@@ -386,8 +386,8 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
     	CertificateRequestHostRecord rec = new CertificateRequestHostRecord();
 		//Date current = new Date();
 	 	rec.requester_name = requester_name;
-    	rec.requester_email = requester_email;
-    	rec.requester_phone = requester_phone;
+    	//rec.requester_email = requester_email;
+    	//rec.requester_phone = requester_phone;
     	
 		Footprints fp = new Footprints(context);
 		FPTicket ticket = fp.new FPTicket();
