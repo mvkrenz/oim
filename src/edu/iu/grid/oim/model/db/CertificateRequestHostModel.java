@@ -433,7 +433,7 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 		
     	//log.debug("request init");
     	
-    	GridAdminModel gmodel = new GridAdminModel(context);
+    	//GridAdminModel gmodel = new GridAdminModel(context);
     	StringArray csrs_sa = new StringArray(csrs.length);
     	StringArray cns_sa = new StringArray(csrs.length);
     	int idx = 0;
@@ -540,7 +540,7 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 			}
 			ticket.assignees.add(StaticConfig.conf.getProperty("certrequest.host.assignee"));
 			
-			ticket.nextaction = "RA/Sponsors to verify requester";
+			ticket.nextaction = "GridAdmin to verify requester";
 			Calendar nad = Calendar.getInstance();
 			nad.add(Calendar.DATE, 7);
 			ticket.nad = nad.getTime();
