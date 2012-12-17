@@ -63,7 +63,8 @@ public class CertificateHostServlet extends ServletBase  {
 				IView view = statusView(rec);
 				view.render(response.getWriter());
 			} catch (SQLException e) {
-				throw new ServletException("Failed to load specified certificate", e);
+				log.info("Failed to load specified certificate", e);
+				return;
 			}
 		} else {
 			if(dirty_id != null) {
@@ -71,7 +72,8 @@ public class CertificateHostServlet extends ServletBase  {
 					int id = Integer.parseInt(dirty_id);
 					CertificateRequestHostRecord rec = model.get(id);
 					if(rec == null) {
-						throw new ServletException("No request found with a specified request ID.");
+						log.info("No request found with a specified request ID.");
+						return;
 					}
 					if(!model.canView(rec)) {
 						throw new AuthorizationException("You don't have access to view this certificate");
