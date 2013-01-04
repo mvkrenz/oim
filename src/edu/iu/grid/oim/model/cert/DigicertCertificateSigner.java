@@ -132,7 +132,7 @@ public class DigicertCertificateSigner implements ICertificateSigner {
 						}
 					} catch(DigicertCPException e) {
 						//TODO - need to ask DigiCert to give me more specific error code so that I can distinguish between real error v.s. need_wait
-						log.warn("Failed to retrieve cert for order ID:" + cert.serial + ". probably not yet issued.. ignoring");
+						log.info("Failed to retrieve cert for order ID:" + cert.serial + ". probably not yet issued.. ignoring");
 					}
  				} else {
  					issued++;

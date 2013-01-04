@@ -39,11 +39,8 @@ import edu.iu.grid.oim.model.cert.ICertificateSigner.Certificate;
 import edu.iu.grid.oim.model.cert.ICertificateSigner.CertificateProviderException;
 import edu.iu.grid.oim.model.cert.ICertificateSigner.IHostCertificatesCallBack;
 import edu.iu.grid.oim.model.db.record.CertificateRequestHostRecord;
-import edu.iu.grid.oim.model.db.record.CertificateRequestUserRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.GridAdminRecord;
-import edu.iu.grid.oim.model.db.record.RecordBase;
-import edu.iu.grid.oim.model.db.record.VOContactRecord;
 import edu.iu.grid.oim.model.exceptions.CertificateRequestException;
 
 public class CertificateRequestHostModel extends CertificateRequestModelBase<CertificateRequestHostRecord> {
@@ -535,6 +532,14 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 				ticket.description += "Please determine this request's authenticity, and approve / disapprove at " + getTicketUrl(rec) + "\n\n";
 			}	
 			
+			Authorization auth = context.getAuthorization();
+			ticket.description += "Requester IP:" + context.getRemoteAddr() + "\n";
+			if(auth.isUser()) {
+				ContactRecord user = auth.getContact();
+				//ticket.description += "OIM User Name:" + user.name + "\n";
+				ticket.description += "Submitter is OIM authenticated with DN:" + auth.getUserDN() + "\n";
+			}
+			
 			if(request_comment != null) {
 				ticket.description += "Requester Comment: "+request_comment;
 			}
@@ -657,7 +662,6 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 			ticket.description = contact.name + " has requested renewal for this certificate request.";
 		} else {
 			ticket.description = "Guest user with IP:" + context.getRemoteAddr() + " has requested renewal of this certificate request.";		
-
 		}
 		ticket.description += "\n\n> " + context.getComment();
 		ticket.description += "\n\nPlease approve / disapprove this request at " + getTicketUrl(rec);

@@ -367,6 +367,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 			DNModel dnmodel = new DNModel(context);
 			dnrec.id = dnmodel.insert(dnrec);
 			
+			//TODO - we should aggregate all currently approved authorization types and give the DN access to all of it instead
 			//Give user OSG end user access
 			DNAuthorizationTypeModel dnauthmodel = new DNAuthorizationTypeModel(context);
 			DNAuthorizationTypeRecord dnauthrec = new DNAuthorizationTypeRecord();
