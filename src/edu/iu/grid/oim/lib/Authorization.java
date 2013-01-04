@@ -203,14 +203,14 @@ public class Authorization {
 					//user_dn = "/DC=org/DC=doegrids/OU=People/CN=Horst Severini 926890";
 					//request.setAttribute("SSL_CLIENT_S_DN", "/DC=org/DC=doegrids/OU=People/CN=christopher pipes 556895"); //disabled
 					
-					request.setAttribute("SSL_CLIENT_S_DN", "/DC=org/DC=doegrids/OU=People/CN=Soichi Hayashi 461343");
+					//request.setAttribute("SSL_CLIENT_S_DN", "/DC=org/DC=doegrids/OU=People/CN=Soichi Hayashi 461343");
 					//request.setAttribute("SSL_CLIENT_S_DN", "/DC=org/DC=doegrids/OU=People/CN=Arvind Gopu 369621");
 					//request.setAttribute("SSL_CLIENT_S_DN", "/DC=com/DC=DigiCert-Grid/OU=People/CN=Soichi Hayashi 238");
 					//request.setAttribute("SSL_CLIENT_S_DN", "/DC=org/DC=doegrids/OU=People/CN=Jeremy Fischer 478396");
 					//request.setAttribute("SSL_CLIENT_S_DN", "/C=US/O=National Center for Supercomputing Applications/OU=People/CN=Jim Basney");
 					//request.setAttribute("SSL_CLIENT_S_DN", "/DC=org/DC=doegrids/OU=People/CN=Soichi Hayashi new2");
 					//request.setAttribute("SSL_CLIENT_S_DN", "/DC=org/DC=doegrids/OU=People/CN=Alain Roy 424511");
-					//request.setAttribute("SSL_CLIENT_S_DN", "/DC=org/DC=doegrids/OU=People/CN=Horst Severini 926890");
+					request.setAttribute("SSL_CLIENT_S_DN", "/DC=org/DC=doegrids/OU=People/CN=Horst Severini 926890");
 					request.setAttribute("SSL_CLIENT_I_DN_CN", "Test CA");
 					log.debug("Using debuggin credential");
 				} else {
