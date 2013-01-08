@@ -335,7 +335,7 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 		FPTicket ticket = fp.new FPTicket();
 		ticket.description = "Dear " + rec.requester_name + ",\n\n";
 		ticket.description += "Your host certificate request has been approved. \n\n";
-		ticket.description += "To retrieve your certificate please visit " + getTicketUrl(rec) + " and click on Issue Certificate button.\n\n";
+		ticket.description += "To retrieve your certificate please visit " + getTicketUrl(rec.id) + " and click on Issue Certificate button.\n\n";
     	if(StaticConfig.isDebug()) {
     		ticket.description += "Or if you are using the command-line: osg-cert-retrieve -T -i "+rec.id+"\n\n";
     	} else {
@@ -402,7 +402,7 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
     	return request(csrs, rec, ticket, request_comment);
     }
     
-    private String getTicketUrl(CertificateRequestHostRecord rec) {
+    private String getTicketUrl(Integer request_id) {
     	String base;
     	//this is not an exactly correct assumption, but it should be good enough
     	if(StaticConfig.isDebug()) {
@@ -410,7 +410,7 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
     	} else {
     		base = "https://oim.grid.iu.edu/oim/";
     	}
-    	return base + "certificatehost?id=" + rec.id;
+    	return base + "certificatehost?id=" + request_id;
     }
     
     //NO-AC
@@ -503,8 +503,7 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
     	rec.cert_serial_ids = ar.toXML();
     	
     	try {
-        	//log.debug("inserting request record");
-			Integer request_id = super.insert(rec);
+        	//log.debug("inserting request record")
 			
         	//log.debug("request_id: " + request_id);
 			
@@ -518,6 +517,9 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 				}
 			}
 			
+			//now submit - after this, we are commited.
+			Integer request_id = super.insert(rec);
+			
 			if(submitter_is_ga) {
 				ticket.description = "Host certificate request has been submitted by GridAdmin.\n\n";
 				//don't cc anyone.
@@ -529,7 +531,7 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 				}
 				ticket.description += "\n\n";
 				ticket.description += "Host certificate request has been submitted. ";
-				ticket.description += "Please determine this request's authenticity, and approve / disapprove at " + getTicketUrl(rec) + "\n\n";
+				ticket.description += "Please determine this request's authenticity, and approve / disapprove at " + getTicketUrl(request_id) + "\n\n";
 			}	
 			
 			Authorization auth = context.getAuthorization();
@@ -555,6 +557,9 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 			if(auth.isUser()) {
 				ticket.metadata.put("SUBMITTER_DN", auth.getUserDN());
 			} 
+			
+			//all ready to submit request
+			
 			Footprints fp = new Footprints(context);
         	log.debug("opening footprints ticket");
 			String ticket_id = fp.open(ticket);
@@ -664,7 +669,7 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 			ticket.description = "Guest user with IP:" + context.getRemoteAddr() + " has requested renewal of this certificate request.";		
 		}
 		ticket.description += "\n\n> " + context.getComment();
-		ticket.description += "\n\nPlease approve / disapprove this request at " + getTicketUrl(rec);
+		ticket.description += "\n\nPlease approve / disapprove this request at " + getTicketUrl(rec.id);
 		ticket.nextaction = "GridAdmin to verify and approve/reject"; //nad will be set to 7 days from today by default
 		ticket.status = "Engineering"; //I need to reopen resolved ticket.
 		
@@ -701,7 +706,7 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 		} else {
 			ticket.description = "Guest user with IP:" + context.getRemoteAddr() + " has requested revocation of this certificate request.";		
 		}
-		ticket.description += "\n\nPlease approve / disapprove this request at " + getTicketUrl(rec);
+		ticket.description += "\n\nPlease approve / disapprove this request at " + getTicketUrl(rec.id);
 		ticket.nextaction = "Grid Admin to process request."; //nad will be set to 7 days from today by default
 		ticket.status = "Engineering"; //I need to reopen resolved ticket.
 		fp.update(ticket, rec.goc_ticket_id);
