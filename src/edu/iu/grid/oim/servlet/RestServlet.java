@@ -35,6 +35,8 @@ public class RestServlet extends ServletBase  {
 	private static final long serialVersionUID = 1L;
     static Logger log = Logger.getLogger(RestServlet.class);  
     
+    static String GOC_TICKET_MESSAGE = " -- GOC alert will be sent to GOC infrastructure team about this issue. Meanwhile, feel free to open a GOC ticket at https://ticket.grid.iu.edu";
+    
 	static enum Status {OK, FAILED, PENDING};
     class Reply {
     	Status status = Status.OK;
@@ -110,19 +112,17 @@ public class RestServlet extends ServletBase  {
 			reply.status = Status.FAILED;
 			reply.detail = e.getMessage();
 			if(e.getCause() != null) {
-				reply.detail += " -- " + e.getCause().getMessage();
+				reply.detail += " -- " + e.getCause().getMessage() + GOC_TICKET_MESSAGE;
 			}
 		} catch(AuthorizationException e) {
+			//nothing unclear about auth error.
 			reply.status = Status.FAILED;
-			reply.detail = e.getMessage();	
-			if(e.getCause() != null) {
-				reply.detail += " -- " + e.getCause().getMessage();
-			}
+			reply.detail = e.toString();	
 		} catch(Exception e) {
 			reply.status = Status.FAILED;
 			reply.detail = e.getMessage();
 			if(e.getCause() != null) {
-				reply.detail += " -- " + e.getCause().getMessage();
+				reply.detail += " -- " + e.getCause().getMessage() + GOC_TICKET_MESSAGE;
 			}
 		}
 		reply.out(response);
@@ -147,11 +147,11 @@ public class RestServlet extends ServletBase  {
 		} catch(Exception e) {
 			reply.status = Status.FAILED;
 			reply.detail = e.toString();
-			if(e.getMessage() != null) reply.detail += " -- " + e.getMessage();	
+			if(e.getMessage() != null) reply.detail += " -- " + e.getMessage() + GOC_TICKET_MESSAGE;	
 		}
 		reply.out(response);
 	}
- 
+	
 	private void doHostCertsRequest(HttpServletRequest request, Reply reply) throws AuthorizationException, RestException {
 		
 		UserContext context = new UserContext(request);	
