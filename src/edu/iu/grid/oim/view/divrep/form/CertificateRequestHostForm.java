@@ -1,22 +1,19 @@
 package edu.iu.grid.oim.view.divrep.form;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.TimeZone;
 
 import org.apache.log4j.Logger;
+import org.bouncycastle.pkcs.PKCS10CertificationRequest;
+import org.bouncycastle.util.encoders.Base64;
 
 import com.divrep.DivRepEvent;
 import com.divrep.DivRepEventListener;
 import com.divrep.common.DivRepCheckBox;
 import com.divrep.common.DivRepForm;
-import com.divrep.common.DivRepPassword;
 import com.divrep.common.DivRepSelectBox;
 import com.divrep.common.DivRepStaticContent;
 import com.divrep.common.DivRepTextArea;
@@ -24,23 +21,18 @@ import com.divrep.common.DivRepTextBox;
 import com.divrep.validator.DivRepIValidator;
 
 import edu.iu.grid.oim.lib.Authorization;
-import edu.iu.grid.oim.lib.HashHelper;
 import edu.iu.grid.oim.lib.ResourceReader;
 import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.UserContext.MessageType;
 import edu.iu.grid.oim.model.db.CertificateRequestHostModel;
-import edu.iu.grid.oim.model.db.CertificateRequestUserModel;
-import edu.iu.grid.oim.model.db.ContactModel;
-import edu.iu.grid.oim.model.db.DNModel;
-import edu.iu.grid.oim.model.db.VOModel;
+import edu.iu.grid.oim.model.db.GridAdminModel;
 import edu.iu.grid.oim.model.db.record.CertificateRequestHostRecord;
-import edu.iu.grid.oim.model.db.record.CertificateRequestUserRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
+import edu.iu.grid.oim.model.db.record.GridAdminRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
 import edu.iu.grid.oim.model.exceptions.CertificateRequestException;
 
 import edu.iu.grid.oim.view.divrep.DivRepSimpleCaptcha;
-import edu.iu.grid.oim.view.divrep.form.validator.PKIPassStrengthValidator;
 
 public class CertificateRequestHostForm extends DivRepForm
 {
@@ -56,8 +48,10 @@ public class CertificateRequestHostForm extends DivRepForm
 	private DivRepTextArea request_comment;
 	
 	private DivRepTextArea csr;
-	//private DivRepTextBox fqdn;
+	private DivRepSelectBox vo;
+	
 	private DivRepCheckBox agreement;
+
 	
 	public CertificateRequestHostForm(final UserContext context, String origin_url) {
 		
@@ -99,7 +93,8 @@ public class CertificateRequestHostForm extends DivRepForm
 		}
 	
 		new DivRepStaticContent(this, "<h3>CSR (Certificate Signing Request)</h3>");
-		
+
+		new DivRepStaticContent(this, "<p class=\"help-block\">* Create your CSR on your target hosts using tools such as openssl and copy & paste generated CSR below. <br><pre>umask 077; openssl req -new -newkey rsa:2048 -nodes -keyout hostkey.pem -subj \"/CN=osg-ce.example.edu\"</pre> DN will be overriden by the certificate signer except CN.</p>");
 		csr = new DivRepTextArea(this);
 		//csr.setLabel("CSR");
 		csr.setRequired(true);
@@ -122,7 +117,60 @@ public class CertificateRequestHostForm extends DivRepForm
 "Nb4jr2oKlBc4Vqo4OjfpakA4n6yseH0F\n"+
 "-----END CERTIFICATE REQUEST-----");
 		csr.setWidth(600);
-		new DivRepStaticContent(this, "<p>* Create your CSR on your target hosts using tools such as openssl and copy & paste generated CSR above. <br><pre>umask 077; openssl req -new -newkey rsa:2048 -nodes -keyout hostkey.pem -subj \"/CN=osg-ce.example.edu\"</pre> DN will be overriden by the certificate signer except CN.</p>");
+		csr.addValidator(new DivRepIValidator<String>(){
+			String error_message;
+			@Override
+			public String getErrorMessage() { return error_message;}
+
+			@Override
+			public Boolean isValid(String dirty_csr) {
+				vo.setHidden(true);
+				vo.setRequired(false);
+				vo.redraw();
+				
+				//parse CSR and check to make sure it's valid
+				try {
+					
+					CertificateRequestHostModel certmodel = new CertificateRequestHostModel(context);
+					String csr_string = stripCSRString(dirty_csr);
+					PKCS10CertificationRequest pkcs10 = certmodel.parseCSR(csr_string);
+					String cn = certmodel.pullCNFromCSR(pkcs10);
+					GridAdminModel gamodel = new GridAdminModel(context);
+					String domain = gamodel.getDomainByFQDN(cn);
+					if(domain == null) {
+						error_message = "Failed to find any GridAdmin who can approve certificates for CN: " + cn;
+						return false;
+					}
+					HashMap<VORecord, ArrayList<GridAdminRecord>> groups = gamodel.getByDomainGroupedByVO(domain);					
+					HashMap<Integer, String> keyvalues = new HashMap<Integer, String>();
+					for(VORecord vo : groups.keySet()) {
+						keyvalues.put(vo.id, vo.name);
+					}
+					vo.setValues(keyvalues);
+					vo.setHidden(false);
+					if(keyvalues.size() > 1) {
+						//required if there are more than one value
+						//only 1 - then user can choose to select null
+						vo.setRequired(true);
+					}
+					vo.setLabel("Approver VO for "+domain);
+					
+					return true;
+				} catch (IOException e) {
+					error_message = e.getMessage();
+				} catch (CertificateRequestException e) {
+					error_message = "Failed to pull CN from pkcs10." + e.getMessage();
+				} catch (SQLException e) {
+					error_message = "Failed to lookup GridAdmin domain" + e.getMessage();
+				}
+				return false;
+			}
+		});		
+		//hidden until user enter CSR
+		vo = new DivRepSelectBox(this);
+		vo.setHidden(true);
+		vo.setRequired(false);
+		vo.addClass("indent");
 		
 		request_comment = new DivRepTextArea(this);
 		request_comment.setLabel("Comments");
@@ -151,11 +199,21 @@ public class CertificateRequestHostForm extends DivRepForm
 	
 	}
 
+	private String stripCSRString(String csr_string) {
+		//remove comment lines (---)
+		String clean_csr = "";
+		for(String line : csr_string.split("\n")) {
+			if(line.startsWith("----")) continue;
+			clean_csr += line;
+		}
+		return clean_csr;
+	}
+	
 	protected void onEvent(DivRepEvent e) {
 		// TODO Auto-generated method stub
 		
 	}
-
+	
 	@Override
 	protected Boolean doSubmit() {
 
@@ -172,15 +230,22 @@ public class CertificateRequestHostForm extends DivRepForm
 			requester_email = email.getValue();
 			requester_phone = phone.getValue();
 		}
-		
-		//remove comment lines (---)
-		String clean_csr = "";
-		for(String line : csr.getValue().split("\n")) {
-			if(line.startsWith("----")) continue;
-			clean_csr += line;
+	
+		/* - we now have validator in form
+		//use parseCSR to clean up.
+		CertificateRequestHostModel certmodel = new CertificateRequestHostModel(context);
+		try {
+			PKCS10CertificationRequest pkcs10 = certmodel.parseCSR(csr.getValue());
+			String cn = certmodel.pullCNFromCSR(pkcs10);
+		} catch (IOException e1) {
+			log.error("Faile to parse CSR at submit. this shouldn't happen");
+			return false;
 		}
+		*/
+		
+		//create array of 1 - since we only allow 1 host cert per request on this ui
 		String []csrs = new String[1];
-		csrs[0] = clean_csr;
+		csrs[0] = stripCSRString(csr.getValue());
 		
 		//TODO - allow user to pass list of email addresses
 		String []request_ccs = null;
@@ -188,13 +253,13 @@ public class CertificateRequestHostForm extends DivRepForm
 		//TODO - in the near future, we need to pass dn override (or is this just for user cert?)
 		
 		//do certificate request
+		CertificateRequestHostModel certmodel = new CertificateRequestHostModel(context);
 		try {
-			CertificateRequestHostModel certmodel = new CertificateRequestHostModel(context);
 			CertificateRequestHostRecord rec;
 			if(auth.isUser()) {
-				rec = certmodel.requestAsUser(csrs, auth.getContact(), request_comment.getValue(), request_ccs);
+				rec = certmodel.requestAsUser(csrs, auth.getContact(), request_comment.getValue(), request_ccs, vo.getValue());
 			} else {
-				rec = certmodel.requestAsGuest(csrs, requester_name, requester_email, requester_phone, request_comment.getValue(), request_ccs);
+				rec = certmodel.requestAsGuest(csrs, requester_name, requester_email, requester_phone, request_comment.getValue(), request_ccs, vo.getValue());
 			}
 			if(rec != null) {
 				redirect("certificatehost?id="+rec.id); //TODO - does this work? I haven't tested it

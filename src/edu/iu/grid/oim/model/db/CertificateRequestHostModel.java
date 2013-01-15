@@ -13,6 +13,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 
 import javax.security.auth.x500.X500Principal;
 
@@ -41,6 +42,7 @@ import edu.iu.grid.oim.model.cert.ICertificateSigner.IHostCertificatesCallBack;
 import edu.iu.grid.oim.model.db.record.CertificateRequestHostRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.GridAdminRecord;
+import edu.iu.grid.oim.model.db.record.VORecord;
 import edu.iu.grid.oim.model.exceptions.CertificateRequestException;
 
 public class CertificateRequestHostModel extends CertificateRequestModelBase<CertificateRequestHostRecord> {
@@ -351,12 +353,18 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
     
     //NO-AC (for authenticated user)
 	//return request record if successful, otherwise null
-    public CertificateRequestHostRecord requestAsUser(String[] csrs, ContactRecord requester, String request_comment, String[] request_ccs) throws CertificateRequestException 
+    public CertificateRequestHostRecord requestAsUser(
+    		String[] csrs, 
+    		ContactRecord requester, 
+    		String request_comment, 
+    		String[] request_ccs, 
+    		Integer approver_vo_id) throws CertificateRequestException 
     {
     	CertificateRequestHostRecord rec = new CertificateRequestHostRecord();
 		//Date current = new Date();
     	rec.requester_contact_id = requester.id;
 	 	rec.requester_name = requester.name;
+	 	rec.approver_vo_id = approver_vo_id;
     	//rec.requester_email = requester.primary_email;
     	//rec.requester_phone = requester.primary_phone;
     	
@@ -378,10 +386,18 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
     
     //NO-AC (for guest user)
 	//return request record if successful, otherwise null
-    public CertificateRequestHostRecord requestAsGuest(String[] csrs, String requester_name, String requester_email, String requester_phone, String request_comment, String[] request_ccs) throws CertificateRequestException 
+    public CertificateRequestHostRecord requestAsGuest(
+    		String[] csrs, 
+    		String requester_name, 
+    		String requester_email, 
+    		String requester_phone, 
+    		String request_comment, 
+    		String[] request_ccs,
+    		Integer approver_vo_id) throws CertificateRequestException 
     {
     	CertificateRequestHostRecord rec = new CertificateRequestHostRecord();
 		//Date current = new Date();
+    	rec.approver_vo_id = approver_vo_id;
 	 	rec.requester_name = requester_name;
     	//rec.requester_email = requester_email;
     	//rec.requester_phone = requester_phone;
@@ -415,7 +431,11 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
     
     //NO-AC
 	//return request record if successful, otherwise null (guest interface)
-    private CertificateRequestHostRecord request(String[] csrs, CertificateRequestHostRecord rec, FPTicket ticket, String request_comment) throws CertificateRequestException 
+    private CertificateRequestHostRecord request(
+    		String[] csrs, 
+    		CertificateRequestHostRecord rec, 
+    		FPTicket ticket, 
+    		String request_comment) throws CertificateRequestException 
     {
     	//log.debug("request");
     	
@@ -430,7 +450,7 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 		
     	//log.debug("request init");
     	
-    	//GridAdminModel gmodel = new GridAdminModel(context);
+    	//store CSRs / CNs to record
     	StringArray csrs_sa = new StringArray(csrs.length);
     	StringArray cns_sa = new StringArray(csrs.length);
     	int idx = 0;
@@ -438,24 +458,13 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
         	log.debug("processing csr: " + csr_string);
     		String cn;
 			try {
-	    		PKCS10CertificationRequest csr = new PKCS10CertificationRequest(Base64.decode(csr_string));
-
-	    		//pull CN
-	    		X500Name name;
-	    		RDN[] cn_rdn;
-	    		try {
-	    			name = csr.getSubject();
-	    			cn_rdn = name.getRDNs(BCStyle.CN);
-	    		} catch(Exception e) {
-					throw new CertificateRequestException("Failed to decode CSR", e);
-				}
+	    		PKCS10CertificationRequest csr = parseCSR(csr_string);
+	    		cn = pullCNFromCSR(csr);
 	    		
-	    		if(cn_rdn.length != 1) {
-	    			throw new CertificateRequestException("Please specify exactly one CN containing the hostname. You have provided DN: " + name.toString());
+	    		//we need to do CN validation here - so that I don't have to do it on both rest/web interfaces
+	    		if(!cn.matches("^([-0-9a-zA-Z\\.]*/)?[-0-9a-zA-Z\\.]*$")) { //OSGPKI-255
+					throw new CertificateRequestException("CN structure is invalid, or contains invalid characters.");
 	    		}
-	    		cn = cn_rdn[0].getFirst().getValue().toString(); //wtf?
-	    		
-	        	log.debug("cn found: " + cn);
 	    		
 	    		cns_sa.set(idx, cn);
 			} catch (IOException e) {
@@ -464,35 +473,9 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 			} catch (NullPointerException e) {
 				log.error("(probably) couldn't find CN inside the CSR:"+csr_string, e);
 				throw new CertificateRequestException("Failed to base64 decode CSR", e);	
-			}
-			/*
-			//lookup gridadmin
-        	log.debug("looking up gridadmin");
-			ContactRecord ga;
-			try {
-	        	log.debug("looking up gridadmin (2)");
-				ga = gmodel.getGridAdminByFQDN(cn);
-			} catch (SQLException e) {
-				throw new CertificateRequestException("SQLException while looking up GridAdmin to approve host:" + cn, e);	
-			}
-			if(ga == null) {
-				throw new CertificateRequestException("No GridAdmin can approve host:" + cn);	
-			}
-			
-			//make sure single gridadmin approves all host
-        	log.debug("validating gridadmin");
-			if(rec.gridadmin_contact_id == null) {
-				rec.gridadmin_contact_id = ga.id;
-			} else {
-				if(!rec.gridadmin_contact_id.equals(ga.id)) {
-					throw new CertificateRequestException("All host must be approved by the same GridAdmin. Different for " + cn);	
-				}
-			}
-			*/
-				
+			}				
 			csrs_sa.set(idx++, csr_string);
     	}
-    	
     	rec.csrs = csrs_sa.toXML();
     	rec.cns = cns_sa.toXML();
     	
@@ -502,12 +485,8 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
     	rec.cert_pkcs7 = ar.toXML();
     	rec.cert_serial_ids = ar.toXML();
     	
-    	try {
-        	//log.debug("inserting request record")
-			
-        	//log.debug("request_id: " + request_id);
-			
-			ArrayList<ContactRecord> gas = findGridAdmin(rec);
+    	try {			
+			ArrayList<ContactRecord> gas = findGridAdmin(rec.getCSRs(), rec.approver_vo_id); 
 			//find if submitter is ga
 			boolean submitter_is_ga = false;
 			for(ContactRecord ga : gas) {
@@ -525,7 +504,7 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 				//don't cc anyone.
 			} else {
 	        	ticket.description = "Dear GridAdmin; ";
-				for(ContactRecord ga : findGridAdmin(rec)) {
+				for(ContactRecord ga : gas) {
 					ticket.description += ga.name + ", ";
 					ticket.ccs.add(ga.primary_email);
 				}
@@ -575,28 +554,48 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
     	return rec;
     }
     
-    //find gridadmin who should process the request
+	public PKCS10CertificationRequest parseCSR(String csr_string) throws IOException {
+		PKCS10CertificationRequest csr = new PKCS10CertificationRequest(Base64.decode(csr_string));
+		return csr;
+	}
+    public String pullCNFromCSR(PKCS10CertificationRequest csr) throws CertificateRequestException {
+		//pull CN from pkcs10
+		X500Name name;
+		RDN[] cn_rdn;
+		try {
+			name = csr.getSubject();
+			cn_rdn = name.getRDNs(BCStyle.CN);
+		} catch(Exception e) {
+			throw new CertificateRequestException("Failed to decode CSR", e);
+		}
+		
+		if(cn_rdn.length != 1) {
+			throw new CertificateRequestException("Please specify exactly one CN containing the hostname. You have provided DN: " + name.toString());
+		}
+		String cn = cn_rdn[0].getFirst().getValue().toString(); //wtf?
+		
+    	log.debug("cn found: " + cn);
+    	return cn;
+    }
+    
+    //find gridadmin who should process the request - identify domain from csrs
+    //if there are more than 1 vos group, then user must specify whic hone via approver_vo_id (it could be null for gridadmin with only 1 vo group)
     //null if none, or there are more than 1 
-    public ArrayList<ContactRecord> findGridAdmin(CertificateRequestHostRecord rec) throws CertificateRequestException {
+    public ArrayList<ContactRecord> findGridAdmin(String[] csrs, Integer approver_vo_id) throws CertificateRequestException {
 		GridAdminModel gamodel = new GridAdminModel(context);
     	String gridadmin_domain = null;
     	int idx = 0;
-    	
-       	String [] csrs = rec.getCSRs();
+    
     	if(csrs.length == 0) {
-    		throw new CertificateRequestException("Couldn't find any CSR");
+    		throw new CertificateRequestException("No CSR");
     	}
     	
     	for(String csr_string : csrs) {
+    		//parse CSR and pull CN
     		String cn;
 			try {
-	    		PKCS10CertificationRequest csr = new PKCS10CertificationRequest(Base64.decode(csr_string));
-
-	    		//pull CN
-	    		X500Name name = csr.getSubject();
-	    		RDN[] cn_rdn = name.getRDNs(BCStyle.CN);
-	    		cn = cn_rdn[0].getFirst().getValue().toString(); //wtf?
-	    	
+	    		PKCS10CertificationRequest csr = parseCSR(csr_string);
+	    		cn = pullCNFromCSR(csr);
 			} catch (IOException e) {
 				log.error("Failed to base64 decode CSR", e);
 				throw new CertificateRequestException("Failed to base64 decode CSR:"+csr_string, e);
@@ -628,10 +627,42 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 			}
     	}
 		try {
-			return gamodel.getContactsByDomain(gridadmin_domain);
+			HashMap<VORecord, ArrayList<GridAdminRecord>> groups = gamodel.getByDomainGroupedByVO(gridadmin_domain);
+			if(groups.size() == 0) {
+				throw new CertificateRequestException("No gridadmin exists for domain: " + gridadmin_domain);
+			}
+			if(groups.size() == 1 && approver_vo_id == null) {
+				//just return the first group
+				for(VORecord vo : groups.keySet()) {
+					ArrayList<GridAdminRecord> gas = groups.get(vo);
+					return GAsToContacts(gas);
+				}
+			}
+			//use a group user specified - must match
+			String vonames = "";
+			for(VORecord vo : groups.keySet()) {
+				vonames += vo.name + ", "; //just in case we might need to report error message later
+				if(vo.id.equals(approver_vo_id)) {
+					//found a match.. return the list
+					ArrayList<GridAdminRecord> gas = groups.get(vo);
+					return GAsToContacts(gas);
+				}
+			}
+			//oops.. didn't find specified vo..
+			throw new CertificateRequestException("Couldn't find GridAdmin group under specified VO. Please use one of following VOs:" + vonames);
 		} catch (SQLException e) {
 			throw new CertificateRequestException("Failed to lookup gridadmin contacts for domain:" + gridadmin_domain, e);
 		}
+    }
+    
+    public ArrayList<ContactRecord> GAsToContacts(ArrayList<GridAdminRecord> gas) throws SQLException {
+		//convert contact_id to contact record 
+		ArrayList<ContactRecord> contacts = new ArrayList<ContactRecord>();
+		ContactModel cmodel = new ContactModel(context);
+		for(GridAdminRecord ga : gas) {
+			contacts.add(cmodel.get(ga.contact_id));
+		}
+		return contacts;
     }
     
 	//NO-AC
@@ -639,7 +670,7 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 	public CertificateRequestHostRecord requestRenew(CertificateRequestHostRecord rec) throws CertificateRequestException {
     
 		//lookup gridadmin first
-		ArrayList<ContactRecord> gas = findGridAdmin(rec);
+		ArrayList<ContactRecord> gas = findGridAdmin(rec.getCSRs(), rec.approver_vo_id);
 		
 		rec.status = CertificateRequestStatus.RENEW_REQUESTED;
 		
@@ -861,7 +892,7 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 				//grid admin can appove it
 				ContactRecord user = auth.getContact();
 				try {
-					ArrayList<ContactRecord> gas = findGridAdmin(rec);
+					ArrayList<ContactRecord> gas = findGridAdmin(rec.getCSRs(), rec.approver_vo_id);
 					for(ContactRecord ga : gas) {
 						if(ga.id.equals(user.id)) {
 							return true;
@@ -896,7 +927,7 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 				//grid admin can cancel it
 				ContactRecord user = auth.getContact();
 				try {
-					ArrayList<ContactRecord> gas = findGridAdmin(rec);
+					ArrayList<ContactRecord> gas = findGridAdmin(rec.getCSRs(), rec.approver_vo_id);
 					for(ContactRecord ga : gas) {
 						if(ga.id.equals(user.id)) {
 							return true;
@@ -977,7 +1008,7 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 				//grid admin can revoke it
 				ContactRecord user = auth.getContact();
 				try {
-					ArrayList<ContactRecord> gas = findGridAdmin(rec);
+					ArrayList<ContactRecord> gas = findGridAdmin(rec.getCSRs(), rec.approver_vo_id);
 					for(ContactRecord ga : gas) {
 						if(ga.id.equals(user.id)) {
 							return true;

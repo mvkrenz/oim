@@ -4,8 +4,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 
 import javax.servlet.ServletException;
@@ -18,19 +17,19 @@ import org.apache.log4j.Logger;
 import com.divrep.DivRepEvent;
 import com.divrep.DivRepEventListener;
 import com.divrep.common.DivRepButton;
-import com.divrep.common.DivRepTextArea;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.GridAdminModel;
+import edu.iu.grid.oim.model.db.VOModel;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.GridAdminRecord;
+import edu.iu.grid.oim.model.db.record.VORecord;
 import edu.iu.grid.oim.view.BootMenuView;
 import edu.iu.grid.oim.view.BootPage;
 import edu.iu.grid.oim.view.CertificateMenuView;
 import edu.iu.grid.oim.view.IView;
-import edu.iu.grid.oim.view.divrep.BootDialogForm;
 import edu.iu.grid.oim.view.divrep.form.GridAdminRequestForm;
 
 public class GridAdminServlet extends ServletBase {
@@ -57,9 +56,10 @@ public class GridAdminServlet extends ServletBase {
 		public void render(PrintWriter out) {
 			Authorization auth = context.getAuthorization();
 			ContactModel cmodel = new ContactModel(context);
+			VOModel vomodel = new VOModel(context);
 			GridAdminModel model = new GridAdminModel(context);
 			try {
-				LinkedHashMap<String, ArrayList<ContactRecord>> recs = model.getAll();
+				LinkedHashMap<String, ArrayList<GridAdminRecord>> recs = model.getAll();
 				/*
 				Collections.sort(recs, new Comparator<GridAdminRecord> (){
 					public int compare(GridAdminRecord a, GridAdminRecord b) {
@@ -115,25 +115,94 @@ public class GridAdminServlet extends ServletBase {
 				} else {
 					out.write("<table class=\"table nohover\">");	
 				}
-				out.write("<thead><tr><th>Domain</th><th>GridAdmins</th><th></th></tr></thead>");	
+				out.write("<thead><tr><th></th><th>Domain</th><th>VO</th><th>GridAdmins</th><th></th></tr></thead>");	
 				out.write("<tbody>");
+				
 				for(String domain : recs.keySet()) {
-					out.write("<tr>");
-					out.write("<td>"+StringEscapeUtils.escapeHtml(domain)+"</td>");
-					
-					out.write("<td><ul>");
-					for(ContactRecord ga : recs.get(domain)) {
-						out.write("<li>"+StringEscapeUtils.escapeHtml(ga.name)+"</li>");							
+					//for each domain
+					boolean first_domain = true;
+					//ArrayList<GridAdminRecord> allrecs_in_domain = recs.get(domain);
+					HashMap<VORecord, ArrayList<GridAdminRecord>> groups = model.getByDomainGroupedByVO(domain);
+					for(VORecord vo : groups.keySet()) {
+						ArrayList<GridAdminRecord> gas = groups.get(vo);
+
+						out.write("<tr>");
+						
+						//domain name
+						if(first_domain) {
+							first_domain = false;
+							out.write("<td rowspan=\""+groups.size()+"\">");
+							if(auth.allows("admin_gridadmin")) {
+								out.write("<a href=\"gridadminedit?domain="+domain+"\" class=\"pull-left btn btn-mini\">Edit</a>");
+							}
+							out.write("</td>");
+							out.write("<td rowspan=\""+groups.size()+"\">"+StringEscapeUtils.escapeHtml(domain) + "</td>");
+						}
+						out.write("<td>" + vo.name + "</td>");
+						
+						//finally, the contact itself
+						out.write("<td>");
+						out.write("<ul>");
+						for(GridAdminRecord ga : gas) {
+							ContactRecord gac = cmodel.get(ga.contact_id);
+							out.write("<li>");
+							out.write(StringEscapeUtils.escapeHtml(gac.name));
+							if(auth.isUser()) {
+								out.print(" <code>"+StringEscapeUtils.escapeHtml("<"+gac.primary_email+">")+"</code>");
+							}
+							out.write("</li>");
+						}
+						out.write("</ul>");
+						out.write("</td>");
+						
+						out.write("</tr>");
 					}
-					out.write("</ul></td>");
+				}
+				/*
+				for(String domain : recs.keySet()) {
+					ArrayList<GridAdminRecord> allrecs_in_domain = recs.get(domain);
+					HashMap<VORecord, ArrayList<GridAdminRecord>> groups = model.getByDomainGroupedByVO(domain);
 					
-					out.write("<td>");
+					out.write("<tr>");
+					
+					out.write("<td rowspan=\""+allrecs_in_domain.size()+"\">"+StringEscapeUtils.escapeHtml(domain));
 					if(auth.allows("admin_gridadmin")) {
-						out.write("<a href=\"gridadminedit?domain="+domain+"\" class=\"btn btn-mini\">Edit</a>");
+						out.write("<a href=\"gridadminedit?domain="+domain+"\" class=\"pull-right btn btn-mini\">Edit</a>");
 					}
 					out.write("</td>");
+
+					boolean first = true;
+					for(GridAdminRecord garec : recs.get(domain)) {
+						
+						if(first) {
+							first = false;
+						} else {
+							out.write("</tr>");
+							out.write("<tr>");
+						}
+						
+						out.write("<td>");
+						ContactRecord ga = cmodel.get(garec.contact_id);
+						out.write(StringEscapeUtils.escapeHtml(ga.name));
+						if(auth.isUser()) {
+							out.print(" <code>"+StringEscapeUtils.escapeHtml("<"+ga.primary_email+">")+"</code>");
+						}
+						out.write("</td>");
+						out.write("<td>");
+						if(garec.vo_id != null) {
+							VORecord gavo = vomodel.get(garec.vo_id);
+							out.write(gavo.name);
+						} else {
+							//out.write("<span class=\"tag\">(No association)</span>");
+						}
+						out.write("</td>");
+
+					}
+					
+					
 					out.write("</tr>");	
 				}
+				*/
 				out.write("</tbody>");
 				out.write("</table>");		
 				

@@ -13,12 +13,10 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 
-import com.divrep.DivRep;
 import com.divrep.DivRepEvent;
 import com.divrep.DivRepEventListener;
 import com.divrep.common.DivRepButton;
 import com.divrep.common.DivRepTextArea;
-import com.divrep.common.DivRepTextBox;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.AuthorizationException;
@@ -28,8 +26,10 @@ import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.CertificateRequestModelBase;
 import edu.iu.grid.oim.model.db.CertificateRequestHostModel;
 import edu.iu.grid.oim.model.db.ContactModel;
+import edu.iu.grid.oim.model.db.VOModel;
 import edu.iu.grid.oim.model.db.record.CertificateRequestHostRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
+import edu.iu.grid.oim.model.db.record.VORecord;
 import edu.iu.grid.oim.model.exceptions.CertificateRequestException;
 import edu.iu.grid.oim.view.BootBreadCrumbView;
 import edu.iu.grid.oim.view.BootMenuView;
@@ -210,7 +210,7 @@ public class CertificateHostServlet extends ServletBase  {
 				
 				CertificateRequestHostModel model = new CertificateRequestHostModel(context);
 				try {
-					ArrayList<ContactRecord> gas = model.findGridAdmin(rec);
+					ArrayList<ContactRecord> gas = model.findGridAdmin(rec.getCSRs(), rec.approver_vo_id);
 					out.write("<ul>");
 					for(ContactRecord ga : gas) {
 						out.write("<li>");
@@ -224,6 +224,22 @@ public class CertificateHostServlet extends ServletBase  {
 					out.write("</ul>");
 				} catch (CertificateRequestException e) {
 					out.write("<span class=\"label label-important\">No GridAdmin</span>");
+				}
+				out.write("</td></tr>");
+				
+				out.write("<tr>");
+				out.write("<th>Approver VO</th>");
+				out.write("<td>");
+				if(rec.approver_vo_id == null) {
+					out.write("<span class=\"label label-important\">Not Set</span>");
+				} else {
+					try {
+						VOModel vmodel = new VOModel(context);
+						VORecord vo = vmodel.get(rec.approver_vo_id);
+						out.write(vo.name);
+					} catch (SQLException e) {
+						log.error("Failed to lookup vo", e);
+					}
 				}
 				out.write("</td></tr>");
 				

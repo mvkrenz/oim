@@ -159,7 +159,8 @@ public class VOResourceOwnership extends DivRepFormElement {
 		vo_recs = _vo_recs;
 		
 		add_button = new DivRepButton(this, "Add New Owner");
-		add_button.setStyle(DivRepButton.Style.ALINK);
+		add_button.addClass("btn");
+		//add_button.setStyle(DivRepButton.Style.ALINK);
 		add_button.addEventListener(new DivRepEventListener() {
 			public void handleEvent(DivRepEvent e) {
 				addOwner(new VOResourceOwnershipRecord());

@@ -91,7 +91,7 @@ public class VOFormDE extends DivRepForm
 		ContactTypes.add(new ContactTypeRecord.Info(3, "Contacts for ticketing and assorted issues. This is typically a user/application support person or a help desk"));
 		ContactTypes.add(new ContactTypeRecord.Info(2, "Security notifications sent out by the OSG security team are sent to primary and secondary virtual organization security contacts"));
 		ContactTypes.add(new ContactTypeRecord.Info(5, "Contacts who do not fall under any of the above types but would like to be able to edit this virtual organization can be added as miscellaneous contact"));
-		ContactTypes.add(new ContactTypeRecord.Info(11, "RA (Registration Authority) agent who can approve certificate requests."));
+		ContactTypes.add(new ContactTypeRecord.Info(11, "RA (Registration Authority) agent who can approve user certificate requests."));
 	}
 	
 	private HashMap<Integer, ContactEditor> contact_editors = new HashMap();

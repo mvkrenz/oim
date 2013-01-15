@@ -31,7 +31,7 @@ public class HostCertificateTable implements IView {
 
 	public void render(PrintWriter out)  {
 		out.write("<table class=\"table certificate\">");
-		out.write("<thead><tr><th>ID</th><th>Status</th><th>GOC Ticket</th><th>FQDNs</th><th>Grid Admins</th></tr></thead>");
+		out.write("<thead><tr><th width=\"40px\">ID</th><th width=\"100px\">Status</th><th width=\"80px\">GOC Ticket</th><th width=\"250px\">FQDNs</th><th>Grid Admins</th></tr></thead>");
 		out.write("<tbody>");
 		CertificateRequestHostModel model = new CertificateRequestHostModel(context);
 		for(CertificateRequestHostRecord rec : recs) {
@@ -61,7 +61,7 @@ public class HostCertificateTable implements IView {
 			out.write("</ul></td>");
 			
 			try {
-				ArrayList<ContactRecord> gas = model.findGridAdmin(rec);
+				ArrayList<ContactRecord> gas = model.findGridAdmin(rec.getCSRs(), rec.approver_vo_id);
 				out.write("<td>");
 				boolean first = true;
 				for(ContactRecord ga : gas) {

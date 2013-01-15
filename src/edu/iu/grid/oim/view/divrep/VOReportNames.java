@@ -8,6 +8,7 @@ import com.divrep.DivRep;
 import com.divrep.DivRepEvent;
 import com.divrep.DivRepEventListener;
 import com.divrep.common.DivRepButton;
+import com.divrep.common.DivRepButton.Style;
 import com.divrep.common.DivRepFormElement;
 import com.divrep.common.DivRepStaticContent;
 import com.divrep.common.DivRepTextBox;
@@ -187,7 +188,8 @@ public class VOReportNames extends DivRepFormElement {
 		cmodel = _cmodel;
 		
 		add_button = new DivRepButton(this, "Add New Report Name");
-		add_button.setStyle(DivRepButton.Style.ALINK);
+		//add_button.setStyle(DivRepButton.Style.ALINK);
+		add_button.addClass("btn");
 		add_button.addEventListener(new DivRepEventListener() {
 			public void handleEvent(DivRepEvent e) {
 				addVOReportName(new VOReportNameRecord(),null,null);

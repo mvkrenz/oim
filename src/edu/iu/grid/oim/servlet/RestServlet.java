@@ -24,9 +24,11 @@ import edu.iu.grid.oim.model.db.CertificateRequestHostModel;
 import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.GridAdminModel;
 import edu.iu.grid.oim.model.db.SmallTableModelBase;
+import edu.iu.grid.oim.model.db.VOModel;
 import edu.iu.grid.oim.model.db.record.CertificateRequestHostRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.GridAdminRecord;
+import edu.iu.grid.oim.model.db.record.VORecord;
 import edu.iu.grid.oim.model.exceptions.CertificateRequestException;
 
 public class RestServlet extends ServletBase  {
@@ -155,8 +157,8 @@ public class RestServlet extends ServletBase  {
 		UserContext context = new UserContext(request);	
 		Authorization auth = context.getAuthorization();
 		
-		String[] csrs = request.getParameterValues("csrs");
-		if(csrs == null) {
+		String[] dirty_csrs = request.getParameterValues("csrs");
+		if(dirty_csrs == null) {
 			throw new RestException("csrs parameter is not set.");
 		}
 		
@@ -175,31 +177,58 @@ public class RestServlet extends ServletBase  {
 		} else if(auth.isSecure()) {
 			throw new RestException("Accessed via https without a user certificate (please use http for guest access)");
 		} else {
-			//must be guest then
-			
+			//must be a guest then.. we need name/address info.			
 			name = request.getParameter("name");
 			email = request.getParameter("email");
 			phone = request.getParameter("phone");
 			
 			//TODO - validate
-			
 			if(name == null || email == null || phone == null) {
 				throw new RestException("Please provide name, email, phone in order to create GOC ticket.");
 			}
 			context.setComment("Guest user; " + name + " submitted host certificatates request.");
 		}
 		
+		//user may provide vo context
+		Integer approver_vo_id = null;
+		String voname = request.getParameter("vo");
+		try {
+			if(voname != null) {
+				VOModel vmodel = new VOModel(context);
+				VORecord vo = vmodel.getByName(voname);
+				if(vo == null) {
+					log.warn("Failed to find user specified VO : " + voname + " .. ignoring for now - will throw later if VO context is needed");
+				} else {
+					approver_vo_id = vo.id;
+				}
+			}
+		} catch (SQLException e) {
+			throw new RestException("Failed to lookup voname: " + voname, e);
+		}
+		
+		CertificateRequestHostModel certmodel = new CertificateRequestHostModel(context);
+		
+		//lookup gridadmins for specified csr (in specified vo context)
+		try {
+			ArrayList<ContactRecord> gas = certmodel.findGridAdmin(dirty_csrs, approver_vo_id);
+			if(gas.isEmpty()) {
+				throw new RestException("No GridAdmins for specified CSRs/VO");
+			}
+		} catch (CertificateRequestException e) {
+			throw new RestException("Failed to find GridAdmins for specified CSRs/VO", e);
+		}
+		String [] csrs = dirty_csrs;//no longer dirty at this point
+		
 		//optional parameters
 		String request_comment = request.getParameter("request_comment");
 		String[] request_ccs = request.getParameterValues("request_ccs");
 		
-		CertificateRequestHostModel model = new CertificateRequestHostModel(context);
 		CertificateRequestHostRecord rec;
 		try {
 			if(auth.isUser()) {
-				rec = model.requestAsUser(csrs,  auth.getContact(), request_comment, request_ccs);
+				rec = certmodel.requestAsUser(csrs,  auth.getContact(), request_comment, request_ccs, approver_vo_id);
 			} else {
-				rec = model.requestAsGuest(csrs, name, email, phone, request_comment, request_ccs);
+				rec = certmodel.requestAsGuest(csrs, name, email, phone, request_comment, request_ccs, approver_vo_id);
 			}
 			if(rec == null) {
 				throw new RestException("Failed to make request");

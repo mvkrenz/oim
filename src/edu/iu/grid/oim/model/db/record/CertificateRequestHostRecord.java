@@ -25,6 +25,7 @@ public class CertificateRequestHostRecord extends RecordBase {
 	public String cert_intermediate; //StringArray xml
 	public String cert_pkcs7; //StringArray xml
 	public String cert_serial_ids; //StringArray xml
+	public Integer approver_vo_id;
 	
 	//book keeping
 	public Timestamp request_time;

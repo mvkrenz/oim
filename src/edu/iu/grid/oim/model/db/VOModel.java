@@ -324,4 +324,12 @@ public class VOModel extends SmallTableModelBase<VORecord>
 		}
 		return list;
 	}
+	
+	public VORecord getByName(String name) throws SQLException
+	{
+		for(VORecord rec : getAll()) {
+			if(rec.name.equals(name)) return rec;
+		}
+		return null;
+	}
 }

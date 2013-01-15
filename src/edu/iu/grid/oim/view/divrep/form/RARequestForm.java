@@ -77,7 +77,7 @@ public class RARequestForm extends BootDialogForm {
 			if(vomanager != null) {
 				ticket.ccs.add(vomanager.primary_email);
 			}
-			ticket.ccs.add("osg-ra@opensciencegrid.org");
+			ticket.ccs.add("osg-ra@opensciencegrid.org"); //TODO - make this configurable
 			ticket.nextaction = "OSG RA to process request";
 			String ticket_id = fp.open(ticket);
 			

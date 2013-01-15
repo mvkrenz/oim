@@ -196,7 +196,7 @@ margin-right: 2px;
 font-weight: bold;
 display: inline-block;
 margin-bottom: 1px;
-line-height: 150%;
+line-height: 20px;
 }
 
 div.contact img
@@ -217,6 +217,10 @@ padding: 0px;
 margin: 0px;
 border: none;
 border-radius: 0px;
+box-shadow: none;
+}
+.contact_editor input.autocomplete:focus
+{
 box-shadow: none;
 }
 input.ui-autocomplete-loading {
@@ -621,5 +625,4 @@ color: gray;
 
 table tr.disabled td {
 color: #999;
-}
 }
