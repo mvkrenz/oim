@@ -107,7 +107,7 @@ public class CertificateRequestHostForm extends DivRepForm
 						"<p>DN will be overriden by the certificate signer except CN.</p>" +
 						"</div>");
 			}};
-		csr_help.setShowHtml("<u class=\"pull-right\">How can I generate CSR?</u>");
+		csr_help.setShowHtml("<u class=\"pull-right\">How can I generate a CSR?</u>");
 		csr_help.setHideHtml("");
 		
 	
