@@ -58,12 +58,16 @@ public class ConfigModel extends ModelBase<ConfigRecord> {
 		public void set(String value) throws SQLException {
 			model.set(key, value);
 		}
+		public String getKey() {
+			return key;
+		}
 	}
 	
 	//Footprints Templates
 	public Config ResourceFPTemplate = new Config(this, "resource_fp_template", "here is my default fp template");
 	public Config VOFPTemplate = new Config(this, "resource_vo_template", "here is my default vo template");
 	public Config SCFPTemplate = new Config(this, "resource_sc_template", "here is my default sc template");
+	public Config CertificateHomeContent = new Config(this, "certificate_home_content", "Edit me");
 	
 	//Certificate Request Global Quotas
 	public Config QuotaGlobalUserCertYearMax = new Config(this, "QuotaGlobalUserCertYearMax", "3500");
