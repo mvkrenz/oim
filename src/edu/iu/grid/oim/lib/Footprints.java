@@ -202,6 +202,7 @@ public class Footprints
             if(sc != null && sc.footprints_id != null) {
             	ticket.assignees.add(sc.footprints_id);
             	ticket.metadata.put("SUPPORTING_SC_ID", sc.id.toString());
+            	ticket.metadata.put("SUPPORTING_SC_NAME", sc.name);
             }
 		}
 		
@@ -281,6 +282,7 @@ public class Footprints
             if(sc != null && sc.footprints_id != null) {
             	ticket.assignees.add(sc.footprints_id);
             	ticket.metadata.put("SUPPORTING_SC_ID", sc.id.toString());
+            	ticket.metadata.put("SUPPORTING_SC_NAME", sc.name);
             }
 		}
 		
