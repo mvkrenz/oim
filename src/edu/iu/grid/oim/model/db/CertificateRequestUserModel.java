@@ -57,32 +57,6 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
     public CertificateRequestUserModel(UserContext _context) {
 		super(_context, "certificate_request_user");
 	}
-    /*
-    //find certificate request with the same DN that user is currently using to login
-    public CertificateRequestUserRecord getCurrent() throws SQLException {
-    	CertificateRequestUserRecord rec = null;
-    	Authorization auth = context.getAuthorization();
-    	if(!auth.isUser()) {
-    		return null;
-    	}
-    	
-		ResultSet rs = null;
-		Connection conn = connectOIM();
-		PreparedStatement pstmt = conn.prepareStatement("SELECT * FROM "+table_name+" WHERE dn = ?");
-		pstmt.setString(1, auth.getUserDN());
-		//log.debug(pstmt.toString());
-	    if (pstmt.execute()) {
-	    	rs = pstmt.getResultSet();
-	    	if(rs != null && rs.next()) {
-	    		
-	    		rec = new CertificateRequestUserRecord(rs);
-			}
-	    }	
-		pstmt.close();
-		conn.close();
-	    return rec;
-    }
-	*/
     
 	//determines if user should be able to view request details, logs, and download certificate (pkcs12 is session specific)
 	public boolean canView(CertificateRequestUserRecord rec) {
