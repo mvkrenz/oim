@@ -107,8 +107,9 @@ public class HomeServlet extends ServletBase  {
 		} else if(auth.isDisabled()) {
 			contentview.add(new HtmlView("<div class=\"alert alert-danger\"><p>Your contact or DN is disabled. Please contact GOC for more information.</p><a class=\"btn btn-danger\" href=\"https://ticket.grid.iu.edu\">Contact GOC</a></p></div>"));
 		} else if(!auth.isUser()) {
+			//old link - http://pki1.doegrids.org/ca/
 			String text = "<p>OIM requires an X509 certificate issued by an <a target=\"_blank\" href='http://software.grid.iu.edu/cadist/'>OSG-approved Certifying Authority (CA)</a> to authenticate.</p>"+
-					"<p><a class=\"btn btn-info\" target=\"blank\" href=\"http://pki1.doegrids.org/ca/\">Request New Certificate</a></p>"+
+					"<p><a class=\"btn btn-info\" href=\"/oim/certificaterequestuser\">Request New Certificate</a></p>"+
 					"If you already have a certificate installed on your browser, please login.</p><p><a class=\"btn btn-info\" href=\""+context.getSecureUrl()+"\">Login</a></p>";
 			
 			//If you are not sure how to register, or have any questions, please open <a target=\"_blank\" href=\"https://ticket.grid.iu.edu/goc/oim\">a ticket</a> with the OSG Grid Operations Center (GOC).";
