@@ -446,14 +446,17 @@ public class VOFormDE extends DivRepForm
 			security_contact_list.add(primary_security_contact);
 			voclist_grouped.put(2/*security_contact*/, security_contact_list);
 			
+			/*
 			ArrayList<VOContactRecord> ra_list = new ArrayList<VOContactRecord>();
+			
 			VOContactRecord ra = new VOContactRecord();
 			//make Alain Deximo secondary RA
 			ra.contact_id = 623;//alain deximo
 			ra.contact_rank_id = 2;//secondary
 			ra.contact_type_id = 11;//vo_ra
 			ra_list.add(ra);
-			voclist_grouped.put(11/*vo ra*/, ra_list);
+			voclist_grouped.put(11, ra_list);//vo_ra
+			*/
 		}
 		ContactTypeModel ctmodel = new ContactTypeModel(context);
 		for(ContactTypeRecord.Info contact_type : ContactTypes) {
