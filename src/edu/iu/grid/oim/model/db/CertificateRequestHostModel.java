@@ -34,11 +34,13 @@ import edu.iu.grid.oim.lib.Footprints.FPTicket;
 import edu.iu.grid.oim.lib.StringArray;
 import edu.iu.grid.oim.model.CertificateRequestStatus;
 import edu.iu.grid.oim.model.UserContext;
+import edu.iu.grid.oim.model.UserContext.MessageType;
 import edu.iu.grid.oim.model.cert.CertificateManager;
 import edu.iu.grid.oim.model.cert.ICertificateSigner;
 import edu.iu.grid.oim.model.cert.ICertificateSigner.Certificate;
 import edu.iu.grid.oim.model.cert.ICertificateSigner.CertificateProviderException;
 import edu.iu.grid.oim.model.cert.ICertificateSigner.IHostCertificatesCallBack;
+import edu.iu.grid.oim.model.db.CertificateRequestModelBase.LogDetail;
 import edu.iu.grid.oim.model.db.record.CertificateRequestHostRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.GridAdminRecord;
@@ -184,6 +186,7 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 				fp.update(ticket, rec.goc_ticket_id);
 			}
 			
+			//should we use Quartz instead?
 			public void run() {
 				CertificateManager cm = new CertificateManager();
 				try {
@@ -319,7 +322,7 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
     	//check quota
     	CertificateQuotaModel quota = new CertificateQuotaModel(context);
     	if(!quota.canApproveHostCert(count)) {
-    		throw new CertificateRequestException("You will exceed your host approval quota.");
+    		throw new CertificateRequestException("You will exceed your host certificate quota.");
     	}
     	
 		rec.status = CertificateRequestStatus.APPROVED;
@@ -665,6 +668,52 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 		return contacts;
     }
     
+    /*
+	//go directly from ISSUED > ISSUEING
+	public void renew(final CertificateRequestHostRecord rec) throws CertificateRequestException {		
+		
+		String [] csrs = rec.getCSRs();
+    	//check quota
+    	CertificateQuotaModel quota = new CertificateQuotaModel(context);
+    	if(!quota.canApproveHostCert(csrs.length)) {
+    		throw new CertificateRequestException("You will exceed your host certificate quota.");
+    	}
+    	
+		//notification -- just make a note on an existing ticket - we don't need to create new goc ticket - there is nobody we need to inform -
+		Footprints fp = new Footprints(context);
+		FPTicket ticket = fp.new FPTicket();
+		Authorization auth = context.getAuthorization();
+		if(auth.isUser()) {
+			ContactRecord contact = auth.getContact();
+			ticket.description = contact.name + " is renewing host certificates.\n\n";
+			ticket.description += "> " + context.getComment();
+		} else {
+			throw new CertificateRequestException("guest can't renew");
+		}
+		ticket.status = "Engineering";//reopen ticket temporarily
+		fp.update(ticket, rec.goc_ticket_id);
+		
+		
+		//clear previously issued cert
+    	//rec.cert_certificate = null;
+    	//rec.cert_intermediate = null;
+    	//rec.cert_pkcs7 = null;
+    	//rec.cert_serial_ids = null;
+    	
+    	//start issuing immediately
+		startissue(rec);
+		
+		//increment quota
+		try {
+			quota.incrementHostCertApproval(csrs.length);
+		} catch (SQLException e) {
+    		log.error("Failed to incremenet quota while renewing request id:"+rec.id);
+		}
+		context.message(MessageType.SUCCESS, "Successfully renewed certificates. Please download & install your certificates.");
+	}
+	*/
+    
+    /*
 	//NO-AC
 	//return host rec if success
 	public CertificateRequestHostRecord requestRenew(CertificateRequestHostRecord rec) throws CertificateRequestException {
@@ -716,6 +765,7 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 		
 		return rec;
 	}
+	*/
     
 	//NO-AC
 	public void requestRevoke(CertificateRequestHostRecord rec) throws CertificateRequestException {
@@ -747,7 +797,7 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 	//return true if success
 	public void cancel(CertificateRequestHostRecord rec) throws CertificateRequestException {
 		try {
-			if(	rec.status.equals(CertificateRequestStatus.RENEW_REQUESTED) ||
+			if(	//rec.status.equals(CertificateRequestStatus.RENEW_REQUESTED) ||
 				rec.status.equals(CertificateRequestStatus.REVOCATION_REQUESTED)) {
 				rec.status = CertificateRequestStatus.ISSUED;
 			} else {
@@ -773,14 +823,15 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 		fp.update(ticket, rec.goc_ticket_id);
 	}
 	
-	public void reject(CertificateRequestHostRecord rec) throws CertificateRequestException {
-		if(	rec.status.equals(CertificateRequestStatus.RENEW_REQUESTED)) {
-				//go back to issued status if it's from renew_requested
-				rec.status = CertificateRequestStatus.ISSUED;
-			} else {
-				//all others
-				rec.status = CertificateRequestStatus.REJECTED;
-			}
+	public void reject(CertificateRequestHostRecord rec) throws CertificateRequestException {	
+		if(	//rec.status.equals(CertificateRequestStatus.RENEW_REQUESTED)||
+			rec.status.equals(CertificateRequestStatus.REVOCATION_REQUESTED)) {
+			rec.status = CertificateRequestStatus.ISSUED;
+		} else {
+			//all others
+			rec.status = CertificateRequestStatus.REJECTED;
+		}
+		
 		try {
 			//context.setComment("Certificate Approved");
 			super.update(get(rec.id), rec);
@@ -885,8 +936,8 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 	public boolean canApprove(CertificateRequestHostRecord rec) {
 		if(!canView(rec)) return false;
 		
-		if(	rec.status.equals(CertificateRequestStatus.REQUESTED) ||
-			rec.status.equals(CertificateRequestStatus.RENEW_REQUESTED)) {
+		if(	//rec.status.equals(CertificateRequestStatus.RENEW_REQUESTED) ||
+			rec.status.equals(CertificateRequestStatus.REQUESTED)) {
 			//^RA doesn't *approve* REVOKE_REQUESTED - RA just click on REVOKE button
 			if(auth.isUser()) {
 				//grid admin can appove it
@@ -906,6 +957,48 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 		return false;
 	}    
 	
+	public LogDetail getLastApproveLog(ArrayList<LogDetail> logs) {
+		for(LogDetail log : logs) {
+			if(log.status.equals("APPROVED")) {
+				return log;
+			}
+		}
+		return null;
+	}
+	/*
+	//true if user can approve request
+	public boolean canRenew(CertificateRequestHostRecord rec, ArrayList<LogDetail> logs) {
+		if(!canView(rec)) return false;
+		
+		//only issued request can be renewed
+		if(!rec.status.equals(CertificateRequestStatus.ISSUED)) return false;
+		
+		//logged in?
+		if(!auth.isUser()) return false;
+		
+		//original requester or gridadmin?
+		ContactRecord contact = auth.getContact();
+		if(!rec.requester_contact_id.equals(contact.id) && !canApprove(rec)) return false;
+
+		//approved within 5 years?
+		LogDetail last = getLastApproveLog(logs);
+		if(last == null) return false; //never approved
+		Calendar five_years_ago = Calendar.getInstance();
+		five_years_ago.add(Calendar.YEAR, -5);
+		if(last.time.before(five_years_ago.getTime())) return false;
+	
+		
+		//TODO -- will expire in less than 6 month? (can I gurantee that all certificates has the same expiration date?)
+		//Calendar six_month_future = Calendar.getInstance();
+		//six_month_future.add(Calendar.MONTH, 6);
+		//if(rec.cert_notafter.after(six_month_future.getTime())) return false;
+		
+		
+		//all good
+		return true;
+	}
+	*/
+	
 	public boolean canReject(CertificateRequestHostRecord rec) {
 		return canApprove(rec); //same rule as approval
 	}	
@@ -915,7 +1008,7 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 		
 		if(	rec.status.equals(CertificateRequestStatus.REQUESTED) ||
 			rec.status.equals(CertificateRequestStatus.APPROVED) || //if renew_requesterd > approved cert is canceled, it should really go back to "issued", but currently it doesn't.
-			rec.status.equals(CertificateRequestStatus.RENEW_REQUESTED) ||
+			//rec.status.equals(CertificateRequestStatus.RENEW_REQUESTED) ||
 			rec.status.equals(CertificateRequestStatus.REVOCATION_REQUESTED)) {
 			if(auth.isUser()) {
 				//requester can cancel one's own request
@@ -960,6 +1053,7 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 		return false;
 	}
 	
+	/*
 	public boolean canRequestRenew(CertificateRequestHostRecord rec) {
 		if(!canView(rec)) return false;
 		
@@ -970,6 +1064,7 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 		}
 		return false;
 	}
+	*/
 	
 	public boolean canRequestRevoke(CertificateRequestHostRecord rec) {
 		if(!canView(rec)) return false;

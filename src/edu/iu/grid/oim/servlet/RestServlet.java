@@ -18,6 +18,7 @@ import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.lib.StringArray;
 import edu.iu.grid.oim.model.CertificateRequestStatus;
 import edu.iu.grid.oim.model.UserContext;
+import edu.iu.grid.oim.model.db.CertificateRequestModelBase;
 import edu.iu.grid.oim.model.db.CertificateRequestUserModel;
 import edu.iu.grid.oim.model.db.ConfigModel;
 import edu.iu.grid.oim.model.db.CertificateRequestHostModel;
@@ -26,6 +27,7 @@ import edu.iu.grid.oim.model.db.GridAdminModel;
 import edu.iu.grid.oim.model.db.SmallTableModelBase;
 import edu.iu.grid.oim.model.db.VOModel;
 import edu.iu.grid.oim.model.db.record.CertificateRequestHostRecord;
+import edu.iu.grid.oim.model.db.record.CertificateRequestUserRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.GridAdminRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
@@ -81,10 +83,12 @@ public class RestServlet extends ServletBase  {
 		
 		try {
 			String action = request.getParameter("action");
+			
+			//host certificate api
 			if(action.equals("host_certs_request")) {
 				doHostCertsRequest(request, reply);
-			} else if(action.equals("host_certs_renew")) {
-				doHostCertsRenew(request, reply);
+			//} else if(action.equals("host_certs_renew")) {
+			//	doHostCertsRenew(request, reply); //Tony says we don't need host cert renew
 			} else if(action.equals("host_certs_retrieve")) {
 				doHostCertsRetrieve(request, reply);
 			} else if(action.equals("host_certs_approve")) {
@@ -97,7 +101,30 @@ public class RestServlet extends ServletBase  {
 				doHostCertsRevoke(request, reply);
 			} else if(action.equals("host_certs_issue")) {
 				doHostCertsIssue(request, reply);
-			} else if(action.equals("reset_daily_quota")) {
+			} 
+			
+			
+			//user certificate api
+			else if(action.equals("user_cert_request")) {
+				doUserCertRequest(request, reply);
+			} else if(action.equals("user_cert_renew")) {
+				doUserCertRenew(request, reply);
+			} else if(action.equals("user_cert_retrieve")) {
+				doUserCertRetrieve(request, reply);
+			} else if(action.equals("user_cert_approve")) {
+				doUserCertApprove(request, reply);
+			} else if(action.equals("user_cert_reject")) {
+				doUserCertReject(request, reply);
+			} else if(action.equals("user_cert_cancel")) {
+				doUserCertCancel(request, reply);
+			} else if(action.equals("user_cert_revoke")) {
+				doUserCertRevoke(request, reply);
+			} else if(action.equals("user_cert_issue")) {
+				doUserCertIssue(request, reply);
+			} 
+			
+			//misc
+			else if(action.equals("reset_daily_quota")) {
 				doResetDailyQuota(request, reply);
 			} else if(action.equals("reset_yearly_quota")) {
 				doResetYearlyQuota(request, reply);
@@ -241,12 +268,17 @@ public class RestServlet extends ServletBase  {
 		}
 	}
 	
+	/*
 	private void doHostCertsRenew(HttpServletRequest request, Reply reply) throws AuthorizationException, RestException {
 		UserContext context = new UserContext(request);	
-		//Authorization auth = context.getAuthorization();
-		
 		throw new RestException("No yet implemented");
+		
+		//TODO -- I believe we will do something like following
+		//do some authorization - to see if user can renew the cert (who can *request* to renew - how does user prove that he owns the cert?)
+		//create new ticket, and update host certificate request, set status to REQUESTED
+		//let hoscertapprove to approve it (NO automatic vetting like user cert)
 	}
+	*/
 	
 	private void doHostCertsRetrieve(HttpServletRequest request, Reply reply) throws AuthorizationException, RestException {
 		UserContext context = new UserContext(request);	
@@ -261,15 +293,32 @@ public class RestServlet extends ServletBase  {
 			}
 			
 			if(rec.status.equals(CertificateRequestStatus.ISSUED)) {
-				//convert string array to jsonarray and send to user
+				//pass pkcs7s
 				JSONArray ja = new JSONArray();
 				StringArray pkcs7s = new StringArray(rec.cert_pkcs7);
 				for(int i = 0;i < pkcs7s.length(); ++i) {
 					ja.put(i, pkcs7s.get(i));
 				}
 				reply.params.put("pkcs7s", ja);
+				
+				//pass certificates (pem?)
+				JSONArray certs_ja = new JSONArray();
+				StringArray certs = new StringArray(rec.cert_certificate);
+				for(int i = 0;i < certs.length(); ++i) {
+					certs_ja.put(i, certs.get(i));
+				}
+				reply.params.put("certificates", certs_ja);
+				
+				//pass intermediates (pem?)
+				JSONArray ints_ja = new JSONArray();
+				StringArray intermediates = new StringArray(rec.cert_intermediate);
+				for(int i = 0;i < intermediates.length(); ++i) {
+					ints_ja.put(i, intermediates.get(i));
+				}
+				reply.params.put("intermediates", ints_ja);		
 			} else if(rec.status.equals(CertificateRequestStatus.ISSUING)) {
 				//TODO - issue thread should somehow report issue status instead.
+				//TODO - this algorithm probably won't work if the certs are renewed - since we currently don't clear certificate before re-issuing
 				//count number of certificate issued so far
 				StringArray pkcs7s = new StringArray(rec.cert_pkcs7);
 				int issued = 0;
@@ -316,7 +365,7 @@ public class RestServlet extends ServletBase  {
 			if(model.canApprove(rec)) {
 				model.approve(rec);
 			} else {
-				throw new AuthorizationException("You can't approve this request");
+				throw new AuthorizationException("Your request has been received and must be approved. Please watch your email for a GOC ticket notification with further instructions.");
 			}
 		} catch (SQLException e) {
 			throw new RestException("SQLException while making request", e);
@@ -412,6 +461,169 @@ public class RestServlet extends ServletBase  {
 			}
 			if(model.canIssue(rec)) {
 				model.startissue(rec);
+			} else {
+				throw new AuthorizationException("You can't issue this request");
+			}
+		} catch (SQLException e) {
+			throw new RestException("SQLException while making request", e);
+		} catch (CertificateRequestException e) {
+			throw new RestException("CertificateRequestException while making request", e);
+		}
+	}
+	
+	private void doUserCertRequest(HttpServletRequest request, Reply reply) throws AuthorizationException, RestException {	
+		//TODO - user cert request with CSR is yet to be implemented
+	}
+	private void doUserCertRenew(HttpServletRequest request, Reply reply) throws AuthorizationException, RestException {
+		UserContext context = new UserContext(request);	
+		String dirty_user_request_id = request.getParameter("user_request_id");
+		Integer user_request_id = Integer.parseInt(dirty_user_request_id);
+		CertificateRequestUserModel model = new CertificateRequestUserModel(context);
+		try {
+			CertificateRequestUserRecord rec = model.get(user_request_id);
+			if(rec == null) {
+				throw new RestException("No such user certificate request ID");
+			}
+			
+			//load log
+			ArrayList<CertificateRequestModelBase<CertificateRequestUserRecord>.LogDetail> logs = model.getLogs(CertificateRequestUserModel.class, user_request_id);
+			/*
+			LogDetail approve_log = model.getLastApproveLog(logs);
+			if(approve_log == null) {
+				throw new RestException("This user certificate has never been approved. Can't renew.");
+			}
+			*/
+			
+			if(model.canRenew(rec, logs)) {
+				model.renew(rec);
+			} else {
+				throw new AuthorizationException("You are not authorized to renew this certificate, or condition of the user certificate currently does not allow you to renew this certificate.");
+			}
+		} catch (SQLException e) {
+			throw new RestException("SQLException while making request", e);
+		} catch (CertificateRequestException e) {
+			throw new RestException("CertificateRequestException while making request", e);
+		}
+	}
+	private void doUserCertRetrieve(HttpServletRequest request, Reply reply) throws AuthorizationException, RestException {
+		UserContext context = new UserContext(request);	
+		String dirty_user_request_id = request.getParameter("user_request_id");
+		Integer user_request_id = Integer.parseInt(dirty_user_request_id);
+		CertificateRequestUserModel model = new CertificateRequestUserModel(context);
+		try {
+			CertificateRequestUserRecord rec = model.get(user_request_id);
+			if(rec == null) {
+				throw new RestException("No such user certificate request ID");
+			}
+			
+			if(rec.status.equals(CertificateRequestStatus.ISSUED)) {
+				//convert string array to jsonarray and send to user
+				reply.params.put("pkcs7", rec.cert_pkcs7);
+				reply.params.put("certificate", rec.cert_certificate);
+				reply.params.put("intermediate", rec.cert_intermediate);
+			} else if(rec.status.equals(CertificateRequestStatus.ISSUING)) {
+				reply.status = Status.PENDING;
+			} else {
+				reply.status = Status.FAILED;
+				reply.detail = "Can't retrieve certificate on request that are not in ISSUED or ISSUING status. Current request status is " + rec.status + ".";
+				reply.params.put("request_status", rec.status.toString());
+			}
+		} catch (SQLException e) {
+			throw new RestException("SQLException while making request", e);
+		}
+	}
+	private void doUserCertApprove(HttpServletRequest request, Reply reply) throws AuthorizationException, RestException {
+		UserContext context = new UserContext(request);	
+		String dirty_user_request_id = request.getParameter("user_request_id");
+		Integer user_request_id = Integer.parseInt(dirty_user_request_id);
+		CertificateRequestUserModel model = new CertificateRequestUserModel(context);
+		try {
+			CertificateRequestUserRecord rec = model.get(user_request_id);
+			if(rec == null) {
+				throw new RestException("No such user certificate request ID");
+			}
+			if(model.canApprove(rec)) {
+				model.approve(rec);
+			} else {
+				throw new AuthorizationException("You are not authorized to approve this certificate, or condition of the user certificate currently does not allow you to approve this certificate.");
+			}
+		} catch (SQLException e) {
+			throw new RestException("SQLException while making request", e);
+		} catch (CertificateRequestException e) {
+			throw new RestException("CertificateRequestException while making request", e);
+		}
+	}
+	private void doUserCertReject(HttpServletRequest request, Reply reply) throws AuthorizationException, RestException {
+		UserContext context = new UserContext(request);	
+		String dirty_user_request_id = request.getParameter("user_request_id");
+		Integer user_request_id = Integer.parseInt(dirty_user_request_id);
+		CertificateRequestUserModel model = new CertificateRequestUserModel(context);
+		try {
+			CertificateRequestUserRecord rec = model.get(user_request_id);
+			if(rec == null) {
+				throw new RestException("No such user certificate request ID");
+			}
+			if(model.canReject(rec)) {
+				model.reject(rec);
+			} else {
+				throw new AuthorizationException("You can't reject this request");
+			}
+		} catch (SQLException e) {
+			throw new RestException("SQLException while making request", e);
+		}
+	}
+	private void doUserCertCancel(HttpServletRequest request, Reply reply) throws AuthorizationException, RestException {
+		UserContext context = new UserContext(request);	
+		String dirty_user_request_id = request.getParameter("user_request_id");
+		Integer user_request_id = Integer.parseInt(dirty_user_request_id);
+		CertificateRequestUserModel model = new CertificateRequestUserModel(context);
+		try {
+			CertificateRequestUserRecord rec = model.get(user_request_id);
+			if(rec == null) {
+				throw new RestException("No such user certificate request ID");
+			}
+			if(model.canCancel(rec)) {
+				model.cancel(rec);
+			} else {
+				throw new AuthorizationException("You can't cancel this request");
+			}
+		} catch (SQLException e) {
+			throw new RestException("SQLException while making request", e);
+		}
+	}
+	private void doUserCertRevoke(HttpServletRequest request, Reply reply) throws AuthorizationException, RestException {
+		UserContext context = new UserContext(request);	
+		String dirty_user_request_id = request.getParameter("user_request_id");
+		Integer user_request_id = Integer.parseInt(dirty_user_request_id);
+		CertificateRequestUserModel model = new CertificateRequestUserModel(context);
+		try {
+			CertificateRequestUserRecord rec = model.get(user_request_id);
+			if(rec == null) {
+				throw new RestException("No such user certificate request ID");
+			}
+			if(model.canRevoke(rec)) {
+				model.revoke(rec);
+			} else {
+				throw new AuthorizationException("You can't revoke this request");
+			}
+		} catch (SQLException e) {
+			throw new RestException("SQLException while making request", e);
+		} catch (CertificateRequestException e) {
+			throw new RestException("CertificateRequestException while making request", e);
+		}
+	}
+	private void doUserCertIssue(HttpServletRequest request, Reply reply) throws AuthorizationException, RestException {
+		UserContext context = new UserContext(request);	
+		String dirty_user_request_id = request.getParameter("user_request_id");
+		Integer user_request_id = Integer.parseInt(dirty_user_request_id);
+		CertificateRequestUserModel model = new CertificateRequestUserModel(context);
+		try {
+			CertificateRequestUserRecord rec = model.get(user_request_id);
+			if(rec == null) {
+				throw new RestException("No such user certificate request ID");
+			}
+			if(model.canIssue(rec)) {
+				model.startissue(rec, null); //don't need any password
 			} else {
 				throw new AuthorizationException("You can't issue this request");
 			}
@@ -534,7 +746,5 @@ public class RestServlet extends ServletBase  {
 		} catch (SQLException e) {
 			throw new RestException("SQLException while processing expired certificates", e);
 		}
-		
-		//TODO - process expired host certificates?
 	}
 }

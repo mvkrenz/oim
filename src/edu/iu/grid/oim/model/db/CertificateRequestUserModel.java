@@ -34,10 +34,10 @@ import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.BCrypt;
 import edu.iu.grid.oim.lib.Footprints;
 import edu.iu.grid.oim.lib.StaticConfig;
-import edu.iu.grid.oim.lib.StringArray;
 import edu.iu.grid.oim.lib.Footprints.FPTicket;
 import edu.iu.grid.oim.model.CertificateRequestStatus;
 import edu.iu.grid.oim.model.UserContext;
+import edu.iu.grid.oim.model.UserContext.MessageType;
 import edu.iu.grid.oim.model.cert.CertificateManager;
 import edu.iu.grid.oim.model.cert.GenerateCSR;
 import edu.iu.grid.oim.model.cert.ICertificateSigner;
@@ -106,8 +106,8 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 	public boolean canApprove(CertificateRequestUserRecord rec) {
 		if(!canView(rec)) return false;
 		
-		if(	rec.status.equals(CertificateRequestStatus.REQUESTED) ||
-			rec.status.equals(CertificateRequestStatus.RENEW_REQUESTED)) {
+		if(	//rec.status.equals(CertificateRequestStatus.RENEW_REQUESTED) ||
+			rec.status.equals(CertificateRequestStatus.REQUESTED)) {
 			//RA doesn't *approve* REVOKACTION - RA just click on revoke button
 			if(auth.isUser()) {
 				ContactRecord contact = auth.getContact();
@@ -147,7 +147,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 		
 		if(	rec.status.equals(CertificateRequestStatus.REQUESTED) ||
 			rec.status.equals(CertificateRequestStatus.APPROVED) || //if renew_requesterd > approved cert is canceled, it should really go back to "issued", but currently it doesn't.
-			rec.status.equals(CertificateRequestStatus.RENEW_REQUESTED) ||
+			//rec.status.equals(CertificateRequestStatus.RENEW_REQUESTED) ||
 			rec.status.equals(CertificateRequestStatus.REVOCATION_REQUESTED)) {
 			if(auth.isUser()) {
 				ContactRecord contact = auth.getContact();
@@ -179,7 +179,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 	public boolean canCancelWithPass(CertificateRequestUserRecord rec) {
 		if(!canView(rec)) return false;
 		if(	rec.status.equals(CertificateRequestStatus.REQUESTED) ||
-			rec.status.equals(CertificateRequestStatus.RENEW_REQUESTED) ||
+			//rec.status.equals(CertificateRequestStatus.RENEW_REQUESTED) ||
 			rec.status.equals(CertificateRequestStatus.REVOCATION_REQUESTED)) {
 			if(!auth.isUser()) {
 				//guest can cancel guest submitted request with a valid pass
@@ -191,8 +191,50 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 		return false;
 	}
 	
-	public boolean canRequestRenew(CertificateRequestUserRecord rec) {
+	public LogDetail getLastApproveLog(ArrayList<LogDetail> logs) {
+		for(LogDetail log : logs) {
+			if(log.status.equals("APPROVED")) {
+				return log;
+			}
+		}
+		return null;
+	}
+	
+	//can a user renew the certificate immediately?
+	public boolean canRenew(CertificateRequestUserRecord rec, ArrayList<LogDetail> logs) {
 		if(!canView(rec)) return false;
+		
+		//only issued request can be renewed
+		if(!rec.status.equals(CertificateRequestStatus.ISSUED)) return false;
+		
+		//logged in?
+		if(!auth.isUser()) return false;
+		
+		//original requester?
+		ContactRecord contact = auth.getContact();
+		if(!rec.requester_contact_id.equals(contact.id)) return false;
+
+		//approved within 5 years?
+		LogDetail last = getLastApproveLog(logs);
+		if(last == null) return false; //never approved
+		Calendar five_years_ago = Calendar.getInstance();
+		five_years_ago.add(Calendar.YEAR, -5);
+		if(last.time.before(five_years_ago.getTime())) return false;
+	
+		//will expire in less than 6 month?
+		Calendar six_month_future = Calendar.getInstance();
+		six_month_future.add(Calendar.MONTH, 6);
+		if(rec.cert_notafter.after(six_month_future.getTime())) return false;
+	
+		//all good
+		return true;
+	}
+	
+	/*
+	public boolean canRequestRenew(CertificateRequestUserRecord rec, ArrayList<LogDetail> logs) {
+		if(!canView(rec)) return false;
+		
+		if(canRenew(rec, logs)) return false;//if user can renew it immediately, then no need for request.
 		
 		if(	rec.status.equals(CertificateRequestStatus.ISSUED)) {
 			if(auth.isUser()) {
@@ -201,6 +243,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 		}
 		return false;
 	}
+	*/
 	
 	public boolean canReRequest(CertificateRequestUserRecord rec) {
 		if(!canView(rec)) return false;
@@ -289,15 +332,12 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 	}
 		
 	//NO-AC
-	//return true if success
-	public boolean approve(CertificateRequestUserRecord rec) {
+	public void approve(CertificateRequestUserRecord rec) throws CertificateRequestException {
 		//check quota
     	CertificateQuotaModel quota = new CertificateQuotaModel(context);
     	if(!quota.canRequestUserCert(rec.requester_contact_id)) {
-    		log.error("Exceeded user quota.");
-    		return false;
+    		throw new CertificateRequestException("Exeeding Quota");
     	}
-    	
 		
 		if(rec.status.equals(CertificateRequestStatus.REQUESTED)) {
 			//update request status
@@ -306,12 +346,11 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 				super.update(get(rec.id), rec);
 				quota.incrementUserCertRequest(rec.requester_contact_id);
 			} catch (SQLException e) {
-				log.error("Failed to approve user certificate request: " + rec.id, e);
-				return false;
+	    		throw new CertificateRequestException("Failed to approve user certificate request: " + rec.id, e);
 			}	
 			
-			return approveNewRequest(rec);
-		} else if(rec.status.equals(CertificateRequestStatus.RENEW_REQUESTED)) {
+			approveNewRequest(rec);
+		} /*else if(rec.status.equals(CertificateRequestStatus.RENEW_REQUESTED)) {
 			//update request status
 			rec.status = CertificateRequestStatus.APPROVED;
 			try {
@@ -323,13 +362,13 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 			}
 			
 			return approveRenewRequest(rec);
-		} else {
-			log.error("Don't know how to approve request which is currently in stauts: "+rec.status);
-			return false;
+		}*/ else {
+			//shouldn't reach here.. 
+    		throw new CertificateRequestException("Don't know how to approve request which is currently in stauts: "+rec.status);
 		}
 	}
 	
-	private boolean approveNewRequest(CertificateRequestUserRecord rec) {
+	private void approveNewRequest(CertificateRequestUserRecord rec) throws CertificateRequestException {
 	
 		try {
 			//Then insert a new DN record
@@ -364,14 +403,12 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 			ticket.description += "\n\nTo retrieve your certificate please visit " + getTicketUrl(rec) + " and click on Issue Certificate button.";
 			ticket.nextaction = "Requester to download certificate"; // NAD will be set 7 days from today by default
 			fp.update(ticket, rec.goc_ticket_id);
-			
 		} catch (SQLException e) {
-			log.error("Failed to associate new DN with requeter contact", e);
-		}
-		
-		return true;
+			throw new CertificateRequestException("Failed to associate new DN with requeter contact", e);
+		}	
 	}
 	
+	/*
 	private boolean approveRenewRequest(CertificateRequestUserRecord rec) {
 		
 		//notify user
@@ -396,13 +433,14 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 		
 		return true;
 	}
+	*/
 	
 	//NO-AC
 	//return true if success
 	public boolean cancel(CertificateRequestUserRecord rec) {
 		try {
-			if(rec.status.equals(CertificateRequestStatus.RENEW_REQUESTED) ||
-				rec.status.equals(CertificateRequestStatus.REVOCATION_REQUESTED)) {
+			//info.. We can't put RENEW_REQUESTED back to ISSUED - since we've already reset certificate
+			if(rec.status.equals(CertificateRequestStatus.REVOCATION_REQUESTED)) {
 				rec.status = CertificateRequestStatus.ISSUED;
 			} else {
 				rec.status = CertificateRequestStatus.CANCELED;
@@ -414,7 +452,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 			// All good - now close ticket
 			Footprints fp = new Footprints(context);
 			FPTicket ticket = fp.new FPTicket();
-			Authorization auth = context.getAuthorization();
+			//Authorization auth = context.getAuthorization();
 			if(auth.isUser()) {
 				ContactRecord contact = auth.getContact();
 				ticket.description = contact.name + " has canceled this certificate request.\n\n";
@@ -437,9 +475,8 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 	//NO-AC
 	//return true if success
 	public boolean reject(CertificateRequestUserRecord rec) {
-		if(	rec.status.equals(CertificateRequestStatus.RENEW_REQUESTED)||
+		if(	//rec.status.equals(CertificateRequestStatus.RENEW_REQUESTED)||
 			rec.status.equals(CertificateRequestStatus.REVOCATION_REQUESTED)) {
-			//go back to issued status if it's from renew_requested
 			rec.status = CertificateRequestStatus.ISSUED;
 		} else {
 			//all others
@@ -453,7 +490,6 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 			return false;
 		}
 		
-		Authorization auth = context.getAuthorization();
 		ContactRecord contact = auth.getContact();
 		
 		Footprints fp = new Footprints(context);
@@ -466,69 +502,43 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 		return true;
 	}
 	
+	/*
 	//NO-AC
-	//return true if success
+	//reuse previously used csr - only oim user can do this
 	public void requestRenew(CertificateRequestUserRecord rec) throws CertificateRequestException {
+		if(!auth.isUser()) {
+			throw new CertificateRequestException("only oim user can request renew");
+		}
+		
 		rec.status = CertificateRequestStatus.RENEW_REQUESTED;
 		
-		//setting this to null so that oim will regenerate key which is generated when csr is created 
-		//we shoudn't do this if user is providing us the CSR (guessing user will re-use the same private key)
-		rec.csr = null; 
-		
+		//clear previously issued cert
     	rec.cert_certificate = null;
     	rec.cert_intermediate = null;
     	rec.cert_pkcs7 = null;
     	rec.cert_serial_id = null;
+    	
+    	//we don't need passphrase - only requester can renew, and we are not creating private key
+    	rec.requester_passphrase = null;
+    	rec.requester_passphrase_salt = null;
+		
 		try {
 			super.update(get(rec.id), rec);
-			//quota.incrementUserCertRequest();
+			
+	    	//create notification ticket
+			Footprints fp = new Footprints(context);
+			FPTicket ticket = fp.new FPTicket();
+	    	prepareNewTicket(ticket, "User Certificate Renew Request", rec, auth.getContact());
+			rec.goc_ticket_id = fp.open(ticket);
+			context.setComment("Opened GOC Ticket " + rec.goc_ticket_id);
+			super.update(get(rec.id), rec);
+			
 		} catch (SQLException e) {
 			log.error("Failed to request user certificate request renewal: " + rec.id);
 			throw new CertificateRequestException("Failed to update request status", e);
 		}
-		
-	
-		Footprints fp = new Footprints(context);
-		FPTicket ticket = fp.new FPTicket();
-		
-		//Update CC ra & sponsor (it might have been changed since last time request was made)
-		VOContactModel model = new VOContactModel(context);
-		ContactModel cmodel = new ContactModel(context);
-		ArrayList<VOContactRecord> crecs;
-		String ras = "";
-		try {
-			crecs = model.getByVOID(rec.vo_id);
-			for(VOContactRecord crec : crecs) {
-				ContactRecord contactrec = cmodel.get(crec.contact_id);
-				if(crec.contact_type_id.equals(11)) { //RA contacts
-					ticket.ccs.add(contactrec.primary_email);
-					if(crec.contact_rank_id.equals(1) || crec.contact_rank_id.equals(2)) {
-						if(!ras.isEmpty()) {
-							ras += ", ";
-						}
-						ras += contactrec.name;
-					}
-				}
-			}
-		} catch (SQLException e1) {
-			log.error("Failed to lookup RA/sponsor information - ignoring", e1);
-		}
-		
-		ticket.description = "Dear "+ras+ " (RAs)\n\n";
-		Authorization auth = context.getAuthorization();
-		if(auth.isUser()) {
-			ContactRecord contact = auth.getContact();
-			ticket.description += "An authenticated user; " + contact.name + " has requested renewal for this certificate request.\n\n";
-		} else {
-			ticket.description += "A guest user with IP address: " + context.getRemoteAddr() + " has requested renewal for this certificate request.\n\n";
-		}
-		ticket.description += "> " + context.getComment();
-		ticket.description += "\n\nPlease approve / disapporove this request at " + getTicketUrl(rec);
-		ticket.nextaction = "RA/Sponsor to verify&approve"; //nad will be set to 7 days from today by default
-		ticket.status = "Engineering";
-		
-		fp.update(ticket, rec.goc_ticket_id);
 	}
+	*/
 	
 	//NO-AC
 	public void requestRevoke(CertificateRequestUserRecord rec) throws CertificateRequestException {
@@ -581,7 +591,6 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 	}
 	
 	//NO-AC
-	//return true if success
 	public void revoke(CertificateRequestUserRecord rec) throws CertificateRequestException {
 		//revoke
 		CertificateManager cm = new CertificateManager();
@@ -642,11 +651,57 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 		cancel(rec);
 	}
 	
+	//go directly from ISSUED > ISSUEING
+	public void renew(final CertificateRequestUserRecord rec) throws CertificateRequestException {		
+		
+		//check quota
+    	CertificateQuotaModel quota = new CertificateQuotaModel(context);
+    	if(!quota.canRequestUserCert(rec.requester_contact_id)) {
+    		throw new CertificateRequestException("Quota Exceeded");
+    	}
+   	
+		//notification -- just make a note on an existing ticket - we don't need to create new goc ticket - there is nobody we need to inform -
+		Footprints fp = new Footprints(context);
+		FPTicket ticket = fp.new FPTicket();
+		Authorization auth = context.getAuthorization();
+		if(auth.isUser()) {
+			ContactRecord contact = auth.getContact();
+			ticket.description = contact.name + " is renewing user certificate.\n\n";
+			ticket.description += "> " + context.getComment();
+		} else {
+			throw new CertificateRequestException("guest can't renew");
+		}
+		ticket.status = "Engineering";//reopen ticket temporarily
+		fp.update(ticket, rec.goc_ticket_id);
+		
+		/*
+		//clear previously issued cert
+    	rec.cert_certificate = null;
+    	rec.cert_intermediate = null;
+    	rec.cert_pkcs7 = null;
+    	rec.cert_serial_id = null;
+    	*/
+		
+    	//we don't need passphrase - only requester can renew, and we are not creating private key
+    	rec.requester_passphrase = null;
+    	rec.requester_passphrase_salt = null;
+    	
+    	//start issuing immediately
+		startissue(rec, null);
+		
+		//increment quota
+		try {
+			quota.incrementUserCertRequest(rec.requester_contact_id);
+		} catch (SQLException e) {
+    		log.error("Failed to incremenet quota while renewing request id:"+rec.id);
+		}
+		context.message(MessageType.SUCCESS, "Successfully renewed a certificate. Please download & install your certificate.");
+	}
+	
 	// NO-AC
-	// return true if success
 	public void startissue(final CertificateRequestUserRecord rec, final String password) throws CertificateRequestException {
 		
-		//verify passphrase if necessary
+		//verify passphrase (for guest request) to make sure we are issuing cert for person submitted the request
 		if(rec.requester_passphrase != null) {
 			String hashed = BCrypt.hashpw(password, rec.requester_passphrase_salt);
 			if(!hashed.equals(rec.requester_passphrase)) {
@@ -663,6 +718,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 			throw new CertificateRequestException("Failed to update certificate request status");
 		}
 
+		//Maybe I should use Quartz instead? 
 		new Thread(new Runnable() {
 			public void failed(String message) {
 				log.error(message);
@@ -692,7 +748,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 			}
 			public void run() {
 				try {					
-					//if csr is not set, we need to create one and private key for user
+					//if csr is not set, we need to create new one and private key for user
 					if (rec.csr == null) {
 						X500Name name = rec.getX500Name();
 						GenerateCSR csrgen = new GenerateCSR(name);
@@ -803,13 +859,19 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 			String password = getPassword(rec.id);
 			if(password == null) {
 				log.error("can't retrieve certificate encryption password while creating pkcs12");
+				
+				/*
+				//experimenet trying to create pkcs12 without private key - doesn't work
+				KeyStore p12 = KeyStore.getInstance("PKCS12");
+				p12.load(null, null);
+				p12.setCertificateEntry("USER"+rec.id, chain[0]);
+				return p12;
+				*/
 			} else {
 				KeyStore p12 = KeyStore.getInstance("PKCS12");
 				p12.load(null, null);  //not sure what this does.
 				PrivateKey private_key = getPrivateKey(rec.id);
-				
 				p12.setKeyEntry("USER"+rec.id, private_key, password.toCharArray(), chain); 
-				
 				return p12;
 			}
 		} catch (IOException e) {
@@ -1123,11 +1185,18 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 		}
     	super.insert(rec);
 		//quota.incrementUserCertRequest();
-		
-		///////////////////////////////////////////////////////////////////////////////////////////
-		// Notification
+
+    	//create notification ticket
 		Footprints fp = new Footprints(context);
 		FPTicket ticket = fp.new FPTicket();
+    	prepareNewTicket(ticket, "User Certificate Request",  rec, requester);
+		ticket.description += "\n\n"+note;
+		rec.goc_ticket_id = fp.open(ticket);
+		context.setComment("Opened GOC Ticket " + rec.goc_ticket_id);
+		super.update(get(rec.id), rec);
+    }
+    
+    private void prepareNewTicket(FPTicket ticket, String title, CertificateRequestUserRecord rec, ContactRecord requester) throws SQLException {
 		ticket.name = requester.name;
 		ticket.email = requester.primary_email;
 		ticket.phone = requester.primary_phone;
@@ -1158,7 +1227,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 		VOModel vmodel = new VOModel(context);
 		VORecord vrec = vmodel.get(rec.vo_id);
 		
-		ticket.title = "OSG:"+vrec.name+" User Certificate Request for "+requester.name;
+		ticket.title = "OSG:"+vrec.name+" " + title+ " for "+requester.name;
 		String auth_status = "An unauthenticated user; ";
 		if(auth.isUser()) {
 			auth_status = "An OIM Authenticated user; ";
@@ -1166,7 +1235,6 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 		ticket.description = "Dear " + ranames + " (" + vrec.name + " VO RA/Sponsors),\n\n";
 		ticket.description += auth_status + requester.name + " <"+requester.primary_email+"> has requested a user certificate. ";
 		ticket.description += "Please determine this request's authenticity, and approve / disapprove at " + getTicketUrl(rec);
-		ticket.description += "\n\n"+note;
 		/*
 		if(StaticConfig.isDebug()) {
 			ticket.assignees.add("hayashis");
@@ -1191,16 +1259,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 			ticket.metadata.put("SUBMITTER_DN", auth.getUserDN());
 		} 
 		ticket.metadata.put("SUBMITTER_NAME", requester.name);
-		
-		//do open ticket.
-		String ticket_id = fp.open(ticket);
-
-		//update request record with goc ticket id
-		rec.goc_ticket_id = ticket_id;
-		context.setComment("Opened GOC Ticket " + ticket_id);
-		super.update(get(rec.id), rec);
     }
-    
     
     //no-ac
     public boolean rerequest(CertificateRequestUserRecord rec) throws CertificateRequestException 

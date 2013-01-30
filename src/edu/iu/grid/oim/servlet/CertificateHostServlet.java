@@ -326,8 +326,8 @@ public class CertificateHostServlet extends ServletBase  {
 	protected GenericView nextActionControl(final UserContext context, final CertificateRequestHostRecord rec) {
 		GenericView v = new GenericView();
 		
-		if(rec.status.equals(CertificateRequestStatus.REQUESTED) ||
-				rec.status.equals(CertificateRequestStatus.RENEW_REQUESTED)) {
+		if( //rec.status.equals(CertificateRequestStatus.RENEW_REQUESTED) ||
+			rec.status.equals(CertificateRequestStatus.REQUESTED)) {
 				v.add(new HtmlView("<p class=\"alert alert-info\">GridAdmin to approve request</p>"));
 			} else if(rec.status.equals(CertificateRequestStatus.APPROVED)) {
 				v.add(new HtmlView("<p class=\"alert alert-info\">Requester to issue certificate & download</p>"));
@@ -349,7 +349,7 @@ public class CertificateHostServlet extends ServletBase  {
 		final String url = "certificatehost?id="+rec.id;
 		
 		final DivRepTextArea note = new DivRepTextArea(context.getPageRoot());
-		note.setLabel("Action Note");
+		note.setSampleValue("Action Note");
 		note.setRequired(true);
 		note.setHidden(true);
 		v.add(note);
@@ -377,7 +377,7 @@ public class CertificateHostServlet extends ServletBase  {
 			note.setHidden(false);
 			v.add(button);
 		}
-		
+		/*
 		if(model.canRequestRenew(rec)) {
 			final DivRepButton button = new DivRepButton(context.getPageRoot(), "<button class=\"btn btn-primary\"><i class=\"icon-refresh icon-white\"></i> Request Renew</button>");
 			button.setStyle(DivRepButton.Style.HTML);
@@ -398,6 +398,7 @@ public class CertificateHostServlet extends ServletBase  {
 			v.add(button);
 			note.setHidden(false);
 		}
+		*/
 		
 		if(model.canRequestRevoke(rec)) {
 			final DivRepButton button = new DivRepButton(context.getPageRoot(), "<button class=\"btn btn-primary\"><i class=\"icon-exclamation-sign icon-white\"></i> Request Revocation</button>");

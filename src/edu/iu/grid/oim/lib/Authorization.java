@@ -205,6 +205,7 @@ public class Authorization {
 					
 					request.setAttribute("SSL_CLIENT_S_DN", "/DC=com/DC=DigiCert-Grid/O=Open Science Grid/OU=People/CN=Soichi Hayashi 238");
 					//request.setAttribute("SSL_CLIENT_S_DN", "/DC=com/DC=DigiCert-Grid/O=Open Science Grid/OU=People/CN=Alain Deximo 623");
+					//request.setAttribute("SSL_CLIENT_S_DN", "/DC=com/DC=DigiCert-Grid/O=OSG Pilot/OU=People/CN=Soichi Hayashi 975");
 					
 					//request.setAttribute("SSL_CLIENT_S_DN", "/DC=org/DC=doegrids/OU=People/CN=Soichi Hayashi 461343");
 					//request.setAttribute("SSL_CLIENT_S_DN", "/DC=org/DC=doegrids/OU=People/CN=Arvind Gopu 369621");

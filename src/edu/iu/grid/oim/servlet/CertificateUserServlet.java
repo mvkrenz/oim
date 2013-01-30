@@ -16,15 +16,11 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 import org.bouncycastle.asn1.x500.X500Name;
 
-import com.divrep.DivRep;
 import com.divrep.DivRepEvent;
 import com.divrep.DivRepEventListener;
 import com.divrep.common.DivRepButton;
-import com.divrep.common.DivRepForm;
 import com.divrep.common.DivRepPassword;
-import com.divrep.common.DivRepStaticContent;
 import com.divrep.common.DivRepTextArea;
-import com.divrep.common.DivRepTextBox;
 import com.divrep.validator.DivRepIValidator;
 
 import edu.iu.grid.oim.lib.Authorization;
@@ -73,7 +69,11 @@ public class CertificateUserServlet extends ServletBase  {
 			CertificateRequestUserRecord rec;
 			try {
 				rec = model.get(id);
-				IView view = statusView(rec);
+				
+				boolean generate_csr = true;
+				if(rec.csr != null) generate_csr = false;//already has csr
+				
+				IView view = statusView(rec, generate_csr);
 				view.render(response.getWriter());
 			} catch (SQLException e) {
 				throw new ServletException("Failed to load specified certificate", e);
@@ -109,27 +109,33 @@ public class CertificateUserServlet extends ServletBase  {
 		}
 	}
 	
-	protected IView statusView(final CertificateRequestUserRecord rec) {
+	protected IView statusView(final CertificateRequestUserRecord rec, final boolean generate_csr) {
 		return new IView() {
 
 			@Override
 			public void render(PrintWriter out) {
 			
 				if(rec.status.equals(CertificateRequestStatus.ISSUING)) {
-					String gencsr_class = "progressing";
-					if(rec.csr != null) {
-						gencsr_class = "completed";
+
+					out.write("<ul class=\"progress_display\">");
+					
+					if(generate_csr) {
+						String gencsr_class = "progressing";
+						if(rec.csr != null) {
+							gencsr_class = "completed";
+						}
+						out.write("<li class=\""+gencsr_class+"\">Generating CSR/Private Key</li>");
 					}
+					
 					String sign_class = "notstarted";
 					if(rec.csr != null && rec.cert_pkcs7 == null) {
 						sign_class = "progressing";
 					}
-					out.write("<ul class=\"progress_display\">");
-					out.write("<li class=\""+gencsr_class+"\">Generating CSR/Private Key</li>");
 					out.write("<li class=\""+sign_class+"\">Signing Certificate</li>");
+
 					out.write("</ul>");
 				} else {
-					//not issuing anymore - redirect
+					//finished! - redirect
 					out.write("<script>document.location='certificateuser?id="+rec.id+"';</script>");
 				}
 			}
@@ -165,12 +171,6 @@ public class CertificateUserServlet extends ServletBase  {
 				bread_crumb.addCrumb(Integer.toString(rec.id),  null);
 				bread_crumb.render(out);		
 				
-				/*
-				if(rec.id.equals(userrec.id)) {
-					out.write("<div class=\"alert alert-info\">You are currently logged in using certificate issued by this user certificate request.</div>");
-				}
-				*/
-			
 				renderDetail(out);
 				renderLog(out);
 				out.write("</div>"); //span9
@@ -256,6 +256,17 @@ public class CertificateUserServlet extends ServletBase  {
 				out.write("<tr>");
 				out.write("<th>Requested Time</th>");
 				out.write("<td>"+dformat.format(rec.request_time)+"</td>");
+				out.write("</tr>");
+				
+				out.write("<tr>");
+				out.write("<th>Last Approved Time</th>");
+				LogDetail approve_log = model.getLastApproveLog(logs);
+				if(approve_log != null) {
+					out.write("<td>"+dformat.format(approve_log.time)+"</td>");
+				} else {
+					out.write("<td>N/A</td>");
+				}
+
 				out.write("</tr>");
 				
 				out.write("<tr>");
@@ -364,7 +375,7 @@ public class CertificateUserServlet extends ServletBase  {
 				}
 				
 				
-				GenericView action_control = nextActionControl(context, rec, cn_override);
+				GenericView action_control = nextActionControl(context, rec, cn_override, logs);
 				out.write("<tr>");
 				out.write("<th>Next Action</th>");
 				out.write("<td>");
@@ -372,12 +383,11 @@ public class CertificateUserServlet extends ServletBase  {
 				out.write("</td>");
 				out.write("</tr>");
 				
-				
 				out.write("</tbody>");
 				
 				out.write("</table>");
 			}
-
+			
 			public void renderLog(PrintWriter out) {
 				//logs
 				out.write("<h2>Log</h2>");
@@ -411,16 +421,24 @@ public class CertificateUserServlet extends ServletBase  {
 		};
 	}
 	
-	protected GenericView nextActionControl(final UserContext context, final CertificateRequestUserRecord rec, final CNEditor cn_override) {
+	protected GenericView nextActionControl(
+			final UserContext context, 
+			final CertificateRequestUserRecord rec, 
+			final CNEditor cn_override, 
+			ArrayList<CertificateRequestModelBase<CertificateRequestUserRecord>.LogDetail> logs) {
 		GenericView v = new GenericView();
 		
-		if(rec.status.equals(CertificateRequestStatus.REQUESTED) ||
-			rec.status.equals(CertificateRequestStatus.RENEW_REQUESTED)) {
+		final CertificateRequestUserModel model = new CertificateRequestUserModel(context);
+		
+		if(	//rec.status.equals(CertificateRequestStatus.RENEW_REQUESTED) ||
+			rec.status.equals(CertificateRequestStatus.REQUESTED)) {
 			v.add(new HtmlView("<p class=\"alert alert-info\">RA to approve certificate request</p>"));
 		} else if(rec.status.equals(CertificateRequestStatus.APPROVED)) {
 			v.add(new HtmlView("<p class=\"alert alert-info\">Requester to issue certificate & download</p>"));
 		} else if(rec.status.equals(CertificateRequestStatus.ISSUED)) {
-			v.add(new HtmlView("<p class=\"alert alert-info\">Requester to issue certificate & download</p>"));
+			if(model.canRenew(rec, logs)) {
+				v.add(new HtmlView("<p class=\"alert alert-info\">Requester to renew certificate</p>"));
+			}
 		} else if(rec.status.equals(CertificateRequestStatus.REJECTED) ||
 				rec.status.equals(CertificateRequestStatus.REVOKED) ||
 				rec.status.equals(CertificateRequestStatus.EXPIRED) ||
@@ -439,14 +457,12 @@ public class CertificateUserServlet extends ServletBase  {
 		
 		final DivRepTextArea note = new DivRepTextArea(context.getPageRoot());
 		note.setHeight(40);
-		note.setLabel("Action Note");
+		note.setSampleValue("Action Note");
 		note.setRequired(true);
 		note.setHidden(true);
 		v.add(note);
-	
-		
+
 		//controls
-		final CertificateRequestUserModel model = new CertificateRequestUserModel(context);
 		if(model.canApprove(rec)) {
 			final DivRepButton button = new DivRepButton(context.getPageRoot(), "<button class=\"btn btn-primary\"><i class=\"icon-ok icon-white\"></i> Approve</button>");
 			button.setStyle(DivRepButton.Style.HTML);
@@ -478,11 +494,12 @@ public class CertificateUserServlet extends ServletBase  {
                 				return;
                 			}
                 		}
-                		
-	                	if(model.approve(rec)) {
-	                		button.redirect(url);
-	                	} else {
-	                		button.alert("Failed to approve request. Maybe Quota exeeded?");
+                			                	
+                		try {
+	                      	model.approve(rec);
+                			button.redirect(url);
+                		} catch (CertificateRequestException ex) {
+	                		button.alert("Failed to approve request. "+ ex.getMessage());
 	                	}
                 	}
                 }
@@ -490,8 +507,29 @@ public class CertificateUserServlet extends ServletBase  {
 			v.add(button);
 			note.setHidden(false);
 		}
-		if(model.canRequestRenew(rec)) {
-			final DivRepButton button = new DivRepButton(context.getPageRoot(), "<button class=\"btn btn-primary\"><i class=\"icon-refresh icon-white\"></i> Request Renew</button>");
+		if(model.canRenew(rec, logs)) {
+			final DivRepButton button = new DivRepButton(context.getPageRoot(), "<button class=\"btn btn-success\"><i class=\"icon-refresh icon-white\"></i> Renew</button>");
+			button.setStyle(DivRepButton.Style.HTML);
+			button.addClass("inline");
+			button.addEventListener(new DivRepEventListener() {
+                public void handleEvent(DivRepEvent e) {
+                	if(note.validate()) {
+                		context.setComment(note.getValue());
+                		try {
+	                      	model.renew(rec);
+                			button.redirect(url);
+                		} catch (CertificateRequestException ex) {
+	                		button.alert("Failed to renew certificate: " + ex.getMessage());
+	                	}
+                	}
+                }
+            });
+			v.add(button);
+			note.setHidden(false);
+		}
+		/*
+		if(model.canRequestRenew(rec, logs)) {
+			final DivRepButton button = new DivRepButton(context.getPageRoot(), "<button class=\"btn btn-success\"><i class=\"icon-refresh icon-white\"></i> Request Renew</button>");
 			button.setStyle(DivRepButton.Style.HTML);
 			button.addClass("inline");
 			button.addEventListener(new DivRepEventListener() {
@@ -510,6 +548,7 @@ public class CertificateUserServlet extends ServletBase  {
 			v.add(button);
 			note.setHidden(false);
 		}
+		*/
 		if(model.canRequestRevoke(rec)) {
 			final DivRepButton button = new DivRepButton(context.getPageRoot(), "<button class=\"btn btn-primary\"><i class=\"icon-exclamation-sign icon-white\"></i> Request Revocation</button>");
 			button.setStyle(DivRepButton.Style.HTML);
@@ -531,7 +570,7 @@ public class CertificateUserServlet extends ServletBase  {
 			note.setHidden(false);
 		}
 		if(model.canIssue(rec)) {
-			Authorization auth = context.getAuthorization();
+			//Authorization auth = context.getAuthorization();
 			
 			if(rec.requester_passphrase != null) {
 				v.add(new HtmlView("<p class=\"help-block\">Please enter password to retrieve & encrypt your new certificate (pkcs12)</p>"));
@@ -717,57 +756,6 @@ public class CertificateUserServlet extends ServletBase  {
 		final Authorization auth = context.getAuthorization();
 		final SimpleDateFormat dformat = new SimpleDateFormat();
 		dformat.setTimeZone(auth.getTimeZone());
-		
-		/*
-		//guest has to enter request ID
-		class IDForm extends DivRep {
-			final DivRepTextBox id;
-			final DivRepButton open;
-			public IDForm(DivRep parent) {
-				super(parent);
-				id = new DivRepTextBox(this);
-				//id.setLabel("Open by Request ID");
-				id.setWidth(150);
-				open = new DivRepButton(this, "Open");
-				open.addEventListener(new DivRepEventListener() {
-					@Override
-					public void handleEvent(DivRepEvent e) {
-						if(id.getValue() == null || id.getValue().trim().isEmpty()) {
-							alert("Please enter request ID to open");
-						} else {
-							redirect("certificateuser?id="+id.getValue());
-						}
-					}
-				});
-				open.addClass("btn");
-			}
-	
-			@Override
-			public void render(PrintWriter out) {
-				out.write("<div id=\""+getNodeID()+"\" class=\"pull-right\">");
-				//out.write("<p>Please enter host certificate request ID to view details</p>");
-				
-				out.write("<table><tr>");
-				out.write("<td>Open By Request ID </td>");
-				out.write("<td>");
-				id.render(out);
-				out.write("</td>");
-				out.write("<td style=\"vertical-align: top;\">");
-				open.render(out);
-				out.write("</td>");
-				out.write("</tr></table>");
-				
-				out.write("</div>");
-			}
-
-			@Override
-			protected void onEvent(DivRepEvent e) {
-				// TODO Auto-generated method stub
-				
-			}
-		};
-		*/
-		
 		
 		return new IView(){
 			@Override
