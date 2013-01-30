@@ -24,7 +24,6 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import edu.iu.grid.oim.lib.StaticConfig;
-import edu.iu.grid.oim.lib.StringArray;
 
 public class DigicertCertificateSigner implements ICertificateSigner {
     static Logger log = Logger.getLogger(DigicertCertificateSigner.class);  

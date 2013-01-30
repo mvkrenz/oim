@@ -422,8 +422,6 @@ public class CertificateHostServlet extends ServletBase  {
 		}
 		
 		if(model.canIssue(rec)) {
-			//Authorization auth = context.getAuthorization();
-
 			final DivRepButton button = new DivRepButton(context.getPageRoot(), "<button class=\"btn btn-primary\"><i class=\"icon-download-alt icon-white\"></i> Issue Certificates</button>");
 			button.setStyle(DivRepButton.Style.HTML);
 			button.addClass("inline");

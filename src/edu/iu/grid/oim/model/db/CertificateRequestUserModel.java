@@ -191,9 +191,9 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 		return false;
 	}
 	
-	public LogDetail getLastApproveLog(ArrayList<LogDetail> logs) {
+	public LogDetail getLastLog(String state, ArrayList<LogDetail> logs) {
 		for(LogDetail log : logs) {
-			if(log.status.equals("APPROVED")) {
+			if(log.status.equals(state)) {
 				return log;
 			}
 		}
@@ -215,16 +215,18 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 		if(!rec.requester_contact_id.equals(contact.id)) return false;
 
 		//approved within 5 years?
-		LogDetail last = getLastApproveLog(logs);
+		LogDetail last = getLastLog(CertificateRequestStatus.APPROVED, logs);
 		if(last == null) return false; //never approved
 		Calendar five_years_ago = Calendar.getInstance();
 		five_years_ago.add(Calendar.YEAR, -5);
 		if(last.time.before(five_years_ago.getTime())) return false;
-	
-		//will expire in less than 6 month?
-		Calendar six_month_future = Calendar.getInstance();
-		six_month_future.add(Calendar.MONTH, 6);
-		if(rec.cert_notafter.after(six_month_future.getTime())) return false;
+		
+		if(!StaticConfig.isDebug()) {
+			//will expire in less than 6 month?
+			Calendar six_month_future = Calendar.getInstance();
+			six_month_future.add(Calendar.MONTH, 6);
+			if(rec.cert_notafter.after(six_month_future.getTime())) return false;
+		}
 	
 		//all good
 		return true;

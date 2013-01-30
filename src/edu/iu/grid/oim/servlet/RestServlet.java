@@ -356,6 +356,13 @@ public class RestServlet extends ServletBase  {
 		String dirty_host_request_id = request.getParameter("host_request_id");
 		Integer host_request_id = Integer.parseInt(dirty_host_request_id);
 		CertificateRequestHostModel model = new CertificateRequestHostModel(context);
+		
+		//set comment
+		String request_comment = request.getParameter("request_comment");
+		if(request_comment == null) {
+			request_comment = "Approved via command line";
+		}
+		context.setComment(request_comment);
 	
 		try {
 			CertificateRequestHostRecord rec = model.get(host_request_id);
@@ -479,6 +486,14 @@ public class RestServlet extends ServletBase  {
 		String dirty_user_request_id = request.getParameter("user_request_id");
 		Integer user_request_id = Integer.parseInt(dirty_user_request_id);
 		CertificateRequestUserModel model = new CertificateRequestUserModel(context);
+		
+		//set comment
+		String request_comment = request.getParameter("request_comment");
+		if(request_comment == null) {
+			request_comment = "Renewal Request via command line";
+		}
+		context.setComment(request_comment);
+		
 		try {
 			CertificateRequestUserRecord rec = model.get(user_request_id);
 			if(rec == null) {
@@ -537,6 +552,14 @@ public class RestServlet extends ServletBase  {
 		String dirty_user_request_id = request.getParameter("user_request_id");
 		Integer user_request_id = Integer.parseInt(dirty_user_request_id);
 		CertificateRequestUserModel model = new CertificateRequestUserModel(context);
+		
+		//set comment
+		String request_comment = request.getParameter("request_comment");
+		if(request_comment == null) {
+			request_comment = "Approved via command line";
+		}
+		context.setComment(request_comment);
+		
 		try {
 			CertificateRequestUserRecord rec = model.get(user_request_id);
 			if(rec == null) {
@@ -596,6 +619,14 @@ public class RestServlet extends ServletBase  {
 		String dirty_user_request_id = request.getParameter("user_request_id");
 		Integer user_request_id = Integer.parseInt(dirty_user_request_id);
 		CertificateRequestUserModel model = new CertificateRequestUserModel(context);
+		
+		//set comment
+		String request_comment = request.getParameter("request_comment");
+		if(request_comment == null) {
+			request_comment = "Revocation requested via command line";
+		}
+		context.setComment(request_comment);
+		
 		try {
 			CertificateRequestUserRecord rec = model.get(user_request_id);
 			if(rec == null) {
@@ -623,7 +654,7 @@ public class RestServlet extends ServletBase  {
 				throw new RestException("No such user certificate request ID");
 			}
 			if(model.canIssue(rec)) {
-				model.startissue(rec, null); //don't need any password
+				model.startissue(rec, null);//command line doesn't provide any password
 			} else {
 				throw new AuthorizationException("You can't issue this request");
 			}

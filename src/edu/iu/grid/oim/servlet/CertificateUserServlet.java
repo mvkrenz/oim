@@ -70,10 +70,14 @@ public class CertificateUserServlet extends ServletBase  {
 			try {
 				rec = model.get(id);
 				
-				boolean generate_csr = true;
-				if(rec.csr != null) generate_csr = false;//already has csr
+				ArrayList<CertificateRequestModelBase<CertificateRequestUserRecord>.LogDetail> logs = model.getLogs(CertificateRequestUserModel.class, id);
+				LogDetail issued_log = model.getLastLog(CertificateRequestStatus.ISSUED, logs);
+				boolean need_generate_csr = false;
+				if(issued_log == null) {
+					need_generate_csr = true;
+				}
 				
-				IView view = statusView(rec, generate_csr);
+				IView view = statusView(rec, need_generate_csr);
 				view.render(response.getWriter());
 			} catch (SQLException e) {
 				throw new ServletException("Failed to load specified certificate", e);
@@ -260,7 +264,7 @@ public class CertificateUserServlet extends ServletBase  {
 				
 				out.write("<tr>");
 				out.write("<th>Last Approved Time</th>");
-				LogDetail approve_log = model.getLastApproveLog(logs);
+				LogDetail approve_log = model.getLastLog(CertificateRequestStatus.APPROVED, logs);
 				if(approve_log != null) {
 					out.write("<td>"+dformat.format(approve_log.time)+"</td>");
 				} else {
@@ -283,7 +287,7 @@ public class CertificateUserServlet extends ServletBase  {
 					if(model.getPrivateKey(rec.id) != null) {
 						out.write("<p><a class=\"btn btn-primary\" href=\"certificatedownload?id="+rec.id+"&type=user&download=pkcs12\">Download Certificate &amp; Private Key (PKCS12)</a></p>");
 						//out.write("<a class=\"btn btn-primary\" href=\"certificatedownload?id="+rec.id+"&type=user&download=pem12\">Download Certificate &amp; Private Key (PEM)</a>");
-						out.write("<p class=\"alert\">You need to download your certificate and private key now, while your browser session is active. If your session times out, the server will delete your private key for security reasons and you will need to request a new certificate.</p>");
+						out.write("<p class=\"alert alert-error\">You need to download your certificate and private key now, while your browser session is active. When your session times out, the server will delete your private key for security reasons and you will need to request a new certificate.</p>");
 						
 					} else {
 						out.write("<p><a class=\"btn btn-primary\" href=\"certificatedownload?id="+rec.id+"&type=user&download=pkcs7\">Download Certificate (PKCS7)</a> ");

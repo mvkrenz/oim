@@ -1,7 +1,5 @@
 package edu.iu.grid.oim.model.cert;
 
-import edu.iu.grid.oim.lib.StringArray;
-
 //Interface for certificate authority
 public interface ICertificateSigner {
 	
@@ -42,5 +40,4 @@ public interface ICertificateSigner {
 	public Certificate signUserCertificate(String csr, String dn, String email_address) throws CertificateProviderException;
 	public void revokeHostCertificate(String serial_id) throws CertificateProviderException;
 	public void revokeUserCertificate(String serial_id) throws CertificateProviderException;
-	
 }
