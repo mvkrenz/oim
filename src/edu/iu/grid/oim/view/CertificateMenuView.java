@@ -46,7 +46,7 @@ public class CertificateMenuView implements IView {
 			out.write("<a href=\"certificate\"><i class=\"icon-white icon-home\"></i> Home</a></li>");
 		} else {
 			out.write("<li>");
-			out.write("<a href=\"certificate\"><i class=\"icon-plus\"></i> Home</a></li>");
+			out.write("<a href=\"certificate\"><i class=\"icon-home\"></i> Home</a></li>");
 		}	
 		
 		out.write("<li class=\"nav-header\">User Certificates</li>");

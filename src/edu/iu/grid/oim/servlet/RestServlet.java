@@ -407,11 +407,9 @@ public class RestServlet extends ServletBase  {
 
 	private void doHostCertsCancel(HttpServletRequest request, Reply reply) throws AuthorizationException, RestException {
 		UserContext context = new UserContext(request);	
-		
 		String dirty_host_request_id = request.getParameter("host_request_id");
 		Integer host_request_id = Integer.parseInt(dirty_host_request_id);
 		CertificateRequestHostModel model = new CertificateRequestHostModel(context);
-	
 		try {
 			CertificateRequestHostRecord rec = model.get(host_request_id);
 			if(rec == null) {
