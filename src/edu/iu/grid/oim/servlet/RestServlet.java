@@ -481,9 +481,14 @@ public class RestServlet extends ServletBase  {
 	}
 	private void doUserCertRenew(HttpServletRequest request, Reply reply) throws AuthorizationException, RestException {
 		UserContext context = new UserContext(request);	
+		CertificateRequestUserModel model = new CertificateRequestUserModel(context);
+		
 		String dirty_user_request_id = request.getParameter("user_request_id");
 		Integer user_request_id = Integer.parseInt(dirty_user_request_id);
-		CertificateRequestUserModel model = new CertificateRequestUserModel(context);
+
+		String dirty_serial_id = request.getParameter("serial_id");
+		String serial_id = dirty_serial_id.replaceAll("/[^A-Z0-9 ]/", "");
+		
 		
 		//set comment
 		String request_comment = request.getParameter("request_comment");
@@ -493,7 +498,13 @@ public class RestServlet extends ServletBase  {
 		context.setComment(request_comment);
 		
 		try {
-			CertificateRequestUserRecord rec = model.get(user_request_id);
+			//lookup request record either by request_id or serial_id
+			CertificateRequestUserRecord rec = null;
+			if(user_request_id != null) {
+				rec = model.get(user_request_id);
+			} else if(serial_id != null) {
+				rec = model.getBySerialID(serial_id);
+			}
 			if(rec == null) {
 				throw new RestException("No such user certificate request ID");
 			}
@@ -509,6 +520,7 @@ public class RestServlet extends ServletBase  {
 			
 			if(model.canRenew(rec, logs)) {
 				model.renew(rec);
+				reply.params.put("request_id", rec.id);
 			} else {
 				throw new AuthorizationException("You are not authorized to renew this certificate, or condition of the user certificate currently does not allow you to renew this certificate.");
 			}
@@ -614,9 +626,13 @@ public class RestServlet extends ServletBase  {
 	}
 	private void doUserCertRevoke(HttpServletRequest request, Reply reply) throws AuthorizationException, RestException {
 		UserContext context = new UserContext(request);	
+		CertificateRequestUserModel model = new CertificateRequestUserModel(context);
+		
 		String dirty_user_request_id = request.getParameter("user_request_id");
 		Integer user_request_id = Integer.parseInt(dirty_user_request_id);
-		CertificateRequestUserModel model = new CertificateRequestUserModel(context);
+		
+		String dirty_serial_id = request.getParameter("serial_id");
+		String serial_id = dirty_serial_id.replaceAll("/[^A-Z0-9 ]/", "");
 		
 		//set comment
 		String request_comment = request.getParameter("request_comment");
@@ -626,7 +642,13 @@ public class RestServlet extends ServletBase  {
 		context.setComment(request_comment);
 		
 		try {
-			CertificateRequestUserRecord rec = model.get(user_request_id);
+			//lookup request record either by request_id or serial_id
+			CertificateRequestUserRecord rec = null;
+			if(user_request_id != null) {
+				rec = model.get(user_request_id);
+			} else if(serial_id != null) {
+				rec = model.getBySerialID(serial_id);
+			}
 			if(rec == null) {
 				throw new RestException("No such user certificate request ID");
 			}
