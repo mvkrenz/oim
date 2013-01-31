@@ -1229,7 +1229,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 		VOModel vmodel = new VOModel(context);
 		VORecord vrec = vmodel.get(rec.vo_id);
 		
-		ticket.title = "OSG:"+vrec.name+" " + title+ " for "+requester.name;
+		ticket.title = title + " for "+requester.name + "(VO:"+vrec.name+")";
 		String auth_status = "An unauthenticated user; ";
 		if(auth.isUser()) {
 			auth_status = "An OIM Authenticated user; ";
