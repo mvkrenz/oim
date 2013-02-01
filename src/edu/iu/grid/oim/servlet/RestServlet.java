@@ -301,6 +301,9 @@ public class RestServlet extends ServletBase  {
 				}
 				reply.params.put("pkcs7s", ja);
 				
+				//per conversation with Von on 2/1/2012 about 1.1 freeze, I am removing certificates and intermediates out until 
+				//CLI will do key-based access to the output parameter (not index)
+				/*
 				//pass certificates (pem?)
 				JSONArray certs_ja = new JSONArray();
 				StringArray certs = new StringArray(rec.cert_certificate);
@@ -316,6 +319,7 @@ public class RestServlet extends ServletBase  {
 					ints_ja.put(i, intermediates.get(i));
 				}
 				reply.params.put("intermediates", ints_ja);		
+				*/
 			} else if(rec.status.equals(CertificateRequestStatus.ISSUING)) {
 				//TODO - issue thread should somehow report issue status instead.
 				//TODO - this algorithm probably won't work if the certs are renewed - since we currently don't clear certificate before re-issuing
