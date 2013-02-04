@@ -515,7 +515,7 @@ public class RestServlet extends ServletBase  {
 				rec = model.getBySerialID(serial_id);
 			}
 			if(rec == null) {
-				throw new RestException("No such user certificate request ID");
+				throw new RestException("No such user certificate request ID or serial ID");
 			}
 			
 			//load log
@@ -665,7 +665,7 @@ public class RestServlet extends ServletBase  {
 				rec = model.getBySerialID(serial_id);
 			}
 			if(rec == null) {
-				throw new RestException("No such user certificate request ID");
+				throw new RestException("No such user certificate request ID or serial ID");
 			}
 			if(model.canRevoke(rec)) {
 				model.revoke(rec);
