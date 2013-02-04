@@ -147,7 +147,7 @@ public class RestServlet extends ServletBase  {
 			reply.detail = e.toString();	
 		} catch(Exception e) {
 			reply.status = Status.FAILED;
-			reply.detail = e.getMessage();
+			reply.detail = e.toString();
 			if(e.getCause() != null) {
 				reply.detail += " -- " + e.getCause().getMessage() + GOC_TICKET_MESSAGE;
 			}
@@ -488,11 +488,16 @@ public class RestServlet extends ServletBase  {
 		CertificateRequestUserModel model = new CertificateRequestUserModel(context);
 		
 		String dirty_user_request_id = request.getParameter("user_request_id");
-		Integer user_request_id = Integer.parseInt(dirty_user_request_id);
+		Integer user_request_id = null;
+		if(dirty_user_request_id != null) {
+			user_request_id = Integer.parseInt(dirty_user_request_id);
+		}
 
 		String dirty_serial_id = request.getParameter("serial_id");
-		String serial_id = dirty_serial_id.replaceAll("/[^A-Z0-9 ]/", "");
-		
+		String serial_id = null;
+		if(dirty_serial_id != null) {
+			serial_id = dirty_serial_id.replaceAll("/[^A-Z0-9 ]/", "");
+		}
 		
 		//set comment
 		String request_comment = request.getParameter("request_comment");
@@ -633,10 +638,16 @@ public class RestServlet extends ServletBase  {
 		CertificateRequestUserModel model = new CertificateRequestUserModel(context);
 		
 		String dirty_user_request_id = request.getParameter("user_request_id");
-		Integer user_request_id = Integer.parseInt(dirty_user_request_id);
-		
+		Integer user_request_id = null;
+		if(dirty_user_request_id != null) {
+			user_request_id = Integer.parseInt(dirty_user_request_id);
+		}
+
 		String dirty_serial_id = request.getParameter("serial_id");
-		String serial_id = dirty_serial_id.replaceAll("/[^A-Z0-9 ]/", "");
+		String serial_id = null;
+		if(dirty_serial_id != null) {
+			serial_id = dirty_serial_id.replaceAll("/[^A-Z0-9 ]/", "");
+		}
 		
 		//set comment
 		String request_comment = request.getParameter("request_comment");
