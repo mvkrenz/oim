@@ -183,7 +183,7 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 				ticket.description += message+"\n\n";
 				ticket.description += e.getMessage()+"\n\n";
 				ticket.description += "The alert has been sent to GOC alert for furthre actions on this issue.";
-				ticket.ccs.add(StaticConfig.conf.getProperty("certrequest.fail.assignee"));
+				ticket.assignees.add(StaticConfig.conf.getProperty("certrequest.fail.assignee"));
 				ticket.nextaction = "GOC developer to investigate";
 				fp.update(ticket, rec.goc_ticket_id);
 			}
