@@ -1,37 +1,22 @@
 package edu.iu.grid.oim.view.divrep.form;
 
-import java.io.PrintWriter;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 
 import org.apache.log4j.Logger;
 
-import com.divrep.DivRep;
 import com.divrep.DivRepEvent;
-import com.divrep.DivRepEventListener;
-import com.divrep.common.DivRepButton;
-import com.divrep.common.DivRepButton.Style;
 import com.divrep.common.DivRepForm;
-import com.divrep.common.DivRepFormElement;
-import com.divrep.common.DivRepSelectBox;
-import com.divrep.common.DivRepStaticContent;
 import com.divrep.common.DivRepTextBox;
 import com.divrep.validator.DivRepUniqueValidator;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.model.UserContext;
-import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.GridAdminModel;
-import edu.iu.grid.oim.model.db.VOModel;
-import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.GridAdminRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
-import edu.iu.grid.oim.view.divrep.ContactEditor;
-import edu.iu.grid.oim.view.divrep.ContactEditor.Rank;
 import edu.iu.grid.oim.view.divrep.GridAdmin;
 import edu.iu.grid.oim.view.divrep.form.validator.DomainNameValidator;
 

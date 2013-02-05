@@ -57,7 +57,7 @@ public class GridAdmin extends DivRepFormElement {
 			contact = new ContactEditor(this, new ContactModel(context), false, false);
 			//contact.setLabel("GridAdmin Contacts");		
 			contact.setMinContacts(Rank.Primary, 1);
-			contact.setMaxContacts(Rank.Primary, 10); //just a random limit
+			contact.setMaxContacts(Rank.Primary, 30); //just a random limit
 			contact.setShowRank(false);
 		
 			if(recs != null && recs.size() > 0) {
