@@ -16,8 +16,11 @@ import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
 
 import javax.security.auth.x500.X500Principal;
 import javax.servlet.http.HttpSession;
@@ -221,11 +224,30 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 		five_years_ago.add(Calendar.YEAR, -5);
 		if(last.time.before(five_years_ago.getTime())) return false;
 		
-		if(!StaticConfig.isDebug()) {
-			//will expire in less than 6 month?
-			Calendar six_month_future = Calendar.getInstance();
-			six_month_future.add(Calendar.MONTH, 6);
-			if(rec.cert_notafter.after(six_month_future.getTime())) return false;
+		//will expire in less than 6 month?
+		Calendar six_month_future = Calendar.getInstance();
+		six_month_future.add(Calendar.MONTH, 6);
+		if(rec.cert_notafter.after(six_month_future.getTime()))  {
+			//nope... but, if it's in debug mode, let user(testers) renew it
+			if(!StaticConfig.isDebug()) {
+				return false;
+			}
+		}
+		
+		//email hasn't changed since issue?
+		try {
+			java.security.cert.Certificate[] chain = CertificateManager.parsePKCS7(rec.cert_pkcs7);
+			X509Certificate c0 = (X509Certificate)chain[0];
+			Collection<List<?>> list = c0.getSubjectAlternativeNames();
+			Iterator<List<?>> it = list.iterator();
+			List<?> first = it.next();
+			String cert_email = (String)first.get(1);
+			if(!cert_email.equals(contact.primary_email) && !cert_email.equals(contact.secondary_email)) {
+				//doesn't match primary nor secondary email
+				return false;
+			}
+		} catch (Exception e) {
+			log.error("CertificateRequestUserModel::canRenw() :: Failed to parse pkcs7 to test email address (skipping this test). id:" + rec.id, e);
 		}
 	
 		//all good
