@@ -3,6 +3,7 @@ package edu.iu.grid.oim.model.db.record;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.Date;
 
 import edu.iu.grid.oim.lib.StringArray;
 
@@ -35,6 +36,9 @@ public class CertificateRequestHostRecord extends RecordBase {
 	public String status_note;
 	//public Integer gridadmin_contact_id;
 	public String goc_ticket_id;
+	
+	public Date cert_notbefore;
+	public Date cert_notafter;
 	
 	//load from existing record
 	public CertificateRequestHostRecord(ResultSet rs) throws SQLException {

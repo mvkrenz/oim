@@ -43,6 +43,7 @@ import edu.iu.grid.oim.model.cert.ICertificateSigner.IHostCertificatesCallBack;
 import edu.iu.grid.oim.model.db.CertificateRequestModelBase.LogDetail;
 import edu.iu.grid.oim.model.db.record.CertificateRequestHostRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
+import edu.iu.grid.oim.model.db.record.DNRecord;
 import edu.iu.grid.oim.model.db.record.GridAdminRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
 import edu.iu.grid.oim.model.exceptions.CertificateRequestException;
@@ -205,19 +206,19 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 								chain = CertificateManager.parsePKCS7(cert.pkcs7);
 								
 								X509Certificate c0 = (X509Certificate)chain[0];
-								Date cert_notafter = c0.getNotAfter();
-								Date cert_notbefore = c0.getNotBefore();
+								cert.notafter = c0.getNotAfter();
+								cert.notbefore = c0.getNotBefore();
 								
 								//do a bit of validation
 								Calendar today = Calendar.getInstance();
-								if(Math.abs(today.getTimeInMillis() - cert_notbefore.getTime()) > 1000*3600*24) {
+								if(Math.abs(today.getTimeInMillis() - cert.notbefore.getTime()) > 1000*3600*24) {
 									log.warn("Host certificate issued for request "+rec.id+"(idx:"+idx+") has cert_notbefore set too distance from current timestamp");
 								}
-								long dayrange = (cert_notafter.getTime() - cert_notbefore.getTime()) / (1000*3600*24);
+								long dayrange = (cert.notafter.getTime() - cert.notbefore.getTime()) / (1000*3600*24);
 								if(dayrange < 390 || dayrange > 405) {
 									log.warn("Host certificate issued for request "+rec.id+ "(idx:"+idx+")  has valid range of "+dayrange+" days (too far from 395 days)");
 								}
-							
+
 								//make sure dn starts with correct base
 								X500Principal dn = c0.getSubjectX500Principal();
 								String apache_dn = CertificateManager.X500Principal_to_ApacheDN(dn);
@@ -282,6 +283,11 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 						
 						++idx;
 					}
+					
+					//set cert expiriation dates using the first certificate issued
+					ICertificateSigner.Certificate cert = certs[0];
+					rec.cert_notafter = cert.notafter;
+					rec.cert_notbefore = cert.notbefore;
 					
 					//update status
 					try {
@@ -1189,5 +1195,102 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 	CertificateRequestHostRecord createRecord() throws SQLException {
 		// TODO Auto-generated method stub
 		return null;
+	}
+	
+	public ArrayList<CertificateRequestHostRecord> findUpdatedIn(Integer morethan, Integer lessthan) throws SQLException {
+		ArrayList<CertificateRequestHostRecord> recs = new ArrayList<CertificateRequestHostRecord>();
+		
+		ResultSet rs = null;
+		Connection conn = connectOIM();
+		Statement stmt = conn.createStatement();
+		stmt.execute("SELECT * FROM "+table_name + " WHERE status = 'ISSUED' AND -----condition for expiration date-------");
+    	rs = stmt.getResultSet();
+    	while(rs.next()) {
+    		recs.add(new CertificateRequestHostRecord(rs));
+    	}
+	    stmt.close();
+	    conn.close();
+	    return recs;
+	}
+	
+	public void notifyExpiringIn(Integer days_less_than) throws SQLException {
+		final SimpleDateFormat dformat = new SimpleDateFormat();
+		dformat.setTimeZone(auth.getTimeZone());
+		
+		ContactModel cmodel = new ContactModel(context);
+		
+		//process host certificate requests
+		for(CertificateRequestHostRecord rec : findExpiringIn(days_less_than)) {
+			ContactRecord requester = cmodel.get(rec.requester_contact_id);
+			
+			//user can't renew host certificate, so instead of keep notifying, let's just notify only once by limiting the time window
+			//when notification can be sent out
+			Calendar today = Calendar.getInstance();
+			if((rec.cert_notafter.getTime() - today.getTimeInMillis()) < 1000*3600*24*23) {
+				log.info("Aborting expiration notification for host certificate " + rec.id + " - it's expiring in less than 23 days");
+				continue;
+			}
+			
+			//send notification
+			Footprints fp = new Footprints(context);
+			FPTicket ticket = fp.new FPTicket();
+			ticket.description = "Dear " + requester.name + ",\n\n";
+			ticket.description += "Your host certificates requested in this ticket will expire in "+days_less_than+" days\n\n";
+			
+			//ArrayList<CertificateRequestModelBase<CertificateRequestHostRecord>.LogDetail> logs = getLogs(CertificateRequestHostModel.class, rec.id);
+			ticket.description += "Please request for new host certificate(s) for replacements.\n\n";
+			
+			ticket.description += "Please visit "+getTicketUrl(rec.id)+" for more details.\n\n";
+			
+			//TODO - clear CC list (or suppress cc-email)
+			//I don't have to reopen the ticket since this is one time notification
+			fp.update(ticket, rec.goc_ticket_id);
+			
+			log.info("updated goc ticket : " + rec.goc_ticket_id + " to notify expiring host certificate");
+		}
+	}
+	
+	public ArrayList<CertificateRequestHostRecord> findExpiringIn(Integer days) throws SQLException {
+		ArrayList<CertificateRequestHostRecord> recs = new ArrayList<CertificateRequestHostRecord>();
+		
+		ResultSet rs = null;
+		Connection conn = connectOIM();
+		Statement stmt = conn.createStatement();
+		stmt.execute("SELECT * FROM "+table_name + " WHERE status = '"+CertificateRequestStatus.ISSUED+"' AND CURDATE() > DATE_SUB( cert_notafter, INTERVAL "+days+" DAY )");
+    	rs = stmt.getResultSet();
+    	while(rs.next()) {
+    		recs.add(new CertificateRequestHostRecord(rs));
+    	}
+	    stmt.close();
+	    conn.close();
+	    return recs;
+	}
+
+	public void processExpired() throws SQLException {
+		
+		//search for expired certificates
+		ResultSet rs = null;
+		Connection conn = connectOIM();
+		Statement stmt = conn.createStatement();
+	    if (stmt.execute("SELECT * FROM "+table_name+ " WHERE status = '"+CertificateRequestStatus.ISSUED+"' AND cert_notafter < CURDATE()")) {
+	    	rs = stmt.getResultSet();
+	    	
+	    	while(rs.next()) {
+	    		CertificateRequestHostRecord rec = new CertificateRequestHostRecord(rs);
+    			rec.status = CertificateRequestStatus.EXPIRED;
+	    		context.setComment("Certificate is no longer valid.");
+    			super.update(get(rec.id), rec);
+    			
+				// update ticket
+				Footprints fp = new Footprints(context);
+				FPTicket ticket = fp.new FPTicket();
+				ticket.description = "Certificate(s) has been expired.";
+				fp.update(ticket, rec.goc_ticket_id);
+				
+				log.info("sent expiration notification for user certificate request: " + rec.id + " (ticket id:"+rec.goc_ticket_id+")");
+			}
+	    }	
+	    stmt.close();
+	    conn.close();
 	}
 }

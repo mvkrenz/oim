@@ -118,6 +118,8 @@ public class Authorization {
 		log.debug("Request received from " + remoteaddr);
 		if(remoteaddr.equals("127.0.0.1") /*|| remoteaddr.startsWith("129.79.53.")*/) { 
 			usertype = UserType.LOCAL;
+		} else if(StaticConfig.isDebug() && remoteaddr.equals("192.168.1.75")) {
+			usertype = UserType.LOCAL;
 		} else {
 			//figure out usertype from SSL ENV (if provided)
 			/*

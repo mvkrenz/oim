@@ -1,5 +1,7 @@
 package edu.iu.grid.oim.model.cert;
 
+import java.util.Date;
+
 //Interface for certificate authority
 public interface ICertificateSigner {
 	
@@ -30,6 +32,10 @@ public interface ICertificateSigner {
 		public String certificate; //pkcs7 string
 		public String intermediate; //pkcs7 string
 		public String pkcs7; //pkcs7 string
+		
+		//expiration dates
+		public Date notbefore;
+		public Date notafter;
 	}
 	
 	interface IHostCertificatesCallBack {

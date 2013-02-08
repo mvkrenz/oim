@@ -402,7 +402,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 			ticket.description = "Dear " + requester.name + ",\n\n";
 			ticket.description += "Your user certificate request has been approved.\n\n";
 			ticket.description += "> " + context.getComment();
-			ticket.description += "\n\nTo retrieve your certificate please visit " + getTicketUrl(rec) + " and click on Issue Certificate button.";
+			ticket.description += "\n\nTo retrieve your certificate please visit " + getTicketUrl(rec.id) + " and click on Issue Certificate button.";
 			ticket.nextaction = "Requester to download certificate"; // NAD will be set 7 days from today by default
 			fp.update(ticket, rec.goc_ticket_id);
 		} catch (SQLException e) {
@@ -586,7 +586,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 		} else {
 			ticket.description = "Guest user with IP:" + context.getRemoteAddr() + " has requested revocation of this certificate request.";		
 		}
-		ticket.description += "\n\nPlease approve / disapporove this request at " + getTicketUrl(rec);
+		ticket.description += "\n\nPlease approve / disapporove this request at " + getTicketUrl(rec.id);
 		ticket.nextaction = "RA to process"; //nad will be set to 7 days from today by default
 		ticket.status = "Engineering"; //probably need to reopen
 		fp.update(ticket, rec.goc_ticket_id);
@@ -931,36 +931,69 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 		ResultSet rs = null;
 		Connection conn = connectOIM();
 		Statement stmt = conn.createStatement();
-	    if (stmt.execute("SELECT * FROM "+table_name+ " WHERE cert_notafter < CURDATE()")) {
+	    if (stmt.execute("SELECT * FROM "+table_name+ " WHERE status = '"+CertificateRequestStatus.ISSUED+"' AND cert_notafter < CURDATE()")) {
 	    	rs = stmt.getResultSet();
 	    	
 	    	DNModel dnmodel = new DNModel(context);
 	    	
 	    	while(rs.next()) {
 	    		CertificateRequestUserRecord rec = new CertificateRequestUserRecord(rs);
-	    		if(rec.status.equals(CertificateRequestStatus.ISSUED)) {
-	    			rec.status = CertificateRequestStatus.EXPIRED;
-	    			super.update(get(rec.id), rec);
-	    			
-	    			//disable DN (TODO -- Not yet tested..)
-	    			DNRecord dnrec = dnmodel.getByDNString(rec.dn);
-	    			if(dnrec != null) {
-	    				dnrec.disable = true;
-	    				dnmodel.update(dnrec);
-	    			}
-	    			
-					// update ticket
-					Footprints fp = new Footprints(context);
-					FPTicket ticket = fp.new FPTicket();
-					ticket.description = "Certificate has been expired";
-					fp.update(ticket, rec.goc_ticket_id);
-	    		}
+    			rec.status = CertificateRequestStatus.EXPIRED;
+	    		context.setComment("Certificate is no longer valid.");
+    			super.update(get(rec.id), rec);
+    			
+    			//disable DN (TODO -- Not yet tested..)
+    			DNRecord dnrec = dnmodel.getByDNString(rec.dn);
+    			if(dnrec != null) {
+    				dnrec.disable = true;
+    				dnmodel.update(dnrec);
+    			}
+    			
+				// update ticket
+				Footprints fp = new Footprints(context);
+				FPTicket ticket = fp.new FPTicket();
+				ticket.description = "Certificate has been expired";
+				fp.update(ticket, rec.goc_ticket_id);
+				
+				log.info("sent expiration notification for user certificate request: " + rec.id + " (ticket id:"+rec.goc_ticket_id+")");
 			}
 	    }	
 	    stmt.close();
 	    conn.close();
 	}
 	
+	public void notifyExpiringIn(Integer days) throws SQLException {
+		final SimpleDateFormat dformat = new SimpleDateFormat();
+		dformat.setTimeZone(auth.getTimeZone());
+		
+		ContactModel cmodel = new ContactModel(context);
+		
+		for(CertificateRequestUserRecord rec : findExpiringIn(days)) {
+			
+			ContactRecord requester = cmodel.get(rec.requester_contact_id);
+			Date expiration_date = rec.cert_notafter;
+			
+			//send notification
+			Footprints fp = new Footprints(context);
+			FPTicket ticket = fp.new FPTicket();
+			ticket.description = "Dear " + requester.name + ",\n\n";
+			ticket.description += "Your user certificate ("+rec.dn+") will expire on "+dformat.format(expiration_date)+"\n\n";
+			
+			//can user renew?
+			ArrayList<CertificateRequestModelBase<CertificateRequestUserRecord>.LogDetail> logs =
+					getLogs(CertificateRequestUserModel.class, rec.id);
+			if(canRenew(rec, logs)) {	
+				ticket.description += "Please renew by visiting "+getTicketUrl(rec.id)+"\n\n";
+				ticket.status = "Engineering"; //reopen it - until user renew
+			} else {
+				ticket.description += "Please request for new user certificate by visiting https://oim.grid.iu.edu/oim/certificaterequestuser\n\n";
+			}
+			//TODO - clear CC list (or suppress cc-emailing)
+			fp.update(ticket, rec.goc_ticket_id);
+			
+			log.info("updated goc ticket : " + rec.goc_ticket_id + " to notify expiring user certificate");
+		}
+	}
 	//return requests that I am ra/sponsor
 	public ArrayList<CertificateRequestUserRecord> getIApprove(Integer id) throws SQLException {
 		ArrayList<CertificateRequestUserRecord> recs = new ArrayList<CertificateRequestUserRecord>();
@@ -1002,6 +1035,22 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 		Connection conn = connectOIM();
 		Statement stmt = conn.createStatement();
 		stmt.execute("SELECT * FROM "+table_name + " WHERE requester_contact_id = " + contact_id);	
+    	rs = stmt.getResultSet();
+    	while(rs.next()) {
+    		recs.add(new CertificateRequestUserRecord(rs));
+    	}
+	    stmt.close();
+	    conn.close();
+	    return recs;
+	}
+	
+	public ArrayList<CertificateRequestUserRecord> findExpiringIn(Integer days) throws SQLException {
+		ArrayList<CertificateRequestUserRecord> recs = new ArrayList<CertificateRequestUserRecord>();
+		
+		ResultSet rs = null;
+		Connection conn = connectOIM();
+		Statement stmt = conn.createStatement();
+		stmt.execute("SELECT * FROM "+table_name + " WHERE status = '"+CertificateRequestStatus.ISSUED+"' AND CURDATE() > DATE_SUB( cert_notafter, INTERVAL "+days+" DAY )");
     	rs = stmt.getResultSet();
     	while(rs.next()) {
     		recs.add(new CertificateRequestUserRecord(rs));
@@ -1073,14 +1122,14 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
         return x500NameBld.build();
     }
     
-    private String getTicketUrl(CertificateRequestUserRecord rec) {
+    private String getTicketUrl(Integer ticket_id) {
     	String base;
     	if(StaticConfig.isDebug()) {
     		base = "https://oim-itb.grid.iu.edu/oim/";
     	} else {
     		base = "https://oim.grid.iu.edu/oim/";
     	}
-		return base + "certificateuser?id=" + rec.id;
+		return base + "certificateuser?id=" + ticket_id;
     }
     
     //NO-AC 
@@ -1236,7 +1285,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 		}
 		ticket.description = "Dear " + ranames + " (" + vrec.name + " VO RA/Sponsors),\n\n";
 		ticket.description += auth_status + requester.name + " <"+requester.primary_email+"> has requested a user certificate. ";
-		ticket.description += "Please determine this request's authenticity, and approve / disapprove at " + getTicketUrl(rec);
+		ticket.description += "Please determine this request's authenticity, and approve / disapprove at " + getTicketUrl(rec.id);
 		/*
 		if(StaticConfig.isDebug()) {
 			ticket.assignees.add("hayashis");
@@ -1311,7 +1360,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 			VORecord vrec = vmodel.get(rec.vo_id);
 			ticket.description = "Dear " + ranames + " (" + vrec.name + " VO RA/Sponsors),\n\n";
 			ticket.description += auth_status + requester.name + " <"+requester.primary_email+"> has re-requested a user certificate. ";
-			ticket.description += "Please determine this request's authenticity, and approve / disapprove at " + getTicketUrl(rec);
+			ticket.description += "Please determine this request's authenticity, and approve / disapprove at " + getTicketUrl(rec.id);
 			ticket.assignees.add(StaticConfig.conf.getProperty("certrequest.user.assignee"));
 			ticket.nextaction = "RA/Sponsors to verify requester";	 //NAD will be set to 7 days in advance by default
 			ticket.status = "Engineering"; //I need to reopen resolved ticket.

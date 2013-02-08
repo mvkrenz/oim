@@ -3,7 +3,9 @@ package edu.iu.grid.oim.servlet;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -14,8 +16,10 @@ import org.json.JSONObject;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.AuthorizationException;
+import edu.iu.grid.oim.lib.Footprints;
 import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.lib.StringArray;
+import edu.iu.grid.oim.lib.Footprints.FPTicket;
 import edu.iu.grid.oim.model.CertificateRequestStatus;
 import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.CertificateRequestModelBase;
@@ -130,6 +134,8 @@ public class RestServlet extends ServletBase  {
 				doResetYearlyQuota(request, reply);
 			} else if(action.equals("find_expired_cert_request")) {
 				doFindExpiredCertificateRequests(request, reply);
+			} else if(action.equals("notify_expiring_cert_request")) {
+				doNotifyExpiringCertificateRequest(request, reply);
 			} else {
 				reply.status = Status.FAILED;
 				reply.detail = "No such action";
@@ -805,12 +811,40 @@ public class RestServlet extends ServletBase  {
 			throw new AuthorizationException("You can't access this interface from there");
 		}
 			
-		//process expired user certificates?
-		CertificateRequestUserModel model = new CertificateRequestUserModel(context);
+		CertificateRequestUserModel umodel = new CertificateRequestUserModel(context);
 		try {
-			model.processExpired();
+			umodel.processExpired();
 		} catch (SQLException e) {
-			throw new RestException("SQLException while processing expired certificates", e);
+			throw new RestException("SQLException while processing expired user certificates", e);
+		}
+
+		CertificateRequestHostModel hmodel = new CertificateRequestHostModel(context);
+		try {
+			hmodel.processExpired();
+		} catch (SQLException e) {
+			throw new RestException("SQLException while processing expired host certificates", e);
+		}
+	}
+	
+	private void doNotifyExpiringCertificateRequest(HttpServletRequest request, Reply reply) throws AuthorizationException, RestException {
+		UserContext context = new UserContext(request);	
+		Authorization auth = context.getAuthorization();
+		if(!auth.isLocal()) {
+			throw new AuthorizationException("You can't access this interface from there");
+		}
+		
+		CertificateRequestUserModel umodel = new CertificateRequestUserModel(context);
+		try {
+			umodel.notifyExpiringIn(30);
+		} catch (SQLException e) {
+			throw new RestException("SQLException while processing expired user certificates", e);
+		}
+		
+		CertificateRequestHostModel hmodel = new CertificateRequestHostModel(context);
+		try {
+			hmodel.notifyExpiringIn(30);
+		} catch (SQLException e) {
+			throw new RestException("SQLException while processing expired user certificates", e);
 		}
 	}
 }
