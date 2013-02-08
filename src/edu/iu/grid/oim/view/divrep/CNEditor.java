@@ -12,6 +12,7 @@ import com.divrep.common.DivRepTextBox;
 import com.divrep.validator.DivRepIValidator;
 
 import edu.iu.grid.oim.lib.StaticConfig;
+import edu.iu.grid.oim.view.divrep.form.validator.CNValidator;
 
 public class CNEditor extends DivRepFormElement<String> {
 
@@ -23,30 +24,7 @@ public class CNEditor extends DivRepFormElement<String> {
 		super(parent);
 		cn = new DivRepTextBox(this);
 		cn.setWidth(200);
-		cn.addValidator(new DivRepIValidator<String>(){
-			boolean valid = true;
-			
-			@Override
-			public Boolean isValid(String value) {
-				//I am not sure how effective this is..
-				try {
-					X500Name name = new X500Name("CN="+value);
-				} catch(Exception e) {
-					return false;
-				}
-				
-				if(value.contains("/")) {
-					//we can't use / in apache format.. which is the format stored in our DB
-					return false;
-				}
-				
-				return true;
-			}
-
-			@Override
-			public String getErrorMessage() {
-				return "Failed to validate DN";
-			}});
+		cn.addValidator(new CNValidator());
 	}
 
 	@Override

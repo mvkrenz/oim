@@ -40,6 +40,7 @@ import edu.iu.grid.oim.model.exceptions.CertificateRequestException;
 
 import edu.iu.grid.oim.view.divrep.CNEditor;
 import edu.iu.grid.oim.view.divrep.DivRepSimpleCaptcha;
+import edu.iu.grid.oim.view.divrep.form.validator.CNValidator;
 import edu.iu.grid.oim.view.divrep.form.validator.PKIPassStrengthValidator;
 
 public class CertificateRequestUserForm extends DivRepForm
@@ -81,11 +82,12 @@ public class CertificateRequestUserForm extends DivRepForm
 		if(!auth.isUser()) {
 			new DivRepStaticContent(this, "<div class=\"alert\">This is a public certificate request form. If you are already an OIM user, please login first.</div>");
 			new DivRepStaticContent(this, "<h3>Contact Information</h3>");
-			new DivRepStaticContent(this, "<p class=\"help-block\">Following information will be used to contact you during the approval process as well as to issue your certificate.</p>");
+			new DivRepStaticContent(this, "<p class=\"help-block\">Following information will be used to issue your new user certificate, and also used to contact you during the approval process.</p>");
 					
 			fullname = new DivRepTextBox(this);
 			fullname.setLabel("Full Name");
 			fullname.setRequired(true);
+			fullname.addValidator(new CNValidator());
 
 			phone = new DivRepTextBox(this);
 			phone.setLabel("Phone");
