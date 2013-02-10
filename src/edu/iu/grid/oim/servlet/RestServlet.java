@@ -519,7 +519,7 @@ public class RestServlet extends ServletBase  {
 			}
 			
 			//load log
-			ArrayList<CertificateRequestModelBase<CertificateRequestUserRecord>.LogDetail> logs = model.getLogs(CertificateRequestUserModel.class, user_request_id);
+			ArrayList<CertificateRequestModelBase<CertificateRequestUserRecord>.LogDetail> logs = model.getLogs(CertificateRequestUserModel.class, rec.id);
 			/*
 			LogDetail approve_log = model.getLastApproveLog(logs);
 			if(approve_log == null) {
