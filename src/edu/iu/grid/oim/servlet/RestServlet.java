@@ -2,8 +2,9 @@ package edu.iu.grid.oim.servlet;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 import java.sql.SQLException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 
@@ -11,17 +12,17 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.log4j.Logger;
+import org.bouncycastle.cms.CMSException;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.AuthorizationException;
-import edu.iu.grid.oim.lib.Footprints;
 import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.lib.StringArray;
-import edu.iu.grid.oim.lib.Footprints.FPTicket;
 import edu.iu.grid.oim.model.CertificateRequestStatus;
 import edu.iu.grid.oim.model.UserContext;
+import edu.iu.grid.oim.model.cert.CertificateManager;
 import edu.iu.grid.oim.model.db.CertificateRequestModelBase;
 import edu.iu.grid.oim.model.db.CertificateRequestUserModel;
 import edu.iu.grid.oim.model.db.ConfigModel;
@@ -170,6 +171,8 @@ public class RestServlet extends ServletBase  {
 				doQuotaInfo(request, reply);
 			} else if(action.equals("user_info")) {
 				doUserInfo(request, reply);
+			} else if(action.equals("host_cert_exsql")) {
+				doHostCertExSQL(request, reply);
 			} else {
 				reply.status = Status.FAILED;
 				reply.detail = "No such action";
@@ -845,6 +848,43 @@ public class RestServlet extends ServletBase  {
 			hmodel.notifyExpiringIn(30);
 		} catch (SQLException e) {
 			throw new RestException("SQLException while processing expired user certificates", e);
+		}
+	}
+	
+	//this is used just once to populate missing cert expiration dates
+	private void doHostCertExSQL(HttpServletRequest request, Reply reply) throws AuthorizationException, RestException {
+		UserContext context = new UserContext(request);	
+		Authorization auth = context.getAuthorization();
+		if(!auth.isLocal()) {
+			throw new AuthorizationException("You can't access this interface from there");
+		}
+		
+		//pull all records that has no expiration dates set
+		CertificateRequestHostModel model = new CertificateRequestHostModel(context);
+		try  {
+			for(CertificateRequestHostRecord rec : model.findNullIssuedExpiration()) {
+				String[] pkc7s = rec.getPKCS7s();
+				java.security.cert.Certificate[] chain;
+				try {
+					chain = CertificateManager.parsePKCS7(pkc7s[0]);//grab first one
+					
+					X509Certificate c0 = (X509Certificate)chain[0];
+					Date notafter = c0.getNotAfter();
+					Date notbefore = c0.getNotBefore();
+					
+					java.text.SimpleDateFormat mysqlformat = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+					String sql = "UPDATE certificate_request_host SET cert_notafter = '"+mysqlformat.format(notafter)+"', cert_notbefore = '"+notbefore.toString()+"' WHERE id = "+rec.id+" LIMIT 1;";
+					reply.params.put(rec.id.toString(), sql);
+				} catch(CertificateException e) {
+					throw new RestException("SQLException while parsing pkcs7", e);		
+				} catch (CMSException e) {
+					throw new RestException("SQLException while running pkcs7", e);
+				} catch (IOException e) {
+					throw new RestException("SQLException while running pkcs7", e);
+				}
+			}
+		} catch (SQLException e) {
+			throw new RestException("SQLException while running doHostCertExSQL", e);
 		}
 	}
 }

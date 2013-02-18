@@ -1293,4 +1293,20 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 	    stmt.close();
 	    conn.close();
 	}
+
+	public  ArrayList<CertificateRequestHostRecord>  findNullIssuedExpiration() throws SQLException {
+		ArrayList<CertificateRequestHostRecord> recs = new ArrayList<CertificateRequestHostRecord>();
+		
+		ResultSet rs = null;
+		Connection conn = connectOIM();
+		Statement stmt = conn.createStatement();
+		stmt.execute("SELECT * FROM "+table_name + " WHERE status = '"+CertificateRequestStatus.ISSUED+"' AND (cert_notafter is NULL or cert_notbefore is NULL)");
+    	rs = stmt.getResultSet();
+    	while(rs.next()) {
+    		recs.add(new CertificateRequestHostRecord(rs));
+    	}
+	    stmt.close();
+	    conn.close();
+	    return recs;
+	}
 }

@@ -116,7 +116,7 @@ public class Authorization {
 		
 		String remoteaddr = request.getRemoteAddr();
 		log.debug("Request received from " + remoteaddr);
-		if(remoteaddr.equals("127.0.0.1") /*|| remoteaddr.startsWith("129.79.53.")*/) { 
+		if(remoteaddr.equals("127.0.0.1") || remoteaddr.equals("0:0:0:0:0:0:0:1") || remoteaddr.startsWith("192.168.")) { 
 			usertype = UserType.LOCAL;
 		} else if(StaticConfig.isDebug() && remoteaddr.equals("192.168.1.75")) {
 			usertype = UserType.LOCAL;
