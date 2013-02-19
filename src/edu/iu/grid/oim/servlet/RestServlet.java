@@ -873,7 +873,7 @@ public class RestServlet extends ServletBase  {
 					Date notbefore = c0.getNotBefore();
 					
 					java.text.SimpleDateFormat mysqlformat = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-					String sql = "UPDATE certificate_request_host SET cert_notafter = '"+mysqlformat.format(notafter)+"', cert_notbefore = '"+notbefore.toString()+"' WHERE id = "+rec.id+" LIMIT 1;";
+					String sql = "UPDATE certificate_request_host SET cert_notafter = '"+mysqlformat.format(notafter)+"', cert_notbefore = '"+mysqlformat.format(notbefore)+"' WHERE id = "+rec.id+" LIMIT 1;";
 					reply.params.put(rec.id.toString(), sql);
 				} catch(CertificateException e) {
 					throw new RestException("SQLException while parsing pkcs7", e);		
