@@ -26,6 +26,7 @@ import org.xml.sax.SAXException;
 
 import org.apache.log4j.Logger;
 
+//deprecated - user-agent-string.info is unreliable...
 //forward user to specified URL plus browser token
 public class BrowserJumpServlet extends ServletBase {
 	static Logger log = Logger.getLogger(BrowserJumpServlet.class);
