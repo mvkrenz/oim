@@ -1244,7 +1244,13 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 			
 			//TODO - clear CC list (or suppress cc-email)
 			//I don't have to reopen the ticket since this is one time notification
-			fp.update(ticket, rec.goc_ticket_id);
+			if(StaticConfig.isDebug()) {
+				log.debug("skipping (this is debug) ticket update on ticket : " + rec.goc_ticket_id + " to notify expiring host certificate");
+				log.debug(ticket.description);
+			} else {
+				fp.update(ticket, rec.goc_ticket_id);
+				log.info("updated goc ticket : " + rec.goc_ticket_id + " to notify expiring host certificate");
+			}
 			
 			log.info("updated goc ticket : " + rec.goc_ticket_id + " to notify expiring host certificate");
 		}
