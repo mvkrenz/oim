@@ -1010,10 +1010,18 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 			} else {
 				ticket.description += "Please request for new user certificate by visiting https://oim.grid.iu.edu/oim/certificaterequestuser\n\n";
 			}
-			//TODO - clear CC list (or suppress cc-emailing)
-			fp.update(ticket, rec.goc_ticket_id);
 			
-			log.info("updated goc ticket : " + rec.goc_ticket_id + " to notify expiring user certificate");
+			//TODO - clear CC list (or suppress cc-emailing)
+			
+			if(StaticConfig.isDebug()) {
+				log.debug("skipping (this is debug) ticket update on ticket : " + rec.goc_ticket_id + " to notify expiring user certificate");
+				log.debug(ticket.description);
+				log.debug(ticket.status);
+			} else {
+				fp.update(ticket, rec.goc_ticket_id);
+				log.info("updated goc ticket : " + rec.goc_ticket_id + " to notify expiring user certificate");
+			}
+		
 		}
 	}
 	//return requests that I am ra/sponsor
