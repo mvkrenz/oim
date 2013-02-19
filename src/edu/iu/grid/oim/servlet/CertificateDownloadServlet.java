@@ -5,8 +5,6 @@ import java.io.PrintWriter;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
-import java.security.SecureRandom;
 import java.security.cert.CertificateException;
 import java.sql.SQLException;
 
@@ -15,16 +13,11 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
-import org.bouncycastle.openssl.PEMWriter;
-
-import edu.iu.grid.oim.lib.Authorization;
-import edu.iu.grid.oim.lib.StringArray;
 import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.CertificateRequestHostModel;
 import edu.iu.grid.oim.model.db.CertificateRequestUserModel;
 import edu.iu.grid.oim.model.db.record.CertificateRequestHostRecord;
 import edu.iu.grid.oim.model.db.record.CertificateRequestUserRecord;
-import edu.iu.grid.oim.model.exceptions.CertificateRequestException;
 
 public class CertificateDownloadServlet extends ServletBase  {
 	private static final long serialVersionUID = 1L;
@@ -33,7 +26,11 @@ public class CertificateDownloadServlet extends ServletBase  {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{
 		UserContext context = new UserContext(request);
-		Authorization auth = context.getAuthorization();
+		if(!request.isSecure()) {
+			//force redirection to https - this page could transmit pkcs12
+			response.sendRedirect(context.getSecureUrl());
+			return;
+		}
 		
 		String type = request.getParameter("type");
 		String download = request.getParameter("download");

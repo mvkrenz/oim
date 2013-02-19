@@ -24,6 +24,11 @@ public class CertificateRequestUserServlet extends ServletBase  {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{
 		UserContext context = new UserContext(request);
+		if(!request.isSecure()) {
+			//force redirection to https - this form could transmit identity/encryption password
+			response.sendRedirect(context.getSecureUrl());
+			return;
+		}
 				
 		BootMenuView menuview = new BootMenuView(context, "certificate");
 		BootPage page = new BootPage(context, menuview, createContent(context), null);
