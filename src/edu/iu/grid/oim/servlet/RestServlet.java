@@ -233,7 +233,7 @@ public class RestServlet extends ServletBase  {
 				VOModel vmodel = new VOModel(context);
 				VORecord vo = vmodel.getByName(voname);
 				if(vo == null) {
-					log.warn("Failed to find user specified VO : " + voname + " .. ignoring for now - will throw later if VO context is needed");
+					log.info("Failed to find user specified VO : " + voname + " .. ignoring for now - will throw later if VO context is needed");
 				} else {
 					approver_vo_id = vo.id;
 				}
