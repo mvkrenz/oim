@@ -203,18 +203,18 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 		return null;
 	}
 	
-	//can a user renew the certificate immediately?
 	public boolean canRenew(CertificateRequestUserRecord rec, ArrayList<LogDetail> logs) {
+		if(!auth.isUser()) return false;	
+		return canRenew(rec, logs, auth.getContact());
+	}
+	//can a user renew the certificate immediately?
+	public boolean canRenew(CertificateRequestUserRecord rec, ArrayList<LogDetail> logs, ContactRecord contact) {
 		if(!canView(rec)) return false;
 		
 		//only issued request can be renewed
 		if(!rec.status.equals(CertificateRequestStatus.ISSUED)) return false;
 		
-		//logged in?
-		if(!auth.isUser()) return false;
-		
 		//original requester?
-		ContactRecord contact = auth.getContact();
 		if(!rec.requester_contact_id.equals(contact.id)) return false;
 
 		//approved within 5 years?
@@ -1004,7 +1004,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 			//can user renew?
 			ArrayList<CertificateRequestModelBase<CertificateRequestUserRecord>.LogDetail> logs =
 					getLogs(CertificateRequestUserModel.class, rec.id);
-			if(canRenew(rec, logs)) {	
+			if(canRenew(rec, logs, requester)) {	
 				ticket.description += "Please renew by visiting "+getTicketUrl(rec.id)+"\n\n";
 				ticket.status = "Engineering"; //reopen it - until user renew
 			} else {
