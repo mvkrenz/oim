@@ -759,7 +759,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 				FPTicket ticket = fp.new FPTicket();
 				ticket.description = "Failed to issue certificate\n\n";
 				ticket.description += message+"\n\n";
-				ticket.description += "The alert has been sent to GOC alert for furthre actions on this issue.";
+				ticket.description += "The alert has been sent to GOC alert for further actions on this issue.";
 				ticket.assignees.add(StaticConfig.conf.getProperty("certrequest.fail.assignee"));
 				ticket.nextaction = "GOC developer to investigate";
 				fp.update(ticket, rec.goc_ticket_id);
