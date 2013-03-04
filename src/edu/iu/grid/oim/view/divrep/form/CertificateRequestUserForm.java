@@ -12,6 +12,7 @@ import java.util.TimeZone;
 
 import org.apache.log4j.Logger;
 
+import com.divrep.DivRep;
 import com.divrep.DivRepEvent;
 import com.divrep.DivRepEventListener;
 import com.divrep.common.DivRepCheckBox;
@@ -21,6 +22,7 @@ import com.divrep.common.DivRepSelectBox;
 import com.divrep.common.DivRepStaticContent;
 import com.divrep.common.DivRepTextArea;
 import com.divrep.common.DivRepTextBox;
+import com.divrep.common.DivRepToggler;
 import com.divrep.validator.DivRepEmailValidator;
 import com.divrep.validator.DivRepIValidator;
 
@@ -275,11 +277,21 @@ public class CertificateRequestUserForm extends DivRepForm
 			log.error("Failed to load vo list while constructing certificat request form", e);
 		}
 		
+		DivRepToggler csr_help = new DivRepToggler(this) {
+			@Override
+			public DivRep createContent() {
+				return new DivRepStaticContent(this, 
+						"<div class=\"well\">A sponsor is a member of the VO who knows you and can vouch for your membership." +
+						"</div>");
+			}};
+		csr_help.setShowHtml("<u class=\"pull-right\">What is a Sponsor?</u>");
+		csr_help.setHideHtml("");
+		
 		request_comment = new DivRepTextArea(this);
 		request_comment.setLabel("Sponsor / Comments");
-		request_comment.setSampleValue("Please enter the name of sponsor who should approve this request, and any comments or request you'd like to make for RA agents / Sponsors.");
+		request_comment.setSampleValue("Please enter the name of a sponsor who should approve this request, and any comments or request you'd like to make for RA agents / Sponsors.");
 		request_comment.setRequired(true);
-		//new DivRepStaticContent(this, "<p class=\"alert\">* Please enter the name of sponsor who should approve this requestin the comment area above.</p>");
+		
 		
 		new DivRepStaticContent(this, "<h2>OSG Policy Agreement</h2>");
 		
