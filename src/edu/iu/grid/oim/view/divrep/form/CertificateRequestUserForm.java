@@ -12,6 +12,7 @@ import java.util.TimeZone;
 
 import org.apache.log4j.Logger;
 
+import com.divrep.DivRep;
 import com.divrep.DivRepEvent;
 import com.divrep.DivRepEventListener;
 import com.divrep.common.DivRepCheckBox;
@@ -21,6 +22,7 @@ import com.divrep.common.DivRepSelectBox;
 import com.divrep.common.DivRepStaticContent;
 import com.divrep.common.DivRepTextArea;
 import com.divrep.common.DivRepTextBox;
+import com.divrep.common.DivRepToggler;
 import com.divrep.validator.DivRepEmailValidator;
 import com.divrep.validator.DivRepIValidator;
 
@@ -237,10 +239,19 @@ public class CertificateRequestUserForm extends DivRepForm
 			
 		new DivRepStaticContent(this, "<h3>Sponsor</h3>");
 		new DivRepStaticContent(this, "<p class=\"help-block\">Please select VO that should approve your request.</p>");
-		new DivRepStaticContent(this, "<p class=\"muted\">If you do not know which VO to select, please open a <a href=\"https://ticket.grid.iu.edu\">GOC Ticket</a> for an assistance.</p>");
-		new DivRepStaticContent(this, "<p class=\"muted\">If your VO does not appear, it may not be operational in the OSG PKI at this time. You may continue to use the <a href=\"https://pki1.doegrids.org/ca\">DOE Grids PKI</a></p>");
-		new DivRepStaticContent(this, "<p class=\"muted\">If you just need to access OSG secure web servers (OIM, DocDB, etc.), you may select the <b>MIS</b> VO.</p>");
-		
+		DivRepToggler csr_help = new DivRepToggler(this) {
+			@Override
+			public DivRep createContent() {
+				return new DivRepStaticContent(this, 
+						"<div class=\"well\">"+
+						"<p class=\"\">If you do not know which VO to select, please open a <a href=\"https://ticket.grid.iu.edu\">GOC Ticket</a> for an assistance.</p>" +
+						"<p class=\"\">If your VO does not appear, it may not be operational in the OSG PKI at this time. You may continue to use the <a href=\"https://pki1.doegrids.org/ca\">DOE Grids PKI</a></p>" +
+						"<p class=\"\">If you just need to access OSG secure web servers (OIM, DocDB, etc.), you may select the <b>MIS</b> VO.</p>" +
+						"</div>");
+			}};
+		csr_help.setShowHtml("<u class=\"pull-right\">Help me choose</u>");
+		csr_help.setHideHtml("");
+
 		VOModel vo_model = new VOModel(context);
 		VOContactModel model = new VOContactModel(context);
 		LinkedHashMap<Integer, String> keyvalues = new LinkedHashMap();
@@ -270,6 +281,21 @@ public class CertificateRequestUserForm extends DivRepForm
 			vo = new DivRepSelectBox(this, keyvalues);
 			vo.setLabel("Virtual Organization");
 			vo.setRequired(true);
+			vo.addEventListener(new DivRepEventListener() {
+				@Override
+				public void handleEvent(DivRepEvent event) {
+					//lookup sponsor and if there is one - then require user to select one
+					/*
+					try {
+						ArrayList<ContactRecord> sponsors = getSponsor(Integer.parseInt(event.value));
+					} catch (NumberFormatException e) {
+						
+					} catch (SQLException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					*/
+				}});
 			
 		} catch (SQLException e) {
 			log.error("Failed to load vo list while constructing certificat request form", e);
@@ -300,6 +326,21 @@ public class CertificateRequestUserForm extends DivRepForm
 			public String getErrorMessage() {
 				return "You must agree to these policies";
 			}});
+	}
+	
+	protected ArrayList<ContactRecord> getSponsor(Integer vo_id) throws SQLException {
+		VOContactModel model = new VOContactModel(context);
+		ContactModel cmodel = new ContactModel(context);
+		ArrayList<ContactRecord> sponsors = new ArrayList<ContactRecord>();
+		ArrayList<VOContactRecord> crecs = model.getByVOID(vo_id);
+		for(VOContactRecord crec : crecs) {
+			if(crec.contact_type_id.equals(11) && //RA
+				(crec.contact_rank_id.equals(3)) ) { //sponsors
+				ContactRecord sponsor = cmodel.get(crec.contact_id);
+				sponsors.add(sponsor);
+			}
+		}
+		return sponsors;
 	}
 
 	protected void onEvent(DivRepEvent e) {
