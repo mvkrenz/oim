@@ -276,8 +276,10 @@ public class CertificateRequestUserForm extends DivRepForm
 		}
 		
 		request_comment = new DivRepTextArea(this);
-		request_comment.setLabel("Comments");
-		request_comment.setSampleValue("Please enter any comments, or request you'd like to make for RA agents / Sponsors.");
+		request_comment.setLabel("Sponsor / Comments");
+		request_comment.setSampleValue("Please enter the name of sponsor who should approve this request, and any comments or request you'd like to make for RA agents / Sponsors.");
+		request_comment.setRequired(true);
+		//new DivRepStaticContent(this, "<p class=\"alert\">* Please enter the name of sponsor who should approve this requestin the comment area above.</p>");
 		
 		new DivRepStaticContent(this, "<h2>OSG Policy Agreement</h2>");
 		
