@@ -240,7 +240,7 @@ public class CertificateRequestUserForm extends DivRepForm
 		new DivRepStaticContent(this, "<h3>Sponsor</h3>");
 		new DivRepStaticContent(this, "<p class=\"help-block\">Please select VO that should approve your request.</p>");
 		new DivRepStaticContent(this, "<p class=\"muted\">If you do not know which VO to select, please open a <a href=\"https://ticket.grid.iu.edu\">GOC Ticket</a> for an assistance.</p>");
-		new DivRepStaticContent(this, "<p class=\"muted\">If your VO does not appear, it may not be operational in the OSG PKI at this time. You may continue to use the <a href=\"https://pki1.doegrids.org/ca\">DOE Grids PKI</a></p>");
+		new DivRepStaticContent(this, "<p class=\"muted\">If your VO does not appear, it may not be operational in the OSG PKI at this time. You may continue to use the <a href=\"https://pki1.doegrids.org/ca\">DOE Grids PKI</a> until March 23rd.</p>");
 		new DivRepStaticContent(this, "<p class=\"muted\">If you just need to access OSG secure web servers (OIM, DocDB, etc.), you may select the <b>MIS</b> VO.</p>");
 		
 		VOModel vo_model = new VOModel(context);
