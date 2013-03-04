@@ -239,18 +239,20 @@ public class CertificateRequestUserForm extends DivRepForm
 			
 		new DivRepStaticContent(this, "<h3>Sponsor</h3>");
 		new DivRepStaticContent(this, "<p class=\"help-block\">Please select VO that should approve your request.</p>");
-		DivRepToggler csr_help = new DivRepToggler(this) {
+		DivRepToggler help = new DivRepToggler(this) {
 			@Override
 			public DivRep createContent() {
 				return new DivRepStaticContent(this, 
 						"<div class=\"well\">"+
-						"<p class=\"\">If you do not know which VO to select, please open a <a href=\"https://ticket.grid.iu.edu\">GOC Ticket</a> for an assistance.</p>" +
-						"<p class=\"\">If your VO does not appear, it may not be operational in the OSG PKI at this time. You may continue to use the <a href=\"https://pki1.doegrids.org/ca\">DOE Grids PKI</a></p>" +
+						"<p class=\"\">If you do not know which VO to select, please open a <a target=\"_blank\" href=\"https://ticket.grid.iu.edu\">GOC Ticket</a> for an assistance.</p>" +
+						"<p class=\"\">If your VO does not appear, it may not have RA agents assigned to it.</p>" +
 						"<p class=\"\">If you just need to access OSG secure web servers (OIM, DocDB, etc.), you may select the <b>MIS</b> VO.</p>" +
+						"<h4>What is a sponsor?</h4>" +
+						"A sponsor is a member of the VO who knows you and can vouch for your membership." +
 						"</div>");
 			}};
-		csr_help.setShowHtml("<u class=\"pull-right\">Help me choose</u>");
-		csr_help.setHideHtml("");
+			help.setShowHtml("<u class=\"pull-right\">Help me choose</u>");
+			help.setHideHtml("");
 
 		VOModel vo_model = new VOModel(context);
 		VOContactModel model = new VOContactModel(context);
