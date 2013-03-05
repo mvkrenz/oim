@@ -91,7 +91,7 @@ public class VOFormDE extends DivRepForm
 		ContactTypes.add(new ContactTypeRecord.Info(3, "Contacts for ticketing and assorted issues. This is typically a user/application support person or a help desk"));
 		ContactTypes.add(new ContactTypeRecord.Info(2, "Security notifications sent out by the OSG security team are sent to primary and secondary virtual organization security contacts"));
 		ContactTypes.add(new ContactTypeRecord.Info(5, "Contacts who do not fall under any of the above types but would like to be able to edit this virtual organization can be added as miscellaneous contact"));
-		ContactTypes.add(new ContactTypeRecord.Info(11, "RA (Registration Authority) agent who can approve user certificate requests."));
+		ContactTypes.add(new ContactTypeRecord.Info(11, "RA (Registration Authority) agent who can approve user certificate requests. Only PKI staff can update this information (except RA agent can edit sponsors)"));
 	}
 	
 	private HashMap<Integer, ContactEditor> contact_editors = new HashMap();
@@ -386,6 +386,7 @@ public class VOFormDE extends DivRepForm
 
 		///////////////////////////////////////////////////////////////////////////////////////////
 		new DivRepStaticContent(this, "<h2>OASIS Information</h2>");
+		new DivRepStaticContent(this, "<p class=\"help-block\">Only OASIS Administrator can update this information. Please contact GOC if you need assistance.</p>");
 		use_oasis = new DivRepCheckBox(this);
 		use_oasis.setLabel("OASIS Enabled");
 		use_oasis.setValue(rec.use_oasis);
@@ -400,6 +401,10 @@ public class VOFormDE extends DivRepForm
 			users = vooumodel.getByVOID(rec.id);
 		}
 		oasis_users = createOASISUserEditor(users);
+		if(!auth.allows("admin_oasis")) {
+			oasis_users.setDisabled(true);
+			use_oasis.setDisabled(true);	
+		}
 		showHideOasisUsers();
 		
 		///////////////////////////////////////////////////////////////////////////////////////////
