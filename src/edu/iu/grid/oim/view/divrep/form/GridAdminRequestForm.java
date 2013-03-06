@@ -61,22 +61,6 @@ public class GridAdminRequestForm extends BootDialogForm {
 				}
 			});
 			for(VORecord vo_rec : recs) {
-				/*
-				//check if the VO has at least 1 ra(primary or secondary) specified
-				ArrayList<VOContactRecord> crecs = model.getByVOID(vo_rec.id);
-				boolean hasra = false;
-				for(VOContactRecord crec : crecs) {
-					if(crec.contact_type_id.equals(11) && //RA
-						(crec.contact_rank_id.equals(1) || crec.contact_rank_id.equals(2))) { //primary or secondary
-						//ContactRecord contactrec = cmodel.get(crec.contact_id);
-						hasra = true;
-						break;
-					}
-				}
-				if(hasra) {
-					keyvalues.put(vo_rec.id, vo_rec.name);
-				}
-				*/
 				keyvalues.put(vo_rec.id, vo_rec.name);
 			}
 			new DivRepStaticContent(this, "<p class=\"help-block\">Please select VO that requested domain is part of.</p>");

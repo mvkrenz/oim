@@ -430,7 +430,7 @@ public class ContactEditor extends DivRepFormElement<HashMap<ContactRank, ArrayL
 		if(show_rank) {
 			out.print("<th><div class='contact_rank contact_"+rank+"'>"+rank+"</div></th>");
 		}
-		if(selected.size() == max || isDisabled()) {
+		if(selected.size() >= max || isDisabled()) {
 			//list is full or disabled
 			out.print("<td><div class=\"contact_editor\">");
 			for(ContactDE contact : selected) {

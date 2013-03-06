@@ -905,39 +905,6 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 	//determines if user should be able to view request details, logs, and download certificate (pkcs12 is session specific)
 	public boolean canView(CertificateRequestHostRecord rec) {
 		return true;
-		/*
-		if(auth.isGuest()) {
-			//right now, guest can't view any certificate requests
-		} else if(auth.isUser()) {
-			//super ra can see all requests
-			if(auth.allows("admin_all_user_cert_requests")) return true;
-			
-			//is user the requester?
-			ContactRecord contact = auth.getContact();
-			if(rec.requester_id.equals(contact.id)) return true;
-			
-			//ra or sponsor for specified vo can view it
-			VOContactModel model = new VOContactModel(context);
-			ContactModel cmodel = new ContactModel(context);
-			ArrayList<VOContactRecord> crecs;
-			try {
-				crecs = model.getByVOID(rec.vo_id);
-				for(VOContactRecord crec : crecs) {
-					ContactRecord contactrec = cmodel.get(crec.contact_id);
-					if(crec.contact_type_id.equals(11) && crec.contact_rank_id.equals(1)) { //primary
-						if(contactrec.id.equals(contact.id)) return true;
-					}
-					
-					if(crec.contact_type_id.equals(11) && crec.contact_rank_id.equals(3)) { //sponsor
-						if(contactrec.id.equals(contact.id)) return true;
-					}
-				}
-			} catch (SQLException e1) {
-				log.error("Failed to lookup RA/sponsor information", e1);
-			}
-		}
-		return false;
-		*/
 	}
 	
 	//true if user can approve request

@@ -543,7 +543,7 @@ public class VOFormDE extends DivRepForm
 			case 12://sponsor
 				editor.setMinContacts(ContactRank.Primary, 0);
 				editor.setMinContacts(ContactRank.Secondary, 0);
-				editor.setMaxContacts(ContactRank.Secondary, 20);//random limit
+				editor.setMaxContacts(ContactRank.Secondary, 30);//random limit - mimicking gridadmin contact max
 				break;
 			}
 			

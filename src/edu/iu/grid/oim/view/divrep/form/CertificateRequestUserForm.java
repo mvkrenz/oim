@@ -64,7 +64,7 @@ public class CertificateRequestUserForm extends DivRepForm
 	private CNEditor cn; //only for OIM user
 	private DivRepSelectBox sponsor;
 	
-	private SponsorDetails sponsor_details;//used when manually specified
+	private SponsorManual sponsor_manual;//used when manually specified
 	
 	private DivRepTextArea request_comment;
 	
@@ -78,24 +78,25 @@ public class CertificateRequestUserForm extends DivRepForm
 	
 	private DivRepSelectBox vo;
 	
-	class SponsorDetails extends DivRepFormElement {
+	class SponsorManual extends DivRepFormElement {
 		
 		//sponsor info manually selected
 		protected DivRepTextBox sponsor_fullname;
 		protected DivRepTextBox sponsor_email;
-		protected DivRepTextBox sponsor_phone;
+		//protected DivRepTextBox sponsor_phone;
 		
-		public SponsorDetails(DivRep parent) {
+		public SponsorManual(DivRep parent) {
 			super(parent);
 			
 			sponsor_fullname = new DivRepTextBox(this);
 			sponsor_fullname.setLabel("Full Name");
 			sponsor_fullname.setRequired(true);
 			sponsor_fullname.addValidator(new CNValidator());
-
+			/*
 			sponsor_phone = new DivRepTextBox(this);
 			sponsor_phone.setLabel("Phone");
 			sponsor_phone.setRequired(true);
+			*/
 
 			sponsor_email = new DivRepTextBox(this);
 			sponsor_email.setLabel("Email");
@@ -114,7 +115,7 @@ public class CertificateRequestUserForm extends DivRepForm
 				//out.write("<div class=\"well well-small\">");
 				out.write("<h3>Sponsor Detail</h3>");
 				sponsor_fullname.render(out);
-				sponsor_phone.render(out);
+				//sponsor_phone.render(out);
 				sponsor_email.render(out);
 				//out.write("</div>");
 			}
@@ -124,8 +125,15 @@ public class CertificateRequestUserForm extends DivRepForm
 		@Override
 		public void setRequired(Boolean b) {
 			sponsor_fullname.setRequired(b);
-			sponsor_phone.setRequired(b);
+			//sponsor_phone.setRequired(b);
 			sponsor_email.setRequired(b);
+		}
+		public ContactRecord getRecord() {
+			ContactRecord rec = new ContactRecord();
+			rec.name = sponsor_fullname.getValue();
+			rec.primary_email = sponsor_email.getValue();
+			//rec.primary_phone = sponsor_phone.getValue();
+			return rec;
 		}
  	}
 	
@@ -327,13 +335,11 @@ public class CertificateRequestUserForm extends DivRepForm
 				}
 			});
 			for(VORecord vo_rec : recs) {
-				//check if the VO has at least 1 ra(primary or secondary) specified
+				//check if the VO has at least 1 RA specified
 				ArrayList<VOContactRecord> crecs = model.getByVOID(vo_rec.id);
 				boolean hasra = false;
 				for(VOContactRecord crec : crecs) {
-					if(crec.contact_type_id.equals(11) && //RA
-						(crec.contact_rank_id.equals(1) || crec.contact_rank_id.equals(2))) { //primary or secondary
-						//ContactRecord contactrec = cmodel.get(crec.contact_id);
+					if(crec.contact_type_id.equals(11)) { //RA
 						hasra = true;
 						break;
 					}
@@ -352,8 +358,8 @@ public class CertificateRequestUserForm extends DivRepForm
 					try {
 						if(vo.getValue() == null) {
 							sponsor.setHidden(true);
-							sponsor_details.setHidden(true);
-							sponsor_details.setRequired(false);
+							sponsor_manual.setHidden(true);
+							sponsor_manual.setRequired(false);
 						} else {
 							sponsor.setHidden(true);
 							ArrayList<ContactRecord> sponsors = getSponsor(vo.getValue());
@@ -379,16 +385,16 @@ public class CertificateRequestUserForm extends DivRepForm
 								sponsor.setHidden(false);
 								
 								//no need for sponsor detail
-								sponsor_details.setHidden(true);
-								sponsor_details.setRequired(false);
+								sponsor_manual.setHidden(true);
+								sponsor_manual.setRequired(false);
 							} else {
 								sponsor.setHidden(true);
-								sponsor_details.setHidden(false);
-								sponsor_details.setRequired(true);
+								sponsor_manual.setHidden(false);
+								sponsor_manual.setRequired(true);
 							}
 						}
 						sponsor.redraw();
-						sponsor_details.redraw();
+						sponsor_manual.redraw();
 					} catch (NumberFormatException e) {
 						log.error("Failed to parse vo ID for "+ event.value, e);
 					} catch (SQLException e) {
@@ -408,20 +414,20 @@ public class CertificateRequestUserForm extends DivRepForm
 			@Override
 			public void handleEvent(DivRepEvent event) {
 				if(sponsor.getValue() == null) {
-					sponsor_details.setHidden(false);
-					sponsor_details.setRequired(true);
+					sponsor_manual.setHidden(false);
+					sponsor_manual.setRequired(true);
 				} else {
-					sponsor_details.setHidden(true);
-					sponsor_details.setRequired(false);
+					sponsor_manual.setHidden(true);
+					sponsor_manual.setRequired(false);
 				}
 				
-				sponsor_details.redraw();
+				sponsor_manual.redraw();
 			}
 		});
 		
-		sponsor_details = new SponsorDetails(this);
-		sponsor_details.setHidden(true);
-		sponsor_details.setRequired(false);
+		sponsor_manual = new SponsorManual(this);
+		sponsor_manual.setHidden(true);
+		sponsor_manual.setRequired(false);
 		
 		request_comment = new DivRepTextArea(this);
 		request_comment.setLabel("Comments");
@@ -456,8 +462,7 @@ public class CertificateRequestUserForm extends DivRepForm
 		ArrayList<ContactRecord> sponsors = new ArrayList<ContactRecord>();
 		ArrayList<VOContactRecord> crecs = model.getByVOID(vo_id);
 		for(VOContactRecord crec : crecs) {
-			if(crec.contact_type_id.equals(11) && //RA
-				(crec.contact_rank_id.equals(3)) ) { //sponsors
+			if(crec.contact_type_id.equals(12)) { //sponsors
 				ContactRecord sponsor = cmodel.get(crec.contact_id);
 				sponsors.add(sponsor);
 			}
@@ -496,6 +501,22 @@ public class CertificateRequestUserForm extends DivRepForm
 			user.count_hostcert_year = 0;
 			user.count_usercert_year = 0;
 		} 
+		
+		//sponsor
+		ContactRecord sponsor_rec = null;
+		if(sponsor.getValue() != null) {
+			ContactModel cmodel = new ContactModel(context);
+			try {
+				sponsor_rec = cmodel.get(sponsor.getValue());
+			} catch (SQLException e) {
+				log.error("Failed to lookup contact with id: " + sponsor.getValue());
+				alert(e.getMessage());
+				return false;
+			}
+		} else {
+			//sponsor not selected from drop down - use manual sponsor
+			sponsor_rec = sponsor_manual.getRecord();
+		}
 	
 		//do certificate request with no csr
 		try {
@@ -503,9 +524,9 @@ public class CertificateRequestUserForm extends DivRepForm
 			CertificateRequestUserRecord rec = null;
 			if(!auth.isUser()) {
 				//requester_passphrase = HashHelper.sha1(passphrase.getValue());
-				rec = certmodel.requestGuestWithNOCSR(vo.getValue(), user, passphrase.getValue(), request_comment.getValue());
+				rec = certmodel.requestGuestWithNOCSR(vo.getValue(), user, sponsor_rec, passphrase.getValue(), request_comment.getValue());
 			} else {
-				rec = certmodel.requestUsertWithNOCSR(vo.getValue(), user, cn.getValue(), request_comment.getValue());
+				rec = certmodel.requestUsertWithNOCSR(vo.getValue(), user, sponsor_rec, cn.getValue(), request_comment.getValue());
 			}
 			if(rec != null) {
 				redirect("certificateuser?id="+rec.id); //TODO - does this work? I haven't tested it

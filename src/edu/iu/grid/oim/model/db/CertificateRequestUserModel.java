@@ -73,8 +73,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 		ContactModel cmodel = new ContactModel(context);
 		ArrayList<VOContactRecord> crecs = model.getByVOID(rec.vo_id);
 		for(VOContactRecord crec : crecs) {
-			if(crec.contact_type_id.equals(11) 
-					&& (crec.contact_rank_id.equals(1) || crec.contact_rank_id.equals(2)) ) { //primary and secondary RA
+			if(crec.contact_type_id.equals(11)) { //11 - ra
 				ContactRecord contactrec = cmodel.get(crec.contact_id);
 				ras.add(contactrec);
 			}
@@ -89,7 +88,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 		ContactModel cmodel = new ContactModel(context);
 		ArrayList<VOContactRecord> crecs = model.getByVOID(rec.vo_id);
 		for(VOContactRecord crec : crecs) {
-			if(crec.contact_type_id.equals(11) && crec.contact_rank_id.equals(3) ) { //terriary is sponsor
+			if(crec.contact_type_id.equals(12) ) { //12 -- sponsor
 				ContactRecord contactrec = cmodel.get(crec.contact_id);
 				sponsors.add(contactrec);
 			}
@@ -115,11 +114,6 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 			if(auth.isUser()) {
 				ContactRecord contact = auth.getContact();
 				
-				/*
-				//super ra can see all requests
-				if(auth.allows("admin_all_user_cert_requests")) return true;
-				*/
-				
 				//Is user RA agent for specified vo?
 				VOContactModel model = new VOContactModel(context);
 				ContactModel cmodel = new ContactModel(context);
@@ -127,9 +121,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 				try {
 					crecs = model.getByVOID(rec.vo_id);
 					for(VOContactRecord crec : crecs) {
-						if(crec.contact_type_id.equals(11) && //RA
-							(crec.contact_rank_id.equals(1) || crec.contact_rank_id.equals(2))) { //primary or secondary
-							//ContactRecord contactrec = cmodel.get(crec.contact_id);
+						if(crec.contact_type_id.equals(11)) { //11 - RA
 							if(crec.contact_id.equals(contact.id)) return true;
 						}
 					}
@@ -165,9 +157,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 				try {
 					crecs = model.getByVOID(rec.vo_id);
 					for(VOContactRecord crec : crecs) {
-						if(crec.contact_type_id.equals(11) && //RA
-								(crec.contact_rank_id.equals(1) || crec.contact_rank_id.equals(2))) { //primary or secondary
-							//ContactRecord contactrec = cmodel.get(crec.contact_id);
+						if(crec.contact_type_id.equals(11)) { //11 - RA
 							if(crec.contact_id.equals(contact.id)) return true;
 						}
 					}
@@ -322,8 +312,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 					crecs = model.getByVOID(rec.vo_id);
 					for(VOContactRecord crec : crecs) {
 						//ContactRecord contactrec = cmodel.get(crec.contact_id);
-						if(crec.contact_type_id.equals(11) && //RA
-								(crec.contact_rank_id.equals(1) || crec.contact_rank_id.equals(2))) { //primary or secondary
+						if(crec.contact_type_id.equals(11)) { //11 - ra
 							if(crec.contact_id.equals(contact.id)) return true;
 						}
 					}
@@ -578,7 +567,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 		Footprints fp = new Footprints(context);
 		FPTicket ticket = fp.new FPTicket();
 	
-		//Update CC ra & sponsor (it might have been changed since last time request was made)
+		//Update CC ra (it might have been changed since last time request was made)
 		VOContactModel model = new VOContactModel(context);
 		ContactModel cmodel = new ContactModel(context);
 		ArrayList<VOContactRecord> crecs;
@@ -587,19 +576,18 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 			crecs = model.getByVOID(rec.vo_id);
 			for(VOContactRecord crec : crecs) {
 				ContactRecord contactrec = cmodel.get(crec.contact_id);
-				if(crec.contact_type_id.equals(11)) { //RA contacts
+				if(crec.contact_type_id.equals(11)) { //11 - ra
 					ticket.ccs.add(contactrec.primary_email);
-					if(crec.contact_rank_id.equals(1) || crec.contact_rank_id.equals(2)) {
-						if(!ras.isEmpty()) {
-							ras += ", ";
-						}
-						ras += contactrec.name;
+					if(!ras.isEmpty()) {
+						ras += ", ";
 					}
+					ras += contactrec.name;
 				}
 			}
 		} catch (SQLException e1) {
 			log.error("Failed to lookup RA/sponsor information - ignoring", e1);
 		}
+		
 		ticket.description = "Dear "+ras+ " (RAs)\n\n";
 		Authorization auth = context.getAuthorization();
 		if(auth.isUser()) {
@@ -608,7 +596,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 		} else {
 			ticket.description = "Guest user with IP:" + context.getRemoteAddr() + " has requested revocation of this certificate request.";		
 		}
-		ticket.description += "\n\nPlease approve / disapporove this request at " + getTicketUrl(rec.id);
+		ticket.description += "\n\nRA may revoke this request at " + getTicketUrl(rec.id);
 		ticket.nextaction = "RA to process"; //nad will be set to 7 days from today by default
 		ticket.status = "Engineering"; //probably need to reopen
 		fp.update(ticket, rec.goc_ticket_id);
@@ -1024,11 +1012,11 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 		
 		}
 	}
-	//return requests that I am ra/sponsor
+	//return requests that I am RA of
 	public ArrayList<CertificateRequestUserRecord> getIApprove(Integer id) throws SQLException {
 		ArrayList<CertificateRequestUserRecord> recs = new ArrayList<CertificateRequestUserRecord>();
 		
-		//list all vo that user is ra/sponsor of
+		//list all vo that user is ra of
 		HashSet<Integer> vo_ids = new HashSet<Integer>();
 		VOContactModel model = new VOContactModel(context);
 		try {
@@ -1038,7 +1026,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 				}
 			}
 		} catch (SQLException e1) {
-			log.error("Failed to lookup RA/sponsor information", e1);
+			log.error("Failed to lookup RA information", e1);
 		}	
 		
 		if(vo_ids.size() != 0) {
@@ -1112,24 +1100,23 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
     	return false;
     }
     
-    public CertificateRequestUserRecord requestUsertWithNOCSR(Integer vo_id, ContactRecord requester, String cn, String request_comment) throws SQLException, CertificateRequestException {
-    	
-    	//TODO -- check access
-
+    public CertificateRequestUserRecord requestUsertWithNOCSR(
+    	Integer vo_id, ContactRecord requester, ContactRecord sponsor, String cn, String request_comment) 
+    			throws SQLException, CertificateRequestException {
 		CertificateRequestUserRecord rec = new CertificateRequestUserRecord();
-    	request(vo_id, rec, requester, cn, request_comment);
+    	request(vo_id, rec, requester, sponsor, cn, request_comment);
     	return rec;
     }
        
     //returns insertec request record if successful. if not, null
-    public CertificateRequestUserRecord requestGuestWithNOCSR(Integer vo_id, ContactRecord requester, String passphrase, String request_comment) throws SQLException, CertificateRequestException { 
-    	//TODO -- check access
-    	
+    public CertificateRequestUserRecord requestGuestWithNOCSR(
+    	Integer vo_id, ContactRecord requester, ContactRecord sponsor, String passphrase, String request_comment) 
+    		throws SQLException, CertificateRequestException {     	
 		CertificateRequestUserRecord rec = new CertificateRequestUserRecord();		
 		String salt = BCrypt.gensalt(12);//let's hard code this for now..
 		rec.requester_passphrase_salt = salt;
 		rec.requester_passphrase = BCrypt.hashpw(passphrase, salt);
-    	request(vo_id, rec, requester, null, request_comment);//cn is not known until we check the contact
+    	request(vo_id, rec, requester, sponsor, null, request_comment);//cn is not known until we check the contact
     	return rec;
     } 
     
@@ -1164,20 +1151,12 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
     
     //NO-AC 
     //return true for success
-    private void request(Integer vo_id, CertificateRequestUserRecord rec, ContactRecord requester, String cn, String request_comment) throws SQLException, CertificateRequestException 
+    private void request(Integer vo_id, CertificateRequestUserRecord rec, ContactRecord requester, ContactRecord sponsor, String cn, String request_comment) throws SQLException, CertificateRequestException 
     {
 		///////////////////////////////////////////////////////////////////////////////////////////
 		// Check conditions & finalize DN (register contact if needed)
     	String note = "";
-    
-		/*
-		//make sure there are no other certificate already requested or renew_requested
-		CertificateRequestUserRecord existing_rec = getByDN(rec.dn);
-		if(existing_rec.status.equals(CertificateRequestStatus.REQUESTED) || existing_rec.status.equals(CertificateRequestStatus.RENEW_REQUESTED)) {
-			throw new CertificateRequestException("There is already another certificate request pending with the same DN. ID: U"+existing_rec.id);
-		}
-		*/
-		
+    	
 		if(auth.isUser()) {
 			//for oim user
 			
@@ -1270,14 +1249,14 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
     	//create notification ticket
 		Footprints fp = new Footprints(context);
 		FPTicket ticket = fp.new FPTicket();
-    	prepareNewTicket(ticket, "User Certificate Request",  rec, requester);
+    	prepareNewTicket(ticket, "User Certificate Request",  rec, requester, sponsor);
 		ticket.description += "\n\n"+note;
 		rec.goc_ticket_id = fp.open(ticket);
 		context.setComment("Opened GOC Ticket " + rec.goc_ticket_id);
 		super.update(get(rec.id), rec);
     }
     
-    private void prepareNewTicket(FPTicket ticket, String title, CertificateRequestUserRecord rec, ContactRecord requester) throws SQLException {
+    private void prepareNewTicket(FPTicket ticket, String title, CertificateRequestUserRecord rec, ContactRecord requester, ContactRecord sponsor) throws SQLException {
 		ticket.name = requester.name;
 		ticket.email = requester.primary_email;
 		ticket.phone = requester.primary_phone;
@@ -1288,12 +1267,12 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 		ContactModel cmodel = new ContactModel(context);
 		ArrayList<VOContactRecord> crecs;
 		try {
+			//add RAs
 			crecs = model.getByVOID(rec.vo_id);
 			for(VOContactRecord crec : crecs) {
 				ContactRecord contactrec = cmodel.get(crec.contact_id);
-				if(crec.contact_type_id.equals(11)) { //primary, secondary, and sponsors
+				if(crec.contact_type_id.equals(11)) { //11 - ra
 					ticket.ccs.add(contactrec.primary_email);
-					
 					if(ranames.length() != 0) {
 						ranames += ", ";
 					}
@@ -1301,9 +1280,12 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 				}
 			}
 		} catch (SQLException e1) {
-			log.error("Failed to lookup RA/sponsor information - ignoring", e1);
+			log.error("Failed to lookup RA information - ignoring", e1);
 		}
-    	
+
+		//add sponsor email
+		ticket.ccs.add(sponsor.primary_email);
+		
 		//submit goc ticket
 		VOModel vmodel = new VOModel(context);
 		VORecord vrec = vmodel.get(rec.vo_id);
@@ -1313,9 +1295,17 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 		if(auth.isUser()) {
 			auth_status = "An OIM Authenticated user; ";
 		}
-		ticket.description = "Dear " + ranames + " (" + vrec.name + " VO RA/Sponsors),\n\n";
+		ticket.description = "Dear " + ranames + " (" + vrec.name + " VO RAs),\n\n";
 		ticket.description += auth_status + requester.name + " <"+requester.primary_email+"> has requested a user certificate. ";
-		ticket.description += "Please determine this request's authenticity, and approve / disapprove at " + getTicketUrl(rec.id);
+		ticket.description += "Please determine this request's authenticity, and approve / disapprove at " + getTicketUrl(rec.id) + "\n\n";
+		
+		//if sponsor id is null, that means it doesn't exist in our contact DB.
+		if(sponsor.id == null) {
+			ticket.description += "User has manually entered sponsor information with name: " + sponsor.name + ". RA must confirm the identify of this sponsor. ";
+			ticket.description += "RA should also consider registering this sponsor for this VO.";
+		} else {
+			ticket.description += "User has selected a registered sponsor: " + sponsor.name + " which has been CC-ed to this request. ";
+		}
 		/*
 		if(StaticConfig.isDebug()) {
 			ticket.assignees.add("hayashis");
@@ -1362,7 +1352,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 			Footprints fp = new Footprints(context);
 			FPTicket ticket = fp.new FPTicket();
 			
-			//Create ra & sponsor list
+			//CC RAs
 			String ranames = "";
 			VOContactModel model = new VOContactModel(context);
 			ContactModel cmodel = new ContactModel(context);
@@ -1370,7 +1360,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 			crecs = model.getByVOID(rec.vo_id);
 			for(VOContactRecord crec : crecs) {
 				ContactRecord contactrec = cmodel.get(crec.contact_id);
-				if(crec.contact_type_id.equals(11)) { //primary, secondary, and sponsors
+				if(crec.contact_type_id.equals(11)) { //11 - ra
 					ticket.ccs.add(contactrec.primary_email);
 					
 					if(ranames.length() != 0) {
@@ -1379,6 +1369,9 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 					ranames += contactrec.name;
 				}
 			}
+			
+			//CC sponsor
+			//TODO - need to re-CC sponsor, but I am not sure how.
 			
 			ContactRecord requester = cmodel.get(rec.requester_contact_id);
 			//ticket.title = "User Certificate Re-request for "+requester.name;s
