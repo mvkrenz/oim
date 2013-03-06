@@ -2,9 +2,7 @@ package edu.iu.grid.oim.view.divrep;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.TreeMap;
 
 import com.divrep.DivRep;
 import com.divrep.DivRepEvent;
@@ -13,13 +11,7 @@ import com.divrep.common.DivRepButton;
 import com.divrep.common.DivRepCheckBox;
 import com.divrep.common.DivRepFormElement;
 import com.divrep.common.DivRepSelectBox;
-import com.divrep.common.DivRepTextBox;
-
-import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.MetricServiceRecord;
-import edu.iu.grid.oim.model.db.record.ResourceAliasRecord;
-import edu.iu.grid.oim.view.divrep.ContactEditor.ContactDE;
-import edu.iu.grid.oim.view.divrep.ContactEditor.Rank;
 
 public class MetricService extends DivRepFormElement {
 

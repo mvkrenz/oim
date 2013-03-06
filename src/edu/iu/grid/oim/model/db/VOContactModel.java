@@ -9,7 +9,7 @@ import javax.xml.xpath.XPathExpressionException;
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import edu.iu.grid.oim.model.UserContext;
-import edu.iu.grid.oim.model.db.record.ContactRankRecord;
+import edu.iu.grid.oim.model.ContactRank;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.ContactTypeRecord;
 import edu.iu.grid.oim.model.db.record.RecordBase;
@@ -82,9 +82,8 @@ public class VOContactModel extends SmallTableModelBase<VOContactRecord> {
 			ContactTypeRecord rec = model.get(Integer.parseInt(value));
 			return value + " (" + rec.name + ")";
 		} else if(field_name.equals("contact_rank_id")) {
-			ContactRankModel model = new ContactRankModel(context);
-			ContactRankRecord rec = model.get(Integer.parseInt(value));
-			return value + " (" + rec.name + ")";
+			ContactRank rank = ContactRank.get(Integer.parseInt(value));
+			return value + " (" + rank + ")";
 		} else if(field_name.equals("contact_id")) {
 			ContactModel model = new ContactModel(context);
 			ContactRecord rec = model.get(Integer.parseInt(value));

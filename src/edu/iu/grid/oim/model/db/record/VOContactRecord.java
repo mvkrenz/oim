@@ -2,14 +2,6 @@ package edu.iu.grid.oim.model.db.record;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-
-import edu.iu.grid.oim.lib.Authorization;
-import edu.iu.grid.oim.model.db.ContactModel;
-import edu.iu.grid.oim.model.db.ContactRankModel;
-import edu.iu.grid.oim.model.db.ContactTypeModel;
-import edu.iu.grid.oim.model.db.SCModel;
-import edu.iu.grid.oim.model.db.VOModel;
 
 public class VOContactRecord extends RecordBase {
 

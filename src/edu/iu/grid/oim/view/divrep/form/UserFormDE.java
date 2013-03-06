@@ -23,6 +23,7 @@ import com.divrep.validator.DivRepUrlValidator;
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Footprints;
 import edu.iu.grid.oim.lib.AuthorizationException;
+import edu.iu.grid.oim.model.ContactRank;
 import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.UserContext.MessageType;
 import edu.iu.grid.oim.model.db.AuthorizationTypeModel;
@@ -70,7 +71,7 @@ public class UserFormDE extends DivRepForm
 		new DivRepStaticContent(this, "<h3>Contact's Name</h3>");
 		contact = new ContactEditor(this, new ContactModel(context), false, false);
 		contact.setShowRank(false);
-		contact.setMinContacts(ContactEditor.Rank.Primary, 1);
+		contact.setMinContacts(ContactRank.Primary, 1);
 		ContactModel cmodel = new ContactModel(context);
 		if (id != null) {
 			ContactRecord crec = cmodel.get(rec.contact_id);

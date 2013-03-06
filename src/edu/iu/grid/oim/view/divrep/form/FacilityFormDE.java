@@ -9,16 +9,13 @@ import java.util.Collection;
 import java.util.HashMap;
 import org.apache.log4j.Logger;
 
-import com.divrep.DivRep;
-import com.divrep.DivRepEvent;
+
 import com.divrep.common.DivRepCheckBox;
 import com.divrep.common.DivRepForm;
-import com.divrep.common.DivRepSelectBox;
 import com.divrep.common.DivRepStaticContent;
 import com.divrep.common.DivRepTextArea;
 import com.divrep.common.DivRepTextBox;
 import com.divrep.validator.DivRepUniqueValidator;
-import com.divrep.validator.DivRepUrlValidator;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Footprints;
@@ -26,10 +23,7 @@ import edu.iu.grid.oim.lib.AuthorizationException;
 import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.UserContext.MessageType;
 import edu.iu.grid.oim.model.db.FacilityModel;
-import edu.iu.grid.oim.model.db.record.RecordBase;
 import edu.iu.grid.oim.model.db.record.FacilityRecord;
-import edu.iu.grid.oim.view.divrep.ContactEditor;
-import edu.iu.grid.oim.view.divrep.ContactEditor.Rank;
 
 public class FacilityFormDE extends DivRepForm 
 {

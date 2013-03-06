@@ -22,6 +22,7 @@ import com.divrep.validator.DivRepUniqueValidator;
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.AuthorizationException;
 import edu.iu.grid.oim.lib.StaticConfig;
+import edu.iu.grid.oim.model.ContactRank;
 import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.UserContext.MessageType;
 import edu.iu.grid.oim.model.db.CampusGridFieldOfScienceModel;
@@ -48,7 +49,6 @@ import edu.iu.grid.oim.view.ToolTip;
 import edu.iu.grid.oim.view.divrep.CampusGridSubmitNodes;
 import edu.iu.grid.oim.view.divrep.ContactEditor;
 import edu.iu.grid.oim.view.divrep.FieldOfScience;
-import edu.iu.grid.oim.view.divrep.ContactEditor.Rank;
 
 public class CampusGridFormDE extends DivRepForm 
 {
@@ -239,20 +239,8 @@ public class CampusGridFormDE extends DivRepForm
 				}
 			}
 			
-			//request authority
-			if(contact_type.id == 11) {
-				//only admin_ra can edit ra
-				if(!auth.allows("admin_ra")) {
-					editor.setDisabled(true);
-				}
-				
-				editor.setLabel(Rank.Primary, "Primary RA");
-				editor.setLabel(Rank.Secondary, "Secondary RA");
-				editor.setLabel(Rank.Tertiary, "Sponsors");
-			}
-			
 			if(contact_type.id != 5 && contact_type.id != 10 && contact_type.id != 11) { //5 = misc, 9 = resource report, 11 = ra agent
-				editor.setMinContacts(Rank.Primary, 1);
+				editor.setMinContacts(ContactRank.Primary, 1);
 			}
 			contact_editors.put(contact_type.id, editor);
 		}
@@ -388,13 +376,13 @@ public class CampusGridFormDE extends DivRepForm
 		for(Integer type_id : contact_editors.keySet()) 
 		{
 			ContactEditor editor = contact_editors.get(type_id);
-			HashMap<ContactRecord, Integer> contacts = editor.getContactRecords();
+			HashMap<ContactRecord, ContactRank> contacts = editor.getContactRecords();
 			for(ContactRecord contact : contacts.keySet()) {
 				CampusGridContactRecord rec = new CampusGridContactRecord();
-				Integer rank_id = contacts.get(contact);
+				ContactRank rank = contacts.get(contact);
 				rec.contact_id = contact.id;
 				rec.contact_type_id = type_id;
-				rec.contact_rank_id = rank_id;
+				rec.contact_rank_id = rank.id;
 				list.add(rec);
 			}
 		}

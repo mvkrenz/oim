@@ -15,6 +15,7 @@ import com.divrep.validator.DivRepUniqueValidator;
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Footprints;
 import edu.iu.grid.oim.lib.AuthorizationException;
+import edu.iu.grid.oim.model.ContactRank;
 import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.UserContext.MessageType;
 import edu.iu.grid.oim.model.db.ContactTypeModel;
@@ -30,7 +31,6 @@ import edu.iu.grid.oim.view.ToolTip;
 import edu.iu.grid.oim.view.divrep.AUPConfirmation;
 import edu.iu.grid.oim.view.divrep.Confirmation;
 import edu.iu.grid.oim.view.divrep.ContactEditor;
-import edu.iu.grid.oim.view.divrep.ContactEditor.Rank;
 
 public class SCFormDE extends DivRepForm 
 {
@@ -179,7 +179,7 @@ public class SCFormDE extends DivRepForm
 				}
 			}
 			if(contact_type.id != 5) { //5 = misc
-				editor.setMinContacts(Rank.Primary, 1);
+				editor.setMinContacts(ContactRank.Primary, 1);
 			}
 			contact_editors.put(contact_type.id, editor);
 		}
@@ -314,13 +314,13 @@ public class SCFormDE extends DivRepForm
 		for(Integer type_id : contact_editors.keySet()) 
 		{
 			ContactEditor editor = contact_editors.get(type_id);
-			HashMap<ContactRecord, Integer> contacts = editor.getContactRecords();
+			HashMap<ContactRecord, ContactRank> contacts = editor.getContactRecords();
 			for(ContactRecord contact : contacts.keySet()) {
 				SCContactRecord rec = new SCContactRecord();
-				Integer rank_id = contacts.get(contact);
+				ContactRank rank = contacts.get(contact);
 				rec.contact_id = contact.id;
 				rec.contact_type_id = type_id;
-				rec.contact_rank_id = rank_id;
+				rec.contact_rank_id = rank.id;
 				list.add(rec);
 			}
 		}

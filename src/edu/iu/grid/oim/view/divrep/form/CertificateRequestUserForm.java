@@ -1,6 +1,7 @@
 package edu.iu.grid.oim.view.divrep.form;
 
 import java.io.InputStream;
+import java.io.PrintWriter;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -17,6 +18,7 @@ import com.divrep.DivRepEvent;
 import com.divrep.DivRepEventListener;
 import com.divrep.common.DivRepCheckBox;
 import com.divrep.common.DivRepForm;
+import com.divrep.common.DivRepFormElement;
 import com.divrep.common.DivRepPassword;
 import com.divrep.common.DivRepSelectBox;
 import com.divrep.common.DivRepStaticContent;
@@ -60,6 +62,10 @@ public class CertificateRequestUserForm extends DivRepForm
 	private HashMap<Integer, String> timezone_id2tz;
 	
 	private CNEditor cn; //only for OIM user
+	private DivRepSelectBox sponsor;
+	
+	private SponsorDetails sponsor_details;//used when manually specified
+	
 	private DivRepTextArea request_comment;
 	
 	private DivRepTextArea profile;
@@ -70,7 +76,59 @@ public class CertificateRequestUserForm extends DivRepForm
 	private DivRepPassword passphrase_confirm; //for guest
 	private DivRepCheckBox agreement;
 	
-	private DivRepSelectBox vo;//, sponsor;
+	private DivRepSelectBox vo;
+	
+	class SponsorDetails extends DivRepFormElement {
+		
+		//sponsor info manually selected
+		protected DivRepTextBox sponsor_fullname;
+		protected DivRepTextBox sponsor_email;
+		protected DivRepTextBox sponsor_phone;
+		
+		public SponsorDetails(DivRep parent) {
+			super(parent);
+			
+			sponsor_fullname = new DivRepTextBox(this);
+			sponsor_fullname.setLabel("Full Name");
+			sponsor_fullname.setRequired(true);
+			sponsor_fullname.addValidator(new CNValidator());
+
+			sponsor_phone = new DivRepTextBox(this);
+			sponsor_phone.setLabel("Phone");
+			sponsor_phone.setRequired(true);
+
+			sponsor_email = new DivRepTextBox(this);
+			sponsor_email.setLabel("Email");
+			sponsor_email.setRequired(true);
+			sponsor_email.addValidator(new DivRepEmailValidator());
+		}
+		@Override
+		protected void onEvent(DivRepEvent event) {
+			
+		}
+
+		@Override
+		public void render(PrintWriter out) {
+			out.write("<div id=\""+getNodeID()+"\">");
+			if(!isHidden()) {
+				//out.write("<div class=\"well well-small\">");
+				out.write("<h3>Sponsor Detail</h3>");
+				sponsor_fullname.render(out);
+				sponsor_phone.render(out);
+				sponsor_email.render(out);
+				//out.write("</div>");
+			}
+			out.write("</div>");
+		}
+		
+		@Override
+		public void setRequired(Boolean b) {
+			sponsor_fullname.setRequired(b);
+			sponsor_phone.setRequired(b);
+			sponsor_email.setRequired(b);
+		}
+ 	}
+	
 	
 	public CertificateRequestUserForm(final UserContext context, String origin_url) {
 		
@@ -189,7 +247,8 @@ public class CertificateRequestUserForm extends DivRepForm
 							alert(e1.toString());
 						}
 					}
-				}});
+				}
+			});
 			
 			new DivRepStaticContent(this, "<h3>Choose a password</h3>");
 			new DivRepStaticContent(this, "<p class=\"help-block\">Please choose a password to retrieve your certificate once it's issued.</p>");
@@ -200,13 +259,13 @@ public class CertificateRequestUserForm extends DivRepForm
 			passphrase.addValidator(new PKIPassStrengthValidator());
 			passphrase.setRequired(true);
 			passphrase.addEventListener(new DivRepEventListener() {
-
 				@Override
 				public void handleEvent(DivRepEvent e) {
 					if(passphrase_confirm.getValue() != null) {
 						passphrase_confirm.validate();
 					}
-				}});
+				}
+			});
 			passphrase_confirm = new DivRepPassword(this);
 			passphrase_confirm.setLabel("Re-enter password");
 			passphrase_confirm.addValidator(new DivRepIValidator<String>() {
@@ -221,7 +280,8 @@ public class CertificateRequestUserForm extends DivRepForm
 				@Override
 				public String getErrorMessage() {
 					return message;
-				}});
+				}
+			});
 			passphrase_confirm.setRequired(true);
 		
 			new DivRepStaticContent(this, "<h3>Captcha</h3>");
@@ -243,16 +303,18 @@ public class CertificateRequestUserForm extends DivRepForm
 			@Override
 			public DivRep createContent() {
 				return new DivRepStaticContent(this, 
-						"<div class=\"well\">"+
-						"<p class=\"\">If you do not know which VO to select, please open a <a target=\"_blank\" href=\"https://ticket.grid.iu.edu\">GOC Ticket</a> for an assistance.</p>" +
-						"<p class=\"\">If your VO does not appear, it may not have RA agents assigned to it.</p>" +
-						"<p class=\"\">If you just need to access OSG secure web servers (OIM, DocDB, etc.), you may select the <b>MIS</b> VO.</p>" +
-						"<h4>What is a sponsor?</h4>" +
-						"A sponsor is a member of the VO who knows you and can vouch for your membership." +
-						"</div>");
-			}};
-			help.setShowHtml("<u class=\"pull-right\">Help me choose</u>");
-			help.setHideHtml("");
+					"<div class=\"well\">"+
+					"<h4>Virtual Organization</h4>" +
+					"<p class=\"\">If you do not know which VO to select, please open a <a target=\"_blank\" href=\"https://ticket.grid.iu.edu\">GOC Ticket</a> for an assistance.</p>" +
+					"<p class=\"\">If your VO does not appear, it currently has no RA agents assigned to it. Please contact GOC or the VO managers.</p>" +
+					"<p class=\"\">If you just need to access OSG secure web servers (OIM, DocDB, etc.), you may select the <b>MIS</b> VO.</p>" +
+					"<h4>What is a sponsor?</h4>" +
+					"A sponsor is a member of the VO who knows you and can vouch for your membership such as PI or supervisor." +
+					"</div>");
+			}
+		};
+		help.setShowHtml("<u class=\"pull-right\">Help me choose</u>");
+		help.setHideHtml("");
 
 		VOModel vo_model = new VOModel(context);
 		VOContactModel model = new VOContactModel(context);
@@ -287,21 +349,79 @@ public class CertificateRequestUserForm extends DivRepForm
 				@Override
 				public void handleEvent(DivRepEvent event) {
 					//lookup sponsor and if there is one - then require user to select one
-					/*
 					try {
-						ArrayList<ContactRecord> sponsors = getSponsor(Integer.parseInt(event.value));
+						if(vo.getValue() == null) {
+							sponsor.setHidden(true);
+							sponsor_details.setHidden(true);
+							sponsor_details.setRequired(false);
+						} else {
+							sponsor.setHidden(true);
+							ArrayList<ContactRecord> sponsors = getSponsor(vo.getValue());
+							Collections.sort(sponsors, new Comparator<ContactRecord> () {
+								public int compare(ContactRecord a, ContactRecord b) {
+									return a.name.compareToIgnoreCase(b.name);
+								}
+							});
+							LinkedHashMap<Integer, String> keyvalues = new LinkedHashMap();
+							for(ContactRecord sponsor : sponsors) {
+								if(auth.isUser()) {
+									keyvalues.put(sponsor.id, sponsor.name + " <" + sponsor.primary_email + ">");
+								} else {
+									keyvalues.put(sponsor.id, sponsor.name);
+								}
+							}
+							sponsor.setValues(keyvalues);
+							sponsor.setHidden(false);	
+							if(sponsors.size() > 0) {
+								//select 1st value
+								Integer first_id = sponsors.get(0).id;
+								sponsor.setValue(first_id);
+								sponsor.setHidden(false);
+								
+								//no need for sponsor detail
+								sponsor_details.setHidden(true);
+								sponsor_details.setRequired(false);
+							} else {
+								sponsor.setHidden(true);
+								sponsor_details.setHidden(false);
+								sponsor_details.setRequired(true);
+							}
+						}
+						sponsor.redraw();
+						sponsor_details.redraw();
 					} catch (NumberFormatException e) {
-						
+						log.error("Failed to parse vo ID for "+ event.value, e);
 					} catch (SQLException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+						log.error("Failed to lookup vo  for ID:"+ event.value, e);
 					}
-					*/
-				}});
-			
+				}
+			});
 		} catch (SQLException e) {
 			log.error("Failed to load vo list while constructing certificat request form", e);
 		}
+		
+		sponsor = new DivRepSelectBox(this);
+		sponsor.setLabel("Sponsor");
+		sponsor.setNullLabel("(Manually Specify)");
+		sponsor.setHidden(true);
+		sponsor.addEventListener(new DivRepEventListener() {
+			@Override
+			public void handleEvent(DivRepEvent event) {
+				if(sponsor.getValue() == null) {
+					sponsor_details.setHidden(false);
+					sponsor_details.setRequired(true);
+				} else {
+					sponsor_details.setHidden(true);
+					sponsor_details.setRequired(false);
+				}
+				
+				sponsor_details.redraw();
+			}
+		});
+		
+		sponsor_details = new SponsorDetails(this);
+		sponsor_details.setHidden(true);
+		sponsor_details.setRequired(false);
 		
 		request_comment = new DivRepTextArea(this);
 		request_comment.setLabel("Comments");
@@ -317,8 +437,7 @@ public class CertificateRequestUserForm extends DivRepForm
 		agreement = new DivRepCheckBox(this);
 		agreement.setLabel("I AGREE");
 		agreement.setRequired(true);
-		agreement.addValidator(new DivRepIValidator<Boolean>(){
-
+		agreement.addValidator(new DivRepIValidator<Boolean>() {
 			@Override
 			public Boolean isValid(Boolean value) {
 				return value;
@@ -327,7 +446,8 @@ public class CertificateRequestUserForm extends DivRepForm
 			@Override
 			public String getErrorMessage() {
 				return "You must agree to these policies";
-			}});
+			}
+		});
 	}
 	
 	protected ArrayList<ContactRecord> getSponsor(Integer vo_id) throws SQLException {
@@ -375,53 +495,6 @@ public class CertificateRequestUserForm extends DivRepForm
 			user.count_hostcert_day = 0;
 			user.count_hostcert_year = 0;
 			user.count_usercert_year = 0;
-			
-			/*
-			try {
-				ContactModel model = new ContactModel(context);
-				DNModel dnmodel = new DNModel(context);
-				//Find contact record with the same email address
-				ContactRecord rec = model.getByemail(email.getValue());
-				//Create new one if none is found
-				if(rec == null) {
-					rec = new ContactRecord();
-					rec.name = fullname.getValue();
-					rec.primary_email = email.getValue();
-					rec.primary_phone = phone.getValue();
-					rec.city = city.getValue();
-					rec.state = state.getValue();
-					rec.zipcode = zipcode.getValue();
-					rec.country = country.getValue();
-					rec.timezone = timezone_id2tz.get(timezone.getValue());
-					rec.profile = profile.getValue();
-					rec.use_twiki = use_twiki.getValue();
-					rec.twiki_id = twiki_id.getValue();
-					rec.person = true;
-					rec.disable = true; //don't enable until the request gets approved
-					
-					rec.count_hostcert_day = 0;
-					rec.count_hostcert_year = 0;
-					rec.count_usercert_year = 0;
-					
-					//request() will register if 
-					//rec.id = model.insert(rec);
-					user = rec;
-				} else {
-					//Make sure that this contact is not used by any DN already
-					if(dnmodel.getByContactID(rec.id) != null) {
-						alert("The email address specified is already associated with a different DN. Please try different email address.");
-						return false;
-					} else {
-						//contact exist, but not yet associated with any DN (not approved?)
-					}
-					user = rec;
-				}
-			} catch (SQLException e) {
-				alert("Sorry, we couldn't register your contact information to OIM DB..");
-				log.error(e);
-				return false;
-			}
-			*/
 		} 
 	
 		//do certificate request with no csr

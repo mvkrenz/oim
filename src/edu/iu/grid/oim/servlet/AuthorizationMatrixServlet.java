@@ -88,8 +88,8 @@ public class AuthorizationMatrixServlet extends ServletBase  {
 		
 		public void render(PrintWriter out) {
 			try {
-				out.write("<table class=\"auth_matrix\">");
-				out.write("<tr><td></td><th colspan=\""+authtypes.size()+"\">Authorization Types</th></tr>");
+				out.write("<table class=\"table table-hover table-condensed\">");
+				out.write("<thead><tr><td></td><th colspan=\""+authtypes.size()+"\">Authorization Types</th></tr></thead>");
 				
 				//show list of auth types
 				out.write("<tr class=\"checklist\"><th valign=\"bottom\">Actions</th>");

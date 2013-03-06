@@ -21,6 +21,7 @@ import com.divrep.validator.DivRepUrlValidator;
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Footprints;
 import edu.iu.grid.oim.lib.AuthorizationException;
+import edu.iu.grid.oim.model.ContactRank;
 import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.UserContext.MessageType;
 import edu.iu.grid.oim.model.db.ContactTypeModel;
@@ -59,7 +60,6 @@ import edu.iu.grid.oim.view.divrep.ResourceGroupSelector;
 import edu.iu.grid.oim.view.divrep.ResourceServices;
 import edu.iu.grid.oim.view.divrep.ResourceWLCG;
 import edu.iu.grid.oim.view.divrep.VOResourceOwnership;
-import edu.iu.grid.oim.view.divrep.ContactEditor.Rank;
 
 public class ResourceFormDE extends DivRepForm 
 {
@@ -245,7 +245,7 @@ public class ResourceFormDE extends DivRepForm
 				}
 			}
 			if(contact_type.id != 5 && contact_type.id != 9) { //5 = misc, 9 = resource report
-				editor.setMinContacts(Rank.Primary, 1);
+				editor.setMinContacts(ContactRank.Primary, 1);
 			}
 			contact_editors.put(contact_type.id, editor);
 		}
@@ -420,13 +420,13 @@ public class ResourceFormDE extends DivRepForm
 		for(Integer type_id : contact_editors.keySet()) 
 		{
 			ContactEditor editor = contact_editors.get(type_id);
-			HashMap<ContactRecord, Integer> contacts = editor.getContactRecords();
+			HashMap<ContactRecord, ContactRank> contacts = editor.getContactRecords();
 			for(ContactRecord contact : contacts.keySet()) {
 				ResourceContactRecord rec = new ResourceContactRecord();
-				Integer rank_id = contacts.get(contact);
+				ContactRank rank = contacts.get(contact);
 				rec.contact_id = contact.id;
 				rec.contact_type_id = type_id;
-				rec.contact_rank_id = rank_id;
+				rec.contact_rank_id = rank.id;
 				list.add(rec);
 			}
 		}

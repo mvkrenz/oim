@@ -21,26 +21,29 @@ import com.divrep.common.DivRepButton;
 import com.divrep.common.DivRepFormElement;
 import com.divrep.validator.DivRepIValidator;
 
+import edu.iu.grid.oim.model.ContactRank;
 import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 
 //this requires modified version of jquery autocomplete plugin, and client side code to make the input area to be autocomplete
-public class ContactEditor extends DivRepFormElement<HashMap<ContactEditor.Rank, ArrayList<ContactEditor.ContactDE>>> {
+public class ContactEditor extends DivRepFormElement<HashMap<ContactRank, ArrayList<ContactEditor.ContactDE>>> {
 	static Logger log = Logger.getLogger(ContactEditor.class);
 	
-	public enum Rank {Primary, Secondary, Tertiary };
-	private HashMap<Rank/*rank_id*/, ArrayList<ContactDE>> selected;
+	//public enum Rank {Primary, Secondary, Tertiary };
+	private HashMap<ContactRank/*rank_id*/, ArrayList<ContactDE>> selected;
 	
-	private String primary_label = Rank.Primary.toString();
-	private String secondary_label = Rank.Secondary.toString();
-	private String tertiary_label = Rank.Tertiary.toString();
-	public void setLabel(Rank rank, String label) {
+	//allow user to override label
+	private String primary_label = ContactRank.Primary.toString();
+	private String secondary_label = ContactRank.Secondary.toString();
+	private String tertiary_label = ContactRank.Tertiary.toString();
+	public void setLabel(ContactRank rank, String label) {
 		switch(rank) {
 		case Primary: primary_label = label; break;
 		case Secondary: secondary_label = label; break;
 		case Tertiary: tertiary_label = label; break;
 		}
 	}
+	
 	
 	// Default max contact limits - can be overridden 
 	private int max_primary = 1;
@@ -56,14 +59,14 @@ public class ContactEditor extends DivRepFormElement<HashMap<ContactEditor.Rank,
 	private Boolean show_rank = true;
 	public void setShowRank(Boolean b) { show_rank = b; }
 	
-	public void setMinContacts(Rank rank, int min) {
+	public void setMinContacts(ContactRank rank, int min) {
 		addValidator(new MinValidator(rank, min));
 	}
-	public void setMaxContacts(Rank rank, int max) {
-		if (rank == Rank.Primary) { 
+	public void setMaxContacts(ContactRank rank, int max) {
+		if (rank == ContactRank.Primary) { 
 			max_primary = max;
 		}
-		else if (rank == Rank.Secondary) { 
+		else if (rank == ContactRank.Secondary) { 
 			max_secondary= max;
 		}
 		else { 
@@ -80,50 +83,62 @@ public class ContactEditor extends DivRepFormElement<HashMap<ContactEditor.Rank,
 			tertiary_newcontact.setDisabled(b);
 		}
 	}
+	/*
+	public void setPartiallyDisabled(Boolean primary, Boolean secondary, Boolean tertiary) {
+		super.setDisabled(false);
+		primary_newcontact.setDisabled(primary);
+		if(secondary_newcontact != null) {
+			secondary_newcontact.setDisabled(secondary);
+		}
+		if(tertiary_newcontact != null) {
+			tertiary_newcontact.setDisabled(tertiary);
+		}
+	}
+	*/
 	
 	public ContactEditor(DivRep parent, ContactModel pmodel, Boolean _has_secondary, Boolean _has_tertiary) {
 		super(parent);
 		
-		selected = new HashMap<Rank/*rank_id*/, ArrayList<ContactDE>>();
+		selected = new HashMap<ContactRank/*rank_id*/, ArrayList<ContactDE>>();
 		super.setValue(selected);//I need to do this so that DivRepFormElement correctly fire MinValidator
 		
 		has_secondary = _has_secondary;
 		has_tertiary = _has_tertiary;
 		
-		primary_newcontact = new NewContactDE(this, pmodel, Rank.Primary);
-		selected.put(Rank.Primary, new ArrayList());
+		primary_newcontact = new NewContactDE(this, pmodel, ContactRank.Primary);
+		selected.put(ContactRank.Primary, new ArrayList());
 		
 		if(has_secondary) {
-			secondary_newcontact = new NewContactDE(this, pmodel, Rank.Secondary);
-			selected.put(Rank.Secondary, new ArrayList());
+			secondary_newcontact = new NewContactDE(this, pmodel, ContactRank.Secondary);
+			selected.put(ContactRank.Secondary, new ArrayList());
 		}
 		if(has_tertiary) {
-			tertiary_newcontact = new NewContactDE(this, pmodel, Rank.Tertiary);
-			selected.put(Rank.Tertiary, new ArrayList());
+			tertiary_newcontact = new NewContactDE(this, pmodel, ContactRank.Tertiary);
+			selected.put(ContactRank.Tertiary, new ArrayList());
 		}
 	}
 	
 	
 	@Deprecated
 	//use addSelected() instead
-	public void setValue(HashMap<ContactEditor.Rank, ArrayList<ContactEditor.ContactDE>> value)
+	public void setValue(HashMap<ContactRank, ArrayList<ContactEditor.ContactDE>> value)
 	{
 		//depricated
 	}
 	
 	@Deprecated
-	public HashMap<ContactEditor.Rank, ArrayList<ContactEditor.ContactDE>> getValue()
+	public HashMap<ContactRank, ArrayList<ContactEditor.ContactDE>> getValue()
 	{
 		//depricated
 		return null;
 	}
 	
-	class MinValidator implements DivRepIValidator<HashMap<ContactEditor.Rank, ArrayList<ContactDE>>>
+	class MinValidator implements DivRepIValidator<HashMap<ContactRank, ArrayList<ContactDE>>>
 	{
 		private int min;
-		private Rank rank;
+		private ContactRank rank;
 		
-		public MinValidator(Rank _rank, int _min) {
+		public MinValidator(ContactRank _rank, int _min) {
 			min = _min;
 			rank = _rank;
 		}
@@ -132,7 +147,7 @@ public class ContactEditor extends DivRepFormElement<HashMap<ContactEditor.Rank,
 			return "Please specify at least " + min + " contact(s) for " + rank.toString();
 		}
 
-		public Boolean isValid(HashMap<ContactEditor.Rank, ArrayList<ContactDE>> recs_hash) {
+		public Boolean isValid(HashMap<ContactRank, ArrayList<ContactDE>> recs_hash) {
 			ArrayList<ContactDE> recs = recs_hash.get(rank);
 			return (recs.size() >= min);
 		}
@@ -142,12 +157,12 @@ public class ContactEditor extends DivRepFormElement<HashMap<ContactEditor.Rank,
 	class NewContactDE extends DivRepFormElement
 	{
 		private ContactModel pmodel;
-		private Rank rank;
+		private ContactRank rank;
 		
-		public NewContactDE(DivRep parent, ContactModel _pmodel, Rank _rank) {
+		public NewContactDE(DivRep parent, ContactModel pmodel, ContactRank rank) {
 			super(parent);
-			pmodel = _pmodel;
-			rank = _rank;
+			this.pmodel = pmodel;
+			this.rank = rank;
 		}
 		
 		public void render(PrintWriter out) {
@@ -162,7 +177,7 @@ public class ContactEditor extends DivRepFormElement<HashMap<ContactEditor.Rank,
 			int contact_id = Integer.parseInt((String)e.value);
 			try {
 				ContactRecord person = pmodel.get(contact_id);
-				addSelected(person, Enum2DBRank(rank));
+				addSelected(person, rank);
 				
 				setFormModified();
 			} catch (SQLException e1) {
@@ -224,16 +239,16 @@ public class ContactEditor extends DivRepFormElement<HashMap<ContactEditor.Rank,
 				}
 		
 				//remove people that are already selected 
-				for(ContactDE rec : selected.get(Rank.Primary)) {
+				for(ContactDE rec : selected.get(ContactRank.Primary)) {
 					persons.remove(rec.person.id);
 				}
 				if(has_secondary) {
-					for(ContactDE rec : selected.get(Rank.Secondary)) {
+					for(ContactDE rec : selected.get(ContactRank.Secondary)) {
 						persons.remove(rec.person.id);
 					}					
 				}
 				if(has_tertiary) {
-					for(ContactDE rec : selected.get(Rank.Tertiary)) {
+					for(ContactDE rec : selected.get(ContactRank.Tertiary)) {
 						persons.remove(rec.person.id);
 					}					
 				}
@@ -265,9 +280,9 @@ public class ContactEditor extends DivRepFormElement<HashMap<ContactEditor.Rank,
 		public ContactRecord person;
 		private DivRepButton removebutton;
 		private ContactDE myself;
-		private Rank rank;
+		private ContactRank rank;
 		
-		ContactDE(DivRep parent, ContactRecord _person, Rank _rank) {
+		ContactDE(DivRep parent, ContactRecord _person, ContactRank _rank) {
 			super(parent);
 			person = _person;
 			rank = _rank;
@@ -307,28 +322,28 @@ public class ContactEditor extends DivRepFormElement<HashMap<ContactEditor.Rank,
 		}
 	}
 	
-	public void removeContact(ContactDE contact, Rank rank)
+	public void removeContact(ContactDE contact, ContactRank rank)
 	{
 		ArrayList<ContactDE> list = selected.get(rank);		
 		list.remove(contact);
 		validate();
 		redraw();
 	}
-	
-	private Rank DBRank2Enum(int contact_rank_id)
+	/*
+	private ContactRank DBRank2Enum(int contact_rank_id)
 	{
 		switch(contact_rank_id) {
 		case 1:
-			return ContactEditor.Rank.Primary;
+			return ContactRank.Primary;
 		case 2:
-			return ContactEditor.Rank.Secondary;
+			return ContactRank.Secondary;
 		case 3:
-			return ContactEditor.Rank.Tertiary;
+			return ContactRank.Tertiary;
 		}	
 		throw new IllegalArgumentException("Uknown contact_rank_id: " + contact_rank_id);
 	}
 	
-	private int Enum2DBRank(Rank rank)
+	private int Enum2DBRank(ContactRank rank)
 	{
 		switch(rank) {
 		case Primary:
@@ -340,7 +355,8 @@ public class ContactEditor extends DivRepFormElement<HashMap<ContactEditor.Rank,
 		}
 		throw new IllegalArgumentException("Uknown rank: " + rank);
 	}
-	public void addSelected(ContactRecord rec, Rank rank)
+	*/
+	public void addSelected(ContactRecord rec, ContactRank rank)
 	{
 		ArrayList<ContactDE> list = selected.get(rank);
 		if(list != null) {
@@ -351,17 +367,17 @@ public class ContactEditor extends DivRepFormElement<HashMap<ContactEditor.Rank,
 	}
 	public void addSelected(ContactRecord rec, int contact_rank_id)
 	{
-		Rank rank = DBRank2Enum(contact_rank_id);
+		ContactRank rank = ContactRank.get(contact_rank_id);
 		addSelected(rec, rank);
 	}
 	
-	public HashMap<ContactRecord, Integer/*rank*/> getContactRecords()
+	public HashMap<ContactRecord, ContactRank/*rank*/> getContactRecords()
 	{
-		HashMap<ContactRecord, Integer> records = new HashMap();
-		for(Rank rank : selected.keySet()) {
+		HashMap<ContactRecord, ContactRank> records = new HashMap();
+		for(ContactRank rank : selected.keySet()) {
 			ArrayList<ContactDE> cons = selected.get(rank);
 			for(ContactDE con : cons) {
-				records.put(con.person, Enum2DBRank(rank));
+				records.put(con.person, rank);
 			}
 		}
 		return records;
@@ -369,7 +385,7 @@ public class ContactEditor extends DivRepFormElement<HashMap<ContactEditor.Rank,
 
 	public ArrayList<ContactRecord> getContactRecordsByRank(Integer _rank_id)
 	{
-		Rank rank = DBRank2Enum(_rank_id);
+		ContactRank rank = ContactRank.get(_rank_id);
 
 		ArrayList<ContactRecord> records = new ArrayList<ContactRecord>();
 		ArrayList<ContactDE> contact_divs = new ArrayList<ContactDE>();
@@ -395,12 +411,12 @@ public class ContactEditor extends DivRepFormElement<HashMap<ContactEditor.Rank,
 			} else {
 				out.print("<table class='contact_table'>");
 			}
-			renderContactList(out, primary_newcontact, selected.get(Rank.Primary), Rank.Primary, primary_label, max_primary);
+			renderContactList(out, primary_newcontact, selected.get(ContactRank.Primary), ContactRank.Primary, max_primary);
 			if(has_secondary) {
-				renderContactList(out, secondary_newcontact, selected.get(Rank.Secondary), Rank.Secondary, secondary_label, max_secondary);
+				renderContactList(out, secondary_newcontact, selected.get(ContactRank.Secondary), ContactRank.Secondary, max_secondary);
 			}
 			if(has_tertiary) {
-				renderContactList(out, tertiary_newcontact, selected.get(Rank.Tertiary), Rank.Tertiary, tertiary_label, max_tertiary);
+				renderContactList(out, tertiary_newcontact, selected.get(ContactRank.Tertiary), ContactRank.Tertiary, max_tertiary);
 			}
 			out.print("</table>");
 			error.render(out);
@@ -408,11 +424,11 @@ public class ContactEditor extends DivRepFormElement<HashMap<ContactEditor.Rank,
 		out.print("</div>");
 	}
 	
-	public void renderContactList(PrintWriter out, NewContactDE newcontact, ArrayList<ContactDE> selected, Rank rank, String label, int max)
+	public void renderContactList(PrintWriter out, NewContactDE newcontact, ArrayList<ContactDE> selected, ContactRank rank, int max)
 	{
 		out.print("<tr>");
 		if(show_rank) {
-			out.print("<th><div class='contact_rank contact_"+rank+"'>"+label+"</div></th>");
+			out.print("<th><div class='contact_rank contact_"+rank+"'>"+rank+"</div></th>");
 		}
 		if(selected.size() == max || isDisabled()) {
 			//list is full or disabled

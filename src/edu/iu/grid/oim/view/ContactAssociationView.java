@@ -13,7 +13,7 @@ import com.divrep.common.DivRepButton;
 
 import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.model.UserContext;
-import edu.iu.grid.oim.model.db.ContactRankModel;
+import edu.iu.grid.oim.model.ContactRank;
 import edu.iu.grid.oim.model.db.ContactTypeModel;
 import edu.iu.grid.oim.model.db.ResourceContactModel;
 import edu.iu.grid.oim.model.db.ResourceModel;
@@ -21,7 +21,6 @@ import edu.iu.grid.oim.model.db.SCContactModel;
 import edu.iu.grid.oim.model.db.SCModel;
 import edu.iu.grid.oim.model.db.VOContactModel;
 import edu.iu.grid.oim.model.db.VOModel;
-import edu.iu.grid.oim.model.db.record.ContactRankRecord;
 import edu.iu.grid.oim.model.db.record.ContactTypeRecord;
 import edu.iu.grid.oim.model.db.record.ResourceContactRecord;
 import edu.iu.grid.oim.model.db.record.ResourceRecord;
@@ -68,8 +67,8 @@ public class ContactAssociationView extends GenericView {
 			//aux..
 			ContactTypeModel ctmodel = new ContactTypeModel(context);
 			HashMap<Integer, ContactTypeRecord> ctlist = ctmodel.getAll();
-			ContactRankModel crmodel = new ContactRankModel(context);
-			HashMap<Integer, ContactRankRecord> crlist = crmodel.getAll();
+			//ContactRankModel crmodel = new ContactRankModel(context);
+			//HashMap<Integer, ContactRankRecord> crlist = crmodel.getAll();
 			
 			if(show_new_buttons) {
 				view.add(new HtmlView("<a href=\"resourceedit\" class=\"btn pull-right\"><i class=\"icon-plus-sign\"></i> Register New Resource</a>"));
@@ -104,7 +103,7 @@ public class ContactAssociationView extends GenericView {
 				for(ResourceContactRecord rec : recs) {
 					if(rec.contact_id.equals(contactid)) {
 						ContactTypeRecord ctrec = ctlist.get(rec.contact_type_id);
-						String rank = crlist.get(rec.contact_rank_id).name;
+						ContactRank rank = ContactRank.get(rec.contact_rank_id);
 						tview.add(new HtmlView("<div class=\"contact_rank contact_"+rank+"\">"+ctrec.name+"</div>"));
 					}
 				}
@@ -150,7 +149,7 @@ public class ContactAssociationView extends GenericView {
 				for(VOContactRecord rec : recs) {
 					if(rec.contact_id.equals(contactid)) {
 						ContactTypeRecord ctrec = ctlist.get(rec.contact_type_id);
-						String rank = crlist.get(rec.contact_rank_id).name;
+						ContactRank rank = ContactRank.get(rec.contact_rank_id);
 						tview.add(new HtmlView("<div class=\"contact_rank contact_"+rank+"\">"+ctrec.name+"</div>"));
 					}
 				}
@@ -200,7 +199,7 @@ public class ContactAssociationView extends GenericView {
 				for(SCContactRecord rec : recs) {
 					if(rec.contact_id.equals(contactid)) {
 						ContactTypeRecord ctrec = ctlist.get(rec.contact_type_id);
-						String rank = crlist.get(rec.contact_rank_id).name;
+						ContactRank rank = ContactRank.get(rec.contact_rank_id);
 						tview.add(new HtmlView("<div class=\"contact_rank contact_"+rank+"\">"+ctrec.name+"</div>"));
 					}
 				}

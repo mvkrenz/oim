@@ -88,15 +88,7 @@ public class ContactFormDE extends DivRepForm
 		
 		PersonalInfo(DivRep _parent, final ContactRecord rec, final ArrayList<DNRecord> associated_dn_recs) {
 			super(_parent);
-			
-			/*
-			String associated_dn_string = "Contact not registered on OIM";
-			if (associated_dn_recs != null ) {
-				associated_dn_string = associated_dn_rec.dn_string;
-			}
-			new DivRepStaticContent(this, "<div class=\"divrep_form_element\"><label>Associated DN</label><br/><input type=\"text\" disabled=\"disabled\" style=\"width: 400px;\" value=\""+ associated_dn_string +"\"/><br/><sub>* Can only be modified by GOC Staff on request using Admin interface</sub></div>");
-			*/
-		
+					
 			new DivRep(this) {
 				Integer user_dnid = auth.getDNID();
 				
@@ -116,11 +108,11 @@ public class ContactFormDE extends DivRepForm
 								String active = "";
 								String tag = "";
 								if(user_dnid != null && user_dnid.equals(dn.id)) {
-									active = "well-active";
+									active = " well-active";
 									tag += "<span style=\"float: right;\" class=\"label label-info\">You are currently logged in with this DN</span>";
 								}
 								if(dn.disable) {
-									active = "well-disabled";
+									active = " well-disabled";
 									tag += "<span style=\"float: right;\" class=\"label\">Disabled DN</span>";
 								}
 								out.write("<div class=\"well well-small"+active+"\">");

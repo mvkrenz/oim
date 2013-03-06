@@ -17,11 +17,11 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 
 import edu.iu.grid.oim.model.UserContext;
+import edu.iu.grid.oim.model.ContactRank;
 import edu.iu.grid.oim.model.db.CampusGridContactModel;
 import edu.iu.grid.oim.model.db.CampusGridFieldOfScienceModel;
 import edu.iu.grid.oim.model.db.CampusGridSubmitNodeModel;
 import edu.iu.grid.oim.model.db.ContactModel;
-import edu.iu.grid.oim.model.db.ContactRankModel;
 import edu.iu.grid.oim.model.db.ContactTypeModel;
 import edu.iu.grid.oim.model.db.CampusGridModel;
 import edu.iu.grid.oim.model.db.FieldOfScienceModel;
@@ -32,7 +32,6 @@ import edu.iu.grid.oim.model.db.record.CampusGridContactRecord;
 import edu.iu.grid.oim.model.db.record.CampusGridFieldOfScienceRecord;
 import edu.iu.grid.oim.model.db.record.CampusGridRecord;
 import edu.iu.grid.oim.model.db.record.CampusGridSubmitNodeRecord;
-import edu.iu.grid.oim.model.db.record.ContactRankRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.ContactTypeRecord;
 import edu.iu.grid.oim.model.db.record.FieldOfScienceRecord;
@@ -132,7 +131,7 @@ public class CampusGridServlet extends ServletBase implements Servlet {
 		table.addRow("Latitude", rec.latitude);
 		
 		ContactTypeModel ctmodel = new ContactTypeModel(context);
-		ContactRankModel crmodel = new ContactRankModel(context);
+		//ontactRankModel crmodel = new ContactRankModel(context);
 		ContactModel pmodel = new ContactModel(context);
 		
 		//contacts (only shows contacts that are filled out)
@@ -156,9 +155,9 @@ public class CampusGridServlet extends ServletBase implements Servlet {
 
 				for(CampusGridContactRecord vcrec : clist) {
 					ContactRecord person = pmodel.get(vcrec.contact_id);
-					ContactRankRecord rank = crmodel.get(vcrec.contact_rank_id);
+					//ContactRankRecord rank = crmodel.get(vcrec.contact_rank_id);
 
-					cliststr += "<div class='contact_rank contact_"+rank.name+"'>";
+					cliststr += "<div class='contact_rank contact_"+ContactRank.get(vcrec.contact_rank_id)+"'>";
 					cliststr +=  StringEscapeUtils.escapeHtml(person.name.trim());
 					cliststr += "</div>";
 				}

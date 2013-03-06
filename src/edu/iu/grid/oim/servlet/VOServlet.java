@@ -15,20 +15,14 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 
 import com.divrep.DivRep;
-import com.divrep.DivRepEvent;
-import com.divrep.DivRepEventListener;
-import com.divrep.common.DivRepButton;
 import com.divrep.common.DivRepStaticContent;
-import com.divrep.common.DivRepToggler;
 
-import edu.iu.grid.oim.lib.Authorization;
-import edu.iu.grid.oim.lib.StaticConfig;
+import edu.iu.grid.oim.model.ContactRank;
 import edu.iu.grid.oim.model.UserContext;
-import edu.iu.grid.oim.model.db.ContactRankModel;
 import edu.iu.grid.oim.model.db.ContactTypeModel;
 import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.FieldOfScienceModel;
-import edu.iu.grid.oim.model.db.ResourceModel;
+
 import edu.iu.grid.oim.model.db.VOOasisUserModel;
 import edu.iu.grid.oim.model.db.VOReportNameModel;
 import edu.iu.grid.oim.model.db.VOReportNameFqanModel;
@@ -37,7 +31,6 @@ import edu.iu.grid.oim.model.db.VOContactModel;
 import edu.iu.grid.oim.model.db.VOFieldOfScienceModel;
 import edu.iu.grid.oim.model.db.VOModel;
 import edu.iu.grid.oim.model.db.VOReportContactModel;
-import edu.iu.grid.oim.model.db.record.ContactRankRecord;
 import edu.iu.grid.oim.model.db.record.ContactTypeRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.FieldOfScienceRecord;
@@ -233,7 +226,7 @@ public class VOServlet extends ServletBase implements Servlet {
 			table.addRow("Support Center", getSCName(context, rec.sc_id));
 
 			ContactTypeModel ctmodel = new ContactTypeModel(context);
-			ContactRankModel crmodel = new ContactRankModel(context);
+			//ContactRankModel crmodel = new ContactRankModel(context);
 			ContactModel pmodel = new ContactModel(context);
 			
 			//contacts (only shows contacts that are filled out)
@@ -257,9 +250,8 @@ public class VOServlet extends ServletBase implements Servlet {
 
 					for(VOContactRecord vcrec : clist) {
 						ContactRecord person = pmodel.get(vcrec.contact_id);
-						ContactRankRecord rank = crmodel.get(vcrec.contact_rank_id);
-	
-						cliststr += "<div class='contact_rank contact_"+rank.name+"'>";
+						ContactRank rank = ContactRank.get(vcrec.contact_rank_id);
+						cliststr += "<div class='contact_rank contact_"+rank+"'>";
 						cliststr +=  StringEscapeUtils.escapeHtml(person.name.trim());
 						cliststr += "</div>";
 					}
@@ -350,7 +342,7 @@ public class VOServlet extends ServletBase implements Servlet {
 			table.addRow(row);
 			
 			ContactTypeModel ctmodel = new ContactTypeModel(context);
-			ContactRankModel crmodel = new ContactRankModel(context);
+			//ContactRankModel crmodel = new ContactRankModel(context);
 			ContactModel pmodel = new ContactModel(context);
 			
 			//reporting contacts 
@@ -360,8 +352,8 @@ public class VOServlet extends ServletBase implements Servlet {
 			for(VOReportContactRecord vrc_record : vorc_list) {
 				ContactRecord person = pmodel.get(vrc_record.contact_id);
 				// AG: Remove rank from VORC
-				ContactRankRecord rank = crmodel.get(vrc_record.contact_rank_id);
-				cliststr += "<div class='contact_rank contact_"+rank.name+"'>";
+				ContactRank rank = ContactRank.get(vrc_record.contact_rank_id);
+				cliststr += "<div class='contact_rank contact_"+rank+"'>";
 				cliststr += StringEscapeUtils.escapeHtml(person.name);
 				cliststr += "</div>";
 			}

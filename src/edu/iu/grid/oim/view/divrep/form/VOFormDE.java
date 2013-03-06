@@ -8,14 +8,12 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.TreeSet;
 
 import org.apache.log4j.Logger;
 
 import com.divrep.DivRep;
 import com.divrep.DivRepEvent;
 import com.divrep.DivRepEventListener;
-import com.divrep.common.DivRepButton;
 import com.divrep.common.DivRepCheckBox;
 import com.divrep.common.DivRepForm;
 import com.divrep.common.DivRepFormElement;
@@ -29,11 +27,12 @@ import com.divrep.validator.DivRepUrlValidator;
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Footprints;
 import edu.iu.grid.oim.lib.AuthorizationException;
+
+import edu.iu.grid.oim.model.ContactRank;
 import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.UserContext.MessageType;
 import edu.iu.grid.oim.model.db.ContactTypeModel;
 import edu.iu.grid.oim.model.db.ContactModel;
-import edu.iu.grid.oim.model.db.FieldOfScienceModel;
 import edu.iu.grid.oim.model.db.VOOasisUserModel;
 import edu.iu.grid.oim.model.db.VOReportContactModel;
 import edu.iu.grid.oim.model.db.VOReportNameModel;
@@ -44,8 +43,6 @@ import edu.iu.grid.oim.model.db.VOFieldOfScienceModel;
 import edu.iu.grid.oim.model.db.VOModel;
 import edu.iu.grid.oim.model.db.record.ContactTypeRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
-import edu.iu.grid.oim.model.db.record.FieldOfScienceRecord;
-
 import edu.iu.grid.oim.model.db.record.VOOasisUserRecord;
 import edu.iu.grid.oim.model.db.record.VOReportContactRecord;
 import edu.iu.grid.oim.model.db.record.VOReportNameRecord;
@@ -54,12 +51,12 @@ import edu.iu.grid.oim.model.db.record.SCRecord;
 import edu.iu.grid.oim.model.db.record.VOContactRecord;
 import edu.iu.grid.oim.model.db.record.VOFieldOfScienceRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
+
 import edu.iu.grid.oim.view.ToolTip;
 import edu.iu.grid.oim.view.divrep.AUPConfirmation;
 import edu.iu.grid.oim.view.divrep.Confirmation;
 import edu.iu.grid.oim.view.divrep.ContactEditor;
 import edu.iu.grid.oim.view.divrep.VOReportNames;
-import edu.iu.grid.oim.view.divrep.ContactEditor.Rank;
 import edu.iu.grid.oim.view.divrep.FieldOfScience;
 
 public class VOFormDE extends DivRepForm 
@@ -91,7 +88,8 @@ public class VOFormDE extends DivRepForm
 		ContactTypes.add(new ContactTypeRecord.Info(3, "Contacts for ticketing and assorted issues. This is typically a user/application support person or a help desk"));
 		ContactTypes.add(new ContactTypeRecord.Info(2, "Security notifications sent out by the OSG security team are sent to primary and secondary virtual organization security contacts"));
 		ContactTypes.add(new ContactTypeRecord.Info(5, "Contacts who do not fall under any of the above types but would like to be able to edit this virtual organization can be added as miscellaneous contact"));
-		ContactTypes.add(new ContactTypeRecord.Info(11, "RA (Registration Authority) agent who can approve user certificate requests. Only PKI staff can update this information (except RA agent can edit sponsors)"));
+		ContactTypes.add(new ContactTypeRecord.Info(11, "RA (Registration Authority) agent who can approve user certificate requests for this VO. Only PKI staff can update this information"));
+		ContactTypes.add(new ContactTypeRecord.Info(12, "Sponsors who can vet user certificate requesters."));
 	}
 	
 	private HashMap<Integer, ContactEditor> contact_editors = new HashMap();
@@ -115,7 +113,7 @@ public class VOFormDE extends DivRepForm
 	private DivRepTextBox support_url;	
 	
 	private DivRepCheckBox use_oasis;
-	private ContactEditor oasis_users;
+	private OASISManagerEditor oasis_users;
 
 	class ScienceVOInfo extends DivRepFormElement
 	{
@@ -265,7 +263,68 @@ public class VOFormDE extends DivRepForm
 			out.write("<br/></div>");
 		}
 	}
+	
+	class OASISManagerEditor extends DivRepFormElement {
+		ContactEditor editor;
+		Boolean table_hidden;
+		
+		OASISManagerEditor(DivRep parent, ArrayList<VOOasisUserRecord> users) {
+			super(parent);
+			
+			table_hidden = false;
+			
+			ContactModel pmodel = new ContactModel(context);	
+			editor = new ContactEditor(this, pmodel, false, false);
+			editor.setMaxContacts(ContactRank.Primary, 10);
+			//editor.setLabel("OASIS Managers");
+			//editor.addClass("indent");
+			editor.setShowRank(false);
+			
+			//if provided, populate currently selected contacts
+			if(users != null) {
+				for(VOOasisUserRecord user : users) {
+					ContactRecord keyrec = new ContactRecord();
+					keyrec.id = user.contact_id;
+					try {
+						ContactRecord person = pmodel.get(keyrec);
+						editor.addSelected(person, ContactRank.Primary);
+					} catch (SQLException e) {
+						log.error("Failed to lookup contact information to populate on oasis manager", e);
+					}
+				}
+			}
+		}
+		
+		@Override
+		protected void onEvent(DivRepEvent arg0) {
+			// TODO Auto-generated method stub
+			
+		}
 
+		@Override
+		public void render(PrintWriter out) {
+			out.write("<div id=\""+getNodeID()+"\">");
+			if(!isHidden()) {
+				out.write("<table class=\"contact_table\"><tr>");
+				out.write("<th>OASIS Managers</th>");
+				out.write("<td>");
+				editor.render(out);
+				out.write("</td>");
+				out.write("</tr></table>");
+			}
+			out.write("</div>");
+		}
+		
+		public ArrayList<ContactRecord> getContacts() {
+			return editor.getContactRecordsByRank(1);
+		}
+		
+		@Override 
+		public void setDisabled(Boolean b)  {
+			editor.setDisabled(b);
+		}
+	}
+	
 	public void showHideScienceVODetail()
 	{
 		Boolean required = science_vo.getValue();
@@ -279,8 +338,8 @@ public class VOFormDE extends DivRepForm
 	}
 	
 	public void showHideOasisUsers() {
-		Boolean required = use_oasis.getValue();
-		oasis_users.setHidden(!required);
+		Boolean use = use_oasis.getValue();
+		oasis_users.setHidden(!use);
 		oasis_users.redraw();
 	}
 	
@@ -386,7 +445,7 @@ public class VOFormDE extends DivRepForm
 
 		///////////////////////////////////////////////////////////////////////////////////////////
 		new DivRepStaticContent(this, "<h2>OASIS Information</h2>");
-		new DivRepStaticContent(this, "<p class=\"help-block\">Only OASIS Administrator can update this information. Please contact GOC if you need assistance.</p>");
+		new DivRepStaticContent(this, "<p class=\"help-block\">Only OASIS Administrator can update this information. Please contact GOC for an assistance.</p>");
 		use_oasis = new DivRepCheckBox(this);
 		use_oasis.setLabel("OASIS Enabled");
 		use_oasis.setValue(rec.use_oasis);
@@ -400,10 +459,10 @@ public class VOFormDE extends DivRepForm
 			VOOasisUserModel vooumodel = new VOOasisUserModel(context);
 			users = vooumodel.getByVOID(rec.id);
 		}
-		oasis_users = createOASISUserEditor(users);
+		oasis_users = new OASISManagerEditor(this, users);
 		if(!auth.allows("admin_oasis")) {
+			use_oasis.setDisabled(true);
 			oasis_users.setDisabled(true);
-			use_oasis.setDisabled(true);	
 		}
 		showHideOasisUsers();
 		
@@ -450,48 +509,44 @@ public class VOFormDE extends DivRepForm
 			primary_security_contact.contact_type_id = 2;//security_contact
 			security_contact_list.add(primary_security_contact);
 			voclist_grouped.put(2/*security_contact*/, security_contact_list);
-			
-			/*
-			ArrayList<VOContactRecord> ra_list = new ArrayList<VOContactRecord>();
-			
-			VOContactRecord ra = new VOContactRecord();
-			//make Alain Deximo secondary RA
-			ra.contact_id = 623;//alain deximo
-			ra.contact_rank_id = 2;//secondary
-			ra.contact_type_id = 11;//vo_ra
-			ra_list.add(ra);
-			voclist_grouped.put(11, ra_list);//vo_ra
-			*/
 		}
 		ContactTypeModel ctmodel = new ContactTypeModel(context);
 		for(ContactTypeRecord.Info contact_type : ContactTypes) {
 			tip = new ToolTip(contact_type.desc);
 			ContactEditor editor = createContactEditor(voclist_grouped, ctmodel.get(contact_type.id), tip);
 			
-			//only oim admin can edit submitter
-			if(contact_type.id == 1) {//submitter
+			switch(contact_type.id) {
+			case 1://submitter
+				//only oim admin can edit submitter
 				if(!auth.allows("admin")) {
 					editor.setDisabled(true);
 				}
+				editor.setMinContacts(ContactRank.Primary, 1); //required
+				break;
+			case 2://security contact
+				editor.setMinContacts(ContactRank.Primary, 1); //required
+				break;
+			case 3://admin
+				editor.setMinContacts(ContactRank.Primary, 1); //required
+				break;
+			case 5://misc
+				break;
+			case 6://manager
+				editor.setMinContacts(ContactRank.Primary, 1); //required
+				break;
+			case 11://ra
+				editor.setDisabled(!auth.allows("admin_ra"));
+				editor.setLabel(ContactRank.Primary, "Primary RA");
+				editor.setLabel(ContactRank.Secondary, "Secondary RA");
+				editor.setMaxContacts(ContactRank.Secondary, 8);
+				break;
+			case 12://sponsor
+				editor.setMinContacts(ContactRank.Primary, 0);
+				editor.setMinContacts(ContactRank.Secondary, 0);
+				editor.setMaxContacts(ContactRank.Secondary, 20);//random limit
+				break;
 			}
 			
-			//request authority
-			if(contact_type.id == 11) {
-				//only admin_ra can edit ra
-				if(!auth.allows("admin_ra")) {
-					editor.setDisabled(true);
-				}
-				
-				editor.setLabel(Rank.Primary, "Primary RA");
-				editor.setLabel(Rank.Secondary, "Secondary RA");
-				editor.setLabel(Rank.Tertiary, "Sponsors");
-				
-				editor.setMaxContacts(Rank.Secondary, 8);
-			}
-			
-			if(contact_type.id != 5 && contact_type.id != 10 && contact_type.id != 11) { //5 = misc, 9 = resource report, 11 = ra agent
-				editor.setMinContacts(Rank.Primary, 1);
-			}
 			contact_editors.put(contact_type.id, editor);
 		}
 
@@ -502,16 +557,6 @@ public class VOFormDE extends DivRepForm
 			new DivRepStaticContent(this, "<h2>Administrative Tasks</h2>");
 		}
 		
-		/*
-		footprints_id = new DivRepTextBox(this);
-		footprints_id.setLabel("Footprints ID (deprecated - don't use this)");
-		footprints_id.setValue(rec.footprints_id);
-		footprints_id.setRequired(true);
-		if(!auth.allows("admin")) {
-			footprints_id.setHidden(true);
-		}
-		*/
-
 		active = new DivRepCheckBox(this);
 		active.setLabel("Active");
 		active.setValue(rec.active);
@@ -559,28 +604,6 @@ public class VOFormDE extends DivRepForm
 				}
 			}
 		}
-		return editor;
-	}
-	
-	private ContactEditor createOASISUserEditor(ArrayList<VOOasisUserRecord> users) throws SQLException
-	{
-		ContactModel pmodel = new ContactModel(context);		
-		ContactEditor editor = new ContactEditor(this, pmodel, false, false);
-		editor.setMaxContacts(Rank.Primary, 10);
-		editor.setLabel("OASIS Managers");
-		editor.addClass("indent");
-		editor.setShowRank(false);
-		
-		//if provided, populate currently selected contacts
-		if(users != null) {
-			for(VOOasisUserRecord user : users) {
-				ContactRecord keyrec = new ContactRecord();
-				keyrec.id = user.contact_id;
-				ContactRecord person = pmodel.get(keyrec);
-				editor.addSelected(person, Rank.Primary);
-			}
-		}
-	
 		return editor;
 	}
 	
@@ -690,7 +713,7 @@ public class VOFormDE extends DivRepForm
 						parent_vo.getValue(), 
 						field_of_science_ids,
 						vo_report_name_div.getVOReports(model),
-						oasis_users.getContactRecordsByRank(1));//primary
+						oasis_users.getContacts());
 				context.message(MessageType.SUCCESS, "Successfully registered new VO. You should receive a notification with an instruction on how to active your VO.");
 				
 				try {
@@ -710,7 +733,7 @@ public class VOFormDE extends DivRepForm
 						parent_vo.getValue(), 
 						field_of_science_ids,
 						vo_report_name_div.getVOReports(model),
-						oasis_users.getContactRecordsByRank(1));
+						oasis_users.getContacts());
 				context.message(MessageType.SUCCESS, "Successfully updated a VO.");
 			}
 			return true;
@@ -731,13 +754,13 @@ public class VOFormDE extends DivRepForm
 		for(Integer type_id : contact_editors.keySet()) 
 		{
 			ContactEditor editor = contact_editors.get(type_id);
-			HashMap<ContactRecord, Integer> contacts = editor.getContactRecords();
+			HashMap<ContactRecord, ContactRank> contacts = editor.getContactRecords();
 			for(ContactRecord contact : contacts.keySet()) {
 				VOContactRecord rec = new VOContactRecord();
-				Integer rank_id = contacts.get(contact);
+				ContactRank rank = contacts.get(contact);
 				rec.contact_id = contact.id;
 				rec.contact_type_id = type_id;
-				rec.contact_rank_id = rank_id;
+				rec.contact_rank_id = rank.id;
 				list.add(rec);
 			}
 		}

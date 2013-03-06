@@ -12,7 +12,7 @@ import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 
 import edu.iu.grid.oim.model.UserContext;
-import edu.iu.grid.oim.model.db.record.ContactRankRecord;
+import edu.iu.grid.oim.model.ContactRank;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.ContactTypeRecord;
 import edu.iu.grid.oim.model.db.record.RecordBase;
@@ -95,9 +95,9 @@ public class ResourceContactModel extends SmallTableModelBase<ResourceContactRec
 			ContactTypeRecord rec = model.get(Integer.parseInt(value));
 			return value + " (" + rec.name + ")";			
 		} else if(field_name.equals("contact_rank_id")) {
-			ContactRankModel model = new ContactRankModel(context);
-			ContactRankRecord rec = model.get(Integer.parseInt(value));
-			return value + " (" + rec.name + ")";			
+			//ContactRankModel model = new ContactRankModel(context);
+			ContactRank rank = ContactRank.get(Integer.parseInt(value));
+			return value + " (" + rank + ")";		
 		}
 		return value;
 	}

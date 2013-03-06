@@ -16,13 +16,13 @@ import com.divrep.common.DivRepFormElement;
 import com.divrep.common.DivRepSelectBox;
 import com.divrep.i18n.Labels;
 
+import edu.iu.grid.oim.model.ContactRank;
 import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.VOModel;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.GridAdminRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
-import edu.iu.grid.oim.view.divrep.ContactEditor.Rank;
 import edu.iu.grid.oim.view.divrep.form.GridAdminFormDE;
 
 public class GridAdmin extends DivRepFormElement {
@@ -56,8 +56,8 @@ public class GridAdmin extends DivRepFormElement {
 			
 			contact = new ContactEditor(this, new ContactModel(context), false, false);
 			//contact.setLabel("GridAdmin Contacts");		
-			contact.setMinContacts(Rank.Primary, 1);
-			contact.setMaxContacts(Rank.Primary, 30); //just a random limit
+			contact.setMinContacts(ContactRank.Primary, 1);
+			contact.setMaxContacts(ContactRank.Primary, 30); //just a random limit - updated per Alain's request
 			contact.setShowRank(false);
 		
 			if(recs != null && recs.size() > 0) {

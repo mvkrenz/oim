@@ -2,7 +2,6 @@ package edu.iu.grid.oim.view.divrep;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
-import java.util.HashMap;
 
 import com.divrep.DivRep;
 import com.divrep.DivRepEvent;
@@ -10,11 +9,6 @@ import com.divrep.DivRepEventListener;
 import com.divrep.common.DivRepButton;
 import com.divrep.common.DivRepFormElement;
 import com.divrep.common.DivRepTextBox;
-
-import edu.iu.grid.oim.model.db.record.ContactRecord;
-import edu.iu.grid.oim.model.db.record.ResourceAliasRecord;
-import edu.iu.grid.oim.view.divrep.ContactEditor.ContactDE;
-import edu.iu.grid.oim.view.divrep.ContactEditor.Rank;
 
 public class ResourceAlias extends DivRepFormElement {
 

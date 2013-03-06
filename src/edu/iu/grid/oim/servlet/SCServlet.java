@@ -22,8 +22,8 @@ import com.divrep.common.DivRepToggler;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.StaticConfig;
+import edu.iu.grid.oim.model.ContactRank;
 import edu.iu.grid.oim.model.UserContext;
-import edu.iu.grid.oim.model.db.ContactRankModel;
 import edu.iu.grid.oim.model.db.ContactTypeModel;
 import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.SCContactModel;
@@ -31,7 +31,6 @@ import edu.iu.grid.oim.model.db.SCModel;
 import edu.iu.grid.oim.model.db.VOModel;
 import edu.iu.grid.oim.model.db.record.SCRecord;
 import edu.iu.grid.oim.model.db.record.SCContactRecord;
-import edu.iu.grid.oim.model.db.record.ContactRankRecord;
 import edu.iu.grid.oim.model.db.record.ContactTypeRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.VOContactRecord;
@@ -195,7 +194,7 @@ public class SCServlet extends ServletBase implements Servlet {
 			table.addRow("Ex. Assignment ID", rec.external_assignment_id);
 
 			ContactTypeModel ctmodel = new ContactTypeModel(context);
-			ContactRankModel crmodel = new ContactRankModel(context);
+			//ContactRankModel crmodel = new ContactRankModel(context);
 			ContactModel pmodel = new ContactModel(context);
 			
 			//contacts (only shows contacts that are filled out)
@@ -218,9 +217,8 @@ public class SCServlet extends ServletBase implements Servlet {
 					
 					for(SCContactRecord sccrec : clist) {
 						ContactRecord person = pmodel.get(sccrec.contact_id);
-						ContactRankRecord rank = crmodel.get(sccrec.contact_rank_id);
-	
-						cliststr += "<div class='contact_rank contact_"+rank.name+"'>";
+						ContactRank rank = ContactRank.get(sccrec.contact_rank_id);
+						cliststr += "<div class='contact_rank contact_"+rank+"'>";
 						cliststr += StringEscapeUtils.escapeHtml(person.name.trim());
 						cliststr += "</div>";
 					}

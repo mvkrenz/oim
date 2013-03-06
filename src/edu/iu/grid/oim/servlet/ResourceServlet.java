@@ -23,8 +23,8 @@ import com.divrep.common.DivRepToggler;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.StaticConfig;
+import edu.iu.grid.oim.model.ContactRank;
 import edu.iu.grid.oim.model.UserContext;
-import edu.iu.grid.oim.model.db.ContactRankModel;
 import edu.iu.grid.oim.model.db.ContactTypeModel;
 import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.FacilityModel;
@@ -41,7 +41,6 @@ import edu.iu.grid.oim.model.db.ServiceModel;
 import edu.iu.grid.oim.model.db.SiteModel;
 import edu.iu.grid.oim.model.db.VOModel;
 import edu.iu.grid.oim.model.db.VOResourceOwnershipModel;
-import edu.iu.grid.oim.model.db.record.ContactRankRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.ContactTypeRecord;
 import edu.iu.grid.oim.model.db.record.FacilityRecord;
@@ -262,7 +261,7 @@ public class ResourceServlet extends ServletBase implements Servlet {
 			
 			//contacts (only shows contacts that are filled out)
 			ContactTypeModel ctmodel = new ContactTypeModel(context);
-			ContactRankModel crmodel = new ContactRankModel(context);
+			//ContactRankModel crmodel = new ContactRankModel(context);
 			ContactModel pmodel = new ContactModel(context);
 			ResourceContactModel rcmodel = new ResourceContactModel(context);
 			ArrayList<ResourceContactRecord> rclist = rcmodel.getByResourceID(rec.id);
@@ -285,9 +284,9 @@ public class ResourceServlet extends ServletBase implements Servlet {
 					
 					for(ResourceContactRecord vcrec : clist) {
 						ContactRecord person = pmodel.get(vcrec.contact_id);
-						ContactRankRecord rank = crmodel.get(vcrec.contact_rank_id);
+						ContactRank rank = ContactRank.get(vcrec.contact_rank_id);
 
-						cliststr += "<div class='contact_rank contact_"+rank.name+"'>";
+						cliststr += "<div class='contact_rank contact_"+rank+"'>";
 						cliststr += StringEscapeUtils.escapeHtml(person.name.trim());
 						/*
 						if(person.primary_email != null) {

@@ -51,6 +51,7 @@ public class RegisterServlet extends ServletBase  {
 		if(!auth.isUnregistered()) {
 			//user don't meet the requirement to register. send it to home
 			response.sendRedirect("home");
+			context.message(MessageType.INFO, "Your current DN: "+auth.getUserDN()+" is already registered.");
 			return;
 		}
 		
@@ -63,13 +64,15 @@ public class RegisterServlet extends ServletBase  {
 		
 		BootMenuView menuview = new BootMenuView(context, "register");
 		ContentView contentview = createContentView(context);
-		BootPage page = new BootPage(context, menuview, contentview, createSideView(context));
+		BootPage page = new BootPage(context, menuview, contentview, null);
 		page.render(response.getWriter());	
 	}
 	
 	protected ContentView createContentView(UserContext context)
 	{
 		ContentView contentview = new ContentView(context);
+		
+		contentview.add(new HtmlView("<p class=\"alert\">If you already have an OIM account and wish to associate another DN to your existing account, please open a <a href=\"https://ticket.grid.iu.edu\">GOC ticket</a> requesting for contact DN association.</p>"));		
 		
 		contentview.add(new HtmlView("<h2>OIM Registration</h2>"));
 		//contentview.add(new HtmlView("<p>Your X509 certificate is not registered on OIM. </p>"));
@@ -106,7 +109,7 @@ public class RegisterServlet extends ServletBase  {
 			super(context.getPageRoot(), origin_url);
 			this.context = context;
 
-			new DivRepStaticContent(this, "<div class=\"divrep_form_element\"><label>Your Certificate DN</label><br/><input type=\"text\" disabled=\"disabled\" style=\"width: 400px;\" value=\""+context.getAuthorization().getUserDN()+"\"/> * Required</div>");
+			new DivRepStaticContent(this, "<div class=\"divrep_form_element\"><label>Your Certificate DN</label><br/><input type=\"text\" disabled=\"disabled\" class=\"input-xxlarge\" value=\""+context.getAuthorization().getUserDN()+"\"/></div>");
 			
 			name = new DivRepTextBox(this);
 			name.setLabel("Enter Your Full Name");
@@ -329,9 +332,11 @@ public class RegisterServlet extends ServletBase  {
 		}
 	}
 	
+	/*
 	private SideContentView createSideView(UserContext context) {
 		SideContentView view = new SideContentView();
 		view.add(new HtmlView("<p class=\"alert\">If you already have an OIM account and wish to associate another DN to your existing account, please open a <a href=\"https://ticket.grid.iu.edu\">GOC ticket</a> requesting for contact DN association.</p>"));		
 		return view;
 	}
+	*/
 }

@@ -13,6 +13,8 @@ import com.divrep.common.DivRepFormElement;
 import com.divrep.common.DivRepStaticContent;
 import com.divrep.common.DivRepTextBox;
 import com.divrep.validator.DivRepIValidator;
+
+import edu.iu.grid.oim.model.ContactRank;
 import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.VOModel;
 import edu.iu.grid.oim.model.db.VOModel.VOReport;
@@ -78,8 +80,8 @@ public class VOReportNames extends DivRepFormElement {
 			new DivRepStaticContent(this, "<h4>Subscribers (type to search)</h4>");
 			vorc_editor = new ContactEditor (this, cmodel, false, false);
 			vorc_editor.setShowRank(false);
-			vorc_editor.setMinContacts(ContactEditor.Rank.Primary, 0);
-			vorc_editor.setMaxContacts(ContactEditor.Rank.Primary, 128);
+			vorc_editor.setMinContacts(ContactRank.Primary, 0);
+			vorc_editor.setMaxContacts(ContactRank.Primary, 128);
 			if(vorc_list != null) {
 				for(VOReportContactRecord vorc_record : vorc_list) {
 					ContactRecord keyrec = new ContactRecord();
