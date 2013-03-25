@@ -636,7 +636,7 @@ public class CertificateUserServlet extends ServletBase  {
 	                      	model.startissue(rec, pass.getValue());
 	                    	button.redirect(url);
                     	} catch(CertificateRequestException ex) {
-                    		log.warn("CertificateRequestException while issuging certificate:", ex);
+                    		log.warn("CertificateRequestException while issuging certificate -- request ID:"+rec.id, ex);
                     		button.alert(ex.getMessage());
                     	}
                 	}
