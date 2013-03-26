@@ -585,7 +585,7 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 		}
 		String cn = cn_rdn[0].getFirst().getValue().toString(); //wtf?
 		
-    	log.debug("cn found: " + cn);
+    	//log.debug("cn found: " + cn);
     	return cn;
     }
     

@@ -7,6 +7,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 
@@ -279,10 +280,10 @@ public class CertificateSearchHostForm extends DivRep
 					url.append("status="+status.getValue()+"&");
 				}
 				if(request_after.getValue() != null) {
-					url.append("request_after="+request_after.getValue()+"&");
+					url.append("request_after="+request_after.getValue().getTime()+"&");
 				}
 				if(request_before.getValue() != null) {
-					url.append("request_before="+request_before.getValue()+"&");
+					url.append("request_before="+request_before.getValue().getTime()+"&");
 				}
 				url.append("active="+active_tab.getID());
 				submit.redirect(url.toString());
@@ -298,20 +299,16 @@ public class CertificateSearchHostForm extends DivRep
 		request_id.setValue(request.getParameter("request_id"));
 		serial_id.setValue(request.getParameter("serial_id"));
 		cn_contains.setValue(request.getParameter("dn_contains"));
-		DateFormat df = new SimpleDateFormat("EEE MMM dd kk:mm:ss z yyyy");
+		//DateFormat df = new SimpleDateFormat("EEE MMM dd kk:mm:ss z yyyy");
 		if(request.getParameter("request_after") != null) {
-			try {
-				request_after.setValue(df.parse(request.getParameter("request_after")));
-			} catch (ParseException e1) {
-				log.warn("Failed to parse request_after" + request.getParameter("request_after"), e1);
-			}
+			long time = Long.parseLong(request.getParameter("request_after"));
+			Date d = new Date(time);
+			request_after.setValue(d);
 		}
 		if(request.getParameter("request_before") != null) {
-			try {
-				request_before.setValue(df.parse(request.getParameter("request_before")));
-			} catch (ParseException e1) {
-				log.warn("Failed to parse request_before" + request.getParameter("request_before"), e1);
-			}
+			long time = Long.parseLong(request.getParameter("request_before"));
+			Date d = new Date(time);
+			request_before.setValue(d);
 		}
 		if(request.getParameter("status") != null) {
 			status.setValue(Integer.parseInt(request.getParameter("status")));

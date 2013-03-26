@@ -7,8 +7,10 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
+import java.util.Locale;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -252,9 +254,20 @@ public class CertificateSearchUserForm extends DivRep
 		last_year.add(Calendar.MONTH, -6);
 		request_after.setValue(last_year.getTime());
 		request_after.setLabel("Requested After");
-		
 		request_before = new DivRepDate(this);
 		request_before.setLabel("Requested Before");
+		
+		/* doesn't work
+		//set min date
+		try {
+			String string = "January 1, 2012";
+			Date date = new SimpleDateFormat("MMMM d, yyyy", Locale.ENGLISH).parse(string);
+			request_after.setMinDate(date);
+			request_before.setMinDate(date);
+		} catch (ParseException e1) {
+			log.error("Failed to set min date");
+		}
+		*/
 		
 		submit = new DivRepButton(this, "Search");
 		submit.addClass("btn");
@@ -282,10 +295,10 @@ public class CertificateSearchUserForm extends DivRep
 					url.append("vo="+vo.getValue()+"&");
 				}
 				if(request_after.getValue() != null) {
-					url.append("request_after="+request_after.getValue()+"&");
+					url.append("request_after="+request_after.getValue().getTime()+"&");
 				}
 				if(request_before.getValue() != null) {
-					url.append("request_before="+request_before.getValue()+"&");
+					url.append("request_before="+request_before.getValue().getTime()+"&");
 				}
 				url.append("active="+active_tab.getID());
 				submit.redirect(url.toString());
@@ -306,18 +319,14 @@ public class CertificateSearchUserForm extends DivRep
 		}
 		DateFormat df = new SimpleDateFormat("EEE MMM dd kk:mm:ss z yyyy");
 		if(request.getParameter("request_after") != null) {
-			try {
-				request_after.setValue(df.parse(request.getParameter("request_after")));
-			} catch (ParseException e1) {
-				log.warn("Failed to parse request_after" + request.getParameter("request_after"), e1);
-			}
+			long time = Long.parseLong(request.getParameter("request_after"));
+			Date d = new Date(time);
+			request_after.setValue(d);
 		}
 		if(request.getParameter("request_before") != null) {
-			try {
-				request_before.setValue(df.parse(request.getParameter("request_before")));
-			} catch (ParseException e1) {
-				log.warn("Failed to parse request_before" + request.getParameter("request_before"), e1);
-			}
+			long time = Long.parseLong(request.getParameter("request_before"));
+			Date d = new Date(time);
+			request_before.setValue(d);
 		}
 		if(request.getParameter("status") != null) {
 			status.setValue(Integer.parseInt(request.getParameter("status")));
