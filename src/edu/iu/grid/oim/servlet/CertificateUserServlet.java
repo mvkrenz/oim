@@ -355,7 +355,8 @@ public class CertificateUserServlet extends ServletBase  {
 				} catch (SQLException e) {
 					out.write("<td>sql error</td>");
 				}
-				
+				/* -- sponsor field no longer makes sense - until we store user selected sponsor in db. we can't store this since we allow
+				 * user to manually enter name/email
 				try {
 					out.write("<tr>");
 					out.write("<th>Sponsors</th>");
@@ -382,7 +383,7 @@ public class CertificateUserServlet extends ServletBase  {
 				} catch (SQLException e) {
 					out.write("<td>sql error</td>");
 				}
-				
+				*/
 				
 				GenericView action_control = nextActionControl(context, rec, cn_override, logs);
 				out.write("<tr>");

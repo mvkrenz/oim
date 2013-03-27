@@ -755,6 +755,11 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 						log.warn("User certificate issued for request " + rec.id + " has DN:"+apache_dn+" which doesn't have an expected DN base: "+user_dn_base);
 					}
 					
+					//TODO - we've moved the timing of inserting DN from approve() to here. this means that, we could have 2 requests 
+					//that are in APPROVED status and users can issue them both. This could lead to duplicate DNs in DN table, or 
+					//contacts with identical email addresses.. to prevent this, we should validate against duplicate DN or email inside
+					//canIssue() again, but I am not sure that it's worth doing it.
+					
 					//insert a new DN record
 					DNRecord dnrec = new DNRecord();
 					dnrec.contact_id = rec.requester_contact_id;
@@ -1262,7 +1267,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 			ticket.description += "User has manually entered sponsor information with name: " + sponsor.name + ". RA must confirm the identify of this sponsor. ";
 			ticket.description += "RA should also consider registering this sponsor for this VO.";
 		} else {
-			ticket.description += "User has selected a registered sponsor: " + sponsor.name + " which has been CC-ed to this request. ";
+			ticket.description += "User has selected a registered sponsor: " + sponsor.name + " who has been CC-ed to this request. ";
 		}
 		/*
 		if(StaticConfig.isDebug()) {
