@@ -174,12 +174,12 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 		if(	rec.status.equals(CertificateRequestStatus.REQUESTED) ||
 			//rec.status.equals(CertificateRequestStatus.RENEW_REQUESTED) ||
 			rec.status.equals(CertificateRequestStatus.REVOCATION_REQUESTED)) {
-			if(!auth.isUser()) {
-				//guest can cancel guest submitted request with a valid pass
-				if(rec.requester_passphrase != null) {
-					return true;	
-				}
+
+			//anyone including guest can cancel guest submitted request with a valid pass
+			if(rec.requester_passphrase != null) {
+				return true;	
 			}
+			
 		}
 		return false;
 	}
