@@ -148,7 +148,7 @@ public class CertificateRequestUserForm extends DivRepForm
 		new DivRepStaticContent(this, "<h2>User Certificate Request</h2>");
 	
 		if(!auth.isUser()) {
-			new DivRepStaticContent(this, "<div class=\"alert\">This is a public certificate request form. If you are already an OIM user, please login first.</div>");
+			//new DivRepStaticContent(this, "<div class=\"alert\">This is a public certificate request form. If you are already an OIM user, please login first.</div>");
 			new DivRepStaticContent(this, "<h3>Contact Information</h3>");
 			new DivRepStaticContent(this, "<p class=\"help-block\">Following information will be used to issue your new user certificate, and also used to contact you during the approval process.</p>");
 					
@@ -259,9 +259,9 @@ public class CertificateRequestUserForm extends DivRepForm
 			});
 			
 			new DivRepStaticContent(this, "<h3>Choose a password</h3>");
-			new DivRepStaticContent(this, "<p class=\"help-block\">Please choose a password to retrieve your certificate once it's issued.</p>");
+			new DivRepStaticContent(this, "<p class=\"help-block\">Please choose a password to issue your certificate and encrypt your private key.</p>");
 			if(!auth.isUser()) {
-				new DivRepStaticContent(this, "<p class=\"help-block\">This password will also be used to encrypt your private key.</p>");
+				new DivRepStaticContent(this, "<p class=\"help-block alert alert-error\"><b>IMPORTANT</b>: If you forget this password, you will not be able to issue your certificate and import it your browser after it is approved.</p>");
 			}
 			passphrase = new DivRepPassword(this);
 			passphrase.addValidator(new PKIPassStrengthValidator());

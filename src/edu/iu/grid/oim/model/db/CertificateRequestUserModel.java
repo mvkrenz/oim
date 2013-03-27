@@ -362,91 +362,29 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 	    		throw new CertificateRequestException("Failed to approve user certificate request: " + rec.id, e);
 			}	
 			
-			approveNewRequest(rec);
-		} /*else if(rec.status.equals(CertificateRequestStatus.RENEW_REQUESTED)) {
-			//update request status
-			rec.status = CertificateRequestStatus.APPROVED;
 			try {
-				super.update(get(rec.id), rec);
-				quota.incrementUserCertRequest(rec.requester_contact_id);
+				//get requester name
+				ContactModel cmodel = new ContactModel(context);
+				ContactRecord requester = cmodel.get(rec.requester_contact_id);
+		
+				//update ticket
+				Footprints fp = new Footprints(context);
+				FPTicket ticket = fp.new FPTicket();
+				ticket.description = "Dear " + requester.name + ",\n\n";
+				ticket.description += "Your user certificate request has been approved.\n\n";
+				ticket.description += "> " + context.getComment();
+				ticket.description += "\n\nTo retrieve your certificate please visit " + getTicketUrl(rec.id) + " and click on Issue Certificate button.";
+				ticket.nextaction = "Requester to download certificate"; // NAD will be set 7 days from today by default
+				fp.update(ticket, rec.goc_ticket_id);
 			} catch (SQLException e) {
-				log.error("Failed to approve user certificate request: " + rec.id, e);
-				return false;
+				throw new CertificateRequestException("Probably faile to find requester for notification: "+rec.status);
 			}
-			
-			return approveRenewRequest(rec);
-		}*/ else {
+		
+		} else {
 			//shouldn't reach here.. 
     		throw new CertificateRequestException("Don't know how to approve request which is currently in stauts: "+rec.status);
 		}
 	}
-	
-	private void approveNewRequest(CertificateRequestUserRecord rec) throws CertificateRequestException {
-	
-		try {
-			//Then insert a new DN record
-			DNRecord dnrec = new DNRecord();
-			dnrec.contact_id = rec.requester_contact_id;
-			dnrec.dn_string = rec.dn;
-			dnrec.disable = false;
-			//dnrec.usercert_request_id = rec.id;
-			DNModel dnmodel = new DNModel(context);
-			dnrec.id = dnmodel.insert(dnrec);
-			
-			//TODO - we should aggregate all currently approved authorization types and give the DN access to all of it instead
-			//Give user OSG end user access
-			DNAuthorizationTypeModel dnauthmodel = new DNAuthorizationTypeModel(context);
-			DNAuthorizationTypeRecord dnauthrec = new DNAuthorizationTypeRecord();
-			dnauthrec.dn_id = dnrec.id;
-			dnauthrec.authorization_type_id = 1; //OSG End User
-			dnauthmodel.insert(dnauthrec);
-			
-			//enable contact
-			ContactModel cmodel = new ContactModel(context);
-			ContactRecord requester = cmodel.get(rec.requester_contact_id);
-			requester.disable = false;
-			cmodel.update(requester);
-
-			//update ticket
-			Footprints fp = new Footprints(context);
-			FPTicket ticket = fp.new FPTicket();
-			ticket.description = "Dear " + requester.name + ",\n\n";
-			ticket.description += "Your user certificate request has been approved.\n\n";
-			ticket.description += "> " + context.getComment();
-			ticket.description += "\n\nTo retrieve your certificate please visit " + getTicketUrl(rec.id) + " and click on Issue Certificate button.";
-			ticket.nextaction = "Requester to download certificate"; // NAD will be set 7 days from today by default
-			fp.update(ticket, rec.goc_ticket_id);
-		} catch (SQLException e) {
-			throw new CertificateRequestException("Failed to associate new DN with requeter contact", e);
-		}	
-	}
-	
-	/*
-	private boolean approveRenewRequest(CertificateRequestUserRecord rec) {
-		
-		//notify user
-		try {
-			//pull requester info
-			ContactModel cmodel = new ContactModel(context);
-			ContactRecord requester = cmodel.get(rec.requester_contact_id);
-			
-			//update ticket
-			Footprints fp = new Footprints(context);
-			FPTicket ticket = fp.new FPTicket();
-			ticket.description = "Dear " + requester.name + ",\n\n";
-			ticket.description += "Your user certificate request has been approved.\n\n";
-			ticket.description += "> " + context.getComment();
-			ticket.description += "\n\nTo retrieve your certificate please visit " + getTicketUrl(rec) + " and click on Issue Certificate button.";
-			ticket.nextaction = "Requester to download certificate"; // NAD will be set 7 days from today by default
-			fp.update(ticket, rec.goc_ticket_id);
-		} catch (SQLException e) {
-			log.error("Failed to approve user certificate request: " + rec.id + " while obtaining requester info", e);
-			return false;
-		}
-		
-		return true;
-	}
-	*/
 	
 	//NO-AC
 	//return true if success
@@ -816,6 +754,26 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 					if(!apache_dn.startsWith(user_dn_base)) {
 						log.warn("User certificate issued for request " + rec.id + " has DN:"+apache_dn+" which doesn't have an expected DN base: "+user_dn_base);
 					}
+					
+					//insert a new DN record
+					DNRecord dnrec = new DNRecord();
+					dnrec.contact_id = rec.requester_contact_id;
+					dnrec.dn_string = rec.dn;
+					dnrec.disable = false;
+					DNModel dnmodel = new DNModel(context);
+					dnrec.id = dnmodel.insert(dnrec);
+					
+					//TODO - we should aggregate all currently approved authorization types and give the DN access to all of it instead
+					//Give user OSG end user access
+					DNAuthorizationTypeModel dnauthmodel = new DNAuthorizationTypeModel(context);
+					DNAuthorizationTypeRecord dnauthrec = new DNAuthorizationTypeRecord();
+					dnauthrec.dn_id = dnrec.id;
+					dnauthrec.authorization_type_id = 1; //OSG End User
+					dnauthmodel.insert(dnauthrec);
+					
+					//enable requeser contact (just in case)
+					requester.disable = false;
+					cmodel.update(requester);
 						
 					//all done at this point
 					rec.status = CertificateRequestStatus.ISSUED;
