@@ -886,16 +886,15 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 			log.error("Failed to update host certificate status: " + rec.id);
 			throw new CertificateRequestException("Failed to update host certificate status", e);
 		}
-	
 		
 		Footprints fp = new Footprints(context);
 		FPTicket ticket = fp.new FPTicket();
 		Authorization auth = context.getAuthorization();
 		if(auth.isUser()) {
 			ContactRecord contact = auth.getContact();
-			ticket.description = contact.name + " has revoked this certificate.";
+			ticket.description = contact.name + " has revoked this certificate.\n\n";
 		} else {
-			throw new CertificateRequestException("Guest should'nt be revoking certificate");
+			throw new CertificateRequestException("Guest shouldn't be revoking certificate");
 		}
 		ticket.description += "> " + context.getComment();
 		ticket.status = "Resolved";

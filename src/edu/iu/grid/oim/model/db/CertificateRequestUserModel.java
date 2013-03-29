@@ -559,7 +559,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 				throw new CertificateRequestException("Failed to update user certificate status", e);
 			}
 			
-			//remove associated dn (if any)
+			//disable associated dn (if any)
 			try {
 				DNModel dnmodel = new DNModel(context);
 				DNRecord dnrec = dnmodel.getByDNString(rec.dn);
@@ -755,26 +755,37 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 						log.warn("User certificate issued for request " + rec.id + " has DN:"+apache_dn+" which doesn't have an expected DN base: "+user_dn_base);
 					}
 					
-					//TODO - we've moved the timing of inserting DN from approve() to here. this means that, we could have 2 requests 
-					//that are in APPROVED status and users can issue them both. This could lead to duplicate DNs in DN table, or 
-					//contacts with identical email addresses.. to prevent this, we should validate against duplicate DN or email inside
-					//canIssue() again, but I am not sure that it's worth doing it.
-					
-					//insert a new DN record
-					DNRecord dnrec = new DNRecord();
-					dnrec.contact_id = rec.requester_contact_id;
-					dnrec.dn_string = rec.dn;
-					dnrec.disable = false;
 					DNModel dnmodel = new DNModel(context);
-					dnrec.id = dnmodel.insert(dnrec);
+					DNRecord dnrec = dnmodel.getByDNString(rec.dn);
+					if(dnrec == null) {
+						//insert a new DN record
+						dnrec = new DNRecord();
+						dnrec.contact_id = rec.requester_contact_id;
+						dnrec.dn_string = rec.dn;
+						dnrec.disable = false;
+						dnrec.id = dnmodel.insert(dnrec);
+						
+						//TODO - we should aggregate all currently approved authorization types and give the DN access to all of it instead
+						//Give user OSG end user access
+						DNAuthorizationTypeModel dnauthmodel = new DNAuthorizationTypeModel(context);
+						DNAuthorizationTypeRecord dnauthrec = new DNAuthorizationTypeRecord();
+						dnauthrec.dn_id = dnrec.id;
+						dnauthrec.authorization_type_id = 1; //OSG End User
+						dnauthmodel.insert(dnauthrec);
+					} else {
+						//there is already a DN registered 
+						if(!dnrec.contact_id.equals(rec.requester_contact_id)) {
+							dnrec.contact_id = rec.requester_contact_id;
+							log.warn("The DN issued " + rec.dn + " is already registered to a different contact:" + dnrec.contact_id + " - updating it to " + rec.requester_contact_id);
+						}
+						dnrec.disable = false; //maybe it was disabled previously?
+						dnmodel.update(dnrec);
+					}
 					
-					//TODO - we should aggregate all currently approved authorization types and give the DN access to all of it instead
-					//Give user OSG end user access
-					DNAuthorizationTypeModel dnauthmodel = new DNAuthorizationTypeModel(context);
-					DNAuthorizationTypeRecord dnauthrec = new DNAuthorizationTypeRecord();
-					dnauthrec.dn_id = dnrec.id;
-					dnauthrec.authorization_type_id = 1; //OSG End User
-					dnauthmodel.insert(dnauthrec);
+					//TODO - we've moved the timing of enabling contact enable from approve() to here. this means that, we could have 2 requests 
+					//that are in APPROVED status and users can issue them both. This could lead to duplicate contacts with identical
+					//email addresses.. to prevent this, we should validate against duplicate email inside
+					//canIssue() again, but I am not sure that it's worth doing it.
 					
 					//enable requeser contact (just in case)
 					requester.disable = false;
