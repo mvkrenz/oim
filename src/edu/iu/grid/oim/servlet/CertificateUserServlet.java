@@ -583,9 +583,9 @@ public class CertificateUserServlet extends ServletBase  {
 			//Authorization auth = context.getAuthorization();
 			
 			if(rec.requester_passphrase != null) {
-				v.add(new HtmlView("<p class=\"help-block\">Please enter password to retrieve & encrypt your new certificate (pkcs12)</p>"));
+				v.add(new HtmlView("<p class=\"help-block\">Please enter the password you chose during request submission to retrieve & encrypt your new certificate</p>"));
 			} else {
-				v.add(new HtmlView("<p class=\"help-block\">Please choose a password to associate with your new certificate (pkcs12)</p>"));
+				v.add(new HtmlView("<p class=\"help-block\">Please choose a password to encrypt your new certificate</p>"));
 			}
 			
 			final DivRepPassword pass = new DivRepPassword(context.getPageRoot());

@@ -139,5 +139,7 @@ public class CertificateMenuView implements IView {
 		
 		out.write("</ul>");
 		out.write("</div>");
+		
+		out.write("<div class=\"alert alert-info alert-block\">Please submit a <a href=\"https://ticket.grid.iu.edu/\" target=\"_blank\">GOC Ticket</a> for assistance.</div>");
 	}
 }
