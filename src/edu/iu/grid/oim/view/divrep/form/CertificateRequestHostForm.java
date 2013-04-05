@@ -2,19 +2,20 @@ package edu.iu.grid.oim.view.divrep.form;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintWriter;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.apache.log4j.Logger;
 import org.bouncycastle.pkcs.PKCS10CertificationRequest;
-import org.bouncycastle.util.encoders.Base64;
-
 import com.divrep.DivRep;
 import com.divrep.DivRepEvent;
 import com.divrep.DivRepEventListener;
+import com.divrep.common.DivRepButton;
 import com.divrep.common.DivRepCheckBox;
 import com.divrep.common.DivRepForm;
+import com.divrep.common.DivRepFormElement;
 import com.divrep.common.DivRepSelectBox;
 import com.divrep.common.DivRepStaticContent;
 import com.divrep.common.DivRepTextArea;
@@ -49,12 +50,149 @@ public class CertificateRequestHostForm extends DivRepForm
 	
 	private DivRepTextArea request_comment;
 	
-	private DivRepTextArea csr;
+	private CSRs csrs;
 	private DivRepSelectBox vo;
 	
 	private DivRepCheckBox agreement;
-
 	
+	public class CSRs extends DivRepFormElement {
+
+		ArrayList<DivRepTextArea> csrs = new ArrayList<DivRepTextArea>();
+		DivRepButton add;
+		String domain;
+		protected CSRs(DivRep parent) {
+			super(parent);
+			add = new DivRepButton(this, "Add Another CSR");
+			add.addClass("btn");
+			add.addEventListener(new DivRepEventListener() {
+				@Override
+				public void handleEvent(DivRepEvent arg0) {
+					if(add.isHidden()) return;
+					addCSR(false);
+					if(csrs.size() == 50) {
+						add.setHidden(true);
+					}
+					redraw();
+				}
+			});
+			addCSR(true);
+			domain = null;
+		}
+		
+		//validate before calling this
+		public ArrayList<String> getValues() {
+			ArrayList<String> s = new ArrayList<String>();
+			for(DivRepTextArea csr : csrs) {
+				String v = csr.getValue();
+				if(v != null) {
+					s.add(stripCSRString(v));
+				}
+			}
+			return s;
+		}
+		
+		public void addCSR(final boolean first) {
+			DivRepTextArea csr = new DivRepTextArea(this);
+			//csr.setLabel("CSR");
+			csr.setRequired(first); //only first one is required
+			csr.setSampleValue("-----BEGIN CERTIFICATE REQUEST-----\n"+
+			"MIIC5DCCAcwCAQAwgZ4xCzAJBgNVBAYTAlVTMRAwDgYDVQQIEwdJbmRpYW5hMRQw\n"+
+			"EgYDVQQHEwtCbG9vbWluZ3RvbjEbMBkGA1UEChMSSW5kaWFuYSBVbml2ZXJzaXR5\n"+
+			"MQ0wCwYDVQQLEwRVSVRTMRswGQYDVQQDExJzb2ljaGkuZ3JpZC5pdS5lZHUxHjAc\n"+
+			"BgkqhkiG9w0BCQEWD2hheWFzaGlzQGl1LmVkdTCCASIwDQYJKoZIhvcNAQEBBQAD\n"+
+			"ggEPADCCAQoCggEBAM6TXTvVBUl2Rw1cLaJuF0zqOXxHmtizF/BRE16RxPS88AyA\n"+
+			"YgnMg5Aa+emqJXaMfeh2zXifoi0yPKsRJwztLrxSU8IXlzcUZ0mBEK+gzfK7GtFV\n"+
+			"5sRL4ecdYR1R9XVlj2iL0FpLknBJHQb9I7+WQ6rC9yhwKoH7Sm5EaNWo2ty4YVca\n"+
+			"rNw7pptizRVAUW972+jvcCNJWZyNJJtyKJOR0zkulYyXPohW5ovcT0hyCs9XTYNN\n"+
+			"g/O02fI1sEzEyOfoBNoHy06UH0L0xw9AkxwUmlzyZr+NB2OuhCEjm/QUefMgh+c8\n"+
+			"PFxbcW69M0lGR4A20ZJsd+2hui1Cz1wWfSIqqBMCAwEAAaAAMA0GCSqGSIb3DQEB\n"+
+			"BQUAA4IBAQC26RTFELEb0NhkmIarz/t1IciqbuYN1WIwfRpn5yIR7WiSquA6BwR1\n"+
+			"Ie6mpOlJNzj5PflQU1FJNeMxWUc7vFsUsupv9y1Pv0MpMXX9iSYPYjym3IA0I2D/\n"+
+			"CIdVVwpOpjTJJhCI/r5LGiZIKWxv4prjMc47ctWm8rPu1TmH3fEX8ZeQ2ZNU/VMJ\n"+
+			"gymaT3CFIWanYbJnkWCFigzBkrh7aaE1zDWrDKV3EQs3N+i5NzFhM6pg6Ix/5lLs\n"+
+			"8skR/aR4v2OMI/8JawkWkgn9WqCY6dIm+1af9zikTlPRehbt4VzYsLJijOCPXkUV\n"+
+			"Nb4jr2oKlBc4Vqo4OjfpakA4n6yseH0F\n"+
+			"-----END CERTIFICATE REQUEST-----");
+			csr.setWidth(600);
+			csr.addValidator(new DivRepIValidator<String>(){
+				String error_message;
+				@Override
+				public String getErrorMessage() { return error_message;}
+
+				@Override
+				public Boolean isValid(String dirty_csr) {
+					if(first) {
+						vo.setHidden(true);
+						vo.setRequired(false);
+						vo.redraw();
+					}
+					//parse CSR and check to make sure it's valid
+					try {
+						
+						//we need to display approver VO field, so we need to do bit of validation here
+						CertificateRequestHostModel certmodel = new CertificateRequestHostModel(context);
+						String csr_string = stripCSRString(dirty_csr);
+						PKCS10CertificationRequest pkcs10 = certmodel.parseCSR(csr_string);
+						String cn = certmodel.pullCNFromCSR(pkcs10);
+						GridAdminModel gamodel = new GridAdminModel(context);
+						String a_domain = gamodel.getDomainByFQDN(cn);
+						if(a_domain == null) {
+							error_message = "Failed to find any GridAdmin who can approve certificates for CN: " + cn;
+							return false;
+						}
+						if(first) {
+							domain = a_domain;
+							HashMap<VORecord, ArrayList<GridAdminRecord>> groups = gamodel.getByDomainGroupedByVO(domain);					
+							HashMap<Integer, String> keyvalues = new HashMap<Integer, String>();
+							for(VORecord vo : groups.keySet()) {
+								keyvalues.put(vo.id, vo.name);
+							}
+							vo.setValues(keyvalues);
+							vo.setHidden(false);
+							if(keyvalues.size() > 1) {
+								//required if there are more than one value
+								//only 1 - then user can choose to select null
+								vo.setRequired(true);
+							}
+							vo.setLabel("Virtual Organization that should approve this request ("+domain+")");
+						} else {
+							if(a_domain != domain) {	
+								error_message = "All CSRs must be approved by the same GridAdmin (domain:" + domain + ") This CSR has CN:"+cn +" with is approved by a different GridAdmin";
+								return false;
+							}
+						}
+						
+						return true;
+					} catch (IOException e) {
+						error_message = e.getMessage();
+					} catch (CertificateRequestException e) {
+						error_message = "Failed to pull CN from pkcs10." + e.getMessage();
+					} catch (SQLException e) {
+						error_message = "Failed to lookup GridAdmin domain" + e.getMessage();
+					}
+					return false;
+				}
+			});	
+			csrs.add(csr);
+		}
+
+		@Override
+		protected void onEvent(DivRepEvent arg0) {
+			validate();
+		}
+
+		@Override
+		public void render(PrintWriter out) {
+			out.write("<div id=\""+getNodeID()+"\">");
+			for(DivRepTextArea csr : csrs) {
+				csr.render(out);
+			}
+			add.render(out);
+			error.render(out);
+			out.write("</div>");
+		}		
+	}
+
 	public CertificateRequestHostForm(final UserContext context, String origin_url) {
 		
 		super(context.getPageRoot(), origin_url);
@@ -94,7 +232,7 @@ public class CertificateRequestHostForm extends DivRepForm
 			new DivRepSimpleCaptcha(this, context.getSession());
 		}
 	
-		new DivRepStaticContent(this, "<h3>CSR (Certificate Signing Request)</h3>");
+		new DivRepStaticContent(this, "<h3>CSR (PKCS10 Certificate Signing Request)</h3>");
 
 		DivRepToggler csr_help = new DivRepToggler(this) {
 			@Override
@@ -110,83 +248,15 @@ public class CertificateRequestHostForm extends DivRepForm
 		csr_help.setShowHtml("<u class=\"pull-right\">How can I generate a CSR?</u>");
 		csr_help.setHideHtml("");
 		
-	
-		csr = new DivRepTextArea(this);
-		//csr.setLabel("CSR");
-		csr.setRequired(true);
-		csr.setSampleValue("-----BEGIN CERTIFICATE REQUEST-----\n"+
-"MIIC5DCCAcwCAQAwgZ4xCzAJBgNVBAYTAlVTMRAwDgYDVQQIEwdJbmRpYW5hMRQw\n"+
-"EgYDVQQHEwtCbG9vbWluZ3RvbjEbMBkGA1UEChMSSW5kaWFuYSBVbml2ZXJzaXR5\n"+
-"MQ0wCwYDVQQLEwRVSVRTMRswGQYDVQQDExJzb2ljaGkuZ3JpZC5pdS5lZHUxHjAc\n"+
-"BgkqhkiG9w0BCQEWD2hheWFzaGlzQGl1LmVkdTCCASIwDQYJKoZIhvcNAQEBBQAD\n"+
-"ggEPADCCAQoCggEBAM6TXTvVBUl2Rw1cLaJuF0zqOXxHmtizF/BRE16RxPS88AyA\n"+
-"YgnMg5Aa+emqJXaMfeh2zXifoi0yPKsRJwztLrxSU8IXlzcUZ0mBEK+gzfK7GtFV\n"+
-"5sRL4ecdYR1R9XVlj2iL0FpLknBJHQb9I7+WQ6rC9yhwKoH7Sm5EaNWo2ty4YVca\n"+
-"rNw7pptizRVAUW972+jvcCNJWZyNJJtyKJOR0zkulYyXPohW5ovcT0hyCs9XTYNN\n"+
-"g/O02fI1sEzEyOfoBNoHy06UH0L0xw9AkxwUmlzyZr+NB2OuhCEjm/QUefMgh+c8\n"+
-"PFxbcW69M0lGR4A20ZJsd+2hui1Cz1wWfSIqqBMCAwEAAaAAMA0GCSqGSIb3DQEB\n"+
-"BQUAA4IBAQC26RTFELEb0NhkmIarz/t1IciqbuYN1WIwfRpn5yIR7WiSquA6BwR1\n"+
-"Ie6mpOlJNzj5PflQU1FJNeMxWUc7vFsUsupv9y1Pv0MpMXX9iSYPYjym3IA0I2D/\n"+
-"CIdVVwpOpjTJJhCI/r5LGiZIKWxv4prjMc47ctWm8rPu1TmH3fEX8ZeQ2ZNU/VMJ\n"+
-"gymaT3CFIWanYbJnkWCFigzBkrh7aaE1zDWrDKV3EQs3N+i5NzFhM6pg6Ix/5lLs\n"+
-"8skR/aR4v2OMI/8JawkWkgn9WqCY6dIm+1af9zikTlPRehbt4VzYsLJijOCPXkUV\n"+
-"Nb4jr2oKlBc4Vqo4OjfpakA4n6yseH0F\n"+
-"-----END CERTIFICATE REQUEST-----");
-		csr.setWidth(600);
-		csr.addValidator(new DivRepIValidator<String>(){
-			String error_message;
-			@Override
-			public String getErrorMessage() { return error_message;}
-
-			@Override
-			public Boolean isValid(String dirty_csr) {
-				vo.setHidden(true);
-				vo.setRequired(false);
-				vo.redraw();
-				
-				//parse CSR and check to make sure it's valid
-				try {
-					
-					CertificateRequestHostModel certmodel = new CertificateRequestHostModel(context);
-					String csr_string = stripCSRString(dirty_csr);
-					PKCS10CertificationRequest pkcs10 = certmodel.parseCSR(csr_string);
-					String cn = certmodel.pullCNFromCSR(pkcs10);
-					GridAdminModel gamodel = new GridAdminModel(context);
-					String domain = gamodel.getDomainByFQDN(cn);
-					if(domain == null) {
-						error_message = "Failed to find any GridAdmin who can approve certificates for CN: " + cn;
-						return false;
-					}
-					HashMap<VORecord, ArrayList<GridAdminRecord>> groups = gamodel.getByDomainGroupedByVO(domain);					
-					HashMap<Integer, String> keyvalues = new HashMap<Integer, String>();
-					for(VORecord vo : groups.keySet()) {
-						keyvalues.put(vo.id, vo.name);
-					}
-					vo.setValues(keyvalues);
-					vo.setHidden(false);
-					if(keyvalues.size() > 1) {
-						//required if there are more than one value
-						//only 1 - then user can choose to select null
-						vo.setRequired(true);
-					}
-					vo.setLabel("Approver VO for "+domain);
-					
-					return true;
-				} catch (IOException e) {
-					error_message = e.getMessage();
-				} catch (CertificateRequestException e) {
-					error_message = "Failed to pull CN from pkcs10." + e.getMessage();
-				} catch (SQLException e) {
-					error_message = "Failed to lookup GridAdmin domain" + e.getMessage();
-				}
-				return false;
-			}
-		});		
+		csrs = new CSRs(this);
+		
+		new DivRepStaticContent(this, "<br>");
+		
 		//hidden until user enter CSR
 		vo = new DivRepSelectBox(this);
 		vo.setHidden(true);
 		vo.setRequired(false);
-		vo.addClass("indent");
+		//vo.addClass("indent");
 		
 		request_comment = new DivRepTextArea(this);
 		request_comment.setLabel("Comments");
@@ -248,22 +318,6 @@ public class CertificateRequestHostForm extends DivRepForm
 			requester_phone = phone.getValue();
 		}
 	
-		/* - we now have validator in form
-		//use parseCSR to clean up.
-		CertificateRequestHostModel certmodel = new CertificateRequestHostModel(context);
-		try {
-			PKCS10CertificationRequest pkcs10 = certmodel.parseCSR(csr.getValue());
-			String cn = certmodel.pullCNFromCSR(pkcs10);
-		} catch (IOException e1) {
-			log.error("Faile to parse CSR at submit. this shouldn't happen");
-			return false;
-		}
-		*/
-		
-		//create array of 1 - since we only allow 1 host cert per request on this ui
-		String []csrs = new String[1];
-		csrs[0] = stripCSRString(csr.getValue());
-		
 		//TODO - allow user to pass list of email addresses
 		String []request_ccs = null;
 		
@@ -274,9 +328,9 @@ public class CertificateRequestHostForm extends DivRepForm
 		try {
 			CertificateRequestHostRecord rec;
 			if(auth.isUser()) {
-				rec = certmodel.requestAsUser(csrs, auth.getContact(), request_comment.getValue(), request_ccs, vo.getValue());
+				rec = certmodel.requestAsUser(csrs.getValues(), auth.getContact(), request_comment.getValue(), request_ccs, vo.getValue());
 			} else {
-				rec = certmodel.requestAsGuest(csrs, requester_name, requester_email, requester_phone, request_comment.getValue(), request_ccs, vo.getValue());
+				rec = certmodel.requestAsGuest(csrs.getValues(), requester_name, requester_email, requester_phone, request_comment.getValue(), request_ccs, vo.getValue());
 			}
 			if(rec != null) {
 				redirect("certificatehost?id="+rec.id); //TODO - does this work? I haven't tested it

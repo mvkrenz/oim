@@ -17,10 +17,15 @@ import java.util.HashMap;
 
 import javax.security.auth.x500.X500Principal;
 
+import org.bouncycastle.asn1.DERBitString;
 import org.bouncycastle.asn1.x500.RDN;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x500.style.BCStyle;
+import org.bouncycastle.asn1.x509.AlgorithmIdentifier;
+import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
 import org.bouncycastle.cms.CMSException;
+import org.bouncycastle.crypto.params.RSAKeyParameters;
+import org.bouncycastle.crypto.util.PublicKeyFactory;
 import org.bouncycastle.pkcs.PKCS10CertificationRequest;
 import org.bouncycastle.util.encoders.Base64;
 
@@ -365,7 +370,7 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
     //NO-AC (for authenticated user)
 	//return request record if successful, otherwise null
     public CertificateRequestHostRecord requestAsUser(
-    		String[] csrs, 
+    		ArrayList<String> csrs, 
     		ContactRecord requester, 
     		String request_comment, 
     		String[] request_ccs, 
@@ -398,7 +403,7 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
     //NO-AC (for guest user)
 	//return request record if successful, otherwise null
     public CertificateRequestHostRecord requestAsGuest(
-    		String[] csrs, 
+    		ArrayList<String> csrs, 
     		String requester_name, 
     		String requester_email, 
     		String requester_phone, 
@@ -443,7 +448,7 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
     //NO-AC
 	//return request record if successful, otherwise null (guest interface)
     private CertificateRequestHostRecord request(
-    		String[] csrs, 
+    		ArrayList<String> csrs, 
     		CertificateRequestHostRecord rec, 
     		FPTicket ticket, 
     		String request_comment) throws CertificateRequestException 
@@ -459,11 +464,9 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 			context.setComment(request_comment);
 		}
 		
-    	//log.debug("request init");
-    	
     	//store CSRs / CNs to record
-    	StringArray csrs_sa = new StringArray(csrs.length);
-    	StringArray cns_sa = new StringArray(csrs.length);
+    	StringArray csrs_sa = new StringArray(csrs.size());
+    	StringArray cns_sa = new StringArray(csrs.size());
     	int idx = 0;
     	for(String csr_string : csrs) {
         	log.debug("processing csr: " + csr_string);
@@ -472,9 +475,17 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 	    		PKCS10CertificationRequest csr = parseCSR(csr_string);
 	    		cn = pullCNFromCSR(csr);
 	    		
-	    		//we need to do CN validation here - so that I don't have to do it on both rest/web interfaces
+	    		//validate CN
 	    		if(!cn.matches("^([-0-9a-zA-Z\\.]*/)?[-0-9a-zA-Z\\.]*$")) { //OSGPKI-255
 					throw new CertificateRequestException("CN structure is invalid, or contains invalid characters.");
+	    		}
+	    		
+	    		//check private key strength
+	    		SubjectPublicKeyInfo pkinfo = csr.getSubjectPublicKeyInfo();
+	    		RSAKeyParameters rsa = (RSAKeyParameters) PublicKeyFactory.createKey(pkinfo);	
+	    		int keysize = rsa.getModulus().bitLength();
+	    		if(keysize < 2048) {
+	    			throw new CertificateRequestException("Please use RSA keysize greater than or equal to 2048 bits.");
 	    		}
 	    		
 	    		cns_sa.set(idx, cn);
@@ -490,7 +501,7 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
     	rec.csrs = csrs_sa.toXML();
     	rec.cns = cns_sa.toXML();
     	
-    	StringArray ar = new StringArray(csrs.length);
+    	StringArray ar = new StringArray(csrs.size());
     	rec.cert_certificate = ar.toXML();
     	rec.cert_intermediate = ar.toXML();
     	rec.cert_pkcs7 = ar.toXML();

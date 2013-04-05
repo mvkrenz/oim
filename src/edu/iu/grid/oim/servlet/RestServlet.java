@@ -253,7 +253,10 @@ public class RestServlet extends ServletBase  {
 		} catch (CertificateRequestException e) {
 			throw new RestException("Failed to find GridAdmins for specified CSRs/VO", e);
 		}
-		String [] csrs = dirty_csrs;//no longer dirty at this point
+		ArrayList<String> csrs = new ArrayList<String>();
+		for(String csr : dirty_csrs) {
+			csrs.add(csr);//no longer dirty at this point
+		}
 		
 		//optional parameters
 		String request_comment = request.getParameter("request_comment");
