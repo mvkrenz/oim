@@ -137,7 +137,7 @@ public class Footprints
 		PostMethod post = new PostMethod(StaticConfig.conf.getProperty("api.gocticket")+"/rest/update?id="+ticket_id);
 		post.setParameter("description", ticket.description);
 		if(ticket.nextaction != null) {
-			post.setParameter("nextactiontime", ticket.nextaction);
+			post.setParameter("nextaction", ticket.nextaction);
 		}
 		post.setParameter("nextactiontime", String.valueOf(ticket.nad.getTime()/1000));
 		if(ticket.status != null) {
@@ -149,7 +149,12 @@ public class Footprints
 				post.setParameter("cc["+i+"]", ticket.ccs.get(i));
 			}
 		}
-	
+		//only update if new list is provided (this means we can't *empty* assignees..)
+		if(ticket.assignees.size() > 0) {
+			for(int i = 0; i < ticket.assignees.size(); ++i) {
+				post.setParameter("assignee["+i+"]", ticket.assignees.get(i));
+			}
+		}
 		try {
 			cl.executeMethod(post);
 			Document ret = parseXML(post.getResponseBodyAsStream());
