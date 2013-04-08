@@ -150,10 +150,17 @@ public class BootMenuView implements IView {
 		} else if(auth.isDisabled()) {			
 			out.println("<li><a href=\"logout\">(Disabled)</a></li>");
 		} else if(auth.isSecure()) {
-			out.println("<li><a href=\"logout\">(NoCert)</a></li>");
+			out.println("<li class=\"dropdown\">");
+			out.println("<a href=\"#\" class=\"dropdown-toggle\" data-toggle=\"dropdown\">(NoCert) <b class=\"caret\"></b></a>");
+			out.println("<ul class=\"dropdown-menu\">");
+				out.println("<li><a href=\"https://confluence.grid.iu.edu/pages/viewpage.action?pageId=8323117\" target=\"_blank\">What is (NoCert)?</a></li>");
+				out.println("<li><a href=\"logout\">Logout</a></li>");
+			out.println("</ul>");//dropdown-menu
+			out.println("</li>");		
 		} else {
 			out.println("<li><a href=\""+user.getSecureUrl()+"\">Login</a></li>");	
 		}
+		
 		out.println("</ul>");//nav (pull-right)
 		
 		out.println("<div class=\"nav-collapse\">");
@@ -204,14 +211,8 @@ public class BootMenuView implements IView {
 		} else {
 			out.println("<li><a href=\"campusgrid\">Campus Grids</a></li>");
 		}
-				
-				
 		out.println("</ul>");//end of left items
-		
 		out.println("</div>");//nav-collaps	
-		
-	
-	
 		
 		out.println("</div>");//container-fluid
 		out.println("</div>");//navbar-inner
