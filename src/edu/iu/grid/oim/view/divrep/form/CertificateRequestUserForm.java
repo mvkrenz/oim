@@ -19,7 +19,6 @@ import com.divrep.DivRepEventListener;
 import com.divrep.common.DivRepCheckBox;
 import com.divrep.common.DivRepForm;
 import com.divrep.common.DivRepFormElement;
-import com.divrep.common.DivRepPassword;
 import com.divrep.common.DivRepSelectBox;
 import com.divrep.common.DivRepStaticContent;
 import com.divrep.common.DivRepTextArea;
@@ -43,9 +42,9 @@ import edu.iu.grid.oim.model.db.record.VORecord;
 import edu.iu.grid.oim.model.exceptions.CertificateRequestException;
 
 import edu.iu.grid.oim.view.divrep.CNEditor;
+import edu.iu.grid.oim.view.divrep.ChoosePassword;
 import edu.iu.grid.oim.view.divrep.DivRepSimpleCaptcha;
 import edu.iu.grid.oim.view.divrep.form.validator.CNValidator;
-import edu.iu.grid.oim.view.divrep.form.validator.PKIPassStrengthValidator;
 
 public class CertificateRequestUserForm extends DivRepForm
 {
@@ -72,8 +71,7 @@ public class CertificateRequestUserForm extends DivRepForm
 	private DivRepCheckBox use_twiki;
 	private DivRepTextBox twiki_id;
 	
-	private DivRepPassword passphrase; //for guest
-	private DivRepPassword passphrase_confirm; //for guest
+	private ChoosePassword choose_password;
 	private DivRepCheckBox agreement;
 	
 	private DivRepSelectBox vo;
@@ -231,44 +229,8 @@ public class CertificateRequestUserForm extends DivRepForm
 			});
 			
 			new DivRepStaticContent(this, "<h3>Choose a password</h3>");
-			new DivRepStaticContent(this, "<p class=\"help-block\">Please choose a password to issue your certificate and encrypt your private key.</p>");
-			if(!auth.isUser()) {
-				new DivRepStaticContent(this, "<p class=\"help-block alert alert-error\"><b>IMPORTANT</b>: If you forget this password, you will not be able to issue your certificate and import it your browser after it is approved.</p>");
-			}
-			passphrase = new DivRepPassword(this);
-			passphrase.addValidator(new PKIPassStrengthValidator());
-			passphrase.setRequired(true);
-			passphrase.addEventListener(new DivRepEventListener() {
-				@Override
-				public void handleEvent(DivRepEvent e) {
-					if(passphrase_confirm.getValue() != null) {
-						passphrase_confirm.validate();
-					}
-				}
-			});
-			passphrase_confirm = new DivRepPassword(this);
-			passphrase_confirm.setLabel("Re-enter password");
-			passphrase_confirm.addValidator(new DivRepIValidator<String>() {
-				String message;
-				@Override
-				public Boolean isValid(String value) {
-					if(value.equals(passphrase.getValue())) return true;
-					message = "Passphrase does not match";
-					return false;
-				}
-
-				@Override
-				public String getErrorMessage() {
-					return message;
-				}
-			});
-			passphrase_confirm.setRequired(true);
+			choose_password = new ChoosePassword(this, context);
 			
-			if(context.isSecure()) {
-				passphrase.setRepopulate(true);
-				passphrase_confirm.setRepopulate(true);
-			}
-		
 			new DivRepStaticContent(this, "<h3>Captcha</h3>");
 			new DivRepSimpleCaptcha(this, context.getSession());
 		} else {
@@ -500,7 +462,7 @@ public class CertificateRequestUserForm extends DivRepForm
 			CertificateRequestUserModel certmodel = new CertificateRequestUserModel(context);
 			CertificateRequestUserRecord rec = null;
 			if(!auth.isUser()) {
-				rec = certmodel.requestGuestWithNOCSR(vo.getValue(), user, sponsor_rec, passphrase.getValue(), request_comment.getValue());
+				rec = certmodel.requestGuestWithNOCSR(vo.getValue(), user, sponsor_rec, choose_password.getValue(), request_comment.getValue());
 			} else {
 				rec = certmodel.requestUsertWithNOCSR(vo.getValue(), user, sponsor_rec, cn.getValue(), request_comment.getValue());
 			}

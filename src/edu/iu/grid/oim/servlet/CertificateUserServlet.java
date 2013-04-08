@@ -46,6 +46,7 @@ import edu.iu.grid.oim.view.HtmlView;
 import edu.iu.grid.oim.view.IView;
 import edu.iu.grid.oim.view.UserCertificateTable;
 import edu.iu.grid.oim.view.divrep.CNEditor;
+import edu.iu.grid.oim.view.divrep.ChoosePassword;
 import edu.iu.grid.oim.view.divrep.form.validator.PKIPassStrengthValidator;
 
 public class CertificateUserServlet extends ServletBase  {
@@ -762,6 +763,16 @@ public class CertificateUserServlet extends ServletBase  {
 			note.setHidden(false);
 		}
 		if(model.canReRequest(rec)) {
+			final Authorization auth = context.getAuthorization();
+			
+			//allow guest to re-request with retrieval password
+			final ChoosePassword pass = new ChoosePassword(context.getPageRoot(), context);
+			if(!auth.isUser()) {
+				//v.add(new HtmlView("<h3>Choose Password</h3>"));
+				v.add(new HtmlView("<p class=\"help-block\">If you are the original requester of this request, you can re-request to issue another certificate with the same CN.</p>"));
+				v.add(pass);
+			}
+			
 			final DivRepButton button = new DivRepButton(context.getPageRoot(), "<button class=\"btn btn-primary\"><i class=\"icon-refresh icon-white\"></i> Re-request</button>");
 			button.setStyle(DivRepButton.Style.HTML);
 			button.addClass("inline");
@@ -769,8 +780,14 @@ public class CertificateUserServlet extends ServletBase  {
                 public void handleEvent(DivRepEvent e) {
                 	if(note.validate()) {
                 		context.setComment(note.getValue());
+                		
+                		//guest must provide password
+                		if(!auth.isUser()) {
+                			if(!pass.validate()) return;
+                		}
+                		
                 		try {
-                			model.rerequest(rec);
+                			model.rerequest(rec, pass.getValue());
                 			button.redirect(url);
                 		} catch (CertificateRequestException ex) {
 	                		button.alert("Failed to re-request: " + ex.getMessage());

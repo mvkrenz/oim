@@ -264,14 +264,16 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 		
 		if(	rec.status.equals(CertificateRequestStatus.REJECTED) ||
 			rec.status.equals(CertificateRequestStatus.CANCELED) ||
-			rec.status.equals(CertificateRequestStatus.REVOKED) ) {
-			if(auth.isUser()) {
+			rec.status.equals(CertificateRequestStatus.REVOKED) ||
+			rec.status.equals(CertificateRequestStatus.EXPIRED)) {
+			//requester can re-request
+			if(auth.isUser() && auth.getContact().id.equals(rec.requester_contact_id)) {
 				return true;
 			}
 		}		
 		
 		if (rec.status.equals(CertificateRequestStatus.EXPIRED) ) {
-			//guest user needs to be able to re-request expired cert.. but how can I prevent spammer?
+			//guest user needs to be able to re-request expired cert..
 			return true;
 		}
 		return false;
@@ -403,7 +405,6 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 			// All good - now close ticket
 			Footprints fp = new Footprints(context);
 			FPTicket ticket = fp.new FPTicket();
-			//Authorization auth = context.getAuthorization();
 			if(auth.isUser()) {
 				ContactRecord contact = auth.getContact();
 				ticket.description = contact.name + " has canceled this certificate request.\n\n";
@@ -1307,9 +1308,23 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
     }
     
     //no-ac
-    public boolean rerequest(CertificateRequestUserRecord rec) throws CertificateRequestException 
+    public boolean rerequest(CertificateRequestUserRecord rec, String guest_passphrase) throws CertificateRequestException 
     {    	
 		rec.status = CertificateRequestStatus.REQUESTED;
+		if(guest_passphrase != null) {
+			//submitted as guest
+			String salt = BCrypt.gensalt(12);//let's hard code this for now..
+			rec.requester_passphrase_salt = salt;
+			rec.requester_passphrase = BCrypt.hashpw(guest_passphrase, salt);
+		} else {
+			//need to reset passphrase if there is any
+			rec.requester_passphrase_salt = null;
+			rec.requester_passphrase = null;
+			
+			//only the same user should be able to re-request, but just in case..
+			rec.requester_contact_id = auth.getContact().id;
+		}
+		
 		try {
 			//context.setComment("Certificate Approved");
 			super.update(get(rec.id), rec);
@@ -1348,16 +1363,17 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 			//TODO - need to re-CC sponsor, but I am not sure how.
 			
 			ContactRecord requester = cmodel.get(rec.requester_contact_id);
-			//ticket.title = "User Certificate Re-request for "+requester.name;s
-			String auth_status = "An unauthenticated user; ";
-			if(auth.isUser()) {
-				auth_status = "An OIM Authenticated user; ";
-			}
 			VOModel vmodel = new VOModel(context);
 			VORecord vrec = vmodel.get(rec.vo_id);
 			ticket.description = "Dear " + ranames + " (" + vrec.name + " VO RA/Sponsors),\n\n";
-			ticket.description += auth_status + requester.name + " <"+requester.primary_email+"> has re-requested a user certificate. ";
-			ticket.description += "Please determine this request's authenticity, and approve / disapprove at " + getTicketUrl(rec.id);
+			if(guest_passphrase != null) {
+				ticket.description += "A guest user has re-requested this user certificate request. Please contact " + requester.name + 
+					" <"+requester.primary_email+"> and confirm authenticity of this re-request, and approve / disapprove at" + getTicketUrl(rec.id);
+			} else {
+				ticket.description += "An OIM Authenticated user"  + requester.name + " <"+requester.primary_email+"> has re-requested this user certificate request. ";
+				ticket.description += "Please determine this request's authenticity, and approve / disapprove at " + getTicketUrl(rec.id);
+			}
+
 			ticket.assignees.add(StaticConfig.conf.getProperty("certrequest.user.assignee"));
 			ticket.nextaction = "RA/Sponsors to verify requester";	 //NAD will be set to 7 days in advance by default
 			ticket.status = "Engineering"; //I need to reopen resolved ticket.
