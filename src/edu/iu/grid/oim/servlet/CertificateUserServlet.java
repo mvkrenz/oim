@@ -509,7 +509,11 @@ public class CertificateUserServlet extends ServletBase  {
 	                      	model.approve(rec);
                 			button.redirect(url);
                 		} catch (CertificateRequestException ex) {
-	                		button.alert("Failed to approve request. "+ ex.getMessage());
+                			String message = "Failed to approve request: " + ex.getMessage();
+                			if(ex.getCause() != null) {
+                				message += "\n\n" + ex.getCause().getMessage();
+                			}
+	                		button.alert(message);
 	                	}
                 	}
                 }
@@ -529,7 +533,11 @@ public class CertificateUserServlet extends ServletBase  {
 	                      	model.renew(rec);
                 			button.redirect(url);
                 		} catch (CertificateRequestException ex) {
-	                		button.alert("Failed to renew certificate: " + ex.getMessage());
+                			String message = "Failed to renew certificate: " + ex.getMessage();
+                			if(ex.getCause() != null) {
+                				message += "\n\n" + ex.getCause().getMessage();
+                			}
+	                		button.alert(message);
 	                	}
                 	}
                 }
@@ -571,7 +579,11 @@ public class CertificateUserServlet extends ServletBase  {
                 			model.requestRevoke(rec);
                 			button.redirect(url);
                 		} catch (CertificateRequestException ex) {
-	                		button.alert("Failed to request revoke: " + ex.getMessage());
+                			String message = "Failed to request revocation: " + ex.getMessage();
+                			if(ex.getCause() != null) {
+                				message += "\n\n" + ex.getCause().getMessage();
+                			}
+	                		button.alert(message);
 	                	}
                 	}
                 }
@@ -638,7 +650,11 @@ public class CertificateUserServlet extends ServletBase  {
 	                    	button.redirect(url);
                     	} catch(CertificateRequestException ex) {
                     		log.warn("CertificateRequestException while issuging certificate -- request ID:"+rec.id, ex);
-                    		button.alert(ex.getMessage());
+                			String message = "Failed to issue certificate: " + ex.getMessage();
+                			if(ex.getCause() != null) {
+                				message += "\n\n" + ex.getCause().getMessage();
+                			}
+	                		button.alert(message);
                     	}
                 	}
                 }
@@ -668,7 +684,11 @@ public class CertificateUserServlet extends ServletBase  {
 	                    	button.redirect(url);
                     	} catch(CertificateRequestException ex) {
                     		log.warn("CertificateRequestException while canceling certificate request:", ex);
-                    		button.alert(ex.getMessage());
+                			String message = "Failed to cancel request: " + ex.getMessage();
+                			if(ex.getCause() != null) {
+                				message += "\n\n" + ex.getCause().getMessage();
+                			}
+	                		button.alert(message);
                     	}
                 	}
                 }
@@ -729,7 +749,11 @@ public class CertificateUserServlet extends ServletBase  {
                 			model.revoke(rec);
                 			button.redirect(url);
                 		} catch (CertificateRequestException ex) {
-	                		button.alert("Failed to revoke: " + ex.getMessage());
+                			String message = "Failed to revoke: " + ex.getMessage();
+                			if(ex.getCause() != null) {
+                				message += "\n\n" + ex.getCause().getMessage();
+                			}
+	                		button.alert(message);
 	                	}
                 	}
                 }

@@ -40,6 +40,9 @@ public class UserContext {
 	
 	//let's lookup once per user request (not session)
     private DataSource oimds;
+    
+    private boolean issecure;
+    public boolean isSecure() { return issecure; }
 
 	//stores the reason for current transaction (used for log table)
 	//why should this work? because *usually* all update within a session occurs under common purpose.
@@ -104,6 +107,8 @@ public class UserContext {
 			}
 		}
 		*/
+		
+		issecure = request.isSecure();
 	}
 	
 	public Connection getConnection() throws SQLException {

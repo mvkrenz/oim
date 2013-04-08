@@ -449,6 +449,13 @@ public class RestServlet extends ServletBase  {
 		String dirty_host_request_id = request.getParameter("host_request_id");
 		Integer host_request_id = Integer.parseInt(dirty_host_request_id);
 		CertificateRequestHostModel model = new CertificateRequestHostModel(context);
+		
+		//set comment
+		String request_comment = request.getParameter("request_comment");
+		if(request_comment == null) {
+			request_comment = "Revocation requested via command line";
+		}
+		context.setComment(request_comment);
 	
 		try {
 			CertificateRequestHostRecord rec = model.get(host_request_id);

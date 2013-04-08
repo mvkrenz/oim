@@ -83,7 +83,6 @@ public class CertificateRequestUserForm extends DivRepForm
 		//sponsor info manually selected
 		protected DivRepTextBox sponsor_fullname;
 		protected DivRepTextBox sponsor_email;
-		//protected DivRepTextBox sponsor_phone;
 		
 		public SponsorManual(DivRep parent) {
 			super(parent);
@@ -92,17 +91,13 @@ public class CertificateRequestUserForm extends DivRepForm
 			sponsor_fullname.setLabel("Full Name");
 			sponsor_fullname.setRequired(true);
 			sponsor_fullname.addValidator(new CNValidator());
-			/*
-			sponsor_phone = new DivRepTextBox(this);
-			sponsor_phone.setLabel("Phone");
-			sponsor_phone.setRequired(true);
-			*/
 
 			sponsor_email = new DivRepTextBox(this);
 			sponsor_email.setLabel("Email");
 			sponsor_email.setRequired(true);
 			sponsor_email.addValidator(new DivRepEmailValidator());
 		}
+		
 		@Override
 		protected void onEvent(DivRepEvent event) {
 			
@@ -112,12 +107,9 @@ public class CertificateRequestUserForm extends DivRepForm
 		public void render(PrintWriter out) {
 			out.write("<div id=\""+getNodeID()+"\">");
 			if(!isHidden()) {
-				//out.write("<div class=\"well well-small\">");
 				out.write("<h3>Sponsor Detail</h3>");
 				sponsor_fullname.render(out);
-				//sponsor_phone.render(out);
 				sponsor_email.render(out);
-				//out.write("</div>");
 			}
 			out.write("</div>");
 		}
@@ -125,30 +117,25 @@ public class CertificateRequestUserForm extends DivRepForm
 		@Override
 		public void setRequired(Boolean b) {
 			sponsor_fullname.setRequired(b);
-			//sponsor_phone.setRequired(b);
 			sponsor_email.setRequired(b);
 		}
 		public ContactRecord getRecord() {
 			ContactRecord rec = new ContactRecord();
 			rec.name = sponsor_fullname.getValue();
 			rec.primary_email = sponsor_email.getValue();
-			//rec.primary_phone = sponsor_phone.getValue();
 			return rec;
 		}
  	}
-	
 	
 	public CertificateRequestUserForm(final UserContext context, String origin_url) {
 		
 		super(context.getPageRoot(), origin_url);
 		this.context = context;
 		auth = context.getAuthorization();
-		//ContactRecord contact = auth.getContact();
 		
 		new DivRepStaticContent(this, "<h2>User Certificate Request</h2>");
 	
 		if(!auth.isUser()) {
-			//new DivRepStaticContent(this, "<div class=\"alert\">This is a public certificate request form. If you are already an OIM user, please login first.</div>");
 			new DivRepStaticContent(this, "<h3>Contact Information</h3>");
 			new DivRepStaticContent(this, "<p class=\"help-block\">Following information will be used to issue your new user certificate, and also used to contact you during the approval process.</p>");
 					
@@ -172,20 +159,10 @@ public class CertificateRequestUserForm extends DivRepForm
 			city = new DivRepTextBox(this);
 			city.setLabel("City");
 			city.setRequired(true);
-			/*
-			if(contact != null) {
-				city.setValue(contact.city);
-			}
-			*/
-	
+
 			state = new DivRepTextBox(this);
 			state.setLabel("State");
 			state.setRequired(true);
-			/*
-			if(contact != null) {
-				state.setValue(contact.state);
-			}
-			*/
 			
 			zipcode = new DivRepTextBox(this);
 			zipcode.setLabel("Zipcode");
@@ -194,11 +171,6 @@ public class CertificateRequestUserForm extends DivRepForm
 			country = new DivRepTextBox(this);
 			country.setLabel("Country");
 			country.setRequired(true);
-			/*
-			if(contact != null) {
-				country.setValue(contact.country);
-			}
-			*/
 			
 			timezone = new DivRepSelectBox(this);
 			timezone_id2tz = new HashMap<Integer, String>();
@@ -291,6 +263,11 @@ public class CertificateRequestUserForm extends DivRepForm
 				}
 			});
 			passphrase_confirm.setRequired(true);
+			
+			if(context.isSecure()) {
+				passphrase.setRepopulate(true);
+				passphrase_confirm.setRepopulate(true);
+			}
 		
 			new DivRepStaticContent(this, "<h3>Captcha</h3>");
 			new DivRepSimpleCaptcha(this, context.getSession());
@@ -523,7 +500,6 @@ public class CertificateRequestUserForm extends DivRepForm
 			CertificateRequestUserModel certmodel = new CertificateRequestUserModel(context);
 			CertificateRequestUserRecord rec = null;
 			if(!auth.isUser()) {
-				//requester_passphrase = HashHelper.sha1(passphrase.getValue());
 				rec = certmodel.requestGuestWithNOCSR(vo.getValue(), user, sponsor_rec, passphrase.getValue(), request_comment.getValue());
 			} else {
 				rec = certmodel.requestUsertWithNOCSR(vo.getValue(), user, sponsor_rec, cn.getValue(), request_comment.getValue());
