@@ -46,6 +46,7 @@ public class DNModel extends SmallTableModelBase<DNRecord> {
 		return new DNRecord();
 	}
 	
+	//TODO - make this more efficient..
 	public DNRecord getByDNString(String dn_string) throws SQLException
 	{
 		if(dn_string != null) {
@@ -59,6 +60,22 @@ public class DNModel extends SmallTableModelBase<DNRecord> {
 		}
 		return null;
 	}
+	
+	//TODO - make this more efficient..
+	public DNRecord getEnabledByDNString(String dn_string) throws SQLException
+	{
+		if(dn_string != null) {
+			for(RecordBase it : getCache()) 
+			{
+				DNRecord rec = (DNRecord)it;
+				if(rec.dn_string.compareTo(dn_string) == 0 && rec.disable == false) {
+					return rec;
+				}
+			}
+		}
+		return null;
+	}
+	
 	public ArrayList<DNRecord> getByContactID(int contact_id) throws SQLException
 	{
 		ArrayList<DNRecord> list = new ArrayList<DNRecord>();
