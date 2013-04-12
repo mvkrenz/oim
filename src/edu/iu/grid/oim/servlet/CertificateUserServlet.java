@@ -32,9 +32,11 @@ import edu.iu.grid.oim.model.db.CertificateRequestModelBase;
 import edu.iu.grid.oim.model.db.CertificateRequestModelBase.LogDetail;
 import edu.iu.grid.oim.model.db.CertificateRequestUserModel;
 import edu.iu.grid.oim.model.db.ContactModel;
+import edu.iu.grid.oim.model.db.DNModel;
 import edu.iu.grid.oim.model.db.VOModel;
 import edu.iu.grid.oim.model.db.record.CertificateRequestUserRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
+import edu.iu.grid.oim.model.db.record.DNRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
 import edu.iu.grid.oim.model.exceptions.CertificateRequestException;
 import edu.iu.grid.oim.view.BootBreadCrumbView;
@@ -490,9 +492,11 @@ public class CertificateUserServlet extends ServletBase  {
 		                		
 		                		//make sure we don't have duplicate CN requested already.
 								try {
-			                		CertificateRequestUserRecord duplicate = model.getByDN(rec.dn);
-			                		if(duplicate != null && !duplicate.id.equals(rec.id)) {
-			                			button.alert("The same DN is already used by U"+duplicate.id + ". Please specify different CN");
+									DNModel dnmodel = new DNModel(context);
+			                		DNRecord duplicate = dnmodel.getEnabledByDNString(rec.dn);
+			                		if(duplicate != null/* && !duplicate.contact_id.equals(rec.requester_contact_id)*/) {
+			                			button.alert("The same DN is already registered in OIM for user id:"+duplicate.contact_id + ". Please specify different CN");
+			                			return;
 			                		}
 								} catch (SQLException e1) {
 									log.error("Failed to test duplicate DN during approval process", e1);
