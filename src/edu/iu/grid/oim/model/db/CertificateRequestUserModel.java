@@ -261,7 +261,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 	
 	public boolean canReRequest(CertificateRequestUserRecord rec) {
 		if(!canView(rec)) return false;
-		
+/*
 		if(	rec.status.equals(CertificateRequestStatus.REJECTED) ||
 			rec.status.equals(CertificateRequestStatus.CANCELED) ||
 			rec.status.equals(CertificateRequestStatus.REVOKED) ||
@@ -276,6 +276,18 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 			//guest user needs to be able to re-request expired cert..
 			return true;
 		}
+*/
+		if(	rec.status.equals(CertificateRequestStatus.REJECTED) ||
+				rec.status.equals(CertificateRequestStatus.CANCELED) ||
+				rec.status.equals(CertificateRequestStatus.REVOKED) ||
+				rec.status.equals(CertificateRequestStatus.EXPIRED)) {
+			//anyone including guest can re-request if the status is one of avobe.
+			//Previously, we only allowed guest to re-request if the certificate was expired.
+			//however, sometime user expires *while* going through the request process.
+			//in that case, RA will cancel the cert, and guest user can re-request
+			return true;
+		}	
+		
 		return false;
 	}
 	
