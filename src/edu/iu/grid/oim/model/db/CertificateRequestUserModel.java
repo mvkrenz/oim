@@ -1176,6 +1176,8 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 					requester.person = true;
 					
 					//update contact information with information that user just gave me
+					//NOTE -- we are updating oim contact from guest submitted info before doing DN 
+					//collision test here
 					cmodel.update(requester);
 					
 					note += "NOTE: User is taking over a contact only account with id: "+existing_crec.id+"\n";
