@@ -1133,34 +1133,23 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
     //return true for success
     private void request(Integer vo_id, CertificateRequestUserRecord rec, ContactRecord requester, ContactRecord sponsor, String cn, String request_comment) throws SQLException, CertificateRequestException 
     {
+    	
+    	String note = "";
+    	
 		///////////////////////////////////////////////////////////////////////////////////////////
 		// Check conditions & finalize DN (register contact if needed)
-    	String note = "";
 		DNModel dnmodel = new DNModel(context);
-		
 		if(auth.isUser()) {
-			//user is requesting another user certificate.. proceed
-			note += "NOTE: Additional user certificate request\n";
-			
-			//we can generate dn immediately
+			//generate DN
 			X500Name name = generateDN(cn);
 			rec.dn = CertificateManager.RFC1779_to_ApacheDN(name.toString());
-			
-			//make sure we won't collide with existing dn
-			DNRecord existing_rec = dnmodel.getEnabledByDNString(rec.dn);
-			if(existing_rec == null) {
-			} else {
-				//oops.. there is duplicate dn
-				throw new CertificateRequestException("The DN already exist in OIM (contact ID:"+existing_rec.contact_id+"). Please choose different CN, or contact GOC for more assistance.");
-			}
+			note += "NOTE: Additional user certificate request for OIM user\n";
 		} else {
-			//for guest
-	
-			//Find contact record with the same email address including disabled one
+			//Guest request -- check contact record with the same email address
 			ContactModel cmodel = new ContactModel(context);
 			ContactRecord existing_crec = cmodel.getEnabledByemail(requester.primary_email);//this is from the form, so I just have to check against primary_email
 			if(existing_crec == null) {
-				//register new disabled contact
+				//register new disabled contact (until issued)
 				requester.disable = true; //don't enable until the request gets approved
 				requester.id = cmodel.insert(requester);
 				
@@ -1168,19 +1157,18 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 		    	cn = requester.name + " " + requester.id;
 		    	X500Name name = generateDN(cn);
 				rec.dn = CertificateManager.RFC1779_to_ApacheDN(name.toString());
-				
 				note += "NOTE: User is registering OIM contact & requesting new certificate: contact id:"+requester.id+"\n";
-		    	
 			} else {
+				//Guest is attempting take over existing contact
 				//generate dn (with existing_crec id)
 		    	cn = requester.name + " " + existing_crec.id;
 		    	X500Name name = generateDN(cn);
 				rec.dn = CertificateManager.RFC1779_to_ApacheDN(name.toString());
 				
-				//find if there is any DN associated with the contact
+				//find if the existing contact has any DN associated with the contact
 				ArrayList<DNRecord> dnrecs = dnmodel.getEnabledByContactID(existing_crec.id);
 				if(dnrecs.isEmpty()) {
-					//do contact record take over
+					//OK for contact record take over
 					
 					//pre-registered contact - just let user associate with this contact id
 					requester.id = existing_crec.id;
@@ -1190,22 +1178,18 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 					//update contact information with information that user just gave me
 					cmodel.update(requester);
 					
-					note += "NOTE: User is claiming unused contact id: "+existing_crec.id+"\n";
+					note += "NOTE: User is taking over a contact only account with id: "+existing_crec.id+"\n";
 				} else {
 					//we can't take over contact record that already has DN attached.
-					//find proper error message
-					DNRecord dnrec = dnmodel.getEnabledByDNString(rec.dn);
-					//CertificateRequestUserRecord existing_rec = getByDN(rec.dn);
-					if(dnrec != null) {
-						//oim cert is already associated.
-						throw new CertificateRequestException("Provided email address is already associated with existing OIM account (contact ID:"+dnrec.contact_id+"). If you are already registered to OIM, please login before making your request. Please contact GOC for more assistance.");						
-					} else {
-						//probably non digicert DN
-						throw new CertificateRequestException("Provided email address is already associated with existing OIM account. If you are already registered to OIM, please login before making your request. Please contact GOC for more assistance.");
-					}
+					throw new CertificateRequestException("Provided email address is already associated with existing OIM account. If you are already registered to OIM, please login before making your request. Please contact GOC for more assistance.");
 				}
-			}
-			
+			}	
+		}
+		
+		//make sure we won't collide with existing dn
+		DNRecord existing_rec = dnmodel.getEnabledByDNString(rec.dn);
+		if(existing_rec != null) {
+			throw new CertificateRequestException("The DN already exist in OIM (contact ID:"+existing_rec.contact_id+"). Please choose different CN, or contact GOC for more assistance.");
 		}
 		
 		note += "NOTE: Requested DN: " + rec.dn + "\n\n";
