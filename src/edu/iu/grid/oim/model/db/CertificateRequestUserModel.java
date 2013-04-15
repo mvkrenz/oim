@@ -1371,7 +1371,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 			VORecord vrec = vmodel.get(rec.vo_id);
 			ticket.description = "Dear " + ranames + " (" + vrec.name + " VO RA/Sponsors),\n\n";
 			if(guest_passphrase != null) {
-				ticket.description += "A guest user has re-requested this user certificate request. Please contact the requester; " + requester.name + 
+				ticket.description += "A guest user has re-requested this user certificate request. Please contact the original requester; " + requester.name + 
 					" <"+requester.primary_email+"> and confirm authenticity of this re-request, and approve / disapprove at" + getTicketUrl(rec.id);
 			} else {
 				ticket.description += "An OIM Authenticated user "  + requester.name + " <"+requester.primary_email+"> has re-requested this user certificate request. ";
