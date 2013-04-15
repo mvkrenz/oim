@@ -17,6 +17,7 @@ import com.divrep.common.DivRepSelectBox;
 import com.divrep.common.DivRepStaticContent;
 import com.divrep.common.DivRepTextArea;
 import com.divrep.common.DivRepTextBox;
+import com.divrep.validator.DivRepIValidator;
 import com.divrep.validator.DivRepUniqueValidator;
 import com.divrep.validator.DivRepUrlValidator;
 
@@ -63,11 +64,12 @@ public class UserFormDE extends DivRepForm
 		auth = context.getAuthorization();
 		id = rec.id;
 
+		final DNModel dnmodel = new DNModel(context);
 		dn_string = new DivRepTextBox(this);
 		dn_string.setLabel("DN String");
 		dn_string.setValue(rec.dn_string);
 		dn_string.setRequired(true);
-
+			
 		new DivRepStaticContent(this, "<h3>Contact's Name</h3>");
 		contact = new ContactEditor(this, new ContactModel(context), false, false);
 		contact.setShowRank(false);
@@ -100,6 +102,31 @@ public class UserFormDE extends DivRepForm
 		if(id != null) {
 			disable.setValue(rec.disable);
 		}
+		disable.addValidator(new DivRepIValidator<Boolean>(){
+			String error;
+			@Override
+			public String getErrorMessage() {
+				return error;
+			}
+			@Override
+			public Boolean isValid(Boolean value) {
+				error = "";
+				if(value.equals(false)) {
+					try {
+						DNRecord existing_dn = dnmodel.getEnabledByDNString(dn_string.getValue());
+						if(existing_dn != null) {
+							if(existing_dn.id.equals(id)) return true;//ok to have myself
+							error = "You can not enable this DN since the same DN already exist which is currently enabled.";
+							return false;
+						}
+					} catch (SQLException e) {
+						error = "Failed to validate";
+						return false;
+					}
+				}
+				return true;
+			}
+		});
 	}
 	
 	protected Boolean doSubmit() 

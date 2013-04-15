@@ -1371,11 +1371,11 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 			VORecord vrec = vmodel.get(rec.vo_id);
 			ticket.description = "Dear " + ranames + " (" + vrec.name + " VO RA/Sponsors),\n\n";
 			if(guest_passphrase != null) {
-				ticket.description += "A guest user has re-requested this user certificate request. Please contact " + requester.name + 
+				ticket.description += "A guest user has re-requested this user certificate request. Please contact the requester; " + requester.name + 
 					" <"+requester.primary_email+"> and confirm authenticity of this re-request, and approve / disapprove at" + getTicketUrl(rec.id);
 			} else {
-				ticket.description += "An OIM Authenticated user"  + requester.name + " <"+requester.primary_email+"> has re-requested this user certificate request. ";
-				ticket.description += "Please determine this request's authenticity, and approve / disapprove at " + getTicketUrl(rec.id);
+				ticket.description += "An OIM Authenticated user "  + requester.name + " <"+requester.primary_email+"> has re-requested this user certificate request. ";
+				ticket.description += "Please approve / disapprove this request at " + getTicketUrl(rec.id);
 			}
 
 			ticket.assignees.add(StaticConfig.conf.getProperty("certrequest.user.assignee"));
