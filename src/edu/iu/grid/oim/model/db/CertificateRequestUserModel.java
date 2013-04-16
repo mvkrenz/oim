@@ -285,6 +285,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 			//Previously, we only allowed guest to re-request if the certificate was expired.
 			//however, sometime user expires *while* going through the request process.
 			//in that case, RA will cancel the cert, and guest user can re-request
+			//TODO Once everyone transition to DigiCert, I believe we should only allow guest user to re-request if the request is in EXPIRED state.
 			return true;
 		}	
 		
