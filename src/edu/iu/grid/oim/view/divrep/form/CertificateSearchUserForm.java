@@ -7,9 +7,12 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Locale;
 
 import javax.servlet.http.HttpServletRequest;
@@ -222,7 +225,7 @@ public class CertificateSearchUserForm extends DivRep
 		status = new DivRepSelectBox(this);
 		status.setLabel("Status");
 		status.setNullLabel("(Any)");
-		HashMap<Integer, String> keyvalues = new HashMap<Integer, String>();
+		LinkedHashMap<Integer, String> keyvalues = new LinkedHashMap();
 		int i = 0;
 		while(true) {
 			String st = CertificateRequestStatus.toStatus(i);
@@ -235,13 +238,18 @@ public class CertificateSearchUserForm extends DivRep
 		vo = new DivRepSelectBox(this);
 		vo.setLabel("VO");
 		vo.setNullLabel("(Any)");
-		keyvalues = new HashMap<Integer, String>();
+		keyvalues = new LinkedHashMap();
 		VOModel vomodel = new VOModel(context);
 		ArrayList<VORecord> vorecs;
 		try {
 			vorecs = vomodel.getAll();
+			Collections.sort(vorecs, new Comparator<VORecord> () {
+				public int compare(VORecord a, VORecord b) {
+					return a.getName().compareToIgnoreCase(b.getName());
+				}
+			});
 			for(VORecord vrec : vorecs) {
-				keyvalues.put(vrec.id, vrec.name);
+				keyvalues.put(vrec.id, vrec.getName());
 			}
 			vo.setValues(keyvalues);
 		} catch (SQLException e1) {
@@ -391,7 +399,7 @@ public class CertificateSearchUserForm extends DivRep
 		out.write("<script>\n");
 		out.write("$('#"+getNodeID()+" a[data-toggle=\"tab\"]').on('shown', function (e) {\n");
 		//out.write("	  e.target // activated tab
-		out.write("console.log(e.target.hash);");
+		//out.write("console.log(e.target.hash);");
 		out.write("divrep(\""+getNodeID()+"\", e, e.target.hash);");
 		out.write("})\n");
 		out.write("</script>\n");
