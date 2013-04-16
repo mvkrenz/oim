@@ -2,15 +2,13 @@ package edu.iu.grid.oim.view.divrep.form;
 
 import java.io.PrintWriter;
 import java.sql.SQLException;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.GregorianCalendar;
-import java.util.HashMap;
-import java.util.Locale;
+import java.util.LinkedHashMap;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -26,7 +24,6 @@ import com.divrep.common.DivRepSelectBox;
 import com.divrep.common.DivRepStaticContent;
 import com.divrep.common.DivRepTextBox;
 
-import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.model.CertificateRequestStatus;
 import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.CertificateRequestUserModel;
@@ -222,7 +219,7 @@ public class CertificateSearchUserForm extends DivRep
 		status = new DivRepSelectBox(this);
 		status.setLabel("Status");
 		status.setNullLabel("(Any)");
-		HashMap<Integer, String> keyvalues = new HashMap<Integer, String>();
+		LinkedHashMap<Integer, String> keyvalues = new LinkedHashMap();
 		int i = 0;
 		while(true) {
 			String st = CertificateRequestStatus.toStatus(i);
@@ -235,13 +232,18 @@ public class CertificateSearchUserForm extends DivRep
 		vo = new DivRepSelectBox(this);
 		vo.setLabel("VO");
 		vo.setNullLabel("(Any)");
-		keyvalues = new HashMap<Integer, String>();
+		keyvalues = new LinkedHashMap();
 		VOModel vomodel = new VOModel(context);
 		ArrayList<VORecord> vorecs;
 		try {
 			vorecs = vomodel.getAll();
+			Collections.sort(vorecs, new Comparator<VORecord> () {
+				public int compare(VORecord a, VORecord b) {
+					return a.getName().compareToIgnoreCase(b.getName());
+				}
+			});
 			for(VORecord vrec : vorecs) {
-				keyvalues.put(vrec.id, vrec.name);
+				keyvalues.put(vrec.id, vrec.getName());
 			}
 			vo.setValues(keyvalues);
 		} catch (SQLException e1) {
@@ -249,7 +251,7 @@ public class CertificateSearchUserForm extends DivRep
 		}
 		
 		request_after = new DivRepDate(this);
-		Calendar today = new GregorianCalendar();
+		//Calendar today = new GregorianCalendar();
 		Calendar last_year = new GregorianCalendar();
 		last_year.add(Calendar.MONTH, -6);
 		request_after.setValue(last_year.getTime());
@@ -317,7 +319,7 @@ public class CertificateSearchUserForm extends DivRep
 		if(request.getParameter("vo") != null) {
 			vo.setValue(Integer.parseInt(request.getParameter("vo")));
 		}
-		DateFormat df = new SimpleDateFormat("EEE MMM dd kk:mm:ss z yyyy");
+		//DateFormat df = new SimpleDateFormat("EEE MMM dd kk:mm:ss z yyyy");
 		if(request.getParameter("request_after") != null) {
 			long time = Long.parseLong(request.getParameter("request_after"));
 			Date d = new Date(time);
@@ -342,6 +344,7 @@ public class CertificateSearchUserForm extends DivRep
 		if(e.action.equals("shown")) {
 			active_tab = findTab(e.value.substring(1));//remove # from #tabid 
 		}
+		log.debug("selecting tab:" + e.value);
 	}
 	
 	private Tab findTab(String id) {
@@ -354,7 +357,7 @@ public class CertificateSearchUserForm extends DivRep
 	}
 
 	public ArrayList<CertificateRequestUserRecord> search() {
-		ArrayList<CertificateRequestUserRecord> recs = new ArrayList<CertificateRequestUserRecord>();
+		//ArrayList<CertificateRequestUserRecord> recs = new ArrayList<CertificateRequestUserRecord>();
 		CertificateRequestUserModel model = new CertificateRequestUserModel(context);
 		return active_tab.search(model);
 	}
@@ -390,8 +393,6 @@ public class CertificateSearchUserForm extends DivRep
 		
 		out.write("<script>\n");
 		out.write("$('#"+getNodeID()+" a[data-toggle=\"tab\"]').on('shown', function (e) {\n");
-		//out.write("	  e.target // activated tab
-		out.write("console.log(e.target.hash);");
 		out.write("divrep(\""+getNodeID()+"\", e, e.target.hash);");
 		out.write("})\n");
 		out.write("</script>\n");
