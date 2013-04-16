@@ -372,8 +372,6 @@ public class CertificateSearchHostForm extends DivRep
 		
 		out.write("<script>\n");
 		out.write("$('#"+getNodeID()+" a[data-toggle=\"tab\"]').on('shown', function (e) {\n");
-		//out.write("	  e.target // activated tab
-		out.write("console.log(e.target.hash);");
 		out.write("divrep(\""+getNodeID()+"\", e, e.target.hash);");
 		out.write("})\n");
 		out.write("</script>\n");
