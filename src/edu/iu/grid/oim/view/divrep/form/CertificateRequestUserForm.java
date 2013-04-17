@@ -318,9 +318,16 @@ public class CertificateRequestUserForm extends DivRepForm
 							sponsor.setValues(keyvalues);
 							sponsor.setHidden(false);	
 							if(sponsors.size() > 0) {
-								//select 1st value
-								Integer first_id = sponsors.get(0).id;
-								sponsor.setValue(first_id);
+								
+								//select primary sponsor if available
+								Integer primary_sponsor_id = getPrimarySponsorId(vo.getValue());
+								if(primary_sponsor_id != null) {
+									sponsor.setValue(primary_sponsor_id);
+								} else {
+									//select 1st sponsor
+									Integer first_id = sponsors.get(0).id;
+									sponsor.setValue(first_id);
+								}
 								sponsor.setHidden(false);
 								
 								//no need for sponsor detail
@@ -407,6 +414,16 @@ public class CertificateRequestUserForm extends DivRepForm
 			}
 		}
 		return sponsors;
+	}
+	protected Integer getPrimarySponsorId(Integer vo_id) throws SQLException {
+		VOContactModel model = new VOContactModel(context);
+		ArrayList<VOContactRecord> crecs = model.getByVOID(vo_id);
+		for(VOContactRecord crec : crecs) {
+			if(crec.contact_type_id.equals(12) && crec.contact_rank_id.equals(1)) { //primary sponsor
+				return crec.contact_id;
+			}
+		}
+		return null;
 	}
 
 	protected void onEvent(DivRepEvent e) {
