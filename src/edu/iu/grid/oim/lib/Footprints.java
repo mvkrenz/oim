@@ -54,7 +54,7 @@ public class Footprints
 		
 		public FPTicket() {
 			Calendar cal = Calendar.getInstance();
-			cal.add(Calendar.DATE, 7);
+			//cal.add(Calendar.DATE, 7); 
 			nad = cal.getTime();
 		}
 	}
