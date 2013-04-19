@@ -361,15 +361,20 @@ public class CertificateHostServlet extends ServletBase  {
 			button.setStyle(DivRepButton.Style.HTML);
 			button.addClass("inline");
 			button.addEventListener(new DivRepEventListener() {
-                public void handleEvent(DivRepEvent e) {
+                public void handleEvent(DivRepEvent event) {
                 	if(note.validate()) {
                 		context.setComment(note.getValue());
 	                	try {
-							model.approve(rec);
+                			//check access again - request status might have changed
+	                		if(model.canApprove(rec)) {
+	                			model.approve(rec);
+	                		} else {
+    	        				button.alert("Reques status has changed. Please reload.");
+	                		}
 							button.redirect(url);
-						} catch (CertificateRequestException e1) {
-							log.error("Failed to approve host certificate", e1);
-							button.alert(e1.toString());
+						} catch (CertificateRequestException e) {
+							log.error("Failed to approve host certificate", e);
+							button.alert(e.getMessage());
 						}
                 	}
                 }
@@ -405,14 +410,20 @@ public class CertificateHostServlet extends ServletBase  {
 			button.setStyle(DivRepButton.Style.HTML);
 			button.addClass("inline");
 			button.addEventListener(new DivRepEventListener() {
-                public void handleEvent(DivRepEvent e) {
+                public void handleEvent(DivRepEvent event) {
                 	if(note.validate()) {
                 		context.setComment(note.getValue());
                 		try {
-                			model.requestRevoke(rec);
+                			//check access again - request status might have changed
+	                		if(model.canRequestRevoke(rec)) {
+	                			model.requestRevoke(rec);
+	                		} else {
+    	        				button.alert("Reques status has changed. Please reload.");
+	                		}
 	                		button.redirect(url);
-	                	} catch (CertificateRequestException e1) {
-	                		button.alert("Failed to request revoke request");
+	                	} catch (CertificateRequestException e) {
+							log.error("Failed to request revoke host certificate", e);
+							button.alert(e.getMessage());
 	                	}
                 	}
                 }
@@ -426,15 +437,19 @@ public class CertificateHostServlet extends ServletBase  {
 			button.setStyle(DivRepButton.Style.HTML);
 			button.addClass("inline");
 			button.addEventListener(new DivRepEventListener() {
-                public void handleEvent(DivRepEvent e) {
+                public void handleEvent(DivRepEvent event) {
             		try {
-                      	model.startissue(rec);
+               			//check access again - request status might have changed
+                		if(model.canIssue(rec)) {
+                			model.startissue(rec);
+                		} else {
+	        				button.alert("Reques status has changed. Please reload.");
+                		}
                     	button.redirect(url);
-                	} catch(CertificateRequestException ex) {
-                		log.warn("CertificateRequestException while issuging certificate:", ex);
-                		button.alert(ex.getMessage());
+                	} catch(CertificateRequestException e) {
+						log.error("Failed to issue host certificate", e);
+						button.alert(e.getMessage());
                 	}
-                	
                 }
             });
 			v.add(button);
@@ -445,13 +460,19 @@ public class CertificateHostServlet extends ServletBase  {
 			button.setStyle(DivRepButton.Style.HTML);
 			button.addClass("inline");
 			button.addEventListener(new DivRepEventListener() {
-                public void handleEvent(DivRepEvent e) {
+                public void handleEvent(DivRepEvent event) {
             		context.setComment(note.getValue());
                 	try {
-                		model.cancel(rec);
+               			//check access again - request status might have changed
+                		if(model.canCancel(rec)) {
+                			model.cancel(rec);
+                		} else {
+	        				button.alert("Reques status has changed. Please reload.");
+                		}
                 		button.redirect(url);
-                	} catch (CertificateRequestException e1) {
-                		button.alert("Failed to cancel request");
+                	} catch (CertificateRequestException e) {
+						log.error("Failed to cancel host certificate", e);
+						button.alert(e.getMessage());
                 	}
                 }
             });
@@ -462,14 +483,20 @@ public class CertificateHostServlet extends ServletBase  {
 			button.setStyle(DivRepButton.Style.HTML);
 			button.addClass("inline");
 			button.addEventListener(new DivRepEventListener() {
-                public void handleEvent(DivRepEvent e) {
+                public void handleEvent(DivRepEvent event) {
                 	if(note.validate()) {
                 		context.setComment(note.getValue());
 	                  	try {
-	                  		model.reject(rec);
+	               			//check access again - request status might have changed
+	                		if(model.canReject(rec)) {
+	                			model.reject(rec);
+	                		} else {
+		        				button.alert("Reques status has changed. Please reload.");
+	                		}
 	                		button.redirect(url);
-	                	} catch (CertificateRequestException e1) {
-	                		button.alert("Failed to reject request");
+	                	} catch (CertificateRequestException e) {
+							log.error("Failed to reject host certificate", e);
+							button.alert(e.getMessage());
 	                	}
                 	}
                 }
@@ -482,14 +509,20 @@ public class CertificateHostServlet extends ServletBase  {
 			button.setStyle(DivRepButton.Style.HTML);
 			button.addClass("inline");
 			button.addEventListener(new DivRepEventListener() {
-                public void handleEvent(DivRepEvent e) {
+                public void handleEvent(DivRepEvent event) {
                 	if(note.validate()) {
                 		context.setComment(note.getValue());
 	                 	try {
-	                 		model.revoke(rec);
+	               			//check access again - request status might have changed
+	                		if(model.canRevoke(rec)) {
+	                			model.revoke(rec);
+	                		} else {
+		        				button.alert("Reques status has changed. Please reload.");
+	                		}
 	                		button.redirect(url);
-	                	} catch (CertificateRequestException e1) {
-	                		button.alert("Failed to cancel request");
+	                	} catch (CertificateRequestException e) {
+							log.error("Failed to revoke host certificate", e);
+							button.alert(e.getMessage());
 	                	}
                 	}
                 }

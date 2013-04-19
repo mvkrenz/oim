@@ -402,8 +402,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 	}
 	
 	//NO-AC
-	//return true if success
-	public boolean cancel(CertificateRequestUserRecord rec) {
+	public void cancel(CertificateRequestUserRecord rec) throws CertificateRequestException {
 		try {
 			//info.. We can't put RENEW_REQUESTED back to ISSUED - since we've already reset certificate
 			if(rec.status.equals(CertificateRequestStatus.REVOCATION_REQUESTED)) {
@@ -429,17 +428,12 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 			fp.update(ticket, rec.goc_ticket_id);
 			
 		} catch (SQLException e) {
-			log.error("Failed to cancel user certificate request:" + rec.id);
-			return false;
+    		throw new CertificateRequestException("Failed to cancel user certificate request:" + rec.id, e);
 		}
-		
-		
-		return true;
 	}
 	
 	//NO-AC
-	//return true if success
-	public boolean reject(CertificateRequestUserRecord rec) {
+	public void reject(CertificateRequestUserRecord rec) throws CertificateRequestException {
 		if(	//rec.status.equals(CertificateRequestStatus.RENEW_REQUESTED)||
 			rec.status.equals(CertificateRequestStatus.REVOCATION_REQUESTED)) {
 			rec.status = CertificateRequestStatus.ISSUED;
@@ -451,8 +445,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 			//context.setComment("Certificate Approved");
 			super.update(get(rec.id), rec);
 		} catch (SQLException e) {
-			log.error("Failed to reject user certificate request:" + rec.id);
-			return false;
+    		throw new CertificateRequestException("Failed to reject user certificate request:" + rec.id, e);
 		}
 		
 		ContactRecord contact = auth.getContact();
@@ -463,8 +456,6 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 		ticket.description += "> " + context.getComment();
 		ticket.status = "Resolved";
 		fp.update(ticket, rec.goc_ticket_id);
-		
-		return true;
 	}
 	
 	/*

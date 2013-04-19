@@ -631,6 +631,8 @@ public class RestServlet extends ServletBase  {
 			}
 		} catch (SQLException e) {
 			throw new RestException("SQLException while making request", e);
+		} catch (CertificateRequestException e) {
+			throw new RestException("CertificateRequestException while making request", e);
 		}
 	}
 	private void doUserCertCancel(HttpServletRequest request, Reply reply) throws AuthorizationException, RestException {
@@ -650,6 +652,8 @@ public class RestServlet extends ServletBase  {
 			}
 		} catch (SQLException e) {
 			throw new RestException("SQLException while making request", e);
+		} catch (CertificateRequestException e) {
+			throw new RestException("CertificateRequestException while making request", e);
 		}
 	}
 	private void doUserCertRevoke(HttpServletRequest request, Reply reply) throws AuthorizationException, RestException {
