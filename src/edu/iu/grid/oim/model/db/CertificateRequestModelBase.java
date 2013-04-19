@@ -27,6 +27,7 @@ import edu.iu.grid.oim.model.db.record.RecordBase;
 abstract public class CertificateRequestModelBase<T extends RecordBase> extends ModelBase<T> {
     protected CertificateRequestModelBase(UserContext context, String _table_name) {
 		super(context, _table_name);
+		setPublishLog(false);
 	}
 	static Logger log = Logger.getLogger(CertificateRequestModelBase.class);  
 

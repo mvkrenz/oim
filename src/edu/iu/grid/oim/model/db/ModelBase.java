@@ -26,6 +26,11 @@ public abstract class ModelBase<T extends RecordBase> {
 	protected Authorization auth;
     protected String table_name;
     
+    protected boolean publish_log = true;
+    protected void setPublishLog(boolean b) {
+    	publish_log = b;
+    }
+    
 	protected ModelBase(UserContext context, String _table_name)
 	{
 		this.context = context;
@@ -300,7 +305,7 @@ public abstract class ModelBase<T extends RecordBase> {
 	    	xml += "</Log>";
 	    	
 			LogModel lmodel = new LogModel(context);
-			int logid = lmodel.insert("insert", getClass(), xml, keystr);	    
+			int logid = lmodel.insert("insert", getClass(), xml, keystr, publish_log);	    
 
 		} catch (IllegalArgumentException e) {
 			throw new SQLException(e);
@@ -353,7 +358,7 @@ public abstract class ModelBase<T extends RecordBase> {
 	    	xml += "</Fields>\n";
 	    	xml += "</Log>";
 			LogModel lmodel = new LogModel(context);
-			int logid = lmodel.insert("remove", getClass(), xml, keystr);	  
+			int logid = lmodel.insert("remove", getClass(), xml, keystr, publish_log);	  
 		} catch (IllegalArgumentException e) {
 			throw new SQLException(e);
 		} catch (IllegalAccessException e) {
@@ -406,7 +411,7 @@ public abstract class ModelBase<T extends RecordBase> {
 	    	xml += "</Fields>\n";
 	    	xml += "</Log>";
 			LogModel lmodel = new LogModel(context);
-			int logid = lmodel.insert("update", getClass(), xml, keystr);
+			int logid = lmodel.insert("update", getClass(), xml, keystr, publish_log);
 
 		} catch (IllegalArgumentException e) {
 			throw new SQLException(e);

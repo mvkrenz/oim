@@ -98,7 +98,7 @@ public class LogModel extends ModelBase {
 		return recs;
     }
     
-    public int insert(String type, Class model, String xml, String key) throws SQLException
+    public int insert(String type, Class model, String xml, String key, boolean publish_log) throws SQLException
     {
     	Authorization auth = context.getAuthorization();
     	
@@ -136,11 +136,12 @@ public class LogModel extends ModelBase {
 		stmt.close();
 		conn.close();
 		
-		//also publish it to event server
-		String event_xml = "<OIMEvent><LogID>"+logid+"</LogID><DNID>"+auth.getDNID()+"</DNID><Comment>"+StringEscapeUtils.escapeXml(context.getComment())+"</Comment>"+xml+"</OIMEvent>";
-		EventPublisher publisher = new EventPublisher();
-		publisher.publishLog(type, model.getName(), event_xml);
-	
+		if(publish_log) { 		
+			//also publish it to event server
+			String event_xml = "<OIMEvent><LogID>"+logid+"</LogID><DNID>"+auth.getDNID()+"</DNID><Comment>"+StringEscapeUtils.escapeXml(context.getComment())+"</Comment>"+xml+"</OIMEvent>";
+			EventPublisher publisher = new EventPublisher();
+			publisher.publishLog(type, model.getName(), event_xml);
+		}
 		return logid;
     }
     public ArrayList<LogRecord> search(String model_like, String key_like) throws SQLException {
