@@ -15,12 +15,16 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 import org.bouncycastle.asn1.x500.X500Name;
 
+import com.divrep.DivRep;
 import com.divrep.DivRepEvent;
 import com.divrep.DivRepEventListener;
 import com.divrep.common.DivRepButton;
 import com.divrep.common.DivRepPassword;
+import com.divrep.common.DivRepStaticContent;
 import com.divrep.common.DivRepTextArea;
+import com.divrep.common.DivRepToggler;
 import com.divrep.validator.DivRepIValidator;
+import com.divrep.common.DivRepToggler;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.AuthorizationException;
@@ -600,7 +604,7 @@ public class CertificateUserServlet extends ServletBase  {
 			//Authorization auth = context.getAuthorization();
 			
 			if(rec.requester_passphrase != null) {
-				v.add(new HtmlView("<p class=\"help-block\">Please enter the password you chose during a request submission to retrieve your certificate & encrypt your private key</p>"));
+				v.add(new HtmlView("<p class=\"help-block\">Please enter the password you chose during a request submission to retrieve your certificate & encrypt your private key. If you don't remember, please read <a target=\"_blank\" href=\"https://confluence.grid.iu.edu/display/CENTRAL/Forgot+retrieval+password\">this doc.</a></p>"));
 			} else {
 				v.add(new HtmlView("<p class=\"help-block\">Please choose a password to encrypt your private key</p>"));
 			}
