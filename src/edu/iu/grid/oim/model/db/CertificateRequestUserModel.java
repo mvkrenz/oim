@@ -116,7 +116,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 				
 				//Is user RA agent for specified vo?
 				VOContactModel model = new VOContactModel(context);
-				ContactModel cmodel = new ContactModel(context);
+				//sContactModel cmodel = new ContactModel(context);
 				ArrayList<VOContactRecord> crecs;
 				try {
 					crecs = model.getByVOID(rec.vo_id);
@@ -152,7 +152,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 				
 				//ra can cancel
 				VOContactModel model = new VOContactModel(context);
-				ContactModel cmodel = new ContactModel(context);
+				//ContactModel cmodel = new ContactModel(context);
 				ArrayList<VOContactRecord> crecs;
 				try {
 					crecs = model.getByVOID(rec.vo_id);
@@ -321,7 +321,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 				
 				//ra can revoke it
 				VOContactModel model = new VOContactModel(context);
-				ContactModel cmodel = new ContactModel(context);
+				//ContactModel cmodel = new ContactModel(context);
 				ArrayList<VOContactRecord> crecs;
 				try {
 					crecs = model.getByVOID(rec.vo_id);
@@ -1398,7 +1398,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
     	throw new UnsupportedOperationException("disallowing remove cert request..");
     }
     
-
+    /*
     public void _test() {
     	try {
 			CertificateRequestUserRecord rec = get(21);
@@ -1422,6 +1422,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 			e.printStackTrace();
 		}
     }
+    */
 
     //NO AC
 	public CertificateRequestUserRecord getBySerialID(String serial_id) throws SQLException {

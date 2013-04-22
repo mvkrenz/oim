@@ -1,5 +1,6 @@
 package edu.iu.grid.oim.model.db;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -7,16 +8,15 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathExpressionException;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
-import org.w3c.dom.Document;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.record.RecordBase;
+import edu.iu.grid.oim.model.db.record.RecordBase.Key;
+import edu.iu.grid.oim.model.db.record.RecordBase.NoLog;
 
 public abstract class ModelBase<T extends RecordBase> {
     static Logger log = Logger.getLogger(ModelBase.class); 
@@ -265,6 +265,23 @@ public abstract class ModelBase<T extends RecordBase> {
     	}
     }
     
+    private String getValueForLog(RecordBase rec, Field key) throws IllegalArgumentException, IllegalAccessException {
+		boolean nolog = false;
+		Annotation[] annotations = key.getDeclaredAnnotations();
+		for(Annotation annotation : annotations){	
+			if(annotation instanceof NoLog){
+		    	nolog = true;
+		    	break;
+		    }
+		}
+		String svalue = "(No Log)";
+		if(!nolog) {
+    		Object value = (Object) key.get(rec);   
+    		svalue = formatValue(value);
+		}
+		return svalue;
+    }
+    
     protected void logInsert(RecordBase rec) throws SQLException 
     {
     	try {
@@ -294,11 +311,10 @@ public abstract class ModelBase<T extends RecordBase> {
 	    	for(Field f : rec.getClass().getFields()) {
 	    		if(keys.contains(f)) continue;	//don't show key field    		
 	    		String name = f.getName();
-	    		Object value = f.get(rec);
-	    		
+	    		String value = getValueForLog(rec, f);
 	    		xml += "<Field>\n";
 	    		xml += "\t<Name>" + StringEscapeUtils.escapeXml(name) + "</Name>\n";
-	    		xml += "\t<Value>" + formatValue(value) + "</Value>\n";
+	    		xml += "\t<Value>" + StringEscapeUtils.escapeXml(value) + "</Value>\n";
 	    		xml += "</Field>\n";
 	    	}
 	    	xml += "</Fields>\n";
@@ -347,11 +363,10 @@ public abstract class ModelBase<T extends RecordBase> {
 	    	for(Field f : rec.getClass().getFields()) {
 	    		if(keys.contains(f)) continue;	//don't show key field    		
 	    		String name = f.getName();
-	    		Object value = f.get(rec);
-
+	    		String value = getValueForLog(rec, f);
 	    		xml += "<Field>\n";
 	    		xml += "\t<Name>" + StringEscapeUtils.escapeXml(name) + "</Name>\n";
-	    		xml += "\t<Value>" + formatValue(value) + "</Value>\n";
+	    		xml += "\t<Value>" + StringEscapeUtils.escapeXml(value) + "</Value>\n";
 	    		xml += "</Field>\n";
 	    	}
 	    	//plog += "</table>";
@@ -398,13 +413,12 @@ public abstract class ModelBase<T extends RecordBase> {
 	    	xml += "<Fields>\n";
 	    	for(Field f : oldrec.diff(newrec)) {
 	    		String name = f.getName();
-	    		Object oldvalue = f.get(oldrec);
-	    		Object newvalue = f.get(newrec);
-	    		   		
+	    		String oldvalue = getValueForLog(oldrec, f);
+	    		String newvalue = getValueForLog(newrec, f);
 	    		xml += "<Field>\n";
 	    		xml += "\t<Name>" + StringEscapeUtils.escapeXml(name) + "</Name>\n";
-	    		xml += "\t<OldValue>" + formatValue(oldvalue) + "</OldValue>\n";
-	    		xml += "\t<NewValue>" + formatValue(newvalue) + "</NewValue>\n";
+	    		xml += "\t<OldValue>" + StringEscapeUtils.escapeXml(oldvalue) + "</OldValue>\n";
+	    		xml += "\t<NewValue>" + StringEscapeUtils.escapeXml(newvalue) + "</NewValue>\n";
 	    		xml += "</Field>\n";
 	    	}
 	    	//plog += "</table>";

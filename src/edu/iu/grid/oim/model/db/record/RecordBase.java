@@ -18,6 +18,9 @@ public abstract class RecordBase implements Comparable<RecordBase> {
 
 	@Retention(RetentionPolicy.RUNTIME)
 	public @interface Key {}
+
+	@Retention(RetentionPolicy.RUNTIME)
+	public @interface NoLog {}
 	
 	static Logger log = Logger.getLogger(ServletBase.class);  
     
@@ -174,7 +177,7 @@ public abstract class RecordBase implements Comparable<RecordBase> {
 	//return to set labels for public log
 	public ArrayList<String> getLables()
 	{
-		ArrayList<String> lables = new ArrayList();
+		ArrayList<String> lables = new ArrayList<String>();
 		return lables;
 	}
 
