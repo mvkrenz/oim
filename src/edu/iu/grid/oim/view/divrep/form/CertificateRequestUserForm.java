@@ -33,10 +33,12 @@ import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.UserContext.MessageType;
 import edu.iu.grid.oim.model.db.CertificateRequestUserModel;
 import edu.iu.grid.oim.model.db.ContactModel;
+import edu.iu.grid.oim.model.db.DNModel;
 import edu.iu.grid.oim.model.db.VOContactModel;
 import edu.iu.grid.oim.model.db.VOModel;
 import edu.iu.grid.oim.model.db.record.CertificateRequestUserRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
+import edu.iu.grid.oim.model.db.record.DNRecord;
 import edu.iu.grid.oim.model.db.record.VOContactRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
 import edu.iu.grid.oim.model.exceptions.CertificateRequestException;
@@ -125,6 +127,55 @@ public class CertificateRequestUserForm extends DivRepForm
 		}
  	}
 	
+	class DuplicateEmailValidator implements DivRepIValidator<String> {
+		private ArrayList<DNRecord> dnrecs = null;
+		private ContactRecord owner = null;
+		
+		@Override
+		public Boolean isValid(String email) {
+			ContactModel model = new ContactModel(context);
+			dnrecs = null;
+			owner = null;
+			try {
+				owner = model.getEnabledByemail(email);
+				if(owner == null) {
+					//not such email
+					return true;
+				} else {
+					DNModel dnmodel = new DNModel(context);
+					dnrecs = dnmodel.getEnabledByContactID(owner.id);
+					if(dnrecs.size() == 0) {
+						//registered to contact with no dn - user can take over
+						dnrecs = null;
+						return true;
+					}
+					
+					//we have conflict
+					return false;
+				}
+			} catch (SQLException e) {
+				log.error("Failed to validate duplicate email", e);
+			}
+			return true;
+		}
+
+		@Override
+		public String getErrorMessage() {
+			StringBuffer msg = new StringBuffer();
+			if(dnrecs != null) {
+				msg.append("The email address is already registered to "+owner.name+" and it has following active DNs.");
+				msg.append("<ul>");
+				for(DNRecord rec : dnrecs) {
+					msg.append("<li>"+rec.dn_string + "</li>");
+				}
+				msg.append("</ul>");
+				msg.append("<p>If you have access to one of these certificates, please login to OIM using the certificate before submitting this request. ");
+				msg.append("If you do not have access to any of these DNs, please contact GOC and ask to disable all DNs before submitting your request using this email address.</p>");
+			}
+			return msg.toString();
+		}
+	}
+	
 	public CertificateRequestUserForm(final UserContext context, String origin_url) {
 		
 		super(context.getPageRoot(), origin_url);
@@ -150,6 +201,19 @@ public class CertificateRequestUserForm extends DivRepForm
 			email.setLabel("Email");
 			email.setRequired(true);
 			email.addValidator(new DivRepEmailValidator());
+			email.addValidator(new DuplicateEmailValidator());
+			/*
+			email.addEventListener(new DivRepEventListener() {
+				@Override
+				public void handleEvent(DivRepEvent e) {
+					if(email.validate()) {
+						email_availability.update(e.value);
+					} else {
+						email_availability.update(null);
+					}
+				}});
+			email_availability = new EmailAvailability(this);
+			*/
 			
 			new DivRepStaticContent(this, "<h3>Profile Information</h3>");
 			new DivRepStaticContent(this, "<p class=\"help-block\">Following information will be used to register you as a new OIM user.</p>");
