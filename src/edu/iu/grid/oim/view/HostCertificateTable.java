@@ -2,10 +2,12 @@ package edu.iu.grid.oim.view;
 
 import java.io.PrintWriter;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
 import org.apache.commons.lang.StringEscapeUtils;
 
+import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.CertificateRequestHostModel;
@@ -31,9 +33,14 @@ public class HostCertificateTable implements IView {
 
 	public void render(PrintWriter out)  {
 		out.write("<table class=\"table certificate\">");
-		out.write("<thead><tr><th width=\"40px\">ID</th><th width=\"100px\">Status</th><th width=\"80px\">GOC Ticket</th><th width=\"250px\">FQDNs</th><th>Grid Admins</th></tr></thead>");
+		out.write("<thead><tr><th width=\"40px\">ID</th><th width=\"100px\">Status</th><th width=\"120px\">Request Date</th><th width=\"250px\">FQDNs</th><th>Grid Admins</th></tr></thead>");
 		out.write("<tbody>");
 		CertificateRequestHostModel model = new CertificateRequestHostModel(context);
+		
+		final Authorization auth = context.getAuthorization();
+		final SimpleDateFormat dformat = new SimpleDateFormat("MM/dd/yyyy");
+		dformat.setTimeZone(auth.getTimeZone());
+		
 		for(CertificateRequestHostRecord rec : recs) {
 			String url = "certificatehost?id="+rec.id;
 			if(search_result) {
@@ -42,9 +49,9 @@ public class HostCertificateTable implements IView {
 			out.write("<tr onclick=\"document.location='"+url+"';\">");
 			out.write("<td>"+rec.id+"</td>");
 			out.write("<td>"+rec.status+"</td>");
-			//TODO - use configured goc ticket URL
-			out.write("<td><a target=\"_blank\" href=\""+StaticConfig.conf.getProperty("url.gocticket")+"/"+rec.goc_ticket_id+"\">"+rec.goc_ticket_id+"</a></td>");
-
+			//out.write("<td><a target=\"_blank\" href=\""+StaticConfig.conf.getProperty("url.gocticket")+"/"+rec.goc_ticket_id+"\">"+rec.goc_ticket_id+"</a></td>");
+			out.write("<td>"+dformat.format(rec.request_time)+"</td>");
+			
 			//fqdns
 			String[] cns = rec.getCNs();
 			int idx = 0;

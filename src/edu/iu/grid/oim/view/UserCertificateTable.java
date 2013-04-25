@@ -2,8 +2,10 @@ package edu.iu.grid.oim.view;
 
 import java.io.PrintWriter;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
+import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.CertificateRequestUserModel;
@@ -27,9 +29,13 @@ public class UserCertificateTable implements IView {
 	public void render(PrintWriter out)  {
 
 		out.write("<table class=\"table certificate\">");
-		out.write("<thead><tr><th>ID</th><th>Status</th><th>GOC Ticket</th><th>DN</th><th>VO</th><th>RA</th></tr></thead>");
+		out.write("<thead><tr><th>ID</th><th>Status</th><th width=\"120px\">Request Date</th><th>DN</th><th>VO</th><th>RA</th></tr></thead>");
 		out.write("<tbody>");
 		CertificateRequestUserModel usermodel = new CertificateRequestUserModel(context);
+		
+		final Authorization auth = context.getAuthorization();
+		final SimpleDateFormat dformat = new SimpleDateFormat("MM/dd/yyyy");
+		dformat.setTimeZone(auth.getTimeZone());
 		
 		for(CertificateRequestUserRecord rec : recs) {
 			String url = "certificateuser?id="+rec.id;
@@ -39,12 +45,8 @@ public class UserCertificateTable implements IView {
 			out.write("<tr onclick=\"document.location='"+url+"';\">");
 			out.write("<td>"+rec.id+"</td>");
 			out.write("<td>"+rec.status+"</td>");
-			
-			//TODO - use configured goc ticket URL
-			out.write("<td><a target=\"_blank\" href=\""+StaticConfig.conf.getProperty("url.gocticket")+"/"+rec.goc_ticket_id+"\">"+rec.goc_ticket_id+"</a></td>");
-			out.write("<td>"+rec.dn);
-
-			out.write("</td>");
+			out.write("<td>"+dformat.format(rec.request_time)+"</td>");
+			out.write("<td>"+rec.dn+"</td>");
 			
 			try {
 				VOModel vomodel = new VOModel(context);
@@ -71,6 +73,10 @@ public class UserCertificateTable implements IView {
 			} catch (SQLException e) {
 				out.write("<td>sql error</td>");
 			}
+			
+			//this link causes search page to forward to detail page, and it becomes confusing 
+			//out.write("<td><a target=\"_blank\" onclick=\"document.location='"+StaticConfig.conf.getProperty("url.gocticket")+"/"+rec.goc_ticket_id+"'; return false;\">"+rec.goc_ticket_id+"</a></td>");
+		
 			
 			out.write("</tr>");	
 		}
