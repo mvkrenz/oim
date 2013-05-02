@@ -286,7 +286,18 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 			//however, sometime user expires *while* going through the request process.
 			//in that case, RA will cancel the cert, and guest user can re-request
 			//TODO Once everyone transition to DigiCert, I believe we should only allow guest user to re-request if the request is in EXPIRED state.
-			return true;
+			
+			if(auth.isUser()) {
+				//user can re-request his own cert .
+				if(auth.getContact().id.equals(rec.requester_contact_id)) {
+					return true;
+				}
+				//can't re-request someone else's cert
+				return false;
+			} else {
+				//allow guest to renew any cert, provided that RA/sponsor will vet.
+				return true;
+			}
 		}	
 		
 		return false;
@@ -946,7 +957,14 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 				// update ticket
 				Footprints fp = new Footprints(context);
 				FPTicket ticket = fp.new FPTicket();
-				ticket.description = "Certificate has been expired";
+				
+				ContactModel cmodel = new ContactModel(context);
+				ContactRecord requester = cmodel.get(rec.requester_contact_id);
+				
+				//send notification
+				ticket.description = "Dear " + requester.name + ",\n\n";
+				ticket.description += "Your user certificate ("+rec.dn+") has expired. Please visit "+getTicketUrl(rec.id)+" and submit re-request.\n\n";
+				
 				fp.update(ticket, rec.goc_ticket_id);
 				
 				log.info("sent expiration notification for user certificate request: " + rec.id + " (ticket id:"+rec.goc_ticket_id+")");
