@@ -489,6 +489,7 @@ public class CertificateUserServlet extends ServletBase  {
                 	if(note.validate()) {
                 		context.setComment(note.getValue());
                 		
+                		//TODO - need to move this check to model.approve() - before we add REST interface
                 		if(model.canOverrideCN(rec)) {
                 			if(cn_override.validate()) {
 		                		//Regenerate DN using provided CN
