@@ -1316,6 +1316,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
     public boolean rerequest(CertificateRequestUserRecord rec, String guest_passphrase) throws CertificateRequestException 
     {    	
 		rec.status = CertificateRequestStatus.REQUESTED;
+		rec.csr = null; //this causes issue() to regenerate CSR with new private key
 		if(guest_passphrase != null) {
 			//submitted as guest
 			String salt = BCrypt.gensalt(12);//let's hard code this for now..
