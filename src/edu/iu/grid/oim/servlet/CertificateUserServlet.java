@@ -293,7 +293,7 @@ public class CertificateUserServlet extends ServletBase  {
 					out.write("<tr>");
 					out.write("<th>Certificates</th>");
 					out.write("<td>");
-					HttpSession session = context.getSession();
+					//HttpSession session = context.getSession();
 
 					if(model.getPrivateKey(rec.id) != null) {
 						out.write("<p><a class=\"btn btn-primary\" href=\"certificatedownload?id="+rec.id+"&type=user&download=pkcs12\">Download Certificate &amp; Private Key (PKCS12)</a></p>");
