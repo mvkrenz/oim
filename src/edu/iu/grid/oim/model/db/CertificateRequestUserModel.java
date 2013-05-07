@@ -797,7 +797,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 							log.error("The DN issued " + rec.dn + " is already registered to a different contact:" + dnrec.contact_id + " - updating it to " + rec.requester_contact_id + " this should have never happened");
 						}
 						
-						dnrec.disable = false; //maybe it was disabled previously?
+						dnrec.disable = false; //maybe it was disabled previousl (or expired)
 						dnmodel.update(dnrec);
 					}
 					
