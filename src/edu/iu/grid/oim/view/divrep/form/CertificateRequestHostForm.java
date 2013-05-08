@@ -242,7 +242,7 @@ public class CertificateRequestHostForm extends DivRepForm
 					"<p><code>umask 077; openssl req -new -newkey rsa:2048 -nodes -keyout hostkey.pem -subj \"/CN=osg-ce.example.edu\"</code></p>"+
 					"<p>If you want to request a service certificate, you need to escape backslash for service name inside CN like following.</p>" +
 					"<p><code>umask 077; openssl req -new -newkey rsa:2048 -nodes -keyout rsvkey.pem -subj \"/CN=rsv\\/osg-ce.example.edu\"</code></p>"+
-					"<p>Above command lines will store private keys in your current directory and output CSR to stdout. Please be sure to move your private key to the correct location.</p>"+
+					"<p class=\"alert alert-error\">Please be sure to move your private key to the correct location before running another openssl command with the same -keyout filename, to avoid overwriting an old key file with a new request..</p>"+
 					"</div>");
 			}};
 		csr_help.setShowHtml("<u class=\"pull-right\">How can I generate a CSR?</u>");
