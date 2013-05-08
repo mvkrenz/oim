@@ -238,12 +238,12 @@ public class CertificateRequestHostForm extends DivRepForm
 			@Override
 			public DivRep createContent() {
 				return new DivRepStaticContent(this, 
-						"<div class=\"well\"><p>You can create your CSR on your target hosts using tools such as openssl and copy & paste generated CSR below. </p>"+
-						"<p><code>umask 077; openssl req -new -newkey rsa:2048 -nodes -keyout hostkey.pem -subj \"/CN=osg-ce.example.edu\"</code></p>"+
-						"<p>If you want to request a service certificate, you need to escape backslash for service name inside CN like following.</p>" +
-						"<p><code>umask 077; openssl req -new -newkey rsa:2048 -nodes -keyout hostkey.pem -subj \"/CN=rsv\\/osg-ce.example.edu\"</code></p>"+
-						"<p>DN will be overriden by the certificate signer except CN.</p>" +
-						"</div>");
+					"<div class=\"well\"><p>You can create your CSR on your target hosts using tools such as openssl and copy & paste generated CSR below. </p>"+
+					"<p><code>umask 077; openssl req -new -newkey rsa:2048 -nodes -keyout hostkey.pem -subj \"/CN=osg-ce.example.edu\"</code></p>"+
+					"<p>If you want to request a service certificate, you need to escape backslash for service name inside CN like following.</p>" +
+					"<p><code>umask 077; openssl req -new -newkey rsa:2048 -nodes -keyout rsvkey.pem -subj \"/CN=rsv\\/osg-ce.example.edu\"</code></p>"+
+					"<p>Above command lines will store private keys in your current directory and output CSR to stdout. Please be sure to move your private key to the correct location.</p>"+
+					"</div>");
 			}};
 		csr_help.setShowHtml("<u class=\"pull-right\">How can I generate a CSR?</u>");
 		csr_help.setHideHtml("");
