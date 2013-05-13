@@ -912,7 +912,6 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 	    return rec;
 	}
 	
-	/*
 	//NO-AC
 	public CertificateRequestUserRecord getByDN(String apache_dn) throws SQLException {
 		CertificateRequestUserRecord rec = null;
@@ -928,7 +927,6 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 	    conn.close();
 	    return rec;
 	}
-	*/
 	
 	public void processExpired() throws SQLException {
 		
@@ -1216,6 +1214,13 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 			throw new CertificateRequestException("The DN already exist in OIM (contact ID:"+existing_rec.contact_id+"). Please choose different CN, or contact GOC for more assistance.");
 		}
 		
+		//make sure we don't have another request with same DN already (REQUESTED, or APPROVED)
+		CertificateRequestUserRecord drec = getByDN(rec.dn);
+		if(drec.status.equals(CertificateRequestStatus.REQUESTED) ||
+			drec.status.equals(CertificateRequestStatus.APPROVED)) {
+			throw new CertificateRequestException("There is another user certificate request with the same DN already requested / approved. Please see request ID: " + drec.id);			
+		}
+		
 		note += "NOTE: Requested DN: " + rec.dn + "\n\n";
 		
 		///////////////////////////////////////////////////////////////////////////////////////////
@@ -1458,10 +1463,9 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 	    }	
 	    pstmt.close();
 	    conn.close();
-	    return rec;
-		
+	    return rec;	
 	}
-
+	
 	//pass null to not filter
 	public ArrayList<CertificateRequestUserRecord> search(String dn_contains, String status, Integer vo_id, Date request_after, Date request_before) throws SQLException {
 		ArrayList<CertificateRequestUserRecord> recs = new ArrayList<CertificateRequestUserRecord>();
