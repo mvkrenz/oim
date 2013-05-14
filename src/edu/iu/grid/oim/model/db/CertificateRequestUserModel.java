@@ -1329,6 +1329,17 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
     //no-ac
     public boolean rerequest(CertificateRequestUserRecord rec, String guest_passphrase) throws CertificateRequestException 
     {    	
+		try {
+			//make sure we don't have another request with same DN already (REQUESTED, or APPROVED)
+			CertificateRequestUserRecord drec = getByDN(rec.dn);
+			if(drec.status.equals(CertificateRequestStatus.REQUESTED) ||
+				drec.status.equals(CertificateRequestStatus.APPROVED)) {
+				throw new CertificateRequestException("There is another user certificate request with the same DN already requested / approved. Please see request ID: " + drec.id);			
+			}
+		} catch (SQLException e2) {
+			throw new CertificateRequestException("Failed to check duplicate request.", e2);
+		}
+		
 		rec.status = CertificateRequestStatus.REQUESTED;
 		rec.csr = null; //this causes issue() to regenerate CSR with new private key
 		if(guest_passphrase != null) {
