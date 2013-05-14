@@ -16,6 +16,7 @@ import com.divrep.common.DivRepButton;
 import com.divrep.common.DivRepCheckBox;
 import com.divrep.common.DivRepForm;
 import com.divrep.common.DivRepFormElement;
+import com.divrep.common.DivRepReCaptcha;
 import com.divrep.common.DivRepSelectBox;
 import com.divrep.common.DivRepStaticContent;
 import com.divrep.common.DivRepTextArea;
@@ -25,6 +26,7 @@ import com.divrep.validator.DivRepIValidator;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.ResourceReader;
+import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.UserContext.MessageType;
 import edu.iu.grid.oim.model.db.CertificateRequestHostModel;
@@ -34,8 +36,6 @@ import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.GridAdminRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
 import edu.iu.grid.oim.model.exceptions.CertificateRequestException;
-
-import edu.iu.grid.oim.view.divrep.DivRepSimpleCaptcha;
 
 public class CertificateRequestHostForm extends DivRepForm
 {
@@ -229,7 +229,9 @@ public class CertificateRequestHostForm extends DivRepForm
 			}
 			
 			new DivRepStaticContent(this, "<h3>Captcha</h3>");
-			new DivRepSimpleCaptcha(this, context.getSession());
+			new DivRepReCaptcha(this, 
+				StaticConfig.conf.getProperty("recaptcha.public_key"),
+				StaticConfig.conf.getProperty("recaptcha.private_key"));
 		}
 	
 		new DivRepStaticContent(this, "<h3>CSR (PKCS10 Certificate Signing Request)</h3>");
