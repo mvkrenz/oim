@@ -722,19 +722,6 @@
 		<servlet-name>CertificateRequestHostServlet</servlet-name>
 		<url-pattern>/certificaterequesthost</url-pattern>
 	</servlet-mapping>
-	
-    <servlet>
-        <servlet-name>StickyCaptcha</servlet-name>
-        <servlet-class>edu.iu.grid.oim.servlet.StickyCaptchaServlet</servlet-class>
-        <init-param>
-             <param-name>ttl</param-name>
-             <param-value>900000</param-value>
-        </init-param>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>StickyCaptcha</servlet-name>
-        <url-pattern>/stickycaptcha.png</url-pattern>
-    </servlet-mapping>
 
     <servlet>
         <servlet-name>RestServlet</servlet-name>

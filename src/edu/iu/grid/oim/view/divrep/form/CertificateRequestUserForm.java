@@ -19,6 +19,7 @@ import com.divrep.DivRepEventListener;
 import com.divrep.common.DivRepCheckBox;
 import com.divrep.common.DivRepForm;
 import com.divrep.common.DivRepFormElement;
+import com.divrep.common.DivRepReCaptcha;
 import com.divrep.common.DivRepSelectBox;
 import com.divrep.common.DivRepStaticContent;
 import com.divrep.common.DivRepTextArea;
@@ -29,6 +30,7 @@ import com.divrep.validator.DivRepIValidator;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.ResourceReader;
+import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.UserContext.MessageType;
 import edu.iu.grid.oim.model.db.CertificateRequestUserModel;
@@ -45,7 +47,6 @@ import edu.iu.grid.oim.model.exceptions.CertificateRequestException;
 
 import edu.iu.grid.oim.view.divrep.CNEditor;
 import edu.iu.grid.oim.view.divrep.ChoosePassword;
-import edu.iu.grid.oim.view.divrep.DivRepSimpleCaptcha;
 import edu.iu.grid.oim.view.divrep.form.validator.CNValidator;
 
 public class CertificateRequestUserForm extends DivRepForm
@@ -296,7 +297,9 @@ public class CertificateRequestUserForm extends DivRepForm
 			choose_password = new ChoosePassword(this, context);
 			
 			new DivRepStaticContent(this, "<h3>Captcha</h3>");
-			new DivRepSimpleCaptcha(this, context.getSession());
+			new DivRepReCaptcha(this, 
+					StaticConfig.conf.getProperty("recaptcha.public_key"),
+					StaticConfig.conf.getProperty("recaptcha.private_key"));
 		} else {
 			//OIM user can specify CN
 			new DivRepStaticContent(this, "<h3>DN</h3>");
