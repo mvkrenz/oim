@@ -17,11 +17,9 @@ import java.util.HashMap;
 
 import javax.security.auth.x500.X500Principal;
 
-import org.bouncycastle.asn1.DERBitString;
 import org.bouncycastle.asn1.x500.RDN;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x500.style.BCStyle;
-import org.bouncycastle.asn1.x509.AlgorithmIdentifier;
 import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
 import org.bouncycastle.cms.CMSException;
 import org.bouncycastle.crypto.params.RSAKeyParameters;
@@ -39,16 +37,13 @@ import edu.iu.grid.oim.lib.Footprints.FPTicket;
 import edu.iu.grid.oim.lib.StringArray;
 import edu.iu.grid.oim.model.CertificateRequestStatus;
 import edu.iu.grid.oim.model.UserContext;
-import edu.iu.grid.oim.model.UserContext.MessageType;
 import edu.iu.grid.oim.model.cert.CertificateManager;
 import edu.iu.grid.oim.model.cert.ICertificateSigner;
 import edu.iu.grid.oim.model.cert.ICertificateSigner.Certificate;
 import edu.iu.grid.oim.model.cert.ICertificateSigner.CertificateProviderException;
 import edu.iu.grid.oim.model.cert.ICertificateSigner.IHostCertificatesCallBack;
-import edu.iu.grid.oim.model.db.CertificateRequestModelBase.LogDetail;
 import edu.iu.grid.oim.model.db.record.CertificateRequestHostRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
-import edu.iu.grid.oim.model.db.record.DNRecord;
 import edu.iu.grid.oim.model.db.record.GridAdminRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
 import edu.iu.grid.oim.model.exceptions.CertificateRequestException;
@@ -126,19 +121,6 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 
 	    return recs;
 	}
-
-	/*
-	//NO-AC 
-	//return pem encoded pkcs7s
-	public String getPkcs7(CertificateRequestHostRecord rec) throws CertificateRequestException {
-		StringArray pkcs7s = new StringArray(rec.cert_pkcs7);
-		if(pkcs7s.length() > idx) {
-			return pkcs7s.get(idx);
-		} else {
-			throw new CertificateRequestException("Index is larger than the number of CSR requested");
-		}
-	}
-	*/
 	
 	//NO-AC
 	//issue all requested certs and store it back to DB
@@ -686,105 +668,6 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 		}
 		return contacts;
     }
-    
-    /*
-	//go directly from ISSUED > ISSUEING
-	public void renew(final CertificateRequestHostRecord rec) throws CertificateRequestException {		
-		
-		String [] csrs = rec.getCSRs();
-    	//check quota
-    	CertificateQuotaModel quota = new CertificateQuotaModel(context);
-    	if(!quota.canApproveHostCert(csrs.length)) {
-    		throw new CertificateRequestException("You will exceed your host certificate quota.");
-    	}
-    	
-		//notification -- just make a note on an existing ticket - we don't need to create new goc ticket - there is nobody we need to inform -
-		Footprints fp = new Footprints(context);
-		FPTicket ticket = fp.new FPTicket();
-		Authorization auth = context.getAuthorization();
-		if(auth.isUser()) {
-			ContactRecord contact = auth.getContact();
-			ticket.description = contact.name + " is renewing host certificates.\n\n";
-			ticket.description += "> " + context.getComment();
-		} else {
-			throw new CertificateRequestException("guest can't renew");
-		}
-		ticket.status = "Engineering";//reopen ticket temporarily
-		fp.update(ticket, rec.goc_ticket_id);
-		
-		
-		//clear previously issued cert
-    	//rec.cert_certificate = null;
-    	//rec.cert_intermediate = null;
-    	//rec.cert_pkcs7 = null;
-    	//rec.cert_serial_ids = null;
-    	
-    	//start issuing immediately
-		startissue(rec);
-		
-		//increment quota
-		try {
-			quota.incrementHostCertApproval(csrs.length);
-		} catch (SQLException e) {
-    		log.error("Failed to incremenet quota while renewing request id:"+rec.id);
-		}
-		context.message(MessageType.SUCCESS, "Successfully renewed certificates. Please download & install your certificates.");
-	}
-	*/
-    
-    /*
-	//NO-AC
-	//return host rec if success
-	public CertificateRequestHostRecord requestRenew(CertificateRequestHostRecord rec) throws CertificateRequestException {
-    
-		//lookup gridadmin first
-		ArrayList<ContactRecord> gas = findGridAdmin(rec.getCSRs(), rec.approver_vo_id);
-		
-		rec.status = CertificateRequestStatus.RENEW_REQUESTED;
-		
-		//clear all previously issued cert (we are going to reuse the CSR)
-		StringArray csrs = new StringArray(rec.csrs);
-    	StringArray ar = new StringArray(csrs.length());
-    	rec.cert_certificate = ar.toXML();
-    	rec.cert_intermediate = ar.toXML();
-    	rec.cert_pkcs7 = ar.toXML();
-    	rec.cert_serial_ids = ar.toXML();
-    	
-		try {
-			super.update(get(rec.id), rec);
-		} catch (SQLException e) {
-			log.error("Failed to request host certificate request renewal: " + rec.id);
-			throw new CertificateRequestException("Failed to update request status", e);
-		}
-		
-		
-		Footprints fp = new Footprints(context);
-		FPTicket ticket = fp.new FPTicket();		
-		Authorization auth = context.getAuthorization();
-		if(auth.isUser()) {
-			ContactRecord contact = auth.getContact();
-			ticket.description = contact.name + " has requested renewal for this certificate request.";
-		} else {
-			ticket.description = "Guest user with IP:" + context.getRemoteAddr() + " has requested renewal of this certificate request.";		
-		}
-		ticket.description += "\n\n> " + context.getComment();
-		ticket.description += "\n\nPlease approve / disapprove this request at " + getTicketUrl(rec.id);
-		ticket.nextaction = "GridAdmin to verify and approve/reject"; //nad will be set to 7 days from today by default
-		ticket.status = "Engineering"; //I need to reopen resolved ticket.
-		
-		//Update CC gridadmin (it might have been changed since last time request was made)
-		VOContactModel model = new VOContactModel(context);
-		ContactModel cmodel = new ContactModel(context);
-		for(ContactRecord ga : gas) {
-			ticket.ccs.add(ga.primary_email);
-		}
-		
-		//reopen now
-		fp.update(ticket, rec.goc_ticket_id);
-		
-		return rec;
-	}
-	*/
     
 	//NO-AC
 	public void requestRevoke(CertificateRequestHostRecord rec) throws CertificateRequestException {

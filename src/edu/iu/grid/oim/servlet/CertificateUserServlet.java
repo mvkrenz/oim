@@ -617,12 +617,10 @@ public class CertificateUserServlet extends ServletBase  {
 			note.setHidden(false);
 		}
 		if(model.canIssue(rec)) {
-			//Authorization auth = context.getAuthorization();
-			
-			if(rec.requester_passphrase != null) {
-				v.add(new HtmlView("<p class=\"help-block\">Please enter the password you chose during a request submission to retrieve your certificate & encrypt your private key. If you don't remember, please read <a target=\"_blank\" href=\"https://confluence.grid.iu.edu/display/CENTRAL/Forgot+retrieval+password\">this doc.</a></p>"));
-			} else {
+			if(rec.requester_passphrase == null) {
 				v.add(new HtmlView("<p class=\"help-block\">Please choose a password to encrypt your private key</p>"));
+			} else {
+				v.add(new HtmlView("<p class=\"help-block\">Please enter the password you chose during a request submission to retrieve your certificate & encrypt your private key. If you don't remember, please read <a target=\"_blank\" href=\"https://confluence.grid.iu.edu/display/CENTRAL/Forgot+retrieval+password\">this doc.</a></p>"));
 			}
 			
 			final DivRepPassword pass = new DivRepPassword(context.getPageRoot());
@@ -660,6 +658,21 @@ public class CertificateUserServlet extends ServletBase  {
 					}});
 				pass_confirm.setRequired(true);
 				v.add(pass_confirm);
+			} else {
+				pass.addValidator(new DivRepIValidator<String>(){
+					@Override
+					public Boolean isValid(String value) {
+						if(model.checkPassphrase(rec, value)) {
+							return true;
+						} else {
+							return false;
+						}
+					}
+
+					@Override
+					public String getErrorMessage() {
+						return "Passphrase is incorrect!";
+					}});
 			}
 			
 			final DivRepButton button = new DivRepButton(context.getPageRoot(), "<button class=\"btn btn-primary\"><i class=\"icon-download-alt icon-white\"></i> Issue Certificate ...</button>");

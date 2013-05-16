@@ -35,9 +35,9 @@
 	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/bcprov-jdk15on-147.jar"/>
 	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/bcpg-jdk15on-147.jar"/>
 	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/bcprov-ext-jdk15on-147.jar"/>
-	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/simplecaptcha-1.2.1.jar"/>
 	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/junit-4.10.jar"/>
 	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/json-rpc-1.0.jar"/>
 	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/vt-password-3.1.1.jar"/>
+	<classpathentry kind="lib" path="WebContent/WEB-INF/lib/recaptcha4j-0.0.7.jar"/>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>

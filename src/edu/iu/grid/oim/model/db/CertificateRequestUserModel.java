@@ -664,14 +664,23 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 		context.message(MessageType.SUCCESS, "Successfully renewed a certificate. Please download & install your certificate.");
 	}
 	
+	//return true if matches
+	public boolean checkPassphrase(CertificateRequestUserRecord rec, String password) {
+		String hashed = BCrypt.hashpw(password, rec.requester_passphrase_salt);
+		if(hashed.equals(rec.requester_passphrase)) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
 	// NO-AC
 	public void startissue(final CertificateRequestUserRecord rec, final String password) throws CertificateRequestException {
 		
 		//verify passphrase (for guest request) to make sure we are issuing cert for person submitted the request
 		if(rec.requester_passphrase != null) {
-			String hashed = BCrypt.hashpw(password, rec.requester_passphrase_salt);
-			if(!hashed.equals(rec.requester_passphrase)) {
-				throw new CertificateRequestException("Failed to match password.");
+			if(!checkPassphrase(rec, password)) {
+				throw new CertificateRequestException("Failed to match password.");	
 			}
 		}
 
@@ -1216,9 +1225,10 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 		
 		//make sure we don't have another request with same DN already (REQUESTED, or APPROVED)
 		CertificateRequestUserRecord drec = getByDN(rec.dn);
-		if(drec.status.equals(CertificateRequestStatus.REQUESTED) ||
-			drec.status.equals(CertificateRequestStatus.APPROVED)) {
-			throw new CertificateRequestException("There is another user certificate request with the same DN already requested / approved. Please see request ID: " + drec.id);			
+		if(drec != null) {
+			if(drec.status.equals(CertificateRequestStatus.REQUESTED) || drec.status.equals(CertificateRequestStatus.APPROVED)) {
+				throw new CertificateRequestException("There is another user certificate request with the same DN already requested / approved. Please see request ID: " + drec.id);
+			}
 		}
 		
 		note += "NOTE: Requested DN: " + rec.dn + "\n\n";
