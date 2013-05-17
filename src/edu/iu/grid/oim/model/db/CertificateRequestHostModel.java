@@ -1132,7 +1132,7 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 	    return recs;
 	}
 
-	public void processExpired() throws SQLException {
+	public void processCertificateExpired() throws SQLException {
 		
 		//search for expired certificates
 		ResultSet rs = null;
@@ -1158,6 +1158,64 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 	    }	
 	    stmt.close();
 	    conn.close();
+	}
+	
+	//search for approved request that is too old (call this every day)
+	public void processStatusExpired() throws SQLException {
+		ResultSet rs = null;
+		Connection conn = connectOIM();
+		Statement stmt = conn.createStatement();
+		//approved in exactly 15 days ago
+	    if (stmt.execute("SELECT * FROM "+table_name+ " WHERE status = '"+CertificateRequestStatus.APPROVED+"' AND DATEDIFF(NOW() ,update_time) = 15")) {
+	    	rs = stmt.getResultSet();
+	    	while(rs.next()) {
+	    		CertificateRequestHostRecord rec = new CertificateRequestHostRecord(rs);
+    			
+				// update ticket
+				Footprints fp = new Footprints(context);
+				FPTicket ticket = fp.new FPTicket();
+				
+				ContactModel cmodel = new ContactModel(context);
+				ContactRecord requester = cmodel.get(rec.requester_contact_id);
+				
+				//send notification
+				ticket.description = "Dear " + requester.name + ",\n\n";
+				ticket.description += "Your host certificate (id: "+rec.id+") was approved 15 days ago. The request is scheduled to be automatically canceled within another 15 days. Please take this opportunity to download your approved certificate at your earliest convenience. If you are experiencing any trouble with the issuance of your certificate, please feel free to contact the GOC for further assistance. Please visit "+getTicketUrl(rec.id)+" to issue your host certificate.\n\n";
+				
+				fp.update(ticket, rec.goc_ticket_id);
+				log.info("sent approval expiration warning notification for host certificate request: " + rec.id + " (ticket id:"+rec.goc_ticket_id+")");
+			}
+	    }	
+	    
+	    //approved 30 days ago
+	    if (stmt.execute("SELECT * FROM "+table_name+ " WHERE status = '"+CertificateRequestStatus.APPROVED+"' AND DATEDIFF(NOW() ,update_time) = 30")) {
+	    	rs = stmt.getResultSet();
+	    	
+	    	while(rs.next()) {
+	    		CertificateRequestHostRecord rec = new CertificateRequestHostRecord(rs);
+    			rec.status = CertificateRequestStatus.CANCELED;
+	    		context.setComment("Certificate was not issued within 30 days after approval.");
+    			super.update(get(rec.id), rec);
+
+				// update ticket
+				Footprints fp = new Footprints(context);
+				FPTicket ticket = fp.new FPTicket();
+				
+				ContactModel cmodel = new ContactModel(context);
+				ContactRecord requester = cmodel.get(rec.requester_contact_id);
+				
+				//send notification
+				ticket.description = "Dear " + requester.name + ",\n\n";
+				ticket.description += "You did not issue your host certificate (id: "+rec.id+") within 30 days from the approval. In compliance with OSG PKI policy, the request is being canceled. You are welcome to re-request if necessary at "+getTicketUrl(rec.id)+".\n\n";
+				
+				fp.update(ticket, rec.goc_ticket_id);
+				
+				log.info("sent approval calelation notification for host certificate request: " + rec.id + " (ticket id:"+rec.goc_ticket_id+")");
+			}
+	    }	
+	    
+	    stmt.close();
+	    conn.close();		
 	}
 
 	public  ArrayList<CertificateRequestHostRecord>  findNullIssuedExpiration() throws SQLException {

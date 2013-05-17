@@ -171,8 +171,10 @@ public class RestServlet extends ServletBase  {
 				doQuotaInfo(request, reply);
 			} else if(action.equals("user_info")) {
 				doUserInfo(request, reply);
+			/*
 			} else if(action.equals("host_cert_exsql")) {
 				doHostCertExSQL(request, reply);
+			*/
 			} else {
 				reply.status = Status.FAILED;
 				reply.detail = "No such action";
@@ -795,6 +797,7 @@ public class RestServlet extends ServletBase  {
 		}
 	}
 	
+	//should call once an year
 	private void doResetYearlyQuota(HttpServletRequest request, Reply reply) throws AuthorizationException, RestException {
 		UserContext context = new UserContext(request);	
 		Authorization auth = context.getAuthorization();
@@ -821,6 +824,7 @@ public class RestServlet extends ServletBase  {
 		}
 	}
 
+	//should call every day
 	private void doFindExpiredCertificateRequests(HttpServletRequest request, Reply reply) throws AuthorizationException, RestException {
 		UserContext context = new UserContext(request);	
 		Authorization auth = context.getAuthorization();
@@ -830,19 +834,22 @@ public class RestServlet extends ServletBase  {
 			
 		CertificateRequestUserModel umodel = new CertificateRequestUserModel(context);
 		try {
-			umodel.processExpired();
+			umodel.processCertificateExpired();
+			umodel.processStatusExpired();
 		} catch (SQLException e) {
 			throw new RestException("SQLException while processing expired user certificates", e);
 		}
 
 		CertificateRequestHostModel hmodel = new CertificateRequestHostModel(context);
 		try {
-			hmodel.processExpired();
+			hmodel.processCertificateExpired();
+			hmodel.processStatusExpired();
 		} catch (SQLException e) {
 			throw new RestException("SQLException while processing expired host certificates", e);
 		}
 	}
 	
+	//should call once a week
 	private void doNotifyExpiringCertificateRequest(HttpServletRequest request, Reply reply) throws AuthorizationException, RestException {
 		UserContext context = new UserContext(request);	
 		Authorization auth = context.getAuthorization();
@@ -865,6 +872,7 @@ public class RestServlet extends ServletBase  {
 		}
 	}
 	
+	/*
 	//this is used just once to populate missing cert expiration dates
 	private void doHostCertExSQL(HttpServletRequest request, Reply reply) throws AuthorizationException, RestException {
 		UserContext context = new UserContext(request);	
@@ -901,4 +909,5 @@ public class RestServlet extends ServletBase  {
 			throw new RestException("SQLException while running doHostCertExSQL", e);
 		}
 	}
+	*/
 }

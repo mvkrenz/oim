@@ -118,7 +118,7 @@ public class Authorization {
 		log.debug("Request received from " + remoteaddr);
 		if(remoteaddr.equals("127.0.0.1")/* || remoteaddr.equals("0:0:0:0:0:0:0:1") || remoteaddr.startsWith("192.168.")*/) { 
 			usertype = UserType.LOCAL;
-		} else if(StaticConfig.isDebug() && remoteaddr.equals("192.168.1.75")) {
+		} else if(StaticConfig.isDebug() && remoteaddr.startsWith("192.168.")) {
 			usertype = UserType.LOCAL;
 		} else {
 			//figure out usertype from SSL ENV (if provided)
@@ -205,7 +205,7 @@ public class Authorization {
 					//user_dn = "/DC=org/DC=doegrids/OU=People/CN=Horst Severini 926890";
 					//request.setAttribute("SSL_CLIENT_S_DN", "/DC=org/DC=doegrids/OU=People/CN=christopher pipes 556895"); //disabled
 					
-					//request.setAttribute("SSL_CLIENT_S_DN", "/DC=com/DC=DigiCert-Grid/O=Open Science Grid/OU=People/CN=Soichi Hayashi 238");
+					request.setAttribute("SSL_CLIENT_S_DN", "/DC=com/DC=DigiCert-Grid/O=Open Science Grid/OU=People/CN=Soichi Hayashi 238");
 					//request.setAttribute("SSL_CLIENT_S_DN", "/DC=com/DC=DigiCert-Grid/O=Open Science Grid/OU=People/CN=Alain Deximo 623");
 					//request.setAttribute("SSL_CLIENT_S_DN", "/DC=com/DC=DigiCert-Grid/O=OSG Pilot/OU=People/CN=Soichi Hayashi 975");
 					
