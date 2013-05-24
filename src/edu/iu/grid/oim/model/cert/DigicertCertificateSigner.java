@@ -243,6 +243,7 @@ public class DigicertCertificateSigner implements ICertificateSigner {
 		post.setParameter("email", email_address);
 		post.setParameter("full_name", cn);
 		post.setParameter("csr", csr);
+		post.setParameter("hash", StaticConfig.conf.getProperty("digicert.hash"));
 		
 		post.getParams().setCookiePolicy(CookiePolicy.IGNORE_COOKIES);
 
@@ -310,6 +311,7 @@ public class DigicertCertificateSigner implements ICertificateSigner {
 			post.setParameter("service_name", service_name);
 		}
 		post.setParameter("csr", csr);
+		post.setParameter("hash", StaticConfig.conf.getProperty("digicert.hash"));
 		
 		post.getParams().setCookiePolicy(CookiePolicy.IGNORE_COOKIES);
 		
