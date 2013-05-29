@@ -145,8 +145,11 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 			//rec.status.equals(CertificateRequestStatus.RENEW_REQUESTED) ||
 			rec.status.equals(CertificateRequestStatus.REVOCATION_REQUESTED)) {
 			if(auth.isUser()) {
-				ContactRecord contact = auth.getContact();
+				if(auth.allows("admin_ra")) return true; //if user has admin_ra priv (probably pki staff), then he/she can cancel it
+
 				
+				ContactRecord contact = auth.getContact();
+							
 				//requester can cancel one's own request
 				if(rec.requester_contact_id.equals(contact.id)) return true;
 				
@@ -172,6 +175,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 	public boolean canCancelWithPass(CertificateRequestUserRecord rec) {
 		if(!canView(rec)) return false;
 		if(	rec.status.equals(CertificateRequestStatus.REQUESTED) ||
+			rec.status.equals(CertificateRequestStatus.APPROVED) || //if renew_requesterd > approved cert is canceled, it should really go back to "issued", but currently it doesn't.
 			//rec.status.equals(CertificateRequestStatus.RENEW_REQUESTED) ||
 			rec.status.equals(CertificateRequestStatus.REVOCATION_REQUESTED)) {
 
