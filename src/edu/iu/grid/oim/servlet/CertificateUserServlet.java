@@ -113,6 +113,8 @@ public class CertificateUserServlet extends ServletBase  {
 					content = createDetailView(context, rec, logs, submenu);
 				} catch (SQLException e) {
 					throw new ServletException("Failed to load specified certificate", e);
+				} catch (NumberFormatException e2) {
+					throw new ServletException("Prpobably failed to parse request id", e2);
 				}
 			} else {
 				//display list view
