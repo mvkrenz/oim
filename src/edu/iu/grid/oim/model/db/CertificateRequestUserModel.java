@@ -1031,7 +1031,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 				//send notification
 				ticket.description = "Dear " + requester.name + ",\n\n";
 				ticket.description += "You did not issue your user certificate ("+rec.dn+") within 30 days from the approval. In compliance with OSG PKI policy, the request is being canceled. You are welcome to re-request if necessary at "+getTicketUrl(rec.id)+".\n\n";
-				
+				ticket.status = "Resolved";
 				fp.update(ticket, rec.goc_ticket_id);
 				
 				log.info("sent approval calelation notification for user certificate request: " + rec.id + " (ticket id:"+rec.goc_ticket_id+")");
