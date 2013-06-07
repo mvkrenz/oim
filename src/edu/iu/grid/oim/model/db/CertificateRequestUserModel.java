@@ -802,15 +802,14 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 						dnauthrec.authorization_type_id = 1; //OSG End User
 						dnauthmodel.insert(dnauthrec);
 					} else {
-						
-						//TODO - -what is the point of this check? just paranoid?
+						//sometimes, we find some DN associated to users like OSG-GOC (
 						if(!dnrec.contact_id.equals(rec.requester_contact_id)) {
 							//this DN belongs to someone else.
-							//dnrec.contact_id = rec.requester_contact_id;
+							dnrec.contact_id = rec.requester_contact_id;
 							log.error("The DN issued " + rec.dn + " is already registered to a different contact:" + dnrec.contact_id + " - updating it to " + rec.requester_contact_id + " this should have never happened");
 						}
 						
-						dnrec.disable = false; //maybe it was disabled previousl (or expired)
+						dnrec.disable = false; //maybe it was disabled previously (or expired, revoked?)
 						dnmodel.update(dnrec);
 					}
 					
