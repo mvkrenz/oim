@@ -802,11 +802,10 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 						dnauthrec.authorization_type_id = 1; //OSG End User
 						dnauthmodel.insert(dnauthrec);
 					} else {
-						
-						//TODO - -what is the point of this check? just paranoid?
+						//correct some inconsistency - not sure how this happens, but it does happen.
 						if(!dnrec.contact_id.equals(rec.requester_contact_id)) {
-							//this DN belongs to someone else.
-							//dnrec.contact_id = rec.requester_contact_id;
+							//this DN belongs to someone else... (someone updated it?)
+							dnrec.contact_id = rec.requester_contact_id;
 							log.error("The DN issued " + rec.dn + " is already registered to a different contact:" + dnrec.contact_id + " - updating it to " + rec.requester_contact_id + " this should have never happened");
 						}
 						
