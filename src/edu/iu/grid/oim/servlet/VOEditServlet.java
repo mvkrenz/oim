@@ -1,9 +1,7 @@
 package edu.iu.grid.oim.servlet;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.sql.SQLException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
 import javax.servlet.Servlet;
@@ -11,10 +9,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.log4j.Logger;
-
-import com.divrep.DivRepEvent;
-import com.divrep.DivRepEventListener;
-import com.divrep.common.DivRepButton;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.model.UserContext;
@@ -28,10 +22,8 @@ import edu.iu.grid.oim.view.BootPage;
 import edu.iu.grid.oim.view.ContentView;
 import edu.iu.grid.oim.view.DivRepWrapper;
 import edu.iu.grid.oim.view.HtmlView;
-import edu.iu.grid.oim.view.IView;
 import edu.iu.grid.oim.view.LogView;
 import edu.iu.grid.oim.view.SideContentView;
-import edu.iu.grid.oim.view.divrep.form.RARequestForm;
 import edu.iu.grid.oim.view.divrep.form.VOFormDE;
 
 public class VOEditServlet extends ServletBase implements Servlet {

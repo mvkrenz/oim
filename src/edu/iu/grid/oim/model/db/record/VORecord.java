@@ -28,6 +28,7 @@ public class VORecord extends ConfirmableRecord {
 	public String app_description;
 
 	public Boolean use_oasis;
+	public Boolean cert_only;
 
 	//load from existing record
 	public VORecord(ResultSet rs) throws SQLException { super(rs); }

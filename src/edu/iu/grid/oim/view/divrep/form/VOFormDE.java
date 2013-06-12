@@ -114,6 +114,7 @@ public class VOFormDE extends DivRepForm
 	
 	private DivRepCheckBox use_oasis;
 	private OASISManagerEditor oasis_users;
+	private DivRepCheckBox cert_only;
 
 	class ScienceVOInfo extends DivRepFormElement
 	{
@@ -370,6 +371,17 @@ public class VOFormDE extends DivRepForm
 		long_name.setRequired(true); // TODO: agopu should this be required?
 		long_name.setSampleValue("Collider Detector at Fermilab");
 
+		cert_only = new DivRepCheckBox(this);
+		cert_only.setLabel("This VO is only used to issue user certificates");
+		cert_only.setValue(rec.cert_only);
+		/*
+		cert_only.addEventListener(new DivRepEventListener() {
+			public void handleEvent(DivRepEvent e) {
+				showHideOasisUsers();
+			}
+		});
+		*/
+		
 		sc_id = new DivRepSelectBox(this, getSCNames());
 		sc_id.setLabel("Select a Support Center that supports your users and applications");
 		sc_id.setValue(rec.sc_id);
@@ -692,6 +704,7 @@ public class VOFormDE extends DivRepForm
 		rec.disable = disable.getValue();
 		rec.science_vo = science_vo.getValue();
 		rec.use_oasis = use_oasis.getValue();
+		rec.cert_only = cert_only.getValue();
 
 		context.setComment(comment.getValue());
 		

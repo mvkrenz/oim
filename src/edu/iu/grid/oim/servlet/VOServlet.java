@@ -207,6 +207,8 @@ public class VOServlet extends ServletBase implements Servlet {
 			else {
 				table.addRow("VO Type", "Resource Provider Only (Provides services to the OSG but does not have users who do OSG-dependent scientific research)");
 			}
+			ToolTip cert_only_tip = new ToolTip("This VO is only used to issue user certificates to OSG community.");
+			table.addRow("Certificate Issue Only " + cert_only_tip.render(), rec.cert_only);
 			table.addRow("Description", rec.description);
 			table.addRow("Community", rec.community);
 			//table.addRow("Ex. Assignment ID", rec.external_assignment_id);
