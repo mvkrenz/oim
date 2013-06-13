@@ -17,11 +17,19 @@ public class CNValidator implements DivRepIValidator<String>
 		try {
 			X500Name name = new X500Name("CN="+value);
 		} catch(Exception e) {
+			message = "Couldn't parse as X500 Name";
 			return false;
 		}
 		
 		if(value.contains("/")) {
 			//we can't use / in apache format.. which is the format stored in our DB
+			message = "Please do not use /(slash)";
+			return false;
+		}
+		
+		//if(!value.matches("[-0-9a-zA-Z\' ]*")) {
+		if(!value.matches("^\\p{ASCII}*$")) {
+			message = "Contains non-ascii characters";
 			return false;
 		}
 		
@@ -30,6 +38,6 @@ public class CNValidator implements DivRepIValidator<String>
 
 	@Override
 	public String getErrorMessage() {
-		return "Failed to validate CN";
+		return message;
 	}
 }

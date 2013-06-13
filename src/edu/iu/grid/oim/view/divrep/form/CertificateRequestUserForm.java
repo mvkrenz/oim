@@ -91,7 +91,7 @@ public class CertificateRequestUserForm extends DivRepForm
 			sponsor_fullname = new DivRepTextBox(this);
 			sponsor_fullname.setLabel("Full Name");
 			sponsor_fullname.setRequired(true);
-			sponsor_fullname.addValidator(new CNValidator());
+			sponsor_fullname.addValidator(new CNValidator()); //WHY??
 
 			sponsor_email = new DivRepTextBox(this);
 			sponsor_email.setLabel("Email");
