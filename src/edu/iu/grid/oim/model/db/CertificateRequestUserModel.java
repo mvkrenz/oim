@@ -330,6 +330,8 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 			
 			if(auth.isUser()) {
 				
+				if(auth.allows("admin_ra")) return true; //if user has admin_ra priv (probably pki staff), then he/she can revoke it
+
 				//requester oneself can revoke it
 				ContactRecord contact = auth.getContact();
 				if(rec.requester_contact_id.equals(contact.id)) return true;

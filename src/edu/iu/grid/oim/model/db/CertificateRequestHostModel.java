@@ -958,11 +958,7 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 			rec.status.equals(CertificateRequestStatus.REVOCATION_REQUESTED)) {
 			
 			if(auth.isUser()) {
-				/*
-				if(auth.allows("revoke_all_certificate")) {
-					return true;
-				}
-				*/
+				if(auth.allows("admin_gridadmin")) return true; //if user has admin_gridadmin priv (probably pki staff), then he/she can revoke it
 				
 				//requester oneself can revoke it
 				if(rec.requester_contact_id != null) {//could be null if guest submitted it
