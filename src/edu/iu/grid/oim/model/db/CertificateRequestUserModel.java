@@ -772,7 +772,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 					}
 					long dayrange = (rec.cert_notafter.getTime() - rec.cert_notbefore.getTime()) / (1000*3600*24);
 					if(dayrange < 390 || dayrange > 405) {
-						log.warn("User certificate issued for request "+rec.id+ " has valid range of "+dayrange+" days (too far from 395 days)");
+						log.warn("User certificate issued for request "+rec.id+ " has invalid range of "+dayrange+" days (too far from 395 days)");
 					}
 					
 					//update dn with the one returned by DigiCert
