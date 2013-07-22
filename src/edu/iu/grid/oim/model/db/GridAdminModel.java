@@ -115,7 +115,8 @@ public class GridAdminModel extends SmallTableModelBase<GridAdminRecord> {
 		String domain = null;
 		LinkedHashMap<String, ArrayList<GridAdminRecord>> list = getAll();
 		for(String rec_domain : list.keySet()) {
-			if(fqdn.endsWith(rec_domain)) {
+			//prevent fiu.edu from matching iu.edu by prepending . in front of fqdn being searched
+			if(fqdn.equals(rec_domain) || fqdn.endsWith("."+rec_domain)) {
 				//keep - if we find more specific domain
 				if(domain == null || domain.length() < rec_domain.length()) {
 					domain = rec_domain;
