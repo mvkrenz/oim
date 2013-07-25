@@ -86,7 +86,7 @@ public class ProjectModel extends SmallTableModelBase<ProjectRecord>
 	    return list;
 	}
 	
-	//TODO - I don't trust this algorithm not a even bit!
+	//TODO - I don't like this algorithm a bit..
 	//returns all record id that the user has access to
 	private HashSet<Integer> getEditableIDs() throws SQLException
 	{
@@ -96,32 +96,22 @@ public class ProjectModel extends SmallTableModelBase<ProjectRecord>
 			Collection<VOContactRecord> vcrecs = model.getByContactID(auth.getContact().id);
 			for(VOContactRecord rec : vcrecs) {
 				if(rec.contact_type_id == 1) continue; //submitter contact can't edit.
-				boolean access = false;
 				for(RecordBase it : getCache()) {
 					ProjectRecord prec = (ProjectRecord)it;
 					if(prec.vo_id != null && prec.vo_id.equals(rec.vo_id)) {
-						access = true;
-						break;
+						list.add(prec.id);
 					}
-				}
-				if(access) {
-					list.add(rec.vo_id);
 				}
 			}
 			CampusGridContactModel cgmodel = new CampusGridContactModel(context);
 			Collection<CampusGridContactRecord> cgcrecs = cgmodel.getByContactID(auth.getContact().id);
 			for(CampusGridContactRecord rec : cgcrecs) {
 				if(rec.contact_type_id == 1) continue; //submitter contact can't edit.
-				boolean access = false;
 				for(RecordBase it : getCache()) {
 					ProjectRecord prec = (ProjectRecord)it;
 					if(prec.cg_id != null && prec.cg_id.equals(rec.campusgrid_id)) {
-						access = true;
-						break;
+						list.add(prec.id);
 					}
-				}
-				if(access) {
-					list.add(rec.campusgrid_id);
 				}
 			}
 		}

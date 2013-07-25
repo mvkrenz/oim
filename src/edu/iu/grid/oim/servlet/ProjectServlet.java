@@ -129,7 +129,7 @@ public class ProjectServlet extends ServletBase implements Servlet {
 		}
 		
 		if(readonly_projects.size() != 0) {
-			contentview.add(new HtmlView("<h2>Other Projects</h2>"));
+			contentview.add(new HtmlView("<h2>Read-Only Projects</h2>"));
 			//contentview.add(new HtmlView("<p>Following are the currently registered virtual organizations on OIM - you do not have edit access on these records.</p>"));
 	
 			ItemTableView table = new ItemTableView(5);
