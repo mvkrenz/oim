@@ -383,6 +383,11 @@ public class ContactEditor extends DivRepFormElement<HashMap<ContactRank, ArrayL
 		return records;
 	}
 
+	public ArrayList<ContactRecord> getContactRecordsByRank(ContactRank rank)
+	{
+		return getContactRecordsByRank(rank.id);
+	}
+	
 	public ArrayList<ContactRecord> getContactRecordsByRank(Integer _rank_id)
 	{
 		ContactRank rank = ContactRank.get(_rank_id);

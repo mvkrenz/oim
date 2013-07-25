@@ -528,6 +528,9 @@ height: 28px;
 position: relative;
 top: -4px;
 }
+.divrep_date .ui-datepicker-trigger {
+margin-bottom: 9px;
+}
 div.well_inactive {
 background-color: #ccc;
 }

@@ -17,6 +17,7 @@ import edu.iu.grid.oim.model.UserContext.MessageType;
 import edu.iu.grid.oim.model.db.FieldOfScienceModel;
 import edu.iu.grid.oim.model.db.record.FieldOfScienceRecord;
 
+@Deprecated
 public class FieldOfScienceFormDE extends DivRepForm 
 {
     static Logger log = Logger.getLogger(FieldOfScienceFormDE.class); 

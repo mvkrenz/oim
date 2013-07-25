@@ -43,7 +43,7 @@ public class CertificateDownloadServlet extends ServletBase  {
 					CertificateRequestUserRecord rec = model.get(id);
 					if(model.canView(rec)) {
 						if(download.equals("pkcs7")) {
-							response.setContentType("application/pkcs7-signature");
+							response.setContentType("application/pkcs7-certificates");
 							response.setHeader("Content-Disposition", "attachment; filename=user_certificate.U"+rec.id+".p7b");
 							PrintWriter out = response.getWriter();
 							out.write(rec.cert_pkcs7);
@@ -62,6 +62,12 @@ public class CertificateDownloadServlet extends ServletBase  {
 							response.setContentType("application/pem-signature");
 							response.setHeader("Content-Disposition", "attachment; filename=user_certificate.U"+rec.id+".pem");
 							out.write(rec.cert_certificate);
+						} else if(download.equals("pkcs12-certonly")) {
+							response.setContentType("application/x-pkcs12");
+							response.setHeader("Content-Disposition", "attachment; filename=user_certificate_only.U"+rec.id+".p12");
+							KeyStore p12 = model.getPkcs12CertOnly(rec);
+							p12.store(response.getOutputStream(), "".toCharArray());
+							//TODO
 						}/* else if(download.equals("pem12")) {
 							PrintWriter out = response.getWriter();
 							response.setContentType("application/pem-signature");

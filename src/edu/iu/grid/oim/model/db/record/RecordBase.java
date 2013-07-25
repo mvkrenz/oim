@@ -53,6 +53,8 @@ public abstract class RecordBase implements Comparable<RecordBase> {
 		        	fld.set(this, rs.getBoolean(name));
 		        } else if(type == Date.class) {
 		        	fld.set(this, rs.getDate(name));
+		        } else if(type == java.sql.Date.class) {
+		        	fld.set(this, rs.getDate(name));
 		        } else {
 		        	log.error("Uknown record variable type (ctor):" + type + " called " + name);
 		        }

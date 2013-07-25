@@ -9,6 +9,7 @@ import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.record.FieldOfScienceRecord;
+import edu.iu.grid.oim.model.db.record.ProjectRecord;
 import edu.iu.grid.oim.model.db.record.RecordBase;
 import edu.iu.grid.oim.model.db.record.VOFieldOfScienceRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
@@ -24,7 +25,6 @@ public class VOFieldOfScienceModel extends SmallTableModelBase<VOFieldOfScienceR
 	{
 		return new VOFieldOfScienceRecord();
 	}
-
 	
 	public ArrayList<VOFieldOfScienceRecord> getByVOID(int vo_id) throws SQLException
 	{

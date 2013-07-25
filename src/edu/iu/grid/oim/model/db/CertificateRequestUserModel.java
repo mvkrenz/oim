@@ -908,6 +908,36 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 		} 
 		return null;
 	}
+	
+	//construct pkcs12 without private key using issued certificate
+	//return null if unsuccessful - errors are logged
+	public KeyStore getPkcs12CertOnly(CertificateRequestUserRecord rec) {			
+		//pull certificate chain from pkcs7
+
+		try {
+			java.security.cert.Certificate[] chain = CertificateManager.parsePKCS7(rec.cert_pkcs7);
+	
+			//experimenet trying to create pkcs12 without private key - doesn't work
+			KeyStore p12 = KeyStore.getInstance("PKCS12");
+			p12.load(null, null);
+			p12.setKeyEntry("USER"+rec.id, null, "".toCharArray(), chain); 
+			return p12;
+			
+		} catch (IOException e) {
+			log.error("Failed to get encoded byte array from bouncy castle certificate.", e);
+		} catch (CertificateException e) {
+			log.error("Failed to generate java security certificate from byte array", e);
+		} catch (KeyStoreException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (NoSuchAlgorithmException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (CMSException e) {
+			log.error("Failed to get encoded byte array from bouncy castle certificate.", e);
+		} 
+		return null;
+	}
 
 	//NO-AC
 	public CertificateRequestUserRecord get(int id) throws SQLException {

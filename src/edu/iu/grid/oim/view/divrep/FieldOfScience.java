@@ -3,8 +3,10 @@ package edu.iu.grid.oim.view.divrep;
 import java.io.PrintWriter;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.TreeSet;
 
 import org.apache.log4j.Logger;
@@ -15,11 +17,11 @@ import com.divrep.DivRepEventListener;
 import com.divrep.common.DivRepButton;
 import com.divrep.common.DivRepCheckBox;
 import com.divrep.common.DivRepFormElement;
+import com.divrep.common.DivRepSelectBox;
 import com.divrep.common.DivRepTextBox;
 
 import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.FieldOfScienceModel;
-import edu.iu.grid.oim.model.db.VOFieldOfScienceModel;
 import edu.iu.grid.oim.model.db.record.FieldOfScienceRecord;
 
 public class FieldOfScience extends DivRepFormElement
@@ -29,14 +31,51 @@ public class FieldOfScience extends DivRepFormElement
 	DivRepButton add_fs;
 	DivRepTextBox new_fs; 
 	private HashMap<Integer, DivRepCheckBox> field_of_science;
+	private DivRepSelectBox a_field_of_science; //only used by max=1
+	private UserContext context;
+	private int max;
+	
+	public void setRequired(Boolean b) {
+		if(max == 1) {
+			a_field_of_science.setRequired(b);
+		}
+		super.setRequired(b);
+	}
+	
 	public HashMap<Integer, DivRepCheckBox> getSciences() {
 		return field_of_science;
 	}
-	private UserContext context;
+	
+	public ArrayList<Integer> getSelected() {
+		ArrayList<Integer> rec = new ArrayList<Integer>();
+		if(max == 1) {
+			Integer selected = a_field_of_science.getValue();
+			if(selected != null) {
+				rec.add(selected);
+			}
+		} else {
+			for(Integer id : field_of_science.keySet()) {
+				DivRepCheckBox check = field_of_science.get(id);
+				if(check.getValue()) {
+					rec.add(id);
+				}
+			}
+		}
+		return rec;
+	}
+	
+	//set to 1 in order to use select box
+	public void setMaxSelect(int max) {
+		this.max = max;
+		setRequired(isRequired()); //reset required flag
+	}
 	
 	public FieldOfScience(DivRep _parent, final UserContext context, final ArrayList<Integer> selected) throws SQLException {
 		super(_parent);
 		this.context = context;
+		
+		a_field_of_science = new DivRepSelectBox(this);
+		//a_field_of_science.setLabel("Field Of Science");
 		
 		populateList(selected);
 		
@@ -79,6 +118,7 @@ public class FieldOfScience extends DivRepFormElement
 					//select newly created fs
 					DivRepCheckBox elem = findFieldOfScience(name);
 					elem.setValue(true);
+					a_field_of_science.setValue(newrec.id);
 					
 					new_fs.setValue(null);
 				} catch (SQLException e1) {
@@ -86,29 +126,38 @@ public class FieldOfScience extends DivRepFormElement
 				}
 			}}
 		);
+
 	}
+	
 	private void populateList(ArrayList<Integer> selected) throws SQLException
 	{
+		//get fos and sort
 		FieldOfScienceModel fsmodel = new FieldOfScienceModel(context);
+		ArrayList<FieldOfScienceRecord> fss = fsmodel.getAll();
+		Collections.sort(fss, new Comparator<FieldOfScienceRecord> (){
+			public int compare(FieldOfScienceRecord a, FieldOfScienceRecord b) {
+				return a.name.compareToIgnoreCase(b.name); // We are comparing based on name
+			}
+		});
+		
+		LinkedHashMap<Integer, String> fskv = new LinkedHashMap<Integer, String>();
 		field_of_science = new HashMap();
-		for(FieldOfScienceRecord fsrec : fsmodel.getAll()) {
+		for(FieldOfScienceRecord fsrec : fss) {
+			fskv.put(fsrec.id, fsrec.name);
+			
 			DivRepCheckBox elem = new DivRepCheckBox(this);
 			field_of_science.put(fsrec.id, elem);
 			elem.setLabel(fsrec.name);
 		}
-		
+		a_field_of_science.setValues(fskv);
+
 		if(selected != null) {
-			/*
-			//select currently selected field of science
-			VOFieldOfScienceModel vofsmodel = new VOFieldOfScienceModel(context);
-			for(VOFieldOfScienceRecord fsrec : vofsmodel.getByVOID(rec.id)) {
-				DivRepCheckBox check = field_of_science.get(fsrec.field_of_science_id);
-				check.setValue(true);
-			}
-			*/
 			for(Integer fid : selected) {
 				DivRepCheckBox check = field_of_science.get(fid);
 				check.setValue(true);
+			}
+			if(selected.size() == 1) {
+				a_field_of_science.setValue(selected.get(0)); 
 			}
 		}
 	}
@@ -129,36 +178,38 @@ public class FieldOfScience extends DivRepFormElement
 	}
 
 	public void render(PrintWriter out) {
-		out.write("<div id=\""+getNodeID()+"\">");
+		out.write("<div id=\""+getNodeID()+"\" class=\"well\">");
 		
-		out.write("<h3>Field of Science</h3>");
-
-		out.write("<p>Select Field Of Science(s) applicable to this VO</p>");
-		if(isRequired()) {
-			//out.print(" * Required");
-			out.print("* Required");
-		}
+		//out.write("<p>Select Field Of Science(s) applicable to this VO</p>");
 		
-		out.write("<table class=\"layout\"><tr><td width=\"33%\">");
-		//sort the field_of_science by name and render
-		TreeSet<DivRepCheckBox> sorted = new TreeSet<DivRepCheckBox>(new Comparator<DivRepCheckBox>() {
-			public int compare(DivRepCheckBox o1, DivRepCheckBox o2) {
-				return o1.getLabel().compareTo(o2.getLabel());
+		if(max == 1) {
+			out.write("<label>Field of Science</label>");
+			a_field_of_science.render(out);
+		} else {
+			out.write("<h3>Field of Science</h3>");
+			out.write("<table class=\"layout\"><tr><td width=\"33%\">");
+			//sort the field_of_science by name and render
+			TreeSet<DivRepCheckBox> sorted = new TreeSet<DivRepCheckBox>(new Comparator<DivRepCheckBox>() {
+				public int compare(DivRepCheckBox o1, DivRepCheckBox o2) {
+					return o1.getLabel().compareTo(o2.getLabel());
+				}
+			});
+			int items_per_column = field_of_science.size() / 3 + 1; //+1 is for rounding
+			sorted.addAll(field_of_science.values());
+			int count = 0;
+			for(DivRepCheckBox elem : sorted) {
+				elem.render(out);
+				++count;
+				if(count != 0 && count % items_per_column == 0) {
+					out.write("</td><td width=\"33%\">");
+				}
 			}
-		});
-		int items_per_column = field_of_science.size() / 3 + 1; //+1 is for rounding
-		sorted.addAll(field_of_science.values());
-		int count = 0;
-		for(DivRepCheckBox elem : sorted) {
-			elem.render(out);
-			++count;
-			if(count != 0 && count % items_per_column == 0) {
-				out.write("</td><td width=\"33%\">");
+			out.write("</td></tr></table>");
+			if(isRequired()) {
+				out.print("<p class=\"pull-right\">* Required</p>");
 			}
 		}
-		out.write("</td></tr></table>");
 
-		
 		new_fs.render(out);
 		add_fs.render(out);
 
@@ -171,16 +222,19 @@ public class FieldOfScience extends DivRepFormElement
 	public boolean validate()
 	{
 		if(isRequired()) {
-			//make sure at least one element is selected
-			for(DivRepCheckBox check : field_of_science.values()) {
-				if(check.getValue() == true) {
-					return true;
+			if(this.max == 1) {
+				return a_field_of_science.validate();
+			} else {
+				//make sure at least one element is selected
+				for(DivRepCheckBox check : field_of_science.values()) {
+					if(check.getValue() == true) {
+						return true;
+					}
 				}
+				error.set("Please select at least one field of science.");
+				return false;
 			}
-			error.set("Please select at least one field of science.");
-			return false;
 		}
 		return true;
 	}
-	
 }
