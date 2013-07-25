@@ -34,6 +34,7 @@ import edu.iu.grid.oim.model.UserContext.MessageType;
 import edu.iu.grid.oim.model.db.CampusGridModel;
 import edu.iu.grid.oim.model.db.ContactTypeModel;
 import edu.iu.grid.oim.model.db.ContactModel;
+import edu.iu.grid.oim.model.db.FieldOfScienceModel;
 import edu.iu.grid.oim.model.db.ProjectModel;
 import edu.iu.grid.oim.model.db.ProjectPublicationModel;
 import edu.iu.grid.oim.model.db.ProjectUserModel;
@@ -41,6 +42,7 @@ import edu.iu.grid.oim.model.db.VOModel;
 import edu.iu.grid.oim.model.db.record.CampusGridRecord;
 import edu.iu.grid.oim.model.db.record.ContactTypeRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
+import edu.iu.grid.oim.model.db.record.FieldOfScienceRecord;
 import edu.iu.grid.oim.model.db.record.ProjectPublicationRecord;
 import edu.iu.grid.oim.model.db.record.ProjectRecord;
 import edu.iu.grid.oim.model.db.record.ProjectUserRecord;
@@ -54,6 +56,7 @@ import edu.iu.grid.oim.view.divrep.ProjectPublicationEditor;
 import edu.iu.grid.oim.view.divrep.ProjectUserEditor;
 import edu.iu.grid.oim.view.divrep.VOReportNames;
 import edu.iu.grid.oim.view.divrep.FieldOfScience;
+import edu.iu.grid.oim.view.divrep.form.validator.ProjectNameValidator;
 
 public class ProjectFormDE extends DivRepForm 
 {
@@ -72,7 +75,7 @@ public class ProjectFormDE extends DivRepForm
 	private ContactEditor pi;
 	private FieldOfScience field_of_science_de;
 	private ProjectPublicationEditor publications;
-	private ProjectUserEditor users;
+	//private ProjectUserEditor users;
 	
 	private DivRepTextArea comment;
 	
@@ -91,11 +94,13 @@ public class ProjectFormDE extends DivRepForm
 		name.setLabel("Name");
 		name.setValue(rec.name);
 		name.addValidator(new DivRepUniqueValidator<String>(project_names.values()));
-		name.setRequired(true);
+		name.addValidator(new ProjectNameValidator());
+		new DivRepStaticContent(this, "<p class=\"help-block\">* Leave it blank to autogenerate.</p>");
+		
 		//name.setSampleValue("CDF");
 		
 		description = new DivRepTextArea(this);
-		description.setLabel("Description / Abstract Of Work");
+		description.setLabel("Description / Abstract of work");
 		description.setValue(rec.desc);
 		description.setRequired(true);
 		description.setSampleValue("This project's goal is to ...");
@@ -125,7 +130,9 @@ public class ProjectFormDE extends DivRepForm
 			}
 		});
 		for(VORecord vorec : vos) {
-			vokvs.put(vorec.id, vorec.name + " VO");
+			if(vomodel.canEdit(vorec.id)) {
+				vokvs.put(vorec.id, vorec.name);
+			}
 		}
 		parent.addGroup("Virtual Organization", vokvs);
 		parent.setRequired(true);
@@ -139,7 +146,9 @@ public class ProjectFormDE extends DivRepForm
 			}
 		});
 		for(CampusGridRecord cgrec : cgs) {
-			cgkvs.put(cgrec.id + vo_cg_offset, cgrec.name + " CG");
+			if(cgmodel.canEdit(cgrec.id)) {
+				cgkvs.put(cgrec.id + vo_cg_offset, cgrec.name);
+			}
 		}
 		parent.addGroup("CampusGrids", cgkvs);
 		
@@ -149,6 +158,7 @@ public class ProjectFormDE extends DivRepForm
 		if(rec.cg_id != null) {
 			parent.setValue(rec.cg_id+vo_cg_offset);
 		}
+		//new DivRepStaticContent(this, "<p class=\"help-block\">* You can only choose VO / CG that you have edit access</p>");
 		
 		ContactModel cmodel = new ContactModel(context);
 		pi = new ContactEditor(this, cmodel, false, false);
@@ -177,6 +187,7 @@ public class ProjectFormDE extends DivRepForm
 			}
 		}
 		
+		/*
 		users = new ProjectUserEditor(this, context);
 		if(rec.id != null) {
 			ProjectUserModel pumodel = new ProjectUserModel(context);
@@ -184,6 +195,7 @@ public class ProjectFormDE extends DivRepForm
 				users.addUser(urec);
 			}
 		}
+		*/
 			
 		new DivRepStaticContent(this, "<hr>");
 
@@ -231,16 +243,46 @@ public class ProjectFormDE extends DivRepForm
 		
 		ArrayList<Integer> fos_ids = field_of_science_de.getSelected();
 		rec.fos_id = fos_ids.get(0);
+		
+		if(rec.name == null || rec.name.isEmpty()) {
+			//autogenerate unique ID
+			FieldOfScienceModel fosmodel = new FieldOfScienceModel(context);
+			FieldOfScienceRecord fos;
+			try {
+				fos = fosmodel.get(rec.fos_id);
+				String prefix = "OSG-" + fos.name.substring(0, 3).toUpperCase();
+				Integer i = 0;
+				ProjectModel pmodel = new ProjectModel(context);
+				String pname;
+				while(true) {
+					pname = prefix + String.format( "%05d", i);
+					i++;
+					//make sure pname is unique
+					ProjectRecord prec = pmodel.getByName(pname);
+					if(prec == null) {
+						break;
+					}
+					if(rec.id != null && rec.id.equals(prec.id)) {
+						//collision with my own record is ok.
+						break;
+					}
+				}
+				rec.name = pname;
+			} catch (SQLException e) {
+				log.error("failed to find fos name", e);
+				return false;
+			}
+		}
 
 		context.setComment(comment.getValue());
 				
 		ProjectModel model = new ProjectModel(context);
 		try {
 			if(rec.id == null) {
-				model.insertDetail(rec, publications.getPublications(), users.getUsers());
+				model.insertDetail(rec, publications.getPublications());
 				context.message(MessageType.SUCCESS, "Successfully created a new Project");
 			} else {
-				model.updateDetail(rec, publications.getPublications(), users.getUsers());
+				model.updateDetail(rec, publications.getPublications());
 				context.message(MessageType.SUCCESS, "Successfully updated a Project.");
 			}
 			return true;

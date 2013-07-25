@@ -25,6 +25,7 @@ import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.ContactTypeModel;
 import edu.iu.grid.oim.model.db.CampusGridModel;
 import edu.iu.grid.oim.model.db.FieldOfScienceModel;
+import edu.iu.grid.oim.model.db.ProjectModel;
 import edu.iu.grid.oim.model.db.ResourceModel;
 import edu.iu.grid.oim.model.db.ResourceServiceModel;
 
@@ -35,6 +36,7 @@ import edu.iu.grid.oim.model.db.record.CampusGridSubmitNodeRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.ContactTypeRecord;
 import edu.iu.grid.oim.model.db.record.FieldOfScienceRecord;
+import edu.iu.grid.oim.model.db.record.ProjectRecord;
 import edu.iu.grid.oim.model.db.record.ResourceRecord;
 import edu.iu.grid.oim.model.db.record.ResourceServiceRecord;
 
@@ -46,6 +48,7 @@ import edu.iu.grid.oim.view.GenericView;
 import edu.iu.grid.oim.view.HtmlView;
 import edu.iu.grid.oim.view.IView;
 import edu.iu.grid.oim.view.ItemTableView;
+import edu.iu.grid.oim.view.ProjectView;
 import edu.iu.grid.oim.view.ToolTip;
 
 import edu.iu.grid.oim.view.RecordTableView;
@@ -277,6 +280,16 @@ public class CampusGridServlet extends ServletBase implements Servlet {
 		if(model.canEdit(rec.id)) {
 			view.add(new HtmlView("<a class=\"btn\" href=\"campusgridedit?id=" + rec.id + "\">Edit</a>"));
 		}
+		
+		//pull projects
+		try {
+			ProjectModel pmodel = new ProjectModel(context);
+			ArrayList<ProjectRecord> projects = pmodel.getByCGID(rec.id);
+			view.add(new ProjectView(projects));
+		} catch (SQLException e) {
+			log.error("Failed to load projects", e);
+		}
+		
 		return view;
 	}
 }

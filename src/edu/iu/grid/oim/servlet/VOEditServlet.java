@@ -13,8 +13,10 @@ import org.apache.log4j.Logger;
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.LogModel;
+import edu.iu.grid.oim.model.db.ProjectModel;
 import edu.iu.grid.oim.model.db.VOModel;
 import edu.iu.grid.oim.model.db.record.LogRecord;
+import edu.iu.grid.oim.model.db.record.ProjectRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
 import edu.iu.grid.oim.view.BootBreadCrumbView;
 import edu.iu.grid.oim.view.BootMenuView;
@@ -23,6 +25,7 @@ import edu.iu.grid.oim.view.ContentView;
 import edu.iu.grid.oim.view.DivRepWrapper;
 import edu.iu.grid.oim.view.HtmlView;
 import edu.iu.grid.oim.view.LogView;
+import edu.iu.grid.oim.view.ProjectView;
 import edu.iu.grid.oim.view.SideContentView;
 import edu.iu.grid.oim.view.divrep.form.VOFormDE;
 
@@ -39,6 +42,7 @@ public class VOEditServlet extends ServletBase implements Servlet {
 		
 		VORecord rec;
 		ArrayList<LogRecord> logs = null;
+		ArrayList<ProjectRecord> projects = null;
 		
 		//if vo_id is provided then we are doing update, otherwise do new.
 		String vo_id_str = request.getParameter("id");
@@ -55,6 +59,10 @@ public class VOEditServlet extends ServletBase implements Servlet {
 				VORecord keyrec = new VORecord();
 				keyrec.id = vo_id;
 				rec = model.get(keyrec);
+				
+				//pull projects
+				ProjectModel pmodel = new ProjectModel(context);
+				projects = pmodel.getByVOID(vo_id);
 				
 				//pull logs
 				LogModel logmodel = new LogModel(context);
@@ -94,13 +102,13 @@ public class VOEditServlet extends ServletBase implements Servlet {
 		bread_crumb.addCrumb(rec.name,  null);
 		contentview.setBreadCrumb(bread_crumb);
 		
-		BootPage page = new BootPage(context, new BootMenuView(context, parent_page), contentview, createSideView(context, logs, rec));
+		BootPage page = new BootPage(context, new BootMenuView(context, parent_page), contentview, createSideView(context, projects, logs, rec));
 		page.render(response.getWriter());	
 		
 		//context.storeDivRepSession();
 	}
 	
-	private SideContentView createSideView(UserContext context, ArrayList<LogRecord> logs, VORecord rec)
+	private SideContentView createSideView(UserContext context, ArrayList<ProjectRecord> projects, ArrayList<LogRecord> logs, VORecord rec)
 	{
 		SideContentView view = new SideContentView();
 		
@@ -108,8 +116,13 @@ public class VOEditServlet extends ServletBase implements Servlet {
 			view.add(new HtmlView("<p><a class=\"btn\" href=\"vo?id="+rec.id+"\">Show Readonly View</a></p>"));
 		}
 		
-		view.addRARequest(context, rec);
-		view.addContactNote();		
+		view.addRARequest(context, rec);	
+		if(projects != null) {
+			view.add(new ProjectView(projects));	
+			view.add(new HtmlView("<a href=\"projectedit?vo_id="+rec.id+"\" class=\"btn pull-right\"><i class=\"icon-plus-sign\"></i> Add New Project</a>"));
+			view.add(new HtmlView("<br clear=\"both\">"));
+		}
+		view.addContactNote();	
 		if(logs != null) {
 			view.add(new LogView(logs));	
 		}

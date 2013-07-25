@@ -40,6 +40,18 @@ public class ProjectEditServlet extends ServletBase implements Servlet {
 		ProjectRecord rec = new ProjectRecord();
 		ArrayList<LogRecord> logs = null;
 		
+		//preset form items based on query input (set by project listing in VO/CG)
+		String cgid_str = request.getParameter("cg_id");
+		if(cgid_str != null) {
+			int cgid = Integer.parseInt(cgid_str);
+			rec.cg_id = cgid;
+		}
+		String void_str = request.getParameter("vo_id");
+		if(void_str != null) {
+			int vo_id = Integer.parseInt(void_str);
+			rec.vo_id = vo_id;
+		}
+		
 		//if vo_id is provided then we are doing update, otherwise do new.
 		String id_str = request.getParameter("id");
 		if(id_str != null) {

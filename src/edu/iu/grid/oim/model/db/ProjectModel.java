@@ -134,7 +134,7 @@ public class ProjectModel extends SmallTableModelBase<ProjectRecord>
 		return false;
 	}
 	
-	public void insertDetail(ProjectRecord rec, ArrayList<ProjectPublicationRecord> publications, ArrayList<ProjectUserRecord> users) throws Exception
+	public void insertDetail(ProjectRecord rec, ArrayList<ProjectPublicationRecord> publications) throws Exception
 	{
 		Connection conn = connectOIM();
 		conn.setAutoCommit(false);
@@ -143,7 +143,7 @@ public class ProjectModel extends SmallTableModelBase<ProjectRecord>
 			insert(rec);
 			
 			updatePublications(rec.id, publications); //yes, we can use update function to do the insert
-			updateUsers(rec.id, users); //yes, we can use update function to do the insert
+			//updateUsers(rec.id, users); //yes, we can use update function to do the insert
 			
 			conn.commit();
 		} catch (Exception e) {
@@ -157,7 +157,7 @@ public class ProjectModel extends SmallTableModelBase<ProjectRecord>
 		}
 	}
 	
-	public void updateDetail(ProjectRecord rec, ArrayList<ProjectPublicationRecord> publications, ArrayList<ProjectUserRecord> users) throws Exception
+	public void updateDetail(ProjectRecord rec, ArrayList<ProjectPublicationRecord> publications) throws Exception
 	{
 		Connection conn = connectOIM();
 		conn.setAutoCommit(false);
@@ -165,7 +165,7 @@ public class ProjectModel extends SmallTableModelBase<ProjectRecord>
 			update(get(rec), rec);
 			
 			updatePublications(rec.id, publications);
-			updateUsers(rec.id, users); 
+			//updateUsers(rec.id, users); 
 			
 			conn.commit();
 		} catch (Exception e) {
@@ -198,6 +198,29 @@ public class ProjectModel extends SmallTableModelBase<ProjectRecord>
 		return null;
 	}
 	
+	public ArrayList<ProjectRecord> getByVOID(Integer vo_id) throws SQLException
+	{
+		ArrayList<ProjectRecord> list = new ArrayList<ProjectRecord>();
+		for(RecordBase it : getCache()) {
+			ProjectRecord rec = (ProjectRecord)it;
+			if(rec.vo_id != null && rec.vo_id.equals(vo_id)) {
+				list.add(rec);
+			}
+		}
+		return list;
+	}
+	
+	public ArrayList<ProjectRecord> getByCGID(Integer cg_id) throws SQLException
+	{
+		ArrayList<ProjectRecord> list = new ArrayList<ProjectRecord>();
+		for(RecordBase it : getCache()) {
+			ProjectRecord rec = (ProjectRecord)it;
+			if(rec.cg_id != null && rec.cg_id.equals(cg_id)) {
+				list.add(rec);
+			}
+		}
+		return list;
+	}
 	public void updatePublications(int id, ArrayList<ProjectPublicationRecord> publications) throws SQLException
 	{
 		//reset project ids

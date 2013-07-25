@@ -23,6 +23,7 @@ import edu.iu.grid.oim.model.db.ContactTypeModel;
 import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.FieldOfScienceModel;
 
+import edu.iu.grid.oim.model.db.ProjectModel;
 import edu.iu.grid.oim.model.db.VOOasisUserModel;
 import edu.iu.grid.oim.model.db.VOReportNameModel;
 import edu.iu.grid.oim.model.db.VOReportNameFqanModel;
@@ -34,6 +35,7 @@ import edu.iu.grid.oim.model.db.VOReportContactModel;
 import edu.iu.grid.oim.model.db.record.ContactTypeRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.FieldOfScienceRecord;
+import edu.iu.grid.oim.model.db.record.ProjectRecord;
 import edu.iu.grid.oim.model.db.record.VOOasisUserRecord;
 import edu.iu.grid.oim.model.db.record.VOReportNameRecord;
 import edu.iu.grid.oim.model.db.record.VOReportNameFqanRecord;
@@ -50,6 +52,7 @@ import edu.iu.grid.oim.view.GenericView;
 import edu.iu.grid.oim.view.HtmlView;
 import edu.iu.grid.oim.view.IView;
 import edu.iu.grid.oim.view.ItemTableView;
+import edu.iu.grid.oim.view.ProjectView;
 import edu.iu.grid.oim.view.RecordTableView;
 import edu.iu.grid.oim.view.SideContentView;
 import edu.iu.grid.oim.view.ToolTip;
@@ -391,6 +394,16 @@ public class VOServlet extends ServletBase implements Servlet {
 		}
 		
 		view.addRARequest(context, rec);
+		
+		//pull projects
+		try {
+			ProjectModel pmodel = new ProjectModel(context);
+			ArrayList<ProjectRecord> projects = pmodel.getByVOID(rec.id);
+			view.add(new ProjectView(projects));
+		} catch (SQLException e) {
+			log.error("Failed to load projects", e);
+		}
+		
 		view.addContactLegend();
 		return view;
 	}
