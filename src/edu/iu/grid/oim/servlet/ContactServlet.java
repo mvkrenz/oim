@@ -295,14 +295,17 @@ public class ContactServlet extends ServletBase {
 						}
 					}
 				});		
+				
+				//show quota if there is any DN associated (including disabled)
+				if(dnrecs.size() > 0) {
+					//Certificate Quota
+					ConfigModel config = new ConfigModel(context);
+					table.addRow("User Certificate Requests", rec.count_usercert_year + " (max "+config.QuotaUserCertYearMax.getString()+" per year)");
+					table.addRow("Host Certificate Approvals (Year)", rec.count_hostcert_year + " (max "+config.QuotaUserHostYearMax.getString()+" per year)");
+					table.addRow("Host Certificate Approvals (Today)", rec.count_hostcert_day + " (max "+config.QuotaUserHostDayMax.getString()+" per day)");
+				}
 			}
-			
-			//Certificate Quota
-			ConfigModel config = new ConfigModel(context);
-			table.addRow("User Certificate Requests", rec.count_usercert_year + " (max "+config.QuotaUserCertYearMax.getString()+" per year)");
-			table.addRow("Host Certificate Approvals (Year)", rec.count_hostcert_year + " (max "+config.QuotaUserHostYearMax.getString()+" per year)");
-			table.addRow("Host Certificate Approvals (Today)", rec.count_hostcert_day + " (max "+config.QuotaUserHostDayMax.getString()+" per day)");
-			
+						
 		} catch (SQLException e) {
 			return new DivRepStaticContent(context.getPageRoot(), e.toString());
 		}

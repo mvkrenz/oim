@@ -488,10 +488,11 @@ public class ContactFormDE extends DivRepForm
 		new DivRepStaticContent(this, "<p>* Only GOC staff can modify following information</p>");
 		
 		//create DN selector
+		DNModel dnmodel = new DNModel(context);
 		LinkedHashMap<Integer, String> dns = new LinkedHashMap();
 		try {
-			DNModel dnmodel = new DNModel(context);;
-			for(DNRecord dnrec : dnmodel.getAll()) {
+			ArrayList<DNRecord> dnrecs = dnmodel.getAll();
+			for(DNRecord dnrec : dnrecs) {
 				dns.put(dnrec.id, dnrec.dn_string);
 			}
 		} catch (SQLException e) {
@@ -512,32 +513,59 @@ public class ContactFormDE extends DivRepForm
 			disable.setDisabled(true);
 		}
 
-		new DivRepStaticContent(this, "<h2>Certificate Request Quota</h2>");
-		new DivRepStaticContent(this, "<p>* Only PKI staff can update this information</p>");
-
-		ConfigModel config = new ConfigModel(context);
-		String usercert_max_year = config.QuotaUserCertYearMax.getString();
-		String hostcert_max_year = config.QuotaUserHostYearMax.getString();
-		String hostcert_max_day = config.QuotaUserHostDayMax.getString();
-		
-		count_usercert_year = new DivRepTextBox(this);
-		count_usercert_year.setLabel("User Certificate Request Count (This Year)");
-		count_usercert_year.setRequired(true);
-		count_usercert_year.addValidator(new DivRepIntegerValidator());
-		new DivRepStaticContent(this, "<p>* You can request up to <span class=\"label label-info\">"+usercert_max_year+"</span> user certificates per year</p>");
+		ArrayList<DNRecord> dnrecs = new ArrayList<DNRecord>();
+		if(rec.id != null) {
+			try {
+				dnrecs = dnmodel.getByContactID(rec.id);
+			} catch (SQLException e1) {
+				log.error("Failed to load user's dns");
+			}
+		}
+		if(dnrecs.size() == 0) {
+			//don't show
+			count_usercert_year = new DivRepTextBox(this);
+			count_usercert_year.setHidden(true);
+			
+			count_hostcert_year = new DivRepTextBox(this);
+			count_hostcert_year.setHidden(true);
+			
+			count_hostcert_day = new DivRepTextBox(this);
+			count_hostcert_day.setHidden(true);
+		} else {
+			new DivRepStaticContent(this, "<h2>Certificate Request Quota</h2>");
+			new DivRepStaticContent(this, "<p>* Only PKI staff can update this information</p>");
 	
-		count_hostcert_year = new DivRepTextBox(this);
-		count_hostcert_year.setLabel("Host Certificate Approval Count (This Year)");
-		count_hostcert_year.setRequired(true);
-		count_hostcert_year.addValidator(new DivRepIntegerValidator());
-		new DivRepStaticContent(this, "<p>* You can approve up to <span class=\"label label-info\">"+hostcert_max_year+"</span> host certificates per year</p>");
-
-		count_hostcert_day = new DivRepTextBox(this);
-		count_hostcert_day.setLabel("Host Certificate Approval Count (Today)");
-		count_hostcert_day.setRequired(true);
-		count_hostcert_day.addValidator(new DivRepIntegerValidator());
-		new DivRepStaticContent(this, "<p>* You can approve up to <span class=\"label label-info\">"+hostcert_max_day+"</span> host certificates per day</p>");
+			ConfigModel config = new ConfigModel(context);
+			String usercert_max_year = config.QuotaUserCertYearMax.getString();
+			String hostcert_max_year = config.QuotaUserHostYearMax.getString();
+			String hostcert_max_day = config.QuotaUserHostDayMax.getString();
+			
+			count_usercert_year = new DivRepTextBox(this);
+			count_usercert_year.setLabel("User Certificate Request Count (This Year)");
+			count_usercert_year.setRequired(true);
+			count_usercert_year.addValidator(new DivRepIntegerValidator());
+			new DivRepStaticContent(this, "<p>* You can request up to <span class=\"label label-info\">"+usercert_max_year+"</span> user certificates per year</p>");
 		
+			count_hostcert_year = new DivRepTextBox(this);
+			count_hostcert_year.setLabel("Host Certificate Approval Count (This Year)");
+			count_hostcert_year.setRequired(true);
+			count_hostcert_year.addValidator(new DivRepIntegerValidator());
+			new DivRepStaticContent(this, "<p>* You can approve up to <span class=\"label label-info\">"+hostcert_max_year+"</span> host certificates per year</p>");
+	
+			count_hostcert_day = new DivRepTextBox(this);
+			count_hostcert_day.setLabel("Host Certificate Approval Count (Today)");
+			count_hostcert_day.setRequired(true);
+			count_hostcert_day.addValidator(new DivRepIntegerValidator());
+			new DivRepStaticContent(this, "<p>* You can approve up to <span class=\"label label-info\">"+hostcert_max_day+"</span> host certificates per day</p>");
+			
+		}
+		
+		//disable pki quota controllers
+		if(!auth.allows("admin_pki_quota")) {
+			count_hostcert_day.setDisabled(true);
+			count_hostcert_year.setDisabled(true);
+			count_usercert_year.setDisabled(true);
+		}
 		if(rec.id == null) {
 			//set to 0
 			count_usercert_year.setValue("0");
@@ -548,14 +576,6 @@ public class ContactFormDE extends DivRepForm
 			count_hostcert_day.setValue(String.valueOf(rec.count_hostcert_day));
 			count_hostcert_year.setValue(String.valueOf(rec.count_hostcert_year));
 		}
-		
-		//disable pki quota controllers
-		if(!auth.allows("admin_pki_quota")) {
-			count_hostcert_day.setDisabled(true);
-			count_hostcert_year.setDisabled(true);
-			count_usercert_year.setDisabled(true);
-		}
-		
 	}
 
 	protected Boolean doSubmit() 
