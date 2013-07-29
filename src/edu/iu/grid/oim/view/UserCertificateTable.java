@@ -28,7 +28,7 @@ public class UserCertificateTable implements IView {
 
 	public void render(PrintWriter out)  {
 
-		out.write("<table class=\"table certificate\">");
+		out.write("<table class=\"table table-hover certificate\">");
 		out.write("<thead><tr><th>ID</th><th>Status</th><th width=\"120px\">Request Date</th><th>DN</th><th>VO</th><th>RA</th></tr></thead>");
 		out.write("<tbody>");
 		CertificateRequestUserModel usermodel = new CertificateRequestUserModel(context);

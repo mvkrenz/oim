@@ -94,12 +94,13 @@ public class ProjectEditServlet extends ServletBase implements Servlet {
 	
 	private SideContentView createSideView(UserContext context, ArrayList<LogRecord> logs, ProjectRecord rec)
 	{
-		SideContentView view = new SideContentView();
-		
-		if(rec.id != null) {
-			view.add(new HtmlView("<p><a class=\"btn\" href=\"project?id="+rec.id+"\">Show Readonly View</a></p>"));
+		if(rec.id == null) {
+			return null;
 		}
-	
+		
+		SideContentView view = new SideContentView();
+		view.add(new HtmlView("<p><a class=\"btn\" href=\"project?id="+rec.id+"\">Show Readonly View</a></p>"));
+		
 		if(logs != null) {
 			view.add(new LogView(logs));	
 		}

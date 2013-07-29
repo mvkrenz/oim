@@ -32,7 +32,7 @@ public class HostCertificateTable implements IView {
 	}
 
 	public void render(PrintWriter out)  {
-		out.write("<table class=\"table certificate\">");
+		out.write("<table class=\"table table-hover certificate\">");
 		out.write("<thead><tr><th width=\"40px\">ID</th><th width=\"100px\">Status</th><th width=\"120px\">Request Date</th><th width=\"250px\">FQDNs</th><th>Grid Admins</th></tr></thead>");
 		out.write("<tbody>");
 		CertificateRequestHostModel model = new CertificateRequestHostModel(context);

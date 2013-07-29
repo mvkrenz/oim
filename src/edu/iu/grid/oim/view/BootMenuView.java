@@ -22,7 +22,7 @@ public class BootMenuView implements IView {
 		//figure out secure / non-secure current URLs.
 		//String request_url = user.getRequestURL();
 		
-		out.println("<div class=\"navbar navbar-fixed-top\">");	
+		out.println("<div class=\"navbar navbar-fixed-top navbar-inverse\">");	
 		out.println("<div class=\"navbar-inner\">");
 		out.println("<div class=\"container-fluid\">");
 		
@@ -58,10 +58,11 @@ public class BootMenuView implements IView {
 		out.println("<ul class=\"nav pull-right\">");
 		//account menu
 		if(auth.isUser()) {
+			out.println("<li class=\"dropdown\">");
 			ContactRecord contact = auth.getContact();
 			//user menu
-			out.println("<div class=\"btn-group\">");
-			out.println("<a href=\"#\" class=\"btn dropdown-toggle\" data-toggle=\"dropdown\"><i class=\"icon-user\"></i> "+contact.name+" <span class=\"caret\"></span></a>");
+			//out.println("<div class=\"btn-group\">");
+			out.println("<a href=\"#\" class=\"dropdown-toggle\" data-toggle=\"dropdown\">"+contact.name+" <b class=\"caret\"></b></a>");
 			out.println("<ul class=\"dropdown-menu\">");
 			
 				if(current.equals("profileedit")) {
@@ -138,7 +139,8 @@ public class BootMenuView implements IView {
 				out.println("<li><a href=\"logout\">Logout</a></li>");
 				
 			out.println("</ul>");//dropdown-menu
-			out.println("</div>");//btn-group
+			//out.println("</div>");//btn-group
+			out.println("</li>");
 		} else if(auth.isUnregistered()) {
 			if(current.equals("register")) {
 				out.println("<li class=\"active\">");
@@ -211,6 +213,13 @@ public class BootMenuView implements IView {
 		} else {
 			out.println("<li><a href=\"campusgrid\">Campus Grids</a></li>");
 		}
+		
+		if(current.equals("project")) {
+			out.println("<li class=\"active\"><a href=\"project\">Projects</a></li>");
+		} else {
+			out.println("<li><a href=\"project\">Projects</a></li>");
+		}
+		
 		out.println("</ul>");//end of left items
 		out.println("</div>");//nav-collaps	
 		

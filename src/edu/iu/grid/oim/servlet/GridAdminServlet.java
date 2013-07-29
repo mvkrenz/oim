@@ -60,31 +60,9 @@ public class GridAdminServlet extends ServletBase {
 			GridAdminModel model = new GridAdminModel(context);
 			try {
 				LinkedHashMap<String, ArrayList<GridAdminRecord>> recs = model.getAll();
-				/*
-				Collections.sort(recs, new Comparator<GridAdminRecord> (){
-					public int compare(GridAdminRecord a, GridAdminRecord b) {
-						//TODO - correct algorithm is to split domain by ., then compare each token in reverse order
-						String ar = reverse(a.domain);
-						String br = reverse(b.domain);
-						return (ar.compareTo(br));
-					}
-					
-					public String reverse(String in) {
-						int length = in.length();
-						StringBuilder reverse = new StringBuilder();
-						for(int i = length; i > 0; --i) {
-							char result = in.charAt(i-1);
-							reverse.append(result);
-						}
-						return reverse.toString();
-					}
-				});
-				*/
 				
 				out.write("<div id=\"content\">");
-			
 				out.write("<div class=\"row-fluid\">");
-				
 				out.write("<div class=\"span3\">");
 				CertificateMenuView menu = new CertificateMenuView(context, "gridadmin");
 				menu.render(out);
@@ -158,51 +136,7 @@ public class GridAdminServlet extends ServletBase {
 						out.write("</tr>");
 					}
 				}
-				/*
-				for(String domain : recs.keySet()) {
-					ArrayList<GridAdminRecord> allrecs_in_domain = recs.get(domain);
-					HashMap<VORecord, ArrayList<GridAdminRecord>> groups = model.getByDomainGroupedByVO(domain);
-					
-					out.write("<tr>");
-					
-					out.write("<td rowspan=\""+allrecs_in_domain.size()+"\">"+StringEscapeUtils.escapeHtml(domain));
-					if(auth.allows("admin_gridadmin")) {
-						out.write("<a href=\"gridadminedit?domain="+domain+"\" class=\"pull-right btn btn-mini\">Edit</a>");
-					}
-					out.write("</td>");
 
-					boolean first = true;
-					for(GridAdminRecord garec : recs.get(domain)) {
-						
-						if(first) {
-							first = false;
-						} else {
-							out.write("</tr>");
-							out.write("<tr>");
-						}
-						
-						out.write("<td>");
-						ContactRecord ga = cmodel.get(garec.contact_id);
-						out.write(StringEscapeUtils.escapeHtml(ga.name));
-						if(auth.isUser()) {
-							out.print(" <code>"+StringEscapeUtils.escapeHtml("<"+ga.primary_email+">")+"</code>");
-						}
-						out.write("</td>");
-						out.write("<td>");
-						if(garec.vo_id != null) {
-							VORecord gavo = vomodel.get(garec.vo_id);
-							out.write(gavo.name);
-						} else {
-							//out.write("<span class=\"tag\">(No association)</span>");
-						}
-						out.write("</td>");
-
-					}
-					
-					
-					out.write("</tr>");	
-				}
-				*/
 				out.write("</tbody>");
 				out.write("</table>");		
 				
@@ -215,13 +149,4 @@ public class GridAdminServlet extends ServletBase {
 			}
 		}
 	}
-	
-	/*
-	private SideContentView createSideView()
-	{
-		SideContentView view = new SideContentView();
-		view.add(new HtmlView("<a class=\"btn\" href=\"gridadminedit\">Add New GridAdmin</a>"));
-		return view;
-	}
-	*/
 }

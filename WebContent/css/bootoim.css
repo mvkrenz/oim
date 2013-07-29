@@ -1,3 +1,47 @@
+/*
+ Bootstrap fixer
+*/
+
+body {
+font-size: 13px;
+}
+
+p {
+margin: 0 0 9px;
+}
+
+.navbar .nav>li>a {
+padding: 9px 10px 11px;	
+}
+
+.page-header {
+margin-top: 0px;
+margin-bottom: 15px;
+}
+.page-header .lead {
+margin-bottom: 0px;
+padding-top: 5px;
+color: #666;
+}
+
+.page-header h1 {
+font-size: 30px;
+margin: 0px;
+}
+
+.table .table {
+background-color: inherit;
+}
+
+h2 {
+line-height: 36px;
+}
+
+h3 {
+margin: 0px;
+line-height: 27px;
+}
+
 
 .divrep_processing
 {
@@ -445,15 +489,6 @@ vertical-align: top;
 font-size: 0.9em !important;
 }
 
-.page-header {
-margin-top: 0px !important;
-}
-.page-header .lead {
-margin-bottom: 0px;
-padding-top: 5px;
-color: #666;
-}
-
 /*fix issues with bootstrap-responsive.min.css*/
 .navbar-fixed-top {
 margin-bottom: 0px !important;
@@ -529,7 +564,7 @@ position: relative;
 top: -4px;
 }
 .divrep_date .ui-datepicker-trigger {
-margin-bottom: 9px;
+margin-bottom: 5px;
 }
 div.well_inactive {
 background-color: #ccc;

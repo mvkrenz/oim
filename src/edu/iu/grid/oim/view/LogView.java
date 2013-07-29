@@ -18,7 +18,7 @@ public class LogView implements IView {
 		if(logs.size() == 0) {
 			out.write("<p class=\"muted\">No logs aviable</p>");
 		} else {
-			out.write("<table class=\"table\">");
+			out.write("<table class=\"table table-hover\">");
 			
 			out.write("<thead><tr><th>Date</th><th>Comment</th></tr></thead>");
 			boolean first = true;
