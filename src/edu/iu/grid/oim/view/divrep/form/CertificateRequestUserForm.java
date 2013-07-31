@@ -341,6 +341,11 @@ public class CertificateRequestUserForm extends DivRepForm
 				}
 			});
 			for(VORecord vo_rec : recs) {
+				//ignore disabled vo
+				if(vo_rec.disable == true) {
+					continue;
+				}
+				
 				//check if the VO has at least 1 RA specified
 				ArrayList<VOContactRecord> crecs = model.getByVOID(vo_rec.id);
 				boolean hasra = false;
