@@ -251,7 +251,7 @@ public class ProjectFormDE extends DivRepForm
 			try {
 				fos = fosmodel.get(rec.fos_id);
 				String prefix = "OSG-" + fos.name.substring(0, 3).toUpperCase();
-				Integer i = 0;
+				Integer i = 100;
 				ProjectModel pmodel = new ProjectModel(context);
 				String pname;
 				while(true) {
