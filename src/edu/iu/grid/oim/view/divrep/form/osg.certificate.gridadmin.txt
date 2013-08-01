@@ -12,5 +12,3 @@ c. Others.
 2. I agree that as Grid Administrator I will only submit and approve Service certificates for the FQDNs listed above.
 
 3. I understand that I am responsible for the revocation of certificates that are suspected of being compromised or issued in violation of the OSG policies.
-
-Thank you.

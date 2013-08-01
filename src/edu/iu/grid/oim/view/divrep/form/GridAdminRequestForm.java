@@ -46,8 +46,8 @@ public class GridAdminRequestForm extends BootDialogForm {
 		InputStream template  = getClass().getResourceAsStream("osg.certificate.gridadmin.txt");
 		StringBuilder request = ResourceReader.loadContent(template);
 		desc.setValue(request.toString());
-		desc.setHeight(250);
-		desc.setWidth(520);
+		desc.setHeight(260);
+		desc.setWidth(450);
 		desc.setRequired(true);
 		
 		VOModel vo_model = new VOModel(context);
@@ -61,6 +61,7 @@ public class GridAdminRequestForm extends BootDialogForm {
 				}
 			});
 			for(VORecord vo_rec : recs) {
+				if(vo_rec.disable) continue;
 				keyvalues.put(vo_rec.id, vo_rec.name);
 			}
 			new DivRepStaticContent(this, "<p class=\"help-block\">Please select VO that requested domain is part of.</p>");
