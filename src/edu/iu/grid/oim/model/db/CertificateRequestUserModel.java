@@ -203,6 +203,11 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 	}
 	//can a user renew the certificate immediately?
 	public boolean canRenew(CertificateRequestUserRecord rec, ArrayList<LogDetail> logs, ContactRecord contact) {
+		
+		//per Von's request https://docs.google.com/document/d/1hxKMIpW4vYecyzx_lg1eHk9RC2jjeyEyYNkj_jCFCWU/edit#
+		//I am disabling renew functionality until we implement re-key renew.
+		return false;
+		/*
 		if(!canView(rec)) return false;
 		
 		//only issued request can be renewed
@@ -246,6 +251,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 	
 		//all good
 		return true;
+		*/
 	}
 	
 	/*

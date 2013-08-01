@@ -2,17 +2,13 @@ package edu.iu.grid.oim.servlet;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.security.cert.CertificateException;
-import java.security.cert.X509Certificate;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Date;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.apache.log4j.Logger;
-import org.bouncycastle.cms.CMSException;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -22,7 +18,6 @@ import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.lib.StringArray;
 import edu.iu.grid.oim.model.CertificateRequestStatus;
 import edu.iu.grid.oim.model.UserContext;
-import edu.iu.grid.oim.model.cert.CertificateManager;
 import edu.iu.grid.oim.model.db.CertificateRequestModelBase;
 import edu.iu.grid.oim.model.db.CertificateRequestUserModel;
 import edu.iu.grid.oim.model.db.ConfigModel;
@@ -171,10 +166,6 @@ public class RestServlet extends ServletBase  {
 				doQuotaInfo(request, reply);
 			} else if(action.equals("user_info")) {
 				doUserInfo(request, reply);
-			/*
-			} else if(action.equals("host_cert_exsql")) {
-				doHostCertExSQL(request, reply);
-			*/
 			} else {
 				reply.status = Status.FAILED;
 				reply.detail = "No such action";
