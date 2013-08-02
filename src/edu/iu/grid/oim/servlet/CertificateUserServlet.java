@@ -46,6 +46,7 @@ import edu.iu.grid.oim.model.exceptions.CertificateRequestException;
 import edu.iu.grid.oim.view.BootBreadCrumbView;
 import edu.iu.grid.oim.view.BootMenuView;
 import edu.iu.grid.oim.view.BootPage;
+import edu.iu.grid.oim.view.BootTabView;
 import edu.iu.grid.oim.view.CertificateMenuView;
 import edu.iu.grid.oim.view.GenericView;
 import edu.iu.grid.oim.view.HtmlView;
@@ -298,7 +299,7 @@ public class CertificateUserServlet extends ServletBase  {
 					//HttpSession session = context.getSession();
 
 					if(model.getPrivateKey(rec.id) != null) {
-						out.write("<p><a class=\"btn btn-primary\" href=\"certificatedownload?id="+rec.id+"&type=user&download=pkcs12\">Download Certificate &amp; Private Key (PKCS12)</a></p>");
+						out.write("<p><a class=\"btn btn-primary btn-large\" href=\"certificatedownload?id="+rec.id+"&type=user&download=pkcs12\">Download Certificate &amp; Private Key (PKCS12)</a></p>");
 						//out.write("<a class=\"btn btn-primary\" href=\"certificatedownload?id="+rec.id+"&type=user&download=pem12\">Download Certificate &amp; Private Key (PEM)</a>");
 						out.write("<p class=\"alert alert-error\">You need to download your certificate and private key now, while your browser session is active. When your session times out, the server will delete your private key for security reasons and you will need to request a new certificate.</p>");
 						
@@ -448,7 +449,7 @@ public class CertificateUserServlet extends ServletBase  {
 		GenericView v = new GenericView();
 		
 		final CertificateRequestUserModel model = new CertificateRequestUserModel(context);
-		
+		/*
 		if(	//rec.status.equals(CertificateRequestStatus.RENEW_REQUESTED) ||
 			rec.status.equals(CertificateRequestStatus.REQUESTED)) {
 			v.add(new HtmlView("<p class=\"alert alert-info\">RA to approve certificate request</p>"));
@@ -471,18 +472,22 @@ public class CertificateUserServlet extends ServletBase  {
 		} else if(rec.status.equals(CertificateRequestStatus.ISSUING)) {
 			v.add(new HtmlView("<p class=\"alert alert-info\">Please wait for a fews seconds.</p>"));
 		}
+		*/
 		
 		final String url = "certificateuser?id="+rec.id;
-		
-		final DivRepTextArea note = new DivRepTextArea(context.getPageRoot());
-		note.setHeight(40);
-		note.setSampleValue("Action Note");
-		note.setRequired(true);
-		note.setHidden(true);
-		v.add(note);
+	
+		BootTabView tabview = new BootTabView();
 
 		//controls
 		if(model.canApprove(rec)) {
+			GenericView pane = new GenericView();
+			
+			final DivRepTextArea note = new DivRepTextArea(context.getPageRoot());
+			note.setHeight(40);
+			note.setSampleValue("Action Note");
+			note.setRequired(true);
+			pane.add(note);
+			
 			final DivRepButton button = new DivRepButton(context.getPageRoot(), "<button class=\"btn btn-primary\"><i class=\"icon-ok icon-white\"></i> Approve</button>");
 			button.setStyle(DivRepButton.Style.HTML);
 			button.addClass("inline");
@@ -535,21 +540,66 @@ public class CertificateUserServlet extends ServletBase  {
                 	}
                 }
             });
-			v.add(button);
-			note.setHidden(false);
+			pane.add(button);
+			tabview.addtab("Approve", pane);
 		}
 		if(model.canRenew(rec, logs)) {
+			GenericView pane = new GenericView();
+			
+			pane.add(new HtmlView("<p class=\"help-block\">Please choose a password to encrypt your certificate / private key</p>"));
+			
+			final DivRepPassword pass = new DivRepPassword(context.getPageRoot());
+			pass.setLabel("Password");
+			pass.setRequired(true);
+			pass.addValidator(new PKIPassStrengthValidator());
+			pane.add(pass);
+			
+			final DivRepPassword pass_confirm = new DivRepPassword(context.getPageRoot());
+			pass.addEventListener(new DivRepEventListener() {
+				@Override
+				public void handleEvent(DivRepEvent event) {
+					if(pass_confirm.getValue() != null) {
+						pass_confirm.validate();
+					}
+				}
+			});
+			pass_confirm.setLabel("Re-enter password");
+			pass_confirm.setRequired(true);
+			pass_confirm.addValidator(new DivRepIValidator<String>() {
+				String message;
+				@Override
+				public Boolean isValid(String value) {
+					if(value.equals(pass.getValue())) return true;
+					message = "Password does not match";
+					return false;
+				}
+
+				@Override
+				public String getErrorMessage() {
+					return message;
+				}
+			});
+			pane.add(pass_confirm);
+			
+			/*
+			final DivRepTextArea note = new DivRepTextArea(context.getPageRoot());
+			note.setHeight(40);
+			note.setSampleValue("Action Note");
+			note.setRequired(true);
+			pane.add(note);
+			*/
+			
 			final DivRepButton button = new DivRepButton(context.getPageRoot(), "<button class=\"btn btn-success\"><i class=\"icon-refresh icon-white\"></i> Renew</button>");
 			button.setStyle(DivRepButton.Style.HTML);
 			button.addClass("inline");
 			button.addEventListener(new DivRepEventListener() {
                 public void handleEvent(DivRepEvent event) {
-                	if(note.validate()) {
-                		context.setComment(note.getValue());
+                	if(pass.validate() && pass_confirm.validate()) {
+                		context.setComment("User requesting / issueing new user certificate");
                 		try {
                 			//check access again - request status might have changed
                 			if(model.canRenew(rec, logs)) {
-                				model.renew(rec);
+                				model.renew(rec, pass.getValue());
                 			} else {
                 				button.alert("Reques status has changed. Please reload.");
                 			}
@@ -564,8 +614,8 @@ public class CertificateUserServlet extends ServletBase  {
                 	}
                 }
             });
-			v.add(button);
-			note.setHidden(false);
+			pane.add(button);
+			tabview.addtab("Renew", pane);
 		}
 		/*
 		if(model.canRequestRenew(rec, logs)) {
@@ -590,6 +640,14 @@ public class CertificateUserServlet extends ServletBase  {
 		}
 		*/
 		if(model.canRequestRevoke(rec)) {
+			GenericView pane = new GenericView();
+			
+			final DivRepTextArea note = new DivRepTextArea(context.getPageRoot());
+			note.setHeight(40);
+			note.setSampleValue("Action Note");
+			note.setRequired(true);
+			pane.add(note);
+			
 			final DivRepButton button = new DivRepButton(context.getPageRoot(), "<button class=\"btn btn-primary\"><i class=\"icon-exclamation-sign icon-white\"></i> Request Revocation</button>");
 			button.setStyle(DivRepButton.Style.HTML);
 			button.addClass("inline");
@@ -615,27 +673,32 @@ public class CertificateUserServlet extends ServletBase  {
                 	}
                 }
             });
-			v.add(button);
-			note.setHidden(false);
+			pane.add(button);
+			tabview.addtab("Request Revoke", pane);
 		}
 		if(model.canIssue(rec)) {
-			if(rec.requester_passphrase == null) {
-				v.add(new HtmlView("<p class=\"help-block\">Please choose a password to encrypt your private key</p>"));
-			} else {
-				v.add(new HtmlView("<p class=\"help-block\">Please enter the password you chose during a request submission to retrieve your certificate & encrypt your private key. If you don't remember, please read <a target=\"_blank\" href=\"https://confluence.grid.iu.edu/display/CENTRAL/Forgot+retrieval+password\">this doc.</a></p>"));
-			}
+			GenericView pane = new GenericView();
 			
+			//password
+			if(rec.requester_passphrase == null) {
+				pane.add(new HtmlView("<p class=\"help-block\">Please choose a password to encrypt your certificate / private key</p>"));
+			} else {
+				pane.add(new HtmlView("<p class=\"help-block\">Please enter the password you chose during a request submission to retrieve your certificate & encrypt your private key. If you don't remember, please read <a target=\"_blank\" href=\"https://confluence.grid.iu.edu/display/CENTRAL/Forgot+retrieval+password\">this doc.</a></p>"));
+			}
 			final DivRepPassword pass = new DivRepPassword(context.getPageRoot());
 			pass.setLabel("Password");
 			pass.setRequired(true);
-			v.add(pass);
+			pane.add(pass);
+			
+			final DivRepPassword pass_confirm = new DivRepPassword(context.getPageRoot());
+			pass_confirm.setLabel("Re-enter password");
+			pass_confirm.setHidden(true);
 			
 			if(rec.requester_passphrase == null) {
 				//new password - need to validate
 				pass.addValidator(new PKIPassStrengthValidator());
 				
 				//let user confirm the new password.
-				final DivRepPassword pass_confirm = new DivRepPassword(context.getPageRoot());
 				pass.addEventListener(new DivRepEventListener() {
 					@Override
 					public void handleEvent(DivRepEvent event) {
@@ -644,7 +707,7 @@ public class CertificateUserServlet extends ServletBase  {
 						}
 					}
 				});
-				pass_confirm.setLabel("Re-enter password");
+				pass_confirm.setHidden(false);
 				pass_confirm.addValidator(new DivRepIValidator<String>() {
 					String message;
 					@Override
@@ -657,9 +720,10 @@ public class CertificateUserServlet extends ServletBase  {
 					@Override
 					public String getErrorMessage() {
 						return message;
-					}});
+					}
+				});
 				pass_confirm.setRequired(true);
-				v.add(pass_confirm);
+				pane.add(pass_confirm);
 			} else {
 				pass.addValidator(new DivRepIValidator<String>(){
 					@Override
@@ -677,12 +741,20 @@ public class CertificateUserServlet extends ServletBase  {
 					}});
 			}
 			
+			/*
+			final DivRepTextArea note = new DivRepTextArea(context.getPageRoot());
+			note.setHeight(40);
+			note.setSampleValue("Action Note");
+			note.setRequired(true);
+			pane.add(note);
+			*/
+			
 			final DivRepButton button = new DivRepButton(context.getPageRoot(), "<button class=\"btn btn-primary\"><i class=\"icon-download-alt icon-white\"></i> Issue Certificate ...</button>");
 			button.setStyle(DivRepButton.Style.HTML);
 			button.addClass("inline");
 			button.addEventListener(new DivRepEventListener() {
                 public void handleEvent(DivRepEvent event) {
-                	if(pass.validate()) {
+                	if(pass.validate() && pass_confirm.validate()) {
                 		context.setComment("User requested to issue certificate");
                 		//start process thread 
                 		try {
@@ -704,18 +776,28 @@ public class CertificateUserServlet extends ServletBase  {
                 	}
                 }
             });
-			v.add(button);
+			pane.add(button);
+			tabview.addtab("Issue", pane);
 		}
 		if(model.canCancelWithPass(rec)) {
+			GenericView pane = new GenericView();
 			Authorization auth = context.getAuthorization();
 			
-			v.add(new HtmlView("<p class=\"help-block\">Please enter password used to submit this request in order to cancel this request.</p>"));
+			pane.add(new HtmlView("<p class=\"help-block\">Please enter password used to submit this request in order to cancel this request.</p>"));
 			final DivRepPassword pass = new DivRepPassword(context.getPageRoot());
 			pass.setLabel("Password");
 			pass.setRequired(true);
 			//pass.addValidator(new PKIPassStrengthValidator());
-			v.add(pass);
+			pane.add(pass);
 						
+			/*
+			final DivRepTextArea note = new DivRepTextArea(context.getPageRoot());
+			note.setHeight(40);
+			note.setSampleValue("Action Note");
+			note.setRequired(true);
+			pane.add(note);
+			*/
+			
 			final DivRepButton button = new DivRepButton(context.getPageRoot(), "<button class=\"btn btn-primary\"><i class=\"icon-download-alt icon-white\"></i> Cancel Request</button>");
 			button.setStyle(DivRepButton.Style.HTML);
 			button.addClass("inline");
@@ -744,38 +826,56 @@ public class CertificateUserServlet extends ServletBase  {
                 	}
                 }
             });
-			v.add(button);
-			//note.setHidden(false);
+			pane.add(button);
+			tabview.addtab("Cancel", pane);
 		}
 		if(model.canCancel(rec)) {
+			GenericView pane = new GenericView();
+			
+			final DivRepTextArea note = new DivRepTextArea(context.getPageRoot());
+			note.setHeight(40);
+			note.setSampleValue("Action Note");
+			note.setRequired(true);
+			pane.add(note);
+			
 			final DivRepButton button = new DivRepButton(context.getPageRoot(), "<button class=\"btn\">Cancel Request</button>");
 			button.setStyle(DivRepButton.Style.HTML);
 			button.addClass("inline");
 			button.addEventListener(new DivRepEventListener() {
                 public void handleEvent(DivRepEvent event) {
-                	context.setComment("Submitter or RA canceled request.");	
-                	try {
-            			//check access again - request status might have changed
-	        			if(model.canCancel(rec)) {
-	                    	model.cancel(rec);
-	        			} else {
-	        				button.alert("Reques status has changed. Please reload.");
-	        			}
-	                 	button.redirect(url);
-                	} catch(CertificateRequestException ex) {
-                		log.warn("CertificateRequestException while canceling certificate request:", ex);
-            			String message = "Failed to cancel request: " + ex.getMessage();
-            			if(ex.getCause() != null) {
-            				message += "\n\n" + ex.getCause().getMessage();
-            			}
-                		button.alert(message);
+                	if(note.validate()) {
+                		context.setComment(note.getValue());
+	                	try {
+	            			//check access again - request status might have changed
+		        			if(model.canCancel(rec)) {
+		                    	model.cancel(rec);
+		        			} else {
+		        				button.alert("Reques status has changed. Please reload.");
+		        			}
+		                 	button.redirect(url);
+	                	} catch(CertificateRequestException ex) {
+	                		log.warn("CertificateRequestException while canceling certificate request:", ex);
+	            			String message = "Failed to cancel request: " + ex.getMessage();
+	            			if(ex.getCause() != null) {
+	            				message += "\n\n" + ex.getCause().getMessage();
+	            			}
+	                		button.alert(message);
+	                	}
                 	}
                 }
             });
-			v.add(button);
-			//note.setHidden(false);
+			pane.add(button);
+			tabview.addtab("Cancel", pane);
 		}
 		if(model.canReject(rec)) {
+			GenericView pane = new GenericView();
+			
+			final DivRepTextArea note = new DivRepTextArea(context.getPageRoot());
+			note.setHeight(40);
+			note.setSampleValue("Action Note");
+			note.setRequired(true);
+			pane.add(note);
+		
 			final DivRepButton button = new DivRepButton(context.getPageRoot(), "<button class=\"btn btn-danger\"><i class=\"icon-remove icon-white\"></i> Reject Request</button>");
 			button.setStyle(DivRepButton.Style.HTML);
 			button.addClass("inline");
@@ -802,10 +902,18 @@ public class CertificateUserServlet extends ServletBase  {
                 	}
                 }
             });
-			v.add(button);
-			note.setHidden(false);
+			pane.add(button);
+			tabview.addtab("Reject", pane);
 		}
 		if(model.canRevoke(rec)) {
+			GenericView pane = new GenericView();
+			
+			final DivRepTextArea note = new DivRepTextArea(context.getPageRoot());
+			note.setHeight(40);
+			note.setSampleValue("Action Note");
+			note.setRequired(true);
+			pane.add(note);
+			
 			final DivRepButton button = new DivRepButton(context.getPageRoot(), "<button class=\"btn btn-danger\"><i class=\"icon-exclamation-sign icon-white\"></i> Revoke</button>");
 			button.setStyle(DivRepButton.Style.HTML);
 			button.addClass("inline");
@@ -834,19 +942,26 @@ public class CertificateUserServlet extends ServletBase  {
                 	}
                 }
             });
-			v.add(button);
-			note.setHidden(false);
+			pane.add(button);
+			tabview.addtab("Revoke", pane);
 		}
+		
 		if(model.canReRequest(rec)) {
 			final Authorization auth = context.getAuthorization();
+			GenericView pane = new GenericView();
 			
 			//allow guest to re-request with retrieval password
 			final ChoosePassword pass = new ChoosePassword(context.getPageRoot(), context);
 			if(!auth.isUser()) {
-				//v.add(new HtmlView("<h3>Choose Password</h3>"));
-				v.add(new HtmlView("<p class=\"help-block\">If you are the original requester of this request, you can re-request to issue another certificate with the same CN.</p>"));
-				v.add(pass);
+				pane.add(new HtmlView("<p class=\"help-block\">If you are the original requester of this request, you can re-request to issue another certificate with the same CN.</p>"));
+				pane.add(pass);
 			}
+			
+			final DivRepTextArea note = new DivRepTextArea(context.getPageRoot());
+			note.setHeight(40);
+			note.setSampleValue("Action Note");
+			note.setRequired(true);
+			pane.add(note);
 			
 			final DivRepButton button = new DivRepButton(context.getPageRoot(), "<button class=\"btn btn-primary\"><i class=\"icon-refresh icon-white\"></i> Re-request</button>");
 			button.setStyle(DivRepButton.Style.HTML);
@@ -875,10 +990,15 @@ public class CertificateUserServlet extends ServletBase  {
                 	}
                 }
             });
-			v.add(button);
-			note.setHidden(false);
+			pane.add(button);
+			tabview.addtab("Re-Request", pane);
 		}
 		
+		if(tabview.size() == 0) {
+			v.add(new HtmlView("<p class=\"alert alert-warning\">You can not perform any action on this certificate. Please contact GOC for assistance.</p>"));
+		}
+		
+		v.add(tabview);
 		return v;
 	}
 	
@@ -943,7 +1063,6 @@ public class CertificateUserServlet extends ServletBase  {
 				out.write("</div>");//content
 			}
 		};
-
 	}
 
 }

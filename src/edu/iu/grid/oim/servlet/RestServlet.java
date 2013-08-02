@@ -1,7 +1,12 @@
 package edu.iu.grid.oim.servlet;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
@@ -511,6 +516,12 @@ public class RestServlet extends ServletBase  {
 			serial_id = dirty_serial_id.replaceAll("/[^A-Z0-9 ]/", "");
 		}
 		
+		String dirty_password = request.getParameter("password");
+		String password = null;
+		if(dirty_password != null) {
+			password = dirty_password.replaceAll("[^\\x00-\\x7F]", "");//replace all non-ascii
+		}
+		
 		//set comment
 		String request_comment = request.getParameter("request_comment");
 		if(request_comment == null) {
@@ -540,7 +551,7 @@ public class RestServlet extends ServletBase  {
 			*/
 			
 			if(model.canRenew(rec, logs)) {
-				model.renew(rec);
+				model.renew(rec, password);
 				reply.params.put("request_id", rec.id);
 			} else {
 				throw new AuthorizationException("You are not authorized to renew this certificate, or condition of the user certificate currently does not allow you to renew this certificate.");
@@ -567,6 +578,27 @@ public class RestServlet extends ServletBase  {
 				reply.params.put("pkcs7", rec.cert_pkcs7);
 				reply.params.put("certificate", rec.cert_certificate);
 				reply.params.put("intermediate", rec.cert_intermediate);
+				if(model.getPrivateKey(rec.id) != null) {
+					KeyStore p12 = model.getPkcs12(rec);
+					if(p12 == null) {
+						throw new RestException("Failed to create pkcs12 for download");
+					} else {
+						try {
+							String password = model.getPassword(rec.id);
+							ByteArrayOutputStream os = new ByteArrayOutputStream();
+							p12.store(os, password.toCharArray());
+							reply.params.put("pkcs12", os.toString());
+						} catch (KeyStoreException e) {
+							throw new RestException("KeyStoreException while outputing pkcs12", e);
+						} catch (NoSuchAlgorithmException e) {
+							throw new RestException("NoSuchAlgorithmException while outputing pkcs12", e);
+						} catch (CertificateException e) {
+							throw new RestException("CertificateException while outputing pkcs12", e);
+						} catch (IOException e) {
+							throw new RestException("IOException while outputing pkcs12", e);
+						}
+					}
+				}
 			} else if(rec.status.equals(CertificateRequestStatus.ISSUING)) {
 				reply.status = Status.PENDING;
 			} else {

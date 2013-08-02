@@ -203,11 +203,12 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 	}
 	//can a user renew the certificate immediately?
 	public boolean canRenew(CertificateRequestUserRecord rec, ArrayList<LogDetail> logs, ContactRecord contact) {
-		
+		/*
 		//per Von's request https://docs.google.com/document/d/1hxKMIpW4vYecyzx_lg1eHk9RC2jjeyEyYNkj_jCFCWU/edit#
 		//I am disabling renew functionality until we implement re-key renew.
 		return false;
-		/*
+		*/
+		
 		if(!canView(rec)) return false;
 		
 		//only issued request can be renewed
@@ -251,7 +252,6 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 	
 		//all good
 		return true;
-		*/
 	}
 	
 	/*
@@ -443,6 +443,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 			if(auth.isUser()) {
 				ContactRecord contact = auth.getContact();
 				ticket.description = contact.name + " has canceled this certificate request.\n\n";
+				ticket.description += "> " + context.getComment();
 			} else {
 				ticket.description = "guest shouldn't be canceling";
 			}
@@ -630,7 +631,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 	}
 	
 	//go directly from ISSUED > ISSUEING
-	public void renew(final CertificateRequestUserRecord rec) throws CertificateRequestException {		
+	public void renew(final CertificateRequestUserRecord rec, String password) throws CertificateRequestException {		
 		
 		//check quota
     	CertificateQuotaModel quota = new CertificateQuotaModel(context);
@@ -645,7 +646,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 		if(auth.isUser()) {
 			ContactRecord contact = auth.getContact();
 			ticket.description = contact.name + " is renewing user certificate.\n\n";
-			ticket.description += "> " + context.getComment();
+			//ticket.description += "> " + context.getComment();
 		} else {
 			throw new CertificateRequestException("guest can't renew");
 		}
@@ -659,13 +660,14 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
     	rec.cert_pkcs7 = null;
     	rec.cert_serial_id = null;
     	*/
+		rec.csr = null; //this will cause startissue() to regenerate private key & CSR
 		
-    	//we don't need passphrase - only requester can renew, and we are not creating private key
+		//renew is only for authenticated user - no need for passphrase
     	rec.requester_passphrase = null;
     	rec.requester_passphrase_salt = null;
     	
     	//start issuing immediately
-		startissue(rec, null);
+		startissue(rec, password);
 		
 		//increment quota
 		try {
