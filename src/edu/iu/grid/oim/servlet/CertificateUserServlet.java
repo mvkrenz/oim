@@ -484,7 +484,8 @@ public class CertificateUserServlet extends ServletBase  {
 			
 			final DivRepTextArea note = new DivRepTextArea(context.getPageRoot());
 			note.setHeight(40);
-			note.setSampleValue("Action Note");
+			note.setLabel("Note");
+			note.setSampleValue("Details for this action.");
 			note.setRequired(true);
 			pane.add(note);
 			
@@ -581,14 +582,6 @@ public class CertificateUserServlet extends ServletBase  {
 			});
 			pane.add(pass_confirm);
 			
-			/*
-			final DivRepTextArea note = new DivRepTextArea(context.getPageRoot());
-			note.setHeight(40);
-			note.setSampleValue("Action Note");
-			note.setRequired(true);
-			pane.add(note);
-			*/
-			
 			final DivRepButton button = new DivRepButton(context.getPageRoot(), "<button class=\"btn btn-success\"><i class=\"icon-refresh icon-white\"></i> Renew</button>");
 			button.setStyle(DivRepButton.Style.HTML);
 			button.addClass("inline");
@@ -644,7 +637,8 @@ public class CertificateUserServlet extends ServletBase  {
 			
 			final DivRepTextArea note = new DivRepTextArea(context.getPageRoot());
 			note.setHeight(40);
-			note.setSampleValue("Action Note");
+			note.setLabel("Note");
+			note.setSampleValue("Details for this action.");
 			note.setRequired(true);
 			pane.add(note);
 			
@@ -740,15 +734,7 @@ public class CertificateUserServlet extends ServletBase  {
 						return "Passphrase is incorrect!";
 					}});
 			}
-			
-			/*
-			final DivRepTextArea note = new DivRepTextArea(context.getPageRoot());
-			note.setHeight(40);
-			note.setSampleValue("Action Note");
-			note.setRequired(true);
-			pane.add(note);
-			*/
-			
+						
 			final DivRepButton button = new DivRepButton(context.getPageRoot(), "<button class=\"btn btn-primary\"><i class=\"icon-download-alt icon-white\"></i> Issue Certificate ...</button>");
 			button.setStyle(DivRepButton.Style.HTML);
 			button.addClass("inline");
@@ -790,14 +776,6 @@ public class CertificateUserServlet extends ServletBase  {
 			//pass.addValidator(new PKIPassStrengthValidator());
 			pane.add(pass);
 						
-			/*
-			final DivRepTextArea note = new DivRepTextArea(context.getPageRoot());
-			note.setHeight(40);
-			note.setSampleValue("Action Note");
-			note.setRequired(true);
-			pane.add(note);
-			*/
-			
 			final DivRepButton button = new DivRepButton(context.getPageRoot(), "<button class=\"btn btn-primary\"><i class=\"icon-download-alt icon-white\"></i> Cancel Request</button>");
 			button.setStyle(DivRepButton.Style.HTML);
 			button.addClass("inline");
@@ -834,7 +812,8 @@ public class CertificateUserServlet extends ServletBase  {
 			
 			final DivRepTextArea note = new DivRepTextArea(context.getPageRoot());
 			note.setHeight(40);
-			note.setSampleValue("Action Note");
+			note.setLabel("Note");
+			note.setSampleValue("Details for this action.");
 			note.setRequired(true);
 			pane.add(note);
 			
@@ -872,7 +851,8 @@ public class CertificateUserServlet extends ServletBase  {
 			
 			final DivRepTextArea note = new DivRepTextArea(context.getPageRoot());
 			note.setHeight(40);
-			note.setSampleValue("Action Note");
+			note.setLabel("Note");
+			note.setSampleValue("Details for this action.");
 			note.setRequired(true);
 			pane.add(note);
 		
@@ -910,7 +890,8 @@ public class CertificateUserServlet extends ServletBase  {
 			
 			final DivRepTextArea note = new DivRepTextArea(context.getPageRoot());
 			note.setHeight(40);
-			note.setSampleValue("Action Note");
+			note.setLabel("Note");
+			note.setSampleValue("Details for this action.");
 			note.setRequired(true);
 			pane.add(note);
 			
@@ -959,7 +940,8 @@ public class CertificateUserServlet extends ServletBase  {
 			
 			final DivRepTextArea note = new DivRepTextArea(context.getPageRoot());
 			note.setHeight(40);
-			note.setSampleValue("Action Note");
+			note.setLabel("Note");
+			note.setSampleValue("Details for this action.");
 			note.setRequired(true);
 			pane.add(note);
 			

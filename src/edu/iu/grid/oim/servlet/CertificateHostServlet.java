@@ -34,6 +34,7 @@ import edu.iu.grid.oim.model.exceptions.CertificateRequestException;
 import edu.iu.grid.oim.view.BootBreadCrumbView;
 import edu.iu.grid.oim.view.BootMenuView;
 import edu.iu.grid.oim.view.BootPage;
+import edu.iu.grid.oim.view.BootTabView;
 import edu.iu.grid.oim.view.CertificateMenuView;
 import edu.iu.grid.oim.view.GenericView;
 import edu.iu.grid.oim.view.HostCertificateTable;
@@ -326,6 +327,7 @@ public class CertificateHostServlet extends ServletBase  {
 	protected GenericView nextActionControl(final UserContext context, final CertificateRequestHostRecord rec) {
 		GenericView v = new GenericView();
 		
+		/*
 		if( //rec.status.equals(CertificateRequestStatus.RENEW_REQUESTED) ||
 			rec.status.equals(CertificateRequestStatus.REQUESTED)) {
 				v.add(new HtmlView("<p class=\"alert alert-info\">GridAdmin to approve request</p>"));
@@ -345,18 +347,24 @@ public class CertificateHostServlet extends ServletBase  {
 			} else if(rec.status.equals(CertificateRequestStatus.ISSUING)) {
 				v.add(new HtmlView("<p class=\"alert alert-info\">Please wait for a minute for signer to sign.</p>"));
 			}
+		*/
 		
 		final String url = "certificatehost?id="+rec.id;
 		
-		final DivRepTextArea note = new DivRepTextArea(context.getPageRoot());
-		note.setSampleValue("Action Note");
-		note.setRequired(true);
-		note.setHidden(true);
-		v.add(note);
+		BootTabView tabview = new BootTabView();
 		
 		//controls
 		final CertificateRequestHostModel model = new CertificateRequestHostModel(context);
 		if(model.canApprove(rec)) {
+			GenericView pane = new GenericView();
+			
+			final DivRepTextArea note = new DivRepTextArea(context.getPageRoot());
+			note.setHeight(40);
+			note.setLabel("Note");
+			note.setSampleValue("Details for this action.");
+			note.setRequired(true);
+			pane.add(note);
+			
 			final DivRepButton button = new DivRepButton(context.getPageRoot(), "<button class=\"btn btn-primary\"><i class=\"icon-ok icon-white\"></i> Approve</button>");
 			button.setStyle(DivRepButton.Style.HTML);
 			button.addClass("inline");
@@ -379,8 +387,8 @@ public class CertificateHostServlet extends ServletBase  {
                 	}
                 }
             });
-			note.setHidden(false);
-			v.add(button);
+			pane.add(button);
+			tabview.addtab("Approve", pane);
 		}
 		/*
 		if(model.canRequestRenew(rec)) {
@@ -406,6 +414,15 @@ public class CertificateHostServlet extends ServletBase  {
 		*/
 		
 		if(model.canRequestRevoke(rec)) {
+			GenericView pane = new GenericView();
+			
+			final DivRepTextArea note = new DivRepTextArea(context.getPageRoot());
+			note.setHeight(40);
+			note.setLabel("Note");
+			note.setSampleValue("Details for this action.");
+			note.setRequired(true);
+			pane.add(note);
+			
 			final DivRepButton button = new DivRepButton(context.getPageRoot(), "<button class=\"btn btn-primary\"><i class=\"icon-exclamation-sign icon-white\"></i> Request Revocation</button>");
 			button.setStyle(DivRepButton.Style.HTML);
 			button.addClass("inline");
@@ -428,11 +445,13 @@ public class CertificateHostServlet extends ServletBase  {
                 	}
                 }
             });
-			v.add(button);
-			note.setHidden(false);
+			pane.add(button);
+			tabview.addtab("Revoke", pane);
 		}
 		
 		if(model.canIssue(rec)) {
+			GenericView pane = new GenericView();
+			
 			final DivRepButton button = new DivRepButton(context.getPageRoot(), "<button class=\"btn btn-primary\"><i class=\"icon-download-alt icon-white\"></i> Issue Certificates</button>");
 			button.setStyle(DivRepButton.Style.HTML);
 			button.addClass("inline");
@@ -452,33 +471,56 @@ public class CertificateHostServlet extends ServletBase  {
                 	}
                 }
             });
-			v.add(button);
+			pane.add(button);
+			tabview.addtab("Issue", pane);
 		}
 		
 		if(model.canCancel(rec)) {
+			GenericView pane = new GenericView();
+			
+			final DivRepTextArea note = new DivRepTextArea(context.getPageRoot());
+			note.setHeight(40);
+			note.setLabel("Note");
+			note.setSampleValue("Details for this action.");
+			note.setRequired(true);
+			pane.add(note);
+			
 			final DivRepButton button = new DivRepButton(context.getPageRoot(), "<button class=\"btn\">Cancel Request</button>");
 			button.setStyle(DivRepButton.Style.HTML);
 			button.addClass("inline");
 			button.addEventListener(new DivRepEventListener() {
                 public void handleEvent(DivRepEvent event) {
-            		context.setComment(note.getValue());
-                	try {
-               			//check access again - request status might have changed
-                		if(model.canCancel(rec)) {
-                			model.cancel(rec);
-                		} else {
-	        				button.alert("Reques status has changed. Please reload.");
-                		}
-                		button.redirect(url);
-                	} catch (CertificateRequestException e) {
-						log.error("Failed to cancel host certificate", e);
-						button.alert(e.getMessage());
+                	if(note.validate()) {
+	            		context.setComment(note.getValue());
+	                	try {
+	               			//check access again - request status might have changed
+	                		if(model.canCancel(rec)) {
+	                			model.cancel(rec);
+	                		} else {
+		        				button.alert("Reques status has changed. Please reload.");
+	                		}
+	                		button.redirect(url);
+	                	} catch (CertificateRequestException e) {
+							log.error("Failed to cancel host certificate", e);
+							button.alert(e.getMessage());
+	                	}
                 	}
                 }
             });
-			v.add(button);
+			pane.add(button);
+			tabview.addtab("Cancel", pane);
 		}
+		
 		if(model.canReject(rec)) {
+			GenericView pane = new GenericView();
+			
+			final DivRepTextArea note = new DivRepTextArea(context.getPageRoot());
+			note.setHeight(40);
+			note.setLabel("Note");
+			note.setSampleValue("Details for this action.");
+			note.setRequired(true);
+			pane.add(note);
+			
 			final DivRepButton button = new DivRepButton(context.getPageRoot(), "<button class=\"btn btn-danger\"><i class=\"icon-remove icon-white\"></i> Reject Request</button>");
 			button.setStyle(DivRepButton.Style.HTML);
 			button.addClass("inline");
@@ -501,10 +543,19 @@ public class CertificateHostServlet extends ServletBase  {
                 	}
                 }
             });
-			v.add(button);
-			note.setHidden(false);
+			pane.add(button);
+			tabview.addtab("Reject", pane);
 		}
 		if(model.canRevoke(rec)) {
+			GenericView pane = new GenericView();
+			
+			final DivRepTextArea note = new DivRepTextArea(context.getPageRoot());
+			note.setHeight(40);
+			note.setLabel("Note");
+			note.setSampleValue("Details for this action.");
+			note.setRequired(true);
+			pane.add(note);
+			
 			final DivRepButton button = new DivRepButton(context.getPageRoot(), "<button class=\"btn btn-danger\"><i class=\"icon-exclamation-sign icon-white\"></i> Revoke</button>");
 			button.setStyle(DivRepButton.Style.HTML);
 			button.addClass("inline");
@@ -527,9 +578,15 @@ public class CertificateHostServlet extends ServletBase  {
                 	}
                 }
             });
-			v.add(button);
-			note.setHidden(false);
+			pane.add(button);
+			tabview.addtab("Revoke", pane);
 		}
+		
+		if(tabview.size() == 0) {
+			v.add(new HtmlView("<p class=\"alert alert-warning\">You can not perform any action on this certificate. Please contact GOC for assistance.</p>"));
+		}
+		
+		v.add(tabview);
 		return v;
 	}
 	
