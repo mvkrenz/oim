@@ -37,6 +37,7 @@ import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.GridAdminRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
 import edu.iu.grid.oim.model.exceptions.CertificateRequestException;
+import edu.iu.grid.oim.view.divrep.form.validator.PKIPassStrengthValidator;
 
 public class RestServlet extends ServletBase  {
 	private static final long serialVersionUID = 1L;
@@ -520,6 +521,10 @@ public class RestServlet extends ServletBase  {
 		String password = null;
 		if(dirty_password != null) {
 			password = dirty_password.replaceAll("[^\\x00-\\x7F]", "");//replace all non-ascii
+			PKIPassStrengthValidator validator = new PKIPassStrengthValidator();
+			if(!validator.isValid(password)) {
+				throw new RestException("Password is too weak.");
+			}
 		}
 		
 		//set comment
