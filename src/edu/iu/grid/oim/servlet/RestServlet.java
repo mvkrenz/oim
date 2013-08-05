@@ -525,6 +525,8 @@ public class RestServlet extends ServletBase  {
 			if(!validator.isValid(password)) {
 				throw new RestException("Password is too weak.");
 			}
+		} else {
+			throw new RestException("Password parameter is missing.");
 		}
 		
 		//set comment
@@ -547,14 +549,7 @@ public class RestServlet extends ServletBase  {
 			}
 			
 			//load log
-			ArrayList<CertificateRequestModelBase<CertificateRequestUserRecord>.LogDetail> logs = model.getLogs(CertificateRequestUserModel.class, rec.id);
-			/*
-			LogDetail approve_log = model.getLastApproveLog(logs);
-			if(approve_log == null) {
-				throw new RestException("This user certificate has never been approved. Can't renew.");
-			}
-			*/
-			
+			ArrayList<CertificateRequestModelBase<CertificateRequestUserRecord>.LogDetail> logs = model.getLogs(CertificateRequestUserModel.class, rec.id);		
 			if(model.canRenew(rec, logs)) {
 				model.renew(rec, password);
 				reply.params.put("request_id", rec.id);
