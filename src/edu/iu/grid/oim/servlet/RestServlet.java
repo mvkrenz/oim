@@ -16,6 +16,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.apache.commons.codec.binary.Base64;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.AuthorizationException;
@@ -587,7 +588,10 @@ public class RestServlet extends ServletBase  {
 							String password = model.getPassword(rec.id);
 							ByteArrayOutputStream os = new ByteArrayOutputStream();
 							p12.store(os, password.toCharArray());
-							reply.params.put("pkcs12", os.toString());
+							
+							//base64 encode and set it to pkcs12 param
+							byte[] encoded = Base64.encodeBase64(os.toByteArray());
+							reply.params.put("pkcs12", new String(encoded));
 						} catch (KeyStoreException e) {
 							throw new RestException("KeyStoreException while outputing pkcs12", e);
 						} catch (NoSuchAlgorithmException e) {
