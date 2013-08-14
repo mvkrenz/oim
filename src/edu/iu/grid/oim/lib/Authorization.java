@@ -116,9 +116,9 @@ public class Authorization {
 		
 		String remoteaddr = request.getRemoteAddr();
 		log.debug("Request received from " + remoteaddr);
-		if(remoteaddr.equals("127.0.0.1")/* || remoteaddr.equals("0:0:0:0:0:0:0:1") || remoteaddr.startsWith("192.168.")*/) { 
-			usertype = UserType.LOCAL;
-		} else if(StaticConfig.isDebug() && remoteaddr.startsWith("192.168.")) {
+		
+		//need to support IPVS6 someday?
+		if(remoteaddr.equals("127.0.0.1") || remoteaddr.startsWith("192.168.")) {
 			usertype = UserType.LOCAL;
 		} else {
 			//figure out usertype from SSL ENV (if provided)
@@ -195,7 +195,7 @@ public class Authorization {
 		try {
 			InetAddress addr = InetAddress.getLocalHost();
 	        String hostname = addr.getHostName();
-			if(hostname.equals("t520") || hostname.equals("d830")) {
+			if(hostname.equals("t520") || hostname.equals("IU-EITS-LL011")) {
 				if(request.isSecure()) {
 					request.setAttribute("SSL_CLIENT_VERIFY", "SUCCESS");
 			
@@ -205,7 +205,7 @@ public class Authorization {
 					//user_dn = "/DC=org/DC=doegrids/OU=People/CN=Horst Severini 926890";
 					//request.setAttribute("SSL_CLIENT_S_DN", "/DC=org/DC=doegrids/OU=People/CN=christopher pipes 556895"); //disabled
 					
-					request.setAttribute("SSL_CLIENT_S_DN", "/DC=com/DC=DigiCert-Grid/O=Open Science Grid/OU=People/CN=Soichi Hayashi 238");
+					//request.setAttribute("SSL_CLIENT_S_DN", "/DC=com/DC=DigiCert-Grid/O=Open Science Grid/OU=People/CN=Soichi Hayashi 238");
 					//request.setAttribute("SSL_CLIENT_S_DN", "/DC=org/DC=doegrids/OU=People/CN=Tanya Levshina 508821");
 					
 					//request.setAttribute("SSL_CLIENT_S_DN", "/DC=com/DC=DigiCert-Grid/O=Open Science Grid/OU=People/CN=Alain Deximo 623");
