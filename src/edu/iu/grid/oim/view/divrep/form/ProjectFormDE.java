@@ -1,60 +1,40 @@
 package edu.iu.grid.oim.view.divrep.form;
 
-import java.io.PrintWriter;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 
 import org.apache.log4j.Logger;
 
-import com.divrep.DivRep;
-import com.divrep.DivRepEvent;
-import com.divrep.DivRepEventListener;
-import com.divrep.common.DivRepCheckBox;
 import com.divrep.common.DivRepForm;
-import com.divrep.common.DivRepFormElement;
 import com.divrep.common.DivRepSelectBox;
 import com.divrep.common.DivRepStaticContent;
 import com.divrep.common.DivRepTextArea;
 import com.divrep.common.DivRepTextBox;
 import com.divrep.validator.DivRepUniqueValidator;
-import com.divrep.validator.DivRepUrlValidator;
 
 import edu.iu.grid.oim.lib.Authorization;
-import edu.iu.grid.oim.lib.Footprints;
 import edu.iu.grid.oim.lib.AuthorizationException;
-
 import edu.iu.grid.oim.model.ContactRank;
 import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.UserContext.MessageType;
 import edu.iu.grid.oim.model.db.CampusGridModel;
-import edu.iu.grid.oim.model.db.ContactTypeModel;
 import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.FieldOfScienceModel;
 import edu.iu.grid.oim.model.db.ProjectModel;
 import edu.iu.grid.oim.model.db.ProjectPublicationModel;
-import edu.iu.grid.oim.model.db.ProjectUserModel;
 import edu.iu.grid.oim.model.db.VOModel;
 import edu.iu.grid.oim.model.db.record.CampusGridRecord;
-import edu.iu.grid.oim.model.db.record.ContactTypeRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.FieldOfScienceRecord;
 import edu.iu.grid.oim.model.db.record.ProjectPublicationRecord;
 import edu.iu.grid.oim.model.db.record.ProjectRecord;
-import edu.iu.grid.oim.model.db.record.ProjectUserRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
-
-import edu.iu.grid.oim.view.ToolTip;
-import edu.iu.grid.oim.view.divrep.AUPConfirmation;
-import edu.iu.grid.oim.view.divrep.Confirmation;
 import edu.iu.grid.oim.view.divrep.ContactEditor;
 import edu.iu.grid.oim.view.divrep.ProjectPublicationEditor;
-import edu.iu.grid.oim.view.divrep.ProjectUserEditor;
-import edu.iu.grid.oim.view.divrep.VOReportNames;
 import edu.iu.grid.oim.view.divrep.FieldOfScience;
 import edu.iu.grid.oim.view.divrep.form.validator.ProjectNameValidator;
 
@@ -76,6 +56,7 @@ public class ProjectFormDE extends DivRepForm
 	private FieldOfScience field_of_science_de;
 	private ProjectPublicationEditor publications;
 	//private ProjectUserEditor users;
+	private Timestamp submit_time;
 	
 	private DivRepTextArea comment;
 	
@@ -198,6 +179,8 @@ public class ProjectFormDE extends DivRepForm
 		*/
 			
 		new DivRepStaticContent(this, "<hr>");
+		
+		submit_time = rec.submit_time; //used to keep existing value
 
 		comment = new DivRepTextArea(this);
 		comment.setLabel("Update Comment");
@@ -282,6 +265,7 @@ public class ProjectFormDE extends DivRepForm
 				model.insertDetail(rec, publications.getPublications());
 				context.message(MessageType.SUCCESS, "Successfully created a new Project");
 			} else {
+				rec.submit_time = submit_time; //reset with existing value
 				model.updateDetail(rec, publications.getPublications());
 				context.message(MessageType.SUCCESS, "Successfully updated a Project.");
 			}

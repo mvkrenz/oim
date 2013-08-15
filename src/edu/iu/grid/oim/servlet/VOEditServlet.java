@@ -8,10 +8,13 @@ import javax.servlet.Servlet;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 import org.apache.log4j.Logger;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.model.UserContext;
+import edu.iu.grid.oim.model.db.ContactModel;
+import edu.iu.grid.oim.model.db.FieldOfScienceModel;
 import edu.iu.grid.oim.model.db.LogModel;
 import edu.iu.grid.oim.model.db.ProjectModel;
 import edu.iu.grid.oim.model.db.VOModel;
@@ -27,6 +30,7 @@ import edu.iu.grid.oim.view.HtmlView;
 import edu.iu.grid.oim.view.LogView;
 import edu.iu.grid.oim.view.ProjectView;
 import edu.iu.grid.oim.view.SideContentView;
+import edu.iu.grid.oim.view.divrep.FieldOfScience;
 import edu.iu.grid.oim.view.divrep.form.VOFormDE;
 
 public class VOEditServlet extends ServletBase implements Servlet {
@@ -118,7 +122,7 @@ public class VOEditServlet extends ServletBase implements Servlet {
 		
 		view.addRARequest(context, rec);	
 		if(projects != null) {
-			view.add(new ProjectView(projects));	
+			view.add(new ProjectView(projects, new ContactModel(context)));	
 			view.add(new HtmlView("<a href=\"projectedit?vo_id="+rec.id+"\" class=\"btn pull-right\"><i class=\"icon-plus-sign\"></i> Add New Project</a>"));
 			view.add(new HtmlView("<br clear=\"both\">"));
 		}

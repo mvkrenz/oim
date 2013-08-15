@@ -25,7 +25,7 @@ public class LogView implements IView {
 			for(LogRecord log : logs) {
 				String url = "log?type=3&id="+log.id;
 				if(first) {
-					out.write("<tr class=\"latest\" onclick=\"window.open('"+url+"', '_newtab');\">");
+					out.write("<tr class=\"latest\" onclick=\"document.location='"+url+"';\">");
 					first = false;
 				} else {
 					out.write("<tr onclick=\"document.location='"+url+"';\">");

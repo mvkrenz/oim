@@ -84,6 +84,7 @@ public class LogServlet extends ServletBase  {
 		modeltypes.add(new ModelType(".Site", "Site", "view_topology"));
 		modeltypes.add(new ModelType(".Facility", "Facility", "view_topology"));
 		modeltypes.add(new ModelType(".ResourceWLCG", "ResourceWLCG", "view_topology"));
+		modeltypes.add(new ModelType(".Project", "Project", "view_topology"));
 		modeltypes.add(new ModelType(".Action", "Action", "view_topology"));
 		modeltypes.add(new ModelType(".Authorization", "Authorization", "view_topology"));
 		modeltypes.add(new ModelType(".DN", "DN", "view_topology"));

@@ -399,7 +399,7 @@ public class VOServlet extends ServletBase implements Servlet {
 		try {
 			ProjectModel pmodel = new ProjectModel(context);
 			ArrayList<ProjectRecord> projects = pmodel.getByVOID(rec.id);
-			view.add(new ProjectView(projects));
+			view.add(new ProjectView(projects, new ContactModel(context)));
 		} catch (SQLException e) {
 			log.error("Failed to load projects", e);
 		}

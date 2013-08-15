@@ -12,7 +12,6 @@ import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 
 import edu.iu.grid.oim.model.UserContext;
-import edu.iu.grid.oim.model.db.VOModel.VOReport;
 import edu.iu.grid.oim.model.db.record.CampusGridContactRecord;
 import edu.iu.grid.oim.model.db.record.CampusGridRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
@@ -23,9 +22,6 @@ import edu.iu.grid.oim.model.db.record.RecordBase;
 import edu.iu.grid.oim.model.db.record.ProjectRecord;
 import edu.iu.grid.oim.model.db.record.VOContactRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
-import edu.iu.grid.oim.model.db.record.VOReportContactRecord;
-import edu.iu.grid.oim.model.db.record.VOReportNameFqanRecord;
-import edu.iu.grid.oim.model.db.record.VOReportNameRecord;
 
 public class ProjectModel extends SmallTableModelBase<ProjectRecord>
 {	

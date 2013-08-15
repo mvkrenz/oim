@@ -8,10 +8,13 @@ import javax.servlet.Servlet;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 import org.apache.log4j.Logger;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.model.UserContext;
+import edu.iu.grid.oim.model.db.ContactModel;
+import edu.iu.grid.oim.model.db.FieldOfScienceModel;
 import edu.iu.grid.oim.model.db.LogModel;
 import edu.iu.grid.oim.model.db.CampusGridModel;
 import edu.iu.grid.oim.model.db.ProjectModel;
@@ -98,11 +101,11 @@ public class CampusGridEditServlet extends ServletBase implements Servlet {
 		bread_crumb.addCrumb(rec.name,  null);
 		contentview.setBreadCrumb(bread_crumb);
 		
-		BootPage page = new BootPage(context, new BootMenuView(context, parent_page), contentview, createSideView(projects, logs, rec));
+		BootPage page = new BootPage(context, new BootMenuView(context, parent_page), contentview, createSideView(context, projects, logs, rec));
 		page.render(response.getWriter());	
 	}
 	
-	private SideContentView createSideView(ArrayList<ProjectRecord> projects, ArrayList<LogRecord> logs, CampusGridRecord rec)
+	private SideContentView createSideView(UserContext context, ArrayList<ProjectRecord> projects, ArrayList<LogRecord> logs, CampusGridRecord rec)
 	{
 		SideContentView view = new SideContentView();
 		if(rec.id != null) {
@@ -110,7 +113,7 @@ public class CampusGridEditServlet extends ServletBase implements Servlet {
 		}
 		
 		if(projects != null) {
-			view.add(new ProjectView(projects));	
+			view.add(new ProjectView(projects, new ContactModel(context)));	
 			view.add(new HtmlView("<a href=\"projectedit?cg_id="+rec.id+"\" class=\"btn pull-right\"><i class=\"icon-plus-sign\"></i> Add New Project</a>"));
 			view.add(new HtmlView("<br clear=\"both\">"));
 		}
