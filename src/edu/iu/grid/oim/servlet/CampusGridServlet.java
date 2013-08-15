@@ -16,6 +16,10 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 
+import com.divrep.common.DivRepLocationSelector;
+import com.divrep.common.DivRepLocationSelector.LatLng;
+
+import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.ContactRank;
 import edu.iu.grid.oim.model.db.CampusGridContactModel;
@@ -28,7 +32,6 @@ import edu.iu.grid.oim.model.db.FieldOfScienceModel;
 import edu.iu.grid.oim.model.db.ProjectModel;
 import edu.iu.grid.oim.model.db.ResourceModel;
 import edu.iu.grid.oim.model.db.ResourceServiceModel;
-
 import edu.iu.grid.oim.model.db.record.CampusGridContactRecord;
 import edu.iu.grid.oim.model.db.record.CampusGridFieldOfScienceRecord;
 import edu.iu.grid.oim.model.db.record.CampusGridRecord;
@@ -39,18 +42,17 @@ import edu.iu.grid.oim.model.db.record.FieldOfScienceRecord;
 import edu.iu.grid.oim.model.db.record.ProjectRecord;
 import edu.iu.grid.oim.model.db.record.ResourceRecord;
 import edu.iu.grid.oim.model.db.record.ResourceServiceRecord;
-
 import edu.iu.grid.oim.view.BootBreadCrumbView;
 import edu.iu.grid.oim.view.BootMenuView;
 import edu.iu.grid.oim.view.BootPage;
 import edu.iu.grid.oim.view.ContentView;
+import edu.iu.grid.oim.view.DivRepWrapper;
 import edu.iu.grid.oim.view.GenericView;
 import edu.iu.grid.oim.view.HtmlView;
 import edu.iu.grid.oim.view.IView;
 import edu.iu.grid.oim.view.ItemTableView;
 import edu.iu.grid.oim.view.ProjectView;
 import edu.iu.grid.oim.view.ToolTip;
-
 import edu.iu.grid.oim.view.RecordTableView;
 import edu.iu.grid.oim.view.SideContentView;
 import edu.iu.grid.oim.view.divrep.CampusGridSubmitNodes;
@@ -130,8 +132,14 @@ public class CampusGridServlet extends ServletBase implements Servlet {
 		
 		table.addRow("Submit Node FQDNS", getSubmitNodeFQDNs(context, rec.id));	
 		table.addRow("Field of Science", getFieldOfScience(context, rec.id));
-		table.addRow("Longitude", rec.longitude);
-		table.addRow("Latitude", rec.latitude);
+		
+		DivRepLocationSelector latlng = new DivRepLocationSelector(context.getPageRoot(), "images/target.png", StaticConfig.conf.getProperty("gmapapikey"));
+		latlng.setValue(latlng.new LatLng(rec.latitude, rec.longitude, 5));
+		latlng.setDisabled(true);
+		table.addRow("Location", new DivRepWrapper(latlng));
+		
+		//table.addRow("Longitude", rec.longitude);
+		//table.addRow("Latitude", rec.latitude);
 		
 		ContactTypeModel ctmodel = new ContactTypeModel(context);
 		//ontactRankModel crmodel = new ContactRankModel(context);
@@ -290,6 +298,7 @@ public class CampusGridServlet extends ServletBase implements Servlet {
 			log.error("Failed to load projects", e);
 		}
 		
+		view.addContactLegend();
 		return view;
 	}
 }

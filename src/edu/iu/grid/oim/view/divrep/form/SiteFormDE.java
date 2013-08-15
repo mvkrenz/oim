@@ -130,7 +130,7 @@ public class SiteFormDE extends DivRepForm
 		
 		//latlng = new LatLngSelector(this);
 		latlng = new DivRepLocationSelector(this, "images/target.png", StaticConfig.conf.getProperty("gmapapikey"));
-		latlng.setHttps(true);//should be always https
+		//latlng.setHttps(true);//should be always https
 		latlng.setLabel("Latitude / Longitude");
 		int zoom = 10;
 		if(rec.latitude == null || rec.longitude == null) {

@@ -22,6 +22,8 @@ import com.divrep.DivRep;
 import com.divrep.DivRepEvent;
 import com.divrep.DivRepRoot;
 import com.divrep.common.DivRepButton;
+import com.divrep.common.DivRepLocationSelector;
+import com.divrep.common.DivRepLocationSelector.LatLng;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.StaticConfig;
@@ -34,7 +36,6 @@ import edu.iu.grid.oim.model.db.SiteModel;
 import edu.iu.grid.oim.model.db.FacilityModel;
 import edu.iu.grid.oim.model.db.DNModel;
 import edu.iu.grid.oim.model.db.VOModel;
-
 import edu.iu.grid.oim.model.db.record.ContactTypeRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.SCRecord;
@@ -42,7 +43,6 @@ import edu.iu.grid.oim.model.db.record.SiteRecord;
 import edu.iu.grid.oim.model.db.record.FacilityRecord;
 import edu.iu.grid.oim.model.db.record.DNRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
-
 import edu.iu.grid.oim.view.BootBreadCrumbView;
 import edu.iu.grid.oim.view.BootMenuView;
 import edu.iu.grid.oim.view.BootPage;
@@ -126,8 +126,14 @@ public class SiteServlet extends ServletBase implements Servlet {
 		table.addRow("State", rec.state);
 		table.addRow("Zipcode", rec.zipcode);
 		table.addRow("Country", rec.country);
-		table.addRow("Longitude", rec.longitude);
-		table.addRow("Latitude", rec.latitude);
+		
+		DivRepLocationSelector latlng = new DivRepLocationSelector(context.getPageRoot(), "images/target.png", StaticConfig.conf.getProperty("gmapapikey"));
+		latlng.setValue(latlng.new LatLng(rec.latitude, rec.longitude, 5));
+		latlng.setDisabled(true);
+		table.addRow("Location", new DivRepWrapper(latlng));
+		//table.addRow("Longitude", rec.longitude);
+		//table.addRow("Latitude", rec.latitude);
+		
 		table.addRow("Facility", getFacilityName(context, rec.facility_id));
 		table.addRow("Support Center", getSCName(context, rec.sc_id));
 		table.addRow("Active", rec.active);
