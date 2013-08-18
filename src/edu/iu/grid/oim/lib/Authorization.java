@@ -1,6 +1,5 @@
 package edu.iu.grid.oim.lib;
 
-/*changed*/
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.sql.SQLException;
