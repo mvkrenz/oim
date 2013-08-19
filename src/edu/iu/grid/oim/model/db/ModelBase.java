@@ -214,18 +214,18 @@ public abstract class ModelBase<T extends RecordBase> {
         	String values = ""; 	
         	for(Field f : changed_fields) {
         		if(values.length() != 0) values += ", ";
-        		values += f.getName() + "=?";
+        		values += "`"+f.getName() + "`=?";
         	}
         	String keysql = "";
         	for(Field key : oldrec.getRecordKeys()) {
         		if(keysql.length() != 0) keysql += " and ";
-        		keysql += "`"+key.getName()+"`" + "=?";
+        		keysql += "`"+key.getName()+"`=?";
         	}
         	String sql = "UPDATE " + table_name + " SET " + values + " WHERE " + keysql;
         	PreparedStatement stmt;
         	for(Field f : changed_fields) {
         		if(values.length() != 0) values += ", ";
-        		values += f.getName() + "=?";
+        		values += "`"+f.getName() + "`=?";
         	}  	
 	    	stmt = conn.prepareStatement(sql);
 	    	try {
