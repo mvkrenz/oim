@@ -171,12 +171,12 @@ public class ProjectServlet extends ServletBase implements Servlet {
 			if(rec.vo_id != null) {
 				VOModel model = new VOModel(context);
 				VORecord parent_vo_rec = model.get(rec.vo_id);
-				table.addRow("Parent Virtual Organization", parent_vo_rec.name);
+				table.addRow("Sponsor Virtual Organization", parent_vo_rec.name);
 			}
 			if(rec.cg_id != null) {
 				CampusGridModel model = new CampusGridModel(context);
 				CampusGridRecord parent_cg_rec = model.get(rec.cg_id);
-				table.addRow("Parent Campus Grid", parent_cg_rec.name);
+				table.addRow("Sponsor Campus Grid", parent_cg_rec.name);
 			}
 
 			//PI
