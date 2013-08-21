@@ -443,7 +443,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 			if(auth.isUser()) {
 				ContactRecord contact = auth.getContact();
 				ticket.description = contact.name + " has canceled this certificate request.\n\n";
-				ticket.description += "> " + context.getComment();
+				//ticket.description += "> " + context.getComment();
 			} else {
 				ticket.description = "guest shouldn't be canceling";
 			}
@@ -1478,7 +1478,6 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 		
 		///////////////////////////////////////////////////////////////////////////////////////////
 		// Notification
-		
 		try {
 			Footprints fp = new Footprints(context);
 			FPTicket ticket = fp.new FPTicket();
@@ -1515,6 +1514,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 				ticket.description += "An OIM Authenticated user "  + requester.name + " <"+requester.primary_email+"> has re-requested this user certificate request. ";
 				ticket.description += "Please approve / disapprove this request at " + getTicketUrl(rec.id);
 			}
+			ticket.description += "> " + context.getComment();
 
 			ticket.assignees.add(StaticConfig.conf.getProperty("certrequest.user.assignee"));
 			ticket.nextaction = "RA/Sponsors to verify requester";	 //NAD will be set to 7 days in advance by default
