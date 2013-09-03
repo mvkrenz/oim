@@ -1,0 +1,29 @@
+package edu.iu.grid.oim.view;
+
+import java.io.PrintWriter;
+import java.util.ArrayList;
+
+import com.divrep.DivRep;
+import com.divrep.DivRepPage;
+
+//simple view that has list of children
+public class GenericView implements IView {
+	protected ArrayList<IView> children = new ArrayList<IView>();
+	public void add(IView v) {
+		children.add(v);
+	}
+	public void add(DivRep div) {
+		children.add(new DivRepWrapper(div));
+	}
+	public void render(PrintWriter out) {
+		out.write("<div>");
+		for(IView child : children) {
+			child.render(out);
+		}
+		out.write("</div>");
+	}
+	public boolean isEmpty() {
+		return children.isEmpty();
+	}
+
+}
