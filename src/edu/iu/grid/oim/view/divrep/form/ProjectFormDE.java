@@ -119,7 +119,7 @@ public class ProjectFormDE extends DivRepForm
 
 		//Combine VO & CG listing into 1 by adding some ID offset for CG (large enough to avoid ID conflict)
 		parent = new DivRepSelectBox(this);
-		parent.setLabel("Parent Virtual Organization / Campus Grid");
+		parent.setLabel("Sponsor Virtual Organization / Campus Grid");
 		
 		LinkedHashMap<Integer, String> vokvs = new LinkedHashMap<Integer, String>();
 		VOModel vomodel = new VOModel(context);
