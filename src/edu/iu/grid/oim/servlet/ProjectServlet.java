@@ -103,7 +103,7 @@ public class ProjectServlet extends ServletBase implements Servlet {
 		
 		if(context.getAuthorization().isUser()) {
 			contentview.add(new HtmlView("<a href=\"projectedit\" class=\"btn pull-right\"><i class=\"icon-plus-sign\"></i> Add New Project</a>"));
-			contentview.add(new HtmlView("<h2>Your Projects</h2>"));
+			contentview.add(new HtmlView("<h2>My Projects</h2>"));
 			if(editable_projects.size() == 0) {
 				contentview.add(new HtmlView("<p>You currently have no project that youare authorized to edit</p>"));
 			}
@@ -129,7 +129,7 @@ public class ProjectServlet extends ServletBase implements Servlet {
 		}
 		
 		if(readonly_projects.size() != 0) {
-			contentview.add(new HtmlView("<h2>Read-Only Projects</h2>"));
+			contentview.add(new HtmlView("<h2>Projects</h2>"));
 			//contentview.add(new HtmlView("<p>Following are the currently registered virtual organizations on OIM - you do not have edit access on these records.</p>"));
 	
 			ItemTableView table = new ItemTableView(5);

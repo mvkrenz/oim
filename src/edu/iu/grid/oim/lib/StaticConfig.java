@@ -20,7 +20,7 @@ public class StaticConfig {
 	static public String getGMapAPIKey() { return conf.getProperty("gmapapikey"); }
 	static public int getConfirmationExpiration() { return Integer.parseInt(conf.getProperty("confirmation.expiration")); }
 	static public int getDowntimeEditableEndDays() { return Integer.parseInt(conf.getProperty("downtime.editable.endday")); }
-	static public String getSSLTrustStorePath() { return conf.getProperty("ssl.truststore"); }
+	//static public String getSSLTrustStorePath() { return conf.getProperty("ssl.truststore"); }
     
 	//why private? - don't allow client instantiation (use static getters)
 	static 

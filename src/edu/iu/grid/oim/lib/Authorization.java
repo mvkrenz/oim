@@ -109,7 +109,6 @@ public class Authorization {
 			secure = false;
 		}
 
-		//String localname = request.getLocalName(); //the host name of the Internet Protocol (IP) interface on which the request was received.
 		if(StaticConfig.isDebug()) {
 			debugAuthOverride(request);
 		}
@@ -117,18 +116,12 @@ public class Authorization {
 		String remoteaddr = request.getRemoteAddr();
 		log.debug("Request received from " + remoteaddr);
 		
-		//need to support IPVS6 someday?
-		if(remoteaddr.equals("127.0.0.1") || remoteaddr.startsWith("192.168.")) {
+		if(StaticConfig.conf.getProperty("debug.as_user") == null 
+				&& (remoteaddr.equals("127.0.0.1") || remoteaddr.startsWith("192.168.") || remoteaddr.endsWith("0:0:0:0:0:0:0:1"))) {
 			usertype = UserType.LOCAL;
 		} else {
-			//figure out usertype from SSL ENV (if provided)
-			/*
-			String client_verify = (String)request.getAttribute("SSL_CLIENT_VERIFY");
-			if(client_verify != null && !client_verify.equals("none")) {
-			*/
-			if(secure) {
-				
-				//we set mod_jk to return "none" if the value doesn't exist. let's convert back to null.
+			if(secure) {			
+				//we set mod_jk to return "none" ifdhe value doesn't exist. let's convert back to null.
 				String user_dn_tmp = (String)request.getAttribute("SSL_CLIENT_S_DN");
 				if(user_dn_tmp != null && !user_dn_tmp.equals("none")) {
 					user_dn = user_dn_tmp;
@@ -191,11 +184,10 @@ public class Authorization {
 	}
 
 	private void debugAuthOverride(HttpServletRequest request) {
-
 		try {
 			InetAddress addr = InetAddress.getLocalHost();
 	        String hostname = addr.getHostName();
-			if(hostname.equals("t520") || hostname.equals("hayashis-t520")) {
+			if(hostname.equals("t520") || hostname.equals("hayashis-t520") || hostname.equals("s855")) {
 				if(request.isSecure()) {
 					request.setAttribute("SSL_CLIENT_VERIFY", "SUCCESS");
 			
@@ -205,7 +197,7 @@ public class Authorization {
 					//user_dn = "/DC=org/DC=doegrids/OU=People/CN=Horst Severini 926890";
 					//request.setAttribute("SSL_CLIENT_S_DN", "/DC=org/DC=doegrids/OU=People/CN=christopher pipes 556895"); //disabled
 					
-					//request.setAttribute("SSL_CLIENT_S_DN", "/DC=com/DC=DigiCert-Grid/O=Open Science Grid/OU=People/CN=Soichi Hayashi 238");
+					request.setAttribute("SSL_CLIENT_S_DN", "/DC=com/DC=DigiCert-Grid/O=Open Science Grid/OU=People/CN=Soichi Hayashi 238");
 					//request.setAttribute("SSL_CLIENT_S_DN", "/DC=org/DC=doegrids/OU=People/CN=Tanya Levshina 508821");
 					
 					//request.setAttribute("SSL_CLIENT_S_DN", "/DC=com/DC=DigiCert-Grid/O=Open Science Grid/OU=People/CN=Alain Deximo 623");
