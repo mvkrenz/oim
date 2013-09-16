@@ -360,13 +360,13 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 		Footprints fp = new Footprints(context);
 		FPTicket ticket = fp.new FPTicket();
 		if(submitter_is_ga) {
-			ticket.description = "Dear " + rec.requester_name + ",\n\n";
-			ticket.description += "Your host certificate request has been approved. \n\n";
-		} else {
 			ticket.description = rec.requester_name + " has approved this host certificate request.\n\n";
 			ticket.mail_suppression_assignees = true;
 			ticket.mail_suppression_ccs = true;
 			ticket.mail_suppression_submitter = true;
+		} else {
+			ticket.description = "Dear " + rec.requester_name + ",\n\n";
+			ticket.description += "Your host certificate request has been approved. \n\n";
 		}
 		ticket.description += "To retrieve the certificate please visit " + getTicketUrl(rec.id) + " and click on Issue Certificate button.\n\n";
     	if(StaticConfig.isDebug()) {
@@ -379,7 +379,6 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 		nad.add(Calendar.DATE, 7);
 		ticket.nad = nad.getTime();
 		fp.update(ticket, rec.goc_ticket_id);
-		
     }
     
     //NO-AC (for authenticated user)
