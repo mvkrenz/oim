@@ -52,6 +52,10 @@ public class Footprints
 		public ArrayList<String> assignees = new ArrayList<String>();
 		public HashMap<String, String> metadata = new HashMap<String, String>();
 		
+		public Boolean mail_suppression_assignees = false;
+		public Boolean mail_suppression_submitter = false;
+		public Boolean mail_suppression_ccs = false;
+		
 		public FPTicket() {
 			Calendar cal = Calendar.getInstance();
 			//cal.add(Calendar.DATE, 7); 
@@ -107,6 +111,16 @@ public class Footprints
 			i++;
 		}
 		
+		if(ticket.mail_suppression_assignees) {
+			post.setParameter("mail_suppression_assignees", "true");
+		}
+		if(ticket.mail_suppression_submitter) {
+			post.setParameter("mail_suppression_submitter", "true");
+		}
+		if(ticket.mail_suppression_ccs) {
+			post.setParameter("mail_suppression_ccs", "true");
+		}
+		
 		try {
 			cl.executeMethod(post);
 			Document ret = parseXML(post.getResponseBodyAsStream());
@@ -155,6 +169,17 @@ public class Footprints
 				post.setParameter("assignee["+i+"]", ticket.assignees.get(i));
 			}
 		}
+		
+		if(ticket.mail_suppression_assignees) {
+			post.setParameter("mail_suppression_assignees", "true");
+		}
+		if(ticket.mail_suppression_submitter) {
+			post.setParameter("mail_suppression_submitter", "true");
+		}
+		if(ticket.mail_suppression_ccs) {
+			post.setParameter("mail_suppression_ccs", "true");
+		}
+		
 		try {
 			cl.executeMethod(post);
 			Document ret = parseXML(post.getResponseBodyAsStream());

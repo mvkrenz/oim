@@ -296,6 +296,22 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 						ticket.description = "Someone with IP address: " + context.getRemoteAddr() + " has issued certificate. Resolving this ticket.";
 					}
 					ticket.status = "Resolved";
+					
+					//suppressing notification if submitter is GA
+					ArrayList<ContactRecord> gas = findGridAdmin(rec.getCSRs(), rec.approver_vo_id); 
+					boolean submitter_is_ga = false;
+					for(ContactRecord ga : gas) {
+						if(ga.id.equals(rec.requester_contact_id)) {
+							submitter_is_ga = true;
+							break;
+						}
+					}
+					if(submitter_is_ga) {
+						ticket.mail_suppression_assignees = true;
+						ticket.mail_suppression_submitter = true;
+						ticket.mail_suppression_ccs = true;
+					}
+					
 					fp.update(ticket, rec.goc_ticket_id);
 				} catch (ICertificateSigner.CertificateProviderException e) {
 					failed("Failed to sign certificate -- CertificateProviderException ", e);
@@ -330,12 +346,29 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 			throw new CertificateRequestException("Failed to update certificate request record");
 		}
 		
+		//find if requester is ga
+		ArrayList<ContactRecord> gas = findGridAdmin(rec.getCSRs(), rec.approver_vo_id); 
+		boolean submitter_is_ga = false;
+		for(ContactRecord ga : gas) {
+			if(ga.id.equals(rec.requester_contact_id)) {
+				submitter_is_ga = true;
+				break;
+			}
+		}
+		
 		//update ticket
 		Footprints fp = new Footprints(context);
 		FPTicket ticket = fp.new FPTicket();
-		ticket.description = "Dear " + rec.requester_name + ",\n\n";
-		ticket.description += "Your host certificate request has been approved. \n\n";
-		ticket.description += "To retrieve your certificate please visit " + getTicketUrl(rec.id) + " and click on Issue Certificate button.\n\n";
+		if(submitter_is_ga) {
+			ticket.description = "Dear " + rec.requester_name + ",\n\n";
+			ticket.description += "Your host certificate request has been approved. \n\n";
+		} else {
+			ticket.description = rec.requester_name + " has approved this host certificate request.\n\n";
+			ticket.mail_suppression_assignees = true;
+			ticket.mail_suppression_ccs = true;
+			ticket.mail_suppression_submitter = true;
+		}
+		ticket.description += "To retrieve the certificate please visit " + getTicketUrl(rec.id) + " and click on Issue Certificate button.\n\n";
     	if(StaticConfig.isDebug()) {
     		ticket.description += "Or if you are using the command-line: osg-cert-retrieve -T -i "+rec.id+"\n\n";
     	} else {
@@ -397,8 +430,6 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 		//Date current = new Date();
     	rec.approver_vo_id = approver_vo_id;
 	 	rec.requester_name = requester_name;
-    	//rec.requester_email = requester_email;
-    	//rec.requester_phone = requester_phone;
     	
 		Footprints fp = new Footprints(context);
 		FPTicket ticket = fp.new FPTicket();
@@ -504,8 +535,10 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 			Integer request_id = super.insert(rec);
 			
 			if(submitter_is_ga) {
-				ticket.description = "Host certificate request has been submitted by GridAdmin.\n\n";
-				//don't cc anyone.
+				ticket.description = "Host certificate request has been submitted by a GridAdmin.\n\n";
+				ticket.mail_suppression_assignees = true;
+				ticket.mail_suppression_submitter = true;
+				ticket.mail_suppression_ccs = true;
 			} else {
 	        	ticket.description = "Dear GridAdmin; ";
 				for(ContactRecord ga : gas) {

@@ -3,8 +3,8 @@
     <property environment="env"/>
     <property name="ECLIPSE_HOME" value="../../../app/eclipse"/>
     <property name="debuglevel" value="source,lines,vars"/>
-    <property name="target" value="1.6"/>
-    <property name="source" value="1.6"/>
+    <property name="target" value="1.7"/>
+    <property name="source" value="1.7"/>
     <path id="EAR Libraries.libraryclasspath"/>
     <path id="oim.classpath">
         <pathelement location="build/classes"/>
