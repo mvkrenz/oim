@@ -361,7 +361,7 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 		FPTicket ticket = fp.new FPTicket();
 		if(submitter_is_ga) {
 			ticket.description = rec.requester_name + " has approved this host certificate request.\n\n";
-			ticket.mail_suppression_assignees = true;
+			ticket.mail_suppression_assignees = false;
 			ticket.mail_suppression_ccs = true;
 			ticket.mail_suppression_submitter = true;
 		} else {
