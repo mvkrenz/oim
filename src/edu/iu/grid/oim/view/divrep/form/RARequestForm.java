@@ -80,10 +80,14 @@ public class RARequestForm extends BootDialogForm {
 			ticket.ccs.add("osg-ra@opensciencegrid.org"); //TODO - make this configurable
 			ticket.nextaction = "OSG RA to process request";
 			String ticket_id = fp.open(ticket);
-			
-			log.info("Opened GridAdmin Request ticket with ID:" + ticket_id);
-			alert("Opened ticket ID:" + ticket_id);
-			return true;
+			if(ticket_id == null) {
+				alert("Sorry, we failed to submit your request. Please wait for a while, and try again later.");
+				return false;
+			} else {
+				log.info("Opened GridAdmin Request ticket with ID:" + ticket_id);
+				alert("Opened ticket ID:" + ticket_id);
+				return true;
+			}
 		} else {
 			alert("guest can't submit this.");
 			return false;
