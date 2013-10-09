@@ -198,7 +198,7 @@ public class ContactEditor extends DivRepFormElement<HashMap<ContactRank, ArrayL
 			try {
 				
 				//support both new & old version of autocomplete
-				String query = itrim(request.getParameter("q"));				
+				String query = itrim(request.getParameter("q"));		
 				int limit = Integer.parseInt(request.getParameter("limit")); //only returns records upto requested limit
 				Collection<ContactRecord> all = pmodel.getAllNonDisabled();
 				HashMap<Integer, ContactRecord> persons = new HashMap();
@@ -210,7 +210,7 @@ public class ContactEditor extends DivRepFormElement<HashMap<ContactRank, ArrayL
 					
 					if(rec.name != null) {
 						String name = itrim(rec.name.toLowerCase());
-						if(name.contains(query)) {
+						if(name.contains(query.toLowerCase())) {
 							persons.put(rec.id, rec);
 							continue;
 						}
@@ -226,7 +226,7 @@ public class ContactEditor extends DivRepFormElement<HashMap<ContactRank, ArrayL
 					}
 					if(rec.primary_email != null) {
 						String name = rec.primary_email.toLowerCase();
-						if(name.contains(query)) {
+						if(name.contains(query.toLowerCase())) {
 							persons.put(rec.id, rec);
 							continue;
 						}
