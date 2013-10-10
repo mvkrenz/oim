@@ -190,7 +190,7 @@ public class LogServlet extends ServletBase  {
 			id = new DivRepTextBox(this);
 			id.setLabel("Log ID");
 			id.setValue(request.getParameter("id"));
-			id.setWidth(100);
+			//id.addClass("full_width");
 			
 			this.context = context;
 		}

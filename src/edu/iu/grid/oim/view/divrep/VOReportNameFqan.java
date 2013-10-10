@@ -42,10 +42,12 @@ public class VOReportNameFqan extends DivRepFormElement {
 			group_name.setLabel("Group Name");
 			group_name.setRequired(true);
 			group_name.setValue("FOO");
+			//group_name.addClass("full_width");
 			
 			role = new DivRepTextBox(this);
 			role.setLabel("Role");
 			role.setValue("BAR");
+			//role.addClass("full_width");
 			
 			remove_button = new DivRepButton(this, "images/delete.png");
 			remove_button.setStyle(DivRepButton.Style.IMAGE);
@@ -86,12 +88,19 @@ public class VOReportNameFqan extends DivRepFormElement {
 		public void render(PrintWriter out) {
 			out.write("<div id=\""+getNodeID()+"\" class=\"vo_report_name_fqan divrep_round\">");
 			
+			out.write("<div class=\"row-fluid\">");
+			out.write("<div class=\"span6\">");
+			group_name.render(out);
+			out.write("</div>");//span
+			out.write("<div class=\"span5\">");
+			role.render(out);
+			out.write("</div>");//span
+			out.write("<div class=\"span1\">");
 			out.write("<span class=\"right\">");
 			remove_button.render(out);
 			out.write("</span>");
-			
-			group_name.render(out);
-			role.render(out);
+			out.write("</div>");//span
+			out.write("</div>"); //row-fluid
 			out.write("</div>");
 		}
 	}

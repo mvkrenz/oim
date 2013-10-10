@@ -207,14 +207,15 @@ public class CertificateSearchHostForm extends DivRep
 		
 		request_id = new DivRepTextBox(this);
 		request_id.setLabel("Request ID");
-		//request_id.setWidth(200);
+		request_id.addInputClass("input-xxlarge");
 		
 		serial_id = new DivRepTextBox(this);
 		serial_id.setLabel("Serial Number");
+		serial_id.addInputClass("input-xxlarge");
 		
 		cn_contains = new DivRepTextBox(this);
 		cn_contains.setLabel("CN Contains");
-		cn_contains.setWidth(210);
+		//cn_contains.addClass("width200px");
 		
 		status = new DivRepSelectBox(this);
 		status.setLabel("Status");

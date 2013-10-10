@@ -207,14 +207,15 @@ public class CertificateSearchUserForm extends DivRep
 		
 		request_id = new DivRepTextBox(this);
 		request_id.setLabel("Request ID");
-		//request_id.setWidth(200);
+		request_id.addInputClass("input-xxlarge");
 		
 		serial_id = new DivRepTextBox(this);
 		serial_id.setLabel("Serial Number");
+		serial_id.addInputClass("input-xxlarge");
 		
 		dn_contains = new DivRepTextBox(this);
 		dn_contains.setLabel("DN Contains");
-		dn_contains.setWidth(210);
+		//dn_contains.addClass("width200px");
 		
 		status = new DivRepSelectBox(this);
 		status.setLabel("Status");

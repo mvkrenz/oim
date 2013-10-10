@@ -216,36 +216,36 @@ public class VOFormDE extends DivRepForm
 			primary_url.setLabel("Primary URL");
 			primary_url.setValue(rec.primary_url);
 			primary_url.addValidator(DivRepUrlValidator.getInstance());
-			// primary_url.setRequired(true);
 			primary_url.setSampleValue("http://www-cdf.fnal.gov");
+			primary_url.addInputClass("input-xlarge");
 
 			aup_url = new DivRepTextBox(this);
 			aup_url.setLabel("AUP URL");
 			aup_url.setValue(rec.aup_url);
 			aup_url.addValidator(DivRepUrlValidator.getInstance());
-			// aup_url.setRequired(true);
 			aup_url.setSampleValue("http://www-cdf.fnal.gov");
-
+			aup_url.addInputClass("input-xlarge");
+			
 			membership_services_url = new DivRepTextBox(this);
 			membership_services_url.setLabel("Membership Services (VOMS) URL");
 			membership_services_url.setValue(rec.membership_services_url);
 			membership_services_url.addValidator(DivRepUrlValidator.getInstance());
-			// membership_services_url.setRequired(true);
 			membership_services_url.setSampleValue("https://voms.fnal.gov:8443/voms/cdf/");
-
+			membership_services_url.addInputClass("input-xlarge");
+			
 			purpose_url = new DivRepTextBox(this);
 			purpose_url.setLabel("Purpose URL"); 
 			purpose_url.setValue(rec.purpose_url);
 			purpose_url.addValidator(DivRepUrlValidator.getInstance());
-			// purpose_url.setRequired(true);
 			purpose_url.setSampleValue("http://www-cdf.fnal.gov");
+			purpose_url.addInputClass("input-xlarge");
 
 			support_url = new DivRepTextBox(this);
 			support_url.setLabel("Support URL"); 
 			support_url.setValue(rec.support_url);
 			support_url.addValidator(DivRepUrlValidator.getInstance());
-			// support_url.setRequired(true);
 			support_url.setSampleValue("http://cdfcaf.fnal.gov");
+			support_url.addInputClass("input-xlarge");
 		}
 		
 		protected void onEvent(DivRepEvent e) {
@@ -364,6 +364,7 @@ public class VOFormDE extends DivRepForm
 		name.addValidator(new DivRepUniqueValidator<String>(vos.values()));
 		name.setRequired(true);
 		name.setSampleValue("CDF");
+		name.addClass("width75p");
 
 		long_name = new DivRepTextBox(this);
 		long_name.setLabel("Enter the Long Name for this VO");
