@@ -22,7 +22,6 @@ public class StaticConfig {
 	static public int getDowntimeEditableEndDays() { return Integer.parseInt(conf.getProperty("downtime.editable.endday")); }
 	//static public String getSSLTrustStorePath() { return conf.getProperty("ssl.truststore"); }
     
-	//why private? - don't allow client instantiation (use static getters)
 	static 
 	{
 		try {
