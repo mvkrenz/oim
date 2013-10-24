@@ -204,35 +204,6 @@ public class CertificateUserServlet extends ServletBase  {
 				out.write("<tbody>");
 
 				out.write("<tr>");
-				out.write("<th style=\"min-width: 100px;\">DN</th>");
-				out.write("<td>");
-				CertificateRequestUserModel model = new CertificateRequestUserModel(context);
-				CNEditor cn_override = null;
-				if(model.canOverrideCN(rec)) {
-					cn_override = new CNEditor(context.getPageRoot());
-					cn_override.setRequired(true);
-					cn_override.setValue(rec.getCN());
-					//cn_override.setDisabled(false);
-					cn_override.render(out);
-				} else {
-					out.write(StringEscapeUtils.escapeHtml(rec.dn));	
-				}
-				
-				out.write("</td>");
-				out.write("</tr>");
-				
-				out.write("<tr>");
-				out.write("<th>Valid Dates</th>");
-				out.write("<td>");
-				if(rec.cert_notafter != null && rec.cert_notbefore != null) {
-					out.write("Between " + rec.cert_notbefore.toString() + " and " + rec.cert_notafter.toString()); 
-				} else {
-					out.write("<span class=\"muted\">N/A</span>");
-				}
-				out.write("</td>");
-				out.write("</tr>");
-				
-				out.write("<tr>");
 				out.write("<th>Status</th>");
 				out.write("<td>"+StringEscapeUtils.escapeHtml(rec.status));
 				if(rec.status.equals(CertificateRequestStatus.ISSUING)) {
@@ -246,6 +217,42 @@ public class CertificateUserServlet extends ServletBase  {
 					out.write("$(function() {loadstatus();});");
 					out.write("</script>");
 				} 
+				out.write("</td>");
+				out.write("</tr>");
+				
+				out.write("<tr>");
+				out.write("<th style=\"min-width: 100px;\">DN</th>");
+				out.write("<td>");
+				CertificateRequestUserModel model = new CertificateRequestUserModel(context);
+				CNEditor cn_override = null;
+				if(model.canOverrideCN(rec)) {
+					cn_override = new CNEditor(context.getPageRoot());
+					cn_override.setRequired(true);
+					cn_override.setValue(rec.getCN());
+					//cn_override.setDisabled(false);
+					cn_override.render(out);
+				} else {
+					out.write(StringEscapeUtils.escapeHtml(rec.dn));	
+				}
+				out.write("</td>");
+				out.write("</tr>");
+				
+				GenericView action_control = nextActionControl(context, rec, cn_override, logs);
+				out.write("<tr>");
+				out.write("<th>Action</th>");
+				out.write("<td>");
+				action_control.render(out);
+				out.write("</td>");
+				out.write("</tr>");
+				
+				out.write("<tr>");
+				out.write("<th>Valid Dates</th>");
+				out.write("<td>");
+				if(rec.cert_notafter != null && rec.cert_notbefore != null) {
+					out.write("Between " + rec.cert_notbefore.toString() + " and " + rec.cert_notafter.toString()); 
+				} else {
+					out.write("<span class=\"muted\">N/A</span>");
+				}
 				out.write("</td>");
 				out.write("</tr>");
 				
@@ -290,36 +297,9 @@ public class CertificateUserServlet extends ServletBase  {
 				out.write("<tr>");
 				out.write("<th>GOC Ticket</th>");
 				out.write("<td><a target=\"_blank\" href=\""+StaticConfig.conf.getProperty("url.gocticket")+"/"+rec.goc_ticket_id+"\">"+rec.goc_ticket_id+"</a></td>");
-				out.write("</tr>");
+				out.write("</tr>");			
 				
 				if(rec.status.equals(CertificateRequestStatus.ISSUED)) {
-					out.write("<tr>");
-					out.write("<th>Certificates</th>");
-					out.write("<td>");
-					//HttpSession session = context.getSession();
-
-					if(model.getPrivateKey(rec.id) != null) {
-						out.write("<p><a class=\"btn btn-primary btn-large\" href=\"certificatedownload?id="+rec.id+"&type=user&download=pkcs12\">Download Certificate &amp; Private Key (PKCS12)</a></p>");
-						//out.write("<a class=\"btn btn-primary\" href=\"certificatedownload?id="+rec.id+"&type=user&download=pem12\">Download Certificate &amp; Private Key (PEM)</a>");
-						out.write("<p class=\"alert alert-error\">You need to download your certificate and private key now, while your browser session is active. When your session times out, the server will delete your private key for security reasons and you will need to request a new certificate.</p>");
-						
-					} else {
-						out.write("<p><a class=\"btn btn-primary\" href=\"certificatedownload?id="+rec.id+"&type=user&download=pkcs7\">Download Certificate (PKCS7)</a> ");
-						out.write("<a class=\"btn\" href=\"certificatedownload?id="+rec.id+"&type=user&download=pem7\">Download Certificate (PEM)</a>");
-						out.write("</p>");
-					}
-					
-					//String urlformat = "https://confluence.grid.iu.edu/display/CENTRAL/Importing+User+Certificate+on+{0}";
-					//String urlformat_in = new Base64(Integer.MAX_VALUE).encodeToString(urlformat.getBytes());
-					//out.write("<p><a target=\"_blank\" href=\"browserjump?urlformat="+urlformat_in+"\">How to import user certificate on your browser</a></p>");
-					out.write("<p><a target=\"_blank\" href=\"https://confluence.grid.iu.edu/pages/viewpage.action?pageId=3244066\">How to import user certificate on your browser</a></p>");
-					
-					out.write("<p><a target=\"_blank\" href=\"https://confluence.grid.iu.edu/display/CENTRAL/Importing+User+Certificate+for+Command+Line+Use\">How to import user certificate for command line use (grid-proxy-init).</a></p>");
-					
-					//https://confluence.grid.iu.edu/display/CENTRAL/Importing+User+Certificate+for+Command+Line+Use
-					out.write("</td>");
-					out.write("</tr>");
-					
 					out.write("<tr><th>Serial Number</th><td>");
 					out.write(rec.cert_serial_id);
 					out.write("</td></tr>");
@@ -347,17 +327,27 @@ public class CertificateUserServlet extends ServletBase  {
 						out.write("<td><span class=\"muted\">N/A</span></td>");
 					} else {
 						out.write("<td>");
-						out.write("<ul>");
+						//out.write("<ul>");
 						for(ContactRecord ra : ras) {
+							/*
 							if(auth.isUser()) {
-								out.write("<li>");
+								out.write("<p>");
 								out.write("<a href=\"mailto:"+ra.primary_email+"\">"+StringEscapeUtils.escapeHtml(ra.name)+"</a>");
-								out.write(" Phone: "+ra.primary_phone+"</li>");
+								out.write(" Phone: "+ra.primary_phone+"</p>");
 							} else {
-								out.write("<li>"+ra.name+"</li>");
+								out.write("<p>"+ra.name+"</p>");
 							}
+							*/
+							out.write("<p>");
+							out.write("<b>"+StringEscapeUtils.escapeHtml(ra.name)+"</b>");
+							if(auth.isUser()) {
+								out.write(" <code><a href=\"mailto:"+ra.primary_email+"\">"+ra.primary_email+"</a></code>");
+								out.write(" Phone: "+ra.primary_phone);
+							}
+							out.write("</p>");
+							
 						}
-						out.write("</ul>");
+						//out.write("</ul>");
 						out.write("</td>");	
 						
 					}
@@ -394,14 +384,6 @@ public class CertificateUserServlet extends ServletBase  {
 					out.write("<td>sql error</td>");
 				}
 				*/
-				
-				GenericView action_control = nextActionControl(context, rec, cn_override, logs);
-				out.write("<tr>");
-				out.write("<th>Next Action</th>");
-				out.write("<td>");
-				action_control.render(out);
-				out.write("</td>");
-				out.write("</tr>");
 				
 				out.write("</tbody>");
 				
@@ -477,8 +459,26 @@ public class CertificateUserServlet extends ServletBase  {
 		final String url = "certificateuser?id="+rec.id;
 	
 		BootTabView tabview = new BootTabView();
+		
+		if(rec.status.equals(CertificateRequestStatus.ISSUED)) {
+			GenericView pane = new GenericView();
 
-		//controls
+			if(model.getPrivateKey(rec.id) != null) {
+				//pkcs12 available
+				pane.add(new HtmlView("<p><a class=\"btn btn-primary btn-large\" href=\"certificatedownload?id="+rec.id+"&type=user&download=pkcs12\">Download Certificate &amp; Private Key (PKCS12)</a></p>"));
+				pane.add(new HtmlView("<p class=\"alert alert-error\">You need to download your certificate and private key now, while your browser session is active. When your session times out, the server will delete your private key for security reasons and you will need to request a new certificate.</p>"));
+			} else {
+				//only pkcs7
+				pane.add(new HtmlView("<p><a class=\"btn btn-primary\" href=\"certificatedownload?id="+rec.id+"&type=user&download=pkcs7\">Download Certificate (PKCS7 - For Browser)</a></p>"));
+				pane.add(new HtmlView("<p><a class=\"btn\" href=\"certificatedownload?id="+rec.id+"&type=user&download=pem7\">Download Certificate (PEM - For Commandline)</a></p>"));
+			}
+			
+			pane.add(new HtmlView("<p><a target=\"_blank\" href=\"https://confluence.grid.iu.edu/pages/viewpage.action?pageId=3244066\">How to import user certificate on your browser</a></p>"));
+			pane.add(new HtmlView("<p><a target=\"_blank\" href=\"https://confluence.grid.iu.edu/display/CENTRAL/Importing+User+Certificate+for+Command+Line+Use\">How to import user certificate for command line use (grid-proxy-init).</a></p>"));
+			
+			tabview.addtab("Download", pane);
+		}
+		
 		if(model.canApprove(rec)) {
 			GenericView pane = new GenericView();
 			
