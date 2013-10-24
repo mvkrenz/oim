@@ -49,6 +49,7 @@ import edu.iu.grid.oim.model.db.record.CertificateRequestUserRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.DNAuthorizationTypeRecord;
 import edu.iu.grid.oim.model.db.record.DNRecord;
+import edu.iu.grid.oim.model.db.record.GridAdminRecord;
 import edu.iu.grid.oim.model.db.record.SCRecord;
 import edu.iu.grid.oim.model.db.record.VOContactRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
@@ -1156,6 +1157,20 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 	    return recs;
 	}
 	
+	public ArrayList<VORecord> getVOIApprove(Integer id) throws SQLException {
+		//list all vo that user is ra of
+		ArrayList<VORecord> vos = new ArrayList<VORecord>();
+		VOContactModel model = new VOContactModel(context);
+		VOModel vomodel = new VOModel(context);
+		for(VOContactRecord crec : model.getByContactID(id)) {
+			if(crec.contact_type_id.equals(11)) { //RA
+				VORecord vo = vomodel.get(crec.vo_id);
+				vos.add(vo);
+			}
+		}
+		return vos;
+	}
+
 	public ArrayList<CertificateRequestUserRecord> getISubmitted(Integer contact_id) throws SQLException {
 		ArrayList<CertificateRequestUserRecord> recs = new ArrayList<CertificateRequestUserRecord>();
 		

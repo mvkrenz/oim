@@ -19,6 +19,7 @@ import com.divrep.DivRep;
 import com.divrep.DivRepEvent;
 import com.divrep.DivRepEventListener;
 import com.divrep.common.DivRepButton;
+import com.divrep.common.DivRepCheckBox;
 import com.divrep.common.DivRepPassword;
 import com.divrep.common.DivRepStaticContent;
 import com.divrep.common.DivRepTextArea;
@@ -37,10 +38,12 @@ import edu.iu.grid.oim.model.db.CertificateRequestModelBase.LogDetail;
 import edu.iu.grid.oim.model.db.CertificateRequestUserModel;
 import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.DNModel;
+import edu.iu.grid.oim.model.db.GridAdminModel;
 import edu.iu.grid.oim.model.db.VOModel;
 import edu.iu.grid.oim.model.db.record.CertificateRequestUserRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.DNRecord;
+import edu.iu.grid.oim.model.db.record.GridAdminRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
 import edu.iu.grid.oim.model.exceptions.CertificateRequestException;
 import edu.iu.grid.oim.view.BootBreadCrumbView;
@@ -49,11 +52,13 @@ import edu.iu.grid.oim.view.BootPage;
 import edu.iu.grid.oim.view.BootTabView;
 import edu.iu.grid.oim.view.CertificateMenuView;
 import edu.iu.grid.oim.view.GenericView;
+import edu.iu.grid.oim.view.HtmlFileView;
 import edu.iu.grid.oim.view.HtmlView;
 import edu.iu.grid.oim.view.IView;
 import edu.iu.grid.oim.view.UserCertificateTable;
 import edu.iu.grid.oim.view.divrep.CNEditor;
 import edu.iu.grid.oim.view.divrep.ChoosePassword;
+import edu.iu.grid.oim.view.divrep.form.validator.MustbeCheckedValidator;
 import edu.iu.grid.oim.view.divrep.form.validator.PKIPassStrengthValidator;
 
 public class CertificateUserServlet extends ServletBase  {
@@ -431,31 +436,6 @@ public class CertificateUserServlet extends ServletBase  {
 		GenericView v = new GenericView();
 		
 		final CertificateRequestUserModel model = new CertificateRequestUserModel(context);
-		/*
-		if(	//rec.status.equals(CertificateRequestStatus.RENEW_REQUESTED) ||
-			rec.status.equals(CertificateRequestStatus.REQUESTED)) {
-			v.add(new HtmlView("<p class=\"alert alert-info\">RA to approve certificate request</p>"));
-		} else if(rec.status.equals(CertificateRequestStatus.APPROVED)) {
-			v.add(new HtmlView("<p class=\"alert alert-info\">Requester to issue certificate & download</p>"));
-		} else if(rec.status.equals(CertificateRequestStatus.ISSUED)) {
-			if(model.canRenew(rec, logs)) {
-				v.add(new HtmlView("<p class=\"alert alert-info\">Requester to renew certificate</p>"));
-			}
-		} else if(rec.status.equals(CertificateRequestStatus.REJECTED) ||
-				rec.status.equals(CertificateRequestStatus.REVOKED) ||
-				rec.status.equals(CertificateRequestStatus.EXPIRED) ||
-				rec.status.equals(CertificateRequestStatus.CANCELED)
-				) {
-			//v.add(new HtmlView("<p class=\"alert alert-info\">Re-request</p>"));
-		}  else if(rec.status.equals(CertificateRequestStatus.FAILED)) {
-			v.add(new HtmlView("<p class=\"alert alert-info\">GOC engineer to troubleshoot & resubmit</p>"));
-		} else if(rec.status.equals(CertificateRequestStatus.REVOCATION_REQUESTED)) {
-			v.add(new HtmlView("<p class=\"alert alert-info\">RA to revoke certificate</p>"));
-		} else if(rec.status.equals(CertificateRequestStatus.ISSUING)) {
-			v.add(new HtmlView("<p class=\"alert alert-info\">Please wait for a fews seconds.</p>"));
-		}
-		*/
-		
 		final String url = "certificateuser?id="+rec.id;
 	
 		BootTabView tabview = new BootTabView();
@@ -546,8 +526,8 @@ public class CertificateUserServlet extends ServletBase  {
 		}
 		if(model.canRenew(rec, logs)) {
 			GenericView pane = new GenericView();
-			
-			pane.add(new HtmlView("<p class=\"help-block\">Please choose a password to encrypt your certificate / private key</p>"));
+				
+			pane.add(new HtmlView("<p class=\"help-block\">Please choose a password to encrypt your renewed certificate / private key</p>"));
 			
 			final DivRepPassword pass = new DivRepPassword(context.getPageRoot());
 			pass.setLabel("Password");
@@ -581,14 +561,58 @@ public class CertificateUserServlet extends ServletBase  {
 				}
 			});
 			pane.add(pass_confirm);
+						
+			//RA / GA agrement
+			final DivRepCheckBox ra_agree = new DivRepCheckBox(context.getPageRoot());
+			final DivRepCheckBox ga_agree = new DivRepCheckBox(context.getPageRoot());
+			//agree.addClass("pull-right");
+			Authorization auth = context.getAuthorization();
+			try {
+				//list VOs that this user is RA of
+				ArrayList<VORecord> vos = model.getVOIApprove(auth.getContact().id);
+				if(vos.size() > 0) {
+					/*
+					pane.add(new HtmlView("<h3>RA Agreement</h3>"));
+					pane.add(new HtmlView("<p>You are currently RA for following VOs</p>"));
+					pane.add(new HtmlView("<p>"));
+					for(VORecord vo : vos) {
+						pane.add(new HtmlView("<span class=\"label\">"+vo.name+"</span> "));
+					}
+					pane.add(new HtmlView("</p>"));
+					pane.add(new HtmlView("<p>Therefore, you must agree to following RA agreement before renewing your certificate.</p>"));
+					*/
+					pane.add(new HtmlView("<div class=\"well\">"));
+					pane.add(new HtmlFileView(getClass().getResourceAsStream("ra_agreement.html")));
+					ra_agree.setLabel("I have read and agree to above.");
+					ra_agree.addValidator(new MustbeCheckedValidator("You must agree before renewing your certificate."));			
+					pane.add(ra_agree);
+					pane.add(new HtmlView("</div>"));
+				}
+				
+				GridAdminModel gamodel = new GridAdminModel(context);
+				ArrayList<GridAdminRecord> gas = gamodel.getGridAdminsByContactID(auth.getContact().id);
+				if(gas.size() > 0) {
+					pane.add(new HtmlView("<div class=\"well\">"));
+					pane.add(new HtmlFileView(getClass().getResourceAsStream("ga_agreement.html")));
+					ga_agree.setLabel("I have read and agree to above.");
+					ga_agree.addValidator(new MustbeCheckedValidator("You must agree before renewing your certificate."));			
+					pane.add(ga_agree);
+					pane.add(new HtmlView("</div>"));
+				}
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
+			//TODO list domains that this user is GA of
 			
 			final DivRepButton button = new DivRepButton(context.getPageRoot(), "<button class=\"btn btn-success\"><i class=\"icon-refresh icon-white\"></i> Renew</button>");
 			button.setStyle(DivRepButton.Style.HTML);
 			button.addClass("inline");
 			button.addEventListener(new DivRepEventListener() {
                 public void handleEvent(DivRepEvent event) {
-                	if(pass.validate() && pass_confirm.validate()) {
-                		context.setComment("User requesting / issueing new user certificate");
+                	if(pass.validate() && pass_confirm.validate() && ra_agree.validate() && ga_agree.validate()) {
+                		context.setComment("User requesting / issueing renewed user certificate");
                 		try {
                 			//check access again - request status might have changed
                 			if(model.canRenew(rec, logs)) {
@@ -608,30 +632,9 @@ public class CertificateUserServlet extends ServletBase  {
                 }
             });
 			pane.add(button);
+			
 			tabview.addtab("Renew", pane);
 		}
-		/*
-		if(model.canRequestRenew(rec, logs)) {
-			final DivRepButton button = new DivRepButton(context.getPageRoot(), "<button class=\"btn btn-success\"><i class=\"icon-refresh icon-white\"></i> Request Renew</button>");
-			button.setStyle(DivRepButton.Style.HTML);
-			button.addClass("inline");
-			button.addEventListener(new DivRepEventListener() {
-                public void handleEvent(DivRepEvent e) {
-                	if(note.validate()) {
-                		context.setComment(note.getValue());
-                		try {
-                			model.requestRenew(rec);
-                			button.redirect(url);
-                		} catch (CertificateRequestException ex) {
-	                		button.alert("Failed to request renewal: " + ex.getMessage());
-	                	}
-                	}
-                }
-            });
-			v.add(button);
-			note.setHidden(false);
-		}
-		*/
 		if(model.canRequestRevoke(rec)) {
 			GenericView pane = new GenericView();
 			
