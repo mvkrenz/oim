@@ -220,6 +220,8 @@ public class CertificateRequestHostForm extends DivRepForm
 			if(contact != null) {
 				email.setValue(contact.primary_email);
 			}
+			new DivRepStaticContent(this, "<p class=\"help-block\">* Please use email address issued by your organization (like @fnal.gov), instead of a personal addresses like gmail, yahoo, etc.</p>");
+
 			
 			phone = new DivRepTextBox(this);
 			phone.setLabel("Phone");

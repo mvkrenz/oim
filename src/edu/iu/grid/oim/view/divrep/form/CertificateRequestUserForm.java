@@ -203,6 +203,9 @@ public class CertificateRequestUserForm extends DivRepForm
 			email.setRequired(true);
 			email.addValidator(new DivRepEmailValidator());
 			email.addValidator(new DuplicateEmailValidator());
+			new DivRepStaticContent(this, "<p class=\"help-block\">* Please use email address issued by your organization (like @fnal.gov), instead of a personal addresses like gmail, yahoo, etc.</p>");
+
+			
 			/*
 			email.addEventListener(new DivRepEventListener() {
 				@Override
