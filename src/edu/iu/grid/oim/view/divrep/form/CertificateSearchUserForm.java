@@ -214,7 +214,7 @@ public class CertificateSearchUserForm extends DivRep
 		
 		dn_contains = new DivRepTextBox(this);
 		dn_contains.setLabel("DN Contains");
-		dn_contains.setWidth(210);
+		//dn_contains.setWidth(210);
 		
 		status = new DivRepSelectBox(this);
 		status.setLabel("Status");
