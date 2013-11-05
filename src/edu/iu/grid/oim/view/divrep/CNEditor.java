@@ -23,7 +23,7 @@ public class CNEditor extends DivRepFormElement<String> {
 	public CNEditor(DivRep parent) {
 		super(parent);
 		cn = new DivRepTextBox(this);
-		cn.setWidth(200);
+		//cn.setWidth(200);
 		cn.addValidator(new CNValidator());
 	}
 

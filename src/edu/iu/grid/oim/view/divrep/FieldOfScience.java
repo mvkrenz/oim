@@ -82,7 +82,7 @@ public class FieldOfScience extends DivRepFormElement
 		new_fs = new DivRepTextBox(this);
 		new_fs.setLabel("Or, you can add a new field of science");
 		new_fs.addClass("inline-block");
-		new_fs.setWidth(230);
+		//new_fs.setWidth(230);
 		
 		add_fs = new DivRepButton(this, "Add");
 		add_fs.setStyle(DivRepButton.Style.BUTTON);
