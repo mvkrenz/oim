@@ -9,11 +9,9 @@ import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.record.FieldOfScienceRecord;
-import edu.iu.grid.oim.model.db.record.ProjectRecord;
 import edu.iu.grid.oim.model.db.record.RecordBase;
 import edu.iu.grid.oim.model.db.record.VOFieldOfScienceRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
-import edu.iu.grid.oim.model.db.record.VOReportNameRecord;
 
 public class VOFieldOfScienceModel extends SmallTableModelBase<VOFieldOfScienceRecord> {
     static Logger log = Logger.getLogger(VOFieldOfScienceModel.class); 
@@ -35,10 +33,22 @@ public class VOFieldOfScienceModel extends SmallTableModelBase<VOFieldOfScienceR
 		}		
 		return list;
 	}
+	
+	public ArrayList<VOFieldOfScienceRecord> getByFOS(int fos_id) throws SQLException
+	{
+		ArrayList<VOFieldOfScienceRecord> list = new ArrayList<VOFieldOfScienceRecord>();
+		for(RecordBase rec : getCache()) {
+			VOFieldOfScienceRecord vcrec = (VOFieldOfScienceRecord)rec;
+			if(vcrec.field_of_science_id.compareTo(fos_id) == 0) list.add(vcrec);
+		}		
+		return list;
+	}
+	
     public String getName()
     {
     	return "Virtual Organization / Field Of Science";
     }
+    
 	public String getHumanValue(String field_name, String value) throws NumberFormatException, SQLException
 	{
 		if(field_name.equals("vo_id")) {

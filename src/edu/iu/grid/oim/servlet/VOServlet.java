@@ -315,14 +315,19 @@ public class VOServlet extends ServletBase implements Servlet {
 		}
 		String out = "";
 		FieldOfScienceModel fmodel = new FieldOfScienceModel(context);
-		out += "<ul>";
+		//out += "<ul>";
 		for(VOFieldOfScienceRecord rec : list) {
 			FieldOfScienceRecord keyrec = new FieldOfScienceRecord();
 			keyrec.id = rec.field_of_science_id;
 			FieldOfScienceRecord frec = fmodel.get(keyrec);
-			out += "<li>" + frec.name + "</li>";
+			//out += "<li>" + frec.name + "</li>";
+			
+			ContactRank rank = ContactRank.get(rec.contact_rank_id);
+			out += "<div class='contact_rank contact_"+rank+"'>";
+			out +=  StringEscapeUtils.escapeHtml(frec.name.trim());
+			out += "</div>";
 		}
-		out += "</ul>";
+		//out += "</ul>";
 		return new HtmlView(out);
 	}
 

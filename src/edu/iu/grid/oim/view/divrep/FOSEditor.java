@@ -21,134 +21,134 @@ import com.divrep.common.DivRepButton;
 import com.divrep.common.DivRepFormElement;
 import com.divrep.validator.DivRepIValidator;
 
-import edu.iu.grid.oim.model.ContactRank;
-import edu.iu.grid.oim.model.db.ContactModel;
-import edu.iu.grid.oim.model.db.record.ContactRecord;
+import edu.iu.grid.oim.model.FOSRank;
+import edu.iu.grid.oim.model.db.FieldOfScienceModel;
+import edu.iu.grid.oim.model.db.record.FieldOfScienceRecord;
 
 //this requires modified version of jquery autocomplete plugin, and client side code to make the input area to be autocomplete
-public class ContactEditor extends DivRepFormElement<HashMap<ContactRank, ArrayList<ContactEditor.ContactDE>>> {
-	static Logger log = Logger.getLogger(ContactEditor.class);
+public class FOSEditor extends DivRepFormElement<HashMap<FOSRank, ArrayList<FOSEditor.FOSDE>>> {
+	static Logger log = Logger.getLogger(FOSEditor.class);
 	
 	//public enum Rank {Primary, Secondary, Tertiary };
-	private HashMap<ContactRank/*rank_id*/, ArrayList<ContactDE>> selected;
-	
+	private HashMap<FOSRank/*rank_id*/, ArrayList<FOSDE>> selected;
 	/*
 	//allow user to override label
-	private String primary_label = ContactRank.Primary.toString();
-	private String secondary_label = ContactRank.Secondary.toString();
-	private String tertiary_label = ContactRank.Tertiary.toString();
-	public void setLabel(ContactRank rank, String label) {
+	private String primary_label = FOSRank.Primary.toString();
+	private String secondary_label = FOSRank.Secondary.toString();
+	//private String tertiary_label = FOSRank.Tertiary.toString();
+	public void setLabel(FOSRank rank, String label) {
 		switch(rank) {
 		case Primary: primary_label = label; break;
 		case Secondary: secondary_label = label; break;
-		case Tertiary: tertiary_label = label; break;
+		//case Tertiary: tertiary_label = label; break;
 		}
 	}
 	*/
 	
 	// Default max contact limits - can be overridden 
 	private int max_primary = 1;
-	private int max_secondary = 1;
-	private int max_tertiary = 16;
+	private int max_secondary = 32; //just some arbitrary limit for usability
+	//private int max_tertiary = 16;
 
-	private NewContactDE primary_newcontact;
-	private NewContactDE secondary_newcontact;
-	private NewContactDE tertiary_newcontact;
+	private NewFOSDE primary_newfos;
+	private NewFOSDE secondary_newfos;
+	//private NewContactDE tertiary_newcontact;
 	
 	private Boolean has_secondary = false;
-	private Boolean has_tertiary = false;
+	//private Boolean has_tertiary = false;
 	private Boolean show_rank = true;
 	public void setShowRank(Boolean b) { show_rank = b; }
 	
-	public void setMinContacts(ContactRank rank, int min) {
+	public void setMin(FOSRank rank, int min) {
 		addValidator(new MinValidator(rank, min));
 	}
-	public void setMaxContacts(ContactRank rank, int max) {
-		if (rank == ContactRank.Primary) { 
+	public void setMax(FOSRank rank, int max) {
+		if (rank == FOSRank.Primary) { 
 			max_primary = max;
 		}
-		else if (rank == ContactRank.Secondary) { 
+		else if (rank == FOSRank.Secondary) { 
 			max_secondary= max;
 		}
+		/*
 		else { 
 			max_tertiary= max;
 		}
+		*/
 	}	
 	public void setDisabled(Boolean b) { 
 		super.setDisabled(b);
-		primary_newcontact.setDisabled(b);
-		if(secondary_newcontact != null) {
-			secondary_newcontact.setDisabled(b);
-		}
-		if(tertiary_newcontact != null) {
-			tertiary_newcontact.setDisabled(b);
+		primary_newfos.setDisabled(b);
+		if(secondary_newfos != null) {
+			secondary_newfos.setDisabled(b);
 		}
 	}
 	
-	public ContactEditor(DivRep parent, ContactModel pmodel, Boolean _has_secondary, Boolean _has_tertiary) {
+	public FOSEditor(DivRep parent, FieldOfScienceModel pmodel, Boolean _has_secondary) {
 		super(parent);
 		
-		selected = new HashMap<ContactRank/*rank_id*/, ArrayList<ContactDE>>();
+		selected = new HashMap<FOSRank/*rank_id*/, ArrayList<FOSDE>>();
 		super.setValue(selected);//I need to do this so that DivRepFormElement correctly fire MinValidator
 		
 		has_secondary = _has_secondary;
-		has_tertiary = _has_tertiary;
+		//has_tertiary = _has_tertiary;
 		
-		primary_newcontact = new NewContactDE(this, pmodel, ContactRank.Primary);
-		selected.put(ContactRank.Primary, new ArrayList());
+		primary_newfos = new NewFOSDE(this, pmodel, FOSRank.Primary);
+		selected.put(FOSRank.Primary, new ArrayList());
 		
 		if(has_secondary) {
-			secondary_newcontact = new NewContactDE(this, pmodel, ContactRank.Secondary);
-			selected.put(ContactRank.Secondary, new ArrayList());
+			secondary_newfos = new NewFOSDE(this, pmodel, FOSRank.Secondary);
+			selected.put(FOSRank.Secondary, new ArrayList());
 		}
+		/*
 		if(has_tertiary) {
 			tertiary_newcontact = new NewContactDE(this, pmodel, ContactRank.Tertiary);
 			selected.put(ContactRank.Tertiary, new ArrayList());
 		}
+		*/
 	}
 	
 	
 	@Deprecated
 	//use addSelected() instead
-	public void setValue(HashMap<ContactRank, ArrayList<ContactEditor.ContactDE>> value)
+	public void setValue(HashMap<FOSRank, ArrayList<FOSEditor.FOSDE>> value)
 	{
 		//depricated
 	}
 	
 	@Deprecated
-	public HashMap<ContactRank, ArrayList<ContactEditor.ContactDE>> getValue()
+	public HashMap<FOSRank, ArrayList<FOSEditor.FOSDE>> getValue()
 	{
 		//depricated
 		return null;
 	}
 	
-	class MinValidator implements DivRepIValidator<HashMap<ContactRank, ArrayList<ContactDE>>>
+	class MinValidator implements DivRepIValidator<HashMap<FOSRank, ArrayList<FOSDE>>>
 	{
 		private int min;
-		private ContactRank rank;
+		private FOSRank rank;
 		
-		public MinValidator(ContactRank _rank, int _min) {
+		public MinValidator(FOSRank _rank, int _min) {
 			min = _min;
 			rank = _rank;
 		}
 		
 		public String getErrorMessage() {
-			return "Please specify at least " + min + " contact(s) for " + rank.toString();
+			return "Please specify at least " + min + " field of science for " + rank.toString();
 		}
 
-		public Boolean isValid(HashMap<ContactRank, ArrayList<ContactDE>> recs_hash) {
-			ArrayList<ContactDE> recs = recs_hash.get(rank);
+		public Boolean isValid(HashMap<FOSRank, ArrayList<FOSDE>> recs_hash) {
+			ArrayList<FOSDE> recs = recs_hash.get(rank);
 			return (recs.size() >= min);
 		}
 	}
 	
-	//autocomplete area to add new contact
-	class NewContactDE extends DivRepFormElement
+	//autocomplete area to add new fos
+	class NewFOSDE extends DivRepFormElement
 	{
-		private ContactModel pmodel;
-		private ContactRank rank;
+		private FieldOfScienceModel pmodel;
+		private FOSRank rank;
 		
-		public NewContactDE(DivRep parent, ContactModel pmodel, ContactRank rank) {
+		public NewFOSDE(DivRep parent, FieldOfScienceModel pmodel, FOSRank rank) {
 			super(parent);
 			this.pmodel = pmodel;
 			this.rank = rank;
@@ -163,9 +163,9 @@ public class ContactEditor extends DivRepFormElement<HashMap<ContactRank, ArrayL
 		
 		protected void onEvent(DivRepEvent e) {
 
-			int contact_id = Integer.parseInt((String)e.value);
+			int fos_id = Integer.parseInt((String)e.value);
 			try {
-				ContactRecord person = pmodel.get(contact_id);
+				FieldOfScienceRecord person = pmodel.get(fos_id);
 				addSelected(person, rank);
 				
 				setFormModified();
@@ -179,7 +179,6 @@ public class ContactEditor extends DivRepFormElement<HashMap<ContactRank, ArrayL
 	    	if(source == null) return null;
 	        return source.replaceAll("\\b\\s{2,}\\b", " ");
 	    }
-
 		
 		//this handles the list request from the autocomplete box.
 		protected void onRequest(HttpServletRequest request, HttpServletResponse response)
@@ -189,18 +188,18 @@ public class ContactEditor extends DivRepFormElement<HashMap<ContactRank, ArrayL
 				//support both new & old version of autocomplete
 				String query = itrim(request.getParameter("q"));		
 				int limit = Integer.parseInt(request.getParameter("limit")); //only returns records upto requested limit
-				Collection<ContactRecord> all = pmodel.getAllNonDisabled();
-				HashMap<Integer, ContactRecord> persons = new HashMap();
-				ContactRecord best_guess = null;
+				Collection<FieldOfScienceRecord> all = pmodel.getAll();
+				HashMap<Integer, FieldOfScienceRecord> foss = new HashMap();
+				FieldOfScienceRecord best_guess = null;
 				int best_guess_distance = 10000;
 				//filter records that matches the query upto limit
-				for(ContactRecord rec : all) {
-					if(persons.size() > limit) break;
+				for(FieldOfScienceRecord rec : all) {
+					if(foss.size() > limit) break;
 					
 					if(rec.name != null) {
 						String name = itrim(rec.name.toLowerCase());
 						if(name.contains(query.toLowerCase())) {
-							persons.put(rec.id, rec);
+							foss.put(rec.id, rec);
 							continue;
 						}
 						
@@ -213,44 +212,39 @@ public class ContactEditor extends DivRepFormElement<HashMap<ContactRank, ArrayL
 							}
 						}
 					}
-					if(rec.primary_email != null) {
-						String name = rec.primary_email.toLowerCase();
-						if(name.contains(query.toLowerCase())) {
-							persons.put(rec.id, rec);
-							continue;
-						}
-					}
 				}
 				
 				//if no match was found, pick the closest match
-				if(persons.size() == 0) {
-					persons.put(best_guess.id, best_guess);	
+				if(foss.size() == 0) {
+					foss.put(best_guess.id, best_guess);	
 				}
 		
 				//remove people that are already selected 
-				for(ContactDE rec : selected.get(ContactRank.Primary)) {
-					persons.remove(rec.person.id);
+				for(FOSDE rec : selected.get(FOSRank.Primary)) {
+					foss.remove(rec.fos.id);
 				}
 				if(has_secondary) {
-					for(ContactDE rec : selected.get(ContactRank.Secondary)) {
-						persons.remove(rec.person.id);
+					for(FOSDE rec : selected.get(FOSRank.Secondary)) {
+						foss.remove(rec.fos.id);
 					}					
 				}
+				/*
 				if(has_tertiary) {
 					for(ContactDE rec : selected.get(ContactRank.Tertiary)) {
 						persons.remove(rec.person.id);
 					}					
 				}
+				*/
 	
 				String out = "[";
 				boolean first = true;
-				for(ContactRecord rec : persons.values()) {
+				for(FieldOfScienceRecord rec : foss.values()) {
 					if(first) {
 						first = false;
 					} else {
 						out += ",";
 					}
-					out += "{\"id\":"+rec.id+", \"name\":\""+itrim(rec.name)+"\", \"email\":\""+rec.primary_email+"\"}\n";
+					out += "{\"id\":"+rec.id+", \"name\":\""+itrim(rec.name)+"\"}\n";
 				}
 				out += "]";
 				response.setContentType("text/javascript");
@@ -264,23 +258,23 @@ public class ContactEditor extends DivRepFormElement<HashMap<ContactRank, ArrayL
 		}
 	}
 	
-	class ContactDE extends DivRepFormElement
+	class FOSDE extends DivRepFormElement
 	{
-		public ContactRecord person;
+		public FieldOfScienceRecord fos;
 		private DivRepButton removebutton;
-		private ContactDE myself;
-		private ContactRank rank;
+		private FOSDE myself;
+		private FOSRank rank;
 		
-		ContactDE(DivRep parent, ContactRecord _person, ContactRank _rank) {
+		FOSDE(DivRep parent, FieldOfScienceRecord _fos, FOSRank _rank) {
 			super(parent);
-			person = _person;
+			fos = _fos;
 			rank = _rank;
 			myself = this;
 			removebutton = new DivRepButton(this, "images/delete.png");
 			removebutton.setStyle(DivRepButton.Style.IMAGE);
 			removebutton.addEventListener(new DivRepEventListener() {
 				public void handleEvent(DivRepEvent e) { 
-					removeContact(myself, rank);
+					removeFOS(myself, rank);
 					setFormModified();
 				}
 			});
@@ -288,15 +282,10 @@ public class ContactEditor extends DivRepFormElement<HashMap<ContactRank, ArrayL
 		public void render(PrintWriter out)
 		{
 			out.print("<div class=\"divrep_inline contact divrep_round\" id=\""+getNodeID()+"\">");
-			if(person.name == null) {
+			if(fos.name == null) {
 				out.print("(No Name)");
 			} else {
-				out.print(StringEscapeUtils.escapeHtml(person.name.trim()));
-				if(person.primary_email != null) {
-					out.print(" <code>"+StringEscapeUtils.escapeHtml("<"+person.primary_email+">")+"</code>");
-				} else {
-					out.print(" <code>(no email address specified)</code>");
-				}
+				out.print(StringEscapeUtils.escapeHtml(fos.name.trim()));
 			}
 			if(!isDisabled()) {
 				out.write(" ");
@@ -311,81 +300,50 @@ public class ContactEditor extends DivRepFormElement<HashMap<ContactRank, ArrayL
 		}
 	}
 	
-	public void removeContact(ContactDE contact, ContactRank rank)
+	public void removeFOS(FOSDE fd, FOSRank rank)
 	{
-		ArrayList<ContactDE> list = selected.get(rank);		
-		list.remove(contact);
+		ArrayList<FOSDE> list = selected.get(rank);		
+		list.remove(fd);
 		validate();
 		redraw();
 	}
-	/*
-	private ContactRank DBRank2Enum(int contact_rank_id)
+	public void addSelected(FieldOfScienceRecord rec, FOSRank rank)
 	{
-		switch(contact_rank_id) {
-		case 1:
-			return ContactRank.Primary;
-		case 2:
-			return ContactRank.Secondary;
-		case 3:
-			return ContactRank.Tertiary;
-		}	
-		throw new IllegalArgumentException("Uknown contact_rank_id: " + contact_rank_id);
-	}
-	
-	private int Enum2DBRank(ContactRank rank)
-	{
-		switch(rank) {
-		case Primary:
-			return 1;
-		case Secondary:
-			return 2;
-		case Tertiary:
-			return 3;
-		}
-		throw new IllegalArgumentException("Uknown rank: " + rank);
-	}
-	*/
-	public void addSelected(ContactRecord rec, ContactRank rank)
-	{
-		ArrayList<ContactDE> list = selected.get(rank);
+		ArrayList<FOSDE> list = selected.get(rank);
 		if(list != null) {
-			list.add(new ContactDE(this, rec, rank));
+			list.add(new FOSDE(this, rec, rank));
 			validate();
 			redraw();
 		}
 	}
-	public void addSelected(ContactRecord rec, int contact_rank_id)
+	public void addSelected(FieldOfScienceRecord rec, int fos_rank_id)
 	{
-		ContactRank rank = ContactRank.get(contact_rank_id);
+		FOSRank rank = FOSRank.get(fos_rank_id);
 		addSelected(rec, rank);
 	}
 	
-	public HashMap<ContactRecord, ContactRank/*rank*/> getContactRecords()
+	public HashMap<FieldOfScienceRecord, FOSRank/*rank*/> getFOSRecords()
 	{
-		HashMap<ContactRecord, ContactRank> records = new HashMap();
-		for(ContactRank rank : selected.keySet()) {
-			ArrayList<ContactDE> cons = selected.get(rank);
-			for(ContactDE con : cons) {
-				records.put(con.person, rank);
+		HashMap<FieldOfScienceRecord, FOSRank> records = new HashMap();
+		for(FOSRank rank : selected.keySet()) {
+			for(FOSDE fd : selected.get(rank)) {
+				records.put(fd.fos, rank);
 			}
 		}
 		return records;
 	}
 
-	public ArrayList<ContactRecord> getContactRecordsByRank(ContactRank rank)
+	public ArrayList<FieldOfScienceRecord> getFOSRecordsByRank(FOSRank rank)
 	{
-		return getContactRecordsByRank(rank.id);
+		return getFOSRecordsByRank(rank.id);
 	}
 	
-	public ArrayList<ContactRecord> getContactRecordsByRank(Integer _rank_id)
+	public ArrayList<FieldOfScienceRecord> getFOSRecordsByRank(Integer _rank_id)
 	{
-		ContactRank rank = ContactRank.get(_rank_id);
-
-		ArrayList<ContactRecord> records = new ArrayList<ContactRecord>();
-		ArrayList<ContactDE> contact_divs = new ArrayList<ContactDE>();
-		contact_divs = selected.get(rank);
-		for(ContactDE contact_div : contact_divs) {
-			records.add(contact_div.person);
+		FOSRank rank = FOSRank.get(_rank_id);
+		ArrayList<FieldOfScienceRecord> records = new ArrayList<FieldOfScienceRecord>();
+		for(FOSDE div : selected.get(rank)) {
+			records.add(div.fos);
 		}
 		return records;
 	}
@@ -405,20 +363,22 @@ public class ContactEditor extends DivRepFormElement<HashMap<ContactRank, ArrayL
 			} else {
 				out.print("<table class='contact_table'>");
 			}
-			renderContactList(out, primary_newcontact, selected.get(ContactRank.Primary), ContactRank.Primary, max_primary);
+			renderFOSList(out, primary_newfos, selected.get(FOSRank.Primary), FOSRank.Primary, max_primary);
 			if(has_secondary) {
-				renderContactList(out, secondary_newcontact, selected.get(ContactRank.Secondary), ContactRank.Secondary, max_secondary);
+				renderFOSList(out, secondary_newfos, selected.get(FOSRank.Secondary), FOSRank.Secondary, max_secondary);
 			}
+			/*
 			if(has_tertiary) {
-				renderContactList(out, tertiary_newcontact, selected.get(ContactRank.Tertiary), ContactRank.Tertiary, max_tertiary);
+				renderFOSList(out, tertiary_newcontact, selected.get(ContactRank.Tertiary), ContactRank.Tertiary, max_tertiary);
 			}
+			*/
 			out.print("</table>");
 			error.render(out);
 		}
 		out.print("</div>");
 	}
 	
-	public void renderContactList(PrintWriter out, NewContactDE newcontact, ArrayList<ContactDE> selected, ContactRank rank, int max)
+	public void renderFOSList(PrintWriter out, NewFOSDE newfos, ArrayList<FOSDE> selected, FOSRank rank, int max)
 	{
 		out.print("<tr>");
 		if(show_rank) {
@@ -427,18 +387,18 @@ public class ContactEditor extends DivRepFormElement<HashMap<ContactRank, ArrayL
 		if(selected.size() >= max || isDisabled()) {
 			//list is full or disabled
 			out.print("<td><div class=\"contact_editor\">");
-			for(ContactDE contact : selected) {
-				contact.setDisabled(isDisabled());
-				contact.render(out);
+			for(FOSDE fd : selected) {
+				fd.setDisabled(isDisabled());
+				fd.render(out);
 			}
 			out.print("</div></td>");
 		} else {
 			//user can add more contact
 			out.print("<td style=\"border: 1px solid #ccc; background-color: white;\"><div class=\"contact_editor\" onclick=\"$(this).find('.autocomplete').focus(); return false;\">");
-			for(ContactDE contact : selected) {
-				contact.render(out);
+			for(FOSDE fd : selected) {
+				fd.render(out);
 			}
-			newcontact.render(out);
+			newfos.render(out);
 			out.write("</div>");
 			
 			out.write("</td>");

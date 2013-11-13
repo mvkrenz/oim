@@ -27,12 +27,13 @@ import com.divrep.validator.DivRepUrlValidator;
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Footprints;
 import edu.iu.grid.oim.lib.AuthorizationException;
-
 import edu.iu.grid.oim.model.ContactRank;
+import edu.iu.grid.oim.model.FOSRank;
 import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.UserContext.MessageType;
 import edu.iu.grid.oim.model.db.ContactTypeModel;
 import edu.iu.grid.oim.model.db.ContactModel;
+import edu.iu.grid.oim.model.db.FieldOfScienceModel;
 import edu.iu.grid.oim.model.db.VOOasisUserModel;
 import edu.iu.grid.oim.model.db.VOReportContactModel;
 import edu.iu.grid.oim.model.db.VOReportNameModel;
@@ -43,6 +44,7 @@ import edu.iu.grid.oim.model.db.VOFieldOfScienceModel;
 import edu.iu.grid.oim.model.db.VOModel;
 import edu.iu.grid.oim.model.db.record.ContactTypeRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
+import edu.iu.grid.oim.model.db.record.FieldOfScienceRecord;
 import edu.iu.grid.oim.model.db.record.VOOasisUserRecord;
 import edu.iu.grid.oim.model.db.record.VOReportContactRecord;
 import edu.iu.grid.oim.model.db.record.VOReportNameRecord;
@@ -51,13 +53,13 @@ import edu.iu.grid.oim.model.db.record.SCRecord;
 import edu.iu.grid.oim.model.db.record.VOContactRecord;
 import edu.iu.grid.oim.model.db.record.VOFieldOfScienceRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
-
 import edu.iu.grid.oim.view.ToolTip;
 import edu.iu.grid.oim.view.divrep.AUPConfirmation;
 import edu.iu.grid.oim.view.divrep.Confirmation;
 import edu.iu.grid.oim.view.divrep.ContactEditor;
-import edu.iu.grid.oim.view.divrep.VOReportNames;
 import edu.iu.grid.oim.view.divrep.FieldOfScience;
+import edu.iu.grid.oim.view.divrep.VOReportNames;
+import edu.iu.grid.oim.view.divrep.FOSEditor;
 
 public class VOFormDE extends DivRepForm 
 {
@@ -103,7 +105,7 @@ public class VOFormDE extends DivRepForm
 	private DivRepTextArea app_description;
 	private VOReportNames vo_report_name_div;
 	
-	private FieldOfScience field_of_science_de;
+	private FOSEditor field_of_science_de;
 	
 	private URLs urls;
 	private DivRepTextBox primary_url; // Moved out of URLs class to enable direct property manipulation
@@ -136,21 +138,25 @@ public class VOFormDE extends DivRepForm
 
 			urls = new URLs(this, rec);
 
-			// Fields of Science
+			new DivRepStaticContent(this, "<h3>Field Of Science</h3>");
 			try {
-				ArrayList<Integer> selected = new ArrayList<Integer>();
+				field_of_science_de = new FOSEditor(this, new FieldOfScienceModel(context), true);
+				FieldOfScienceModel fosmodel = new FieldOfScienceModel(context);
+				//ArrayList<Integer> selected = new ArrayList<Integer>();
 				//select currently selected field of science
 				if(rec.id != null) {
 					VOFieldOfScienceModel vofsmodel = new VOFieldOfScienceModel(context);
 					for(VOFieldOfScienceRecord fsrec : vofsmodel.getByVOID(rec.id)) {
-						selected.add(fsrec.field_of_science_id);
+						//selected.add(fsrec.field_of_science_id);
+						FieldOfScienceRecord fos = fosmodel.get(fsrec.field_of_science_id);
+						field_of_science_de.addSelected(fos, fsrec.contact_rank_id);
 					}
 				}
-				field_of_science_de = new FieldOfScience(this, context, selected);
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
+			new DivRepStaticContent(this, "<p class=\"help-block\">* If you can't find the field of science you are trying to enter, please <a href=\"https://ticket.grid.iu.edu\" target='_blank'\">submit GOC ticket</a> and request to add a new field of science.</p>");
 
 			// Handle reporting names
 			new DivRepStaticContent(this, "<h3>Reporting Names for your VO</h3>");
@@ -217,6 +223,7 @@ public class VOFormDE extends DivRepForm
 			primary_url.setValue(rec.primary_url);
 			primary_url.addValidator(DivRepUrlValidator.getInstance());
 			// primary_url.setRequired(true);
+			primary_url.addInputClass("input-xxlarge");
 			primary_url.setSampleValue("http://www-cdf.fnal.gov");
 
 			aup_url = new DivRepTextBox(this);
@@ -224,6 +231,7 @@ public class VOFormDE extends DivRepForm
 			aup_url.setValue(rec.aup_url);
 			aup_url.addValidator(DivRepUrlValidator.getInstance());
 			// aup_url.setRequired(true);
+			aup_url.addInputClass("input-xxlarge");
 			aup_url.setSampleValue("http://www-cdf.fnal.gov");
 
 			membership_services_url = new DivRepTextBox(this);
@@ -231,6 +239,7 @@ public class VOFormDE extends DivRepForm
 			membership_services_url.setValue(rec.membership_services_url);
 			membership_services_url.addValidator(DivRepUrlValidator.getInstance());
 			// membership_services_url.setRequired(true);
+			membership_services_url.addInputClass("input-xxlarge");
 			membership_services_url.setSampleValue("https://voms.fnal.gov:8443/voms/cdf/");
 
 			purpose_url = new DivRepTextBox(this);
@@ -238,6 +247,7 @@ public class VOFormDE extends DivRepForm
 			purpose_url.setValue(rec.purpose_url);
 			purpose_url.addValidator(DivRepUrlValidator.getInstance());
 			// purpose_url.setRequired(true);
+			purpose_url.addInputClass("input-xxlarge");
 			purpose_url.setSampleValue("http://www-cdf.fnal.gov");
 
 			support_url = new DivRepTextBox(this);
@@ -245,12 +255,12 @@ public class VOFormDE extends DivRepForm
 			support_url.setValue(rec.support_url);
 			support_url.addValidator(DivRepUrlValidator.getInstance());
 			// support_url.setRequired(true);
+			support_url.addInputClass("input-xxlarge");
 			support_url.setSampleValue("http://cdfcaf.fnal.gov");
 		}
 		
 		protected void onEvent(DivRepEvent e) {
 			// TODO Auto-generated method stub
-			
 		}
 
 		@Override
@@ -369,6 +379,8 @@ public class VOFormDE extends DivRepForm
 		long_name.setLabel("Enter the Long Name for this VO");
 		long_name.setValue(rec.long_name);
 		long_name.setRequired(true); // TODO: agopu should this be required?
+		long_name.addInputClass("input-xlarge");
+		
 		long_name.setSampleValue("Collider Detector at Fermilab");
 
 		cert_only = new DivRepCheckBox(this);
@@ -548,8 +560,8 @@ public class VOFormDE extends DivRepForm
 				break;
 			case 11://ra
 				editor.setDisabled(!auth.allows("admin_ra"));
-				editor.setLabel(ContactRank.Primary, "Primary RA");
-				editor.setLabel(ContactRank.Secondary, "Secondary RA");
+				//editor.setLabel(ContactRank.Primary, "Primary RA");
+				//editor.setLabel(ContactRank.Secondary, "Secondary RA");
 				editor.setMaxContacts(ContactRank.Secondary, 8);
 				break;
 			case 12://sponsor
@@ -709,7 +721,8 @@ public class VOFormDE extends DivRepForm
 		context.setComment(comment.getValue());
 		
 		ArrayList<VOContactRecord> contacts = getContactRecordsFromEditor();
-		
+		HashMap<FieldOfScienceRecord, FOSRank/*rank*/> foss = field_of_science_de.getFOSRecords();
+		/*
 		ArrayList<Integer> field_of_science_ids = new ArrayList();
 		for(Integer id : field_of_science_de.getSciences().keySet()) {
 			DivRepCheckBox elem = field_of_science_de.getSciences().get(id);
@@ -717,6 +730,7 @@ public class VOFormDE extends DivRepForm
 				field_of_science_ids.add(id);
 			}
 		}
+		*/
 		
 		VOModel model = new VOModel(context);
 		try {
@@ -724,7 +738,7 @@ public class VOFormDE extends DivRepForm
 				model.insertDetail(rec, 
 						contacts, 
 						parent_vo.getValue(), 
-						field_of_science_ids,
+						foss,
 						vo_report_name_div.getVOReports(model),
 						oasis_users.getContacts());
 				context.message(MessageType.SUCCESS, "Successfully registered new VO. You should receive a notification with an instruction on how to active your VO.");
@@ -744,7 +758,7 @@ public class VOFormDE extends DivRepForm
 				model.updateDetail(rec, 
 						contacts, 
 						parent_vo.getValue(), 
-						field_of_science_ids,
+						foss,
 						vo_report_name_div.getVOReports(model),
 						oasis_users.getContacts());
 				context.message(MessageType.SUCCESS, "Successfully updated a VO.");

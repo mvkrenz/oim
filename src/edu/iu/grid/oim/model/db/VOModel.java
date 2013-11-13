@@ -4,15 +4,20 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
+
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
+
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 
+import edu.iu.grid.oim.model.FOSRank;
 import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
+import edu.iu.grid.oim.model.db.record.FieldOfScienceRecord;
 import edu.iu.grid.oim.model.db.record.RecordBase;
 import edu.iu.grid.oim.model.db.record.SCRecord;
 import edu.iu.grid.oim.model.db.record.VOContactRecord;
@@ -117,7 +122,7 @@ public class VOModel extends SmallTableModelBase<VORecord>
 	public void insertDetail(VORecord rec, 
 			ArrayList<VOContactRecord> contacts, 
 			Integer parent_vo_id, 
-			ArrayList<Integer> field_of_science,
+			HashMap<FieldOfScienceRecord, FOSRank/*rank*/> foss,
 			ArrayList<VOReport> voreports,
 			ArrayList<ContactRecord> oasis_users) throws Exception
 	{
@@ -159,10 +164,12 @@ public class VOModel extends SmallTableModelBase<VORecord>
 			
 			//process field of science
 			ArrayList<VOFieldOfScienceRecord> list = new ArrayList<VOFieldOfScienceRecord>();
-			for(Integer fsid : field_of_science) {
+			for(FieldOfScienceRecord fos : foss.keySet()) {
+				FOSRank rank = foss.get(fos);
 				VOFieldOfScienceRecord vfosrec = new VOFieldOfScienceRecord();
 				vfosrec.vo_id = rec.id;
-				vfosrec.field_of_science_id = fsid;
+				vfosrec.contact_rank_id = rank.id;
+				vfosrec.field_of_science_id = fos.id;
 				list.add(vfosrec);
 			}
 			VOFieldOfScienceModel vofsmodel = new VOFieldOfScienceModel(context);
@@ -197,7 +204,7 @@ public class VOModel extends SmallTableModelBase<VORecord>
 	public void updateDetail(VORecord rec,
 			ArrayList<VOContactRecord> contacts, 
 			Integer parent_vo_id, 
-			ArrayList<Integer> field_of_science, 
+			HashMap<FieldOfScienceRecord, FOSRank/*rank*/> foss,
 			ArrayList<VOReport> voreports,
 			ArrayList<ContactRecord> oasis_users) throws Exception
 	{
@@ -239,12 +246,13 @@ public class VOModel extends SmallTableModelBase<VORecord>
 			
 			//process field of science
 			ArrayList<VOFieldOfScienceRecord> list = new ArrayList<VOFieldOfScienceRecord>();
-			for(Integer fsid : field_of_science) {
+			for(FieldOfScienceRecord fos : foss.keySet()) {
+				FOSRank rank = foss.get(fos);
 				VOFieldOfScienceRecord vfosrec = new VOFieldOfScienceRecord();
 				vfosrec.vo_id = rec.id;
-				vfosrec.field_of_science_id = fsid;
+				vfosrec.contact_rank_id = rank.id;
+				vfosrec.field_of_science_id = fos.id;
 				list.add(vfosrec);
-			
 			}
 			VOFieldOfScienceModel vofsmodel = new VOFieldOfScienceModel(context);
 			vofsmodel.update(vofsmodel.getByVOID(rec.id), list);

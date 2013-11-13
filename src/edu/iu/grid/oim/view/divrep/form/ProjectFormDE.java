@@ -19,6 +19,7 @@ import com.divrep.validator.DivRepUniqueValidator;
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.AuthorizationException;
 import edu.iu.grid.oim.model.ContactRank;
+import edu.iu.grid.oim.model.FOSRank;
 import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.UserContext.MessageType;
 import edu.iu.grid.oim.model.db.CampusGridModel;
@@ -34,6 +35,7 @@ import edu.iu.grid.oim.model.db.record.ProjectPublicationRecord;
 import edu.iu.grid.oim.model.db.record.ProjectRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
 import edu.iu.grid.oim.view.divrep.ContactEditor;
+import edu.iu.grid.oim.view.divrep.FOSEditor;
 import edu.iu.grid.oim.view.divrep.ProjectPublicationEditor;
 import edu.iu.grid.oim.view.divrep.FieldOfScience;
 import edu.iu.grid.oim.view.divrep.form.validator.ProjectNameValidator;
@@ -53,7 +55,8 @@ public class ProjectFormDE extends DivRepForm
 	private DivRepTextBox department;
 	private DivRepSelectBox parent;
 	private ContactEditor pi;
-	private FieldOfScience field_of_science_de;
+	//private FieldOfScience field_of_science_de;
+	private FOSEditor field_of_science_de;
 	private ProjectPublicationEditor publications;
 	//private ProjectUserEditor users;
 	private Timestamp submit_time;
@@ -156,9 +159,18 @@ public class ProjectFormDE extends DivRepForm
 		if(rec.fos_id != null) {
 			fos_selected.add(rec.fos_id);
 		}
-		field_of_science_de = new FieldOfScience(this, context, fos_selected);
-		field_of_science_de.setRequired(true);
-		field_of_science_de.setMaxSelect(1);
+		
+		new DivRepStaticContent(this, "<h3>Field Of Science</h3>");
+		FieldOfScienceModel fmodel = new FieldOfScienceModel(context);
+		field_of_science_de = new FOSEditor(this, fmodel, false);
+		//field_of_science_de.setRequired(true);
+		field_of_science_de.setMin(FOSRank.Primary, 1); //required
+		field_of_science_de.setShowRank(false); //only primary.
+		if(rec.id != null) {
+			FieldOfScienceRecord fos = fmodel.get(rec.fos_id);
+			field_of_science_de.addSelected(fos, FOSRank.Primary);	
+		}
+		new DivRepStaticContent(this, "<p class=\"help-block\">* If you can't find the field of science you are trying to enter, please <a href=\"https://ticket.grid.iu.edu\" target='_blank'\">submit GOC ticket</a> and request to add a new field of science.</p>");
 		
 		publications = new ProjectPublicationEditor(this);
 		if(rec.id != null) {
@@ -167,16 +179,6 @@ public class ProjectFormDE extends DivRepForm
 				publications.addPublication(prec);
 			}
 		}
-		
-		/*
-		users = new ProjectUserEditor(this, context);
-		if(rec.id != null) {
-			ProjectUserModel pumodel = new ProjectUserModel(context);
-			for(ProjectUserRecord urec : pumodel.getAllByProjectId(rec.id)) {
-				users.addUser(urec);
-			}
-		}
-		*/
 			
 		new DivRepStaticContent(this, "<hr>");
 		
@@ -224,8 +226,8 @@ public class ProjectFormDE extends DivRepForm
 			rec.cg_id = parent.getValue() - vo_cg_offset;
 		}
 		
-		ArrayList<Integer> fos_ids = field_of_science_de.getSelected();
-		rec.fos_id = fos_ids.get(0);
+		ArrayList<FieldOfScienceRecord> foss = field_of_science_de.getFOSRecordsByRank(FOSRank.Primary);
+		rec.fos_id = foss.get(0).id;
 		
 		if(rec.name == null || rec.name.isEmpty()) {
 			//autogenerate unique ID

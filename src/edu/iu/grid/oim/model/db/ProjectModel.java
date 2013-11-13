@@ -5,9 +5,11 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpressionException;
+
 import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 
@@ -21,6 +23,7 @@ import edu.iu.grid.oim.model.db.record.ProjectUserRecord;
 import edu.iu.grid.oim.model.db.record.RecordBase;
 import edu.iu.grid.oim.model.db.record.ProjectRecord;
 import edu.iu.grid.oim.model.db.record.VOContactRecord;
+import edu.iu.grid.oim.model.db.record.VOFieldOfScienceRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
 
 public class ProjectModel extends SmallTableModelBase<ProjectRecord>
@@ -203,6 +206,16 @@ public class ProjectModel extends SmallTableModelBase<ProjectRecord>
 				list.add(rec);
 			}
 		}
+		return list;
+	}
+	
+	public ArrayList<ProjectRecord> getByFOS(int fos_id) throws SQLException
+	{
+		ArrayList<ProjectRecord> list = new ArrayList<ProjectRecord>();
+		for(RecordBase rec : getCache()) {
+			ProjectRecord prec = (ProjectRecord)rec;
+			if(prec.fos_id.compareTo(fos_id) == 0) list.add(prec);
+		}		
 		return list;
 	}
 	

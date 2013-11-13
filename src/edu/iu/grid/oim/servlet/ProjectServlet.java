@@ -105,24 +105,11 @@ public class ProjectServlet extends ServletBase implements Servlet {
 			contentview.add(new HtmlView("<a href=\"projectedit\" class=\"btn pull-right\"><i class=\"icon-plus-sign\"></i> Add New Project</a>"));
 			contentview.add(new HtmlView("<h2>My Projects</h2>"));
 			if(editable_projects.size() == 0) {
-				contentview.add(new HtmlView("<p>You currently have no project that youare authorized to edit</p>"));
+				contentview.add(new HtmlView("<p>You currently have no project that you are authorized to edit</p>"));
 			}
 			ItemTableView table = new ItemTableView(6);
 			for(final ProjectRecord rec : editable_projects) {
 				String name = rec.name;
-				/*
-				String disable_css = "";
-				String tag = "";
-				if(rec.disable) {
-					disable_css += " disabled";
-					tag += " [Disabled]";
-				}
-				if(!rec.active) {
-					disable_css += " inactive";
-					tag += " [Inactive]";
-				}
-				table.add(new HtmlView("<a class=\""+disable_css+"\" title=\""+StringEscapeUtils.escapeHtml(rec.long_name)+"\" href=\"voedit?id="+rec.id+"\">"+StringEscapeUtils.escapeHtml(name)+tag+"</a>"));
-				*/
 				table.add(new HtmlView("<a title=\""+StringEscapeUtils.escapeHtml(rec.name)+"\" href=\"projectedit?id="+rec.id+"\">"+StringEscapeUtils.escapeHtml(name)+"</a>"));
 			}
 			contentview.add(table);
@@ -130,27 +117,9 @@ public class ProjectServlet extends ServletBase implements Servlet {
 		
 		if(readonly_projects.size() != 0) {
 			contentview.add(new HtmlView("<h2>Projects</h2>"));
-			//contentview.add(new HtmlView("<p>Following are the currently registered virtual organizations on OIM - you do not have edit access on these records.</p>"));
-	
 			ItemTableView table = new ItemTableView(5);
 			for(final ProjectRecord rec : readonly_projects) {
 				String name = rec.name;
-				/*
-				GenericView vo = new GenericView();		
-				String disable_css = "";
-				String tag = "";
-				if(rec.disable) {
-					disable_css += " disabled";
-					tag += " (Disabled)";
-				}
-				if(!rec.active) {
-					disable_css += " inactive";
-					tag += " (Inactive)";
-				}
-				vo.add(new HtmlView("<a class=\""+disable_css+"\" title=\""+StringEscapeUtils.escapeHtml(rec.long_name)+"\" href=\"vo?id="+rec.id+"\">"+StringEscapeUtils.escapeHtml(name)+tag+"</a>"));
-				//vo.add(new HtmlView("<p>"+StringEscapeUtils.escapeHtml(rec.long_name)+"</p>"));
-				table.add(vo);
-				*/
 				table.add(new HtmlView("<a title=\""+StringEscapeUtils.escapeHtml(rec.name)+"\" href=\"project?id="+rec.id+"\">"+StringEscapeUtils.escapeHtml(name)+"</a>"));
 			}
 			contentview.add(table);
@@ -188,10 +157,6 @@ public class ProjectServlet extends ServletBase implements Servlet {
 			FieldOfScienceModel model = new FieldOfScienceModel(context);
 			FieldOfScienceRecord fos = model.get(rec.fos_id);
 			table.addRow("Field Of Science", fos.name);
-		
-			
-			//table.addRow("Active", rec.active);
-			//table.addRow("Disable", rec.disable);
 		} catch (SQLException e) {
 			return new DivRepStaticContent(context.getPageRoot(), e.toString());
 		}

@@ -24,6 +24,8 @@ import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.FieldOfScienceModel;
 import edu.iu.grid.oim.model.db.record.FieldOfScienceRecord;
 
+@Deprecated
+//use FOSEditor instead
 public class FieldOfScience extends DivRepFormElement
 {
     static Logger log = Logger.getLogger(FieldOfScience.class); 
@@ -178,7 +180,7 @@ public class FieldOfScience extends DivRepFormElement
 	}
 
 	public void render(PrintWriter out) {
-		out.write("<div id=\""+getNodeID()+"\" class=\"well\">");
+		out.write("<div id=\""+getNodeID()+"\">");
 		
 		//out.write("<p>Select Field Of Science(s) applicable to this VO</p>");
 		

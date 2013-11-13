@@ -14,7 +14,6 @@ import org.apache.log4j.Logger;
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.ContactModel;
-import edu.iu.grid.oim.model.db.FieldOfScienceModel;
 import edu.iu.grid.oim.model.db.LogModel;
 import edu.iu.grid.oim.model.db.ProjectModel;
 import edu.iu.grid.oim.model.db.VOModel;
@@ -30,7 +29,6 @@ import edu.iu.grid.oim.view.HtmlView;
 import edu.iu.grid.oim.view.LogView;
 import edu.iu.grid.oim.view.ProjectView;
 import edu.iu.grid.oim.view.SideContentView;
-import edu.iu.grid.oim.view.divrep.FieldOfScience;
 import edu.iu.grid.oim.view.divrep.form.VOFormDE;
 
 public class VOEditServlet extends ServletBase implements Servlet {

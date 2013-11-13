@@ -14,8 +14,12 @@ function setAutocomplete(node)
 				},
 				success: function( data ) {
 					response( $.map( data, function( item ) {
+						var label = item.name;
+						if(item.email != undefined) {
+							label += " <" + item.email + ">";
+						}
 						return {
-							label: item.name + " <" + item.email + ">",
+							label: label,
 							value: item.name,
 							id: item.id
 						}
