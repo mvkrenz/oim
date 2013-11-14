@@ -57,7 +57,6 @@ import edu.iu.grid.oim.view.ToolTip;
 import edu.iu.grid.oim.view.divrep.AUPConfirmation;
 import edu.iu.grid.oim.view.divrep.Confirmation;
 import edu.iu.grid.oim.view.divrep.ContactEditor;
-import edu.iu.grid.oim.view.divrep.FieldOfScience;
 import edu.iu.grid.oim.view.divrep.VOReportNames;
 import edu.iu.grid.oim.view.divrep.FOSEditor;
 
@@ -149,7 +148,7 @@ public class VOFormDE extends DivRepForm
 					for(VOFieldOfScienceRecord fsrec : vofsmodel.getByVOID(rec.id)) {
 						//selected.add(fsrec.field_of_science_id);
 						FieldOfScienceRecord fos = fosmodel.get(fsrec.field_of_science_id);
-						field_of_science_de.addSelected(fos, fsrec.contact_rank_id);
+						field_of_science_de.addSelected(fos, fsrec.rank_id);
 					}
 				}
 			} catch (SQLException e) {

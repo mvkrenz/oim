@@ -168,7 +168,7 @@ public class VOModel extends SmallTableModelBase<VORecord>
 				FOSRank rank = foss.get(fos);
 				VOFieldOfScienceRecord vfosrec = new VOFieldOfScienceRecord();
 				vfosrec.vo_id = rec.id;
-				vfosrec.contact_rank_id = rank.id;
+				vfosrec.rank_id = rank.id;
 				vfosrec.field_of_science_id = fos.id;
 				list.add(vfosrec);
 			}
@@ -250,7 +250,7 @@ public class VOModel extends SmallTableModelBase<VORecord>
 				FOSRank rank = foss.get(fos);
 				VOFieldOfScienceRecord vfosrec = new VOFieldOfScienceRecord();
 				vfosrec.vo_id = rec.id;
-				vfosrec.contact_rank_id = rank.id;
+				vfosrec.rank_id = rank.id;
 				vfosrec.field_of_science_id = fos.id;
 				list.add(vfosrec);
 			}

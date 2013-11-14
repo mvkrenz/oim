@@ -322,7 +322,7 @@ public class VOServlet extends ServletBase implements Servlet {
 			FieldOfScienceRecord frec = fmodel.get(keyrec);
 			//out += "<li>" + frec.name + "</li>";
 			
-			ContactRank rank = ContactRank.get(rec.contact_rank_id);
+			ContactRank rank = ContactRank.get(rec.rank_id);
 			out += "<div class='contact_rank contact_"+rank+"'>";
 			out +=  StringEscapeUtils.escapeHtml(frec.name.trim());
 			out += "</div>";
