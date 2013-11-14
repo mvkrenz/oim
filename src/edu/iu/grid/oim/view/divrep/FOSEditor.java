@@ -157,7 +157,7 @@ public class FOSEditor extends DivRepFormElement<HashMap<FOSRank, ArrayList<FOSE
 		public void render(PrintWriter out) {
 			out.print("<div class=\"divrep_inline\" id=\""+getNodeID()+"\">");
 			out.print("<input type='text' class='autocomplete'/>");
-			out.print("<script type='text/javascript'>$(document).ready(function() {setAutocomplete($('#"+getNodeID()+" input.autocomplete'));});</script>");
+			out.print("<script type='text/javascript'>$(document).ready(function() {setAutocomplete($('#"+getNodeID()+" input.autocomplete'), 0);});</script>");
 			out.print("</div>");
 		}
 		
@@ -167,8 +167,8 @@ public class FOSEditor extends DivRepFormElement<HashMap<FOSRank, ArrayList<FOSE
 			try {
 				FieldOfScienceRecord person = pmodel.get(fos_id);
 				addSelected(person, rank);
-				
 				setFormModified();
+				js("$('#"+getNodeID()+" input').focus();");
 			} catch (SQLException e1) {
 				alert("Unknown contact_id");
 			}

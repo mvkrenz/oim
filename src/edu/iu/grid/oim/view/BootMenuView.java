@@ -97,6 +97,15 @@ public class BootMenuView implements IView {
 					out.println("<a href=\"cpuinfo\">CPU Info</a></li>");	
 				}
 				
+				if (auth.allows("admin_fos")) {
+					if(current.equals("fieldofscience")) {
+						out.println("<li class=\"active\">");
+					} else {
+						out.println("<li>");		
+					}
+					out.println("<a href=\"fieldofscience\">Fields of Science</a></li>");	
+				}
+				
 				if (auth.allows("read_report")) {
 					out.println("<li class=\"divider\"></li>");
 					

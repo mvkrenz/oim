@@ -36,7 +36,7 @@ public class FieldOfScienceEditServlet extends ServletBase {
 	{
 		UserContext context = new UserContext(request);
 		Authorization auth = context.getAuthorization();
-		auth.check("admin");
+		auth.check("admin_fos");
 		
 		FieldOfScienceRecord rec;
 		String title;
@@ -73,8 +73,8 @@ public class FieldOfScienceEditServlet extends ServletBase {
 		
 		//setup crumbs
 		BootBreadCrumbView bread_crumb = new BootBreadCrumbView();
-		bread_crumb.addCrumb("Administration",  "admin");
-		bread_crumb.addCrumb("Field Of Science",  "fieldofscience");
+		//bread_crumb.addCrumb("Administration",  "admin");
+		bread_crumb.addCrumb("Fields Of Science",  "fieldofscience");
 		bread_crumb.addCrumb(title,  null);
 
 		contentview.setBreadCrumb(bread_crumb);
@@ -85,8 +85,11 @@ public class FieldOfScienceEditServlet extends ServletBase {
 	
 	private SideContentView createSideView()
 	{
+		return  null;
+		/*
 		SideContentView view = new SideContentView();
 		//view.add("Misc-no-op", new HtmlView("Misc-no-op"));
 		return view;
+		*/
 	}
 }

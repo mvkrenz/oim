@@ -1,5 +1,5 @@
 
-function setAutocomplete(node)
+function setAutocomplete(node, minLength)
 {
 	$( node ).autocomplete({
 		source: function( request, response ) {
@@ -27,7 +27,7 @@ function setAutocomplete(node)
 				}
 			});
 		},
-		minLength: 2,
+		minLength: minLength,
 		delay: 300,
 		select: function( event, ui ) {
 			parent_id = node[0].parentNode.id;

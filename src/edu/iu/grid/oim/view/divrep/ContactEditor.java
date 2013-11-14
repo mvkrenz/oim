@@ -157,7 +157,7 @@ public class ContactEditor extends DivRepFormElement<HashMap<ContactRank, ArrayL
 		public void render(PrintWriter out) {
 			out.print("<div class=\"divrep_inline\" id=\""+getNodeID()+"\">");
 			out.print("<input type='text' class='autocomplete'/>");
-			out.print("<script type='text/javascript'>$(document).ready(function() {setAutocomplete($('#"+getNodeID()+" input.autocomplete'));});</script>");
+			out.print("<script type='text/javascript'>$(document).ready(function() {setAutocomplete($('#"+getNodeID()+" input.autocomplete'), 1);});</script>");
 			out.print("</div>");
 		}
 		
@@ -167,8 +167,9 @@ public class ContactEditor extends DivRepFormElement<HashMap<ContactRank, ArrayL
 			try {
 				ContactRecord person = pmodel.get(contact_id);
 				addSelected(person, rank);
-				
 				setFormModified();
+				
+				js("$('#"+getNodeID()+" input').focus();");
 			} catch (SQLException e1) {
 				alert("Unknown contact_id");
 			}
@@ -285,6 +286,14 @@ public class ContactEditor extends DivRepFormElement<HashMap<ContactRank, ArrayL
 				}
 			});
 		}
+		
+		/*
+		public void setFocus() {
+			//TODO
+			this.js("alert('focus');");
+		}
+		*/
+		
 		public void render(PrintWriter out)
 		{
 			out.print("<div class=\"divrep_inline contact divrep_round\" id=\""+getNodeID()+"\">");
@@ -349,7 +358,8 @@ public class ContactEditor extends DivRepFormElement<HashMap<ContactRank, ArrayL
 	{
 		ArrayList<ContactDE> list = selected.get(rank);
 		if(list != null) {
-			list.add(new ContactDE(this, rec, rank));
+			ContactDE newde = new ContactDE(this, rec, rank);
+			list.add(newde);
 			validate();
 			redraw();
 		}

@@ -44,19 +44,20 @@ public class FieldOfScienceServlet extends ServletBase {
 	{	
 		UserContext context = new UserContext(request);
 		Authorization auth = context.getAuthorization();
-		auth.check("admin");
+		auth.check("admin_fos");
 		
 		try {
 			//construct view
-			BootMenuView menuview = new BootMenuView(context, "admin");;
+			BootMenuView menuview = new BootMenuView(context, "fieldofscience");
 			ContentView contentview = createContentView(context);
-			
+			/*
 			//setup crumbs
 			BootBreadCrumbView bread_crumb = new BootBreadCrumbView();
-			bread_crumb.addCrumb("Administration",  "admin");
+			//bread_crumb.addCrumb("Administration",  "admin");
 			bread_crumb.addCrumb("Field of Science",  null);
 			contentview.setBreadCrumb(bread_crumb);
-			
+			*/
+
 			BootPage page = new BootPage(context, menuview, contentview, createSideView());
 			page.render(response.getWriter());				
 		} catch (SQLException e) {
@@ -73,6 +74,7 @@ public class FieldOfScienceServlet extends ServletBase {
 		
 		ContentView contentview = new ContentView(context);	
 		contentview.add(new HtmlView("<a class=\"btn pull-right\" href=\"fieldofscienceedit\">Add New Field Of Science</a>"));
+		contentview.add(new HtmlView("<h2>Fields Of Science</h2>"));
 		
 		contentview.add(new HtmlView("<table class=\"table nohover\">"));
 		contentview.add(new HtmlView("<thead><tr><th>Field Of Science</th><th>Used By</th><th></th><th></th></tr></thead>"));	

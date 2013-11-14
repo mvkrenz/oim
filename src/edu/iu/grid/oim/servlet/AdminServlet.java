@@ -62,7 +62,6 @@ public class AdminServlet extends ServletBase  {
 			out.write("<p><a href=\"servicegroup\">Service Groups</a></p>");
 			out.write("<p><a href=\"service\">Services</a></p>");
 			out.write("<p><a href=\"metric\">RSV Metrics</a></p>");
-			out.write("<p><a href=\"fieldofscience\">Fields of Science</a></p>");
 			out.write("<p><a href=\"fptemplates\">Footprints Ticket Templates</a></p>");
 			out.write("</div>");
 			
