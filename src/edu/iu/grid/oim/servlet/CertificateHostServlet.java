@@ -23,6 +23,7 @@ import edu.iu.grid.oim.lib.AuthorizationException;
 import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.model.CertificateRequestStatus;
 import edu.iu.grid.oim.model.UserContext;
+import edu.iu.grid.oim.model.UserContext.MessageType;
 import edu.iu.grid.oim.model.db.CertificateRequestModelBase;
 import edu.iu.grid.oim.model.db.CertificateRequestHostModel;
 import edu.iu.grid.oim.model.db.ContactModel;
@@ -375,10 +376,11 @@ public class CertificateHostServlet extends ServletBase  {
                 			//check access again - request status might have changed
 	                		if(model.canApprove(rec)) {
 	                			model.approve(rec);
+	                			context.message(MessageType.SUCCESS, "Successfully approved the request ID: " + rec.id);
+								button.redirect(url);
 	                		} else {
-    	        				button.alert("Reques status has changed. Please reload.");
+    	        				button.alert("Request status has changed. Please reload.");
 	                		}
-							button.redirect(url);
 						} catch (CertificateRequestException e) {
 							log.error("Failed to approve host certificate", e);
 							button.alert(e.getMessage());
@@ -433,10 +435,11 @@ public class CertificateHostServlet extends ServletBase  {
                 			//check access again - request status might have changed
 	                		if(model.canRequestRevoke(rec)) {
 	                			model.requestRevoke(rec);
+	                			context.message(MessageType.SUCCESS, "Successfully requested revocation of request ID: " + rec.id);
+								button.redirect(url);
 	                		} else {
     	        				button.alert("Reques status has changed. Please reload.");
 	                		}
-	                		button.redirect(url);
 	                	} catch (CertificateRequestException e) {
 							log.error("Failed to request revoke host certificate", e);
 							button.alert(e.getMessage());
@@ -460,10 +463,11 @@ public class CertificateHostServlet extends ServletBase  {
                			//check access again - request status might have changed
                 		if(model.canIssue(rec)) {
                 			model.startissue(rec);
+                			//context.message(MessageType.SUCCESS, "Successfully started issuing certificate for request ID: " + rec.id);
+							button.redirect(url);
                 		} else {
 	        				button.alert("Reques status has changed. Please reload.");
                 		}
-                    	button.redirect(url);
                 	} catch(CertificateRequestException e) {
 						log.error("Failed to issue host certificate", e);
 						button.alert(e.getMessage());
@@ -495,10 +499,11 @@ public class CertificateHostServlet extends ServletBase  {
 	               			//check access again - request status might have changed
 	                		if(model.canCancel(rec)) {
 	                			model.cancel(rec);
+	                			context.message(MessageType.SUCCESS, "Successfully canceled a request with ID: " + rec.id);
+								button.redirect(url);
 	                		} else {
 		        				button.alert("Reques status has changed. Please reload.");
 	                		}
-	                		button.redirect(url);
 	                	} catch (CertificateRequestException e) {
 							log.error("Failed to cancel host certificate", e);
 							button.alert(e.getMessage());
@@ -531,10 +536,11 @@ public class CertificateHostServlet extends ServletBase  {
 	               			//check access again - request status might have changed
 	                		if(model.canReject(rec)) {
 	                			model.reject(rec);
+	                			context.message(MessageType.SUCCESS, "Successfully rejected a request with ID: " + rec.id);
+								button.redirect(url);
 	                		} else {
 		        				button.alert("Reques status has changed. Please reload.");
 	                		}
-	                		button.redirect(url);
 	                	} catch (CertificateRequestException e) {
 							log.error("Failed to reject host certificate", e);
 							button.alert(e.getMessage());
@@ -566,10 +572,11 @@ public class CertificateHostServlet extends ServletBase  {
 	               			//check access again - request status might have changed
 	                		if(model.canRevoke(rec)) {
 	                			model.revoke(rec);
+	                			context.message(MessageType.SUCCESS, "Successfully revoked a request with ID: " + rec.id);
+								button.redirect(url);
 	                		} else {
 		        				button.alert("Reques status has changed. Please reload.");
 	                		}
-	                		button.redirect(url);
 	                	} catch (CertificateRequestException e) {
 							log.error("Failed to revoke host certificate", e);
 							button.alert(e.getMessage());
@@ -582,7 +589,11 @@ public class CertificateHostServlet extends ServletBase  {
 		}
 		
 		if(tabview.size() == 0) {
-			v.add(new HtmlView("<p class=\"alert alert-warning\">You can not perform any action on this certificate. Please contact GOC for assistance.</p>"));
+			if(rec.status.equals(CertificateRequestStatus.ISSUING)) {
+				v.add(new HtmlView("<p class=\"alert alert-warning\">Certificate is being issued. Please wait for a few minutes..</p>"));				
+			} else {
+				v.add(new HtmlView("<p class=\"alert alert-warning\">You can not perform any action on this certificate. Please contact GOC for assistance.</p>"));
+			}
 		}
 		
 		v.add(tabview);

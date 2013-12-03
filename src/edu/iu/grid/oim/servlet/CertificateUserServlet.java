@@ -9,29 +9,25 @@ import java.util.ArrayList;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 import org.bouncycastle.asn1.x500.X500Name;
 
-import com.divrep.DivRep;
 import com.divrep.DivRepEvent;
 import com.divrep.DivRepEventListener;
 import com.divrep.common.DivRepButton;
 import com.divrep.common.DivRepCheckBox;
 import com.divrep.common.DivRepPassword;
-import com.divrep.common.DivRepStaticContent;
 import com.divrep.common.DivRepTextArea;
-import com.divrep.common.DivRepToggler;
 import com.divrep.validator.DivRepIValidator;
-import com.divrep.common.DivRepToggler;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.AuthorizationException;
 import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.model.CertificateRequestStatus;
 import edu.iu.grid.oim.model.UserContext;
+import edu.iu.grid.oim.model.UserContext.MessageType;
 import edu.iu.grid.oim.model.cert.CertificateManager;
 import edu.iu.grid.oim.model.db.CertificateRequestModelBase;
 import edu.iu.grid.oim.model.db.CertificateRequestModelBase.LogDetail;
@@ -507,10 +503,11 @@ public class CertificateUserServlet extends ServletBase  {
                 			//check access again - request status might have changed
                 			if(model.canApprove(rec)) {
                 				model.approve(rec);
+	                			context.message(MessageType.SUCCESS, "Successfully approved a request with ID: " + rec.id);
+								button.redirect(url);
                 			} else {
                 				button.alert("Reques status has changed. Please reload.");
                 			}
-            				button.redirect(url);
                 		} catch (CertificateRequestException ex) {
                 			String message = "Failed to approve request: " + ex.getMessage();
                 			if(ex.getCause() != null) {
@@ -617,10 +614,11 @@ public class CertificateUserServlet extends ServletBase  {
                 			//check access again - request status might have changed
                 			if(model.canRenew(rec, logs)) {
                 				model.renew(rec, pass.getValue());
+	                			context.message(MessageType.SUCCESS, "Successfully renewed certificate request with ID: " + rec.id);
+								button.redirect(url);
                 			} else {
                 				button.alert("Reques status has changed. Please reload.");
                 			}
-                			button.redirect(url);
                 		} catch (CertificateRequestException ex) {
                 			String message = "Failed to renew certificate: " + ex.getMessage();
                 			if(ex.getCause() != null) {
@@ -656,10 +654,11 @@ public class CertificateUserServlet extends ServletBase  {
                 			//check access again - request status might have changed
                 			if(model.canRequestRevoke(rec)) {
                 				model.requestRevoke(rec);
+	                			context.message(MessageType.SUCCESS, "Successfully requested certificate revocation for a request with ID: " + rec.id);
+								button.redirect(url);
                 			} else {
                 				button.alert("Reques status has changed. Please reload.");
                 			}
-                			button.redirect(url);
                 		} catch (CertificateRequestException ex) {
                 			String message = "Failed to request revocation: " + ex.getMessage();
                 			if(ex.getCause() != null) {
@@ -750,10 +749,11 @@ public class CertificateUserServlet extends ServletBase  {
                 			//check access again - request status might have changed
                 			if(model.canIssue(rec)) {
                 				model.startissue(rec, pass.getValue());
+	                			//context.message(MessageType.SUCCESS, "Successfully started issing a certificate for a request with ID: " + rec.id);
+								button.redirect(url);
                 			} else {
                 				button.alert("Reques status has changed. Please reload.");
                 			}
-	                    	button.redirect(url);
                     	} catch(CertificateRequestException ex) {
                     		log.warn("CertificateRequestException while issuging certificate -- request ID:"+rec.id, ex);
                 			String message = "Failed to issue certificate: " + ex.getMessage();
@@ -791,11 +791,11 @@ public class CertificateUserServlet extends ServletBase  {
                 			//check access again - request status might have changed
                 			if(model.canCancelWithPass(rec)) {
                 				model.cancelWithPass(rec, pass.getValue());
+	                			context.message(MessageType.SUCCESS, "Successfully canceled a certificate request with ID: " + rec.id);
+								button.redirect(url);
                 			} else {
                 				button.alert("Reques status has changed. Please reload.");
                 			}
-                			
-	                    	button.redirect(url);
                     	} catch(CertificateRequestException ex) {
                     		log.warn("CertificateRequestException while canceling certificate request:", ex);
                 			String message = "Failed to cancel request: " + ex.getMessage();
@@ -831,10 +831,11 @@ public class CertificateUserServlet extends ServletBase  {
 	            			//check access again - request status might have changed
 		        			if(model.canCancel(rec)) {
 		                    	model.cancel(rec);
+	                			context.message(MessageType.SUCCESS, "Successfully canceled a certificate request with ID: " + rec.id);
+								button.redirect(url);
 		        			} else {
 		        				button.alert("Reques status has changed. Please reload.");
 		        			}
-		                 	button.redirect(url);
 	                	} catch(CertificateRequestException ex) {
 	                		log.warn("CertificateRequestException while canceling certificate request:", ex);
 	            			String message = "Failed to cancel request: " + ex.getMessage();
@@ -870,7 +871,8 @@ public class CertificateUserServlet extends ServletBase  {
                 			//check access again - request status might have changed
                 			if(model.canReject(rec)) {
                 				model.reject(rec);
-                				button.redirect(url);
+	                			context.message(MessageType.SUCCESS, "Successfully rejected a certificate request with ID: " + rec.id);
+								button.redirect(url);
                 			} else {
     	        				button.alert("Reques status has changed. Please reload.");
                 			}
@@ -911,11 +913,11 @@ public class CertificateUserServlet extends ServletBase  {
                 			//check access again - request status might have changed
                 			if(model.canRevoke(rec)) {
                 				model.revoke(rec);
-                				button.redirect(url);
+	                			context.message(MessageType.SUCCESS, "Successfully revoked a certificate request with ID: " + rec.id);
+								button.redirect(url);
                 			} else {
     	        				button.alert("Reques status has changed. Please reload.");
                 			}
-                			button.redirect(url);
                 		} catch (CertificateRequestException ex) {
                 			String message = "Failed to revoke: " + ex.getMessage();
                 			if(ex.getCause() != null) {
@@ -965,10 +967,11 @@ public class CertificateUserServlet extends ServletBase  {
                 			//check access again - request status might have changed
     	        			if(model.canReRequest(rec)) {
     	        				model.rerequest(rec, pass.getValue());
+	                			context.message(MessageType.SUCCESS, "Successfully re-requested a certificate request with ID: " + rec.id);
+								button.redirect(url);
     	        			} else {
     	        				button.alert("Reques status has changed. Please reload.");
     	        			}
-                			button.redirect(url);
                 		} catch (CertificateRequestException ex) {
 	                		button.alert("Failed to re-request: " + ex.getMessage());
 	                	}
@@ -980,7 +983,11 @@ public class CertificateUserServlet extends ServletBase  {
 		}
 		
 		if(tabview.size() == 0) {
-			v.add(new HtmlView("<p class=\"alert alert-warning\">You can not perform any action on this certificate. Please contact GOC for assistance.</p>"));
+			if(rec.status.equals(CertificateRequestStatus.ISSUING)) {
+				v.add(new HtmlView("<p class=\"alert alert-warning\">Certificate is being issued. Please wait for a few minutes..</p>"));				
+			} else {
+				v.add(new HtmlView("<p class=\"alert alert-warning\">You can not perform any action on this certificate. Please contact GOC for assistance.</p>"));
+			}
 		}
 		
 		v.add(tabview);
