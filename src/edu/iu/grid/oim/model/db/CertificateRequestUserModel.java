@@ -436,7 +436,6 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 			}
 			super.update(get(rec.id), rec);
 			
-			
 			///////////////////////////////////////////////////////////////////////////////////////
 			// All good - now close ticket
 			Footprints fp = new Footprints(context);

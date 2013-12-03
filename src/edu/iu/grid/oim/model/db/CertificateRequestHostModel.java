@@ -549,6 +549,11 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 				ticket.description += "Please determine this request's authenticity, and approve / disapprove at " + getTicketUrl(request_id) + "\n\n";
 			}	
 			
+			ticket.description += "DNs requested:\n";
+			for(String cn : cns_sa.getAll()) {
+				ticket.description += StaticConfig.conf.getProperty("digicert.host_dn_base") + "/CN=" + cn + "\n";
+			}
+			
 			Authorization auth = context.getAuthorization();
 			ticket.description += "Requester IP:" + context.getRemoteAddr() + "\n";
 			if(auth.isUser()) {
