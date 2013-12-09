@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Iterator;
 
 import javax.security.auth.x500.X500Principal;
 
@@ -26,7 +27,6 @@ import org.bouncycastle.crypto.params.RSAKeyParameters;
 import org.bouncycastle.crypto.util.PublicKeyFactory;
 import org.bouncycastle.pkcs.PKCS10CertificationRequest;
 import org.bouncycastle.util.encoders.Base64;
-
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 
@@ -298,7 +298,7 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 					ticket.status = "Resolved";
 					
 					//suppressing notification if submitter is GA
-					ArrayList<ContactRecord> gas = findGridAdmin(rec.getCSRs(), rec.approver_vo_id); 
+					ArrayList<ContactRecord> gas = findGridAdmin(rec); 
 					boolean submitter_is_ga = false;
 					for(ContactRecord ga : gas) {
 						if(ga.id.equals(rec.requester_contact_id)) {
@@ -347,7 +347,7 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 		}
 		
 		//find if requester is ga
-		ArrayList<ContactRecord> gas = findGridAdmin(rec.getCSRs(), rec.approver_vo_id); 
+		ArrayList<ContactRecord> gas = findGridAdmin(rec); 
 		boolean submitter_is_ga = false;
 		for(ContactRecord ga : gas) {
 			if(ga.id.equals(rec.requester_contact_id)) {
@@ -520,7 +520,7 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
     	rec.cert_serial_ids = ar.toXML();
     	
     	try {			
-			ArrayList<ContactRecord> gas = findGridAdmin(rec.getCSRs(), rec.approver_vo_id); 
+			ArrayList<ContactRecord> gas = findGridAdmin(rec); 
 			//find if submitter is ga
 			boolean submitter_is_ga = false;
 			for(ContactRecord ga : gas) {
@@ -620,17 +620,19 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
     }
     
     //find gridadmin who should process the request - identify domain from csrs
-    //if there are more than 1 vos group, then user must specify whic hone via approver_vo_id (it could be null for gridadmin with only 1 vo group)
-    //null if none, or there are more than 1 
-    public ArrayList<ContactRecord> findGridAdmin(String[] csrs, Integer approver_vo_id) throws CertificateRequestException {
+    //if there are more than 1 vos group, then user must specify approver_vo_id 
+    //   * it could be null for gridadmin with only 1 vo group, and approver_vo_id will be reset to the correct VO ID
+    public ArrayList<ContactRecord> findGridAdmin(CertificateRequestHostRecord rec) throws CertificateRequestException {
+    	
+    	
 		GridAdminModel gamodel = new GridAdminModel(context);
     	String gridadmin_domain = null;
     	int idx = 0;
     
+    	String[] csrs = rec.getCSRs();
     	if(csrs.length == 0) {
     		throw new CertificateRequestException("No CSR");
     	}
-    	
     	for(String csr_string : csrs) {
     		//parse CSR and pull CN
     		String cn;
@@ -672,18 +674,16 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 			if(groups.size() == 0) {
 				throw new CertificateRequestException("No gridadmin exists for domain: " + gridadmin_domain);
 			}
-			if(groups.size() == 1 && approver_vo_id == null) {
-				//just return the first group
-				for(VORecord vo : groups.keySet()) {
-					ArrayList<GridAdminRecord> gas = groups.get(vo);
-					return GAsToContacts(gas);
-				}
+			if(groups.size() == 1 && rec.approver_vo_id == null) {
+				//set approver_vo_id to the one and only one vogroup's vo id
+				Iterator<VORecord> it = groups.keySet().iterator();  
+				VORecord vorec = it.next();
+				rec.approver_vo_id = vorec.id;
 			}
-			//use a group user specified - must match
 			String vonames = "";
 			for(VORecord vo : groups.keySet()) {
 				vonames += vo.name + ", "; //just in case we might need to report error message later
-				if(vo.id.equals(approver_vo_id)) {
+				if(vo.id.equals(rec.approver_vo_id)) {
 					//found a match.. return the list
 					ArrayList<GridAdminRecord> gas = groups.get(vo);
 					return GAsToContacts(gas);
@@ -848,7 +848,7 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 				//grid admin can appove it
 				ContactRecord user = auth.getContact();
 				try {
-					ArrayList<ContactRecord> gas = findGridAdmin(rec.getCSRs(), rec.approver_vo_id);
+					ArrayList<ContactRecord> gas = findGridAdmin(rec);
 					for(ContactRecord ga : gas) {
 						if(ga.id.equals(user.id)) {
 							return true;
@@ -927,7 +927,7 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 				//grid admin can cancel it
 				ContactRecord user = auth.getContact();
 				try {
-					ArrayList<ContactRecord> gas = findGridAdmin(rec.getCSRs(), rec.approver_vo_id);
+					ArrayList<ContactRecord> gas = findGridAdmin(rec);
 					for(ContactRecord ga : gas) {
 						if(ga.id.equals(user.id)) {
 							return true;
@@ -1006,7 +1006,7 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 				//grid admin can revoke it
 				ContactRecord user = auth.getContact();
 				try {
-					ArrayList<ContactRecord> gas = findGridAdmin(rec.getCSRs(), rec.approver_vo_id);
+					ArrayList<ContactRecord> gas = findGridAdmin(rec);
 					for(ContactRecord ga : gas) {
 						if(ga.id.equals(user.id)) {
 							return true;

@@ -68,7 +68,7 @@ public class HostCertificateTable implements IView {
 			out.write("</ul></td>");
 			
 			try {
-				ArrayList<ContactRecord> gas = model.findGridAdmin(rec.getCSRs(), rec.approver_vo_id);
+				ArrayList<ContactRecord> gas = model.findGridAdmin(rec);
 				out.write("<td>");
 				boolean first = true;
 				for(ContactRecord ga : gas) {

@@ -249,7 +249,7 @@ public class CertificateHostServlet extends ServletBase  {
 				
 				CertificateRequestHostModel model = new CertificateRequestHostModel(context);
 				try {
-					ArrayList<ContactRecord> gas = model.findGridAdmin(rec.getCSRs(), rec.approver_vo_id);
+					ArrayList<ContactRecord> gas = model.findGridAdmin(rec);
 					//out.write("<ul>");
 					for(ContactRecord ga : gas) {
 						out.write("<p>");

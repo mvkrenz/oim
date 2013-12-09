@@ -16,9 +16,13 @@ import org.xml.sax.SAXException;
 
 public class StringArray  {
 	private String[] strings;
+	
 	public String get(int idx) { return strings[idx]; }
 	public void set(int idx, String str) { strings[idx] = str; }
 	public String[] getAll() { return strings; }
+	public StringArray(String [] a) {
+		strings = a;
+	}
 	public StringArray(String xml) {
 		//deserialize from xml
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();

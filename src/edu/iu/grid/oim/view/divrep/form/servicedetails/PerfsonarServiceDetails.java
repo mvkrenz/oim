@@ -5,9 +5,7 @@ import java.util.HashMap;
 
 import com.divrep.DivRep;
 import com.divrep.DivRepEvent;
-import com.divrep.common.DivRepCheckBox;
 import com.divrep.common.DivRepTextBox;
-import com.divrep.validator.DivRepIValidator;
 
 import edu.iu.grid.oim.model.db.record.ServiceRecord;
 

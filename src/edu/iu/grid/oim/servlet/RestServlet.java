@@ -246,7 +246,11 @@ public class RestServlet extends ServletBase  {
 		
 		//lookup gridadmins for specified csr (in specified vo context)
 		try {
-			ArrayList<ContactRecord> gas = certmodel.findGridAdmin(dirty_csrs, approver_vo_id);
+	    	CertificateRequestHostRecord temp_rec = new CertificateRequestHostRecord();
+	    	StringArray dirty_csrs_ar = new StringArray(dirty_csrs);
+	    	temp_rec.csrs = dirty_csrs_ar.toXML();
+	    	temp_rec.approver_vo_id = approver_vo_id;
+			ArrayList<ContactRecord> gas = certmodel.findGridAdmin(temp_rec);
 			if(gas.isEmpty()) {
 				throw new RestException("No GridAdmins for specified CSRs/VO");
 			}
