@@ -254,6 +254,9 @@ public class RestServlet extends ServletBase  {
 			if(gas.isEmpty()) {
 				throw new RestException("No GridAdmins for specified CSRs/VO");
 			}
+			
+			//reset it back to our vo_id now that we called findGridAdmin
+			approver_vo_id = temp_rec.approver_vo_id;
 		} catch (CertificateRequestException e) {
 			throw new RestException("Failed to find GridAdmins for specified CSRs/VO", e);
 		}
