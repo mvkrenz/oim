@@ -906,7 +906,7 @@ public class RestServlet extends ServletBase  {
 					} else {
 						//CertificateRequestModelBase base = model;
 						//base.update(model.get(rec.id), rec);
-						queries.append("UPDATE certificate_request_host SET approver_vo_id = "+ rec.approver_vo_id + " WHERE id = " + rec.id + " and approver_vo_id is NULL limit 1\n");
+						queries.append("UPDATE certificate_request_host SET approver_vo_id = "+ rec.approver_vo_id + " WHERE id = " + rec.id + " and approver_vo_id is NULL limit 1;\n");
 					}
 				} catch(CertificateRequestException e) {
 					System.out.println("\tFailed to reset approver_vo_id");
