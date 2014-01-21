@@ -58,19 +58,6 @@ public class RestServlet extends ServletBase  {
     		params.put("status", status.toString());
     		params.put("detail", detail);
     		out.write(params.toString());
-    		
-    		/*
-    		//set httpresponse code
-    		switch(status) {
-    		case OK: 
-    		case PENDING:
-    			response.setStatus(HttpServletResponse.SC_OK);
-    			break;
-    		case FAILED:
-    			response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-    			break;
-    		}
-    		*/
     	}
     }
     
@@ -173,6 +160,8 @@ public class RestServlet extends ServletBase  {
 				doQuotaInfo(request, reply);
 			} else if(action.equals("user_info")) {
 				doUserInfo(request, reply);
+			} else if(action.equals("hcvoid")) {
+				doHCVOID(request, reply);
 			} else {
 				reply.status = Status.FAILED;
 				reply.detail = "No such action";
@@ -287,18 +276,6 @@ public class RestServlet extends ServletBase  {
 		}
 	}
 	
-	/*
-	private void doHostCertsRenew(HttpServletRequest request, Reply reply) throws AuthorizationException, RestException {
-		UserContext context = new UserContext(request);	
-		throw new RestException("No yet implemented");
-		
-		//TODO -- I believe we will do something like following
-		//do some authorization - to see if user can renew the cert (who can *request* to renew - how does user prove that he owns the cert?)
-		//create new ticket, and update host certificate request, set status to REQUESTED
-		//let hoscertapprove to approve it (NO automatic vetting like user cert)
-	}
-	*/
-	
 	private void doHostCertsRetrieve(HttpServletRequest request, Reply reply) throws AuthorizationException, RestException {
 		UserContext context = new UserContext(request);	
 		//Authorization auth = context.getAuthorization();
@@ -374,7 +351,6 @@ public class RestServlet extends ServletBase  {
 	
 	private void doHostCertsApprove(HttpServletRequest request, Reply reply) throws AuthorizationException, RestException {
 		UserContext context = new UserContext(request);	
-		//Authorization auth = context.getAuthorization();
 		
 		String dirty_host_request_id = request.getParameter("host_request_id");
 		Integer host_request_id = Integer.parseInt(dirty_host_request_id);
@@ -906,9 +882,8 @@ public class RestServlet extends ServletBase  {
 		}
 	}
 	
-	/*
-	//this is used just once to populate missing cert expiration dates
-	private void doHostCertExSQL(HttpServletRequest request, Reply reply) throws AuthorizationException, RestException {
+	//this is used just once to populate missing VO ID on host certificate requests
+	private void doHCVOID(HttpServletRequest request, Reply reply) throws AuthorizationException, RestException {
 		UserContext context = new UserContext(request);	
 		Authorization auth = context.getAuthorization();
 		if(!auth.isLocal()) {
@@ -919,6 +894,22 @@ public class RestServlet extends ServletBase  {
 		CertificateRequestHostModel model = new CertificateRequestHostModel(context);
 		try  {
 			for(CertificateRequestHostRecord rec : model.findNullIssuedExpiration()) {
+				if(rec.approver_vo_id == null) {
+					//String[] cns = rec.getCNs();
+					try {
+						System.out.println("processing " + rec.id);
+						model.findGridAdmin(rec);
+						if(rec.approver_vo_id == null) {
+							System.out.println("\tCouldn't figure out approver_vo_id");
+						} else {
+							model.update(model.get(rec.id), rec);
+						}
+					} catch(CertificateRequestException e) {
+						System.out.println("\tFailed to reset approver_vo_id");
+						System.out.println("\t"+e.toString());
+					}
+				}
+				/*
 				String[] pkc7s = rec.getPKCS7s();
 				java.security.cert.Certificate[] chain;
 				try {
@@ -938,10 +929,10 @@ public class RestServlet extends ServletBase  {
 				} catch (IOException e) {
 					throw new RestException("SQLException while running pkcs7", e);
 				}
+				*/
 			}
 		} catch (SQLException e) {
 			throw new RestException("SQLException while running doHostCertExSQL", e);
 		}
 	}
-	*/
 }

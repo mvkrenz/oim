@@ -1,5 +1,6 @@
 package edu.iu.grid.oim.model.db;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
@@ -13,15 +14,30 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Vector;
 
 import javax.security.auth.x500.X500Principal;
 
+import org.bouncycastle.asn1.ASN1Encodable;
+import org.bouncycastle.asn1.ASN1InputStream;
+import org.bouncycastle.asn1.ASN1ObjectIdentifier;
+import org.bouncycastle.asn1.ASN1Primitive;
+import org.bouncycastle.asn1.ASN1String;
+import org.bouncycastle.asn1.DEROctetString;
+import org.bouncycastle.asn1.DERSequence;
+import org.bouncycastle.asn1.DERSet;
+import org.bouncycastle.asn1.pkcs.Attribute;
+import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers;
 import org.bouncycastle.asn1.x500.RDN;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x500.style.BCStyle;
+import org.bouncycastle.asn1.x509.GeneralNames;
 import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
+import org.bouncycastle.asn1.x509.X509Extension;
+import org.bouncycastle.asn1.x509.X509Extensions;
 import org.bouncycastle.cms.CMSException;
 import org.bouncycastle.crypto.params.RSAKeyParameters;
 import org.bouncycastle.crypto.util.PublicKeyFactory;
@@ -599,6 +615,7 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 		PKCS10CertificationRequest csr = new PKCS10CertificationRequest(Base64.decode(csr_string));
 		return csr;
 	}
+	
     public String pullCNFromCSR(PKCS10CertificationRequest csr) throws CertificateRequestException {
 		//pull CN from pkcs10
 		X500Name name;
@@ -618,6 +635,83 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
     	//log.debug("cn found: " + cn);
     	return cn;
     }
+    
+    public ArrayList<String> pullSANFromCSR(PKCS10CertificationRequest csr) throws CertificateRequestException {
+    	ArrayList<String> sans = new ArrayList<String>();
+    	/*
+        GeneralNames subjectAltName = new GeneralNames(new GeneralName(GeneralName.rfc822Name, "test@test.test"));
+
+        // create the extensions object and add it as an attribute
+        Vector oids = new Vector();
+        Vector values = new Vector();
+        oids.add(X509Extensions.SubjectAlternativeName);
+        values.add(new X509Extension(false, new DEROctetString(subjectAltName)));
+        X509Extensions extensions = new X509Extensions(oids, values);
+        Attribute attribute = new Attribute(PKCSObjectIdentifiers.pkcs_9_at_extensionRequest, new DERSet(extensions));
+        */
+    	
+        Attribute[] attributes = csr.getAttributes(PKCSObjectIdentifiers.pkcs_9_at_extensionRequest);
+        for(Attribute attribute : attributes) {
+        	DERSet set = (DERSet)attribute.getAttrValues();
+        	/*
+        	DERSequence it = (DERSequence) set.getObjectAt(0);
+        	Enumeration e = it.getObjects();
+        	for (Enumeration<DERSequence> en = it.getObjects(); en.hasMoreElements();) {
+        		DERSequence item = en.nextElement();
+        		System.out.println(item);
+        	}
+        	*/
+        	for (Enumeration<DERSequence> en = set.getObjects(); en.hasMoreElements();) {
+        		DERSequence parent = en.nextElement();
+            	for (Enumeration<DERSequence> en2 = parent.getObjects(); en2.hasMoreElements();) {
+            		DERSequence item = en2.nextElement();
+            		ASN1ObjectIdentifier id = (ASN1ObjectIdentifier)item.getObjectAt(0);
+            		if(id.equals(new ASN1ObjectIdentifier("2.5.29.17"))) {
+            			DEROctetString sans_der = (DEROctetString)item.getObjectAt(1);
+            			//TODO... not sure where to go from here..
+            		}
+            	}	
+        	}
+        		
+        	//X509Extensions extensions = new X509Extensions(set);
+        	//X509Extension extension = extensions.getExtension(X509Extensions.SubjectAlternativeName);
+        }
+    	
+    	return sans;
+    } 
+    
+    /*
+    private String getExtensionValue(X509Certificate X509Certificate, String oid) throws IOException
+    {
+        String decoded = null;
+        byte[] extensionValue = X509Certificate.getExtensionValue(oid);
+
+        if (extensionValue != null)
+        {
+            ASN1Primitive derObject = toDERObject(extensionValue);
+            if (derObject instanceof DEROctetString)
+            {
+                DEROctetString derOctetString = (DEROctetString) derObject;
+
+                derObject = toDERObject(derOctetString.getOctets());
+                if (derObject instanceof ASN1String)
+                {
+                    ASN1String s = (ASN1String)derObject;
+                    decoded = s.getString();
+                }
+
+            }
+        }
+        return decoded;
+    }
+
+    private ASN1Primitive toDERObject(byte[] data) throws IOException
+    {
+        ByteArrayInputStream inStream = new ByteArrayInputStream(data);
+        ASN1InputStream asnInputStream = new ASN1InputStream(inStream);
+        return asnInputStream.readObject();
+    }
+    */
     
     //find gridadmin who should process the request - identify domain from csrs
     //if there are more than 1 vos group, then user must specify approver_vo_id 
@@ -639,6 +733,8 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 			try {
 	    		PKCS10CertificationRequest csr = parseCSR(csr_string);
 	    		cn = pullCNFromCSR(csr);
+	    		ArrayList<String> sans = pullSANFromCSR(csr);
+	    		
 			} catch (IOException e) {
 				log.error("Failed to base64 decode CSR", e);
 				throw new CertificateRequestException("Failed to base64 decode CSR:"+csr_string, e);
