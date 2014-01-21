@@ -1373,7 +1373,7 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 		ResultSet rs = null;
 		Connection conn = connectOIM();
 		Statement stmt = conn.createStatement();
-		stmt.execute("SELECT * FROM "+table_name + " WHERE status = '"+CertificateRequestStatus.ISSUED+"' AND approver_vo_id is NULL order by id");
+		stmt.execute("SELECT * FROM "+table_name + " WHERE approver_vo_id is NULL order by id");
     	rs = stmt.getResultSet();
     	while(rs.next()) {
     		recs.add(new CertificateRequestHostRecord(rs));
