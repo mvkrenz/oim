@@ -664,3 +664,14 @@ color: gray;
 table tr.disabled td {
 color: #999;
 }
+
+input[type='text'], textarea {
+min-width: 65%;
+}
+input.autocomplete {
+min-width: inherit;
+}
+
+input.datepicker {
+width: 100px;	
+}
