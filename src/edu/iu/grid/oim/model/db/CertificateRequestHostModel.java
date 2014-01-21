@@ -733,7 +733,7 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 			try {
 	    		PKCS10CertificationRequest csr = parseCSR(csr_string);
 	    		cn = pullCNFromCSR(csr);
-	    		ArrayList<String> sans = pullSANFromCSR(csr);
+	    		//ArrayList<String> sans = pullSANFromCSR(csr);
 	    		
 			} catch (IOException e) {
 				log.error("Failed to base64 decode CSR", e);
@@ -1174,7 +1174,7 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
     @Override
     public void update(CertificateRequestHostRecord oldrec, CertificateRequestHostRecord newrec) throws SQLException
     {
-    	throw new UnsupportedOperationException("Please use model specific actions insetead (request, approve, reject, etc..)");
+    	throw new UnsupportedOperationException("Please use model specific actions instead (request, approve, reject, etc..)");
     }
     @Override
     public void remove(CertificateRequestHostRecord rec) throws SQLException
@@ -1348,7 +1348,7 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 	    stmt.close();
 	    conn.close();		
 	}
-
+	/*
 	public  ArrayList<CertificateRequestHostRecord>  findNullIssuedExpiration() throws SQLException {
 		ArrayList<CertificateRequestHostRecord> recs = new ArrayList<CertificateRequestHostRecord>();
 		
@@ -1356,6 +1356,24 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 		Connection conn = connectOIM();
 		Statement stmt = conn.createStatement();
 		stmt.execute("SELECT * FROM "+table_name + " WHERE status = '"+CertificateRequestStatus.ISSUED+"' AND (cert_notafter is NULL or cert_notbefore is NULL)");
+    	rs = stmt.getResultSet();
+    	while(rs.next()) {
+    		recs.add(new CertificateRequestHostRecord(rs));
+    	}
+	    stmt.close();
+	    conn.close();
+	    return recs;
+	}
+	*/
+	
+	//used by RestServlet only once to reset approver_vo_id
+	public  ArrayList<CertificateRequestHostRecord>  findNullVO() throws SQLException {
+		ArrayList<CertificateRequestHostRecord> recs = new ArrayList<CertificateRequestHostRecord>();
+		
+		ResultSet rs = null;
+		Connection conn = connectOIM();
+		Statement stmt = conn.createStatement();
+		stmt.execute("SELECT * FROM "+table_name + " WHERE status = '"+CertificateRequestStatus.ISSUED+"' AND approver_vo_id is NULL order by id");
     	rs = stmt.getResultSet();
     	while(rs.next()) {
     		recs.add(new CertificateRequestHostRecord(rs));

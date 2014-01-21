@@ -23,13 +23,12 @@ public class CNEditor extends DivRepFormElement<String> {
 	public CNEditor(DivRep parent) {
 		super(parent);
 		cn = new DivRepTextBox(this);
-		//cn.setWidth(200);
 		cn.addValidator(new CNValidator());
 	}
 
 	@Override
 	public void render(PrintWriter out) {
-		out.write("<div id=\""+getNodeID()+"\">");
+		out.write("<div class=\"cneditor\" id=\""+getNodeID()+"\">");
 		if(!isHidden()) {
 			if(getLabel() != null) {
 				out.print("<label>"+StringEscapeUtils.escapeHtml(getLabel())+"</label><br/>");

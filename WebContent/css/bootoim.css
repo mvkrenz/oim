@@ -668,7 +668,8 @@ color: #999;
 input[type='text'], textarea {
 min-width: 65%;
 }
-input.autocomplete {
+input.autocomplete,
+.cneditor input {
 min-width: inherit;
 }
 

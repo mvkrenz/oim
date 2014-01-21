@@ -886,29 +886,33 @@ public class RestServlet extends ServletBase  {
 	private void doHCVOID(HttpServletRequest request, Reply reply) throws AuthorizationException, RestException {
 		UserContext context = new UserContext(request);	
 		Authorization auth = context.getAuthorization();
+		/*
 		if(!auth.isLocal()) {
 			throw new AuthorizationException("You can't access this interface from there");
 		}
+		*/
 		
 		//pull all records that has no expiration dates set
 		CertificateRequestHostModel model = new CertificateRequestHostModel(context);
 		try  {
-			for(CertificateRequestHostRecord rec : model.findNullIssuedExpiration()) {
-				if(rec.approver_vo_id == null) {
-					//String[] cns = rec.getCNs();
-					try {
-						System.out.println("processing " + rec.id);
-						model.findGridAdmin(rec);
-						if(rec.approver_vo_id == null) {
-							System.out.println("\tCouldn't figure out approver_vo_id");
-						} else {
-							model.update(model.get(rec.id), rec);
-						}
-					} catch(CertificateRequestException e) {
-						System.out.println("\tFailed to reset approver_vo_id");
-						System.out.println("\t"+e.toString());
+			StringBuffer queries = new StringBuffer();
+			for(CertificateRequestHostRecord rec : model.findNullVO()) {
+				//String[] cns = rec.getCNs();
+				try {
+					System.out.println("processing " + rec.id);
+					model.findGridAdmin(rec);
+					if(rec.approver_vo_id == null) {
+						System.out.println("\tCouldn't figure out approver_vo_id");
+					} else {
+						//CertificateRequestModelBase base = model;
+						//base.update(model.get(rec.id), rec);
+						queries.append("UPDATE certificate_request_host SET approver_vo_id = "+ rec.approver_vo_id + " WHERE id = " + rec.id + "\n");
 					}
+				} catch(CertificateRequestException e) {
+					System.out.println("\tFailed to reset approver_vo_id");
+					System.out.println("\t"+e.toString());
 				}
+				
 				/*
 				String[] pkc7s = rec.getPKCS7s();
 				java.security.cert.Certificate[] chain;
@@ -931,6 +935,7 @@ public class RestServlet extends ServletBase  {
 				}
 				*/
 			}
+			reply.detail = queries.toString();
 		} catch (SQLException e) {
 			throw new RestException("SQLException while running doHostCertExSQL", e);
 		}
