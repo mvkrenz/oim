@@ -28,17 +28,13 @@
     <meta name="description" content="OSG Information Management System">
 	<link href="images/potato.png" rel="shortcut icon" type="image/png" />
 	
-	<link href="css/smoothness-1.8.18/jquery-ui-1.8.18.custom.css" rel="stylesheet" type="text/css" />
-	<script src="jquery/jquery-1.7.1.min.js" type="text/javascript"></script>
-	<script src="jquery/jquery-ui-1.8.18.custom.min.js" type="text/javascript"></script>
+	<link href="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/themes/smoothness/jquery-ui.css" rel="stylesheet" type="text/css" />
+	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+	<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.10.3/jquery-ui.min.js"></script>
 	
-	<link href="css/divrep.css" rel="stylesheet" type="text/css" />
-	<script src="divrep.js" type="text/javascript"></script>
-	<script src="autocomplete.js" type="text/javascript"></script>
-
-	<link href="jquery/plugin/tinytips/jquery.tinytips.css" rel="stylesheet" type="text/css"/>
-	<script src="jquery/plugin/tinytips/jquery.tinytips.js" type="text/javascript"></script>
-
+    <link href="//netdna.bootstrapcdn.com/bootstrap/2.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <script src="//netdna.bootstrapcdn.com/bootstrap/2.3.2/js/bootstrap.min.js"></script>
+    
     <style type="text/css">
       body {
         padding-top: 40px;
@@ -61,12 +57,14 @@
       margin-top: 20px;
       }
     </style>
-
-	<link href="bootstrap-2.3.2/css/bootstrap.min.css" rel="stylesheet">
-    <link href="bootstrap-2.3.2/css/bootstrap-responsive.min.css" rel="stylesheet">
-    <script src="bootstrap-2.3.2/js/bootstrap.min.js" type="text/javascript"></script>
     
-    <link href="css/bootoim.css" rel="stylesheet" type="text/css" />
+	<link href="css/divrep.css?v=123" rel="stylesheet" type="text/css" />
+	<link href="css/bootoim.css?v=123" rel="stylesheet" type="text/css" />
+	<script src="divrep.js?v=123" type="text/javascript"></script>
+	<script src="autocomplete.js" type="text/javascript"></script>
+
+	<link href="jquery/plugin/tinytips/jquery.tinytips.css" rel="stylesheet" type="text/css"/>
+	<script src="jquery/plugin/tinytips/jquery.tinytips.js" type="text/javascript"></script>
 
     <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
