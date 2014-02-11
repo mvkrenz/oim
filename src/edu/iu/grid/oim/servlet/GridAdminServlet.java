@@ -56,7 +56,7 @@ public class GridAdminServlet extends ServletBase {
 		public void render(PrintWriter out) {
 			Authorization auth = context.getAuthorization();
 			ContactModel cmodel = new ContactModel(context);
-			VOModel vomodel = new VOModel(context);
+			//VOModel vomodel = new VOModel(context);
 			GridAdminModel model = new GridAdminModel(context);
 			try {
 				LinkedHashMap<String, ArrayList<GridAdminRecord>> recs = model.getAll();

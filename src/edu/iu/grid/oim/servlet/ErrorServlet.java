@@ -62,13 +62,13 @@ public class ErrorServlet extends HttpServlet {
 			contentview.add(new HtmlView("<h2>Authorization Error</h2>"));
 			contentview.add(new HtmlView("<div class=\"alert\"><p>You are not authorized to access this page.</p>"));
 			contentview.add(new HtmlView("<p>Detail: "+throwable.getMessage()+"</p>"));
-			contentview.add(new HtmlView("<p>If you believe you should have an access to this page, <a target=\"_blank\" href=\"https://ticket.grid.iu.edu/goc/oim?ref="+request_uri+"\">Open GOC ticket</a></p></div>"));
+			contentview.add(new HtmlView("<p>If you believe you should have an access to this page, <a target=\"_blank\" href=\"https://ticket.grid.iu.edu\">Open GOC ticket</a></p></div>"));
 	    } else {
 			contentview.add(new HtmlView("<h2>Oops!</h2>"));
 			contentview.add(new HtmlView("<p>Sorry, OIM has encountered a problem. </p>"));
 			contentview.add(new HtmlView("<div class=\"alert\">"));
 			contentview.add(new HtmlView("<p>Detail: "+throwable.getMessage()+"</p></div>"));
-			contentview.add(new HtmlView("<p>The GOC has been notified about this error, however, you can also <a target=\"_blank\" href=\"https://ticket.grid.iu.edu/goc/oim\">Open GOC ticket</a></p>"));
+			contentview.add(new HtmlView("<p>The GOC has been notified about this error, however, you can also <a target=\"_blank\" href=\"https://ticket.grid.iu.edu\">Open GOC ticket</a></p>"));
 		
 			//reportError(contentview, message);
 			//dump(request, throwable);
