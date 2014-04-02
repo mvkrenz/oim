@@ -1,0 +1,122 @@
+
+div.hierarchy_facility {
+  min-height: 20px;
+  padding: 7px 15px 5px 15px;
+  margin-bottom: 10px;
+  background:#f5f5f5;
+  border: 1px solid #eee;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  border-radius: 4px;
+  -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.05);
+  -moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.05);
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.05);
+}
+
+div.hierarchy_site {
+margin: 5px 0px;
+padding: 5px 10px;
+background:#9c6 url(images/house.png) no-repeat 5px 5px;
+border: 1px solid #473;
+color: white;
+}
+div.hierarchy_site .site_name {
+padding-left: 15px;
+}
+h4.resource_groups_header {
+border-bottom: none;
+color: #594;
+}
+
+div.hierarchy_sitesc {
+float: right;
+}
+
+div.hierarchy_rg {
+margin-bottom: 5px;
+padding: 5px;
+background-color:#666;
+box-shadow: 1px 1px 2px #473;
+border: 1px solid #444;
+color: white;
+}
+div.hierarchy_r {
+margin: 5px 0px;
+padding: 5px;
+background-color:#ddd;
+color: black;
+}
+span.hierarchy_service {
+margin: 2px;
+padding: 2px 4px;
+background-color: #fff;
+color: black;
+float: right;
+top: -4px;
+position: relative;
+}
+
+table.plain,
+table.plain tr,
+table.plain td {
+padding: 0px;
+margin: 0px;
+border: none;
+}
+
+div.hierarchy_sc {
+margin-left: 5px;
+padding: 5px;
+background-color: #693;
+color: white;
+}
+
+div.hierarchy_supports {
+border-bottom: 3px solid black;
+border-right: 3px solid black;
+text-align: center;
+width: 70%;
+-moz-border-radius-bottomright:4px;
+-webkit-border-bottom-right-radius: 4px;
+position: relative;
+right: 10px;
+}
+
+div.hierarchy_supports .arrowhead {
+position: absolute;
+left: -2px;
+top: 11px;
+}
+.rg_disabled {
+color: #888 !important;
+background-color: #444 !important;
+}
+.site_disabled {
+background-color: #463 !important;
+border: none !important;
+color: #999 !important;
+}
+.r_disabled {
+background-color: #bbb !important;
+}
+.r_inactive {
+color: #888 !important;
+}
+
+.hierarchy_facility a {
+color: inherit;
+text-decoration: none;
+}
+a.new {
+opacity: 0.8;
+
+}
+a.new:hover {
+opacity: 1;
+text-decoration: underline;
+}
+
+.hierarchy_facility a:hover {
+text-decoration: underline;
+}
