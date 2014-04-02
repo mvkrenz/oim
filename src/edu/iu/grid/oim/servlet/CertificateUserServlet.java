@@ -31,7 +31,9 @@ import edu.iu.grid.oim.model.UserContext.MessageType;
 import edu.iu.grid.oim.model.cert.CertificateManager;
 import edu.iu.grid.oim.model.db.CertificateRequestModelBase;
 import edu.iu.grid.oim.model.db.CertificateRequestModelBase.LogDetail;
+import edu.iu.grid.oim.model.db.ConfigModel.Config;
 import edu.iu.grid.oim.model.db.CertificateRequestUserModel;
+import edu.iu.grid.oim.model.db.ConfigModel;
 import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.DNModel;
 import edu.iu.grid.oim.model.db.GridAdminModel;
@@ -54,6 +56,7 @@ import edu.iu.grid.oim.view.IView;
 import edu.iu.grid.oim.view.UserCertificateTable;
 import edu.iu.grid.oim.view.divrep.CNEditor;
 import edu.iu.grid.oim.view.divrep.ChoosePassword;
+import edu.iu.grid.oim.view.divrep.EditableContent;
 import edu.iu.grid.oim.view.divrep.form.validator.MustbeCheckedValidator;
 import edu.iu.grid.oim.view.divrep.form.validator.PKIPassStrengthValidator;
 
@@ -122,7 +125,7 @@ public class CertificateUserServlet extends ServletBase  {
 				//display list view
 				content = createListView(context);
 			}
-			
+
 			BootPage page = new BootPage(context, menuview, content, null);
 			page.render(response.getWriter());
 		}
@@ -188,7 +191,18 @@ public class CertificateUserServlet extends ServletBase  {
 				BootBreadCrumbView bread_crumb = new BootBreadCrumbView();
 				bread_crumb.addCrumb("User Certificate Requests", "certificateuser");
 				bread_crumb.addCrumb(Integer.toString(rec.id),  null);
-				bread_crumb.render(out);		
+				bread_crumb.render(out);	
+				
+				//editable content
+				ConfigModel config = new ConfigModel(context);
+				Config home_content = config.new Config(config, "certificate_user", "");
+				Authorization auth = context.getAuthorization();
+				if(auth.allows("admin") || auth.allows("admin_ra")) {
+					EditableContent content = new EditableContent(context.getPageRoot(), context, home_content);
+					content.render(out);
+				} else {
+					out.write(home_content.getString());
+				}
 				
 				renderDetail(out);
 				renderLog(out);

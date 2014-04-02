@@ -13,11 +13,9 @@ import com.divrep.common.DivRepFormElement;
 import com.divrep.common.DivRepButton.Style;
 import com.divrep.common.DivRepTextArea;
 
-import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.ConfigModel;
 import edu.iu.grid.oim.model.db.ConfigModel.Config;
-import edu.iu.grid.oim.model.db.record.ConfigRecord;
 import edu.iu.grid.oim.model.db.record.ConfirmableRecord;
 
 public class EditableContent extends DivRepFormElement
@@ -52,7 +50,7 @@ public class EditableContent extends DivRepFormElement
 					edit.setTitle("Save");
 				} else {
 					try {
-						config.CertificateHomeContent.set(html.getValue());
+						content.set(html.getValue());
 					} catch (SQLException e) {
 						log.error("Failed to store html content for key "+content.getKey());
 					}
