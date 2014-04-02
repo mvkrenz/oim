@@ -6,13 +6,18 @@ import java.io.PrintWriter;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 import org.apache.log4j.Logger;
 
+import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.model.UserContext;
+import edu.iu.grid.oim.model.db.ConfigModel;
+import edu.iu.grid.oim.model.db.ConfigModel.Config;
 import edu.iu.grid.oim.view.BootMenuView;
 import edu.iu.grid.oim.view.BootPage;
 import edu.iu.grid.oim.view.CertificateMenuView;
 import edu.iu.grid.oim.view.IView;
+import edu.iu.grid.oim.view.divrep.EditableContent;
 import edu.iu.grid.oim.view.divrep.form.CertificateRequestHostForm;
 
 public class CertificateRequestHostServlet extends ServletBase  {
@@ -44,6 +49,18 @@ public class CertificateRequestHostServlet extends ServletBase  {
 				out.write("</div>"); //span3
 				
 				out.write("<div class=\"span9\">");
+				
+				//editable content
+				ConfigModel config = new ConfigModel(context);
+				Config home_content = config.new Config(config, "certificate_request_host", "");
+				Authorization auth = context.getAuthorization();
+				if(auth.allows("admin") || auth.allows("admin_gridadmin")) {
+					EditableContent content = new EditableContent(context.getPageRoot(), context, home_content);
+					content.render(out);
+				} else {
+					out.write(home_content.getString());
+				}
+				
 				CertificateRequestHostForm form = new CertificateRequestHostForm(context, "certificatehost");
 				form.render(out);	
 				out.write("</div>"); //span9

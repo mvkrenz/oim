@@ -26,8 +26,10 @@ import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.UserContext.MessageType;
 import edu.iu.grid.oim.model.db.CertificateRequestModelBase;
 import edu.iu.grid.oim.model.db.CertificateRequestHostModel;
+import edu.iu.grid.oim.model.db.ConfigModel;
 import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.VOModel;
+import edu.iu.grid.oim.model.db.ConfigModel.Config;
 import edu.iu.grid.oim.model.db.record.CertificateRequestHostRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
@@ -41,6 +43,7 @@ import edu.iu.grid.oim.view.GenericView;
 import edu.iu.grid.oim.view.HostCertificateTable;
 import edu.iu.grid.oim.view.HtmlView;
 import edu.iu.grid.oim.view.IView;
+import edu.iu.grid.oim.view.divrep.EditableContent;
 
 public class CertificateHostServlet extends ServletBase  {
 	private static final long serialVersionUID = 1L;
@@ -157,6 +160,17 @@ public class CertificateHostServlet extends ServletBase  {
 			}
 			
 			public void renderDetail(PrintWriter out) {
+			
+				//editable content
+				ConfigModel config = new ConfigModel(context);
+				Config home_content = config.new Config(config, "certificate_host", "");
+				Authorization auth = context.getAuthorization();
+				if(auth.allows("admin") || auth.allows("admin_gridadmin")) {
+					EditableContent content = new EditableContent(context.getPageRoot(), context, home_content);
+					content.render(out);
+				} else {
+					out.write(home_content.getString());
+				}
 				
 				out.write("<table class=\"table nohover\">");
 				out.write("<tbody>");

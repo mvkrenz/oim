@@ -193,17 +193,6 @@ public class CertificateUserServlet extends ServletBase  {
 				bread_crumb.addCrumb(Integer.toString(rec.id),  null);
 				bread_crumb.render(out);	
 				
-				//editable content
-				ConfigModel config = new ConfigModel(context);
-				Config home_content = config.new Config(config, "certificate_user", "");
-				Authorization auth = context.getAuthorization();
-				if(auth.allows("admin") || auth.allows("admin_ra")) {
-					EditableContent content = new EditableContent(context.getPageRoot(), context, home_content);
-					content.render(out);
-				} else {
-					out.write(home_content.getString());
-				}
-				
 				renderDetail(out);
 				renderLog(out);
 				out.write("</div>"); //span9
@@ -214,6 +203,17 @@ public class CertificateUserServlet extends ServletBase  {
 			}
 			
 			public void renderDetail(PrintWriter out) {
+				
+				//editable content
+				ConfigModel config = new ConfigModel(context);
+				Config home_content = config.new Config(config, "certificate_user", "");
+				Authorization auth = context.getAuthorization();
+				if(auth.allows("admin") || auth.allows("admin_ra")) {
+					EditableContent content = new EditableContent(context.getPageRoot(), context, home_content);
+					content.render(out);
+				} else {
+					out.write(home_content.getString());
+				}
 				
 				out.write("<table class=\"table nohover\">");
 				out.write("<tbody>");

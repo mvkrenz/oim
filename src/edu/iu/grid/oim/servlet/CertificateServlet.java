@@ -48,7 +48,7 @@ public class CertificateServlet extends ServletBase  {
 				//main content
 				out.write("<div class=\"span9\">");
 				ConfigModel config = new ConfigModel(context);
-				Config home_content = config.CertificateHomeContent;
+				Config home_content = config.new Config(config, "certificate_home_content", "Edit me");
 				Authorization auth = context.getAuthorization();
 				if(auth.allows("admin") || auth.allows("admin_ra")) {
 					EditableContent content = new EditableContent(context.getPageRoot(), context, home_content);

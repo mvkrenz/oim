@@ -66,10 +66,6 @@ public class ConfigModel extends ModelBase<ConfigRecord> {
 	public Config ResourceFPTemplate = new Config(this, "resource_fp_template", "here is my default fp template");
 	public Config VOFPTemplate = new Config(this, "resource_vo_template", "here is my default vo template");
 	public Config SCFPTemplate = new Config(this, "resource_sc_template", "here is my default sc template");
-
-	public Config CertificateHomeContent = new Config(this, "certificate_home_content", "Edit me");
-	//public Config CertificateRequestUserContent = new Config(this, "certificate_request_user", "Edit me");
-	//public Config CertificateRequestHostContent = new Config(this, "certificate_request_host", "Edit me");
 	
 	//Certificate Request Global Quotas
 	public Config QuotaGlobalUserCertYearMax = new Config(this, "QuotaGlobalUserCertYearMax", "3500");

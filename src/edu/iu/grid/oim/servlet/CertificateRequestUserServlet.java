@@ -9,12 +9,16 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
 
+import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.CertificateQuotaModel;
+import edu.iu.grid.oim.model.db.ConfigModel;
+import edu.iu.grid.oim.model.db.ConfigModel.Config;
 import edu.iu.grid.oim.view.BootMenuView;
 import edu.iu.grid.oim.view.BootPage;
 import edu.iu.grid.oim.view.CertificateMenuView;
 import edu.iu.grid.oim.view.IView;
+import edu.iu.grid.oim.view.divrep.EditableContent;
 import edu.iu.grid.oim.view.divrep.form.CertificateRequestUserForm;
 
 public class CertificateRequestUserServlet extends ServletBase  {
@@ -49,15 +53,22 @@ public class CertificateRequestUserServlet extends ServletBase  {
 				out.write("</div>"); //span3
 				
 				out.write("<div class=\"span9\">");
-				CertificateQuotaModel quota = new CertificateQuotaModel(context);
-				//if(quota.canRequestUserCert()) {
+				//CertificateQuotaModel quota = new CertificateQuotaModel(context);
+				
+				//editable content
+				ConfigModel config = new ConfigModel(context);
+				Config home_content = config.new Config(config, "certificate_request_user", "");
+				Authorization auth = context.getAuthorization();
+				if(auth.allows("admin") || auth.allows("admin_ra")) {
+					EditableContent content = new EditableContent(context.getPageRoot(), context, home_content);
+					content.render(out);
+				} else {
+					out.write(home_content.getString());
+				}
+				
 				CertificateRequestUserForm form = new CertificateRequestUserForm(context, "certificateuser");
 				form.render(out);	
-				/*
-				} else {
-					out.write("<div class=\"alert\">You have reached the maximum quota for user certificate request. Please contact GOC for more detail.</div>");
-				}
-				*/
+
 
 				out.write("</div>"); //span9
 				out.write("</div>"); //row-fluid
