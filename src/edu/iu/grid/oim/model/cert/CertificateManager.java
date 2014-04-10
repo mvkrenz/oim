@@ -5,10 +5,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
+import java.security.cert.CertPath;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
 
 import javax.security.auth.x500.X500Principal;
+import javax.xml.bind.DatatypeConverter;
 
 import org.apache.commons.lang.StringUtils;
 import org.bouncycastle.cert.X509CertificateHolder;
@@ -17,16 +21,20 @@ import org.bouncycastle.cms.CMSSignedData;
 import org.bouncycastle.util.Store;
 import org.bouncycastle.util.encoders.Base64;
 
-import edu.iu.grid.oim.lib.StringArray;
+import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.model.cert.ICertificateSigner.Certificate;
 import edu.iu.grid.oim.model.cert.ICertificateSigner.CertificateProviderException;
 import edu.iu.grid.oim.model.cert.ICertificateSigner.IHostCertificatesCallBack;
-import edu.iu.grid.oim.model.db.record.CertificateRequestUserRecord;
 
 public class CertificateManager {
 	private ICertificateSigner cp;
 	public CertificateManager() {
-		cp  = new DigicertCertificateSigner();
+		String signer = StaticConfig.conf.getProperty("certificate.signer");
+		if(signer != null && signer.equals("CILogonCertificateSigner")) {
+			cp  = new CILogonCertificateSigner();
+		} else {
+			cp  = new DigicertCertificateSigner();
+		}
 	}
 
 	/*
@@ -64,7 +72,52 @@ public class CertificateManager {
 		cp.revokeHostCertificate(serial_id);
 	}
 	
-	public static java.security.cert.Certificate[]  parsePKCS7(String pkcs7) throws CMSException, CertificateException, IOException {
+	private static byte[] decodepem(String pem) {
+		String []lines = pem.split("\n");
+		String payload = "";
+		for(String line : lines) {
+			if(line.startsWith("-----")) continue;
+			payload += line;
+		}
+		return DatatypeConverter.parseBase64Binary(payload);
+	}
+	
+	//TODO - not yet fully tested
+	//TODO - x509 cert only contains a single cert - not the chain that pkcs7 contains
+	public static String x509_to_pkcs(String x509) throws CertificateException, CMSException, IOException {
+
+		CertificateFactory cf = CertificateFactory.getInstance("X.509");
+		
+		//load cert
+		byte[] cert_b = decodepem(x509);
+		InputStream in = new ByteArrayInputStream(cert_b);
+		X509Certificate cert = (X509Certificate)cf.generateCertificate(in);
+		
+		/*
+		//load intermediate
+		String inter_pem = readFileAsString("inter.pem");
+		byte[] inter_b = decodepem(inter_pem);
+		in = new ByteArrayInputStream(inter_b);
+		X509Certificate inter = (X509Certificate)cf.generateCertificate(in);
+		*/
+		
+		//construct pkcs7 object
+		ArrayList<X509Certificate> certs = new ArrayList();
+		certs.add(cert);
+		//certs.add(inter);
+		CertPath cp = cf.generateCertPath(certs);	
+		
+		//output pkcs7 in PEM
+		StringBuffer buf = new StringBuffer();
+		buf.append("-----BEGIN PKCS7-----");
+		buf.append(new String(Base64.encode(cp.getEncoded("PKCS7"))).trim());
+		buf.append("-----END PKCS7-----");
+			
+		return buf.toString();
+	}
+	
+	public static java.security.cert.Certificate[] parsePKCS7(String pkcs7) throws CMSException, CertificateException, IOException {
+		/*
 		//need to strip first and last line (-----BEGIN PKCS7-----, -----END PKCS7-----)
 		String []lines = pkcs7.split("\n");
 		String payload = "";
@@ -72,9 +125,11 @@ public class CertificateManager {
 			if(line.startsWith("-----")) continue;
 			payload += line;
 		}
+		*/
+		byte[] cert_b = decodepem(pkcs7);
 		
 		//convert cms to certificate chain
-		CMSSignedData cms = new CMSSignedData(Base64.decode(payload));
+		CMSSignedData cms = new CMSSignedData(cert_b);
 		Store s = cms.getCertificates();
 		Collection collection = s.getMatches(null);
 		java.security.cert.Certificate[] chain = new java.security.cert.Certificate[collection.size()];
