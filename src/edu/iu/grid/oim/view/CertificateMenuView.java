@@ -141,5 +141,8 @@ public class CertificateMenuView implements IView {
 		out.write("</div>");
 		
 		out.write("<div class=\"alert alert-info alert-block\">Please submit a <a href=\"https://ticket.grid.iu.edu/\" target=\"_blank\">GOC Ticket</a> for assistance.</div>");
+		
+		//Jira OIM issue collector
+		out.write("<script type=\"text/javascript\" src=\"https://jira.opensciencegrid.org/s/d41d8cd98f00b204e9800998ecf8427e/en_US93at5v-1988229788/6252/17/1.4.7/_/download/batch/com.atlassian.jira.collector.plugin.jira-issue-collector-plugin:issuecollector/com.atlassian.jira.collector.plugin.jira-issue-collector-plugin:issuecollector.js?collectorId=12fd1a7d\"></script>");
 	}
 }
