@@ -209,7 +209,6 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 								chain = CertificateManager.parsePKCS7(cert.pkcs7);
 								
 								X509Certificate c0 = CertificateManager.getIssuedCert(chain);
-								//X509Certificate c0 = (X509Certificate)chain[0];
 								cert.notafter = c0.getNotAfter();
 								cert.notbefore = c0.getNotBefore();
 								
@@ -288,7 +287,7 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 						++idx;
 					}
 					
-					//set cert expiriation dates using the first certificate issued
+					//set cert expiriation dates using the first certificate issued (out of many *requests*)
 					ICertificateSigner.Certificate cert = certs[0];
 					rec.cert_notafter = cert.notafter;
 					rec.cert_notbefore = cert.notbefore;

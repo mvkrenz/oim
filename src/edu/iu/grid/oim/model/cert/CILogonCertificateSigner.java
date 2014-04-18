@@ -2,6 +2,7 @@ package edu.iu.grid.oim.model.cert;
 
 import java.io.IOException;
 import java.io.StringWriter;
+import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 
@@ -122,7 +123,7 @@ public class CILogonCertificateSigner implements ICertificateSigner {
 				//pull some information from the cert for validation purpose
 				java.security.cert.Certificate[] chain = CertificateManager.parsePKCS7(cert.pkcs7);
 					
-				X509Certificate c0 = (X509Certificate)chain[0];
+				X509Certificate c0 = CertificateManager.getIssuedCert(chain);
 				cert.notafter = c0.getNotAfter();
 				cert.notbefore = c0.getNotBefore();
 				cert.intermediate = "NO-INT";
@@ -181,6 +182,17 @@ public class CILogonCertificateSigner implements ICertificateSigner {
 		}
 	}
 	
+	protected String convertToPem(X509Certificate cert) throws CertificateEncodingException {
+		 org.apache.commons.codec.binary.Base64 encoder = new org.apache.commons.codec.binary.Base64(64);
+		 String cert_begin = "-----BEGIN CERTIFICATE-----\n";
+		 String end_cert = "-----END CERTIFICATE-----";
+
+		 byte[] derCert = cert.getEncoded();
+		 String pemCertPre = new String(encoder.encode(derCert));
+		 String pemCert = cert_begin + pemCertPre + end_cert;
+		 return pemCert;
+		}
+	
 	private Certificate requestHostCert(String csr, String service_name, String cn) throws CILogonCertificateSignerException {
 		HttpClient cl = createHttpClient();
 		
@@ -206,58 +218,29 @@ public class CILogonCertificateSigner implements ICertificateSigner {
 				ICertificateSigner.Certificate cert = new ICertificateSigner.Certificate();
 				StringWriter writer = new StringWriter();
 				IOUtils.copy(post.getResponseBodyAsStream(), writer, "UTF-8"); //should use ascii?
-				cert.certificate = writer.toString();
-				
+				cert.pkcs7 = writer.toString();
+								
 				//parse certificate and populate following fields
-				cert.pkcs7 = "TODO..";
-				cert.intermediate = "TODO.."; //TODO
-				cert.serial = "0000"; //TODO
+				java.security.cert.Certificate[] chain = CertificateManager.parsePKCS7(cert.pkcs7);
+				
+				X509Certificate c0 = CertificateManager.getIssuedCert(chain);
+				cert.notafter = c0.getNotAfter();
+				cert.notbefore = c0.getNotBefore();
+				cert.intermediate = "NO-INT"; //TODO - no cilogon doesn't have intermediate - maybe put root CA?
+				cert.serial = c0.getSerialNumber().toString();	        
+				cert.certificate = convertToPem(c0);
+								
 				return cert;
 			default:
 				throw new CILogonCertificateSignerException("Unknown status code from cilogon: " +post.getStatusCode());	
-			}
-
-			
-			/*
-			Document ret = parseXML(post.getResponseBodyAsStream());
-			NodeList result_nl = ret.getElementsByTagName("result");
-			Element result = (Element)result_nl.item(0);
-			if(result.getTextContent().equals("failure")) {
-				//System.out.println("failed to execute grid_retrieve_host_cert request");
-				NodeList error_code_nl = ret.getElementsByTagName("error_code");
-				StringBuffer errors  = new StringBuffer();
-				for(int i = 0;i < error_code_nl.getLength(); ++i) {
-					Element error_code = (Element)error_code_nl.item(i);
-					Element code = (Element)error_code.getElementsByTagName("code").item(0);
-					Element description = (Element)error_code.getElementsByTagName("description").item(0);
-					errors.append(" Error while accessing: grid_request_email_cert");
-					errors.append(" Code:" + code.getTextContent());
-					errors.append(" Description:" + description.getTextContent());
-					errors.append("\n");
-				}
-				throw new CILogonCertificateSignerException("Request failed for grid_request_email_cert\n" + errors.toString());
-			} else if(result.getTextContent().equals("success")) {
-				
-				ICertificateSigner.Certificate cert = new ICertificateSigner.Certificate();
-				
-				Element serial_e = (Element)ret.getElementsByTagName("serial").item(0);
-				cert.serial = serial_e.getTextContent();
-				
-				Element certificate_e = (Element)ret.getElementsByTagName("certificate").item(0);
-				cert.certificate = certificate_e.getTextContent();
-				
-				Element intermediate_e = (Element)ret.getElementsByTagName("intermediate").item(0);
-				cert.intermediate = intermediate_e.getTextContent();
-			
-				Element pkcs7_e = (Element)ret.getElementsByTagName("pkcs7").item(0);
-				cert.pkcs7 = pkcs7_e.getTextContent();
-
-				return cert;
-			}
-			*/			
+			}	
 		} catch (HttpException e) {
 			throw new CILogonCertificateSignerException("Failed to make cilogon/rest request", e);
 		} catch (IOException e) {
+			throw new CILogonCertificateSignerException("Failed to make cilogon/rest request", e);
+		} catch (CertificateException e) {
+			throw new CILogonCertificateSignerException("Failed to make cilogon/rest request", e);
+		} catch (CMSException e) {
 			throw new CILogonCertificateSignerException("Failed to make cilogon/rest request", e);
 		}
 	}

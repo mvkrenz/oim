@@ -237,7 +237,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 		//email hasn't changed since issue?
 		try {
 			java.security.cert.Certificate[] chain = CertificateManager.parsePKCS7(rec.cert_pkcs7);
-			X509Certificate c0 = (X509Certificate)chain[0];
+			X509Certificate c0 = CertificateManager.getIssuedCert(chain);
 			Collection<List<?>> list = c0.getSubjectAlternativeNames();
 			Iterator<List<?>> it = list.iterator();
 			List<?> first = it.next();
@@ -768,7 +768,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 					
 					//get some information we need from the issued certificate
 					java.security.cert.Certificate[]  chain = CertificateManager.parsePKCS7(rec.cert_pkcs7);
-					X509Certificate c0 = (X509Certificate)chain[0];
+					X509Certificate c0 = CertificateManager.getIssuedCert(chain);
 					rec.cert_notafter = c0.getNotAfter();
 					rec.cert_notbefore = c0.getNotBefore();
 					
@@ -885,14 +885,6 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 			String password = getPassword(rec.id);
 			if(password == null) {
 				log.error("can't retrieve certificate encryption password while creating pkcs12");
-				
-				/*
-				//experimenet trying to create pkcs12 without private key - doesn't work
-				KeyStore p12 = KeyStore.getInstance("PKCS12");
-				p12.load(null, null);
-				p12.setCertificateEntry("USER"+rec.id, chain[0]);
-				return p12;
-				*/
 			} else {
 				KeyStore p12 = KeyStore.getInstance("PKCS12");
 				p12.load(null, null);  //not sure what this does.

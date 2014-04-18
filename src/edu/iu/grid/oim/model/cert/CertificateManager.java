@@ -17,8 +17,14 @@ import javax.xml.bind.DatatypeConverter;
 import org.apache.commons.lang.StringUtils;
 import org.bouncycastle.asn1.ASN1Boolean;
 import org.bouncycastle.asn1.ASN1Encodable;
+import org.bouncycastle.asn1.ASN1InputStream;
+import org.bouncycastle.asn1.ASN1Object;
 import org.bouncycastle.asn1.ASN1Primitive;
+import org.bouncycastle.asn1.ASN1String;
+import org.bouncycastle.asn1.DEROctetString;
+import org.bouncycastle.asn1.DERSequence;
 import org.bouncycastle.asn1.DLSequence;
+import org.bouncycastle.asn1.x509.BasicConstraints;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cert.jcajce.JcaX509ExtensionUtils;
 import org.bouncycastle.cms.CMSException;
@@ -120,37 +126,33 @@ public class CertificateManager {
 		return buf.toString();
 	}
 	*/
-	
+	private static ASN1Primitive toDERObject(byte[] data) throws IOException
+	{
+	    ByteArrayInputStream inStream = new ByteArrayInputStream(data);
+	    ASN1InputStream asnInputStream = new ASN1InputStream(inStream);
+	    return asnInputStream.readObject();
+	}
+	/*
 	public static boolean isBasicConstraintsCA(X509Certificate X509Certificate) throws IOException
 	{
-	    byte[] extensionValue = X509Certificate.getExtensionValue("2.5.29.19");
-	    if (extensionValue != null) {
-	    	ASN1Primitive prim = JcaX509ExtensionUtils.parseExtensionValue(extensionValue);
-	    	if(prim instanceof DLSequence) {
-	    		DLSequence seq = (DLSequence) prim;
-		        if(seq.size() != 0) {
-			        ASN1Encodable enc = seq.getObjectAt(0);
-			        if(enc instanceof ASN1Boolean) {
-			        	ASN1Boolean b = (ASN1Boolean)enc;
-				        if(b.isTrue()) {
-				        	return true;
-				        }
-			        }
-		        }
-	    	}
-	    }
-	    return false;
+	    byte[] bytes = X509Certificate.getExtensionValue("2.5.29.19");
+        if (bytes != null)
+             {
+        	BasicConstraints            bc = BasicConstraints.getInstance(ASN1Primitive.fromByteArray(bytes));
+        	return bc.isCA();
+               }
+	    //assume it to be CA
+        X509Certificate.getBasicConstraints()
+	    return true;
 	}
+	*/
 	
 	public static X509Certificate getIssuedCert(java.security.cert.Certificate[] chain) {
 		for(java.security.cert.Certificate cert : chain) {
-			try {
-				X509Certificate x509cert = (X509Certificate)cert;
-				if(!isBasicConstraintsCA(x509cert)) {
-					return x509cert;
-				}
-			} catch (IOException e) {
-				System.out.println("Failed to test CA extension flag");
+			X509Certificate x509cert = (X509Certificate)cert;
+			//System.out.println(x509cert.getBasicConstraints());
+			if(x509cert.getBasicConstraints() == -1) {
+				return x509cert;
 			}
 		}
 		return null;
