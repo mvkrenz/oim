@@ -46,4 +46,7 @@ public interface ICertificateSigner {
 	public Certificate signUserCertificate(String csr, String dn, String email_address) throws CertificateProviderException;
 	public void revokeHostCertificate(String serial_id) throws CertificateProviderException;
 	public void revokeUserCertificate(String serial_id) throws CertificateProviderException;
+	
+	public String getUserDNBase();
+	public String getHostDNBase();
 }

@@ -208,7 +208,8 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 							try {
 								chain = CertificateManager.parsePKCS7(cert.pkcs7);
 								
-								X509Certificate c0 = (X509Certificate)chain[0];
+								X509Certificate c0 = CertificateManager.getIssuedCert(chain);
+								//X509Certificate c0 = (X509Certificate)chain[0];
 								cert.notafter = c0.getNotAfter();
 								cert.notbefore = c0.getNotBefore();
 								

@@ -5,8 +5,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
-import java.security.cert.X509Certificate;
 import java.security.cert.CertPath;
+import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -15,7 +15,12 @@ import javax.security.auth.x500.X500Principal;
 import javax.xml.bind.DatatypeConverter;
 
 import org.apache.commons.lang.StringUtils;
+import org.bouncycastle.asn1.ASN1Boolean;
+import org.bouncycastle.asn1.ASN1Encodable;
+import org.bouncycastle.asn1.ASN1Primitive;
+import org.bouncycastle.asn1.DLSequence;
 import org.bouncycastle.cert.X509CertificateHolder;
+import org.bouncycastle.cert.jcajce.JcaX509ExtensionUtils;
 import org.bouncycastle.cms.CMSException;
 import org.bouncycastle.cms.CMSSignedData;
 import org.bouncycastle.util.Store;
@@ -34,7 +39,14 @@ public class CertificateManager {
 			cp  = new CILogonCertificateSigner();
 		} else {
 			cp  = new DigicertCertificateSigner();
-		}
+		}		
+	}
+	
+	public String getUserDNBase() {
+		return cp.getUserDNBase();
+	}
+	public String getHostDNBase() {
+		return cp.getHostDNBase();
 	}
 
 	/*
@@ -81,7 +93,7 @@ public class CertificateManager {
 		}
 		return DatatypeConverter.parseBase64Binary(payload);
 	}
-	
+	/*
 	//TODO - not yet fully tested
 	//TODO - x509 cert only contains a single cert - not the chain that pkcs7 contains
 	public static String x509_to_pkcs(String x509) throws CertificateException, CMSException, IOException {
@@ -92,14 +104,6 @@ public class CertificateManager {
 		byte[] cert_b = decodepem(x509);
 		InputStream in = new ByteArrayInputStream(cert_b);
 		X509Certificate cert = (X509Certificate)cf.generateCertificate(in);
-		
-		/*
-		//load intermediate
-		String inter_pem = readFileAsString("inter.pem");
-		byte[] inter_b = decodepem(inter_pem);
-		in = new ByteArrayInputStream(inter_b);
-		X509Certificate inter = (X509Certificate)cf.generateCertificate(in);
-		*/
 		
 		//construct pkcs7 object
 		ArrayList<X509Certificate> certs = new ArrayList();
@@ -114,6 +118,42 @@ public class CertificateManager {
 		buf.append("-----END PKCS7-----");
 			
 		return buf.toString();
+	}
+	*/
+	
+	public static boolean isBasicConstraintsCA(X509Certificate X509Certificate) throws IOException
+	{
+	    byte[] extensionValue = X509Certificate.getExtensionValue("2.5.29.19");
+	    if (extensionValue != null) {
+	    	ASN1Primitive prim = JcaX509ExtensionUtils.parseExtensionValue(extensionValue);
+	    	if(prim instanceof DLSequence) {
+	    		DLSequence seq = (DLSequence) prim;
+		        if(seq.size() != 0) {
+			        ASN1Encodable enc = seq.getObjectAt(0);
+			        if(enc instanceof ASN1Boolean) {
+			        	ASN1Boolean b = (ASN1Boolean)enc;
+				        if(b.isTrue()) {
+				        	return true;
+				        }
+			        }
+		        }
+	    	}
+	    }
+	    return false;
+	}
+	
+	public static X509Certificate getIssuedCert(java.security.cert.Certificate[] chain) {
+		for(java.security.cert.Certificate cert : chain) {
+			try {
+				X509Certificate x509cert = (X509Certificate)cert;
+				if(!isBasicConstraintsCA(x509cert)) {
+					return x509cert;
+				}
+			} catch (IOException e) {
+				System.out.println("Failed to test CA extension flag");
+			}
+		}
+		return null;
 	}
 	
 	public static java.security.cert.Certificate[] parsePKCS7(String pkcs7) throws CMSException, CertificateException, IOException {

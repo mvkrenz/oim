@@ -551,4 +551,15 @@ public class DigicertCertificateSigner implements ICertificateSigner {
 			throw new DigicertCPException("Failed to parse returned String from grid_email_revoke", e);
 		}
 	}
+	
+
+	@Override
+	public String getUserDNBase() {
+		return StaticConfig.conf.getProperty("digicert.user_dn_base");
+	}
+
+	@Override
+	public String getHostDNBase() {
+		return StaticConfig.conf.getProperty("digicert.host_dn_base");
+	}
 }

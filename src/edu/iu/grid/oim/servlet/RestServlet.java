@@ -912,28 +912,6 @@ public class RestServlet extends ServletBase  {
 					System.out.println("\tFailed to reset approver_vo_id");
 					System.out.println("\t"+e.toString());
 				}
-				
-				/*
-				String[] pkc7s = rec.getPKCS7s();
-				java.security.cert.Certificate[] chain;
-				try {
-					chain = CertificateManager.parsePKCS7(pkc7s[0]);//grab first one
-					
-					X509Certificate c0 = (X509Certificate)chain[0];
-					Date notafter = c0.getNotAfter();
-					Date notbefore = c0.getNotBefore();
-					
-					java.text.SimpleDateFormat mysqlformat = new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-					String sql = "UPDATE certificate_request_host SET cert_notafter = '"+mysqlformat.format(notafter)+"', cert_notbefore = '"+mysqlformat.format(notbefore)+"' WHERE id = "+rec.id+" LIMIT 1;";
-					reply.params.put(rec.id.toString(), sql);
-				} catch(CertificateException e) {
-					throw new RestException("SQLException while parsing pkcs7", e);		
-				} catch (CMSException e) {
-					throw new RestException("SQLException while running pkcs7", e);
-				} catch (IOException e) {
-					throw new RestException("SQLException while running pkcs7", e);
-				}
-				*/
 			}
 			reply.detail = queries.toString();
 		} catch (SQLException e) {

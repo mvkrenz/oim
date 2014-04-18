@@ -3,6 +3,7 @@ package edu.iu.grid.oim.model.cert;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
 
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
@@ -16,6 +17,8 @@ import org.bouncycastle.asn1.x500.style.BCStyle;
 import org.bouncycastle.cms.CMSException;
 import org.bouncycastle.pkcs.PKCS10CertificationRequest;
 import org.bouncycastle.util.encoders.Base64;
+
+import edu.iu.grid.oim.lib.StaticConfig;
 
 public class CILogonCertificateSigner implements ICertificateSigner {
     static Logger log = Logger.getLogger(CILogonCertificateSigner.class);  
@@ -114,12 +117,16 @@ public class CILogonCertificateSigner implements ICertificateSigner {
 				ICertificateSigner.Certificate cert = new ICertificateSigner.Certificate();
 				StringWriter writer = new StringWriter();
 				IOUtils.copy(post.getResponseBodyAsStream(), writer, "UTF-8"); //should use ascii?
-				cert.certificate = writer.toString();
+				cert.pkcs7 = writer.toString();
 				
-				//parse certificate and populate following fields
-				cert.pkcs7 = CertificateManager.x509_to_pkcs(cert.certificate);
-				cert.intermediate = "TODO.."; //TODO
-				cert.serial = "0000"; //TODO
+				//pull some information from the cert for validation purpose
+				java.security.cert.Certificate[] chain = CertificateManager.parsePKCS7(cert.pkcs7);
+					
+				X509Certificate c0 = (X509Certificate)chain[0];
+				cert.notafter = c0.getNotAfter();
+				cert.notbefore = c0.getNotBefore();
+				cert.intermediate = "NO-INT";
+				cert.serial = c0.getSerialNumber().toString();
 				return cert;
 			default:
 				throw new CILogonCertificateSignerException("Unknown status code from cilogon: " +post.getStatusCode());	
@@ -348,5 +355,15 @@ public class CILogonCertificateSigner implements ICertificateSigner {
 			throw new CILogonCertificateSignerException("Failed to parse returned String from grid_email_revoke", e);
 		}
 		*/
+	}
+
+	@Override
+	public String getUserDNBase() {
+		return StaticConfig.conf.getProperty("cilogon.user_dn_base");
+	}
+
+	@Override
+	public String getHostDNBase() {
+		return StaticConfig.conf.getProperty("cilogon.host_dn_base");
 	}
 }

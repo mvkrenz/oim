@@ -1556,32 +1556,6 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
     {
     	throw new UnsupportedOperationException("disallowing remove cert request..");
     }
-    
-    /*
-    public void _test() {
-    	try {
-			CertificateRequestUserRecord rec = get(21);
-			try {
-				java.security.cert.Certificate[]  chain = CertificateManager.parsePKCS7(rec.cert_pkcs7);
-				X509Certificate c0 = (X509Certificate)chain[0];
-				Date not_after = c0.getNotAfter();
-				Date not_before = c0.getNotBefore();
-		
-			} catch (CMSException e) {
-				log.error("Failed to lookup certificate information for issued user cert request id:" + rec.id, e);
-			} catch (CertificateException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-    }
-    */
 
     //NO AC
 	public CertificateRequestUserRecord getBySerialID(String serial_id) throws SQLException {
