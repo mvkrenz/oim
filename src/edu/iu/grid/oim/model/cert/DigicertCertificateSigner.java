@@ -383,7 +383,12 @@ public class DigicertCertificateSigner implements ICertificateSigner {
 				}
 				throw new DigicertCPException("Request failed for grid_approve_request\n" + errors.toString());
 			} else if(result.getTextContent().equals("success")) {
+				Element success_message = (Element)ret.getElementsByTagName("success_message").item(0);
+				String message = success_message.getTextContent();
+				log.debug(message);
+				
 				Element order_id_e = (Element)ret.getElementsByTagName("order_id").item(0);
+				if(order_id_e == null) return null;
 				String order_id = order_id_e.getTextContent();
 				return order_id;
 			}
@@ -462,6 +467,14 @@ public class DigicertCertificateSigner implements ICertificateSigner {
 
 	@Override
 	public void revokeHostCertificate(String serial_id) throws CertificateProviderException {
+		//do request & approve
+		String request_id = requestHostCertRevoke(serial_id);
+		log.debug("Requested host certificate revocation. Digicert Request ID:" + request_id);
+		String order_id = approve(request_id, "Approving host certificate revocation"); 
+		log.debug("Approved host certificate revocation. Digicert Order ID:" + order_id);
+	}
+	
+	public String requestHostCertRevoke(String serial_id) throws CertificateProviderException {
 		HttpClient cl = createHttpClient();
 		
 		PostMethod post = new PostMethod("https://www.digicert.com/enterprise/api/?action=grid_request_host_revoke");
@@ -491,7 +504,10 @@ public class DigicertCertificateSigner implements ICertificateSigner {
 				}
 				throw new DigicertCPException("Request failed for grid_request_host_revoke\n" + errors.toString());
 			} else if(result.getTextContent().equals("success")) {
-				//nothing particular to do
+				Element request_id_e = (Element)ret.getElementsByTagName("request_id").item(0);
+				String request_id = request_id_e.getTextContent();
+				System.out.println("Obtained Digicert Request ID:" + request_id); //like "15757"
+				return request_id;
 			} else {
 				throw new DigicertCPException("Unknown return code from grid_request_host_revoke: " +result.getTextContent());
 			}
