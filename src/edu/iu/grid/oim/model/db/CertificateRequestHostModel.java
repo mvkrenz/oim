@@ -716,9 +716,8 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
     //find gridadmin who should process the request - identify domain from csrs
     //if there are more than 1 vos group, then user must specify approver_vo_id 
     //   * it could be null for gridadmin with only 1 vo group, and approver_vo_id will be reset to the correct VO ID
-    public ArrayList<ContactRecord> findGridAdmin(CertificateRequestHostRecord rec) throws CertificateRequestException {
-    	
-    	
+    public ArrayList<ContactRecord> findGridAdmin(CertificateRequestHostRecord rec) throws CertificateRequestException 
+    {
 		GridAdminModel gamodel = new GridAdminModel(context);
     	String gridadmin_domain = null;
     	int idx = 0;

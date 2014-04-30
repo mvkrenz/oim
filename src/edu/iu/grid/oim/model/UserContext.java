@@ -114,11 +114,11 @@ public class UserContext {
 	public Connection getConnection() throws SQLException {
 		if(oimds == null) {
 		    try {
-		    	log.debug("Looking for jdbc connection");
+		    	//log.debug("Looking for jdbc connection");
 		    	Context initContext = new InitialContext();
 		    	Context envContext  = (Context)initContext.lookup("java:/comp/env");
 		    	oimds = (DataSource)envContext.lookup("jdbc/oim");
-		    	log.debug(oimds.toString());
+		    	//log.debug(oimds.toString());
 		    } catch( NamingException ne ) {
 		    	throw new RuntimeException( "Unable to aquire data source", ne );
 		    }	

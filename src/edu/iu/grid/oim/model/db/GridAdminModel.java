@@ -12,10 +12,8 @@ import org.apache.log4j.Logger;
 import org.w3c.dom.Document;
 
 import edu.iu.grid.oim.model.UserContext;
-import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.GridAdminRecord;
 import edu.iu.grid.oim.model.db.record.RecordBase;
-import edu.iu.grid.oim.model.db.record.ResourceContactRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
 
 public class GridAdminModel extends SmallTableModelBase<GridAdminRecord> {
@@ -30,16 +28,6 @@ public class GridAdminModel extends SmallTableModelBase<GridAdminRecord> {
 	{
 		return new GridAdminRecord();
 	}
-    /*
-	public ArrayList<GridAdminRecord> getAll() throws SQLException
-	{
-		ArrayList<GridAdminRecord> list = new ArrayList<GridAdminRecord>();
-		for(RecordBase it : getCache()) {
-			list.add((GridAdminRecord)it);
-		}
-		return list;
-	}
-	*/
     
     //group records by domain name
     public LinkedHashMap<String, ArrayList<GridAdminRecord>> getAll() throws SQLException
@@ -57,7 +45,6 @@ public class GridAdminModel extends SmallTableModelBase<GridAdminRecord> {
 				list.put(rec.domain, clist);
 			}
 		}
-    	
     	return list;
     }
     
@@ -87,34 +74,19 @@ public class GridAdminModel extends SmallTableModelBase<GridAdminRecord> {
 		return groups;
 	}
 	
-	/*
-	public ArrayList<ContactRecord> getContactsByDomainAndVO(String domain, Integer vo_id) throws SQLException
-	{ 
-		ArrayList<ContactRecord> list = new ArrayList<ContactRecord>();
-		ArrayList<GridAdminRecord> recs = getByDomain(domain);
-    	ContactModel cmodel = new ContactModel(context);
-		for(GridAdminRecord rec : recs) {
-			if(rec.vo_id.equals(vo_id)) {
-				list.add(cmodel.get(rec.contact_id));
-			}
-		}
-		return list;
-	}
-	*/
-	/*
-	public GridAdminRecord get(int id) throws SQLException {
-		GridAdminRecord keyrec = new GridAdminRecord();
-		keyrec.id = id;
-		return get(keyrec);
-	}
-	*/
-	
 	//search for gridadmin with most specific domain name registered for given fqdn.
 	//return null if not found
-	public String getDomainByFQDN(String fqdn) throws SQLException {
+	public String getDomainByFQDN(String fqdn) throws SQLException 
+	{
+		//remove service name (rsv/)
+		int pos = fqdn.indexOf("/");
+		if(pos != -1) {
+			fqdn = fqdn.substring(pos+1);
+		}
+		
 		String domain = null;
 		LinkedHashMap<String, ArrayList<GridAdminRecord>> list = getAll();
-		for(String rec_domain : list.keySet()) {
+		for(String rec_domain : list.keySet()) {			
 			//prevent fiu.edu from matching iu.edu by prepending . in front of fqdn being searched
 			if(fqdn.equals(rec_domain) || fqdn.endsWith("."+rec_domain)) {
 				//keep - if we find more specific domain
