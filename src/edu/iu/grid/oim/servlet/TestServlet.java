@@ -16,6 +16,7 @@ import org.apache.log4j.Logger;
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.GridAdminModel;
+import edu.iu.grid.oim.view.divrep.form.validator.CNValidator;
 import static org.junit.Assert.*;
 
 //This class allows admin to run junit asserts 
@@ -31,7 +32,8 @@ public class TestServlet extends ServletBase {
 
 		try {
 			System.out.println("Testing GridAdminModel");
-			testGridAdminModel(context);
+			//testGridAdminModel(context);
+			testCNValidator(context);
 			
 			System.out.println("All good");
 			
@@ -40,7 +42,12 @@ public class TestServlet extends ServletBase {
 			e.printStackTrace();
 		}
 	}
-	
+	void testCNValidator(UserContext context) throws SQLException {
+		CNValidator v = new CNValidator();
+		if(v.isValid("grid.iu.edu")) {
+			
+		}
+	}
 	void testGridAdminModel(UserContext context) throws SQLException {
 		System.out.println("\tgetDomainByFQDN");
 		GridAdminModel model = new GridAdminModel(context);
