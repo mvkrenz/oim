@@ -12,9 +12,11 @@
         <fileset dir="WebContent/WEB-INF/lib">
           <include name="*.jar"/>
         </fileset>
+        	<!--
         <fileset dir="tomcat5-lib">
           <include name="*.jar"/>
         </fileset>
+    		-->
     </path>
     <target name="init">
         <mkdir dir="build/classes"/>
@@ -58,6 +60,6 @@
     </war>
   </target>
     <target name="deploy" depends="war">
-        <copy file="build/oim.war" tofile="/usr/share/tomcat5/webapps/oim.war" overwrite="true"/>
+        <copy file="build/oim.war" tofile="/usr/share/tomcat6/webapps/oim.war" overwrite="true"/>
     </target>
 </project>
