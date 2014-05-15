@@ -9,56 +9,16 @@
     <property name="debuglevel" value="source,lines,vars"/>
     <property name="target" value="1.7"/>
     <property name="source" value="1.7"/>
-    <import file="custom-build.xml"/>
     <path id="EAR Libraries.libraryclasspath"/>
     <path id="Web App Libraries.libraryclasspath">
-        <pathelement location="WebContent/WEB-INF/lib/bcpg-jdk15on-147.jar"/>
-        <pathelement location="WebContent/WEB-INF/lib/bcpkix-jdk15on-147.jar"/>
-        <pathelement location="WebContent/WEB-INF/lib/bcprov-ext-jdk15on-147.jar"/>
-        <pathelement location="WebContent/WEB-INF/lib/bcprov-jdk15on-147.jar"/>
-        <pathelement location="WebContent/WEB-INF/lib/commons-codec-1.5.jar"/>
-        <pathelement location="WebContent/WEB-INF/lib/commons-httpclient-3.1.jar"/>
-        <pathelement location="WebContent/WEB-INF/lib/commons-io-1.2.jar"/>
-        <pathelement location="WebContent/WEB-INF/lib/commons-lang-2.4.jar"/>
-        <pathelement location="WebContent/WEB-INF/lib/commons-logging-1.1.jar"/>
-        <pathelement location="WebContent/WEB-INF/lib/commons-validator-1.3.1.jar"/>
-        <pathelement location="WebContent/WEB-INF/lib/divrep.jar"/>
-        <pathelement location="WebContent/WEB-INF/lib/geonames-1.0.jar"/>
-        <pathelement location="WebContent/WEB-INF/lib/hamcrest-core-1.3.jar"/>
-        <pathelement location="WebContent/WEB-INF/lib/jakarta-oro-2.0.8.jar"/>
-        <pathelement location="WebContent/WEB-INF/lib/jdom-1.0.jar"/>
-        <pathelement location="WebContent/WEB-INF/lib/json-rpc-1.0.jar"/>
-        <pathelement location="WebContent/WEB-INF/lib/junit-4.11.jar"/>
-        <pathelement location="WebContent/WEB-INF/lib/log4j-1.2.15.jar"/>
-        <pathelement location="WebContent/WEB-INF/lib/mysql-connector-java-5.1.18-bin.jar"/>
-        <pathelement location="WebContent/WEB-INF/lib/poi-3.9-20121203.jar"/>
-        <pathelement location="WebContent/WEB-INF/lib/poi-examples-3.9-20121203.jar"/>
-        <pathelement location="WebContent/WEB-INF/lib/poi-excelant-3.9-20121203.jar"/>
-        <pathelement location="WebContent/WEB-INF/lib/poi-ooxml-3.9-20121203.jar"/>
-        <pathelement location="WebContent/WEB-INF/lib/poi-ooxml-schemas-3.9-20121203.jar"/>
-        <pathelement location="WebContent/WEB-INF/lib/poi-scratchpad-3.9-20121203.jar"/>
-        <pathelement location="WebContent/WEB-INF/lib/rabbitmq-client.jar"/>
-        <pathelement location="WebContent/WEB-INF/lib/recaptcha4j-0.0.7.jar"/>
-        <pathelement location="WebContent/WEB-INF/lib/resolver.jar"/>
-        <pathelement location="WebContent/WEB-INF/lib/vt-password-3.1.1.jar"/>
+	<fileset dir="WebContent/WEB-INF/lib">
+		<include name="*.jar"/>
+	</fileset>
     </path>
     <path id="Apache Tomcat v6.0 [Apache Tomcat v6.0].libraryclasspath">
-        <pathelement location="../../../app/apache-tomcat-6.0.37/lib/annotations-api.jar"/>
-        <pathelement location="../../../app/apache-tomcat-6.0.37/lib/catalina-ant.jar"/>
-        <pathelement location="../../../app/apache-tomcat-6.0.37/lib/catalina-ha.jar"/>
-        <pathelement location="../../../app/apache-tomcat-6.0.37/lib/catalina-tribes.jar"/>
-        <pathelement location="../../../app/apache-tomcat-6.0.37/lib/catalina.jar"/>
-        <pathelement location="../../../app/apache-tomcat-6.0.37/lib/ecj-4.2.2.jar"/>
-        <pathelement location="../../../app/apache-tomcat-6.0.37/lib/el-api.jar"/>
-        <pathelement location="../../../app/apache-tomcat-6.0.37/lib/jasper-el.jar"/>
-        <pathelement location="../../../app/apache-tomcat-6.0.37/lib/jasper.jar"/>
-        <pathelement location="../../../app/apache-tomcat-6.0.37/lib/jsp-api.jar"/>
-        <pathelement location="../../../app/apache-tomcat-6.0.37/lib/servlet-api.jar"/>
-        <pathelement location="../../../app/apache-tomcat-6.0.37/lib/tomcat-coyote.jar"/>
-        <pathelement location="../../../app/apache-tomcat-6.0.37/lib/tomcat-dbcp.jar"/>
-        <pathelement location="../../../app/apache-tomcat-6.0.37/lib/tomcat-i18n-es.jar"/>
-        <pathelement location="../../../app/apache-tomcat-6.0.37/lib/tomcat-i18n-fr.jar"/>
-        <pathelement location="../../../app/apache-tomcat-6.0.37/lib/tomcat-i18n-ja.jar"/>
+	<fileset dir="/usr/share/tomcat6/lib">
+		<include name="*.jar"/>
+	</fileset>
     </path>
     <path id="oim.classpath">
         <pathelement location="build/classes"/>
@@ -102,4 +62,15 @@
         <property name="build.compiler" value="org.eclipse.jdt.core.JDTCompilerAdapter"/>
         <antcall target="build"/>
     </target>
+	<target name="war" depends="build">
+	<war destfile="build/oim.war" webxml="WebContent/WEB-INF/web.xml">
+	<classes dir="build/classes"/>
+	<fileset dir="WebContent">
+	<exclude name="WEB-INF/web.xml"/>
+	</fileset>
+	</war>
+	</target>
+	<target name="deploy" depends="war">
+	<copy file="build/oim.war" tofile="/usr/share/tomcat6/webapps/oim.war" overwrite="true"/>
+	</target>
 </project>
