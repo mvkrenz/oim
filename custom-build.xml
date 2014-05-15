@@ -1,5 +1,5 @@
 <?eclipse.ant.import?>
-<project basedir="." default="build" name="oim">
+<project basedir="." default="deploy" name="oim-custom">
  <target name="war" depends="build">
     <war destfile="build/oim.war" webxml="WebContent/WEB-INF/web.xml">
         <classes dir="build/classes"/>
