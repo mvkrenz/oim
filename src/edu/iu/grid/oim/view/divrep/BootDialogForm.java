@@ -38,6 +38,11 @@ abstract public class BootDialogForm extends DivRep {
 		show = true;
 		redraw();
 	}
+	private String submit_label = "Submit"; 
+	public void setSubmitLabel(String label) { 
+		submit_label = label;
+		redraw();
+	}
 	
 	//derived class can call this function to force submit.
 	protected void submit()
@@ -97,7 +102,7 @@ abstract public class BootDialogForm extends DivRep {
 			
 			//display footer
 			out.write("<div class=\"modal-footer\">");
-			out.write("<button class=\"btn btn-primary\" onclick=\"divrep('"+getNodeID()+"', this, 'submit'); return false; \">Submit</button>");
+			out.write("<button class=\"btn btn-primary\" onclick=\"divrep('"+getNodeID()+"', this, 'submit'); return false; \">"+submit_label+"</button>");
 			out.write("<button data-dismiss=\"modal\" class=\"btn\">Cancel</button>");
 			out.write("</div>");
 			

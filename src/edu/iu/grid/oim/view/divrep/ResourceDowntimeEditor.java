@@ -59,7 +59,7 @@ public class ResourceDowntimeEditor extends DivRepFormElement {
 	private DivRepSelectBox class_id;
 	private DivRepSelectBox severity_id;
 	private Timestamp timestamp;
-	
+	/*
 	class RemoveButtonDE extends DivRepButton
 	{
 		public RemoveButtonDE(DivRep parent)
@@ -69,13 +69,13 @@ public class ResourceDowntimeEditor extends DivRepFormElement {
 			addClass("right");
 		}
 		protected void onEvent(DivRepEvent e) {
-			remove_downtime_dialog.setRecord(rec);
-			remove_downtime_dialog.open();	
+			//remove_downtime_dialog.setRecord(rec);
+			remove_downtime_dialog.show();	
 		}
 	};
 	private RemoveButtonDE remove_button;
-	private RemoveDowntimeDialog remove_downtime_dialog;
-	
+	private BootDialogForm remove_downtime_dialog;
+	*/
 	private ResourceDowntimeRecord rec;
 	
 	private HashMap<Integer/*service_id*/, DivRepCheckBox> affected_services = new HashMap<Integer, DivRepCheckBox>();	
@@ -88,11 +88,29 @@ public class ResourceDowntimeEditor extends DivRepFormElement {
 		timezone = _timezone;
 		
 		rec = _rec;
-		
+		/*
 		if(rec.id != null) {
 			remove_button = new RemoveButtonDE(this);
-			remove_downtime_dialog = new RemoveDowntimeDialog(this, context);
+			remove_downtime_dialog = new BootDialogForm(this) {
+				@Override
+				protected boolean doSubmit() {
+					ResourceDowntimeModel model = new ResourceDowntimeModel(context);
+					try {
+						model.disableDowntime(rec);
+					} catch (SQLException e) {
+						alert(e.toString());
+						log.error("Failed to remove", e);
+						return false;
+					}
+					redirect("resourcedowntime");
+					return true;
+				}
+			};
+			remove_downtime_dialog.setTitle("Remove Downtime");
+			remove_downtime_dialog.setSubmitLabel("Remove");
+			new DivRepStaticContent(remove_downtime_dialog, "Do you really want to remove this downtime?");
 		}
+		*/
 		
 		new DivRepStaticContent(this, "<h3>Duration ("+timezone.getID()+")</h3>");
 		duration = new DurationDR(this, rec);

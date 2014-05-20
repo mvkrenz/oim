@@ -134,7 +134,7 @@ public class FieldOfScienceServlet extends ServletBase {
 					}
 					protected void onEvent(DivRepEvent e) {
 						remove_fos_dialog.setRecord(rec);
-						remove_fos_dialog.open();	
+						remove_fos_dialog.show();	
 					}
 				};
 				contentview.add(new RemoveButtonDE(context.getPageRoot()));
