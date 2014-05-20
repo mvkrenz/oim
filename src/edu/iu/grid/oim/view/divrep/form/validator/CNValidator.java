@@ -6,6 +6,8 @@ import com.divrep.validator.DivRepIValidator;
 
 public class CNValidator implements DivRepIValidator<String>
 {
+
+	private static final long serialVersionUID = 3609459828510820900L;
 	String message;
 	
 	public CNValidator() {
@@ -13,14 +15,17 @@ public class CNValidator implements DivRepIValidator<String>
 		
 	@Override
 	public Boolean isValid(String value) {
-		//I am not sure how effective this is..
-		try {
-			X500Name name = new X500Name("CN="+value);
-		} catch(Exception e) {
-			message = "Couldn't parse as X500 Name";
+		
+		// MT 22-APR-2014
+		// Addresses https://jira.opensciencegrid.org/browse/OIM-82:
+		// Names like .iu.edu are invalid
+		final char PERIOD = '.'; 
+		
+		if (PERIOD == value.charAt(0))	{
+			message = "Contains invalid character . at the beginning";
 			return false;
 		}
-		
+
 		if(value.contains("/")) {
 			//we can't use / in apache format.. which is the format stored in our DB
 			message = "Please do not use /(slash)";
@@ -33,6 +38,15 @@ public class CNValidator implements DivRepIValidator<String>
 			return false;
 		}
 		
+		//I am not sure how effective this is..
+		try {
+			@SuppressWarnings("unused")
+			X500Name name = new X500Name("CN="+value);
+		} catch(Exception e) {
+			message = "Couldn't parse as X500 Name";
+			return false;
+		}
+
 		return true;
 	}
 
