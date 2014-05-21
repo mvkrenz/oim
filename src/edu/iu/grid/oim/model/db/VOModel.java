@@ -333,10 +333,13 @@ public class VOModel extends SmallTableModelBase<VORecord>
 		return list;
 	}
 	
+	//search case insensitively
 	public VORecord getByName(String name) throws SQLException
 	{
+		String upname = name.toUpperCase();
 		for(VORecord rec : getAll()) {
-			if(rec.name.equals(name)) return rec;
+			String recname = rec.name.toUpperCase();
+			if(recname.equals(upname)) return rec;
 		}
 		return null;
 	}

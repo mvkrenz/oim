@@ -59,6 +59,7 @@ import edu.iu.grid.oim.view.divrep.Confirmation;
 import edu.iu.grid.oim.view.divrep.ContactEditor;
 import edu.iu.grid.oim.view.divrep.VOReportNames;
 import edu.iu.grid.oim.view.divrep.FOSEditor;
+import edu.iu.grid.oim.view.divrep.form.validator.IncaseUniqueValidator;
 
 public class VOFormDE extends DivRepForm 
 {
@@ -370,7 +371,7 @@ public class VOFormDE extends DivRepForm
 		name = new DivRepTextBox(this);
 		name.setLabel("Name");
 		name.setValue(rec.name);
-		name.addValidator(new DivRepUniqueValidator<String>(vos.values()));
+		name.addValidator(new IncaseUniqueValidator(vos.values()));
 		name.setRequired(true);
 		name.setSampleValue("CDF");
 
