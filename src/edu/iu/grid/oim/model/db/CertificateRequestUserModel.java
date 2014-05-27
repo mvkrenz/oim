@@ -387,7 +387,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 		//check quota
     	CertificateQuotaModel quota = new CertificateQuotaModel(context);
     	if(!quota.canRequestUserCert(rec.requester_contact_id)) {
-    		throw new CertificateRequestException("Exeeding Quota");
+    		throw new CertificateRequestException("Exceeding Quota");
     	}
 		
 		if(rec.status.equals(CertificateRequestStatus.REQUESTED)) {
