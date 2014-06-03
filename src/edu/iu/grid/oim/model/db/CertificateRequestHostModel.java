@@ -63,6 +63,7 @@ import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.GridAdminRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
 import edu.iu.grid.oim.model.exceptions.CertificateRequestException;
+import edu.iu.grid.oim.view.divrep.form.validator.CNValidator;
 
 public class CertificateRequestHostModel extends CertificateRequestModelBase<CertificateRequestHostRecord> {
     static Logger log = Logger.getLogger(CertificateRequestHostModel.class);  
@@ -496,6 +497,7 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
     	StringArray csrs_sa = new StringArray(csrs.size());
     	StringArray cns_sa = new StringArray(csrs.size());
     	int idx = 0;
+    	CNValidator cnv = new CNValidator(CNValidator.Type.HOST);
     	for(String csr_string : csrs) {
         	log.debug("processing csr: " + csr_string);
     		String cn;
@@ -504,8 +506,11 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 	    		cn = pullCNFromCSR(csr);
 	    		
 	    		//validate CN
-	    		if(!cn.matches("^([-0-9a-zA-Z\\.]*/)?[-0-9a-zA-Z\\.]*$")) { //OSGPKI-255
-					throw new CertificateRequestException("CN structure is invalid, or contains invalid characters.");
+	    		//if(!cn.matches("^([-0-9a-zA-Z\\.]*/)?[-0-9a-zA-Z\\.]*$")) { //OSGPKI-255
+				//	throw new CertificateRequestException("CN structure is invalid, or contains invalid characters.");
+	    		//}
+	    		if(!cnv.isValid(cn)) {
+	    			throw new CertificateRequestException("CN specified is invalid: " + cn + " .. " + cnv.getErrorMessage());
 	    		}
 	    		
 	    		//check private key strength

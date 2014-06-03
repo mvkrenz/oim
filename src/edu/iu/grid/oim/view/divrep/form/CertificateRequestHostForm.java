@@ -137,7 +137,7 @@ public class CertificateRequestHostForm extends DivRepForm
 						String cn = certmodel.pullCNFromCSR(pkcs10);
 						
 						//check for CN structure
-						CNValidator cnv = new CNValidator();
+						CNValidator cnv = new CNValidator(CNValidator.Type.HOST);
 						if(!cnv.isValid(cn)) {
 							error_message = cnv.getErrorMessage() + " Specified CN:"+cn;
 							return false;

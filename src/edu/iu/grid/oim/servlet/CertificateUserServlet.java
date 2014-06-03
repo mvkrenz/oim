@@ -54,9 +54,9 @@ import edu.iu.grid.oim.view.HtmlFileView;
 import edu.iu.grid.oim.view.HtmlView;
 import edu.iu.grid.oim.view.IView;
 import edu.iu.grid.oim.view.UserCertificateTable;
-import edu.iu.grid.oim.view.divrep.CNEditor;
 import edu.iu.grid.oim.view.divrep.ChoosePassword;
 import edu.iu.grid.oim.view.divrep.EditableContent;
+import edu.iu.grid.oim.view.divrep.UserCNEditor;
 import edu.iu.grid.oim.view.divrep.form.validator.MustbeCheckedValidator;
 import edu.iu.grid.oim.view.divrep.form.validator.PKIPassStrengthValidator;
 
@@ -239,9 +239,9 @@ public class CertificateUserServlet extends ServletBase  {
 				out.write("<th style=\"min-width: 100px;\">DN</th>");
 				out.write("<td>");
 				CertificateRequestUserModel model = new CertificateRequestUserModel(context);
-				CNEditor cn_override = null;
+				UserCNEditor cn_override = null;
 				if(model.canOverrideCN(rec)) {
-					cn_override = new CNEditor(context.getPageRoot());
+					cn_override = new UserCNEditor(context.getPageRoot());
 					cn_override.setRequired(true);
 					cn_override.setValue(rec.getCN());
 					//cn_override.setDisabled(false);
@@ -441,7 +441,7 @@ public class CertificateUserServlet extends ServletBase  {
 	protected GenericView nextActionControl(
 			final UserContext context, 
 			final CertificateRequestUserRecord rec, 
-			final CNEditor cn_override, 
+			final UserCNEditor cn_override, 
 			final ArrayList<CertificateRequestModelBase<CertificateRequestUserRecord>.LogDetail> logs) {
 		GenericView v = new GenericView();
 		

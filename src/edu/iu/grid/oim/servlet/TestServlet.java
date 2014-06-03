@@ -29,11 +29,11 @@ public class TestServlet extends ServletBase {
 		UserContext context = new UserContext(request);
 		Authorization auth = context.getAuthorization();
 		auth.check("admin");
-
+		/*
 		try {
 			System.out.println("Testing GridAdminModel");
 			//testGridAdminModel(context);
-			testCNValidator(context);
+			//testCNValidator(context);
 			
 			System.out.println("All good");
 			
@@ -41,9 +41,10 @@ public class TestServlet extends ServletBase {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		*/
 	}
 	void testCNValidator(UserContext context) throws SQLException {
-		CNValidator v = new CNValidator();
+		CNValidator v = new CNValidator(CNValidator.Type.HOST);
 		if(v.isValid("grid.iu.edu")) {
 			
 		}
