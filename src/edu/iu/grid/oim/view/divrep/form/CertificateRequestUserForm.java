@@ -45,7 +45,7 @@ import edu.iu.grid.oim.model.db.record.VOContactRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
 import edu.iu.grid.oim.model.exceptions.CertificateRequestException;
 
-import edu.iu.grid.oim.view.divrep.CNEditor;
+import edu.iu.grid.oim.view.divrep.UserCNEditor;
 import edu.iu.grid.oim.view.divrep.ChoosePassword;
 import edu.iu.grid.oim.view.divrep.form.validator.CNValidator;
 
@@ -63,7 +63,7 @@ public class CertificateRequestUserForm extends DivRepForm
 	private DivRepSelectBox timezone;
 	private HashMap<Integer, String> timezone_id2tz;
 	
-	private CNEditor cn; //only for OIM user
+	private UserCNEditor cn; //only for OIM user
 	private DivRepSelectBox sponsor;
 	
 	private SponsorManual sponsor_manual;//used when manually specified
@@ -91,7 +91,7 @@ public class CertificateRequestUserForm extends DivRepForm
 			sponsor_fullname = new DivRepTextBox(this);
 			sponsor_fullname.setLabel("Full Name");
 			sponsor_fullname.setRequired(true);
-			sponsor_fullname.addValidator(new CNValidator()); //WHY??
+			sponsor_fullname.addValidator(new CNValidator(CNValidator.Type.USER)); //WHY??
 
 			sponsor_email = new DivRepTextBox(this);
 			sponsor_email.setLabel("Email");
@@ -192,7 +192,7 @@ public class CertificateRequestUserForm extends DivRepForm
 			fullname = new DivRepTextBox(this);
 			fullname.setLabel("Full Name");
 			fullname.setRequired(true);
-			fullname.addValidator(new CNValidator());
+			fullname.addValidator(new CNValidator(CNValidator.Type.USER));
 
 			phone = new DivRepTextBox(this);
 			phone.setLabel("Phone");
@@ -306,7 +306,7 @@ public class CertificateRequestUserForm extends DivRepForm
 		} else {
 			//OIM user can specify CN
 			new DivRepStaticContent(this, "<h3>DN</h3>");
-			cn = new CNEditor(this);
+			cn = new UserCNEditor(this);
 			cn.setRequired(true);
 			if(auth.isUser()) {
 				ContactRecord contact = auth.getContact();

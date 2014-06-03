@@ -14,16 +14,16 @@ import com.divrep.validator.DivRepIValidator;
 import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.view.divrep.form.validator.CNValidator;
 
-public class CNEditor extends DivRepFormElement<String> {
+public class UserCNEditor extends DivRepFormElement<String> {
 
 	boolean user_modified = false;
 	public boolean hasUserModified() { return user_modified; }
 	
 	DivRepTextBox cn;
-	public CNEditor(DivRep parent) {
+	public UserCNEditor(DivRep parent) {
 		super(parent);
 		cn = new DivRepTextBox(this);
-		cn.addValidator(new CNValidator());
+		cn.addValidator(new CNValidator(CNValidator.Type.USER));
 	}
 
 	@Override

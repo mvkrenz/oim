@@ -13,7 +13,7 @@ public class CNValidatorTest {
 
 	@Test
 	public final void testIsValidCertificate() {
-		CNValidator cnv = new CNValidator();
+		CNValidator cnv = new CNValidator(CNValidator.Type.HOST);
 		
 		// List of valid certificates
 		String[] validCertNames = {"iu.edu", "*.edu", "www.something.com"};
@@ -26,7 +26,7 @@ public class CNValidatorTest {
 	
 	@Test
 	public final void testIsInvalidCertificate() {
-		CNValidator cnv = new CNValidator();
+		CNValidator cnv = new CNValidator(CNValidator.Type.HOST);
 		
 		// List of invalid certificates
 		String[] invalidCertNames = {".iu.edu", "/edu"};

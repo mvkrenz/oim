@@ -6,43 +6,60 @@ import com.divrep.validator.DivRepIValidator;
 
 public class CNValidator implements DivRepIValidator<String>
 {
-
+	public enum Type { USER, HOST };
+	private Type type;
+	
 	private static final long serialVersionUID = 3609459828510820900L;
 	String message;
 	
-	public CNValidator() {
+	public CNValidator(Type type) {
+		this.type = type;
 	}
 		
 	@Override
 	public Boolean isValid(String value) {
-		
-		final char PERIOD = '.'; 
-		if (PERIOD == value.charAt(0))	{
-			message = "Contains '.'(dot) at the beginning.";
+		//ideally, we should have single regex expression, but regex is impossible to get it right for ordinally human beings
+		switch(type) {
+		case USER:
+			if(value.contains("/")) {
+				//we can't use / in apache format.. which is the format stored in our DB 
+				//TODO why are we allowing this for host certificate then?
+				message = "Please do not use /(slash).";
+				return false;
+			}
+			break;
+		case HOST:
+			//split into service name and hostname
+			int pos = value.indexOf("/");
+			pos++; //if no service name, pos will be -1, and increment it will set it to 0
+			String hostname = value.substring(pos);
+			if(hostname.length() == 0) {
+				message = "Hostname is not specified. ";
+				return false;
+			}
+			if(hostname.charAt(0) == '.') {
+				message = "Hostname must not being with period. ";
+				return false;
+			}
+			break;
+		default:
+			message = "Unknown certificate type. ";
 			return false;
 		}
-
-		if(value.contains("/")) {
-			//we can't use / in apache format.. which is the format stored in our DB
-			message = "Please do not use /(slash).";
-			return false;
-		}
 		
-		//if(!value.matches("[-0-9a-zA-Z\' ]*")) {
 		if(!value.matches("^\\p{ASCII}*$")) {
 			message = "Contains non-ascii characters.";
 			return false;
 		}
 		
-		//I am not sure how effective this is..
+		//TODO I am not sure how effective this is..
 		try {
-			@SuppressWarnings("unused")
-			X500Name name = new X500Name("CN="+value);
+			new X500Name("CN="+value);
 		} catch(Exception e) {
-			message = "Couldn't parse as X500 Name";
+			message = "Couldn't parse as X500 Name. ";
 			return false;
 		}
-
+			
 		return true;
 	}
 
