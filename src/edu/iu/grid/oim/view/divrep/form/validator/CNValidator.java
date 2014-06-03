@@ -16,25 +16,21 @@ public class CNValidator implements DivRepIValidator<String>
 	@Override
 	public Boolean isValid(String value) {
 		
-		// MT 22-APR-2014
-		// Addresses https://jira.opensciencegrid.org/browse/OIM-82:
-		// Names like .iu.edu are invalid
 		final char PERIOD = '.'; 
-		
 		if (PERIOD == value.charAt(0))	{
-			message = "Contains invalid character . at the beginning";
+			message = "Contains '.'(dot) at the beginning.";
 			return false;
 		}
 
 		if(value.contains("/")) {
 			//we can't use / in apache format.. which is the format stored in our DB
-			message = "Please do not use /(slash)";
+			message = "Please do not use /(slash).";
 			return false;
 		}
 		
 		//if(!value.matches("[-0-9a-zA-Z\' ]*")) {
 		if(!value.matches("^\\p{ASCII}*$")) {
-			message = "Contains non-ascii characters";
+			message = "Contains non-ascii characters.";
 			return false;
 		}
 		
