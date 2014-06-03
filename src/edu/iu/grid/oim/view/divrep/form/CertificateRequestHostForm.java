@@ -9,6 +9,7 @@ import java.util.HashMap;
 
 import org.apache.log4j.Logger;
 import org.bouncycastle.pkcs.PKCS10CertificationRequest;
+
 import com.divrep.DivRep;
 import com.divrep.DivRepEvent;
 import com.divrep.DivRepEventListener;
@@ -36,6 +37,7 @@ import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.GridAdminRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
 import edu.iu.grid.oim.model.exceptions.CertificateRequestException;
+import edu.iu.grid.oim.view.divrep.form.validator.CNValidator;
 
 public class CertificateRequestHostForm extends DivRepForm
 {
@@ -128,12 +130,20 @@ public class CertificateRequestHostForm extends DivRepForm
 					}
 					//parse CSR and check to make sure it's valid
 					try {
-						
 						//we need to display approver VO field, so we need to do bit of validation here
 						CertificateRequestHostModel certmodel = new CertificateRequestHostModel(context);
 						String csr_string = stripCSRString(dirty_csr);
 						PKCS10CertificationRequest pkcs10 = certmodel.parseCSR(csr_string);
 						String cn = certmodel.pullCNFromCSR(pkcs10);
+						
+						//check for CN structure
+						CNValidator cnv = new CNValidator();
+						if(!cnv.isValid(cn)) {
+							error_message = cnv.getErrorMessage() + " Specified CN:"+cn;
+							return false;
+						}
+						
+						//check for GridAdmin
 						GridAdminModel gamodel = new GridAdminModel(context);
 						String a_domain = gamodel.getDomainByFQDN(cn);
 						if(a_domain == null) {
