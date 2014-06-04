@@ -306,6 +306,9 @@ public class ContactEditor extends DivRepFormElement<HashMap<ContactRank, ArrayL
 				} else {
 					out.print(" <code>(no email address specified)</code>");
 				}
+				if(person.disable) {
+					out.print(" <span class=\"label label-important\">Disabled</span>");
+				}
 			}
 			if(!isDisabled()) {
 				out.write(" ");

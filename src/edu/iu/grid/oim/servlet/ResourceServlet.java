@@ -7,10 +7,12 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 
@@ -69,6 +71,7 @@ import edu.iu.grid.oim.view.HtmlView;
 import edu.iu.grid.oim.view.IView;
 import edu.iu.grid.oim.view.MenuView;
 import edu.iu.grid.oim.view.Page;
+import edu.iu.grid.oim.view.PersonView;
 import edu.iu.grid.oim.view.RecordTableView;
 import edu.iu.grid.oim.view.SideContentView;
 import edu.iu.grid.oim.view.ToolTip;
@@ -280,26 +283,16 @@ public class ResourceServlet extends ServletBase implements Servlet {
 							return 0;
 						}
 					});
-					String cliststr = "";
 					
+					StringBuffer cliststr = new StringBuffer();
 					for(ResourceContactRecord vcrec : clist) {
 						ContactRecord person = pmodel.get(vcrec.contact_id);
 						ContactRank rank = ContactRank.get(vcrec.contact_rank_id);
-
-						cliststr += "<div class='contact_rank contact_"+rank+"'>";
-						cliststr += StringEscapeUtils.escapeHtml(person.name.trim());
-						/*
-						if(person.primary_email != null) {
-							cliststr += " <code><a href=\"mailto:"+person.primary_email+"\">"+StringEscapeUtils.escapeHtml("<"+person.primary_email+">")+"</a></code>";
-						} else {
-							cliststr += " <code>(no email address specified)</code>";
-						}
-						*/
-						cliststr += "</div>";
+						PersonView pv = new PersonView(person, rank);
+						cliststr.append(pv.render());
 					}
-					
 					ToolTip tip = new ToolTip(contact_type.desc);
-					table.addRow(ctrec.name + " " + tip.render(), new HtmlView(cliststr));
+					table.addRow(ctrec.name + " " + tip.render(), new HtmlView(cliststr.toString()));
 				}
 			}		
 			
