@@ -51,6 +51,7 @@ import edu.iu.grid.oim.view.GenericView;
 import edu.iu.grid.oim.view.HtmlView;
 import edu.iu.grid.oim.view.IView;
 import edu.iu.grid.oim.view.ItemTableView;
+import edu.iu.grid.oim.view.PersonView;
 import edu.iu.grid.oim.view.ProjectView;
 import edu.iu.grid.oim.view.ToolTip;
 import edu.iu.grid.oim.view.RecordTableView;
@@ -162,18 +163,16 @@ public class CampusGridServlet extends ServletBase implements Servlet {
 						return 0;
 					}
 				});
-				String cliststr = "";
-
+				
+				StringBuffer cliststr = new StringBuffer();
 				for(CampusGridContactRecord vcrec : clist) {
 					ContactRecord person = pmodel.get(vcrec.contact_id);
-					//ContactRankRecord rank = crmodel.get(vcrec.contact_rank_id);
-
-					cliststr += "<div class='contact_rank contact_"+ContactRank.get(vcrec.contact_rank_id)+"'>";
-					cliststr +=  StringEscapeUtils.escapeHtml(person.name.trim());
-					cliststr += "</div>";
+					ContactRank rank = ContactRank.get(vcrec.contact_rank_id);
+					PersonView pv = new PersonView(person, rank);
+					cliststr.append(pv.render());
 				}
 				ToolTip tip = new ToolTip(contact_type.desc);
-				table.addRow(ctrec.name + " " + tip.render(), new HtmlView(cliststr));
+				table.addRow(ctrec.name + " " + tip.render(), new HtmlView(cliststr.toString()));
 			}
 		}		
 		table.addRow("Disable", rec.disable);

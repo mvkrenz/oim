@@ -5,23 +5,25 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+
 import javax.servlet.Servlet;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 
 import com.divrep.DivRep;
 import com.divrep.common.DivRepStaticContent;
 
+import edu.iu.grid.oim.model.ContactRank;
 import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.CampusGridModel;
 import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.FieldOfScienceModel;
 import edu.iu.grid.oim.model.db.ProjectModel;
 import edu.iu.grid.oim.model.db.VOModel;
-
 import edu.iu.grid.oim.model.db.record.CampusGridRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.FieldOfScienceRecord;
@@ -33,6 +35,7 @@ import edu.iu.grid.oim.view.BootPage;
 import edu.iu.grid.oim.view.ContentView;
 import edu.iu.grid.oim.view.HtmlView;
 import edu.iu.grid.oim.view.ItemTableView;
+import edu.iu.grid.oim.view.PersonView;
 import edu.iu.grid.oim.view.RecordTableView;
 import edu.iu.grid.oim.view.SideContentView;
 import edu.iu.grid.oim.view.divrep.ViewWrapper;
@@ -151,7 +154,9 @@ public class ProjectServlet extends ServletBase implements Servlet {
 			//PI
 			ContactModel cmodel = new ContactModel(context);
 			ContactRecord pi = cmodel.get(rec.pi_contact_id);
-			table.addRow("Principal Investigator", pi.name);
+			ContactRank rank = ContactRank.Primary;
+			PersonView pv = new PersonView(pi, rank);
+			table.addRow("Principal Investigator", pv);
 			
 			//fos
 			FieldOfScienceModel model = new FieldOfScienceModel(context);

@@ -3,19 +3,16 @@ package edu.iu.grid.oim.view.divrep;
 import java.io.PrintWriter;
 
 import org.apache.commons.lang.StringEscapeUtils;
-import org.bouncycastle.asn1.x500.X500Name;
 
 import com.divrep.DivRep;
 import com.divrep.DivRepEvent;
 import com.divrep.common.DivRepFormElement;
 import com.divrep.common.DivRepTextBox;
-import com.divrep.validator.DivRepIValidator;
 
 import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.view.divrep.form.validator.CNValidator;
 
 public class UserCNEditor extends DivRepFormElement<String> {
-
 	boolean user_modified = false;
 	public boolean hasUserModified() { return user_modified; }
 	
