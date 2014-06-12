@@ -128,9 +128,6 @@ public class VOFormDE extends DivRepForm
 		ScienceVOInfo(DivRep _parent, VORecord rec) {
 			super(_parent);
 
-			//new DivRepStaticContent(this, "<div class=\"indent\">");
-			//new DivRepStaticContent(this, "<h3>More Extended Descriptions including URLs</h3>");
-
 			app_description = new DivRepTextArea(this);
 			app_description.setLabel("Enter an Application Description");
 			app_description.setValue(rec.app_description);
