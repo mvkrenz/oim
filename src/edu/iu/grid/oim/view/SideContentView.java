@@ -79,7 +79,7 @@ public class SideContentView implements IView {
 
 	public void addRARequest(UserContext context, VORecord vo) {
 		Authorization auth = context.getAuthorization();
-		if(vo.id != null && auth.isUser() && !auth.allows("admin_ra")) {
+		if(vo.id != null && auth.isUser()) {
 			//lookup vomanager (need to cc on the request ticket)
 			VOContactModel model = new VOContactModel(context);
 			ContactRecord vomanager = null;
@@ -100,16 +100,18 @@ public class SideContentView implements IView {
 					final RARequestForm form = new RARequestForm(context, vomanager, vo, screc);
 					add(new DivRepWrapper(form));
 					
-					DivRepButton request = new DivRepButton(context.getPageRoot(), "Request for RA Enrollment");
+					DivRepButton request = new DivRepButton(context.getPageRoot(), "Request for RA Enrollment ...");
+					if(auth.allows("admin_ra")) {
+						request.setDisabled(true);
+						request.setToolTip("You have admin_ra authentication. You don't need to request for enrollment.");
+					}
 					request.addClass("btn");
-					//request.addClass("pull-right");
 					add(new DivRepWrapper(request));
 					request.addEventListener(new DivRepEventListener() {
 						@Override
 						public void handleEvent(DivRepEvent e) {
 							form.show();
 						}});
-					
 				} catch (SQLException e1) {
 					log.error("Failed to lookup SC for with SC ID" + vo.sc_id, e1);
 				}
@@ -118,8 +120,8 @@ public class SideContentView implements IView {
 			} catch (SQLException e) {
 				log.error("Failed to lookup VO manager for VO: " + vo.id, e);
 			}
-			
 		}
+		
 	}
 
 }

@@ -132,7 +132,7 @@ public class FieldOfScienceServlet extends ServletBase {
 						setStyle(DivRepButton.Style.IMAGE);
 						addClass("right");
 					}
-					protected void onEvent(DivRepEvent e) {
+					protected void onClick(DivRepEvent e) {
 						remove_fos_dialog.setRecord(rec);
 						remove_fos_dialog.show();	
 					}

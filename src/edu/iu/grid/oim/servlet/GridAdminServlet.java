@@ -22,7 +22,6 @@ import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.GridAdminModel;
-import edu.iu.grid.oim.model.db.VOModel;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.GridAdminRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
@@ -69,23 +68,30 @@ public class GridAdminServlet extends ServletBase {
 				out.write("</div>"); //span3
 				
 				out.write("<div class=\"span9\">");
-				
-				if(auth.allows("admin_gridadmin")) {
-					out.write("<a class=\"pull-right btn\" href=\"gridadminedit\"><i class=\"icon-plus\"></i> Add New Domain</a>");
-				} else if(auth.isUser()) {
+			
+				if(auth.isUser()) {
 					final GridAdminRequestForm form = new GridAdminRequestForm(context);
 					form.render(out);
 					
-					DivRepButton request = new DivRepButton(context.getPageRoot(), "Request for GridAdmin Enrollment");
+					DivRepButton request = new DivRepButton(context.getPageRoot(), "Request for GridAdmin Enrollment ...");
 					request.addClass("btn");
 					request.addClass("pull-right");
+					request.setToolTip("You have admin_gridadmin privilege. You don't need to request for enrollment.");
+					if(auth.allows("admin_gridadmin")) {
+						request.setDisabled(true);
+					}
 					request.render(out);
 					request.addEventListener(new DivRepEventListener() {
 						@Override
 						public void handleEvent(DivRepEvent e) {
 							form.show();
-						}});
+						}
+					});
 				}
+				if(auth.allows("admin_gridadmin")) {
+					out.write("<a class=\"btn pull-right\" style=\"margin-right: 5px\" href=\"gridadminedit\"><i class=\"icon-plus\"></i> Add New Domain</a>");
+				} 
+				
 				out.write("<h2>GridAdmins</h2>");
 				
 				if(auth.allows("admin_gridadmin")) {
