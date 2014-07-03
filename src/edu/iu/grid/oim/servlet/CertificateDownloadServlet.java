@@ -57,10 +57,10 @@ public class CertificateDownloadServlet extends ServletBase  {
 								String password = model.getPassword(id);
 								p12.store(response.getOutputStream(), password.toCharArray());
 							}
-						} else if(download.equals("pem7")) {
+						} else if(download.equals("x509")) {
 							PrintWriter out = response.getWriter();
 							response.setContentType("application/pem-signature");
-							response.setHeader("Content-Disposition", "attachment; filename=user_certificate.U"+rec.id+".pem");
+							response.setHeader("Content-Disposition", "attachment; filename=user_certificate.U"+rec.id+".x509.pem");
 							out.write(rec.cert_certificate);
 						} /*else if(download.equals("pkcs12-certonly")) {
 							response.setContentType("application/x-pkcs12");
@@ -100,13 +100,22 @@ public class CertificateDownloadServlet extends ServletBase  {
 							response.setContentType("application/pkcs7-signature");
 							response.setHeader("Content-Disposition", "attachment; filename=host_certificate.H"+rec.id+"."+cns[idx]+".p7b");
 							out.write(pkc7s[idx]);
-						} else if(download.equals("pem")) {
+						} else if(download.equals("x509")) {
 							PrintWriter out = response.getWriter();
 							String[] certificates = rec.getCertificates();
 							String[] cns = rec.getCNs();
 							response.setContentType("application/pem-signature");
-							response.setHeader("Content-Disposition", "attachment; filename=host_certificate.H"+rec.id+"."+cns[idx]+".pem");
+							response.setHeader("Content-Disposition", "attachment; filename=host_certificate.H"+rec.id+"."+cns[idx]+".x509.pem");
 							out.write(certificates[idx]);
+						} else if(download.equals("pkcs10")) {
+							PrintWriter out = response.getWriter();
+							String[] csrs = rec.getCSRs();
+							String[] cns = rec.getCNs();
+							response.setContentType("application/x-pem-file");
+							response.setHeader("Content-Disposition", "attachment; filename=host_certificate.H"+rec.id+"."+cns[idx]+".csr.pem");
+							out.write("-----BEGIN CERTIFICATE REQUEST-----\n");
+							out.write(csrs[idx]);
+							out.write("-----END CERTIFICATE REQUEST-----\n");
 						}
 					}
 				} catch (SQLException e) {

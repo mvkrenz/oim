@@ -15,6 +15,7 @@ import org.apache.log4j.Logger;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.model.UserContext;
+import edu.iu.grid.oim.model.db.CertificateRequestHostModel;
 import edu.iu.grid.oim.model.db.GridAdminModel;
 import edu.iu.grid.oim.view.divrep.form.validator.CNValidator;
 import static org.junit.Assert.*;
@@ -29,20 +30,20 @@ public class TestServlet extends ServletBase {
 		UserContext context = new UserContext(request);
 		Authorization auth = context.getAuthorization();
 		auth.check("admin");
-		/*
-		try {
-			System.out.println("Testing GridAdminModel");
-			//testGridAdminModel(context);
-			//testCNValidator(context);
-			
-			System.out.println("All good");
-			
-		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+
+		String action = request.getParameter("action");
+		if(action.equals("reset_host_statuses")) {
+			CertificateRequestHostModel model = new CertificateRequestHostModel(context);
+			try {
+				response.setContentType("text/plain");
+				model.resetStatuses(response.getWriter());
+			} catch (SQLException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}			
 		}
-		*/
 	}
+	/*
 	void testCNValidator(UserContext context) throws SQLException {
 		CNValidator v = new CNValidator(CNValidator.Type.HOST);
 		if(v.isValid("grid.iu.edu")) {
@@ -65,5 +66,5 @@ public class TestServlet extends ServletBase {
 		assertEquals(model.getDomainByFQDN("pansrv/some.pandawms.org"), "pandawms.org");
 		assertEquals(model.getDomainByFQDN("1.uchicago.edu"), "uchicago.edu");
 	}
-	
+	*/
 }

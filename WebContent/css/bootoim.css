@@ -572,10 +572,12 @@ background-color: #ccc;
 div.well_disabled {
 background-color: #999;
 }
+/*
 table.nohover tbody tr:hover td,
 table.nohover tbody tr:hover th {
 background-color: inherit;
 }
+*/
 div.downtime_detail {
 padding: 10px;
 margin-bottom: 0px;

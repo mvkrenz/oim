@@ -460,7 +460,7 @@ public class CertificateUserServlet extends ServletBase  {
 			} else {
 				//only pkcs7
 				pane.add(new HtmlView("<p><a class=\"btn btn-primary\" href=\"certificatedownload?id="+rec.id+"&type=user&download=pkcs7\">Download Certificate (PKCS7 - For Browser)</a></p>"));
-				pane.add(new HtmlView("<p><a class=\"btn\" href=\"certificatedownload?id="+rec.id+"&type=user&download=pem7\">Download Certificate (PEM - For Commandline)</a></p>"));
+				pane.add(new HtmlView("<p><a class=\"btn\" href=\"certificatedownload?id="+rec.id+"&type=user&download=x509\">Download Certificate (X509 PEM - For Commandline)</a></p>"));
 			}
 			
 			pane.add(new HtmlView("<p><a target=\"_blank\" href=\"https://confluence.grid.iu.edu/pages/viewpage.action?pageId=3244066\">How to import user certificate on your browser</a></p>"));

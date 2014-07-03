@@ -1,7 +1,7 @@
 package edu.iu.grid.oim.model.db;
 
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.sql.Connection;
@@ -17,15 +17,10 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Vector;
 
 import javax.security.auth.x500.X500Principal;
 
-import org.bouncycastle.asn1.ASN1Encodable;
-import org.bouncycastle.asn1.ASN1InputStream;
 import org.bouncycastle.asn1.ASN1ObjectIdentifier;
-import org.bouncycastle.asn1.ASN1Primitive;
-import org.bouncycastle.asn1.ASN1String;
 import org.bouncycastle.asn1.DEROctetString;
 import org.bouncycastle.asn1.DERSequence;
 import org.bouncycastle.asn1.DERSet;
@@ -34,10 +29,7 @@ import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers;
 import org.bouncycastle.asn1.x500.RDN;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x500.style.BCStyle;
-import org.bouncycastle.asn1.x509.GeneralNames;
 import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
-import org.bouncycastle.asn1.x509.X509Extension;
-import org.bouncycastle.asn1.x509.X509Extensions;
 import org.bouncycastle.cms.CMSException;
 import org.bouncycastle.crypto.params.RSAKeyParameters;
 import org.bouncycastle.crypto.util.PublicKeyFactory;
@@ -1389,5 +1381,33 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 	    stmt.close();
 	    conn.close();
 	    return recs;
+	}
+	
+	//one time function to reset cert_statuses field for all records
+	public void resetStatuses(PrintWriter out) throws SQLException {
+		out.write("CertificateRequestHostModel::resetStatuses\n");
+		
+		//ArrayList<CertificateRequestHostRecord> recs = new ArrayList<CertificateRequestHostRecord>();
+		
+		ResultSet rs = null;
+		Connection conn = connectOIM();
+		Statement stmt = conn.createStatement();
+		stmt.execute("SELECT * FROM "+table_name + " WHERE cert_statuses is NULL");
+    	rs = stmt.getResultSet();
+    	while(rs.next()) {
+    		CertificateRequestHostRecord rec = new CertificateRequestHostRecord(rs);
+    		System.out.println("resetting statuses for rec id:"+rec.id);
+    		
+    		out.write("rec id:"+rec.id+"\n");
+    		out.write("\t certcounts:"+rec.getCNs().length+"\n");
+    		StringArray statuses = new StringArray(rec.getCNs().length);
+    		for(int i = 0;i<rec.getCNs().length;++i) {
+    			statuses.set(i, rec.status);
+    		}
+    		rec.cert_statuses = statuses.toXML();
+			super.update(get(rec.id), rec);
+    	}
+	    stmt.close();
+	    conn.close();
 	}
 }

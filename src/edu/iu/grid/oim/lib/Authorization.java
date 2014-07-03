@@ -191,9 +191,9 @@ public class Authorization {
 				if(request.isSecure()) {
 					request.setAttribute("SSL_CLIENT_VERIFY", "SUCCESS");
 					
-					//request.setAttribute("SSL_CLIENT_S_DN", "/DC=com/DC=DigiCert-Grid/O=Open Science Grid/OU=People/CN=Soichi Hayashi 238");
+					request.setAttribute("SSL_CLIENT_S_DN", "/DC=com/DC=DigiCert-Grid/O=Open Science Grid/OU=People/CN=Soichi Hayashi 238");
 					
-					request.setAttribute("SSL_CLIENT_S_DN", "/DC=com/DC=DigiCert-Grid/O=Open Science Grid/OU=People/CN=Alain Deximo 15623");
+					//request.setAttribute("SSL_CLIENT_S_DN", "/DC=com/DC=DigiCert-Grid/O=Open Science Grid/OU=People/CN=Alain Deximo 15623");
 					//request.setAttribute("SSL_CLIENT_S_DN", "/DC=com/DC=DigiCert-Grid/O=Open Science Grid/OU=People/CN=Tim Cartwright 192");
 					
 					request.setAttribute("SSL_CLIENT_I_DN_CN", "Test CA");
