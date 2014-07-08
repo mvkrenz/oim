@@ -104,7 +104,7 @@ public class FacilityServlet extends ServletBase {
 					super(parent, "Edit");
 					url = _url;
 				}
-				protected void onEvent(DivRepEvent e) {
+				protected void onClick(DivRepEvent e) {
 					redirect(url);
 				}
 			};
@@ -126,7 +126,7 @@ public class FacilityServlet extends ServletBase {
 				super(parent, "Add New Facility");
 				url = _url;
 			}
-			protected void onEvent(DivRepEvent e) {
+			protected void onClick(DivRepEvent e) {
 				redirect(url);
 			}
 		};

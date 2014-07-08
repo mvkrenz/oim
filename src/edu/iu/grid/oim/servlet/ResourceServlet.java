@@ -310,7 +310,7 @@ public class ResourceServlet extends ServletBase implements Servlet {
 					this.setStyle(Style.ALINK);
 					url = _url;
 				}
-				protected void onEvent(DivRepEvent e) {
+				protected void onClick(DivRepEvent e) {
 					redirect(url);
 				}
 			};

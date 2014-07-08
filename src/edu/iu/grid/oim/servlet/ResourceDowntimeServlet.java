@@ -159,7 +159,7 @@ public class ResourceDowntimeServlet extends ServletBase implements Servlet {
 				setStyle(DivRepButton.Style.IMAGE);
 				addClass("right");
 			}
-			protected void onEvent(DivRepEvent e) {
+			protected void onClick(DivRepEvent e) {
 				remove_dialog.show();	
 			}
 		};
