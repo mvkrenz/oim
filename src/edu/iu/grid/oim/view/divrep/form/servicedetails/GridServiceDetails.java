@@ -8,6 +8,7 @@ import com.divrep.DivRepEvent;
 import com.divrep.common.DivRepCheckBox;
 import com.divrep.common.DivRepTextBox;
 import com.divrep.validator.DivRepIValidator;
+import com.divrep.validator.DivRepUrlValidator;
 
 import edu.iu.grid.oim.model.db.record.ServiceRecord;
 
@@ -57,7 +58,20 @@ public class GridServiceDetails extends ServiceDetailsContent {
 			sam_uri = new DivRepTextBox(this);
 			sam_uri.setLabel("SAM URI");
 			sam_uri.setSampleValue("htcondor://$HOSTNAME:$PORT/$SCHEDDNAME?option1=val1&option2=val2");
-		
+			sam_uri.addValidator(new DivRepIValidator<String>(){
+				String[] schemes = {"htcondor"};
+				private org.apache.commons.validator.UrlValidator urlvalidator = new org.apache.commons.validator.UrlValidator(schemes);
+
+				public Boolean isValid(String value) {
+					return (urlvalidator.isValid(value));
+				}
+				
+				public String getErrorMessage()
+				{
+					return "Please specify a valid htcondor URL in a format such as: htcondor://$HOSTNAME:$PORT/$SCHEDDNAME?option1=val1&option2=val2";
+				}
+			});
+			
 			//TODO - add validation based on Brian's recommendation
 			/*
 			HOSTNAME: Regexp: (?:(?:(?:(?:[a-zA-Z0-9][-a-zA-Z0-9]{0,61})?[a-zA-Z0-9])[.])*(?:[a-zA-Z][-a-zA-Z0-9]{0,61}[a-zA-Z0-9]|[a-zA-Z])[.]?)
