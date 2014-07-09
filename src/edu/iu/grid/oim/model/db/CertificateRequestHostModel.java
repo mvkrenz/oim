@@ -1241,7 +1241,8 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 			
 			ticket.description += "Please visit "+getTicketUrl(rec.id)+" for more details.\n\n";
 			
-			//TODO - clear CC list (or suppress cc-email)
+			//don't send to CCs
+			ticket.mail_suppression_ccs = true;
 			
 			//I don't have to reopen the ticket since this is one time notification
 			if(StaticConfig.isDebug()) {
