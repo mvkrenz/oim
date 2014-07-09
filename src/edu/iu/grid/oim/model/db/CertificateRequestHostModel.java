@@ -16,6 +16,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 
 import javax.security.auth.x500.X500Principal;
@@ -103,6 +104,7 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 		
 		//list all domains that user is gridadmin of
 		StringBuffer cond = new StringBuffer();
+		HashSet<Integer> vos = new HashSet<Integer>();
 		GridAdminModel model = new GridAdminModel(context);
 		try {
 			for(GridAdminRecord grec : model.getGridAdminsByContactID(id)) {
@@ -110,17 +112,28 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 					cond.append(" OR ");
 				}
 				cond.append("cns LIKE '%"+StringEscapeUtils.escapeSql(grec.domain)+"</String>%'");
+				vos.add(grec.vo_id);
 			}
 		} catch (SQLException e1) {
 			log.error("Failed to lookup GridAdmin domains", e1);
 		}	
 		
+		String vos_list = "";
+		for(Integer vo : vos) {
+			if(vos_list.length() != 0) {
+				vos_list += ",";
+			}
+			vos_list += vo;
+		}
+		
 		if(cond.length() != 0) {
 			ResultSet rs = null;
 			Connection conn = connectOIM();
 			Statement stmt = conn.createStatement();
-			stmt.execute("SELECT * FROM "+table_name + " WHERE "+cond.toString() + " AND status in ('REQUESTED','RENEW_REQUESTED','REVOKE_REQUESTED')");	
-	    	rs = stmt.getResultSet();
+			System.out.println("Searching SQL: SELECT * FROM "+table_name + " WHERE ("+cond.toString() + ") AND approver_vo_id in ("+vos_list+") AND status in ('REQUESTED','RENEW_REQUESTED','REVOKE_REQUESTED')");
+
+			stmt.execute("SELECT * FROM "+table_name + " WHERE ("+cond.toString() + ") AND approver_vo_id in ("+vos_list+") AND status in ('REQUESTED','RENEW_REQUESTED','REVOKE_REQUESTED')");	
+			rs = stmt.getResultSet();
 	    	while(rs.next()) {
 	    		recs.add(new CertificateRequestHostRecord(rs));
 	    	}
@@ -151,6 +164,8 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 		final StringArray pkcs7s = new StringArray(rec.cert_pkcs7);
 		final StringArray certificates = new StringArray(rec.cert_certificate);
 		final StringArray intermediates = new StringArray(rec.cert_intermediate);
+		final StringArray statuses = new StringArray(rec.cert_statuses);
+		
 		final ICertificateSigner.Certificate[] certs = new ICertificateSigner.Certificate[csrs.length()];
 		for(int c = 0; c < csrs.length(); ++c) {
 			certs[c] = new ICertificateSigner.Certificate();
@@ -190,6 +205,27 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 				CertificateManager cm = new CertificateManager();
 				try {
 					cm.signHostCertificates(certs, new IHostCertificatesCallBack() {
+						
+						//called once all certificates are requested (and approved) - but not yet issued
+						@Override
+						public void certificateRequested() {
+							//update certs db contents
+							try {
+								for(int c = 0; c < certs.length; ++c) {
+									Certificate cert = certs[c];
+									serial_ids.set(c,  cert.serial); //really just order ID (until the certificate is issued)
+									statuses.set(c, CertificateRequestStatus.ISSUING);
+								}
+								rec.cert_serial_ids = serial_ids.toXML();
+								rec.cert_statuses = statuses.toXML();
+								context.setComment("All certificate requests have been sent.");
+								CertificateRequestHostModel.super.update(get(rec.id), rec);
+							} catch (SQLException e) {
+								log.error("Failed to update certificate update while monitoring issue progress:" + rec.id);
+							}
+						}
+						
+						//called for each certificate issued
 						@Override
 						public void certificateSigned(Certificate cert, int idx) {
 							
@@ -230,27 +266,13 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 								log.error("Failed to validate host certificate (pkcs7) issued. ID:" + rec.id+"(idx:"+idx+")", e1);
 							}
 
-							
 							//update status note
 							try {
+								statuses.set(idx, CertificateRequestStatus.ISSUED);
+								rec.cert_statuses = statuses.toXML();
+								
 								rec.status_note = "Certificate idx:"+idx+" has been issued. Serial Number: " + cert.serial;
 								context.setComment(rec.status_note);
-								CertificateRequestHostModel.super.update(get(rec.id), rec);
-							} catch (SQLException e) {
-								log.error("Failed to update certificate update while monitoring issue progress:" + rec.id);
-							}
-						}
-						
-						@Override
-						public void certificateRequested() {
-							//update certs db contents
-							try {
-								for(int c = 0; c < certs.length; ++c) {
-									Certificate cert = certs[c];
-									serial_ids.set(c,  cert.serial);
-								}
-								rec.cert_serial_ids = serial_ids.toXML();
-								context.setComment("Certificate requests has been sent.");
 								CertificateRequestHostModel.super.update(get(rec.id), rec);
 							} catch (SQLException e) {
 								log.error("Failed to update certificate update while monitoring issue progress:" + rec.id);
@@ -479,7 +501,14 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 		Date current = new Date();
 		rec.request_time = new Timestamp(current.getTime());
 		rec.status = CertificateRequestStatus.REQUESTED;
-
+		
+    	//set all host cert status to REQUESTED
+    	StringArray statuses = new StringArray(csrs.size());
+		for(int c = 0; c < csrs.size(); ++c) {
+			statuses.set(c, CertificateRequestStatus.REQUESTED);
+		}
+    	rec.cert_statuses = statuses.toXML();
+		
 		if(request_comment != null) {
 			rec.status_note = request_comment;
 			context.setComment(request_comment);
@@ -526,11 +555,12 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
     	rec.csrs = csrs_sa.toXML();
     	rec.cns = cns_sa.toXML();
     	
-    	StringArray ar = new StringArray(csrs.size());
-    	rec.cert_certificate = ar.toXML();
-    	rec.cert_intermediate = ar.toXML();
-    	rec.cert_pkcs7 = ar.toXML();
-    	rec.cert_serial_ids = ar.toXML();
+    	StringArray empty = new StringArray(csrs.size());
+    	String empty_xml = empty.toXML();
+    	rec.cert_certificate = empty_xml;
+    	rec.cert_intermediate = empty_xml;
+    	rec.cert_pkcs7 = empty_xml;
+    	rec.cert_serial_ids = empty_xml;
     	
     	try {			
 			ArrayList<ContactRecord> gas = findGridAdmin(rec); 
@@ -801,13 +831,22 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 	//NO-AC
 	public void requestRevoke(CertificateRequestHostRecord rec) throws CertificateRequestException {
 		rec.status = CertificateRequestStatus.REVOCATION_REQUESTED;
+		
+		/* - I feel I should not do blanket status update - let cert status take precedence
+		//mark all certificate as revocation_requested
+    	StringArray statuses = new StringArray(rec.getCertificates().length);
+		for(int c = 0; c < statuses.length(); ++c) {
+			statuses.set(c, CertificateRequestStatus.REVOCATION_REQUESTED);
+		}
+    	rec.cert_statuses = statuses.toXML();
+    	*/
+    	
 		try {
 			super.update(get(rec.id), rec);
 		} catch (SQLException e) {
 			log.error("Failed to request revocation of host certificate: " + rec.id);
 			throw new CertificateRequestException("Failed to update request status", e);
 		}
-	
 		
 		Footprints fp = new Footprints(context);
 		FPTicket ticket = fp.new FPTicket();
@@ -886,16 +925,23 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 	}
 	
 	//NO-AC
-	public void revoke(CertificateRequestHostRecord rec) throws CertificateRequestException {
-		
+	public void revoke(CertificateRequestHostRecord rec) throws CertificateRequestException {		
 		//revoke
 		CertificateManager cm = new CertificateManager();
 		try {
 			String[] cert_serial_ids = rec.getSerialIDs();
-			for(String cert_serial_id : cert_serial_ids) {
-				log.info("Revoking certificate with serial ID: " + cert_serial_id);
-				cm.revokeHostCertificate(cert_serial_id);
+			StringArray statuses = new StringArray(rec.cert_statuses);
+			for(int i = 0;i < cert_serial_ids.length; ++i) {
+			//for(String cert_serial_id : cert_serial_ids) {
+				//only revoke ones that are not yet revoked
+				if(statuses.get(i).equals(CertificateRequestStatus.ISSUED)) {
+					String cert_serial_id = cert_serial_ids[i];
+					log.info("Revoking certificate with serial ID: " + cert_serial_id);
+					cm.revokeHostCertificate(cert_serial_id);
+					statuses.set(i, CertificateRequestStatus.REVOKED); //TODO - how do I know the revocation succeeded or not?
+				}
 			}
+			rec.cert_statuses = statuses.toXML();
 		} catch (CertificateProviderException e1) {
 			log.error("Failed to revoke host certificate", e1);
 			throw new CertificateRequestException("Failed to revoke host certificate", e1);
@@ -921,6 +967,68 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 		}
 		ticket.description += "> " + context.getComment();
 		ticket.status = "Resolved";
+		fp.update(ticket, rec.goc_ticket_id);
+	}
+	
+	//NO-AC
+	public void revoke(CertificateRequestHostRecord rec, int idx) throws CertificateRequestException {		
+		//make sure we have valid idx
+		String[] cert_serial_ids = rec.getSerialIDs();
+		String cert_serial_id = cert_serial_ids[idx];
+		StringArray statuses = new StringArray(rec.cert_statuses);
+		if(idx >= cert_serial_ids.length) {
+			throw new CertificateRequestException("Invalid certififcate index:"+idx);
+		}
+		/* - should be already checked
+		//make sure it's not already revoked
+		if(!statuses.get(idx).equals(CertificateRequestStatus.ISSUED)) {
+			throw new CertificateRequestException("Certififcate is not in issued state and can not be revoked.");
+		}
+		*/
+		
+		//revoke one
+		CertificateManager cm = new CertificateManager();
+		try {
+			log.info("Revoking certificate with serial ID: " + cert_serial_id);
+			cm.revokeHostCertificate(cert_serial_id);
+			statuses.set(idx, CertificateRequestStatus.REVOKED); //TODO - how do I know the revocation succeeded or not?
+			rec.cert_statuses = statuses.toXML();
+		} catch (CertificateProviderException e1) {
+			log.error("Failed to revoke host certificate", e1);
+			throw new CertificateRequestException("Failed to revoke host certificate", e1);
+		}
+		
+		//set rec.status to REVOKED if all certificates are revoked
+		boolean allrevoked = true;
+		for(int i = 0;i < cert_serial_ids.length; ++i) {
+			if(!statuses.get(i).equals(CertificateRequestStatus.REVOKED)) {
+				allrevoked = false;
+				break;
+			}
+		}
+		if(allrevoked) {
+			rec.status = CertificateRequestStatus.REVOKED;
+		}
+		
+		try {
+			context.setComment("Revoked certificate with serial ID:"+cert_serial_id);
+			super.update(get(rec.id), rec);
+		} catch (SQLException e) {
+			log.error("Failed to update host certificate status: " + rec.id);
+			throw new CertificateRequestException("Failed to update host certificate status", e);
+		}
+		
+		Footprints fp = new Footprints(context);
+		FPTicket ticket = fp.new FPTicket();
+		Authorization auth = context.getAuthorization();
+		if(auth.isUser()) {
+			ContactRecord contact = auth.getContact();
+			ticket.description = contact.name + " has revoked a certificate with serial ID:"+cert_serial_id+".\n\n";
+		} else {
+			throw new CertificateRequestException("Guest shouldn't be revoking certificate!");
+		}
+		ticket.description += "> " + context.getComment();
+		//ticket.status = "Resolved";
 		fp.update(ticket, rec.goc_ticket_id);
 	}
 	
@@ -1112,6 +1220,13 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 		return false;
 	}
 	
+	//canRevokeOne
+	public boolean canRevoke(CertificateRequestHostRecord rec, int idx) {
+		if(!canRevoke(rec)) return false;
+		StringArray statuses = new StringArray(rec.cert_statuses);
+		return statuses.get(idx).equals(CertificateRequestStatus.ISSUED);
+	}
+	
     //NO AC
 	public CertificateRequestHostRecord getBySerialID(String serial_id) throws SQLException {
 		
@@ -1187,7 +1302,7 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 		// TODO Auto-generated method stub
 		return null;
 	}
-	
+	/*
 	public ArrayList<CertificateRequestHostRecord> findUpdatedIn(Integer morethan, Integer lessthan) throws SQLException {
 		ArrayList<CertificateRequestHostRecord> recs = new ArrayList<CertificateRequestHostRecord>();
 		
@@ -1203,6 +1318,7 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 	    conn.close();
 	    return recs;
 	}
+	*/
 	
 	public void notifyExpiringIn(Integer days_less_than) throws SQLException {
 		final SimpleDateFormat dformat = new SimpleDateFormat();
@@ -1274,7 +1390,14 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 	    	
 	    	while(rs.next()) {
 	    		CertificateRequestHostRecord rec = new CertificateRequestHostRecord(rs);
-    			rec.status = CertificateRequestStatus.EXPIRED;
+	        	
+	    		StringArray statuses = new StringArray(rec.csrs.length());
+	    		for(int c = 0; c < rec.csrs.length(); ++c) {
+	    			statuses.set(c, CertificateRequestStatus.EXPIRED);
+	    		}
+	    		rec.cert_statuses = statuses.toXML();
+    			
+	    		rec.status = CertificateRequestStatus.EXPIRED;
 	    		context.setComment("Certificate is no longer valid.");
     			super.update(get(rec.id), rec);
     			

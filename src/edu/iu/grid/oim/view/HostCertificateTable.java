@@ -33,13 +33,15 @@ public class HostCertificateTable implements IView {
 
 	public void render(PrintWriter out)  {
 		out.write("<table class=\"table table-hover certificate\">");
-		out.write("<thead><tr><th width=\"40px\">ID</th><th width=\"100px\">Status</th><th width=\"120px\">Request Date</th><th width=\"250px\">FQDNs</th><th>Grid Admins</th></tr></thead>");
+		out.write("<thead><tr><th width=\"40px\">ID</th><th width=\"100px\">Status</th><th width=\"120px\">Request Date</th><th width=\"250px\">FQDNs</th><th>VO</th><th>Grid Admins</th></tr></thead>");
 		out.write("<tbody>");
 		CertificateRequestHostModel model = new CertificateRequestHostModel(context);
 		
 		final Authorization auth = context.getAuthorization();
 		final SimpleDateFormat dformat = new SimpleDateFormat("MM/dd/yyyy");
 		dformat.setTimeZone(auth.getTimeZone());
+		
+		VOModel vomodel = new VOModel(context);
 		
 		for(CertificateRequestHostRecord rec : recs) {
 			String url = "certificatehost?id="+rec.id;
@@ -51,7 +53,7 @@ public class HostCertificateTable implements IView {
 			out.write("<td>"+rec.status+"</td>");
 			//out.write("<td><a target=\"_blank\" href=\""+StaticConfig.conf.getProperty("url.gocticket")+"/"+rec.goc_ticket_id+"\">"+rec.goc_ticket_id+"</a></td>");
 			out.write("<td>"+dformat.format(rec.request_time)+"</td>");
-			
+					
 			//fqdns
 			String[] cns = rec.getCNs();
 			int idx = 0;
@@ -66,6 +68,21 @@ public class HostCertificateTable implements IView {
 				
 			}
 			out.write("</ul></td>");
+			
+			//voname
+			String voname = "<span class=\"muted\">N/A</span>";
+			if(rec.approver_vo_id != null) {
+				try {
+					VORecord vorec = vomodel.get(rec.approver_vo_id);
+					if(vorec != null) {
+						voname = vorec.name;
+					}
+				} catch (SQLException e) {
+					System.out.println("Failed to find voname for request id:"+rec.id);
+				}
+			}
+			out.write("<td>"+voname+"</td>");
+			
 			
 			try {
 				ArrayList<ContactRecord> gas = model.findGridAdmin(rec);

@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 
+import com.divrep.DivRep;
 import com.divrep.DivRepEvent;
 import com.divrep.DivRepEventListener;
 import com.divrep.common.DivRepButton;
@@ -108,15 +109,18 @@ public class CertificateHostServlet extends ServletBase  {
 				if(rec.status.equals(CertificateRequestStatus.ISSUING)) {
 					//count number of certificate issued
 					int issued = 0;
-					String[] pkcs7s = rec.getPKCS7s();
-					for(String pkcs7 : pkcs7s) {
-						if(pkcs7 != null) issued++;
+					String[] statuses = rec.getStatuses();
+					for(String status : statuses) {
+						if(status.equals(CertificateRequestStatus.ISSUED)) issued++;
 					}
-					int percent = issued*100/pkcs7s.length;
-					out.write("Certificates issued so far: "+issued+" of "+pkcs7s.length);
-					out.write("<div class=\"progress active\">");
+					int percent = issued*100/statuses.length;
+					out.write("<div class=\"alert alert-info\">");
+					out.write("<p><img src=\"images/loading.gif\"/> <span>"+issued+" of "+statuses.length+" certificates issued..</p>");
+					out.write("<div class=\"progress progress-striped active\">");
 					out.write("<div class=\"bar\" style=\"width: "+percent+"%;\"></div>");
-					out.write("</div>");
+					out.write("</div>"); //progress
+					out.write("</div>"); //alert
+									
 				} else {
 					//not issuing anymore - redirect
 					out.write("<script>document.location='certificatehost?id="+rec.id+"';</script>");
@@ -134,6 +138,7 @@ public class CertificateHostServlet extends ServletBase  {
 		final Authorization auth = context.getAuthorization();
 		final SimpleDateFormat dformat = new SimpleDateFormat();
 		dformat.setTimeZone(auth.getTimeZone());
+		final CertificateRequestHostModel model = new CertificateRequestHostModel(context);
 		
 		return new IView(){
 			@Override
@@ -176,7 +181,7 @@ public class CertificateHostServlet extends ServletBase  {
 				out.write("<tbody>");
 						
 				out.write("<tr>");
-				out.write("<th>Status</th>");
+				out.write("<th>Request Status</th>");
 				out.write("<td>"+StringEscapeUtils.escapeHtml(rec.status));
 				if(rec.status.equals(CertificateRequestStatus.ISSUING)) {
 					out.write("<div id=\"status_progress\">Loading...</div>");
@@ -196,12 +201,14 @@ public class CertificateHostServlet extends ServletBase  {
 				out.write("<td>");
 				String[] cns = rec.getCNs();
 				String[] statuses = rec.getStatuses();
-				String[] serial_ids = null;
+				String[] serial_ids = rec.getSerialIDs();
+				/*
 				if(rec.status.equals(CertificateRequestStatus.ISSUED)) {
 					serial_ids = rec.getSerialIDs();
 				}
+				*/
 				out.write("<table class=\"table table-bordered table-striped\">");
-				out.write("<thead><tr><th>CN</th><th>Status</th><th>Certificates</th><th>Serial Number</th></tr></thead>");
+				out.write("<thead><tr><th>CN</th><th>Cert. Status</th><th>Certificates</th><th>Serial Number</th></tr></thead>");
 				int i = 0;
 				out.write("<tbody>");
 				for(String cn : cns) {
@@ -210,12 +217,52 @@ public class CertificateHostServlet extends ServletBase  {
 					out.write("<a class=\"muted pull-right\" href=\"certificatedownload?id="+rec.id+"&type=host&download=pkcs10&idx="+i+"\">CSR</a>");
 					out.write("</th>");
 					out.write("<td>"+statuses[i]+"</td>");
-					if(rec.status.equals(CertificateRequestStatus.ISSUED)) {
+					if(serial_ids != null && serial_ids[i] != null && !serial_ids[i].isEmpty()) {
 						//out.write("<td><a href=\"certificatedownload?id="+rec.id+"&type=host&download=pkcs7&idx="+i+"\">Download PKCS7</a></td>");
 						out.write("<td><a href=\"certificatedownload?id="+rec.id+"&type=host&download=x509&idx="+i+"\">Download PEM</a></td>");
-						out.write("<td>"+serial_ids[i]+"</td>");
+						out.write("<td>"+serial_ids[i]);
+						if(model.canRevoke(rec, i)) {
+							class RevokeButton extends DivRepButton {
+								int idx;
+								public RevokeButton(DivRep parent, int idx) {
+									super(parent, "Revoke");
+									addClass("btn");
+									addClass("btn-mini");
+									addClass("pull-right");
+									this.idx = idx;
+								}
+								protected void onClick(DivRepEvent e) {
+									try {
+										model.revoke(rec, idx);
+										js("location.reload();");  //TODO - use DivRep for FQDN indicator?
+									} catch (CertificateRequestException e1) {
+										alert(e1.getMessage());
+									}
+								}
+							}
+							RevokeButton button = new RevokeButton(context.getPageRoot(), i);
+							button.render(out);
+						} /*else if(model.canRequestRevoke(rec)) {
+							class RevokeButton extends DivRepButton {
+								int idx;
+								public RevokeButton(DivRep parent, int idx) {
+									super(parent, "Request Revoke");
+									addClass("btn");
+									addClass("btn-mini");
+									addClass("pull-right");
+									this.idx = idx;
+								}
+								protected void onClick(DivRepEvent e) {
+									//TODO - request revoke
+									System.out.println("click revoke on " + idx);
+								}
+							}
+							RevokeButton button = new RevokeButton(context.getPageRoot(), i);
+							button.render(out);
+						}*/
+						out.write("</td>");
 					} else {
-						out.write("<td colspan=\"3\"><span class=\"muted\">Not yet issued</span></td>");
+						out.write("<td colspan=\"3\"><span class=\"muted\">N/A</span></td>");
 					}
 					out.write("</tr>");
 					++i;
@@ -543,7 +590,7 @@ public class CertificateHostServlet extends ServletBase  {
 			note.setRequired(true);
 			pane.add(note);
 			
-			final DivRepButton button = new DivRepButton(context.getPageRoot(), "<button class=\"btn btn-danger\"><i class=\"icon-remove icon-white\"></i> Reject Request</button>");
+			final DivRepButton button = new DivRepButton(context.getPageRoot(), "<button class=\"btn btn-danger\"><i class=\"icon-remove icon-white\"></i> Reject All Requests</button>");
 			button.setStyle(DivRepButton.Style.HTML);
 			button.addClass("inline");
 			button.addEventListener(new DivRepEventListener() {
@@ -579,7 +626,7 @@ public class CertificateHostServlet extends ServletBase  {
 			note.setRequired(true);
 			pane.add(note);
 			
-			final DivRepButton button = new DivRepButton(context.getPageRoot(), "<button class=\"btn btn-danger\"><i class=\"icon-exclamation-sign icon-white\"></i> Revoke</button>");
+			final DivRepButton button = new DivRepButton(context.getPageRoot(), "<button class=\"btn btn-danger\"><i class=\"icon-exclamation-sign icon-white\"></i> Revoke All</button>");
 			button.setStyle(DivRepButton.Style.HTML);
 			button.addClass("inline");
 			button.addEventListener(new DivRepEventListener() {
