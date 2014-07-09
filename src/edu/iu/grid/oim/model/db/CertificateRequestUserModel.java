@@ -1098,9 +1098,16 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 				ticket.status = "Engineering"; //reopen it - until user renew
 			} else {
 				ticket.description += "Please request for new user certificate by visiting https://oim.grid.iu.edu/oim/certificaterequestuser\n\n";
+				
+				//OSGPKI-393
+				ticket.description += "Note: Check to make sure that your soon to expire DigiCert user certificate is currently installed on your browser. ";
+				ticket.description += "Your full name should show up in the upper right-hand corner of the OIM page. ";
+				ticket.description += "If it is not, then please install your DigiCert user certificate and restart the browser. ";
+				ticket.description += "PKI renewal documentation can be found here: https://twiki.grid.iu.edu/bin/view/Documentation/OSGPKICertificateRenewal\n\n";
 			}
 			
-			//TODO - clear CC list (or suppress cc-emailing)
+			//don't send to CCs
+			ticket.mail_suppression_ccs = true;
 			
 			if(StaticConfig.isDebug()) {
 				log.debug("skipping (this is debug) ticket update on ticket : " + rec.goc_ticket_id + " to notify expiring user certificate");
@@ -1110,7 +1117,6 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 				fp.update(ticket, rec.goc_ticket_id);
 				log.info("updated goc ticket : " + rec.goc_ticket_id + " to notify expiring user certificate");
 			}
-		
 		}
 	}
 	//return requests that I am RA of
