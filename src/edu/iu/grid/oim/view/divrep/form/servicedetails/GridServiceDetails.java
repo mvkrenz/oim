@@ -106,7 +106,7 @@ public class GridServiceDetails extends ServiceDetailsContent {
 		uri_override.render(out);
 		
 		if(sam_uri != null) {
-			out.write("<p class=\"muted pull-right\">* Only For HTCondorCE. Please see <a href=\"https://twiki.grid.iu.edu/bin/view/Documentation/Release3/InstallHTCondorCESAMURI\">TWiki Doc</a> for more detail</p>");
+			out.write("<p class=\"muted pull-right\">* Only For HTCondorCE. Please see <a href=\"https://twiki.grid.iu.edu/bin/view/Documentation/Release3/InstallHTCondorCESAMURI\" target=\"_blank\">TWiki Doc</a> for more detail.</p>");
 			sam_uri.render(out);
 		}
 		hidden.render(out);
