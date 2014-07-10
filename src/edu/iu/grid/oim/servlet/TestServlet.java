@@ -29,7 +29,9 @@ public class TestServlet extends ServletBase {
 	{	
 		UserContext context = new UserContext(request);
 		Authorization auth = context.getAuthorization();
-		auth.check("admin");
+		if(!auth.isLocal()) {
+			throw new ServletException("local only");
+		}
 
 		String action = request.getParameter("action");
 		if(action.equals("reset_host_statuses")) {
