@@ -1,10 +1,18 @@
 package edu.iu.grid.oim.model.cert;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.StringWriter;
+import java.security.KeyStore;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.security.cert.Certificate;
+import java.util.ArrayList;
+
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.TrustManagerFactory;
 
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
@@ -20,9 +28,34 @@ import org.bouncycastle.pkcs.PKCS10CertificationRequest;
 import org.bouncycastle.util.encoders.Base64;
 
 import edu.iu.grid.oim.lib.StaticConfig;
+import edu.iu.grid.oim.model.cert.ICertificateSigner.CertificateBase;
 
 public class CILogonCertificateSigner implements ICertificateSigner {
     static Logger log = Logger.getLogger(CILogonCertificateSigner.class);  
+
+    private KeyStore ks = null;
+    
+    public static KeyStore loadTrustStore() throws Exception {
+        KeyStore trustStore = KeyStore.getInstance("jks");
+        trustStore.load(new FileInputStream(new File("path-to-truststore")), "password".toCharArray());
+        return trustStore;
+    }
+    
+    protected static TrustManager[] getTrustManagers() throws Exception {
+        KeyStore trustStore = loadTrustStore();
+        TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
+        tmf.init(trustStore);
+        return tmf.getTrustManagers();
+    }
+
+    
+    public CILogonCertificateSigner() {
+    	//won't this interfare with anything else?
+        System.setProperty("javax.net.ssl.keyStore", StaticConfig.conf.getProperty("cilogon.api.user.pkcs12"));
+        System.setProperty("javax.net.ssl.keyStorePassword", StaticConfig.conf.getProperty("cilogon.api.user.pkcs12_password"));
+        System.setProperty("javax.net.ssl.keyStoreType", "PKCS12");  
+    }
+    
 	class CILogonCertificateSignerException extends CertificateProviderException {
 		public CILogonCertificateSignerException(String msg, Exception e) {
 			super("From CILogon: " + msg, e);
@@ -32,15 +65,19 @@ public class CILogonCertificateSigner implements ICertificateSigner {
 		}
 	};
 	
-	public Certificate signUserCertificate(String csr, String dn, String email_address) throws CertificateProviderException {
+	public CertificateBase signUserCertificate(String csr, String dn, String email_address) throws CertificateProviderException {
 		return requestUserCert(csr, dn, email_address);
 	}
 	
 	//pass csrs, and 
-	public void signHostCertificates(Certificate[] certs, IHostCertificatesCallBack callback) throws CertificateProviderException {
+	public void signHostCertificates(CertificateBase[] certs, IHostCertificatesCallBack callback) throws CertificateProviderException {
+		
+		//cilogin request & sign immediately.. to simulate digicert behavior, let's pretent we've requested first.
+		callback.certificateRequested();
 		
 		//request & approve all
-		for(Certificate cert : certs) {
+		for(int c = 0; c < certs.length; ++c) {
+			CertificateBase cert = certs[c];
 			 //don't request if it's already requested
 			if(cert.serial != null) continue;
 			
@@ -69,13 +106,15 @@ public class CILogonCertificateSigner implements ICertificateSigner {
 				throw new CertificateProviderException("Failed to parse Service Name from CN");
 			}
 			
-			Certificate issued_cert = requestHostCert(csr, service_name, thecn);
+			CertificateBase issued_cert = requestHostCert(csr, service_name, thecn);
 			log.debug("Requested host certificate. Digicert Request ID:" + issued_cert.serial);
-
+		
 			cert.serial = issued_cert.serial;
 			cert.certificate = issued_cert.certificate;
 			cert.intermediate = issued_cert.intermediate;
 			cert.pkcs7 = issued_cert.pkcs7;
+			
+			callback.certificateSigned(cert, c);
 		}
 	}
 	
@@ -85,10 +124,10 @@ public class CILogonCertificateSigner implements ICertificateSigner {
 	    return cl;
 	}
 	
-	public Certificate requestUserCert(String csr, String dn, String email_address) throws CILogonCertificateSignerException {
+	public CertificateBase requestUserCert(String csr, String dn, String email_address) throws CILogonCertificateSignerException {
 		HttpClient cl = createHttpClient();
 		
-		PostMethod post = new PostMethod("https://test.cilogon.org/getosgcert");
+		PostMethod post = new PostMethod("https://osg.cilogon.org/getusercert");
 		
 		//need to strip first and last line (-----BEGIN CERTIFICATE REQUEST-----, -----END CERTIFICATE REQUEST-----)
 		String []lines = csr.split("\n");
@@ -98,32 +137,25 @@ public class CILogonCertificateSigner implements ICertificateSigner {
 			payload += line;
 		}
 
-		//post.addParameter("customer_name", StaticConfig.conf.getProperty("digicert.customer_name"));
-		//post.setParameter("customer_api_key", StaticConfig.conf.getProperty("digicert.customer_api_key"));
-		//post.setParameter("response_type", "xml");
-		//post.setParameter("validity", "1"); //security by obscurity -- from the DigiCert dev team
 		post.setParameter("email", email_address);
-		post.setParameter("hostname", dn);
+		post.setParameter("username", dn); //TODO - should use just the CN part?
 		post.setParameter("cert_request", payload);
-		post.setParameter("cert_lifetime", "34128000000");
-		//post.setParameter("hash", StaticConfig.conf.getProperty("digicert.hash"));
-		
+		post.setParameter("cert_lifetime", "34128000000"); //TODO - how long is this?		
 		post.getParams().setCookiePolicy(CookiePolicy.IGNORE_COOKIES);
-
 		try {
 			cl.executeMethod(post);
 			
 			switch(post.getStatusCode()) {
 			case 200:
-				ICertificateSigner.Certificate cert = new ICertificateSigner.Certificate();
+				CertificateBase cert = new CertificateBase();
 				StringWriter writer = new StringWriter();
 				IOUtils.copy(post.getResponseBodyAsStream(), writer, "UTF-8"); //should use ascii?
 				cert.pkcs7 = writer.toString();
 				
 				//pull some information from the cert for validation purpose
-				java.security.cert.Certificate[] chain = CertificateManager.parsePKCS7(cert.pkcs7);
+				ArrayList<Certificate> chain = CertificateManager.parsePKCS7(cert.pkcs7);
 					
-				X509Certificate c0 = CertificateManager.getIssuedCert(chain);
+				X509Certificate c0 = CertificateManager.getIssuedX509Cert(chain);
 				cert.notafter = c0.getNotAfter();
 				cert.notbefore = c0.getNotBefore();
 				cert.intermediate = "NO-INT";
@@ -131,46 +163,7 @@ public class CILogonCertificateSigner implements ICertificateSigner {
 				return cert;
 			default:
 				throw new CILogonCertificateSignerException("Unknown status code from cilogon: " +post.getStatusCode());	
-			}
-
-			
-			/*
-			Document ret = parseXML(post.getResponseBodyAsStream());
-			NodeList result_nl = ret.getElementsByTagName("result");
-			Element result = (Element)result_nl.item(0);
-			if(result.getTextContent().equals("failure")) {
-				//System.out.println("failed to execute grid_retrieve_host_cert request");
-				NodeList error_code_nl = ret.getElementsByTagName("error_code");
-				StringBuffer errors  = new StringBuffer();
-				for(int i = 0;i < error_code_nl.getLength(); ++i) {
-					Element error_code = (Element)error_code_nl.item(i);
-					Element code = (Element)error_code.getElementsByTagName("code").item(0);
-					Element description = (Element)error_code.getElementsByTagName("description").item(0);
-					errors.append(" Error while accessing: grid_request_email_cert");
-					errors.append(" Code:" + code.getTextContent());
-					errors.append(" Description:" + description.getTextContent());
-					errors.append("\n");
-				}
-				throw new CILogonCertificateSignerException("Request failed for grid_request_email_cert\n" + errors.toString());
-			} else if(result.getTextContent().equals("success")) {
-				
-				ICertificateSigner.Certificate cert = new ICertificateSigner.Certificate();
-				
-				Element serial_e = (Element)ret.getElementsByTagName("serial").item(0);
-				cert.serial = serial_e.getTextContent();
-				
-				Element certificate_e = (Element)ret.getElementsByTagName("certificate").item(0);
-				cert.certificate = certificate_e.getTextContent();
-				
-				Element intermediate_e = (Element)ret.getElementsByTagName("intermediate").item(0);
-				cert.intermediate = intermediate_e.getTextContent();
-			
-				Element pkcs7_e = (Element)ret.getElementsByTagName("pkcs7").item(0);
-				cert.pkcs7 = pkcs7_e.getTextContent();
-
-				return cert;
-			}
-			*/			
+			}		
 		} catch (HttpException e) {
 			throw new CILogonCertificateSignerException("Failed to make cilogon/rest request", e);
 		} catch (IOException e) {
@@ -193,37 +186,30 @@ public class CILogonCertificateSigner implements ICertificateSigner {
 		 return pemCert;
 		}
 	
-	private Certificate requestHostCert(String csr, String service_name, String cn) throws CILogonCertificateSignerException {
+	private CertificateBase requestHostCert(String csr, String service_name, String cn) throws CILogonCertificateSignerException {
 		HttpClient cl = createHttpClient();
 		
-		PostMethod post = new PostMethod("https://test.cilogon.org/getosgcert");
-
-		//post.addParameter("customer_name", StaticConfig.conf.getProperty("digicert.customer_name"));
-		//post.setParameter("customer_api_key", StaticConfig.conf.getProperty("digicert.customer_api_key"));
-		//post.setParameter("response_type", "xml");
-		//post.setParameter("validity", "1"); //security by obscurity -- from the DigiCert dev team
+		PostMethod post = new PostMethod("https://osg.cilogon.org/gethostcert");
+		
 		post.setParameter("email", "noemail@example.com");
 		post.setParameter("hostname", cn);
 		post.setParameter("cert_request", csr);
 		post.setParameter("cert_lifetime", "34128000000");
-		//post.setParameter("hash", StaticConfig.conf.getProperty("digicert.hash"));
-		
 		post.getParams().setCookiePolicy(CookiePolicy.IGNORE_COOKIES);
-
 		try {
 			cl.executeMethod(post);
 			
 			switch(post.getStatusCode()) {
 			case 200:
-				ICertificateSigner.Certificate cert = new ICertificateSigner.Certificate();
+				CertificateBase cert = new CertificateBase();
 				StringWriter writer = new StringWriter();
 				IOUtils.copy(post.getResponseBodyAsStream(), writer, "UTF-8"); //should use ascii?
 				cert.pkcs7 = writer.toString();
 								
 				//parse certificate and populate following fields
-				java.security.cert.Certificate[] chain = CertificateManager.parsePKCS7(cert.pkcs7);
+				ArrayList<Certificate> chain = CertificateManager.parsePKCS7(cert.pkcs7);
 				
-				X509Certificate c0 = CertificateManager.getIssuedCert(chain);
+				X509Certificate c0 = CertificateManager.getIssuedX509Cert(chain);
 				cert.notafter = c0.getNotAfter();
 				cert.notbefore = c0.getNotBefore();
 				cert.intermediate = "NO-INT"; //TODO - no cilogon doesn't have intermediate - maybe put root CA?
@@ -248,96 +234,29 @@ public class CILogonCertificateSigner implements ICertificateSigner {
 	@Override
 	public void revokeHostCertificate(String serial_id) throws CertificateProviderException {
 		HttpClient cl = createHttpClient();
-		/*
-		PostMethod post = new PostMethod("https://www.digicert.com/enterprise/api/?action=grid_request_host_revoke");
-		post.addParameter("customer_name", StaticConfig.conf.getProperty("digicert.customer_name"));
-		post.setParameter("customer_api_key", StaticConfig.conf.getProperty("digicert.customer_api_key"));
-		post.setParameter("response_type", "xml");
-		post.setParameter("validity", "1"); //security by obscurity -- from the DigiCert dev team
-		post.setParameter("serial", serial_id);
 		
+		PostMethod post = new PostMethod("https://osg.cilogon.org/revoke");
+		post.setParameter("serial",serial_id);
 		post.getParams().setCookiePolicy(CookiePolicy.IGNORE_COOKIES);
-		
 		try {
 			cl.executeMethod(post);
-			Document ret = parseXML(post.getResponseBodyAsStream());
-			NodeList result_nl = ret.getElementsByTagName("result");
-			Element result = (Element)result_nl.item(0);
-			if(result.getTextContent().equals("failure")) {
-				NodeList error_code_nl = ret.getElementsByTagName("error_code");
-				StringBuffer errors  = new StringBuffer();
-				for(int i = 0;i < error_code_nl.getLength(); ++i) {
-					Element error_code = (Element)error_code_nl.item(i);
-					Element code = (Element)error_code.getElementsByTagName("code").item(0);
-					Element description = (Element)error_code.getElementsByTagName("description").item(0);
-					errors.append("Code:" + code.getTextContent());
-					errors.append(" Description:" + description.getTextContent());
-					errors.append("\n");
-				}
-				throw new CILogonCertificateSignerException("Request failed for grid_request_host_revoke\n" + errors.toString());
-			} else if(result.getTextContent().equals("success")) {
-				//nothing particular to do
-			} else {
-				throw new CILogonCertificateSignerException("Unknown return code from grid_request_host_revoke: " +result.getTextContent());
-			}
+			switch(post.getStatusCode()) {
+			case 200:
+				//TODO - success?
+			default:
+				throw new CILogonCertificateSignerException("Unknown status code from cilogon: " +post.getStatusCode());	
+			}	
 		} catch (HttpException e) {
-			throw new CILogonCertificateSignerException("Failed to make grid_request_host_revoke request", e);
+			throw new CILogonCertificateSignerException("Failed to make cilogon/rest request", e);
 		} catch (IOException e) {
-			throw new CILogonCertificateSignerException("Failed to make grid_request_host_revoke request", e);
-		} catch (ParserConfigurationException e) {
-			throw new CILogonCertificateSignerException("Failed to parse returned String from grid_request_host_revoke", e);
-		} catch (SAXException e) {
-			throw new CILogonCertificateSignerException("Failed to parse returned String from grid_request_host_revoke", e);
+			throw new CILogonCertificateSignerException("Failed to make cilogon/rest request", e);
 		}
-		*/
 	}
 
 	@Override
 	public void revokeUserCertificate(String serial_id) throws CertificateProviderException {
-		/*
-		HttpClient cl = createHttpClient();
-		
-		PostMethod post = new PostMethod("https://www.digicert.com/enterprise/api/?action=grid_email_revoke");
-		post.addParameter("customer_name", StaticConfig.conf.getProperty("digicert.customer_name"));
-		post.setParameter("customer_api_key", StaticConfig.conf.getProperty("digicert.customer_api_key"));
-		post.setParameter("response_type", "xml");
-		post.setParameter("validity", "1"); //security by obscurity -- from the DigiCert dev team
-		post.setParameter("serial", serial_id);
-		
-		post.getParams().setCookiePolicy(CookiePolicy.IGNORE_COOKIES);
-		
-		try {
-			cl.executeMethod(post);
-			Document ret = parseXML(post.getResponseBodyAsStream());
-			NodeList result_nl = ret.getElementsByTagName("result");
-			Element result = (Element)result_nl.item(0);
-			if(result.getTextContent().equals("failure")) {
-				NodeList error_code_nl = ret.getElementsByTagName("error_code");
-				StringBuffer errors  = new StringBuffer();
-				for(int i = 0;i < error_code_nl.getLength(); ++i) {
-					Element error_code = (Element)error_code_nl.item(i);
-					Element code = (Element)error_code.getElementsByTagName("code").item(0);
-					Element description = (Element)error_code.getElementsByTagName("description").item(0);
-					errors.append("Code:" + code.getTextContent());
-					errors.append(" Description:" + description.getTextContent());
-					errors.append("\n");
-				}
-				throw new CILogonCertificateSignerException("Request failed for grid_email_revoke\n" + errors.toString());
-			} else if(result.getTextContent().equals("success")) {
-				//nothing particular to do
-			} else {
-				throw new CILogonCertificateSignerException("Unknown return code from grid_email_revoke: " +result.getTextContent());
-			}
-		} catch (HttpException e) {
-			throw new CILogonCertificateSignerException("Failed to make grid_email_revoke request", e);
-		} catch (IOException e) {
-			throw new CILogonCertificateSignerException("Failed to make grid_email_revoke request", e);
-		} catch (ParserConfigurationException e) {
-			throw new CILogonCertificateSignerException("Failed to parse returned String from grid_email_revoke", e);
-		} catch (SAXException e) {
-			throw new CILogonCertificateSignerException("Failed to parse returned String from grid_email_revoke", e);
-		}
-		*/
+		//cilogon revoke handles both user/host cert revoke
+		revokeHostCertificate(serial_id);
 	}
 
 	@Override

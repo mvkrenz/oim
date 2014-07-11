@@ -208,7 +208,7 @@ public class CertificateHostServlet extends ServletBase  {
 				}
 				*/
 				out.write("<table class=\"table table-bordered table-striped\">");
-				out.write("<thead><tr><th>CN</th><th>Cert. Status</th><th>Certificates</th><th>Serial Number</th></tr></thead>");
+				out.write("<thead><tr><th>CN</th><th>Certificates</th><th>Serial Number</th></tr></thead>");
 				int i = 0;
 				out.write("<tbody>");
 				for(String cn : cns) {
@@ -216,7 +216,7 @@ public class CertificateHostServlet extends ServletBase  {
 					out.write("<th>"+StringEscapeUtils.escapeHtml(cn));
 					out.write("<a class=\"muted pull-right\" href=\"certificatedownload?id="+rec.id+"&type=host&download=pkcs10&idx="+i+"\">CSR</a>");
 					out.write("</th>");
-					out.write("<td>"+statuses[i]+"</td>");
+									
 					if(serial_ids != null && serial_ids[i] != null && !serial_ids[i].isEmpty()) {
 						//out.write("<td><a href=\"certificatedownload?id="+rec.id+"&type=host&download=pkcs7&idx="+i+"\">Download PKCS7</a></td>");
 						out.write("<td><a href=\"certificatedownload?id="+rec.id+"&type=host&download=x509&idx="+i+"\">Download PEM</a></td>");
@@ -260,6 +260,15 @@ public class CertificateHostServlet extends ServletBase  {
 							RevokeButton button = new RevokeButton(context.getPageRoot(), i);
 							button.render(out);
 						}*/
+						
+						//show certificate status
+						if(statuses[i].equals(CertificateRequestStatus.REVOKED)) {
+							out.write("<span class=\"label label-important pull-right\">"+statuses[i]+"</span>");
+						} else {
+							//debug
+							//out.write("<span class=\"label pull-right\">"+statuses[i]+"</span>");
+						}
+						
 						out.write("</td>");
 					} else {
 						out.write("<td colspan=\"3\"><span class=\"muted\">N/A</span></td>");

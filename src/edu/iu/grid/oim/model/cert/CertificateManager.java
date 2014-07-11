@@ -3,6 +3,9 @@ package edu.iu.grid.oim.model.cert;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringReader;
+import java.nio.charset.StandardCharsets;
+import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.CertPath;
@@ -23,6 +26,7 @@ import org.bouncycastle.asn1.ASN1Primitive;
 import org.bouncycastle.asn1.ASN1String;
 import org.bouncycastle.asn1.DEROctetString;
 import org.bouncycastle.asn1.DERSequence;
+import org.bouncycastle.asn1.DERUTF8String;
 import org.bouncycastle.asn1.DLSequence;
 import org.bouncycastle.asn1.x509.BasicConstraints;
 import org.bouncycastle.cert.X509CertificateHolder;
@@ -33,7 +37,7 @@ import org.bouncycastle.util.Store;
 import org.bouncycastle.util.encoders.Base64;
 
 import edu.iu.grid.oim.lib.StaticConfig;
-import edu.iu.grid.oim.model.cert.ICertificateSigner.Certificate;
+import edu.iu.grid.oim.model.cert.ICertificateSigner.CertificateBase;
 import edu.iu.grid.oim.model.cert.ICertificateSigner.CertificateProviderException;
 import edu.iu.grid.oim.model.cert.ICertificateSigner.IHostCertificatesCallBack;
 
@@ -74,12 +78,12 @@ public class CertificateManager {
 	*/
 	
 	//use user provided CSR
-	public void signHostCertificates(Certificate[] certs, IHostCertificatesCallBack callback) throws CertificateProviderException {
+	public void signHostCertificates(CertificateBase[] certs, IHostCertificatesCallBack callback) throws CertificateProviderException {
 		cp.signHostCertificates(certs, callback);
 	}
 	
-	public ICertificateSigner.Certificate signUserCertificate(String csr, String cn, String email_address) throws CertificateProviderException {
-		ICertificateSigner.Certificate cert = cp.signUserCertificate(csr, cn, email_address);
+	public CertificateBase signUserCertificate(String csr, String cn, String email_address) throws CertificateProviderException {
+		CertificateBase cert = cp.signUserCertificate(csr, cn, email_address);
 		return cert;
 	}
 	public void revokeUserCertificate(String serial_id) throws CertificateProviderException {
@@ -147,18 +151,64 @@ public class CertificateManager {
 	}
 	*/
 	
-	public static X509Certificate getIssuedCert(java.security.cert.Certificate[] chain) {
-		for(java.security.cert.Certificate cert : chain) {
-			X509Certificate x509cert = (X509Certificate)cert;
+	public static X509Certificate getIssuedX509Cert(ArrayList<Certificate> chain) {
+		for(Certificate cert : chain) {
 			//System.out.println(x509cert.getBasicConstraints());
-			if(x509cert.getBasicConstraints() == -1) {
+			X509Certificate x509cert = (X509Certificate)cert;
+			if(isIssuedX509Cert(x509cert)) {
 				return x509cert;
 			}
 		}
 		return null;
 	}
+	public static boolean isIssuedX509Cert(X509Certificate cert) {
+		if(cert.getBasicConstraints() == -1) {
+			return true;
+		}
+		return false; //It's CA
+	}
+
+	/* Trying to simplify the parsePKCS7, but this attempt didn't work
+	public static java.security.cert.Certificate[] parsePKCS7_2(String pkcs7) throws CMSException, CertificateException, IOException {
+		InputStream stream = new ByteArrayInputStream(pkcs7.getBytes(StandardCharsets.UTF_8));
+		CertificateFactory cf = CertificateFactory.getInstance("X.509");
+		ArrayList<java.security.cert.Certificate> list = new ArrayList<java.security.cert.Certificate>();
+		while (stream.available() > 0) {
+			java.security.cert.Certificate cert = cf.generateCertificate(stream);
+			list.add(cert);
+		}
+		return (java.security.cert.Certificate[]) list.toArray();
+	}
+	*/
 	
-	public static java.security.cert.Certificate[] parsePKCS7(String pkcs7) throws CMSException, CertificateException, IOException {
+	/* -- I can use getIssuedX509Cert to test for basic constraints
+	//from http://stackoverflow.com/questions/2409618/how-do-i-decode-a-der-encoded-string-in-java
+	private static String getExtensionValue(X509Certificate X509Certificate, String oid) throws IOException
+	{
+	    String decoded = null;
+	    byte[] extensionValue = X509Certificate.getExtensionValue(oid);
+
+	    if (extensionValue != null)
+	    {
+	        ASN1Primitive derObject = toDERObject(extensionValue);
+	        if (derObject instanceof DEROctetString)
+	        {
+	            DEROctetString derOctetString = (DEROctetString) derObject;
+
+	            derObject = toDERObject(derOctetString.getOctets());
+	            if (derObject instanceof DERUTF8String)
+	            {
+	                DERUTF8String s = DERUTF8String.getInstance(derObject);
+	                decoded = s.getString();
+	            }
+
+	        }
+	    }
+	    return decoded;
+	}
+	*/
+	
+	public static ArrayList<Certificate> parsePKCS7(String pkcs7) throws CMSException, CertificateException, IOException {
 		/*
 		//need to strip first and last line (-----BEGIN PKCS7-----, -----END PKCS7-----)
 		String []lines = pkcs7.split("\n");
@@ -174,17 +224,31 @@ public class CertificateManager {
 		CMSSignedData cms = new CMSSignedData(cert_b);
 		Store s = cms.getCertificates();
 		Collection collection = s.getMatches(null);
-		java.security.cert.Certificate[] chain = new java.security.cert.Certificate[collection.size()];
+		ArrayList<Certificate> chain = new ArrayList<Certificate>();
 		Iterator itr = collection.iterator(); 
 		int i = 0;
 	    CertificateFactory cf = CertificateFactory.getInstance("X.509"); 
 		while(itr.hasNext()) {
+			//use bouncycastle lib (toASN1Structure) to convert it to java.security certificate
 			X509CertificateHolder it = (X509CertificateHolder)itr.next();
 			org.bouncycastle.asn1.x509.Certificate c = it.toASN1Structure();
-			
 			//convert to java.security certificate
 		    InputStream is1 = new ByteArrayInputStream(c.getEncoded()); 
-			chain[i++] = cf.generateCertificate(is1);
+			Certificate cert = cf.generateCertificate(is1);
+			X509Certificate x509cert = (X509Certificate) cert;
+			
+			/*
+			String ca_ext = getExtensionValue((X509Certificate) cert, "2.5.29.19"); //BasicConstraints
+			if(ca_ext != null) {
+				System.out.println(ca_ext);
+			}
+			*/
+			
+			if(isIssuedX509Cert(x509cert)) {
+				chain.add(0, cert);//add to the top
+			} else {
+				chain.add(cert);		
+			}
 		}
 		return chain;
 	}

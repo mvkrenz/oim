@@ -5,6 +5,7 @@ import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
+import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.sql.Connection;
@@ -44,6 +45,7 @@ import edu.iu.grid.oim.model.UserContext.MessageType;
 import edu.iu.grid.oim.model.cert.CertificateManager;
 import edu.iu.grid.oim.model.cert.GenerateCSR;
 import edu.iu.grid.oim.model.cert.ICertificateSigner;
+import edu.iu.grid.oim.model.cert.ICertificateSigner.CertificateBase;
 import edu.iu.grid.oim.model.cert.ICertificateSigner.CertificateProviderException;
 import edu.iu.grid.oim.model.db.record.CertificateRequestUserRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
@@ -236,8 +238,8 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 		
 		//email hasn't changed since issue?
 		try {
-			java.security.cert.Certificate[] chain = CertificateManager.parsePKCS7(rec.cert_pkcs7);
-			X509Certificate c0 = CertificateManager.getIssuedCert(chain);
+			ArrayList<Certificate> chain = CertificateManager.parsePKCS7(rec.cert_pkcs7);
+			X509Certificate c0 = CertificateManager.getIssuedX509Cert(chain);
 			Collection<List<?>> list = c0.getSubjectAlternativeNames();
 			Iterator<List<?>> it = list.iterator();
 			List<?> first = it.next();
@@ -758,7 +760,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 					//now we can sign it
 					String cn = rec.getCN();//TODO - check for null?
 					CertificateManager cm = new CertificateManager();
-					ICertificateSigner.Certificate cert = cm.signUserCertificate(rec.csr, cn, requester.primary_email);
+					CertificateBase cert = cm.signUserCertificate(rec.csr, cn, requester.primary_email);
 					rec.cert_certificate = cert.certificate;
 					rec.cert_intermediate = cert.intermediate;
 					rec.cert_pkcs7 = cert.pkcs7;
@@ -767,8 +769,8 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 					log.info("pkcs7:" + cert.pkcs7);
 					
 					//get some information we need from the issued certificate
-					java.security.cert.Certificate[]  chain = CertificateManager.parsePKCS7(rec.cert_pkcs7);
-					X509Certificate c0 = CertificateManager.getIssuedCert(chain);
+					ArrayList<Certificate> chain = CertificateManager.parsePKCS7(rec.cert_pkcs7);
+					X509Certificate c0 = CertificateManager.getIssuedX509Cert(chain);
 					rec.cert_notafter = c0.getNotAfter();
 					rec.cert_notbefore = c0.getNotBefore();
 					
@@ -879,7 +881,14 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 		//pull certificate chain from pkcs7
 
 		try {
-			java.security.cert.Certificate[] chain = CertificateManager.parsePKCS7(rec.cert_pkcs7);
+			ArrayList<Certificate> chain = CertificateManager.parsePKCS7(rec.cert_pkcs7);
+			
+			/*
+			//debug - flip order
+			java.security.cert.Certificate temp = chain[0];
+			chain[0] = chain[1];
+			chain[1] = temp;
+			*/
 			
 			//HttpSession session = context.getSession();
 			String password = getPassword(rec.id);
@@ -889,7 +898,8 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 				KeyStore p12 = KeyStore.getInstance("PKCS12");
 				p12.load(null, null);  //not sure what this does.
 				PrivateKey private_key = getPrivateKey(rec.id);
-				p12.setKeyEntry("USER"+rec.id, private_key, password.toCharArray(), chain); 
+				Certificate[] chain_array= chain.toArray(new Certificate[0]);
+				p12.setKeyEntry("USER"+rec.id, private_key, password.toCharArray(), chain_array); 
 				return p12;
 			}
 		} catch (IOException e) {
@@ -914,12 +924,12 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 		//pull certificate chain from pkcs7
 
 		try {
-			java.security.cert.Certificate[] chain = CertificateManager.parsePKCS7(rec.cert_pkcs7);
+			ArrayList<Certificate> chain = CertificateManager.parsePKCS7(rec.cert_pkcs7);
 	
 			//experimenet trying to create pkcs12 without private key - doesn't work
 			KeyStore p12 = KeyStore.getInstance("PKCS12");
 			p12.load(null, null);
-			p12.setKeyEntry("USER"+rec.id, null, "".toCharArray(), chain); 
+			p12.setKeyEntry("USER"+rec.id, null, "".toCharArray(), (Certificate[]) chain.toArray()); 
 			return p12;
 			
 		} catch (IOException e) {
