@@ -428,10 +428,21 @@ public class RestServlet extends ServletBase  {
 	
 	private void doHostCertsRevoke(HttpServletRequest request, Reply reply) throws AuthorizationException, RestException {
 		UserContext context = new UserContext(request);	
+		CertificateRequestHostModel model = new CertificateRequestHostModel(context);
 		
 		String dirty_host_request_id = request.getParameter("host_request_id");
-		Integer host_request_id = Integer.parseInt(dirty_host_request_id);
-		CertificateRequestHostModel model = new CertificateRequestHostModel(context);
+		Integer host_request_id = null;
+		if(dirty_host_request_id != null) {
+			host_request_id = Integer.parseInt(dirty_host_request_id);
+		}
+
+		String dirty_serial_id = request.getParameter("serial_id");
+		String serial_id = null;
+		Integer idx = null;
+		if(dirty_serial_id != null) {
+			serial_id = dirty_serial_id.replaceAll("/[^a-zA-Z0-9: ]/", "");
+			serial_id = model.normalizeSerialID(serial_id);
+		}
 		
 		//set comment
 		String request_comment = request.getParameter("request_comment");
@@ -441,15 +452,51 @@ public class RestServlet extends ServletBase  {
 		context.setComment(request_comment);
 	
 		try {
-			CertificateRequestHostRecord rec = model.get(host_request_id);
-			if(rec == null) {
-				throw new RestException("No such host certificate request ID");
+			//lookup request record either by request_id or serial_id
+			CertificateRequestHostRecord rec = null;
+			if(host_request_id != null) {
+				rec = model.get(host_request_id);
+				if(rec == null) {
+					throw new RestException("No such host certificate request ID");
+				}
+				if(model.canRevoke(rec)) {
+					model.revoke(rec);
+				} else {
+					throw new AuthorizationException("You are not authorized to revoke this request");
+				}
+			} else if(serial_id != null) {
+				rec = model.getBySerialID(serial_id);
+				if(rec == null) {
+					throw new RestException("No such host certificate serial ID");
+				}				
+				
+				//need to find the certificate idx..
+				String[] serial_ids = rec.getSerialIDs();
+				for(int i = 0;i < serial_ids.length;++i) {
+					String id = serial_ids[i];
+					if(id.equals(serial_id)) {
+						idx = i;
+						break;
+					}
+				}
+				if(idx == null) {
+					throw new RestException("(This should never happen) Couldn't find serial id: "+serial_id);
+				}
+				
+				//check certificate status
+				String[] statuses = rec.getStatuses();
+				if(!statuses[idx].equals(CertificateRequestStatus.ISSUED)) {
+					throw new RestException("Certificate status is currently"+statuses[idx]+" and can not be revoked");
+				}
+				
+				//finally, revoke it
+				if(model.canRevoke(rec)) {
+					model.revoke(rec, idx);
+				} else {
+					throw new AuthorizationException("You are not authorized to revoke this request");
+				}
 			}
-			if(model.canRevoke(rec)) {
-				model.revoke(rec);
-			} else {
-				throw new AuthorizationException("You can't revoke this request");
-			}
+					
 		} catch (SQLException e) {
 			throw new RestException("SQLException while making request", e);
 		} catch (CertificateRequestException e) {
@@ -681,7 +728,7 @@ public class RestServlet extends ServletBase  {
 		String dirty_serial_id = request.getParameter("serial_id");
 		String serial_id = null;
 		if(dirty_serial_id != null) {
-			serial_id = dirty_serial_id.replaceAll("/[^A-Z0-9 ]/", "");
+			serial_id = dirty_serial_id.replaceAll("/[^a-zA-Z0-9: ]/", "");
 		}
 		
 		//set comment
@@ -885,8 +932,8 @@ public class RestServlet extends ServletBase  {
 	//this is used just once to populate missing VO ID on host certificate requests
 	private void doHCVOID(HttpServletRequest request, Reply reply) throws AuthorizationException, RestException {
 		UserContext context = new UserContext(request);	
-		Authorization auth = context.getAuthorization();
 		/*
+		Authorization auth = context.getAuthorization();
 		if(!auth.isLocal()) {
 			throw new AuthorizationException("You can't access this interface from there");
 		}
