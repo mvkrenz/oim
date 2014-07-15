@@ -2,6 +2,7 @@ package edu.iu.grid.oim.model.db;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.sql.Connection;
@@ -47,8 +48,7 @@ import edu.iu.grid.oim.lib.StringArray;
 import edu.iu.grid.oim.model.CertificateRequestStatus;
 import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.cert.CertificateManager;
-import edu.iu.grid.oim.model.cert.ICertificateSigner;
-import edu.iu.grid.oim.model.cert.ICertificateSigner.Certificate;
+import edu.iu.grid.oim.model.cert.ICertificateSigner.CertificateBase;
 import edu.iu.grid.oim.model.cert.ICertificateSigner.CertificateProviderException;
 import edu.iu.grid.oim.model.cert.ICertificateSigner.IHostCertificatesCallBack;
 import edu.iu.grid.oim.model.db.record.CertificateRequestHostRecord;
@@ -166,9 +166,9 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 		final StringArray intermediates = new StringArray(rec.cert_intermediate);
 		final StringArray statuses = new StringArray(rec.cert_statuses);
 		
-		final ICertificateSigner.Certificate[] certs = new ICertificateSigner.Certificate[csrs.length()];
+		final CertificateBase[] certs = new CertificateBase[csrs.length()];
 		for(int c = 0; c < csrs.length(); ++c) {
-			certs[c] = new ICertificateSigner.Certificate();
+			certs[c] = new CertificateBase();
 			certs[c].csr = csrs.get(c);
 			certs[c].serial = serial_ids.get(c);
 			certs[c].certificate = certificates.get(c);
@@ -212,7 +212,7 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 							//update certs db contents
 							try {
 								for(int c = 0; c < certs.length; ++c) {
-									Certificate cert = certs[c];
+									CertificateBase cert = certs[c];
 									serial_ids.set(c,  cert.serial); //really just order ID (until the certificate is issued)
 									statuses.set(c, CertificateRequestStatus.ISSUING);
 								}
@@ -227,17 +227,16 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 						
 						//called for each certificate issued
 						@Override
-						public void certificateSigned(Certificate cert, int idx) {
+						public void certificateSigned(CertificateBase cert, int idx) {
 							
 							log.info("host cert issued by digicert: serial_id:" + cert.serial);
 							log.info("pkcs7:" + cert.pkcs7);
 							
 							//pull some information from the cert for validation purpose
-							java.security.cert.Certificate[] chain;
 							try {
-								chain = CertificateManager.parsePKCS7(cert.pkcs7);
+								ArrayList<Certificate> chain = CertificateManager.parsePKCS7(cert.pkcs7);
 								
-								X509Certificate c0 = CertificateManager.getIssuedCert(chain);
+								X509Certificate c0 = CertificateManager.getIssuedX509Cert(chain);
 								cert.notafter = c0.getNotAfter();
 								cert.notbefore = c0.getNotBefore();
 								
@@ -286,7 +285,7 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 					StringArray cert_intermediates = new StringArray(rec.cert_intermediate);
 					StringArray cert_pkcs7s = new StringArray(rec.cert_pkcs7);
 					StringArray cert_serial_ids = new StringArray(rec.cert_serial_ids);
-					for(ICertificateSigner.Certificate cert : certs) {
+					for(CertificateBase cert : certs) {
 						cert_certificates.set(idx, cert.certificate);
 						rec.cert_certificate = cert_certificates.toXML();
 						
@@ -303,7 +302,7 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 					}
 					
 					//set cert expiriation dates using the first certificate issued (out of many *requests*)
-					ICertificateSigner.Certificate cert = certs[0];
+					CertificateBase cert = certs[0];
 					rec.cert_notafter = cert.notafter;
 					rec.cert_notbefore = cert.notbefore;
 					
@@ -344,7 +343,7 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 					}
 					
 					fp.update(ticket, rec.goc_ticket_id);
-				} catch (ICertificateSigner.CertificateProviderException e) {
+				} catch (CertificateProviderException e) {
 					failed("Failed to sign certificate -- CertificateProviderException ", e);
 				} catch(Exception e) {
 					failed("Failed to sign certificate -- unhandled", e);	

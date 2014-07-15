@@ -20,8 +20,8 @@ public interface ICertificateSigner {
 		}
 	};
 	
-	public class Certificate {
-		public Certificate() {
+	public class CertificateBase {
+		public CertificateBase() {
 			//this.issuer = issuer;
 		}
 		public String serial; //isser specific serial
@@ -40,10 +40,10 @@ public interface ICertificateSigner {
 	
 	interface IHostCertificatesCallBack {
 		public void certificateRequested();
-		public void certificateSigned(Certificate cert, int idx);
+		public void certificateSigned(CertificateBase cert, int idx);
 	}
-	public void signHostCertificates(Certificate[] certs,  IHostCertificatesCallBack callback) throws CertificateProviderException;
-	public Certificate signUserCertificate(String csr, String dn, String email_address) throws CertificateProviderException;
+	public void signHostCertificates(CertificateBase[] certs,  IHostCertificatesCallBack callback) throws CertificateProviderException;
+	public CertificateBase signUserCertificate(String csr, String dn, String email_address) throws CertificateProviderException;
 	public void revokeHostCertificate(String serial_id) throws CertificateProviderException;
 	public void revokeUserCertificate(String serial_id) throws CertificateProviderException;
 	

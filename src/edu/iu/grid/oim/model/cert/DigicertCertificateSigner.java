@@ -36,15 +36,15 @@ public class DigicertCertificateSigner implements ICertificateSigner {
 		}
 	};
 	
-	public Certificate signUserCertificate(String csr, String dn, String email_address) throws CertificateProviderException {
+	public CertificateBase signUserCertificate(String csr, String dn, String email_address) throws CertificateProviderException {
 		return requestUserCert(csr, dn, email_address);
 	}
 	
 	//pass csrs, and 
-	public void signHostCertificates(Certificate[] certs, IHostCertificatesCallBack callback) throws CertificateProviderException {
+	public void signHostCertificates(CertificateBase[] certs, IHostCertificatesCallBack callback) throws CertificateProviderException {
 		
 		//request & approve all
-		for(Certificate cert : certs) {
+		for(CertificateBase cert : certs) {
 			 //don't request if it's already requested
 			if(cert.serial != null) continue;
 			
@@ -88,16 +88,6 @@ public class DigicertCertificateSigner implements ICertificateSigner {
 		// TODO -- DigiCert will provide API to do this in more efficient way
 		//
 		
-		/*
-		//wait for a while before start pinging (per Greg)
-		try {
-			log.debug("Sleeping for 5 seconds");
-			Thread.sleep(1000*5);
-		} catch (InterruptedException e) {
-			log.error("Sleep interrupted", e);
-		}
-		*/
-		
 		//wait until all certificates are issued (or timeout)
 		log.debug("start looking for certificate that's issued");
 		
@@ -117,7 +107,7 @@ public class DigicertCertificateSigner implements ICertificateSigner {
 			//loop all certs - count number of certificates issued so far
 			int issued = 0;
 			for(int c = 0; c < certs.length; ++c) {
-				Certificate cert = certs[c];
+				CertificateBase cert = certs[c];
 				if(cert.pkcs7 == null) {
 					try {
 						//WARNING - this resets csr stored in current cert
@@ -174,7 +164,7 @@ public class DigicertCertificateSigner implements ICertificateSigner {
 	    
 	    return cl;
 	}
-	
+	/*
 	//used to check if certificate has been issued
 	private String getDetail_under_construction(String order_id) throws DigicertCPException {
 		
@@ -224,6 +214,7 @@ public class DigicertCertificateSigner implements ICertificateSigner {
 			throw new DigicertCPException("Failed to parse returned String from grid_certificate_details", e);
 		}
 	}
+	*/
 	
 	private Document parseXML(InputStream in) throws ParserConfigurationException, SAXException, IOException {
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
@@ -231,7 +222,7 @@ public class DigicertCertificateSigner implements ICertificateSigner {
 		return db.parse(in);
 	}
 	
-	public Certificate requestUserCert(String csr, String cn, String email_address) throws DigicertCPException {
+	public CertificateBase requestUserCert(String csr, String cn, String email_address) throws DigicertCPException {
 		HttpClient cl = createHttpClient();
 		
 		PostMethod post = new PostMethod("https://www.digicert.com/enterprise/api/?action=grid_request_email_cert");
@@ -268,7 +259,7 @@ public class DigicertCertificateSigner implements ICertificateSigner {
 				throw new DigicertCPException("Request failed for grid_request_email_cert\n" + errors.toString());
 			} else if(result.getTextContent().equals("success")) {
 				
-				ICertificateSigner.Certificate cert = new ICertificateSigner.Certificate();
+				CertificateBase cert = new CertificateBase();
 				
 				Element serial_e = (Element)ret.getElementsByTagName("serial").item(0);
 				cert.serial = serial_e.getTextContent();
@@ -405,7 +396,7 @@ public class DigicertCertificateSigner implements ICertificateSigner {
 		}
 	}
 	
-	private Certificate retrieveByOrderID(String order_id) throws DigicertCPException {
+	private CertificateBase retrieveByOrderID(String order_id) throws DigicertCPException {
 		HttpClient cl = createHttpClient();
 		
 		PostMethod post = new PostMethod("https://www.digicert.com/enterprise/api/?action=grid_retrieve_host_cert");
@@ -436,7 +427,7 @@ public class DigicertCertificateSigner implements ICertificateSigner {
 				throw new DigicertCPException("Request failed for grid_retrieve_host_cert\n" + errors.toString());
 			} else if(result.getTextContent().equals("success")) {
 				
-				ICertificateSigner.Certificate cert = new ICertificateSigner.Certificate();
+				CertificateBase cert = new CertificateBase();
 				
 				Element serial_e = (Element)ret.getElementsByTagName("serial").item(0);
 				cert.serial = serial_e.getTextContent();

@@ -48,12 +48,13 @@ public class CertificateDownloadServlet extends ServletBase  {
 							PrintWriter out = response.getWriter();
 							out.write(rec.cert_pkcs7);
 						} else if(download.equals("pkcs12")) {
-							response.setContentType("application/x-pkcs12");
-							response.setHeader("Content-Disposition", "attachment; filename=user_certificate_and_key.U"+rec.id+".p12");
 							KeyStore p12 = model.getPkcs12(rec);
 							if(p12 == null) {
 								log.error("Failed to create pkcs12");
+								response.setStatus(500);
 							} else {
+								response.setContentType("application/x-pkcs12");
+								response.setHeader("Content-Disposition", "attachment; filename=user_certificate_and_key.U"+rec.id+".p12");
 								String password = model.getPassword(id);
 								p12.store(response.getOutputStream(), password.toCharArray());
 							}
