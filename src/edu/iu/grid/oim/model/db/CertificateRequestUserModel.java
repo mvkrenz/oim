@@ -1558,8 +1558,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
     //NO AC
 	public CertificateRequestUserRecord getBySerialID(String serial_id) throws SQLException {
 		
-		//allow searching via OpenSSL style serial ID (like 0d:5e:c2:12:a6:be:2e:23:be:6f:7e:42:b1:3c:c0:ac)
-		serial_id = serial_id.replaceAll(":", "");
+		serial_id = normalizeSerialID(serial_id);
 		
 		CertificateRequestUserRecord rec = null;
 		ResultSet rs = null;

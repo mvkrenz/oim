@@ -88,5 +88,10 @@ abstract public class CertificateRequestModelBase<T extends RecordBase> extends 
 
 		return null;
 	}
+	
+	public String normalizeSerialID(String id) {
+		//allow searching via OpenSSL style serial ID (like 0d:5e:c2:12:a6:be:2e:23:be:6f:7e:42:b1:3c:c0:ac)
+		return id.replaceAll(":", "").toUpperCase();
+	}
    
 }
