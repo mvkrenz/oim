@@ -76,6 +76,12 @@ public class CertificateDownloadServlet extends ServletBase  {
 							model.writeEncryptedRSAPrivateKeyInPEM(out, rec);
 							out.write(rec.cert_certificate);
 						}*/
+						else if(download.equals("pkcs10")) {
+							PrintWriter out = response.getWriter();
+							response.setContentType("application/x-pem-file");
+							response.setHeader("Content-Disposition", "attachment; filename=host_certificate.H"+rec.id+".csr.pem");
+							out.write(rec.csr);
+						}
 					}
 				} catch (SQLException e) {
 					log.error("Failed to load certificate record", e);
