@@ -13,7 +13,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
+
 import edu.iu.grid.oim.model.UserContext;
+import edu.iu.grid.oim.model.cert.CertificateManager;
 import edu.iu.grid.oim.model.db.CertificateRequestHostModel;
 import edu.iu.grid.oim.model.db.CertificateRequestUserModel;
 import edu.iu.grid.oim.model.db.record.CertificateRequestHostRecord;
@@ -121,7 +123,8 @@ public class CertificateDownloadServlet extends ServletBase  {
 							response.setContentType("application/x-pem-file");
 							response.setHeader("Content-Disposition", "attachment; filename=host_certificate.H"+rec.id+"."+cns[idx]+".csr.pem");
 							out.write("-----BEGIN CERTIFICATE REQUEST-----\n");
-							out.write(csrs[idx]);
+							String csr = CertificateManager.chunkString(csrs[idx], 76);
+							out.write(csr);
 							out.write("-----END CERTIFICATE REQUEST-----\n");
 						}
 					}
