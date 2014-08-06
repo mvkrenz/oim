@@ -23,6 +23,7 @@ import edu.iu.grid.oim.view.BootBreadCrumbView;
 import edu.iu.grid.oim.view.BootMenuView;
 import edu.iu.grid.oim.view.BootPage;
 import edu.iu.grid.oim.view.ContentView;
+import edu.iu.grid.oim.view.DivRepWrapper;
 import edu.iu.grid.oim.view.HtmlView;
 import edu.iu.grid.oim.view.SideContentView;
 import edu.iu.grid.oim.view.divrep.RemoveFOSDialog;
@@ -120,7 +121,7 @@ public class FieldOfScienceServlet extends ServletBase {
 			contentview.add(new HtmlView("</p>"));
 			contentview.add(new HtmlView("</td>"));
 			
-			contentview.add(new HtmlView("<td>"));
+			contentview.add(new HtmlView("<td style=\"min-width: 30px\">"));
 			if(!used) {
 				//TODO - this is very inefficient.. having dialog for every single fos that has delete button.
 				final RemoveFOSDialog remove_fos_dialog = new RemoveFOSDialog(context.getPageRoot(), context);
@@ -137,7 +138,7 @@ public class FieldOfScienceServlet extends ServletBase {
 						remove_fos_dialog.show();	
 					}
 				};
-				contentview.add(new RemoveButtonDE(context.getPageRoot()));
+				contentview.add(new DivRepWrapper(new RemoveButtonDE(context.getPageRoot())));
 				contentview.add(remove_fos_dialog);
 			}
 			contentview.add(new HtmlView("</td>"));
