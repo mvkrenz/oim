@@ -7,6 +7,7 @@ public class MeshConfigParamRecord extends RecordBase {
 
 	@Key public Integer id;
 	public String name;
+	public Integer service_id; //service_id that this params are designed for
 	public String params;
 	
 	//load from existing record

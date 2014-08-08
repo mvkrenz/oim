@@ -11,8 +11,8 @@ import org.w3c.dom.Document;
 
 import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.record.MeshConfigGroupRecord;
-import edu.iu.grid.oim.model.db.record.MeshConfigRecord;
 import edu.iu.grid.oim.model.db.record.RecordBase;
+import edu.iu.grid.oim.model.db.record.VORecord;
 
 public class MeshConfigGroupModel extends SmallTableModelBase<MeshConfigGroupRecord>
 {	
@@ -32,9 +32,9 @@ public class MeshConfigGroupModel extends SmallTableModelBase<MeshConfigGroupRec
     }
 	public String getHumanValue(String field_name, String value) throws NumberFormatException, SQLException
 	{
-		if(field_name.equals("meshconfig_id")) {
-			MeshConfigModel model = new MeshConfigModel(context);
-			MeshConfigRecord rec = model.get(Integer.parseInt(value));
+		if(field_name.equals("vo_id")) {
+			VOModel model = new VOModel(context);
+			VORecord rec = model.get(Integer.parseInt(value));
 			return value + " (" + rec.name + ")";
 		}
 		return value;
