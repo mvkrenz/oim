@@ -106,6 +106,15 @@ public class BootMenuView implements IView {
 					out.println("<a href=\"fieldofscience\">Fields of Science</a></li>");	
 				}
 				
+				if (auth.allows("admin_meshconfig")) {
+					if(current.equals("meshconfig")) {
+						out.println("<li class=\"active\">");
+					} else {
+						out.println("<li>");		
+					}
+					out.println("<a href=\"meshconfig\">Mesh Configs</a></li>");	
+				}
+				
 				if (auth.allows("read_report")) {
 					out.println("<li class=\"divider\"></li>");
 					
