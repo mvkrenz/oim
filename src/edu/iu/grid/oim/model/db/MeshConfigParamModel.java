@@ -67,4 +67,14 @@ public class MeshConfigParamModel extends SmallTableModelBase<MeshConfigParamRec
 		}
 		return list;
 	}
+	public ArrayList<MeshConfigParamRecord> getByServiceID(Integer id) throws SQLException {
+		ArrayList<MeshConfigParamRecord> list = new ArrayList<MeshConfigParamRecord>();
+		for(RecordBase it : getCache()) {
+			MeshConfigParamRecord t = (MeshConfigParamRecord)it;
+			if(t.service_id.equals(id)) {
+				list.add(t);
+			}
+		}
+		return list;		
+	}
 }

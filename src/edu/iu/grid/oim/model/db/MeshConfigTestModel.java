@@ -82,6 +82,7 @@ public class MeshConfigTestModel extends SmallTableModelBase<MeshConfigTestRecor
 		}
 		return list;
 	}
+	/*
 	public ArrayList<MeshConfigTestRecord> getByMeshconfigID(Integer id) throws SQLException {
 		ArrayList<MeshConfigTestRecord> list = new ArrayList<MeshConfigTestRecord>();
 		for(RecordBase it : getCache()) {
@@ -92,4 +93,5 @@ public class MeshConfigTestModel extends SmallTableModelBase<MeshConfigTestRecor
 		}
 		return list;		
 	}
+	*/
 }

@@ -6,8 +6,12 @@ import java.sql.SQLException;
 public class MeshConfigTestRecord extends RecordBase {
 
 	@Key public Integer id;
-	public Integer meshconfig_id;
-	public Integer service_id;
+	
+	public String name;
+	public Integer vo_id;
+	public Boolean disable;
+	
+	public String type;  //enum - MESH/DISJOINT/STAR
 	public Integer groupa_id;
 	public Integer groupb_id;
 	public Integer param_id;

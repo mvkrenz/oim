@@ -7,6 +7,7 @@ public class MeshConfigGroupRecord extends RecordBase {
 
 	@Key public Integer id;
 	public String name;
+	public Integer service_id;
 	
 	//load from existing record
 	public MeshConfigGroupRecord(ResultSet rs) throws SQLException { super(rs); }
