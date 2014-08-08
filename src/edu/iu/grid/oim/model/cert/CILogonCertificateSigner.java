@@ -28,7 +28,9 @@ import org.bouncycastle.pkcs.PKCS10CertificationRequest;
 import org.bouncycastle.util.encoders.Base64;
 
 import edu.iu.grid.oim.lib.StaticConfig;
-import edu.iu.grid.oim.model.cert.ICertificateSigner.CertificateBase;
+
+//Uses CILogin OSG CA APIs
+//https://docs.google.com/document/d/1c5BaQSTyHEJtOIF66mqrKh52sfaSCBnxTbqPEniMtkE/edit#heading=h.m82hlr8uhzkm
 
 public class CILogonCertificateSigner implements ICertificateSigner {
     static Logger log = Logger.getLogger(CILogonCertificateSigner.class);  
@@ -184,13 +186,18 @@ public class CILogonCertificateSigner implements ICertificateSigner {
 		 String pemCertPre = new String(encoder.encode(derCert));
 		 String pemCert = cert_begin + pemCertPre + end_cert;
 		 return pemCert;
-		}
+	}
 	
 	private CertificateBase requestHostCert(String csr, String service_name, String cn) throws CILogonCertificateSignerException {
 		HttpClient cl = createHttpClient();
 		
-		PostMethod post = new PostMethod("https://osg.cilogon.org/gethostcert");
-		
+		PostMethod post;
+		if(service_name == null) {
+			post = new PostMethod("https://osg.cilogon.org/gethostcert");
+		} else {
+			post = new PostMethod("https://osg.cilogon.org/getservicecert");
+			post.setParameter("srvname", service_name);
+		}
 		post.setParameter("email", "noemail@example.com");
 		post.setParameter("hostname", cn);
 		post.setParameter("cert_request", csr);
@@ -242,7 +249,8 @@ public class CILogonCertificateSigner implements ICertificateSigner {
 			cl.executeMethod(post);
 			switch(post.getStatusCode()) {
 			case 200:
-				//TODO - success?
+				log.debug("Successfully made request for revocation for cilogon with serial id:"+serial_id);
+				return;
 			default:
 				throw new CILogonCertificateSignerException("Unknown status code from cilogon: " +post.getStatusCode());	
 			}	
