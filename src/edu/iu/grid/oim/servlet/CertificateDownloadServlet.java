@@ -81,7 +81,7 @@ public class CertificateDownloadServlet extends ServletBase  {
 						else if(download.equals("pkcs10")) {
 							PrintWriter out = response.getWriter();
 							response.setContentType("application/x-pem-file");
-							response.setHeader("Content-Disposition", "attachment; filename=host_certificate.H"+rec.id+".csr.pem");
+							response.setHeader("Content-Disposition", "attachment; filename=user_certificate_request.H"+rec.id+".csr.pem");
 							out.write(rec.csr);
 						}
 					}
@@ -121,7 +121,7 @@ public class CertificateDownloadServlet extends ServletBase  {
 							String[] csrs = rec.getCSRs();
 							String[] cns = rec.getCNs();
 							response.setContentType("application/x-pem-file");
-							response.setHeader("Content-Disposition", "attachment; filename=host_certificate.H"+rec.id+"."+cns[idx]+".csr.pem");
+							response.setHeader("Content-Disposition", "attachment; filename=host_certificate_request.H"+rec.id+"."+cns[idx]+".csr.pem");
 							out.write("-----BEGIN CERTIFICATE REQUEST-----\n");
 							String csr = CertificateManager.chunkString(csrs[idx], 76);
 							out.write(csr);
