@@ -202,6 +202,7 @@ public class ProjectModel extends SmallTableModelBase<ProjectRecord>
 		ArrayList<ProjectRecord> list = new ArrayList<ProjectRecord>();
 		for(RecordBase it : getCache()) {
 			ProjectRecord rec = (ProjectRecord)it;
+			if(rec.disable) continue;
 			if(rec.vo_id != null && rec.vo_id.equals(vo_id)) {
 				list.add(rec);
 			}
@@ -214,6 +215,9 @@ public class ProjectModel extends SmallTableModelBase<ProjectRecord>
 		ArrayList<ProjectRecord> list = new ArrayList<ProjectRecord>();
 		for(RecordBase rec : getCache()) {
 			ProjectRecord prec = (ProjectRecord)rec;
+			//let's not filter out by disabled flag -- since I want to make sure support team can list all *including disabled* project
+			//(maybe wrong approach... )
+			//if(rec.disable) continue;
 			if(prec.fos_id.compareTo(fos_id) == 0) list.add(prec);
 		}		
 		return list;
@@ -224,6 +228,7 @@ public class ProjectModel extends SmallTableModelBase<ProjectRecord>
 		ArrayList<ProjectRecord> list = new ArrayList<ProjectRecord>();
 		for(RecordBase it : getCache()) {
 			ProjectRecord rec = (ProjectRecord)it;
+			if(rec.disable) continue;
 			if(rec.cg_id != null && rec.cg_id.equals(cg_id)) {
 				list.add(rec);
 			}
