@@ -896,10 +896,10 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 				log.error("can't retrieve certificate encryption password while creating pkcs12");
 			} else {
 				KeyStore p12 = KeyStore.getInstance("PKCS12");
-				p12.load(null, null);  //not sure what this does.
+				p12.load(null, null);  //this initializes pkcs12 before I can add stuff to it. (somehow I need to set the password to null here)
 				PrivateKey private_key = getPrivateKey(rec.id);
 				Certificate[] chain_array= chain.toArray(new Certificate[0]);
-				p12.setKeyEntry("USER"+rec.id, private_key, password.toCharArray(), chain_array); 
+				p12.setKeyEntry(rec.dn, private_key, password.toCharArray(), chain_array); 
 				return p12;
 			}
 		} catch (IOException e) {
@@ -910,8 +910,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		} catch (NoSuchAlgorithmException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			log.error("Failed to initialize pkcs12 keystore", e);
 		} catch (CMSException e) {
 			log.error("Failed to get encoded byte array from bouncy castle certificate.", e);
 		} 
