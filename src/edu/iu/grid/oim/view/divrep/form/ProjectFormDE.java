@@ -9,6 +9,7 @@ import java.util.LinkedHashMap;
 
 import org.apache.log4j.Logger;
 
+import com.divrep.common.DivRepCheckBox;
 import com.divrep.common.DivRepForm;
 import com.divrep.common.DivRepSelectBox;
 import com.divrep.common.DivRepStaticContent;
@@ -37,7 +38,6 @@ import edu.iu.grid.oim.model.db.record.VORecord;
 import edu.iu.grid.oim.view.divrep.ContactEditor;
 import edu.iu.grid.oim.view.divrep.FOSEditor;
 import edu.iu.grid.oim.view.divrep.ProjectPublicationEditor;
-import edu.iu.grid.oim.view.divrep.FieldOfScience;
 import edu.iu.grid.oim.view.divrep.form.validator.ProjectNameValidator;
 
 public class ProjectFormDE extends DivRepForm 
@@ -55,11 +55,10 @@ public class ProjectFormDE extends DivRepForm
 	private DivRepTextBox department;
 	private DivRepSelectBox parent;
 	private ContactEditor pi;
-	//private FieldOfScience field_of_science_de;
 	private FOSEditor field_of_science_de;
 	private ProjectPublicationEditor publications;
-	//private ProjectUserEditor users;
 	private Timestamp submit_time;
+	private DivRepCheckBox disable;
 	
 	private DivRepTextArea comment;
 	
@@ -80,9 +79,7 @@ public class ProjectFormDE extends DivRepForm
 		name.addValidator(new DivRepUniqueValidator<String>(project_names.values()));
 		name.addValidator(new ProjectNameValidator());
 		new DivRepStaticContent(this, "<p class=\"help-block\">* Leave it blank to autogenerate.</p>");
-		
-		//name.setSampleValue("CDF");
-		
+
 		description = new DivRepTextArea(this);
 		description.setLabel("Description / Abstract of work");
 		description.setValue(rec.desc);
@@ -142,8 +139,7 @@ public class ProjectFormDE extends DivRepForm
 		if(rec.cg_id != null) {
 			parent.setValue(rec.cg_id+vo_cg_offset);
 		}
-		//new DivRepStaticContent(this, "<p class=\"help-block\">* You can only choose VO / CG that you have edit access</p>");
-		
+	
 		ContactModel cmodel = new ContactModel(context);
 		pi = new ContactEditor(this, cmodel, false, false);
 		pi.setLabel("Principal Investigator");
@@ -163,7 +159,6 @@ public class ProjectFormDE extends DivRepForm
 		new DivRepStaticContent(this, "<h3>Field Of Science</h3>");
 		FieldOfScienceModel fmodel = new FieldOfScienceModel(context);
 		field_of_science_de = new FOSEditor(this, fmodel, false);
-		//field_of_science_de.setRequired(true);
 		field_of_science_de.setMin(FOSRank.Primary, 1); //required
 		field_of_science_de.setShowRank(false); //only primary.
 		if(rec.id != null) {
@@ -179,14 +174,22 @@ public class ProjectFormDE extends DivRepForm
 				publications.addPublication(prec);
 			}
 		}
-			
-		new DivRepStaticContent(this, "<hr>");
 		
+		if(auth.allows("admin")) {
+			new DivRepStaticContent(this, "<h2>Administrative Tasks</h2>");
+		}
+		disable = new DivRepCheckBox(this);
+		disable.setLabel("Disable");
+		disable.setValue(rec.disable);
+		if(!auth.allows("admin")) {
+			disable.setHidden(true); //I feel setDisable is better choice.. but to be consistent with other views.
+		} 
+	
 		submit_time = rec.submit_time; //used to keep existing value
-
+		
 		comment = new DivRepTextArea(this);
 		comment.setLabel("Update Comment");
-		comment.setSampleValue("Please provide a reason for this update.");
+		comment.setSampleValue("Please provide a reason for this update.");		
 	}
 
 	private LinkedHashMap<Integer, String> getProjectNames() throws AuthorizationException, SQLException
@@ -225,6 +228,7 @@ public class ProjectFormDE extends DivRepForm
 			rec.vo_id = null;
 			rec.cg_id = parent.getValue() - vo_cg_offset;
 		}
+		rec.disable = disable.getValue();
 		
 		ArrayList<FieldOfScienceRecord> foss = field_of_science_de.getFOSRecordsByRank(FOSRank.Primary);
 		rec.fos_id = foss.get(0).id;

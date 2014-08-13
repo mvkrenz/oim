@@ -16,6 +16,7 @@ public class ProjectRecord extends RecordBase
 	public String department;
 	public Timestamp submit_time; //default to CURRENT_TIMESTAMP
 	public Integer fos_id;
+	public Boolean disable;
 	
 	//load from existing record
 	public ProjectRecord(ResultSet rs) throws SQLException { super(rs); }

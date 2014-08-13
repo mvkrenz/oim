@@ -19,6 +19,7 @@ import org.apache.log4j.Logger;
 import com.divrep.common.DivRepLocationSelector;
 import com.divrep.common.DivRepLocationSelector.LatLng;
 
+import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.ContactRank;
@@ -177,7 +178,6 @@ public class CampusGridServlet extends ServletBase implements Servlet {
 		}		
 		table.addRow("Disable", rec.disable);
 	
-		
 		return contentview;
 	}
 		
@@ -217,6 +217,8 @@ public class CampusGridServlet extends ServletBase implements Servlet {
 		throws ServletException, SQLException
 	{
 		CampusGridModel model = new CampusGridModel(context);
+		Authorization auth = context.getAuthorization();
+		
 		ArrayList<CampusGridRecord> campusgrids = model.getAll();
 		Collections.sort(campusgrids, new Comparator<CampusGridRecord> () {
 			public int compare(CampusGridRecord a, CampusGridRecord b) {
@@ -244,7 +246,7 @@ public class CampusGridServlet extends ServletBase implements Servlet {
 			}
 			ItemTableView table = new ItemTableView(5);
 			for(final CampusGridRecord rec : editable_cgs) {
-				table.add(renderLink(rec, true));
+				table.add(createItem(rec, true));
 			}	
 			contentview.add(table);
 		}
@@ -253,7 +255,8 @@ public class CampusGridServlet extends ServletBase implements Servlet {
 			contentview.add(new HtmlView("<h2>Campus Grids</h2>"));
 			ItemTableView table = new ItemTableView(5);
 			for(final CampusGridRecord rec : readonly_cgs) {
-				table.add(renderLink(rec, model.canEdit(rec.id)));
+				if(!auth.allows("admin") && rec.disable) continue; //hide disabled item
+				table.add(createItem(rec, false));
 			}	
 			contentview.add(table);
 		}
@@ -261,21 +264,21 @@ public class CampusGridServlet extends ServletBase implements Servlet {
 		return contentview;
 	}
 	
-	private GenericView renderLink(CampusGridRecord rec, boolean editable) {
+	private GenericView createItem(CampusGridRecord rec, boolean editable) {
 		String name = rec.name;
 		GenericView cg = new GenericView();		
-		String disable_css = "";
+		//String disable_css = "";
 		String tag = "";
 		if(rec.disable) {
-			disable_css += " disabled";
-			tag += " (Disabled)";
+			//disable_css += " disabled";
+			tag += " <span class=\"label\">Disabled</span>";
 		}
+		String url = "campusgrid";
 		if(editable) {
-			cg.add(new HtmlView("<a class=\""+disable_css+"\" title=\""+StringEscapeUtils.escapeHtml(rec.name)+"\" href=\"campusgridedit?id="+rec.id+"\">"+StringEscapeUtils.escapeHtml(name)+tag+"</a>"));
-			
-		} else {
-			cg.add(new HtmlView("<a class=\""+disable_css+"\" title=\""+StringEscapeUtils.escapeHtml(rec.name)+"\" href=\"campusgrid?id="+rec.id+"\">"+StringEscapeUtils.escapeHtml(name)+tag+"</a>"));
+			url = "campusgridedit";
 		}
+		cg.add(new HtmlView("<a title=\""+StringEscapeUtils.escapeHtml(rec.name)+"\" href=\""+url+"?id="+rec.id+"\">"+StringEscapeUtils.escapeHtml(name)+tag+"</a>"));
+
 		return cg;
 	}
 	
