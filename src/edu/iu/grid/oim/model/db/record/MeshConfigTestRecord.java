@@ -11,6 +11,7 @@ public class MeshConfigTestRecord extends RecordBase {
 	public Integer vo_id;
 	public Boolean disable;
 	
+	public Integer service_id; //owamp, bwctl, etc.
 	public String type;  //enum - MESH/DISJOINT/STAR
 	public Integer groupa_id;
 	public Integer groupb_id;
