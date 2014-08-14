@@ -81,4 +81,14 @@ public class MeshConfigMemberModel extends SmallTableModelBase<MeshConfigMemberR
 		}
 		return list;
 	}
+	public ArrayList<MeshConfigMemberRecord> getByGroupID(Integer id) throws SQLException {
+		ArrayList<MeshConfigMemberRecord> list = new ArrayList<MeshConfigMemberRecord>();
+		for(RecordBase it : getCache()) {
+			MeshConfigMemberRecord rec = (MeshConfigMemberRecord)it;
+			if(rec.group_id.equals(id)) {
+				list.add(rec);
+			}
+		}
+		return list;
+	}
 }
