@@ -3,51 +3,50 @@ package edu.iu.grid.oim.model.db;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpressionException;
+
 import org.apache.log4j.Logger;
-import org.w3c.dom.Document;
+
 import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.ContactRank;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.ContactTypeRecord;
+import edu.iu.grid.oim.model.db.record.MeshConfigContactRecord;
+import edu.iu.grid.oim.model.db.record.MeshConfigTestRecord;
 import edu.iu.grid.oim.model.db.record.RecordBase;
-import edu.iu.grid.oim.model.db.record.VOContactRecord;
-import edu.iu.grid.oim.model.db.record.VORecord;
 
-public class VOContactModel extends SmallTableModelBase<VOContactRecord> {
-    static Logger log = Logger.getLogger(VOContactModel.class); 
+public class MeshConfigContactModel extends SmallTableModelBase<MeshConfigContactRecord> {
+    static Logger log = Logger.getLogger(MeshConfigContactModel.class); 
 	
-	public VOContactModel(UserContext context) {
-		super(context, "vo_contact");
+	public MeshConfigContactModel(UserContext context) {
+		super(context, "mesh_config_contact");
 	}
-	VOContactRecord createRecord() throws SQLException
+	MeshConfigContactRecord createRecord() throws SQLException
 	{
-		return new VOContactRecord();
+		return new MeshConfigContactRecord();
 	}
 
-	public ArrayList<VOContactRecord> getByVOID(int vo_id) throws SQLException
+	public ArrayList<MeshConfigContactRecord> getByMeshConfigID(int id) throws SQLException
 	{ 
-		ArrayList<VOContactRecord> list = new ArrayList<VOContactRecord>();
+		ArrayList<MeshConfigContactRecord> list = new ArrayList<MeshConfigContactRecord>();
 		for(RecordBase rec : getCache()) {
-			VOContactRecord vcrec = (VOContactRecord)rec;
-			if(vcrec.vo_id == vo_id) list.add(vcrec);
+			MeshConfigContactRecord vcrec = (MeshConfigContactRecord)rec;
+			if(vcrec.mesh_config_id.equals(id)) list.add(vcrec);
 		}
 		return list;
 	}	
 	
-	public HashMap<Integer/*contact_type_id*/, ArrayList<VOContactRecord>> groupByContactTypeID(ArrayList<VOContactRecord> recs) throws SQLException
+	public HashMap<Integer/*contact_type_id*/, ArrayList<MeshConfigContactRecord>> 
+		groupByContactTypeID(ArrayList<MeshConfigContactRecord> recs) throws SQLException
 	{
 		fillCache();
 		
-		HashMap<Integer, ArrayList<VOContactRecord>> list = new HashMap<Integer, ArrayList<VOContactRecord>>();
-		for(VOContactRecord rec : recs) {
+		HashMap<Integer, ArrayList<MeshConfigContactRecord>> list = new HashMap<Integer, ArrayList<MeshConfigContactRecord>>();
+		for(MeshConfigContactRecord rec : recs) {
 			//group records by type_id and create lists of contact_id
-			ArrayList<VOContactRecord> array = null;
+			ArrayList<MeshConfigContactRecord> array = null;
 			if(!list.containsKey(rec.contact_type_id)) {
 				//never had this type
-				array = new ArrayList<VOContactRecord>();
+				array = new ArrayList<MeshConfigContactRecord>();
 				list.put(rec.contact_type_id, array);
 			} else {
 				array = list.get(rec.contact_type_id);
@@ -57,24 +56,24 @@ public class VOContactModel extends SmallTableModelBase<VOContactRecord> {
 		return list;		
 	}
 	
-	public ArrayList<VOContactRecord> getByContactID(int contact_id) throws SQLException
+	public ArrayList<MeshConfigContactRecord> getByContactID(int contact_id) throws SQLException
 	{
-		ArrayList<VOContactRecord> list = new ArrayList<VOContactRecord>();
+		ArrayList<MeshConfigContactRecord> list = new ArrayList<MeshConfigContactRecord>();
 		for(RecordBase rec : getCache()) {
-			VOContactRecord vcrec = (VOContactRecord)rec;
+			MeshConfigContactRecord vcrec = (MeshConfigContactRecord)rec;
 			if(vcrec.contact_id.compareTo(contact_id) == 0) list.add(vcrec);
 		}		
 		return list;
 	}
     public String getName()
     {
-    	return "Virtual Organization Contact";
+    	return "Mesh Config Test Contact";
     }
 	public String getHumanValue(String field_name, String value) throws NumberFormatException, SQLException
 	{
 		if(field_name.equals("vo_id")) {
-			VOModel model = new VOModel(context);
-			VORecord rec = model.get(Integer.parseInt(value));
+			MeshConfigTestModel model = new MeshConfigTestModel(context);
+			MeshConfigTestRecord rec = model.get(Integer.parseInt(value));
 			return value + " (" + rec.name + ")";
 		} else if(field_name.equals("contact_type_id")) {
 			ContactTypeModel model = new ContactTypeModel(context);
@@ -90,10 +89,12 @@ public class VOContactModel extends SmallTableModelBase<VOContactRecord> {
 		}
 		return value;
 	}
+	/*
 	public Boolean hasLogAccess(XPath xpath, Document doc) throws XPathExpressionException
 	{
-		Integer id = Integer.parseInt((String)xpath.evaluate("//Keys/Key[Name='vo_id']/Value", doc, XPathConstants.STRING));
-		VOModel model = new VOModel(context);
+		Integer id = Integer.parseInt((String)xpath.evaluate("//Keys/Key[Name='mesh_config_test_id']/Value", doc, XPathConstants.STRING));
+		MeshConfigTestModel model = new MeshConfigTestModel(context);
 		return model.canEdit(id);
 	}
+	*/
 }

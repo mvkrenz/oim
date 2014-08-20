@@ -20,24 +20,26 @@ import com.divrep.common.DivRepButton;
 import com.divrep.common.DivRepFormElement;
 import com.divrep.validator.DivRepIValidator;
 
-import edu.iu.grid.oim.model.db.record.ResourceRecord;
+import edu.iu.grid.oim.model.db.WLCGSiteModel;
+import edu.iu.grid.oim.model.db.record.WLCGEndpointRecord;
+import edu.iu.grid.oim.model.db.record.WLCGSiteRecord;
 
 //Used by MeshConfigServlet
 //this requires modified version of jquery autocomplete plugin, and client side code to make the input area to be autocomplete
-abstract public class ResourceServiceListEditor extends DivRepFormElement<ArrayList<ResourceServiceListEditor.ResourceDE>> {
-	static Logger log = Logger.getLogger(ResourceServiceListEditor.class);
+abstract public class WLCGResourceServiceListEditor extends DivRepFormElement<ArrayList<WLCGResourceServiceListEditor.ResourceDE>> {
+	static Logger log = Logger.getLogger(WLCGResourceServiceListEditor.class);
 	
 	private ArrayList<ResourceDE> selected;
 	private NewResourceDE newresource;
 	
 	public class ResourceInfo {
-		public ResourceRecord rec;
+		public WLCGEndpointRecord rec;
 		public String detail;
 	}
 	
 	//you need to override this
-	abstract protected ResourceInfo getDetailByResourceID(Integer id) throws SQLException;
-	abstract protected Collection<ResourceInfo> getAvailableResourceRecords() throws SQLException;
+	abstract protected ResourceInfo getDetailByEndpointKey(String key) throws SQLException;
+	abstract protected Collection<ResourceInfo> getAvailableEndpoints() throws SQLException;
 	
 	// Default max contact limits - can be overridden 
 	private int max = 32;
@@ -50,7 +52,7 @@ abstract public class ResourceServiceListEditor extends DivRepFormElement<ArrayL
 		newresource.setDisabled(b);
 	}
 	
-	public ResourceServiceListEditor(DivRep parent) {
+	public WLCGResourceServiceListEditor(DivRep parent) {
 		super(parent);
 		
 		selected = new ArrayList<ResourceDE>();
@@ -92,9 +94,9 @@ abstract public class ResourceServiceListEditor extends DivRepFormElement<ArrayL
 		
 		protected void onEvent(DivRepEvent e) {
 
-			int resource_id = Integer.parseInt((String)e.value);
+			String key = e.value; //TODO should I validate?
 			try {
-				ResourceInfo info = getDetailByResourceID(resource_id);
+				ResourceInfo info = getDetailByEndpointKey(key);
 				addSelected(info);
 				setFormModified();
 				
@@ -118,23 +120,23 @@ abstract public class ResourceServiceListEditor extends DivRepFormElement<ArrayL
 				//support both new & old version of autocomplete
 				String query = itrim(request.getParameter("q"));		
 				int limit = Integer.parseInt(request.getParameter("limit")); //only returns records upto requested limit
-				Collection<ResourceInfo> all = getAvailableResourceRecords();
-				HashMap<Integer, ResourceInfo> recs = new HashMap();
+				Collection<ResourceInfo> all = getAvailableEndpoints();
+				HashMap<String, ResourceInfo> recs = new HashMap();
 				ResourceInfo best_guess = null;
 				int best_guess_distance = 10000;
 				//filter records that matches the query upto limit
 				for(ResourceInfo info : all) {
 					if(recs.size() > limit) break;
 					
-					if(info.rec.name != null) {
-						String name = itrim(info.rec.name.toLowerCase());
+					if(info.rec.hostname != null) {
+						String name = itrim(info.rec.hostname.toLowerCase());
 						if(name.contains(query.toLowerCase())) {
-							recs.put(info.rec.id, info);
+							recs.put(info.rec.primary_key, info);
 							continue;
 						}
 						
 						//calculate levenshtein distance per token
-						for(String token : info.rec.name.split(" ")) {
+						for(String token : info.rec.hostname.split(" ")) {
 							int distance = StringUtils.getLevenshteinDistance(token, query);
 							if(best_guess_distance > distance) {
 								best_guess = info;
@@ -145,14 +147,7 @@ abstract public class ResourceServiceListEditor extends DivRepFormElement<ArrayL
 					if(info.detail != null) {
 						String name = info.detail.toLowerCase();
 						if(name.contains(query.toLowerCase())) {
-							recs.put(info.rec.id, info);
-							continue;
-						}
-					}
-					if(info.rec.fqdn != null) {
-						String name = info.rec.fqdn.toLowerCase();
-						if(name.contains(query.toLowerCase())) {
-							recs.put(info.rec.id, info);
+							recs.put(info.rec.primary_key, info);
 							continue;
 						}
 					}
@@ -160,15 +155,13 @@ abstract public class ResourceServiceListEditor extends DivRepFormElement<ArrayL
 				
 				//if no match was found, pick the closest match
 				if(recs.size() == 0) {
-					recs.put(best_guess.rec.id, best_guess);	
+					recs.put(best_guess.rec.primary_key, best_guess);	
 				}
 		
 				//remove resources that are already selected 
 				for(ResourceDE r : selected) {
-					recs.remove(r.info.rec.id);
+					recs.remove(r.info.rec.primary_key);
 				}
-	
-	
 				String out = "[";
 				boolean first = true;
 				for(ResourceInfo info: recs.values()) {
@@ -177,11 +170,7 @@ abstract public class ResourceServiceListEditor extends DivRepFormElement<ArrayL
 					} else {
 						out += ",";
 					}
-					String detail = info.detail;
-					if(detail == null) {
-						detail = info.rec.fqdn;
-					}
-					out += "{\"id\":"+info.rec.id+", \"name\":\""+itrim(info.rec.name)+"\", \"email\":\""+detail+"\"}\n";
+					out += "{\"id\": \""+info.rec.primary_key+"\", \"name\":\""+itrim(info.detail)+"\", \"email\":\""+info.rec.hostname+"\"}\n";
 				}
 				out += "]";
 				response.setContentType("text/javascript");
@@ -220,19 +209,18 @@ abstract public class ResourceServiceListEditor extends DivRepFormElement<ArrayL
 		public void render(PrintWriter out)
 		{
 			out.print("<div class=\"divrep_inline contact divrep_round\" id=\""+getNodeID()+"\">");
-			if(info.rec.name == null) {
+			if(info.detail == null) {
 				out.print("(No Name)");
 			} else {
-				out.print(StringEscapeUtils.escapeHtml(info.rec.name.trim()));
+				out.print(StringEscapeUtils.escapeHtml(info.detail.trim()));
 				if(info.detail != null) {
-					out.print(" <code>"+StringEscapeUtils.escapeHtml("<"+info.detail+">")+"</code>");
-				} else if(info.rec.fqdn != null) {
-					//use fqdn if no detail is given
-					out.print(" <code>"+StringEscapeUtils.escapeHtml("<"+info.rec.fqdn+">")+"</code>");
+					out.print(" <code>"+StringEscapeUtils.escapeHtml("<"+info.rec.hostname+">")+"</code>");
 				}
+				/*
 				if(info.rec.disable) {
 					out.print(" <span class=\"label label-important\">Disabled</span>");
 				}
+				*/
 			}
 			if(!isDisabled()) {
 				out.write(" ");

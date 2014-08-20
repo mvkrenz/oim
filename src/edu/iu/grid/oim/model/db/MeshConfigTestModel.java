@@ -11,7 +11,7 @@ import org.w3c.dom.Document;
 
 import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.record.MeshConfigGroupRecord;
-import edu.iu.grid.oim.model.db.record.MeshConfigMemberRecord;
+import edu.iu.grid.oim.model.db.record.MeshConfigOIMMemberRecord;
 import edu.iu.grid.oim.model.db.record.MeshConfigParamRecord;
 import edu.iu.grid.oim.model.db.record.MeshConfigTestRecord;
 import edu.iu.grid.oim.model.db.record.RecordBase;
