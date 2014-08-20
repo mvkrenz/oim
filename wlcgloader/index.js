@@ -67,14 +67,16 @@ function parseSite(insite) {
         case 'PRODUCTION_INFRASTRUCTURE':
         case 'CERTIFICATION_STATUS':
         case 'TIMEZONE':
-        case 'LATITUDE':
-        case 'LONGITUDE':
         case 'CSIRT_EMAIL':
         case 'EXTENSIONS':
         case 'SITE_IP':
         case 'SITE_IPV6':
             //just unwrap
             site[key] = value[0]; 
+            break;
+        case 'LATITUDE':
+        case 'LONGITUDE':
+            site[key] = parseFloat(value[0]);
             break;
         case 'DOMAIN':
             var name = value[0].DOMAIN_NAME[0];
@@ -85,6 +87,7 @@ function parseSite(insite) {
         }
     }
     current_sites.push(site.PRIMARY_KEY);
+    //console.dir(site);
     return site;
 }
 
@@ -193,24 +196,32 @@ function upsertSite(site, cb) {
 };
 */
 function upsertSite(site, cb) {
+    if(site.LONGITUDE == undefined) {
+        site.LONGITUDE = null;
+    }
+    if(site.LATITUDE == undefined) {
+        site.LATITUDE = null;
+    }
     con.query("SELECT * FROM wlcg_site WHERE primary_key = "+con.escape(site.PRIMARY_KEY), function(err, rows) {
+        if(err) throw err;
         if(rows.length == 0) {
             console.log("inserting new site "+site.PRIMARY_KEY);
+            //console.dir(site);
             con.query("INSERT INTO wlcg_site (primary_key, short_name, official_name, longitude, latitude, contact_email) VALUES ("+
                 con.escape(site.PRIMARY_KEY)+", "+
                 con.escape(site.SHORT_NAME)+", "+
                 con.escape(site.OFFICIAL_NAME)+", "+
-                con.escape(site.LONGITUDE)+", "+
-                con.escape(site.LATITUDE)+", "+
+                site.LONGITUDE+", "+
+                site.LATITUDE+", "+
                 con.escape(site.CONTACT_EMAIL)+
-            ") ON DUPLICATE KEY UPDATE latitude = latitude + 1", cb);
+            ")", cb);
         } else {
             //console.log("updating "+site.PRIMARY_KEY);
             con.query("UPDATE wlcg_site SET "+
                 " short_name = "+con.escape(site.SHORT_NAME)+", "+
                 " official_name = "+con.escape(site.OFFICIAL_NAME)+", "+
-                " longitude = "+con.escape(site.LONGITUDE)+", "+
-                " latitude = "+con.escape(site.LATITUDE)+", "+
+                " longitude = "+site.LONGITUDE+", "+
+                " latitude = "+site.LATITUDE+", "+
                 " contact_email = "+con.escape(site.CONTACT_EMAIL)+
             " WHERE primary_key = "+con.escape(site.PRIMARY_KEY), cb);
         }
@@ -219,44 +230,64 @@ function upsertSite(site, cb) {
 }
 
 function upsertEndpoint(ep, cb) {
-    //console.log("inserting ep:"+ep.HOSTNAME);
-    con.query("SELECT primary_key from wlcg_site WHERE short_name = "+con.escape(ep.SITENAME), function(err, rows) {
-        if(err) return cb(err);
-        if(rows.length !== 1) {
-            console.log("couldn't find site_id:"+ep.SITENAME+" on endpoint hostname: "+ep.HOSTNAME+" -- skipping this record");
-            cb();
-        } else {
-            var site_id = rows[0].primary_key;
-            var in_prod = (ep.IN_PRODUCTION == 'Y' ? 1 : 0);
-            con.query("SELECT * FROM wlcg_endpoint WHERE primary_key = "+con.escape(ep.PRIMARY_KEY), function(err, rows) {
-                if(rows.length == 0) {
-                    console.log("inserting new endpoint "+ep.PRIMARY_KEY);
-                    con.query("INSERT INTO wlcg_endpoint (primary_key, site_id, hostname, host_ip, service_type, in_production, roc_name, contact_email) VALUES ("+
-                        con.escape(ep.PRIMARY_KEY)+", "+
-                        con.escape(site_id)+", "+
-                        con.escape(ep.HOSTNAME)+", "+
-                        con.escape(ep.HOST_IP)+", "+
-                        con.escape(ep.SERVICE_TYPE)+", "+
-                        in_prod+", "+
-                        con.escape(ep.ROC_NAME)+", "+
-                        con.escape(ep.CONTACT_EMAIL)+
-                    ") ON DUPLICATE KEY UPDATE primary_key = primary_key", cb);
+    async.parallel({
+        site_id: function(next) {
+            con.query("SELECT primary_key from wlcg_site WHERE short_name = "+con.escape(ep.SITENAME), function(err, rows) {
+                if(err) return next(err);
+                if(rows.length !== 1) {
+                    console.log("couldn't find site_id:"+ep.SITENAME+" on endpoint hostname: "+ep.HOSTNAME);
+                    next(null, null);
                 } else {
-                    //console.log("updating endpoint "+ep.PRIMARY_KEY);
-                    con.query("UPDATE wlcg_endpoint SET "+
-                        " site_id = "+con.escape(site_id)+", "+
-                        " hostname = "+con.escape(ep.HOSTNAME)+", "+
-                        " host_ip = "+con.escape(ep.HOST_IP)+", "+
-                        " service_type = "+con.escape(ep.SERVICE_TYPE)+", "+
-                        " in_production = "+in_prod+", "+
-                        " roc_name = "+con.escape(ep.ROC_NAME)+", "+
-                        " contact_email = "+con.escape(ep.CONTACT_EMAIL)+
-                    " WHERE primary_key = "+con.escape(ep.PRIMARY_KEY), cb);
-                 }
+                    next(null, rows[0].primary_key);
+                }
             });
-        }
+        },
+        service_id: function(next) {
+            con.query("SELECT id from service WHERE name = "+con.escape(ep.SERVICE_TYPE), function(err, rows) {
+                if(err) return next(err);
+                if(rows.length !== 1) {
+                    //console.log("couldn't find service_id for :"+ep.SERVICE_TYPE+" on endpoint hostname: "+ep.HOSTNAME);
+                    next(null, null); //set it to null
+                } else {
+                    next(null, rows[0].id);
+                }
+            });
+        },
+    }, function(err, fkeys) {
+        if(err) return cd(err);
+        if(fkeys.site_id == null) return cb(); //skip records with unknown site_id.. (marian says this is a bug?)
+        var in_prod = (ep.IN_PRODUCTION == 'Y' ? 1 : 0);
+        con.query("SELECT * FROM wlcg_endpoint WHERE primary_key = "+con.escape(ep.PRIMARY_KEY), function(err, rows) {
+            if(rows.length == 0) {
+                console.log("inserting new endpoint "+ep.PRIMARY_KEY);
+                con.query("INSERT INTO wlcg_endpoint (primary_key, site_id, hostname, host_ip, service_type, service_id, in_production, roc_name, contact_email) VALUES ("+
+                    con.escape(ep.PRIMARY_KEY)+", "+
+                    con.escape(fkeys.site_id)+", "+
+                    con.escape(ep.HOSTNAME)+", "+
+                    con.escape(ep.HOST_IP)+", "+
+                    con.escape(ep.SERVICE_TYPE)+", "+
+                    fkeys.service_id+", "+
+                    in_prod+", "+
+                    con.escape(ep.ROC_NAME)+", "+
+                    con.escape(ep.CONTACT_EMAIL)+
+                ")", cb);
+            } else {
+                //console.log("updating endpoint "+ep.PRIMARY_KEY);
+                con.query("UPDATE wlcg_endpoint SET "+
+                    " site_id = "+con.escape(fkeys.site_id)+", "+
+                    " hostname = "+con.escape(ep.HOSTNAME)+", "+
+                    " host_ip = "+con.escape(ep.HOST_IP)+", "+
+                    " service_type = "+con.escape(ep.SERVICE_TYPE)+", "+
+                    " service_id = "+fkeys.service_id+", "+
+                    " in_production = "+in_prod+", "+
+                    " roc_name = "+con.escape(ep.ROC_NAME)+", "+
+                    " contact_email = "+con.escape(ep.CONTACT_EMAIL)+
+                " WHERE primary_key = "+con.escape(ep.PRIMARY_KEY), cb);
+             }
+        });
     });
 }
+
 async.series([
     /*
     function(done) {
