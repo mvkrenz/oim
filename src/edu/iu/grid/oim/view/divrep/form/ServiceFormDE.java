@@ -41,7 +41,6 @@ public class ServiceFormDE extends DivRepForm
 	private DivRepTextBox description;
 	private DivRepTextBox port;
 	private DivRepSelectBox service_group_id;
-	//private DivRepTextBox type; //TODO - turn this into selectbox instead
 	private MetricService metric_service;
 	
 	public ServiceFormDE(UserContext _context, ServiceRecord rec, String origin_url) throws AuthorizationException, SQLException

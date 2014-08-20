@@ -25,12 +25,13 @@ import edu.iu.grid.oim.model.db.VOModel;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
 import edu.iu.grid.oim.view.divrep.BootDialogForm;
+import edu.iu.grid.oim.view.divrep.VOSelector;
 
 //assume user is logged  in
 public class GridAdminRequestForm extends BootDialogForm {
     static Logger log = Logger.getLogger(CertificateRequestUserModel.class);  
     
-    private DivRepSelectBox vo;
+    private VOSelector vo;
 	private DivRepTextArea desc;
 	private UserContext context;
 	
@@ -49,9 +50,8 @@ public class GridAdminRequestForm extends BootDialogForm {
 		desc.setHeight(260);
 		desc.setWidth(450);
 		desc.setRequired(true);
-		
+		/*
 		VOModel vo_model = new VOModel(context);
-		//VOContactModel model = new VOContactModel(context);
 		LinkedHashMap<Integer, String> keyvalues = new LinkedHashMap();
 		try {
 			ArrayList<VORecord> recs = vo_model.getAll();
@@ -72,6 +72,11 @@ public class GridAdminRequestForm extends BootDialogForm {
 		} catch (SQLException e) {
 			log.error("Failed to load vo list while constructing certificat request form", e);
 		}
+		*/
+		new DivRepStaticContent(this, "<p class=\"help-block\">Please select VO that requested domain is part of.</p>");
+		vo = new VOSelector(this, context);
+		vo.setNullLabel("(No specific VO)");
+		vo.setLabel(null);
 	}
 	
 	@Override

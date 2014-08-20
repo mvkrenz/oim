@@ -60,7 +60,6 @@ public class ResourceEditServlet extends ServletBase implements Servlet {
 			int resource_id = Integer.parseInt(resource_id_str);
 			ResourceModel model = new ResourceModel(context);
 			if(!model.canEdit(resource_id)) {
-				//throw new AuthorizationException("You can't edit this resource ID:" + resource_id_str);
 				response.sendRedirect("resource?id="+resource_id);
 			}
 			try {
@@ -87,7 +86,6 @@ public class ResourceEditServlet extends ServletBase implements Servlet {
 		
 		
 		DivRepForm form;
-		//String origin_url = StaticConfig.getApplicationBase()+"/"+parent_page;
 		try {
 			form = new ResourceFormDE(context, rec, parent_page);
 		} catch (SQLException e) {

@@ -24,7 +24,8 @@ public class CertificateServlet extends ServletBase  {
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		UserContext context = new UserContext(request);
-		Authorization auth = context.getAuthorization();
+		//Authorization auth = context.getAuthorization();
+		
 		BootMenuView menuview = new BootMenuView(context, "certificate");
 		BootPage page = new BootPage(context, menuview, createContent(context), null);
 		page.render(response.getWriter());		

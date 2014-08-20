@@ -156,65 +156,9 @@ public class DigicertCertificateSigner implements ICertificateSigner {
 	
 	private HttpClient createHttpClient() {
 		HttpClient cl = new HttpClient();
-		//cl.getParams().setParameter("http.protocol.single-cookie-header", true);
-		//cl.getParams().setCookiePolicy(CookiePolicy.BROWSER_COMPATIBILITY);
-		//cl.getHttpConnectionManager().getParams().setConnectionTimeout(1000*10);
 	    cl.getParams().setParameter("http.useragent", "OIM (OSG Information Management System)");
-	    //cl.getParams().setParameter("http.contenttype", "application/x-www-form-urlencoded")
-	    
 	    return cl;
 	}
-	/*
-	//used to check if certificate has been issued
-	private String getDetail_under_construction(String order_id) throws DigicertCPException {
-		
-		HttpClient cl = createHttpClient();
-		
-		PostMethod post = new PostMethod("https://www.digicert.com/enterprise/api/?action=grid_certificate_details");
-		post.addParameter("customer_name", StaticConfig.conf.getProperty("digicert.customer_name"));
-		post.setParameter("customer_api_key", StaticConfig.conf.getProperty("digicert.customer_api_key"));
-		post.setParameter("response_type", "xml");
-		post.setParameter("validity", "1"); //security by obscurity -- from the DigiCert dev team
-		post.setParameter("id", order_id);
-
-		post.getParams().setCookiePolicy(CookiePolicy.IGNORE_COOKIES);
-		 
-		try {
-			cl.executeMethod(post);
-			Document ret = parseXML(post.getResponseBodyAsStream());
-			NodeList result_nl = ret.getElementsByTagName("result");
-			Element result = (Element)result_nl.item(0);
-			if(result.getTextContent().equals("failure")) {
-				//System.out.println("failed to execute grid_certificate_details request");
-				NodeList error_code_nl = ret.getElementsByTagName("error_code");
-				StringBuffer errors  = new StringBuffer();
-				for(int i = 0;i < error_code_nl.getLength(); ++i) {
-					Element error_code = (Element)error_code_nl.item(i);
-					Element code = (Element)error_code.getElementsByTagName("code").item(0);
-					Element description = (Element)error_code.getElementsByTagName("description").item(0);
-					errors.append(" Error while accessing: grid_certificate_details");
-					errors.append(" Code:" + code.getTextContent());
-					errors.append(" Description:" + description.getTextContent());
-					errors.append("\n");
-				}
-				throw new DigicertCPException("Request failed for grid_certificate_details\n" + errors.toString());
-			} else if(result.getTextContent().equals("success")) {
-				log.debug("Successfully retrieved certificate detail for " + order_id);
-				return "success";
-			}
-			
-			throw new DigicertCPException("Unknown return code from grid_certificate_details: " +result.getTextContent());	
-		} catch (HttpException e) {
-			throw new DigicertCPException("Failed to make grid_certificate_details request", e);
-		} catch (IOException e) {
-			throw new DigicertCPException("Failed to make grid_certificate_details request", e);
-		} catch (ParserConfigurationException e) {
-			throw new DigicertCPException("Failed to parse returned String from grid_certificate_details", e);
-		} catch (SAXException e) {
-			throw new DigicertCPException("Failed to parse returned String from grid_certificate_details", e);
-		}
-	}
-	*/
 	
 	private Document parseXML(InputStream in) throws ParserConfigurationException, SAXException, IOException {
 		DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
@@ -297,7 +241,7 @@ public class DigicertCertificateSigner implements ICertificateSigner {
 		post.setParameter("response_type", "xml");
 		post.setParameter("validity", "1"); //security by obscurity -- from the DigiCert dev team
 		post.setParameter("common_name", cn);
-		//post.setParameter("sans", "a.digicert.com,b.digicert.com,c.digicert.com");
+
 		if(service_name != null) {
 			post.setParameter("service_name", service_name);
 		}

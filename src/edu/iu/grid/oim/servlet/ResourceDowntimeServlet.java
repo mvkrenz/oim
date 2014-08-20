@@ -118,9 +118,6 @@ public class ResourceDowntimeServlet extends ServletBase implements Servlet {
 			contentview.add(new HtmlView("</tbody></table>"));	
 		}
 		
-
-		//contentview.add(new DivRepWrapper(remove_dialog));
-		
 		return contentview;
 	}
 	

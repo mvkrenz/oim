@@ -109,7 +109,6 @@ public class SCFormDE extends DivRepForm
 		external_assignment_id = new DivRepTextBox(this);
 		external_assignment_id.setLabel("External Assignment ID");
 		external_assignment_id.setValue(rec.external_assignment_id);
-
 		
 		new DivRepStaticContent(this, "<h2>Contact Information</h2>");
 		HashMap<Integer/*contact_type_id*/, ArrayList<SCContactRecord>> scclist_grouped = null;
@@ -119,17 +118,6 @@ public class SCFormDE extends DivRepForm
 			scclist_grouped = sccmodel.groupByContactTypeID(scclist);
 		} else {
 			scclist_grouped = new HashMap<Integer, ArrayList<SCContactRecord>>();
-			
-			/*
-			//set user's contact as submitter
-			ArrayList<SCContactRecord> list = new ArrayList<SCContactRecord>();
-			SCContactRecord submitter = new SCContactRecord();
-			submitter.contact_id = auth.getContactID();
-			submitter.contact_rank_id = 1;//primary
-			submitter.contact_type_id = 1;//submitter
-			list.add(submitter);
-			scclist_grouped.put(1, list);
-			*/
 			
 			//prepopulate submitter
 			ArrayList<SCContactRecord> submitter_list = new ArrayList<SCContactRecord>();
