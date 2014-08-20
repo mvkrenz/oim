@@ -7,8 +7,8 @@ public class MeshConfigTestRecord extends RecordBase {
 
 	@Key public Integer id;
 	
+	public Integer mesh_config_id;
 	public String name;
-	public Integer vo_id;
 	public Boolean disable;
 	
 	public Integer service_id; //owamp, bwctl, etc.

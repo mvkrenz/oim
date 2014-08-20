@@ -11,26 +11,26 @@ import org.w3c.dom.Document;
 
 import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.record.MeshConfigGroupRecord;
-import edu.iu.grid.oim.model.db.record.MeshConfigMemberRecord;
+import edu.iu.grid.oim.model.db.record.MeshConfigOIMMemberRecord;
 import edu.iu.grid.oim.model.db.record.RecordBase;
 import edu.iu.grid.oim.model.db.record.ResourceRecord;
 import edu.iu.grid.oim.model.db.record.ServiceRecord;
 
-public class MeshConfigMemberModel extends SmallTableModelBase<MeshConfigMemberRecord>
+public class MeshConfigOIMMemberModel extends SmallTableModelBase<MeshConfigOIMMemberRecord>
 {	
-    static Logger log = Logger.getLogger(MeshConfigMemberModel.class);  
+    static Logger log = Logger.getLogger(MeshConfigOIMMemberModel.class);  
 
-    public MeshConfigMemberModel(UserContext context) 
+    public MeshConfigOIMMemberModel(UserContext context) 
     {
     	super(context, "mesh_config_member");
     }
-    MeshConfigMemberRecord createRecord() throws SQLException
+    MeshConfigOIMMemberRecord createRecord() throws SQLException
 	{
-		return new MeshConfigMemberRecord();
+		return new MeshConfigOIMMemberRecord();
 	}
     public String getName()
     {
-    	return "Mesh Config Group Members";
+    	return "Mesh Config OIM Group Members";
     }
 	public String getHumanValue(String field_name, String value) throws NumberFormatException, SQLException
 	{
@@ -73,18 +73,18 @@ public class MeshConfigMemberModel extends SmallTableModelBase<MeshConfigMemberR
 		return false;
 	}
 	*/
-	public ArrayList<MeshConfigMemberRecord> getAll() throws SQLException
+	public ArrayList<MeshConfigOIMMemberRecord> getAll() throws SQLException
 	{
-		ArrayList<MeshConfigMemberRecord> list = new ArrayList<MeshConfigMemberRecord>();
+		ArrayList<MeshConfigOIMMemberRecord> list = new ArrayList<MeshConfigOIMMemberRecord>();
 		for(RecordBase it : getCache()) {
-			list.add((MeshConfigMemberRecord)it);
+			list.add((MeshConfigOIMMemberRecord)it);
 		}
 		return list;
 	}
-	public ArrayList<MeshConfigMemberRecord> getByGroupID(Integer id) throws SQLException {
-		ArrayList<MeshConfigMemberRecord> list = new ArrayList<MeshConfigMemberRecord>();
+	public ArrayList<MeshConfigOIMMemberRecord> getByGroupID(Integer id) throws SQLException {
+		ArrayList<MeshConfigOIMMemberRecord> list = new ArrayList<MeshConfigOIMMemberRecord>();
 		for(RecordBase it : getCache()) {
-			MeshConfigMemberRecord rec = (MeshConfigMemberRecord)it;
+			MeshConfigOIMMemberRecord rec = (MeshConfigOIMMemberRecord)it;
 			if(rec.group_id.equals(id)) {
 				list.add(rec);
 			}

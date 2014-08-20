@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 
 import org.apache.log4j.Logger;
@@ -22,31 +23,48 @@ import com.divrep.common.DivRepStaticContent;
 import com.divrep.common.DivRepTextArea;
 import com.divrep.common.DivRepTextBox;
 
+import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.AuthorizationException;
+import edu.iu.grid.oim.model.ContactRank;
 import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.ConfigModel;
+import edu.iu.grid.oim.model.db.ContactModel;
+import edu.iu.grid.oim.model.db.ContactTypeModel;
 import edu.iu.grid.oim.model.db.MeshConfigGroupModel;
-import edu.iu.grid.oim.model.db.MeshConfigMemberModel;
+import edu.iu.grid.oim.model.db.MeshConfigModel;
+import edu.iu.grid.oim.model.db.MeshConfigOIMMemberModel;
 import edu.iu.grid.oim.model.db.MeshConfigParamModel;
+import edu.iu.grid.oim.model.db.MeshConfigContactModel;
 import edu.iu.grid.oim.model.db.MeshConfigTestModel;
+import edu.iu.grid.oim.model.db.MeshConfigWLCGMemberModel;
 import edu.iu.grid.oim.model.db.ResourceModel;
 import edu.iu.grid.oim.model.db.ResourceServiceDetailModel;
 import edu.iu.grid.oim.model.db.ResourceServiceModel;
 import edu.iu.grid.oim.model.db.ServiceModel;
 import edu.iu.grid.oim.model.db.ConfigModel.Config;
+import edu.iu.grid.oim.model.db.WLCGEndpointModel;
+import edu.iu.grid.oim.model.db.WLCGSiteModel;
+import edu.iu.grid.oim.model.db.record.ContactRecord;
+import edu.iu.grid.oim.model.db.record.ContactTypeRecord;
 import edu.iu.grid.oim.model.db.record.MeshConfigGroupRecord;
-import edu.iu.grid.oim.model.db.record.MeshConfigMemberRecord;
+import edu.iu.grid.oim.model.db.record.MeshConfigOIMMemberRecord;
 import edu.iu.grid.oim.model.db.record.MeshConfigParamRecord;
+import edu.iu.grid.oim.model.db.record.MeshConfigContactRecord;
+import edu.iu.grid.oim.model.db.record.MeshConfigRecord;
 import edu.iu.grid.oim.model.db.record.MeshConfigTestRecord;
+import edu.iu.grid.oim.model.db.record.MeshConfigWLCGMemberRecord;
 import edu.iu.grid.oim.model.db.record.ResourceRecord;
 import edu.iu.grid.oim.model.db.record.ResourceServiceDetailRecord;
 import edu.iu.grid.oim.model.db.record.ResourceServiceRecord;
 import edu.iu.grid.oim.model.db.record.ServiceRecord;
+import edu.iu.grid.oim.model.db.record.WLCGEndpointRecord;
+import edu.iu.grid.oim.model.db.record.WLCGSiteRecord;
 import edu.iu.grid.oim.view.BootTabView;
 import edu.iu.grid.oim.view.HtmlFileView;
 import edu.iu.grid.oim.view.IView;
-import edu.iu.grid.oim.view.divrep.ResourceServiceListEditor;
-import edu.iu.grid.oim.view.divrep.VOSelector;
+import edu.iu.grid.oim.view.divrep.ContactEditor;
+import edu.iu.grid.oim.view.divrep.OIMResourceServiceListEditor;
+import edu.iu.grid.oim.view.divrep.WLCGResourceServiceListEditor;
 
 public class MeshConfigFormDE extends DivRepForm {
     static Logger log = Logger.getLogger(MeshConfigFormDE.class); 
@@ -58,6 +76,16 @@ public class MeshConfigFormDE extends DivRepForm {
 	GroupsDiv groupsdiv;
 	ParamsDiv paramsdiv;
 	TestsDiv testsdiv;
+	ConfigsDiv configsdiv;
+	
+	static public ArrayList<ContactTypeRecord.Info> ContactTypes;
+	static {
+		ContactTypes = new ArrayList<ContactTypeRecord.Info>();
+		ContactTypes.add(new ContactTypeRecord.Info(1, "A contact who has registered this mesh config"));
+		ContactTypes.add(new ContactTypeRecord.Info(3, "Contacts who should be listed as mesh administrators."));
+		//ContactTypes.add(new ContactTypeRecord.Info(2, "Security notifications sent out by the OSG security team are sent to primary and secondary virtual organization security contacts"));
+		//ContactTypes.add(new ContactTypeRecord.Info(5, "Contacts who do not fall under any of the above types."));
+	}
 
 	class TestDiv extends DivRepFormElement {
 		
@@ -66,9 +94,10 @@ public class MeshConfigFormDE extends DivRepForm {
 		Integer id;
 		
 		DivRepTextBox name;
-		VOSelector vo;
+		//VOSelector vo;
 		DivRepCheckBox disable;
 		
+		DivRepSelectBox config;
 		DivRepSelectBox service;
 		DivRepSelectBox type;
 		DivRepSelectBox param;
@@ -77,7 +106,7 @@ public class MeshConfigFormDE extends DivRepForm {
 
 		protected TestDiv(DivRep parent, MeshConfigTestRecord rec) {
 			super(parent);
-			
+		
 			mesh_types = new LinkedHashMap();
 			mesh_types.put(0, "DISJOINT");
 			mesh_types.put(1, "MESH");
@@ -86,10 +115,11 @@ public class MeshConfigFormDE extends DivRepForm {
 			name = new DivRepTextBox(this);
 			name.setLabel("Name");
 			name.setRequired(true);
-	
+			name.setSampleValue("Intercloud OWAMP Mesh Test");
+			/*
 			vo = new VOSelector(this, context);
 			vo.setRequired(true);
-			
+			*/
 			disable = new DivRepCheckBox(this);
 			disable.setLabel("Disable");
 			
@@ -125,26 +155,29 @@ public class MeshConfigFormDE extends DivRepForm {
 			});
 			
 			group_a = new DivRepSelectBox(this);
-			group_a.setLabel("Group A");
+			group_a.setLabel("Host Group A");
 			
 			group_b = new DivRepSelectBox(this);
-			group_b.setLabel("Group B");
+			group_b.setLabel("Host Group B");
 			
 			param = new DivRepSelectBox(this);
 			param.setLabel("Parameters");
 			param.setRequired(true);
 			
+			config = new DivRepSelectBox(this);
+			config.setLabel("Configuration to be part of");
+			config.setRequired(true);
 			
 			if(rec != null) {
 				id = rec.id;
 				name.setValue(rec.name);
-				vo.setValue(rec.vo_id);
 				disable.setValue(rec.disable);
 				service.setValue(rec.service_id);
 				type.setValue(meshTypeStringToInteger(rec.type));
 				param.setValue(rec.param_id);
 				group_a.setValue(rec.groupa_id);
 				group_b.setValue(rec.groupb_id);
+				config.setValue(rec.mesh_config_id);
 			} else {
 				//come up with a new ID
 				Integer nextid = 0;
@@ -155,11 +188,11 @@ public class MeshConfigFormDE extends DivRepForm {
 				}
 				id = nextid;
 			}
-			
+						
 			load_keyvalues();
 			showhide();
 		}
-		
+
 		private Integer meshTypeStringToInteger(String type) {
 			for(Integer id : mesh_types.keySet()) {
 				String mtype = mesh_types.get(id);
@@ -206,11 +239,13 @@ public class MeshConfigFormDE extends DivRepForm {
 		@Override
 		public void render(PrintWriter out) {
 			out.write("<div id=\""+getNodeID()+"\" class=\"well\">");
+			
+			config.render(out);
+			out.write("<hr>");
 
 			out.write("<div class=\"row-fluid\">");
 			out.write("<div class=\"span4\">");
-				
-				vo.render(out);
+				service.render(out);
 			out.write("</div>");
 			out.write("<div class=\"span8\">");
 				name.render(out);
@@ -220,10 +255,10 @@ public class MeshConfigFormDE extends DivRepForm {
 			//vo / service / params
 			out.write("<div class=\"row-fluid\">");
 			out.write("<div class=\"span4\">");
-				service.render(out);
+				param.render(out);
 			out.write("</div>");
 			out.write("<div class=\"span8\">");
-				param.render(out);
+				//empty?
 			out.write("</div>");
 			out.write("</div>");
 
@@ -239,11 +274,12 @@ public class MeshConfigFormDE extends DivRepForm {
 				group_b.render(out);			
 			out.write("</div>");//sapn4
 			out.write("</div>");//row-fluid
-			
+		
 			disable.render(out);
 			
 			out.write("</div>");
 		}
+	
 
 		@Override
 		protected void onEvent(DivRepEvent e) {
@@ -251,6 +287,12 @@ public class MeshConfigFormDE extends DivRepForm {
 		}
 
 		public void load_keyvalues() {
+			LinkedHashMap<Integer, String> config_keyvalues = new LinkedHashMap();
+			for(ConfigDiv config : configsdiv.configs) {
+				config_keyvalues.put(config.id, config.name.getValue());
+			}	
+			config.setValues(config_keyvalues);	
+			
 			LinkedHashMap<Integer, String> groups_keyvalues = new LinkedHashMap();
 			for(GroupDiv group : groupsdiv.groups) {
 				Integer service_id = group.service.getValue();
@@ -270,6 +312,185 @@ public class MeshConfigFormDE extends DivRepForm {
 			}	
 			param.setValues(param_keyvalues);	
 		}		
+	}
+	
+	class ConfigDiv extends DivRepFormElement {
+		
+		private HashMap<Integer, ContactEditor> contact_editors = new HashMap();
+
+		Integer id;
+		DivRepTextBox name;
+		DivRepTextBox desc;
+		DivRepCheckBox disable;
+
+		protected ConfigDiv(DivRep parent, MeshConfigRecord rec) {
+			super(parent);
+					
+			name = new DivRepTextBox(this);
+			name.setLabel("Name");
+			name.setSampleValue("us-atlas");
+			name.setRequired(true);
+			name.addEventListener(new DivRepEventListener() {
+				@Override
+				public void handleEvent(DivRepEvent e) {
+					testsdiv.load_keyvalues();
+					testsdiv.redraw();
+				}
+			});
+			
+			desc = new DivRepTextBox(this);
+			desc.setLabel("Description");
+			desc.setSampleValue("USATLAS Mesh Config");
+			desc.setRequired(true);
+			desc.addEventListener(new DivRepEventListener() {
+				@Override
+				public void handleEvent(DivRepEvent e) {
+					testsdiv.load_keyvalues();
+					testsdiv.redraw();
+				}
+			});
+			
+			disable = new DivRepCheckBox(this);
+			disable.setLabel("Disable");
+			
+			if(rec != null) {
+				id = rec.id;
+				name.setValue(rec.name);
+				disable.setValue(rec.disable);
+				desc.setValue(rec.desc);
+			} else {
+				//come up with a new ID
+				Integer nextid = 0;
+				for(TestDiv div : testsdiv.tests) {
+					if(nextid <= div.id) {
+						nextid = div.id+1;
+					}
+				}
+				id = nextid;
+			}
+			
+			//contact editors
+			try {
+				Authorization auth = context.getAuthorization();
+				HashMap<Integer/*contact_type_id*/, ArrayList<MeshConfigContactRecord>> voclist_grouped = null;
+				if(rec != null) {
+					MeshConfigContactModel vocmodel = new MeshConfigContactModel(context);
+					ArrayList<MeshConfigContactRecord> contactlist = vocmodel.getByMeshConfigID(rec.id);
+					voclist_grouped = vocmodel.groupByContactTypeID(contactlist);
+				} else {
+					//set user's contact as submitter
+					voclist_grouped = new HashMap<Integer, ArrayList<MeshConfigContactRecord>>();
+	
+					ArrayList<MeshConfigContactRecord> submitter_list = new ArrayList<MeshConfigContactRecord>();
+					MeshConfigContactRecord submitter = new MeshConfigContactRecord();
+					submitter.contact_id = auth.getContact().id;
+					submitter.contact_rank_id = 1;//primary
+					submitter.contact_type_id = 1;//submitter
+					submitter_list.add(submitter);
+					voclist_grouped.put(1/*submitter*/, submitter_list);
+					
+					ArrayList<MeshConfigContactRecord> admin_contact_list = new ArrayList<MeshConfigContactRecord>();
+					MeshConfigContactRecord primary_admin = new MeshConfigContactRecord();
+					primary_admin.contact_id = auth.getContact().id;
+					primary_admin.contact_rank_id = 1;//primary
+					primary_admin.contact_type_id = 3;//admin
+					admin_contact_list.add(primary_admin);
+					voclist_grouped.put(3/*admin*/, admin_contact_list);
+				}
+				//set required flags
+				ContactTypeModel ctmodel = new ContactTypeModel(context);
+				for(ContactTypeRecord.Info contact_type : ContactTypes) {
+					ContactTypeRecord trec = ctmodel.get(contact_type.id);
+					ContactEditor editor = createContactEditor(voclist_grouped, trec);
+					switch(contact_type.id) {
+					case 1://submitter
+						if(!auth.allows("admin")) {
+							editor.setDisabled(true);
+						}
+						editor.setMinContacts(ContactRank.Primary, 1); //required
+						break;
+					case 3://admin
+						editor.setMinContacts(ContactRank.Primary, 1); //required
+						break;
+					}
+					contact_editors.put(contact_type.id, editor);
+			
+				}
+			} catch (SQLException e1) {
+				log.error("Failed to construct contact editor inside mesh config editor");
+			}
+		}
+		
+		private ContactEditor createContactEditor(HashMap<Integer, ArrayList<MeshConfigContactRecord>> voclist, ContactTypeRecord ctrec) throws SQLException
+		{
+			ContactModel pmodel = new ContactModel(context);		
+			ContactEditor editor = new ContactEditor(this, pmodel, ctrec.allow_secondary, ctrec.allow_tertiary);
+			
+			//if provided, populate currently selected contacts
+			if(voclist != null) {
+				ArrayList<MeshConfigContactRecord> clist = voclist.get(ctrec.id);
+				if(clist != null) {
+					for(MeshConfigContactRecord rec : clist) {
+						ContactRecord keyrec = new ContactRecord();
+						keyrec.id = rec.contact_id;
+						ContactRecord person = pmodel.get(keyrec);
+						editor.addSelected(person, rec.contact_rank_id);
+					}
+				}
+			}
+			return editor;
+		}
+	
+		@Override
+		public void render(PrintWriter out) {
+			out.write("<div id=\""+getNodeID()+"\" class=\"well\">");
+
+			name.render(out);
+			desc.render(out);
+			
+			out.write("<h2>Contact Information</h2>");
+			ContactTypeModel ctmodel = new ContactTypeModel(context);
+			for(Integer type_id : contact_editors.keySet()) 
+			{
+				//look up contact type label
+				try {
+					ContactTypeRecord trec = ctmodel.get(type_id);
+					out.write("<h3>"+trec.name+"</h3>");
+				} catch (SQLException e) {
+					log.error("failed to find contact type");
+				}
+				ContactEditor editor = contact_editors.get(type_id);
+				editor.render(out);
+			}
+			disable.render(out);
+			out.write("</div>");
+		}
+		
+		private ArrayList<MeshConfigContactRecord> getContactRecordsFromEditor()
+		{
+			ArrayList<MeshConfigContactRecord> list = new ArrayList();
+			for(Integer type_id : contact_editors.keySet()) 
+			{
+				ContactEditor editor = contact_editors.get(type_id);
+				HashMap<ContactRecord, ContactRank> contacts = editor.getContactRecords();
+				for(ContactRecord contact : contacts.keySet()) {
+					MeshConfigContactRecord rec = new MeshConfigContactRecord();
+					ContactRank rank = contacts.get(contact);
+					rec.mesh_config_id = id;
+					rec.contact_id = contact.id;
+					rec.contact_type_id = type_id;
+					rec.contact_rank_id = rank.id;
+					list.add(rec);
+				}
+			}
+			
+			return list;
+		}
+
+		@Override
+		protected void onEvent(DivRepEvent e) {
+			// TODO Auto-generated method stub
+		}
 	}
 	
 	class ParamDiv extends DivRepFormElement {
@@ -459,10 +680,69 @@ public class MeshConfigFormDE extends DivRepForm {
 			// TODO Auto-generated method stub
 		}
 	}
+
+	class ConfigsDiv extends DivRepFormElement {
+		DivRepButton add;
+		ArrayList<ConfigDiv> configs = new ArrayList<ConfigDiv>();
+		
+		protected ConfigsDiv(DivRep parent) {
+			super(parent);
+			
+			add = new DivRepButton(this, "Add New Configuration File") {
+				protected void onClick(DivRepEvent e) {
+					configs.add(new ConfigDiv(ConfigsDiv.this, null));
+					ConfigsDiv.this.redraw();
+				}				
+			};
+			add.addClass("btn");
+
+			//loading configs
+			MeshConfigModel model = new MeshConfigModel(context);
+			try {
+				for(MeshConfigRecord rec : model.getAll()) {
+					ConfigDiv div = new ConfigDiv(this, rec);
+					configs.add(div);
+				}
+			} catch (SQLException e) {
+				log.error("failed to load meshconfig", e);
+			}
+		}
+
+		@Override
+		public void render(PrintWriter out) {
+			out.write("<div id=\""+getNodeID()+"\">");
+			out.write("<div class=\"row-fluid\">");
+			
+			out.write("<div class=\"span9\">");
+
+			for(ConfigDiv div: configs) {
+				div.render(out);
+			}
+			
+			out.write("<p>");
+			add.render(out);
+			out.write("</p>");
+			
+			out.write("</div>");
+			
+			out.write("<div class=\"span3\">");
+			//HtmlFileView view = new HtmlFileView(getClass().getResourceAsStream("meshtype.html"));
+			//view.render(out);
+			out.write("</div>");
+			
+			out.write("</div>"); //row-fluid
+			
+			out.write("</div>");
+		}
+
+		@Override
+		protected void onEvent(DivRepEvent e) {
+			// TODO Auto-generated method stub
+		}
+	}
 	
 	class TestsDiv extends DivRepFormElement {
 		DivRepButton add;
-
 		ArrayList<TestDiv> tests = new ArrayList<TestDiv>();
 		
 		protected TestsDiv(DivRep parent) {
@@ -532,7 +812,8 @@ public class MeshConfigFormDE extends DivRepForm {
 		DivRepTextBox name;
 		DivRepSelectBox service;
 		Integer previous_service_id;
-		ResourceServiceListEditor resources;
+		OIMResourceServiceListEditor oim_resources;
+		WLCGResourceServiceListEditor wlcg_resources;
 		
 		protected GroupDiv(DivRep parent, MeshConfigGroupRecord rec) {
 			super(parent);
@@ -540,6 +821,7 @@ public class MeshConfigFormDE extends DivRepForm {
 			name = new DivRepTextBox(this);
 			name.setLabel("Group Name");
 			name.setRequired(true);
+			name.setSampleValue("USATLAS Latency hosts");
 			name.addEventListener(new DivRepEventListener() {
 				@Override
 				public void handleEvent(DivRepEvent e) {
@@ -572,7 +854,8 @@ public class MeshConfigFormDE extends DivRepForm {
 					}
 					previous_service_id = service.getValue();
 
-					resources.clear();
+					oim_resources.clear();
+					wlcg_resources.clear();
 					
 					testsdiv.load_keyvalues();
 					testsdiv.redraw();
@@ -583,9 +866,9 @@ public class MeshConfigFormDE extends DivRepForm {
 			final ResourceModel rmodel = new ResourceModel(context);
 			final ResourceServiceModel smodel = new ResourceServiceModel(context);
 			final ResourceServiceDetailModel dmodel = new ResourceServiceDetailModel(context);
-			resources = new ResourceServiceListEditor(this) {
-				protected ResourceServiceListEditor.ResourceInfo getDetailByResourceID(Integer id) throws SQLException {
-					ResourceServiceListEditor.ResourceInfo info = new  ResourceServiceListEditor.ResourceInfo();
+			oim_resources = new OIMResourceServiceListEditor(this) {
+				protected OIMResourceServiceListEditor.ResourceInfo getDetailByResourceID(Integer id) throws SQLException {
+					OIMResourceServiceListEditor.ResourceInfo info = new  OIMResourceServiceListEditor.ResourceInfo();
 					info.rec = rmodel.get(id);
 					if(service.getValue() != null) {
 						ResourceServiceDetailRecord detail = dmodel.get(service.getValue(), id, "endpoint");
@@ -595,15 +878,15 @@ public class MeshConfigFormDE extends DivRepForm {
 					}
 					return info;
 				}
-				protected Collection<ResourceServiceListEditor.ResourceInfo> getAvailableResourceRecords() throws SQLException {
-					ArrayList<ResourceServiceListEditor.ResourceInfo> recs = new ArrayList<ResourceServiceListEditor.ResourceInfo>();
+				protected Collection<OIMResourceServiceListEditor.ResourceInfo> getAvailableResourceRecords() throws SQLException {
+					ArrayList<OIMResourceServiceListEditor.ResourceInfo> recs = new ArrayList<OIMResourceServiceListEditor.ResourceInfo>();
 					//find all resource/service record for currently selected service
 					ArrayList<ResourceServiceRecord> rsrecs = smodel.getByServiceID(service.getValue());
 					//lookup all resource record for each resource I found
 					for(ResourceServiceRecord rsrec : rsrecs) {
 						ResourceRecord rec = rmodel.get(rsrec.resource_id);
 						if(rec.disable) continue;
-						ResourceServiceListEditor.ResourceInfo info = new ResourceServiceListEditor.ResourceInfo();
+						OIMResourceServiceListEditor.ResourceInfo info = new OIMResourceServiceListEditor.ResourceInfo();
 						info.rec = rec;
 						ResourceServiceDetailRecord detail = dmodel.get(service.getValue(), rec.id, "endpoint");
 						if(detail != null) {
@@ -614,8 +897,36 @@ public class MeshConfigFormDE extends DivRepForm {
 					return recs;
 				}
 			};
-			resources.setLabel("Resources");
-			resources.setRequired(true);
+			oim_resources.setLabel("OIM Resources");
+			//oim_resources.setRequired(true);
+			
+			final WLCGSiteModel wsmodel = new WLCGSiteModel(context);
+			final WLCGEndpointModel wemodel = new WLCGEndpointModel(context);
+			wlcg_resources = new WLCGResourceServiceListEditor(this) {
+				protected WLCGResourceServiceListEditor.ResourceInfo getDetailByEndpointKey(String key) throws SQLException {
+					WLCGResourceServiceListEditor.ResourceInfo info = new  WLCGResourceServiceListEditor.ResourceInfo();
+					info.rec = wemodel.get(key);
+					WLCGSiteRecord srec = wsmodel.get(info.rec.site_id);
+					info.detail = srec.short_name;
+					return info;
+				}
+				protected Collection<WLCGResourceServiceListEditor.ResourceInfo> getAvailableEndpoints() throws SQLException {
+					ArrayList<WLCGResourceServiceListEditor.ResourceInfo> recs = new ArrayList<WLCGResourceServiceListEditor.ResourceInfo>();
+					//find all resource/service record for currently selected service
+					ArrayList<WLCGEndpointRecord> rsrecs = wemodel.getByServiceID(service.getValue());
+					//lookup all resource record for each resource I found
+					for(WLCGEndpointRecord rsrec : rsrecs) {
+						WLCGResourceServiceListEditor.ResourceInfo info = new WLCGResourceServiceListEditor.ResourceInfo();
+						info.rec = rsrec;
+						WLCGSiteRecord srec = wsmodel.get(info.rec.site_id);
+						info.detail = srec.short_name;
+						recs.add(info);
+					}
+					return recs;
+				}
+			};
+			wlcg_resources.setLabel("WLCG Resources");
+			//oim_resources.setRequired(true);
 			
 			if(rec != null) {
 				id = rec.id;
@@ -623,17 +934,26 @@ public class MeshConfigFormDE extends DivRepForm {
 				service.setValue(rec.service_id);
 				previous_service_id = rec.service_id;
 
-				//should I really be loading from DB? 
-				MeshConfigMemberModel model = new MeshConfigMemberModel(context);
+				//loading directly from DB feels yicky.. maybe do this in the testdiv ctor? 
 				try {
-					for(MeshConfigMemberRecord mrec : model.getByGroupID(rec.id)) {
-						ResourceServiceListEditor.ResourceInfo info = resources.new ResourceInfo();
+					MeshConfigOIMMemberModel model = new MeshConfigOIMMemberModel(context);
+					for(MeshConfigOIMMemberRecord mrec : model.getByGroupID(rec.id)) {
+						OIMResourceServiceListEditor.ResourceInfo info = oim_resources.new ResourceInfo();
 						info.rec = rmodel.get(mrec.resource_id);
 						ResourceServiceDetailRecord detail = dmodel.get(service.getValue(), rec.id, "endpoint");
 						if(detail != null) {
 							info.detail = detail.value;
 						}
-						resources.addSelected(info);
+						oim_resources.addSelected(info);
+					}
+					
+					MeshConfigWLCGMemberModel wmodel = new MeshConfigWLCGMemberModel(context);
+					for(MeshConfigWLCGMemberRecord mrec : wmodel.getByGroupID(rec.id)) {
+						WLCGResourceServiceListEditor.ResourceInfo info = wlcg_resources.new ResourceInfo();
+						info.rec = wemodel.get(mrec.primary_key);
+						WLCGSiteRecord srec = wsmodel.get(info.rec.site_id);
+						info.detail = srec.short_name;
+						wlcg_resources.addSelected(info);
 					}
 				} catch (SQLException e1) {
 					log.error("Failed to load resource info");
@@ -653,9 +973,11 @@ public class MeshConfigFormDE extends DivRepForm {
 		}
 		
 		protected void showhide() {
-			resources.setHidden(true);
+			oim_resources.setHidden(true);
+			wlcg_resources.setHidden(true);
 			if(service.getValue() != null) {
-				resources.setHidden(false);
+				oim_resources.setHidden(false);
+				wlcg_resources.setHidden(false);
 			}
 		}
 		
@@ -673,7 +995,8 @@ public class MeshConfigFormDE extends DivRepForm {
 			out.write("</div>");
 			out.write("</div>");
 			
-			resources.render(out);
+			oim_resources.render(out);
+			wlcg_resources.render(out);
 			out.write("</div>");
 		}
 		@Override
@@ -771,6 +1094,7 @@ public class MeshConfigFormDE extends DivRepForm {
 				super(parent);
 				groupsdiv = new GroupsDiv(this);
 				paramsdiv = new ParamsDiv(this);
+				configsdiv = new ConfigsDiv(this);
 				testsdiv = new TestsDiv(this);
 			}
 			
@@ -780,7 +1104,8 @@ public class MeshConfigFormDE extends DivRepForm {
 				BootTabView tabview = new BootTabView();
 				tabview.addtab("Host Groups", renderGroupPane());
 				tabview.addtab("Parameter Sets", renderParamPane());
-				tabview.addtab("Tests", renderConfigPane());
+				tabview.addtab("Configs", renderConfigPane());
+				tabview.addtab("Tests", renderTestPane());
 				tabview.render(out);
 			}
 
@@ -792,7 +1117,7 @@ public class MeshConfigFormDE extends DivRepForm {
 		new TabContent(this);
 	}
 	
-	protected IView renderConfigPane() {
+	protected IView renderTestPane() {
 		return new IView(){
 			public void render(PrintWriter out) {
 				testsdiv.render(out);
@@ -811,6 +1136,13 @@ public class MeshConfigFormDE extends DivRepForm {
 		return new IView(){
 			public void render(PrintWriter out) {
 				paramsdiv.render(out);
+			}
+		};
+	}
+	protected IView renderConfigPane() {
+		return new IView(){
+			public void render(PrintWriter out) {
+				configsdiv.render(out);
 			}
 		};
 	}
