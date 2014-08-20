@@ -269,4 +269,16 @@ public class CertificateManager {
 		return out.toString();
 	}
 	
+	//split 1 big string into strings with specified size delimited by newline
+	public static String chunkString(String text, int size) {
+	    // Give the list the right capacity to start with. You could use an array
+	    // instead if you wanted.
+		StringBuffer buf = new StringBuffer();
+
+	    for (int start = 0; start < text.length(); start += size) {
+	        buf.append(text.substring(start, Math.min(text.length(), start + size)));
+	        buf.append("\n");
+	    }
+	    return buf.toString();
+	}
 }

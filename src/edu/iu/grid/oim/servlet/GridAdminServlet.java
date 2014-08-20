@@ -76,9 +76,9 @@ public class GridAdminServlet extends ServletBase {
 					DivRepButton request = new DivRepButton(context.getPageRoot(), "Request for GridAdmin Enrollment ...");
 					request.addClass("btn");
 					request.addClass("pull-right");
-					request.setToolTip("You have admin_gridadmin privilege. You don't need to request for enrollment.");
 					if(auth.allows("admin_gridadmin")) {
 						request.setDisabled(true);
+						request.setToolTip("You have admin_gridadmin privilege. You don't need to request for enrollment.");
 					}
 					request.render(out);
 					request.addEventListener(new DivRepEventListener() {

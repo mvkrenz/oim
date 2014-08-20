@@ -31,6 +31,7 @@ import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.SCContactModel;
 import edu.iu.grid.oim.model.db.SCModel;
 import edu.iu.grid.oim.model.db.VOModel;
+import edu.iu.grid.oim.model.db.record.ProjectRecord;
 import edu.iu.grid.oim.model.db.record.SCRecord;
 import edu.iu.grid.oim.model.db.record.SCContactRecord;
 import edu.iu.grid.oim.model.db.record.ContactTypeRecord;
@@ -62,14 +63,9 @@ public class SCServlet extends ServletBase implements Servlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{	
 		UserContext context = new UserContext(request);
-		Authorization auth = context.getAuthorization();
-		//auth.check("edit_my_sc");
+		//Authorization auth = context.getAuthorization();
 		
 		try {		
-			//construct view
-			//MenuView menuview = new MenuView(context, "sc");
-			//ContentView contentview = createContentView();
-			
 			//construct view
 			BootMenuView menuview = new BootMenuView(context, "sc");
 			ContentView contentview = null;
@@ -112,10 +108,32 @@ public class SCServlet extends ServletBase implements Servlet {
 		}
 	}
 	
+	private HtmlView createItem(SCRecord rec, boolean editable) {
+		String name = rec.name;
+		//String disable_css = "";
+		String tag = "";
+		if(rec.disable) {
+			//disable_css += " disabled";
+			tag += " <span class=\"label\">Disabled</span>";
+		}
+		if(!rec.active) {
+			//disable_css += " inactive";
+			tag += " <span class=\"label\">Inactive</span>";
+		}
+		
+		String url = "sc";
+		if(editable) {
+			url = "scedit";
+		}
+		return new HtmlView("<a title=\""+StringEscapeUtils.escapeHtml(rec.long_name)+"\" href=\""+url+"?id="+rec.id+"\">"+StringEscapeUtils.escapeHtml(name)+tag+"</a>");
+	}
+	
 	protected ContentView createListContent(UserContext context) 
 		throws ServletException, SQLException
 	{
 		SCModel model = new SCModel(context);
+		Authorization auth = context.getAuthorization();
+		
 		ArrayList<SCRecord> scs = model.getAll();
 		Collections.sort(scs, new Comparator <SCRecord>() {
 			public int compare(SCRecord a, SCRecord b) {
@@ -142,21 +160,7 @@ public class SCServlet extends ServletBase implements Servlet {
 			
 			ItemTableView table = new ItemTableView(5);
 			for(SCRecord rec : editable_scs) {
-				String name = rec.name;
-				String disable_css = "";
-				String tag = "";
-				if(rec.disable) {
-					disable_css += " disabled";
-					tag += " [Disabled]";
-				}
-				if(!rec.active) {
-					disable_css += " inactive";
-					tag += " [Inactive]";
-				}
-				table.add(new HtmlView("<a class=\""+disable_css+"\" title=\""+StringEscapeUtils.escapeHtml(rec.long_name)+"\" href=\"scedit?id="+rec.id+"\">"+StringEscapeUtils.escapeHtml(name)+tag+"</a>"));
-	
-				//contentview.add(new HtmlView("<h2>"+StringEscapeUtils.escapeHtml(name)+"</h2>"));
-				//contentview.add(showSC(rec, true)); //true = show edit button
+				table.add(createItem(rec, true));
 			}
 			contentview.add(table);
 		}
@@ -166,21 +170,8 @@ public class SCServlet extends ServletBase implements Servlet {
 			//contentview.add(new HtmlView("<p>Following are the currently registered support centers on OIM - you do not have edit access on these records.</p>"));
 			ItemTableView table = new ItemTableView(5);
 			for(SCRecord rec : readonly_scs) {
-				String name = rec.name;
-				String disable_css = "";
-				String tag = "";
-				if(rec.disable) {
-					disable_css += " disabled";
-					tag += " (Disabled)";
-				}
-				if(!rec.active) {
-					disable_css += " inactive";
-					tag += " (Inactive)";
-				}
-				table.add(new HtmlView("<a class=\""+disable_css+"\" title=\""+StringEscapeUtils.escapeHtml(rec.long_name)+"\" href=\"sc?id="+rec.id+"\">"+StringEscapeUtils.escapeHtml(name)+tag+"</a>"));
-
-				//contentview.add(new HtmlView("<h2>"+StringEscapeUtils.escapeHtml(name)+"</h2>"));
-				//contentview.add(showSC(rec, false)); //false = no edit button
+				if(!auth.allows("admin") && rec.disable) continue; //hide disabled item
+				table.add(createItem(rec, false));
 			}
 			contentview.add(table);
 		}

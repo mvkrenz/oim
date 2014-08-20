@@ -13,7 +13,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
+
 import edu.iu.grid.oim.model.UserContext;
+import edu.iu.grid.oim.model.cert.CertificateManager;
 import edu.iu.grid.oim.model.db.CertificateRequestHostModel;
 import edu.iu.grid.oim.model.db.CertificateRequestUserModel;
 import edu.iu.grid.oim.model.db.record.CertificateRequestHostRecord;
@@ -76,6 +78,12 @@ public class CertificateDownloadServlet extends ServletBase  {
 							model.writeEncryptedRSAPrivateKeyInPEM(out, rec);
 							out.write(rec.cert_certificate);
 						}*/
+						else if(download.equals("pkcs10")) {
+							PrintWriter out = response.getWriter();
+							response.setContentType("application/x-pem-file");
+							response.setHeader("Content-Disposition", "attachment; filename=user_certificate_request.H"+rec.id+".csr.pem");
+							out.write(rec.csr);
+						}
 					}
 				} catch (SQLException e) {
 					log.error("Failed to load certificate record", e);
@@ -113,9 +121,10 @@ public class CertificateDownloadServlet extends ServletBase  {
 							String[] csrs = rec.getCSRs();
 							String[] cns = rec.getCNs();
 							response.setContentType("application/x-pem-file");
-							response.setHeader("Content-Disposition", "attachment; filename=host_certificate.H"+rec.id+"."+cns[idx]+".csr.pem");
+							response.setHeader("Content-Disposition", "attachment; filename=host_certificate_request.H"+rec.id+"."+cns[idx]+".csr.pem");
 							out.write("-----BEGIN CERTIFICATE REQUEST-----\n");
-							out.write(csrs[idx]);
+							String csr = CertificateManager.chunkString(csrs[idx], 76);
+							out.write(csr);
 							out.write("-----END CERTIFICATE REQUEST-----\n");
 						}
 					}

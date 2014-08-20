@@ -17,6 +17,7 @@ import org.apache.log4j.Logger;
 import com.divrep.DivRep;
 import com.divrep.common.DivRepStaticContent;
 
+import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.model.ContactRank;
 import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.CampusGridModel;
@@ -67,6 +68,9 @@ public class ProjectServlet extends ServletBase implements Servlet {
 				bread_crumb.addCrumb(rec.name, null);
 				contentview.setBreadCrumb(bread_crumb);
 
+				if(rec.disable == true) {
+					contentview.add(new HtmlView("<div class=\"alert\">This project is currently disabled.</div>"));
+				}
 				contentview.add(new HtmlView("<h2>"+StringEscapeUtils.escapeHtml(rec.name)+"</h2>"));	
 				contentview.add(createProjectContent(context, rec)); 
 				sideview = createSideView(context, rec);
@@ -82,9 +86,25 @@ public class ProjectServlet extends ServletBase implements Servlet {
 		}
 	}
 	
+	private HtmlView createItem(ProjectRecord rec, boolean editable) {
+		String name = rec.name;
+		String tag = "";
+		if(rec.disable) {
+			//disable_css += " disabled";
+			tag += " <span class=\"label\">Disabled</span>";
+		}
+		String url = "project";
+		if(editable) {
+			url = "projectedit";
+		}
+		return new HtmlView("<a title=\""+StringEscapeUtils.escapeHtml(rec.name)+"\" href=\""+url+"?id="+rec.id+"\">"+StringEscapeUtils.escapeHtml(name)+"</a>" + tag);		
+	}
+	
 	protected ContentView createListContentView(UserContext context) throws ServletException, SQLException
 	{
 		ProjectModel model = new ProjectModel(context);
+		Authorization auth = context.getAuthorization();
+		
 		ArrayList<ProjectRecord> projects = model.getAll();
 		Collections.sort(projects, new Comparator<ProjectRecord> (){
 			public int compare(ProjectRecord a, ProjectRecord b) {
@@ -112,8 +132,7 @@ public class ProjectServlet extends ServletBase implements Servlet {
 			}
 			ItemTableView table = new ItemTableView(6);
 			for(final ProjectRecord rec : editable_projects) {
-				String name = rec.name;
-				table.add(new HtmlView("<a title=\""+StringEscapeUtils.escapeHtml(rec.name)+"\" href=\"projectedit?id="+rec.id+"\">"+StringEscapeUtils.escapeHtml(name)+"</a>"));
+				table.add(createItem(rec, true));
 			}
 			contentview.add(table);
 		}
@@ -122,8 +141,8 @@ public class ProjectServlet extends ServletBase implements Servlet {
 			contentview.add(new HtmlView("<h2>Projects</h2>"));
 			ItemTableView table = new ItemTableView(5);
 			for(final ProjectRecord rec : readonly_projects) {
-				String name = rec.name;
-				table.add(new HtmlView("<a title=\""+StringEscapeUtils.escapeHtml(rec.name)+"\" href=\"project?id="+rec.id+"\">"+StringEscapeUtils.escapeHtml(name)+"</a>"));
+				if(!auth.allows("admin") && rec.disable) continue; //hide disabled item
+				table.add(createItem(rec, false));
 			}
 			contentview.add(table);
 		}
@@ -162,6 +181,8 @@ public class ProjectServlet extends ServletBase implements Servlet {
 			FieldOfScienceModel model = new FieldOfScienceModel(context);
 			FieldOfScienceRecord fos = model.get(rec.fos_id);
 			table.addRow("Field Of Science", fos.name);
+			
+			table.addRow("Disable", rec.disable);
 		} catch (SQLException e) {
 			return new DivRepStaticContent(context.getPageRoot(), e.toString());
 		}

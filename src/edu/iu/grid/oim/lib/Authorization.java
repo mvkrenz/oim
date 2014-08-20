@@ -69,7 +69,6 @@ public class Authorization {
     public UserType getUserType() { return usertype; }
     public Boolean isLocal() { return (usertype == UserType.LOCAL); }
     public Boolean isDisabled() { return (usertype == UserType.DISABLED); }
-    //public Boolean isGuest() { return (usertype == UserType.GUEST); }
     public Boolean isUser() { return (usertype == UserType.USER); }
     public Boolean isUnregistered() { return (usertype == UserType.UNREGISTERED); }
     

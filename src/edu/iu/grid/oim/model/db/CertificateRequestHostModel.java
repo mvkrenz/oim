@@ -1010,7 +1010,7 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 		}
 		
 		try {
-			context.setComment("Revoked certificate with serial ID:"+cert_serial_id);
+			//context.setComment("Revoked certificate with serial ID:"+cert_serial_id);
 			super.update(get(rec.id), rec);
 		} catch (SQLException e) {
 			log.error("Failed to update host certificate status: " + rec.id);

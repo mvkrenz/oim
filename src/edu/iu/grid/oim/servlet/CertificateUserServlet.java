@@ -236,7 +236,9 @@ public class CertificateUserServlet extends ServletBase  {
 				out.write("</tr>");
 				
 				out.write("<tr>");
-				out.write("<th style=\"min-width: 100px;\">DN</th>");
+				out.write("<th style=\"min-width: 100px;\">DN");
+				out.write("</th>");
+				
 				out.write("<td>");
 				CertificateRequestUserModel model = new CertificateRequestUserModel(context);
 				UserCNEditor cn_override = null;
@@ -248,6 +250,9 @@ public class CertificateUserServlet extends ServletBase  {
 					cn_override.render(out);
 				} else {
 					out.write(StringEscapeUtils.escapeHtml(rec.dn));	
+				}
+				if(rec.csr != null) {
+					out.write("<a class=\"muted pull-right\" href=\"certificatedownload?id="+rec.id+"&type=user&download=pkcs10\">CSR</a>");
 				}
 				out.write("</td>");
 				out.write("</tr>");

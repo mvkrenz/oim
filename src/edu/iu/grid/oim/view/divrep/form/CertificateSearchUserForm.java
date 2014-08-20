@@ -30,6 +30,7 @@ import edu.iu.grid.oim.model.db.CertificateRequestUserModel;
 import edu.iu.grid.oim.model.db.VOModel;
 import edu.iu.grid.oim.model.db.record.CertificateRequestUserRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
+import edu.iu.grid.oim.view.divrep.VOSelector;
 
 public class CertificateSearchUserForm extends DivRep
 {
@@ -44,7 +45,7 @@ public class CertificateSearchUserForm extends DivRep
 	private DivRepTextBox serial_id;
 	private DivRepTextBox dn_contains;
 	private DivRepSelectBox status;
-	private DivRepSelectBox vo;
+	private VOSelector vo;
 	private DivRepDate request_after;
 	private DivRepDate request_before;
 	
@@ -229,9 +230,10 @@ public class CertificateSearchUserForm extends DivRep
 		}
 		status.setValues(keyvalues);
 		
-		vo = new DivRepSelectBox(this);
+		vo = new VOSelector(this, context);
 		vo.setLabel("VO");
 		vo.setNullLabel("(Any)");
+		/*
 		keyvalues = new LinkedHashMap();
 		VOModel vomodel = new VOModel(context);
 		ArrayList<VORecord> vorecs;
@@ -249,6 +251,7 @@ public class CertificateSearchUserForm extends DivRep
 		} catch (SQLException e1) {
 			log.error("Failed to list all VOs", e1);
 		}
+		*/
 		
 		request_after = new DivRepDate(this);
 		//Calendar today = new GregorianCalendar();

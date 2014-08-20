@@ -19,6 +19,7 @@ import org.apache.log4j.Logger;
 import com.divrep.DivRep;
 import com.divrep.common.DivRepStaticContent;
 
+import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.model.ContactRank;
 import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.ContactTypeModel;
@@ -117,11 +118,32 @@ public class VOServlet extends ServletBase implements Servlet {
 		}
 	}
 	
+	private HtmlView createItem(VORecord rec, boolean editable) {
+		String name = rec.name;
+		String tag = "";
+		if(rec.disable) {
+			//disable_css += " disabled";
+			tag += " <span class=\"label\">Disabled</span>";
+		}
+		if(!rec.active) {
+			//disable_css += " inactive";
+			tag += " <span class=\"label\">Inactive</span>";
+		}
+		
+		String url = "vo";
+		if(editable) {
+			url = "voedit";
+		}
+		return new HtmlView("<a title=\""+StringEscapeUtils.escapeHtml(rec.long_name)+"\" href=\""+url+"?id="+rec.id+"\">"+StringEscapeUtils.escapeHtml(name)+tag+"</a>");
+	}
+	
 	protected ContentView createListContentView(UserContext context) 
 		throws ServletException, SQLException
 	{
 
 		VOModel model = new VOModel(context);
+		Authorization auth = context.getAuthorization();
+		
 		ArrayList<VORecord> vos = (ArrayList<VORecord>) model.getAll();
 		Collections.sort(vos, new Comparator<VORecord> (){
 			public int compare(VORecord a, VORecord b) {
@@ -149,18 +171,7 @@ public class VOServlet extends ServletBase implements Servlet {
 			}
 			ItemTableView table = new ItemTableView(6);
 			for(final VORecord rec : editable_vos) {
-				String name = rec.name;
-				String disable_css = "";
-				String tag = "";
-				if(rec.disable) {
-					disable_css += " disabled";
-					tag += " [Disabled]";
-				}
-				if(!rec.active) {
-					disable_css += " inactive";
-					tag += " [Inactive]";
-				}
-				table.add(new HtmlView("<a class=\""+disable_css+"\" title=\""+StringEscapeUtils.escapeHtml(rec.long_name)+"\" href=\"voedit?id="+rec.id+"\">"+StringEscapeUtils.escapeHtml(name)+tag+"</a>"));
+				table.add(createItem(rec, true));
 			}
 			contentview.add(table);
 		}
@@ -171,21 +182,8 @@ public class VOServlet extends ServletBase implements Servlet {
 	
 			ItemTableView table = new ItemTableView(5);
 			for(final VORecord rec : readonly_vos) {
-				String name = rec.name;
-				GenericView vo = new GenericView();		
-				String disable_css = "";
-				String tag = "";
-				if(rec.disable) {
-					disable_css += " disabled";
-					tag += " (Disabled)";
-				}
-				if(!rec.active) {
-					disable_css += " inactive";
-					tag += " (Inactive)";
-				}
-				vo.add(new HtmlView("<a class=\""+disable_css+"\" title=\""+StringEscapeUtils.escapeHtml(rec.long_name)+"\" href=\"vo?id="+rec.id+"\">"+StringEscapeUtils.escapeHtml(name)+tag+"</a>"));
-				//vo.add(new HtmlView("<p>"+StringEscapeUtils.escapeHtml(rec.long_name)+"</p>"));
-				table.add(vo);
+				if(!auth.allows("admin") && rec.disable) continue; //hide disabled item
+				table.add(createItem(rec, false));
 
 			}
 			contentview.add(table);

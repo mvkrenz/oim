@@ -221,6 +221,7 @@ public class CertificateHostServlet extends ServletBase  {
 						//out.write("<td><a href=\"certificatedownload?id="+rec.id+"&type=host&download=pkcs7&idx="+i+"\">Download PKCS7</a></td>");
 						out.write("<td><a href=\"certificatedownload?id="+rec.id+"&type=host&download=x509&idx="+i+"\">Download PEM</a></td>");
 						out.write("<td>"+serial_ids[i]);
+						final String note = "Revoked certificate with serial ID:"+serial_ids[i];
 						if(model.canRevoke(rec, i)) {
 							class RevokeButton extends DivRepButton {
 								int idx;
@@ -232,6 +233,7 @@ public class CertificateHostServlet extends ServletBase  {
 									this.idx = idx;
 								}
 								protected void onClick(DivRepEvent e) {
+									context.setComment(note);
 									try {
 										model.revoke(rec, idx);
 										js("location.reload();");  //TODO - use DivRep for FQDN indicator?
