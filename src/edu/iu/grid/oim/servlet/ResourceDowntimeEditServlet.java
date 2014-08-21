@@ -64,7 +64,6 @@ public class ResourceDowntimeEditServlet extends ServletBase implements Servlet 
 			} catch (SQLException e) {
 				throw new ServletException(e);
 			}	
-			//title = rec.name + " Downtime";
 		} else {
 			throw new ServletException("resourc id not set");
 		}
@@ -75,14 +74,11 @@ public class ResourceDowntimeEditServlet extends ServletBase implements Servlet 
 			downtime_id = Integer.parseInt(did_str);
 		}
 		
-		//String origin_url = StaticConfig.getApplicationBase()+"/"+parent_page;
 		try {
 			form = new ResourceDowntimeFormDE(context, parent_page, resource_id, downtime_id, auth.getTimeZone());
 			
 			//put the form in a view and display
 			ContentView contentview = new ContentView(context);
-
-			//contentview.add(new HtmlView("<h2>"+title+"</h2>"));	
 			contentview.add(new DivRepWrapper(form));
 			
 			//setup crumbs

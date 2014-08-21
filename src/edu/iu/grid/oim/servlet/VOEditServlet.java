@@ -106,8 +106,6 @@ public class VOEditServlet extends ServletBase implements Servlet {
 		
 		BootPage page = new BootPage(context, new BootMenuView(context, parent_page), contentview, createSideView(context, projects, logs, rec));
 		page.render(response.getWriter());	
-		
-		//context.storeDivRepSession();
 	}
 	
 	private SideContentView createSideView(UserContext context, ArrayList<ProjectRecord> projects, ArrayList<LogRecord> logs, VORecord rec)

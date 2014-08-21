@@ -11,11 +11,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
 
-import com.divrep.DivRepRoot;
 
 import edu.iu.grid.oim.lib.Authorization;
-import edu.iu.grid.oim.lib.AuthorizationException;
-import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.LogModel;
 import edu.iu.grid.oim.model.db.SCModel;
@@ -25,13 +22,10 @@ import edu.iu.grid.oim.view.divrep.form.SCFormDE;
 import edu.iu.grid.oim.view.BootBreadCrumbView;
 import edu.iu.grid.oim.view.BootMenuView;
 import edu.iu.grid.oim.view.BootPage;
-import edu.iu.grid.oim.view.BreadCrumbView;
 import edu.iu.grid.oim.view.ContentView;
 import edu.iu.grid.oim.view.DivRepWrapper;
 import edu.iu.grid.oim.view.HtmlView;
 import edu.iu.grid.oim.view.LogView;
-import edu.iu.grid.oim.view.MenuView;
-import edu.iu.grid.oim.view.Page;
 import edu.iu.grid.oim.view.SideContentView;
 
 public class SCEditServlet extends ServletBase implements Servlet {
@@ -55,7 +49,6 @@ public class SCEditServlet extends ServletBase implements Servlet {
 			int sc_id = Integer.parseInt(sc_id_str);
 			SCModel model = new SCModel(context);			
 			if(!model.canEdit(sc_id)) {
-				//throw new AuthorizationException("Sorry, you don't have permission to edit this SC ID:" + sc_id);
 				response.sendRedirect("sc?id="+sc_id);
 			}
 			
@@ -70,10 +63,8 @@ public class SCEditServlet extends ServletBase implements Servlet {
 			} catch (SQLException e) {
 				throw new ServletException(e);
 			}	
-			//title = "Update Support Center";
 		} else {
 			rec = new SCRecord();
-			//title = "New Support Center";	
 		}
 	
 		SCFormDE form;
@@ -85,7 +76,6 @@ public class SCEditServlet extends ServletBase implements Servlet {
 		
 		//put the form in a view and display
 		ContentView contentview = new ContentView(context);
-		//contentview.add(new HtmlView("<h1>"+title+"</h1>"));	
 		if(rec.active != null && rec.active == false) {
 			contentview.add(new HtmlView("<div class=\"alert\">This Support Center is currently inactive.</div>"));
 		}

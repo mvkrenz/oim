@@ -35,7 +35,6 @@ public class ProjectEditServlet extends ServletBase implements Servlet {
 	{
 		UserContext context = new UserContext(request);
 		Authorization auth = context.getAuthorization();
-		//auth.check("edit_my_vo");	//??
 		
 		ProjectRecord rec = new ProjectRecord();
 		ArrayList<LogRecord> logs = null;
@@ -71,7 +70,6 @@ public class ProjectEditServlet extends ServletBase implements Servlet {
 			} catch (SQLException e) {
 				throw new ServletException(e);
 			}	
-			//title = "Virtual Organization Update";
 		}
 			
 		try {

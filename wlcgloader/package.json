@@ -1,0 +1,31 @@
+{
+  "name": "wlcgloader",
+  "version": "0.0.0",
+  "description": "script to load wlcg xml into aux. oim tables",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "tbd"
+  },
+  "keywords": [
+    "wlcg",
+    "oim"
+  ],
+  "dependencies": {
+    "xml2js": "0.4.*" ,
+    "assert": "1.1.1",
+    "mocha": "1.21.4",
+    "chai": "1.9.1",
+    "mysql": "2.4.2",
+    "async": "0.9.0",
+    "lodash": "2.4.1"
+  },
+  "author": "Soichi Hayashi <hayashis@iu.ed>",
+  "license": "MIT"
+}
