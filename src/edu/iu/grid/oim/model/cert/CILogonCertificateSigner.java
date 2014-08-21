@@ -161,8 +161,8 @@ public class CILogonCertificateSigner implements ICertificateSigner {
 				cert.notbefore = c0.getNotBefore();
 				cert.intermediate = "NO-INT";
 				
-				//TODO - convert to hex.. to be consistent with Digicert?
-				cert.serial = c0.getSerialNumber().toString();
+				//convert to hex.. to be consistent with Digicert?
+				cert.serial = c0.getSerialNumber().toString(16);
 				
 				return cert;
 			default:
@@ -178,6 +178,7 @@ public class CILogonCertificateSigner implements ICertificateSigner {
 			throw new CILogonCertificateSignerException("Failed to parse certificate", e);
 		}
 	}
+	
 	
 	protected String convertToPem(X509Certificate cert) throws CertificateEncodingException {
 		 org.apache.commons.codec.binary.Base64 encoder = new org.apache.commons.codec.binary.Base64(64);
@@ -223,8 +224,8 @@ public class CILogonCertificateSigner implements ICertificateSigner {
 				cert.notbefore = c0.getNotBefore();
 				cert.intermediate = "NO-INT"; //TODO - no cilogon doesn't have intermediate - maybe put root CA?
 				
-				//TODO - convert to hex.. to be consistent with Digicert?
-				cert.serial = c0.getSerialNumber().toString();	     
+				//convert to hex.. to be consistent with Digicert?
+				cert.serial = c0.getSerialNumber().toString(16);	     
 				
 				cert.certificate = convertToPem(c0);
 								
