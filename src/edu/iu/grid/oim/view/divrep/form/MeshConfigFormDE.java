@@ -3,6 +3,7 @@ package edu.iu.grid.oim.view.divrep.form;
 import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -11,6 +12,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 
 import org.apache.log4j.Logger;
+import org.json.JSONObject;
 
 import com.divrep.DivRep;
 import com.divrep.DivRepEvent;
@@ -23,6 +25,7 @@ import com.divrep.common.DivRepSelectBox;
 import com.divrep.common.DivRepStaticContent;
 import com.divrep.common.DivRepTextArea;
 import com.divrep.common.DivRepTextBox;
+import com.divrep.validator.DivRepIValidator;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.AuthorizationException;
@@ -396,7 +399,7 @@ public class MeshConfigFormDE extends DivRepForm {
 			} else {
 				//come up with a new ID
 				Integer nextid = 0;
-				for(TestDiv div : testsdiv.tests) {
+				for(ConfigDiv div : configsdiv.configs) {
 					if(nextid <= div.id) {
 						nextid = div.id+1;
 					}
@@ -595,7 +598,36 @@ public class MeshConfigFormDE extends DivRepForm {
 			params.setLabel("Parameters");
 			params.setRequired(true);
 			params.setHeight(250);
+			params.addValidator(new DivRepIValidator<String>() {
+				@Override
+				public Boolean isValid(String value) {
+					try {
+						//test parameters should be a valid json object
+						//TODO - JSONObject is allowing broken json like "{'hi':'there'}hoge"...
+						JSONObject o = new JSONObject(value);
+						params.setValue(o.toString(4));
+						params.redraw();
+						return true;
+					} catch (ParseException e) {
+						/*
+						//array is ok
+						try {
+							new JSONArray(test);
+						} catch (JSONException ex) {
+							return false;
+						}
+						*/
+						return false;
+					}
+				}
 
+				@Override
+				public String getErrorMessage() {
+					return "Syntax error. Please enter valid JSON";
+				}
+				
+			});
+			
 			service = new DivRepSelectBox(this);
 			service.setLabel("Service Type");
 			service.setRequired(true);
@@ -764,6 +796,9 @@ public class MeshConfigFormDE extends DivRepForm {
 			for(ParamDiv div: params) {
 				div.render(out);
 			}
+			out.write("<p class=\"pull-right\">");
+			add.render(out);
+			out.write("</p>");
 					
 			out.write("</div>");
 			
@@ -832,6 +867,9 @@ public class MeshConfigFormDE extends DivRepForm {
 			for(ConfigDiv div: configs) {
 				div.render(out);
 			}
+			out.write("<p class=\"pull-right\">");
+			add.render(out);
+			out.write("</p>");
 			
 			out.write("</div>");
 			
@@ -907,6 +945,9 @@ public class MeshConfigFormDE extends DivRepForm {
 			for(TestDiv div: tests) {
 				div.render(out);
 			}
+			out.write("<p class=\"pull-right\">");
+			add.render(out);
+			out.write("</p>");
 			
 			out.write("</div>");
 			
@@ -1225,6 +1266,9 @@ public class MeshConfigFormDE extends DivRepForm {
 			for(GroupDiv div: groups) {
 				div.render(out);
 			}
+			out.write("<p class=\"pull-right\">");
+			add.render(out);
+			out.write("</p>");
 			
 			out.write("</div>");
 			
