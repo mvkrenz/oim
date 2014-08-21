@@ -22,7 +22,7 @@ public class MeshConfigOIMMemberModel extends SmallTableModelBase<MeshConfigOIMM
 
     public MeshConfigOIMMemberModel(UserContext context) 
     {
-    	super(context, "mesh_config_member");
+    	super(context, "mesh_config_oim_member");
     }
     MeshConfigOIMMemberRecord createRecord() throws SQLException
 	{

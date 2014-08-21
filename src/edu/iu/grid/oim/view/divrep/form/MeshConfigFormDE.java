@@ -311,6 +311,11 @@ public class MeshConfigFormDE extends DivRepForm {
 				}
 			}	
 			param.setValues(param_keyvalues);	
+		}
+
+		public void save() {
+			// TODO Auto-generated method stub
+			
 		}		
 	}
 	
@@ -491,6 +496,11 @@ public class MeshConfigFormDE extends DivRepForm {
 		protected void onEvent(DivRepEvent e) {
 			// TODO Auto-generated method stub
 		}
+
+		public void save() {
+			// TODO Auto-generated method stub
+			
+		}
 	}
 	
 	class ParamDiv extends DivRepFormElement {
@@ -619,6 +629,11 @@ public class MeshConfigFormDE extends DivRepForm {
 			// TODO Auto-generated method stub
 			
 		}
+
+		public void save() {
+			// TODO Auto-generated method stub
+			
+		}
 	}
 	
 	class ParamsDiv extends DivRepFormElement {
@@ -679,6 +694,12 @@ public class MeshConfigFormDE extends DivRepForm {
 		protected void onEvent(DivRepEvent e) {
 			// TODO Auto-generated method stub
 		}
+
+		public void save() throws SQLException {
+			for(ParamDiv div : params) {
+				div.save();
+			}
+		}
 	}
 
 	class ConfigsDiv extends DivRepFormElement {
@@ -738,6 +759,12 @@ public class MeshConfigFormDE extends DivRepForm {
 		@Override
 		protected void onEvent(DivRepEvent e) {
 			// TODO Auto-generated method stub
+		}
+
+		public void save() throws SQLException {
+			for(ConfigDiv div : configs) {
+				div.save();
+			}
 		}
 	}
 	
@@ -804,6 +831,12 @@ public class MeshConfigFormDE extends DivRepForm {
 		@Override
 		protected void onEvent(DivRepEvent e) {
 			// TODO Auto-generated method stub
+		}
+
+		public void save() throws SQLException {
+			for(TestDiv div : tests) {
+				div.save();
+			}
 		}
 	}
 	
@@ -1002,6 +1035,23 @@ public class MeshConfigFormDE extends DivRepForm {
 		@Override
 		protected void onEvent(DivRepEvent e) {
 			// TODO Auto-generated method stub
+		}
+
+		public void save() throws SQLException {
+			MeshConfigGroupRecord rec = new MeshConfigGroupRecord();
+			rec.id = id;
+			rec.name = name.getValue();
+			rec.service_id = service.getValue();
+			MeshConfigGroupModel model = new MeshConfigGroupModel(context);
+			model.update(rec);
+			
+			ArrayList<MeshConfigOIMMemberRecord> oimrecs = oim_resources.getRecords(id, rec.service_id);
+			MeshConfigOIMMemberModel oimmodel = new MeshConfigOIMMemberModel(context);
+			oimmodel.update(oimmodel.getByGroupID(id), oimrecs);
+			
+			ArrayList<MeshConfigWLCGMemberRecord> wlcgrecs = wlcg_resources.getRecords(id, rec.service_id);
+			MeshConfigWLCGMemberModel wlcgmodel = new MeshConfigWLCGMemberModel(context);
+			wlcgmodel.update(wlcgmodel.getByGroupID(id), wlcgrecs);
 			
 		}
 	}
@@ -1061,6 +1111,12 @@ public class MeshConfigFormDE extends DivRepForm {
 		@Override
 		protected void onEvent(DivRepEvent e) {
 			// TODO Auto-generated method stub
+		}
+
+		public void save() throws SQLException {
+			for(GroupDiv div : groups) {
+				div.save();
+			}
 		}
 	}
 	
@@ -1155,7 +1211,25 @@ public class MeshConfigFormDE extends DivRepForm {
 
 	@Override
 	protected Boolean doSubmit() {
-		// TODO Auto-generated method stub
-		return null;
+		MeshConfigModel model = new MeshConfigModel(context);
+		try {
+			model.startTransaction();
+			groupsdiv.save();
+			paramsdiv.save();
+			configsdiv.save();
+			testsdiv.save();
+			
+			model.commitTransaction();
+		} catch (SQLException e) {
+			try {
+				model.rollbackTransaction();
+			} catch(SQLException e1) {
+				log.error("Failed to rollback..", e1);
+			}
+			log.error("Failed to store mesh configs", e);
+			return false;
+		}
+		
+		return true;
 	}
 }

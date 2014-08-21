@@ -1,5 +1,6 @@
 package edu.iu.grid.oim.model.db;
 
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 
@@ -72,4 +73,25 @@ public class MeshConfigModel extends SmallTableModelBase<MeshConfigRecord>
 		return list;		
 	}
 	*/
+	public Boolean store() throws SQLException {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
+	public void startTransaction() throws SQLException {
+		Connection conn = connectOIM();
+		conn.setAutoCommit(false);
+		//leave connection open - until client calls commit / rollback
+	}
+	
+	public void commitTransaction() throws SQLException {
+		Connection conn = connectOIM();
+		conn.commit();
+		conn.close();
+	}
+	public void rollbackTransaction() throws SQLException {
+		Connection conn = connectOIM();
+		conn.rollback();
+		conn.close();
+	}
 }
