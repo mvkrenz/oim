@@ -1,6 +1,7 @@
 package edu.iu.grid.oim.view.divrep.form;
 
 import java.io.PrintWriter;
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -57,6 +58,7 @@ import edu.iu.grid.oim.model.db.record.ResourceRecord;
 import edu.iu.grid.oim.model.db.record.ResourceServiceDetailRecord;
 import edu.iu.grid.oim.model.db.record.ResourceServiceRecord;
 import edu.iu.grid.oim.model.db.record.ServiceRecord;
+import edu.iu.grid.oim.model.db.record.VOContactRecord;
 import edu.iu.grid.oim.model.db.record.WLCGEndpointRecord;
 import edu.iu.grid.oim.model.db.record.WLCGSiteRecord;
 import edu.iu.grid.oim.view.BootTabView;
@@ -244,34 +246,40 @@ public class MeshConfigFormDE extends DivRepForm {
 			out.write("<hr>");
 
 			out.write("<div class=\"row-fluid\">");
-			out.write("<div class=\"span4\">");
+			out.write("<div class=\"span5\">");
 				service.render(out);
 			out.write("</div>");
-			out.write("<div class=\"span8\">");
+			out.write("<div class=\"span7\">");
 				name.render(out);
 			out.write("</div>");
 			out.write("</div>");
 
 			//vo / service / params
 			out.write("<div class=\"row-fluid\">");
-			out.write("<div class=\"span4\">");
+			out.write("<div class=\"span5\">");
 				param.render(out);
 			out.write("</div>");
-			out.write("<div class=\"span8\">");
+			out.write("<div class=\"span7\">");
 				//empty?
 			out.write("</div>");
 			out.write("</div>");
 
 			//mesh and groups
 			out.write("<div class=\"row-fluid\">");
-			out.write("<div class=\"span4\">");
+			out.write("<div class=\"span5\">");
 				type.render(out);
 			out.write("</div>");
-			out.write("<div class=\"span4\">");
+			out.write("<div class=\"span7\">");
 				group_a.render(out);
 			out.write("</div>");
-			out.write("<div class=\"span4\">");
-				group_b.render(out);			
+			out.write("</div>");//row-fluid
+			
+			out.write("<div class=\"row-fluid\">");
+			out.write("<div class=\"span5\">");
+				//empty
+			out.write("</div>");
+			out.write("<div class=\"span7\">");
+				group_b.render(out);		
 			out.write("</div>");//sapn4
 			out.write("</div>");//row-fluid
 		
@@ -316,6 +324,28 @@ public class MeshConfigFormDE extends DivRepForm {
 		public void save() {
 			// TODO Auto-generated method stub
 			
+		}
+
+		public MeshConfigTestRecord getRecord() {
+			//convert type id to type string.
+			String type_string = null;
+			for(Integer type_id : mesh_types.keySet()) {
+				if(type_id.equals(type.getValue())) {
+					type_string = mesh_types.get(type_id);
+				}
+			}
+			
+			MeshConfigTestRecord rec = new MeshConfigTestRecord();
+			rec.id = id;
+			rec.mesh_config_id = config.getValue();
+			rec.service_id = service.getValue();
+			rec.name = name.getValue();
+			rec.param_id = param.getValue();
+			rec.type = type_string;
+			rec.groupa_id = group_a.getValue();
+			rec.groupb_id = group_b.getValue();
+			rec.disable = disable.getValue();
+			return rec;
 		}		
 	}
 	
@@ -497,9 +527,34 @@ public class MeshConfigFormDE extends DivRepForm {
 			// TODO Auto-generated method stub
 		}
 
-		public void save() {
-			// TODO Auto-generated method stub
+		public void saveContacts() throws SQLException {
+			ArrayList<MeshConfigContactRecord> recs = new ArrayList<MeshConfigContactRecord>();
+			for(Integer type_id : contact_editors.keySet()) 
+			{
+				ContactEditor editor = contact_editors.get(type_id);
+				HashMap<ContactRecord, ContactRank> contacts = editor.getContactRecords();
+				for(ContactRecord contact : contacts.keySet()) {
+					MeshConfigContactRecord rec = new MeshConfigContactRecord();
+					ContactRank rank = contacts.get(contact);
+					rec.contact_id = contact.id;
+					rec.contact_type_id = type_id;
+					rec.contact_rank_id = rank.id;
+					rec.mesh_config_id = id;
+					recs.add(rec);
+				}
+			}
 			
+			MeshConfigContactModel model = new MeshConfigContactModel(context);
+			model.update(model.getByMeshConfigID(id), recs);
+		}
+
+		public MeshConfigRecord getRecord() {
+			MeshConfigRecord rec = new MeshConfigRecord();
+			rec.id = id;
+			rec.name = name.getValue();
+			rec.desc = desc.getValue();
+			rec.disable = disable.getValue();
+			return rec;
 		}
 	}
 	
@@ -511,6 +566,17 @@ public class MeshConfigFormDE extends DivRepForm {
 		DivRepSelectBox service;
 		Integer previous_service_id;
 		
+		DivRepButton remove;
+		
+		private boolean isUsed() {
+			for(TestDiv test : testsdiv.tests) {
+				Integer param_id = test.param.getValue();
+				if(param_id != null && param_id.equals(id)) {
+					return true;
+				}
+			}
+			return false;
+		}
 		protected ParamDiv(DivRep parent, MeshConfigParamRecord rec) {
 			super(parent);
 			
@@ -538,15 +604,12 @@ public class MeshConfigFormDE extends DivRepForm {
 				@Override
 				public void handleEvent(DivRepEvent e) {
 					//make sure this param is not already used by any tests
-					for(TestDiv test : testsdiv.tests) {
-						Integer param_id = test.param.getValue();
-						if(param_id != null && param_id.equals(id)) {
-							alert("This parameter set is currently used by 1 or more tests. Please unassociated this parameter set from all test before making this change.");
-							service.setValue(previous_service_id);
-							validate(); //need to revalidate to get rid of "this is a required field"
-							service.redraw();
-							return;
-						}
+					if(isUsed()) {
+						alert("This parameter set is currently used by 1 or more tests. Please unassociated this parameter set from all test before making this change.");
+						service.setValue(previous_service_id);
+						validate(); //need to revalidate to get rid of "this is a required field"
+						service.redraw();
+						return;
 					}
 					previous_service_id = service.getValue();
 
@@ -558,6 +621,27 @@ public class MeshConfigFormDE extends DivRepForm {
 				}	
 			});
 		
+			remove = new DivRepButton(this, "images/delete.png") {
+				@Override
+				protected void onClick(DivRepEvent e) {
+					if(isUsed()) {
+						alert("This parameter set is currently used by 1 or more tests. Please unassociated from all test before removing.");
+					} else {
+						//divrep keeps track of its children, and DivrepFormElement validates all children even if I remove it here.
+						//instead of overriding validate(), I am trying this new approach by hiding the element.
+						ParamDiv.this.setHidden(true); 
+						
+						paramsdiv.params.remove(ParamDiv.this);
+						paramsdiv.redraw();
+						
+						testsdiv.load_keyvalues();
+						testsdiv.redraw();
+					}
+				}	
+			};
+			remove.addClass("pull-right");
+			remove.setStyle(DivRepButton.Style.IMAGE);
+			
 			if(rec != null) {
 				id = rec.id;
 				name.setValue(rec.name);
@@ -610,14 +694,17 @@ public class MeshConfigFormDE extends DivRepForm {
 		@Override
 		public void render(PrintWriter out) {
 			out.write("<div id=\""+getNodeID()+"\" class=\"well\">");
-	
+			
 			//vo / service / params
 			out.write("<div class=\"row-fluid\">");
-			out.write("<div class=\"span4\">");
+			out.write("<div class=\"span5\">");
 				service.render(out);
 			out.write("</div>");
-			out.write("<div class=\"span8\">");
+			out.write("<div class=\"span6\">");
 				name.render(out);
+			out.write("</div>");
+			out.write("<div class=\"span1\">");
+				remove.render(out);
 			out.write("</div>");
 			out.write("</div>");
 			
@@ -630,9 +717,13 @@ public class MeshConfigFormDE extends DivRepForm {
 			
 		}
 
-		public void save() {
-			// TODO Auto-generated method stub
-			
+		public MeshConfigParamRecord getRecord() {
+			MeshConfigParamRecord rec = new MeshConfigParamRecord();
+			rec.id = id;
+			rec.name = name.getValue();
+			rec.service_id = service.getValue();
+			rec.params = params.getValue();
+			return rec;
 		}
 	}
 	
@@ -673,14 +764,13 @@ public class MeshConfigFormDE extends DivRepForm {
 			for(ParamDiv div: params) {
 				div.render(out);
 			}
-			
-			out.write("<p>");
-			add.render(out);
-			out.write("</p>");
-			
+					
 			out.write("</div>");
 			
 			out.write("<div class=\"span3\">");
+			out.write("<p>");
+			add.render(out);
+			out.write("</p>");
 			//HtmlFileView view = new HtmlFileView(getClass().getResourceAsStream("meshtype.html"));
 			//view.render(out);
 			out.write("</div>");
@@ -696,9 +786,12 @@ public class MeshConfigFormDE extends DivRepForm {
 		}
 
 		public void save() throws SQLException {
+			MeshConfigParamModel model = new MeshConfigParamModel(context);
+			ArrayList<MeshConfigParamRecord> recs = new ArrayList<MeshConfigParamRecord>();
 			for(ParamDiv div : params) {
-				div.save();
+				recs.add(div.getRecord());
 			}
+			model.update(model.getAll(), recs);
 		}
 	}
 
@@ -740,13 +833,12 @@ public class MeshConfigFormDE extends DivRepForm {
 				div.render(out);
 			}
 			
-			out.write("<p>");
-			add.render(out);
-			out.write("</p>");
-			
 			out.write("</div>");
 			
 			out.write("<div class=\"span3\">");
+			out.write("<p>");
+			add.render(out);
+			out.write("</p>");
 			//HtmlFileView view = new HtmlFileView(getClass().getResourceAsStream("meshtype.html"));
 			//view.render(out);
 			out.write("</div>");
@@ -762,9 +854,13 @@ public class MeshConfigFormDE extends DivRepForm {
 		}
 
 		public void save() throws SQLException {
+			MeshConfigModel model = new MeshConfigModel(context);
+			ArrayList<MeshConfigRecord> recs = new ArrayList<MeshConfigRecord>();
 			for(ConfigDiv div : configs) {
-				div.save();
+				recs.add(div.getRecord());
+				div.saveContacts();
 			}
+			model.update(model.getAll(), recs);
 		}
 	}
 	
@@ -812,13 +908,12 @@ public class MeshConfigFormDE extends DivRepForm {
 				div.render(out);
 			}
 			
-			out.write("<p>");
-			add.render(out);
-			out.write("</p>");
-			
 			out.write("</div>");
 			
 			out.write("<div class=\"span3\">");
+			out.write("<p>");
+			add.render(out);
+			out.write("</p>");
 			HtmlFileView view = new HtmlFileView(getClass().getResourceAsStream("meshtype.html"));
 			view.render(out);
 			out.write("</div>");
@@ -834,9 +929,12 @@ public class MeshConfigFormDE extends DivRepForm {
 		}
 
 		public void save() throws SQLException {
+			MeshConfigTestModel model = new MeshConfigTestModel(context);
+			ArrayList<MeshConfigTestRecord> recs = new ArrayList<MeshConfigTestRecord>();
 			for(TestDiv div : tests) {
-				div.save();
+				recs.add(div.getRecord());
 			}
+			model.update(model.getAll(), recs);
 		}
 	}
 	
@@ -847,6 +945,23 @@ public class MeshConfigFormDE extends DivRepForm {
 		Integer previous_service_id;
 		OIMResourceServiceListEditor oim_resources;
 		WLCGResourceServiceListEditor wlcg_resources;
+		
+		DivRepButton remove;
+		
+		boolean isUsed() {
+			//make sure this group is not already used by any tests
+			for(TestDiv test : testsdiv.tests) {
+				Integer group_a = test.group_a.getValue();
+				Integer group_b = test.group_b.getValue();
+				if(
+					(group_a != null && group_a.equals(id)) || 
+					(group_b != null && group_b.equals(id))
+				) {
+					return true;
+				}
+			}	
+			return false;
+		}
 		
 		protected GroupDiv(DivRep parent, MeshConfigGroupRecord rec) {
 			super(parent);
@@ -871,19 +986,12 @@ public class MeshConfigFormDE extends DivRepForm {
 				@Override
 				public void handleEvent(DivRepEvent e) {
 					//make sure this group is not already used by any tests
-					for(TestDiv test : testsdiv.tests) {
-						Integer group_a = test.group_a.getValue();
-						Integer group_b = test.group_b.getValue();
-						if(
-							(group_a != null && group_a.equals(id)) || 
-							(group_b != null && group_b.equals(id))
-						) {
-							alert("This group is currently used by 1 or more tests. Please unassociated this group from all test before making this change.");
-							service.setValue(previous_service_id);
-							validate(); //need to revalidate to get rid of "this is a required field"
-							service.redraw();
-							return;
-						}
+					if(isUsed()) {
+						alert("This group is currently used by 1 or more tests. Please unassociated this group from all test before making this change.");
+						service.setValue(previous_service_id);
+						validate(); //need to revalidate to get rid of "this is a required field"
+						service.redraw();
+						return;
 					}
 					previous_service_id = service.getValue();
 
@@ -959,7 +1067,27 @@ public class MeshConfigFormDE extends DivRepForm {
 				}
 			};
 			wlcg_resources.setLabel("WLCG Resources");
-			//oim_resources.setRequired(true);
+
+			remove = new DivRepButton(this, "images/delete.png") {
+				@Override
+				protected void onClick(DivRepEvent e) {
+					if(isUsed()) {
+						alert("This group is currently used by 1 or more tests. Please unassociated this group from all test before removing.");
+					} else {
+						//divrep keeps track of its children, and DivrepFormElement validates all children even if I remove it here.
+						//instead of overriding validate(), I am trying this new approach by hiding the element.
+						GroupDiv.this.setHidden(true); 
+						
+						groupsdiv.groups.remove(GroupDiv.this);
+						groupsdiv.redraw();
+						
+						testsdiv.load_keyvalues();
+						testsdiv.redraw();
+					}
+				}	
+			};
+			remove.addClass("pull-right");
+			remove.setStyle(DivRepButton.Style.IMAGE);
 			
 			if(rec != null) {
 				id = rec.id;
@@ -1017,14 +1145,17 @@ public class MeshConfigFormDE extends DivRepForm {
 		@Override
 		public void render(PrintWriter out) {
 			out.write("<div id=\""+getNodeID()+"\" class=\"well\">");
-	
+			
 			//vo / service / params
 			out.write("<div class=\"row-fluid\">");
-			out.write("<div class=\"span4\">");
+			out.write("<div class=\"span5\">");
 				service.render(out);
 			out.write("</div>");
-			out.write("<div class=\"span8\">");
+			out.write("<div class=\"span6\">");
 				name.render(out);
+			out.write("</div>");
+			out.write("<div class=\"span1\">");
+				remove.render(out);
 			out.write("</div>");
 			out.write("</div>");
 			
@@ -1037,22 +1168,23 @@ public class MeshConfigFormDE extends DivRepForm {
 			// TODO Auto-generated method stub
 		}
 
-		public void save() throws SQLException {
+		public void saveMembers() throws SQLException {		
+			Integer service_id = service.getValue();
+			ArrayList<MeshConfigOIMMemberRecord> oimrecs = oim_resources.getRecords(id, service_id);
+			MeshConfigOIMMemberModel oimmodel = new MeshConfigOIMMemberModel(context);
+			oimmodel.update(oimmodel.getByGroupID(id), oimrecs);
+			
+			ArrayList<MeshConfigWLCGMemberRecord> wlcgrecs = wlcg_resources.getRecords(id, service_id);
+			MeshConfigWLCGMemberModel wlcgmodel = new MeshConfigWLCGMemberModel(context);
+			wlcgmodel.update(wlcgmodel.getByGroupID(id), wlcgrecs);
+		}
+
+		public MeshConfigGroupRecord getGroupRecord() {
 			MeshConfigGroupRecord rec = new MeshConfigGroupRecord();
 			rec.id = id;
 			rec.name = name.getValue();
 			rec.service_id = service.getValue();
-			MeshConfigGroupModel model = new MeshConfigGroupModel(context);
-			model.update(rec);
-			
-			ArrayList<MeshConfigOIMMemberRecord> oimrecs = oim_resources.getRecords(id, rec.service_id);
-			MeshConfigOIMMemberModel oimmodel = new MeshConfigOIMMemberModel(context);
-			oimmodel.update(oimmodel.getByGroupID(id), oimrecs);
-			
-			ArrayList<MeshConfigWLCGMemberRecord> wlcgrecs = wlcg_resources.getRecords(id, rec.service_id);
-			MeshConfigWLCGMemberModel wlcgmodel = new MeshConfigWLCGMemberModel(context);
-			wlcgmodel.update(wlcgmodel.getByGroupID(id), wlcgrecs);
-			
+			return rec;
 		}
 	}
 	
@@ -1063,6 +1195,7 @@ public class MeshConfigFormDE extends DivRepForm {
 		protected GroupsDiv(DivRep parent) {
 			super(parent);
 			
+			//<i class=\"icon-plus-sign\"></i> 
 			add = new DivRepButton(this, "Add New Group") {
 				protected void onClick(DivRepEvent e) {
 					groups.add(new GroupDiv(GroupsDiv.this, null));
@@ -1093,13 +1226,12 @@ public class MeshConfigFormDE extends DivRepForm {
 				div.render(out);
 			}
 			
-			out.write("<p>");
-			add.render(out);
-			out.write("</p>");
-			
 			out.write("</div>");
 			
 			out.write("<div class=\"span3\">");
+			out.write("<p>");
+			add.render(out);
+			out.write("</p>");
 			//HtmlFileView view = new HtmlFileView(getClass().getResourceAsStream("meshtype.html"));
 			//view.render(out);
 			out.write("</div>");
@@ -1114,9 +1246,13 @@ public class MeshConfigFormDE extends DivRepForm {
 		}
 
 		public void save() throws SQLException {
+			MeshConfigGroupModel model = new MeshConfigGroupModel(context);
+			ArrayList<MeshConfigGroupRecord> recs = new ArrayList<MeshConfigGroupRecord>();
 			for(GroupDiv div : groups) {
-				div.save();
+				recs.add(div.getGroupRecord());
+				div.saveMembers();
 			}
+			model.update(model.getAll(), recs);
 		}
 	}
 	
@@ -1211,25 +1347,23 @@ public class MeshConfigFormDE extends DivRepForm {
 
 	@Override
 	protected Boolean doSubmit() {
-		MeshConfigModel model = new MeshConfigModel(context);
 		try {
-			model.startTransaction();
-			groupsdiv.save();
-			paramsdiv.save();
-			configsdiv.save();
-			testsdiv.save();
-			
-			model.commitTransaction();
-		} catch (SQLException e) {
+			Connection conn = context.getConnection();
+			conn.setAutoCommit(false);
 			try {
-				model.rollbackTransaction();
-			} catch(SQLException e1) {
-				log.error("Failed to rollback..", e1);
+				groupsdiv.save();
+				paramsdiv.save();
+				configsdiv.save();
+				testsdiv.save();
+				conn.commit();
+				return true;
+			} catch (SQLException e) {
+				conn.rollback();
+				log.error("Failed to store mesh configs", e);
 			}
-			log.error("Failed to store mesh configs", e);
-			return false;
+		} catch (SQLException e) {
+			log.error("Failed to commit or rollback");
 		}
-		
-		return true;
+		return false;
 	}
 }

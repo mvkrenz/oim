@@ -20,7 +20,7 @@ public class EventPublisher {
 	
     public EventPublisher() {
     	String flag = StaticConfig.conf.getProperty("rabbitmq.postevent");
-    	if(flag.equals("true")) {
+    	if(flag != null && flag.equals("true")) {
     		post = true;
     	}
     }
