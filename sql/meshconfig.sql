@@ -90,6 +90,8 @@ CREATE TABLE `wlcg_site` (
 `official_name` text,
 `longitude` double,
 `latitude` double,
+`country` varchar(255),
+`timezone` varchar(255),
 `contact_email` varchar(128),
     PRIMARY KEY (`primary_key`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;

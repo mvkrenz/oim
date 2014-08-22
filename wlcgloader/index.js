@@ -207,12 +207,14 @@ function upsertSite(site, cb) {
         if(rows.length == 0) {
             console.log("inserting new site "+site.PRIMARY_KEY);
             //console.dir(site);
-            con.query("INSERT INTO wlcg_site (primary_key, short_name, official_name, longitude, latitude, contact_email) VALUES ("+
+            con.query("INSERT INTO wlcg_site (primary_key, short_name, official_name, longitude, latitude, country, timezone, contact_email) VALUES ("+
                 con.escape(site.PRIMARY_KEY)+", "+
                 con.escape(site.SHORT_NAME)+", "+
                 con.escape(site.OFFICIAL_NAME)+", "+
                 site.LONGITUDE+", "+
                 site.LATITUDE+", "+
+                con.escape(site.COUNTRY)+", "+
+                con.escape(site.TIMEZONE)+", "+
                 con.escape(site.CONTACT_EMAIL)+
             ")", cb);
         } else {
@@ -222,6 +224,8 @@ function upsertSite(site, cb) {
                 " official_name = "+con.escape(site.OFFICIAL_NAME)+", "+
                 " longitude = "+site.LONGITUDE+", "+
                 " latitude = "+site.LATITUDE+", "+
+                " country = "+con.escape(site.COUNTRY)+", "+
+                " timezone = "+con.escape(site.TIMEZONE)+", "+
                 " contact_email = "+con.escape(site.CONTACT_EMAIL)+
             " WHERE primary_key = "+con.escape(site.PRIMARY_KEY), cb);
         }
