@@ -133,7 +133,6 @@ function parseEndpoint(inend) {
         case 'COUNTRY_NAME':
         case 'COUNTRY_CODE':
         case 'ROC_NAME':
-        case 'CONTACT_EMAIL':
         case 'URL':
         case 'EXTENSIONS':
         case 'HOST_OS':
@@ -171,30 +170,6 @@ function getxml(method, cache_path, cb) {
     });
 }
 
-/*
-function upsertSite(site, cb) {
-    console.log(site.PRIMARY_KEY);
-    con.query("SELECT id from wlcg_site WHERE primary_key = '"+site.PRIMARY_KEY+"'", function(err, rows) {
-        if(rows.length === 0) {
-            console.log("inserting");
-            console.dir(site);
-            con.query("INSERT INTO wlcg_site (primary_key, short_name, official_name, longitude, latitude, contact_email) VALUES ('"+
-                con.escape(site.PRIMARY_KEY)+"', '"+
-                con.escape(site.SHORT_NAME)+"', '"+
-                con.escape(site.OFFICIAL_NAME)+"', '"+
-                con.escape(site.LONGITUDE)+"', '"+
-                con.escape(site.LATITUDE)+"', '"+
-                con.escape(site.CONTACT_EMAIL)+
-            "')", function(err) {
-                if(err) throw(err);
-                cb();
-            });
-        } else {
-            console.log("updating");
-        }
-    });
-};
-*/
 function upsertSite(site, cb) {
     if(site.LONGITUDE == undefined) {
         site.LONGITUDE = null;
@@ -207,12 +182,14 @@ function upsertSite(site, cb) {
         if(rows.length == 0) {
             console.log("inserting new site "+site.PRIMARY_KEY);
             //console.dir(site);
-            con.query("INSERT INTO wlcg_site (primary_key, short_name, official_name, longitude, latitude, contact_email) VALUES ("+
+            con.query("INSERT INTO wlcg_site (primary_key, short_name, official_name, longitude, latitude, country, timezone, contact_email) VALUES ("+
                 con.escape(site.PRIMARY_KEY)+", "+
                 con.escape(site.SHORT_NAME)+", "+
                 con.escape(site.OFFICIAL_NAME)+", "+
                 site.LONGITUDE+", "+
                 site.LATITUDE+", "+
+                con.escape(site.COUNTRY)+", "+
+                con.escape(site.TIMEZONE)+", "+
                 con.escape(site.CONTACT_EMAIL)+
             ")", cb);
         } else {
@@ -222,6 +199,8 @@ function upsertSite(site, cb) {
                 " official_name = "+con.escape(site.OFFICIAL_NAME)+", "+
                 " longitude = "+site.LONGITUDE+", "+
                 " latitude = "+site.LATITUDE+", "+
+                " country = "+con.escape(site.COUNTRY)+", "+
+                " timezone = "+con.escape(site.TIMEZONE)+", "+
                 " contact_email = "+con.escape(site.CONTACT_EMAIL)+
             " WHERE primary_key = "+con.escape(site.PRIMARY_KEY), cb);
         }
@@ -260,7 +239,7 @@ function upsertEndpoint(ep, cb) {
         con.query("SELECT * FROM wlcg_endpoint WHERE primary_key = "+con.escape(ep.PRIMARY_KEY), function(err, rows) {
             if(rows.length == 0) {
                 console.log("inserting new endpoint "+ep.PRIMARY_KEY);
-                con.query("INSERT INTO wlcg_endpoint (primary_key, site_id, hostname, host_ip, service_type, service_id, in_production, roc_name, contact_email) VALUES ("+
+                con.query("INSERT INTO wlcg_endpoint (primary_key, site_id, hostname, host_ip, service_type, service_id, in_production, roc_name) VALUES ("+
                     con.escape(ep.PRIMARY_KEY)+", "+
                     con.escape(fkeys.site_id)+", "+
                     con.escape(ep.HOSTNAME)+", "+
@@ -268,8 +247,7 @@ function upsertEndpoint(ep, cb) {
                     con.escape(ep.SERVICE_TYPE)+", "+
                     fkeys.service_id+", "+
                     in_prod+", "+
-                    con.escape(ep.ROC_NAME)+", "+
-                    con.escape(ep.CONTACT_EMAIL)+
+                    con.escape(ep.ROC_NAME)+
                 ")", cb);
             } else {
                 //console.log("updating endpoint "+ep.PRIMARY_KEY);
@@ -280,8 +258,7 @@ function upsertEndpoint(ep, cb) {
                     " service_type = "+con.escape(ep.SERVICE_TYPE)+", "+
                     " service_id = "+fkeys.service_id+", "+
                     " in_production = "+in_prod+", "+
-                    " roc_name = "+con.escape(ep.ROC_NAME)+", "+
-                    " contact_email = "+con.escape(ep.CONTACT_EMAIL)+
+                    " roc_name = "+con.escape(ep.ROC_NAME)+
                 " WHERE primary_key = "+con.escape(ep.PRIMARY_KEY), cb);
              }
         });
