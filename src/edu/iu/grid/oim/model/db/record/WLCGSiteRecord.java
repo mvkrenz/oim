@@ -11,6 +11,8 @@ public class WLCGSiteRecord extends RecordBase {
 	public Double longitude;
 	public Double latitude;
 	public String contact_email;
+	public String country;
+	public String timezone;
 	
 	//load from existing record
 	public WLCGSiteRecord(ResultSet rs) throws SQLException { super(rs); }
