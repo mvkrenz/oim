@@ -20,6 +20,7 @@ import com.divrep.common.DivRepButton;
 import com.divrep.common.DivRepFormElement;
 import com.divrep.validator.DivRepIValidator;
 
+import edu.iu.grid.oim.model.db.record.MeshConfigOIMMemberRecord;
 import edu.iu.grid.oim.model.db.record.ResourceRecord;
 
 //Used by MeshConfigServlet
@@ -331,5 +332,16 @@ abstract public class OIMResourceServiceListEditor extends DivRepFormElement<Arr
 	@Override
 	protected void onEvent(DivRepEvent e) {
 		// TODO Auto-generated method stub	
+	}
+	public ArrayList<MeshConfigOIMMemberRecord> getRecords(Integer group_id, Integer service_id) {
+		ArrayList<MeshConfigOIMMemberRecord> recs = new ArrayList<MeshConfigOIMMemberRecord>();
+		for(ResourceDE de : selected) {
+			MeshConfigOIMMemberRecord rec = new MeshConfigOIMMemberRecord();
+			rec.group_id = group_id;
+			rec.resource_id = de.info.rec.id;
+			rec.service_id = service_id;
+			recs.add(rec);
+		}
+		return recs;
 	}
 }

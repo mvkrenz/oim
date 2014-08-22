@@ -212,6 +212,8 @@ public class ResourceServices extends DivRepFormElement {
 
 	}
 	
+	//I think I can use base class' validate if I just hide the removed elements..
+	//I am testing this theory on MeshConfigFormDE.
 	public boolean validate()
 	{
 		error.redraw();

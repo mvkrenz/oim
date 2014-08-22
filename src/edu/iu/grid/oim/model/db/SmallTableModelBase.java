@@ -183,6 +183,8 @@ public abstract class SmallTableModelBase<T extends RecordBase> extends ModelBas
     	emptyCache();
     }
     
+    @Deprecated
+    //I am deprecating this temporarly.. I should be able to use update(T newrec) now.
     public void update(T oldrec, T newrec) throws SQLException {
     	super.update(oldrec,  newrec);
     	emptyCache();

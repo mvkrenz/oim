@@ -21,8 +21,11 @@ import com.divrep.common.DivRepFormElement;
 import com.divrep.validator.DivRepIValidator;
 
 import edu.iu.grid.oim.model.db.WLCGSiteModel;
+import edu.iu.grid.oim.model.db.record.MeshConfigOIMMemberRecord;
+import edu.iu.grid.oim.model.db.record.MeshConfigWLCGMemberRecord;
 import edu.iu.grid.oim.model.db.record.WLCGEndpointRecord;
 import edu.iu.grid.oim.model.db.record.WLCGSiteRecord;
+import edu.iu.grid.oim.view.divrep.OIMResourceServiceListEditor.ResourceDE;
 
 //Used by MeshConfigServlet
 //this requires modified version of jquery autocomplete plugin, and client side code to make the input area to be autocomplete
@@ -319,5 +322,16 @@ abstract public class WLCGResourceServiceListEditor extends DivRepFormElement<Ar
 	@Override
 	protected void onEvent(DivRepEvent e) {
 		// TODO Auto-generated method stub	
+	}
+	public ArrayList<MeshConfigWLCGMemberRecord> getRecords(Integer group_id, Integer service_id) {
+		ArrayList<MeshConfigWLCGMemberRecord> recs = new ArrayList<MeshConfigWLCGMemberRecord>();
+		for(ResourceDE de : selected) {
+			MeshConfigWLCGMemberRecord rec = new MeshConfigWLCGMemberRecord();
+			rec.group_id = group_id;
+			rec.primary_key = de.info.rec.primary_key;
+			rec.service_id = service_id;
+			recs.add(rec);
+		}
+		return recs;
 	}
 }
