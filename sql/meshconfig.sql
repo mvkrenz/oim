@@ -105,7 +105,6 @@ CREATE TABLE `wlcg_endpoint` (
 `service_id` int(11),
 `in_production` tinyint(1),
 `roc_name` varchar(64),
-`contact_email` varchar(128),
     PRIMARY KEY (`primary_key`),
     CONSTRAINT `c_site_id` FOREIGN KEY (`site_id`) REFERENCES `wlcg_site` (`primary_key`) ON DELETE CASCADE,
     CONSTRAINT `c_service_id` FOREIGN KEY (`service_id`) REFERENCES `service` (`id`)
