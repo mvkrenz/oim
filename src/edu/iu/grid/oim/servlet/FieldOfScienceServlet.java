@@ -27,6 +27,7 @@ import edu.iu.grid.oim.view.DivRepWrapper;
 import edu.iu.grid.oim.view.HtmlView;
 import edu.iu.grid.oim.view.SideContentView;
 import edu.iu.grid.oim.view.divrep.RemoveFOSDialog;
+import edu.iu.grid.oim.model.ContactRank;
 import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.FieldOfScienceModel;
 import edu.iu.grid.oim.model.db.ProjectModel;
@@ -44,8 +45,7 @@ public class FieldOfScienceServlet extends ServletBase {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{	
 		UserContext context = new UserContext(request);
-		Authorization auth = context.getAuthorization();
-		auth.check("admin_fos");
+		//guest has read access
 		
 		try {
 			//construct view
@@ -67,18 +67,31 @@ public class FieldOfScienceServlet extends ServletBase {
 		}
 	}
 	
+	protected HtmlView createVO(VORecord vo, String cls) {
+		String name = vo.name;
+		if(vo.cert_only) {
+			name += " (Cert Only)";
+			cls = "label"; //make it gray
+		}
+		return new HtmlView("<a class='"+cls+"' href='vo?id="+vo.id+"'>"+name+"</a> ");
+	}
+	
 	protected ContentView createContentView(UserContext context) 
 		throws ServletException, SQLException
 	{
+		Authorization auth = context.getAuthorization();
+		
 		FieldOfScienceModel model = new FieldOfScienceModel(context);
 		Collection<FieldOfScienceRecord> recs = model.getAll();
 		
 		ContentView contentview = new ContentView(context);	
-		contentview.add(new HtmlView("<a class=\"btn pull-right\" href=\"fieldofscienceedit\">Add New Field Of Science</a>"));
+		if(auth.allows("admin_fos")) {
+			contentview.add(new HtmlView("<a class=\"btn pull-right\" href=\"fieldofscienceedit\">Add New Field Of Science</a>"));
+		}
 		contentview.add(new HtmlView("<h2>Fields Of Science</h2>"));
 		
 		contentview.add(new HtmlView("<table class=\"table nohover\">"));
-		contentview.add(new HtmlView("<thead><tr><th>Field Of Science</th><th>Used By</th><th></th><th></th></tr></thead>"));	
+		contentview.add(new HtmlView("<thead><tr><th width='20%'>Field Of Science</th><th width='15%'>VOs using as Primary FOS</th><th width='25%'>VOs using as secondary FOS</th><th>Projects using</th><th></th><th></th></tr></thead>"));	
 		
 		VOFieldOfScienceModel vofosmodel = new VOFieldOfScienceModel(context);
 		VOModel vomodel = new VOModel(context);
@@ -98,31 +111,44 @@ public class FieldOfScienceServlet extends ServletBase {
 			contentview.add(new HtmlView("<td>"+StringEscapeUtils.escapeHtml(rec.name)+"</td>"));	
 			
 			boolean used = false;
-			
-			//list of vo / projects using this fos
-			contentview.add(new HtmlView("<td>"));
 			ArrayList<VOFieldOfScienceRecord> vofosrecs = vofosmodel.getByFOS(rec.id);
-			contentview.add(new HtmlView("<p>"));
+			
+			//list primary vo
+			contentview.add(new HtmlView("<td>"));
 			for(VOFieldOfScienceRecord vofosrec : vofosrecs) {
 				VORecord vorec = vomodel.get(vofosrec.vo_id);
-				contentview.add(new HtmlView("<span class='label label-info'>VO: "+vorec.name+"</span> "));
-				
+				if(vofosrec.rank_id.equals(1/*ContactRank.Primary*/)) {
+					contentview.add(createVO(vorec, "label label-important"));
+				}
 				used = true;
 			}
-			contentview.add(new HtmlView("</p>"));
+			contentview.add(new HtmlView("</td>"));
 			
-			contentview.add(new HtmlView("<p>"));
+			//list secondary vo
+			contentview.add(new HtmlView("<td>"));
+			for(VOFieldOfScienceRecord vofosrec : vofosrecs) {
+				VORecord vorec = vomodel.get(vofosrec.vo_id);
+				if(vofosrec.rank_id.equals(2/*ContactRank.Secondary*/)) {
+					contentview.add(createVO(vorec, "label label-info"));
+				}
+				used = true;
+			}
+			contentview.add(new HtmlView("</td>"));
+			
+			//list projects
+			contentview.add(new HtmlView("<td>"));
+			//contentview.add(new HtmlView("<p>"));
 			ArrayList<ProjectRecord> precs = pmodel.getByFOS(rec.id);
 			for(ProjectRecord prec : precs) {
-				contentview.add(new HtmlView("<span class='label label-warning'>Project: "+prec.name+"</span> "));
+				contentview.add(new HtmlView("<a class='label label-success' href='project?id="+prec.id+"'>"+prec.name+"</a> "));
 				
 				used = true;
 			}
-			contentview.add(new HtmlView("</p>"));
+			//contentview.add(new HtmlView("</p>"));
 			contentview.add(new HtmlView("</td>"));
 			
 			contentview.add(new HtmlView("<td style=\"min-width: 30px\">"));
-			if(!used) {
+			if(auth.allows("admin_fos") && !used) {
 				//TODO - this is very inefficient.. having dialog for every single fos that has delete button.
 				final RemoveFOSDialog remove_fos_dialog = new RemoveFOSDialog(context.getPageRoot(), context);
 				class RemoveButtonDE extends DivRepButton
@@ -144,7 +170,9 @@ public class FieldOfScienceServlet extends ServletBase {
 			contentview.add(new HtmlView("</td>"));
 			
 			contentview.add(new HtmlView("<td>"));
-			contentview.add(new HtmlView("<a class=\"btn btn-mini\" href=\"fieldofscienceedit?id="+rec.id+"\">Edit</a>"));
+			if(auth.allows("admin_fos")) {
+				contentview.add(new HtmlView("<a class=\"btn btn-mini\" href=\"fieldofscienceedit?id="+rec.id+"\">Edit</a>"));
+			}
 			contentview.add(new HtmlView("</td>"));
 			contentview.add(new HtmlView("</tr>"));	
 		}
