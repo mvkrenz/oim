@@ -3,7 +3,10 @@ oim.conf
 WebContent/META-INF/context.xml
 build
 src/log4j.properties
-wlcgloader/config.json
-wlcgloader/node_modules
-wlcgloader/cache/*
+
 node_modules
+
+wlcgloader/config.json
+wlcgloader/cache/*
+
+pf_endpoint_crawler/config.json
