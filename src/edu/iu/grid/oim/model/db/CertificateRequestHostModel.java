@@ -204,11 +204,13 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 			public void run() {
 				CertificateManager cm = new CertificateManager();
 				try {
+					log.debug("Starting signing process");
 					cm.signHostCertificates(certs, new IHostCertificatesCallBack() {
 						
 						//called once all certificates are requested (and approved) - but not yet issued
 						@Override
 						public void certificateRequested() {
+							log.debug("certificateRequested called");
 							//update certs db contents
 							try {
 								for(int c = 0; c < certs.length; ++c) {
@@ -278,6 +280,8 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 							}
 						}
 					});
+					
+					log.debug("Finishing up issue process");
 
 					//update records
 					int idx = 0;
@@ -306,6 +310,8 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 					rec.cert_notafter = cert.notafter;
 					rec.cert_notbefore = cert.notbefore;
 					
+					log.debug("Updating status");
+					
 					//update status
 					try {
 						rec.status = CertificateRequestStatus.ISSUED;
@@ -314,6 +320,8 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 					} catch (SQLException e) {
 						throw new CertificateRequestException("Failed to update status for certificate request: " + rec.id);
 					}
+					
+					log.debug("Updating ticket");
 					
 					//update ticket
 					Footprints fp = new Footprints(context);
