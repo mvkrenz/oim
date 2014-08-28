@@ -13,7 +13,6 @@ public class WLCGEndpointRecord extends RecordBase {
 	public Integer service_id;
 	public Boolean in_production; 
 	public String roc_name;
-	public String contact_email;
 	
 	//load from existing record
 	public WLCGEndpointRecord(ResultSet rs) throws SQLException { super(rs); }

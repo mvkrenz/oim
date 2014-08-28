@@ -244,24 +244,7 @@ public class CertificateHostServlet extends ServletBase  {
 							}
 							RevokeButton button = new RevokeButton(context.getPageRoot(), i);
 							button.render(out);
-						} /*else if(model.canRequestRevoke(rec)) {
-							class RevokeButton extends DivRepButton {
-								int idx;
-								public RevokeButton(DivRep parent, int idx) {
-									super(parent, "Request Revoke");
-									addClass("btn");
-									addClass("btn-mini");
-									addClass("pull-right");
-									this.idx = idx;
-								}
-								protected void onClick(DivRepEvent e) {
-									//TODO - request revoke
-									System.out.println("click revoke on " + idx);
-								}
-							}
-							RevokeButton button = new RevokeButton(context.getPageRoot(), i);
-							button.render(out);
-						}*/
+						}
 						
 						//show certificate status
 						if(statuses[i].equals(CertificateRequestStatus.REVOKED)) {

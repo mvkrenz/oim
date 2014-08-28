@@ -136,6 +136,7 @@ public class DigicertCertificateSigner implements ICertificateSigner {
 			//check timeout
 			Date now = new Date();
 			if(now.getTime() - start.getTime() > timeout_msec) {
+				log.debug("certificate issuing timeout reached..");
 				//timed out..
 				throw new CertificateProviderException("DigiCert didn't return certificate after "+(timeout_msec/1000)+" seconds");
 			}
