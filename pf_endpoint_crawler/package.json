@@ -1,0 +1,28 @@
+{
+  "name": "pf_endpoint_crawler",
+  "version": "0.0.0",
+  "description": "script to crawl all perfsonar service / endpoints and discover which MAs are running",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "mocha"
+  },
+  "keywords": [
+    "wlcg",
+    "oim"
+  ],
+  "dependencies": {
+    "xml2js": "0.4.*" ,
+    "assert": "1.1.1",
+    "mocha": "1.21.4",
+    "chai": "1.9.1",
+    "mysql": "2.4.2",
+    "async": "0.9.0",
+    "lodash": "2.4.1",
+    "perfsonar": "*"
+  },
+  "author": "Soichi Hayashi <hayashis@iu.ed>",
+  "license": "MIT"
+}
