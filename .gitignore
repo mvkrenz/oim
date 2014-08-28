@@ -6,3 +6,4 @@ src/log4j.properties
 wlcgloader/config.json
 wlcgloader/node_modules
 wlcgloader/cache/*
+node_modules
