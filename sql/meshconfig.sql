@@ -4,7 +4,7 @@ drop table if exists mesh_config_group;
 CREATE TABLE `mesh_config_group` (
 `id` int(11) NOT NULL AUTO_INCREMENT,
 `name` varchar(256) COLLATE utf8_unicode_ci NOT NULL,
-`service_id` int(11) NOT NULL comment 'service_type either 130 or 131', 
+`service_id` int(11) NOT NULL comment 'service_type either 130, 131 or 137(traceroute)', 
 PRIMARY KEY (`id`),
 UNIQUE KEY `name` (`name`),
 CONSTRAINT `c_service_id` FOREIGN KEY (`service_id`) REFERENCES `service` (`id`)
