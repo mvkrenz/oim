@@ -160,7 +160,7 @@ abstract public class OIMResourceServiceListEditor extends DivRepFormElement<Arr
 				}
 				
 				//if no match was found, pick the closest match
-				if(recs.size() == 0) {
+				if(recs.size() == 0 && best_guess != null) {
 					recs.put(best_guess.rec.id, best_guess);	
 				}
 		

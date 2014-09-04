@@ -226,7 +226,7 @@ public class ContactEditor extends DivRepFormElement<HashMap<ContactRank, ArrayL
 				}
 				
 				//if no match was found, pick the closest match
-				if(persons.size() == 0) {
+				if(persons.size() == 0 && best_guess != null) {
 					persons.put(best_guess.id, best_guess);	
 				}
 		
