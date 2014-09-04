@@ -99,15 +99,15 @@ public class MeshConfigFormDE extends DivRepForm {
 		Integer id;
 		
 		DivRepTextBox name;
-		//VOSelector vo;
-		DivRepCheckBox disable;
-		
 		DivRepSelectBox config;
 		DivRepSelectBox service;
 		DivRepSelectBox type;
 		DivRepSelectBox param;
 		DivRepSelectBox group_a;
 		DivRepSelectBox group_b;
+		
+		DivRepCheckBox disable;
+		DivRepButton remove;
 
 		protected TestDiv(DivRep parent, MeshConfigTestRecord rec) {
 			super(parent);
@@ -172,6 +172,20 @@ public class MeshConfigFormDE extends DivRepForm {
 			config = new DivRepSelectBox(this);
 			config.setLabel("Configuration to be part of");
 			config.setRequired(true);
+			
+			remove = new DivRepButton(this, "images/delete.png") {
+				@Override
+				protected void onClick(DivRepEvent e) {
+					//divrep keeps track of its children, and DivrepFormElement validates all children even if I remove it here.
+					//instead of overriding validate(), I am trying this new approach by hiding the element.
+					TestDiv.this.setHidden(true); 
+					
+					testsdiv.tests.remove(TestDiv.this);
+					testsdiv.redraw();
+				}	
+			};
+			remove.addClass("pull-right");
+			remove.setStyle(DivRepButton.Style.IMAGE);
 			
 			if(rec != null) {
 				id = rec.id;
@@ -245,6 +259,7 @@ public class MeshConfigFormDE extends DivRepForm {
 		public void render(PrintWriter out) {
 			out.write("<div id=\""+getNodeID()+"\" class=\"well\">");
 			
+			remove.render(out);
 			config.render(out);
 			out.write("<hr>");
 
@@ -360,6 +375,17 @@ public class MeshConfigFormDE extends DivRepForm {
 		DivRepTextBox name;
 		DivRepTextBox desc;
 		DivRepCheckBox disable;
+		DivRepButton remove;
+		
+		private boolean isUsed() {
+			for(TestDiv test : testsdiv.tests) {
+				Integer config_id = test.config.getValue();
+				if(config_id != null && config_id.equals(id)) {
+					return true;
+				}
+			}
+			return false;
+		}
 
 		protected ConfigDiv(DivRep parent, MeshConfigRecord rec) {
 			super(parent);
@@ -390,6 +416,27 @@ public class MeshConfigFormDE extends DivRepForm {
 			
 			disable = new DivRepCheckBox(this);
 			disable.setLabel("Disable");
+			
+			remove = new DivRepButton(this, "images/delete.png") {
+				@Override
+				protected void onClick(DivRepEvent e) {
+					if(isUsed()) {
+						alert("This configuration is currently used by 1 or more tests. Please unassociated from all test before removing.");
+					} else {
+						//divrep keeps track of its children, and DivrepFormElement validates all children even if I remove it here.
+						//instead of overriding validate(), I am trying this new approach by hiding the element.
+						ConfigDiv.this.setHidden(true); 
+						
+						configsdiv.configs.remove(ConfigDiv.this);
+						configsdiv.redraw();
+						
+						testsdiv.load_keyvalues();
+						testsdiv.redraw();
+					}
+				}	
+			};
+			remove.addClass("pull-right");
+			remove.setStyle(DivRepButton.Style.IMAGE);
 			
 			if(rec != null) {
 				id = rec.id;
@@ -483,6 +530,7 @@ public class MeshConfigFormDE extends DivRepForm {
 		public void render(PrintWriter out) {
 			out.write("<div id=\""+getNodeID()+"\" class=\"well\">");
 
+			remove.render(out);
 			name.render(out);
 			desc.render(out);
 			
