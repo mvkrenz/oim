@@ -3,9 +3,6 @@
   "version": "0.0.0",
   "description": "script to load wlcg xml into aux. oim tables",
   "main": "index.js",
-  "directories": {
-    "test": "test"
-  },
   "scripts": {
     "test": "mocha"
   },
