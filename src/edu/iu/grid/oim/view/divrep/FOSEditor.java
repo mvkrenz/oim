@@ -215,7 +215,7 @@ public class FOSEditor extends DivRepFormElement<HashMap<FOSRank, ArrayList<FOSE
 				}
 				
 				//if no match was found, pick the closest match
-				if(foss.size() == 0) {
+				if(foss.size() == 0 && best_guess != null) {
 					foss.put(best_guess.id, best_guess);	
 				}
 		

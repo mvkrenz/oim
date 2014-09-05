@@ -54,6 +54,7 @@ public class RestServlet extends ServletBase  {
     	
     	void out(HttpServletResponse response) throws IOException {
     		response.setContentType("application/json");
+    		response.setStatus(200); //we always return 200 - let user parse the status code instead
     		PrintWriter out = response.getWriter();
     		params.put("status", status.toString());
     		params.put("detail", detail);

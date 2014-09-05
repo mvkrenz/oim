@@ -1,15 +1,14 @@
 package edu.iu.grid.oim.view.divrep.form.validator;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.bouncycastle.asn1.x500.X500Name;
-
 import com.divrep.validator.DivRepIValidator;
 
 public class CNValidator implements DivRepIValidator<String>
 {
 	public enum Type { USER, HOST };
 	private Type type;
-	
-	private static final long serialVersionUID = 3609459828510820900L;
 	String message;
 	
 	public CNValidator(Type type) {
@@ -18,7 +17,7 @@ public class CNValidator implements DivRepIValidator<String>
 		
 	@Override
 	public Boolean isValid(String value) {
-		//ideally, we should have single regex expression, but regex is impossible to get it right for ordinally human beings
+		//ideally, we should have single regex expression, but regex is impossible to get it right for originally human beings
 		switch(type) {
 		case USER:
 			if(value.contains("/")) {
@@ -49,6 +48,13 @@ public class CNValidator implements DivRepIValidator<String>
 		
 		if(!value.matches("^\\p{ASCII}*$")) {
 			message = "Contains non-ascii characters.";
+			return false;
+		}
+		
+		Pattern whitespace = Pattern.compile("\\p{Space}\\p{Space}");
+		Matcher matcher = whitespace.matcher(value);
+		if(matcher.find())	{
+			message = "Contains more than one space.";
 			return false;
 		}
 		

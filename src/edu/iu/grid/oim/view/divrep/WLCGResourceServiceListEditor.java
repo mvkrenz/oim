@@ -157,7 +157,7 @@ abstract public class WLCGResourceServiceListEditor extends DivRepFormElement<Ar
 				}
 				
 				//if no match was found, pick the closest match
-				if(recs.size() == 0) {
+				if(recs.size() == 0 && best_guess != null) {
 					recs.put(best_guess.rec.primary_key, best_guess);	
 				}
 		

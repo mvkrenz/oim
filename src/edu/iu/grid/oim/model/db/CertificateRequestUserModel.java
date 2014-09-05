@@ -1082,14 +1082,15 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 	    conn.close();		
 	}
 	
-	public void notifyExpiringIn(Integer days) throws SQLException {
+	public void notifyExpiringIn(Integer days_less_than) throws SQLException {
 		final SimpleDateFormat dformat = new SimpleDateFormat();
 		dformat.setTimeZone(auth.getTimeZone());
 		
 		ContactModel cmodel = new ContactModel(context);
 		
-		for(CertificateRequestUserRecord rec : findExpiringIn(days)) {
-			
+		log.debug("Looking for user certificate expiring in " + days_less_than + " days");
+		for(CertificateRequestUserRecord rec : findExpiringIn(days_less_than)) {
+			log.debug("user cert: " + rec.id + " expires on " + dformat.format(rec.cert_notafter));
 			ContactRecord requester = cmodel.get(rec.requester_contact_id);
 			Date expiration_date = rec.cert_notafter;
 			
