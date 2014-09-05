@@ -1332,8 +1332,11 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 		ContactModel cmodel = new ContactModel(context);
 		
 		//process host certificate requests
+		log.debug("Looking for host certificate expiring in " + days_less_than + " days");
 		for(CertificateRequestHostRecord rec : findExpiringIn(days_less_than)) {
-			ContactRecord requester = cmodel.get(rec.requester_contact_id);
+			log.debug("host cert: " + rec.id + " expires on " + dformat.format(rec.cert_notafter));
+			
+			//ContactRecord requester = cmodel.get(rec.requester_contact_id);
 			
 			//user can't renew host certificate, so instead of keep notifying, let's just notify only once by limiting the time window
 			//when notification can be sent out
@@ -1346,7 +1349,7 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 			//send notification
 			Footprints fp = new Footprints(context);
 			FPTicket ticket = fp.new FPTicket();
-			ticket.description = "Dear " + requester.name + ",\n\n";
+			ticket.description = "Dear " + rec.requester_name + ",\n\n";
 			ticket.description += "Your host certificates requested in this ticket will expire in "+days_less_than+" days\n\n";
 			
 			//ArrayList<CertificateRequestModelBase<CertificateRequestHostRecord>.LogDetail> logs = getLogs(CertificateRequestHostModel.class, rec.id);
@@ -1365,7 +1368,6 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 				fp.update(ticket, rec.goc_ticket_id);
 				log.info("updated goc ticket : " + rec.goc_ticket_id + " to notify expiring host certificate");
 			}
-
 		}
 	}
 	
