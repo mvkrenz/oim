@@ -1438,10 +1438,10 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 				FPTicket ticket = fp.new FPTicket();
 				
 				ContactModel cmodel = new ContactModel(context);
-				ContactRecord requester = cmodel.get(rec.requester_contact_id);
+				//ContactRecord requester = cmodel.get(rec.requester_contact_id);
 				
 				//send notification
-				ticket.description = "Dear " + requester.name + ",\n\n";
+				ticket.description = "Dear " + rec.requester_name + ",\n\n";
 				ticket.description += "Your host certificate (id: "+rec.id+") was approved 15 days ago. The request is scheduled to be automatically canceled within another 15 days. Please take this opportunity to download your approved certificate at your earliest convenience. If you are experiencing any trouble with the issuance of your certificate, please feel free to contact the GOC for further assistance. Please visit "+getTicketUrl(rec.id)+" to issue your host certificate.\n\n";
 				
 				fp.update(ticket, rec.goc_ticket_id);
@@ -1464,10 +1464,10 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 				FPTicket ticket = fp.new FPTicket();
 				
 				ContactModel cmodel = new ContactModel(context);
-				ContactRecord requester = cmodel.get(rec.requester_contact_id);
+				//ContactRecord requester = cmodel.get(rec.requester_contact_id);
 				
 				//send notification
-				ticket.description = "Dear " + requester.name + ",\n\n";
+				ticket.description = "Dear " + rec.requester_name + ",\n\n";
 				ticket.description += "You did not issue your host certificate (id: "+rec.id+") within 30 days from the approval. In compliance with OSG PKI policy, the request is being canceled. You are welcome to re-request if necessary at "+getTicketUrl(rec.id)+".\n\n";
 				ticket.status = "Resolved";
 				fp.update(ticket, rec.goc_ticket_id);

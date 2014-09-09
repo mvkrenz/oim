@@ -197,8 +197,8 @@ public class DigicertCertificateSigner implements ICertificateSigner {
 					Element code = (Element)error_code.getElementsByTagName("code").item(0);
 					Element description = (Element)error_code.getElementsByTagName("description").item(0);
 					errors.append(" Error while accessing: grid_request_email_cert");
-					errors.append(" Code:" + code.getTextContent());
-					errors.append(" Description:" + description.getTextContent());
+					errors.append("\nCode:" + code.getTextContent());
+					errors.append("\nDescription:" + description.getTextContent());
 					errors.append("\n");
 				}
 				throw new DigicertCPException("Request failed for grid_request_email_cert\n" + errors.toString());
@@ -264,8 +264,8 @@ public class DigicertCertificateSigner implements ICertificateSigner {
 					Element error_code = (Element)error_code_nl.item(i);
 					Element code = (Element)error_code.getElementsByTagName("code").item(0);
 					Element description = (Element)error_code.getElementsByTagName("description").item(0);
-					errors.append("Code:" + code.getTextContent());
-					errors.append("Description:" + description.getTextContent());
+					errors.append("\nCode:" + code.getTextContent());
+					errors.append("\nDescription:" + description.getTextContent());
 					errors.append("\n");
 				}
 				throw new DigicertCPException("Request failed for grid_request_host_cert..\n" + errors.toString());
@@ -313,8 +313,8 @@ public class DigicertCertificateSigner implements ICertificateSigner {
 					Element error_code = (Element)error_code_nl.item(i);
 					Element code = (Element)error_code.getElementsByTagName("code").item(0);
 					Element description = (Element)error_code.getElementsByTagName("description").item(0);
-					errors.append("Code:" + code.getTextContent());
-					errors.append(" Description:" + description.getTextContent());
+					errors.append("\nCode:" + code.getTextContent());
+					errors.append("\nDescription:" + description.getTextContent());
 					errors.append("\n");
 				}
 				throw new DigicertCPException("Request failed for grid_approve_request\n" + errors.toString());
@@ -365,8 +365,8 @@ public class DigicertCertificateSigner implements ICertificateSigner {
 					Element error_code = (Element)error_code_nl.item(i);
 					Element code = (Element)error_code.getElementsByTagName("code").item(0);
 					Element description = (Element)error_code.getElementsByTagName("description").item(0);
-					errors.append("Code:" + code.getTextContent());
-					errors.append(" Description:" + description.getTextContent());
+					errors.append("\nCode:" + code.getTextContent());
+					errors.append("\nDescription:" + description.getTextContent());
 					errors.append("\n");
 				}
 				throw new DigicertCPException("Request failed for grid_retrieve_host_cert\n" + errors.toString());
@@ -434,8 +434,8 @@ public class DigicertCertificateSigner implements ICertificateSigner {
 					Element error_code = (Element)error_code_nl.item(i);
 					Element code = (Element)error_code.getElementsByTagName("code").item(0);
 					Element description = (Element)error_code.getElementsByTagName("description").item(0);
-					errors.append("Code:" + code.getTextContent());
-					errors.append(" Description:" + description.getTextContent());
+					errors.append("\nCode:" + code.getTextContent());
+					errors.append("\nDescription:" + description.getTextContent());
 					errors.append("\n");
 				}
 				throw new DigicertCPException("Request failed for grid_request_host_revoke\n" + errors.toString());
@@ -483,8 +483,8 @@ public class DigicertCertificateSigner implements ICertificateSigner {
 					Element error_code = (Element)error_code_nl.item(i);
 					Element code = (Element)error_code.getElementsByTagName("code").item(0);
 					Element description = (Element)error_code.getElementsByTagName("description").item(0);
-					errors.append("Code:" + code.getTextContent());
-					errors.append(" Description:" + description.getTextContent());
+					errors.append("\nCode:" + code.getTextContent());
+					errors.append("\nDescription:" + description.getTextContent());
 					errors.append("\n");
 				}
 				throw new DigicertCPException("Request failed for grid_email_revoke\n" + errors.toString());
