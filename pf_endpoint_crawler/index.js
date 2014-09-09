@@ -47,7 +47,6 @@ async.series([
         });
     }, function(err) {
         console.log("all done");
-        con.end();
     });
 });
 
