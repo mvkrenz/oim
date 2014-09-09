@@ -198,8 +198,10 @@ public class MeshConfigFormDE extends DivRepForm {
 				group_b.setValue(rec.groupb_id);
 				config.setValue(rec.mesh_config_id);
 			} else {
-				//come up with a new ID
-				Integer nextid = 0;
+				//*guess* what the next mysql id is. This is bad for following reasons.
+				//1) we should be asking mysql for this ID
+				//2) we don't know what order the records will be inserted (probably in right order, but I've made no such assumption while coding)
+				Integer nextid = 1;
 				for(TestDiv div : testsdiv.tests) {
 					if(nextid <= div.id) {
 						nextid = div.id+1;
@@ -339,11 +341,6 @@ public class MeshConfigFormDE extends DivRepForm {
 			param.setValues(param_keyvalues);	
 		}
 
-		public void save() {
-			// TODO Auto-generated method stub
-			
-		}
-
 		public MeshConfigTestRecord getRecord() {
 			//convert type id to type string.
 			String type_string = null;
@@ -444,8 +441,10 @@ public class MeshConfigFormDE extends DivRepForm {
 				disable.setValue(rec.disable);
 				desc.setValue(rec.desc);
 			} else {
-				//come up with a new ID
-				Integer nextid = 0;
+				//*guess* what the next mysql id is. This is bad for following reasons.
+				//1) we should be asking mysql for this ID
+				//2) we don't know what order the records will be inserted (probably in right order, but I've made no such assumption while coding)
+				Integer nextid = 1;
 				for(ConfigDiv div : configsdiv.configs) {
 					if(nextid <= div.id) {
 						nextid = div.id+1;
@@ -729,8 +728,10 @@ public class MeshConfigFormDE extends DivRepForm {
 				service.setValue(rec.service_id);
 				previous_service_id = rec.service_id;
 			} else {
-				//come up with a new ID (is this safe?)
-				Integer nextid = 0;
+				//*guess* what the next mysql id is. This is bad for following reasons.
+				//1) we should be asking mysql for this ID
+				//2) we don't know what order the records will be inserted (probably in right order, but I've made no such assumption while coding)
+				Integer nextid = 1;
 				for(ParamDiv div : paramsdiv.params) {
 					if(nextid <= div.id) {
 						nextid = div.id+1;
@@ -1212,8 +1213,10 @@ public class MeshConfigFormDE extends DivRepForm {
 					log.error("Failed to load resource info");
 				}
 			} else {
-				//come up with a new ID
-				Integer nextid = 0;
+				//*guess* what the next mysql id is. This is bad for following reasons.
+				//1) we should be asking mysql for this ID
+				//2) we don't know what order the records will be inserted (probably in right order, but I've made no such assumption while coding)
+				Integer nextid = 1;
 				for(GroupDiv div : groupsdiv.groups) {
 					if(nextid <= div.id) {
 						nextid = div.id+1;
