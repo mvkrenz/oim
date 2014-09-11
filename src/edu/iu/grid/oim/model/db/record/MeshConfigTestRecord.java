@@ -16,8 +16,8 @@ public class MeshConfigTestRecord extends RecordBase {
 	public String type;  //enum - MESH/DISJOINT/STAR
 	
 	//use get/setGroupXIds() instead of accessing directly
-	protected  String groupa_ids; //comma delimited list of host groups
-	protected String groupb_ids; //comma delimited list of host groups
+	public String groupa_ids; //comma delimited list of host groups
+	public String groupb_ids; //comma delimited list of host groups
 	public Integer param_id;
 	
 	//load from existing record
@@ -35,6 +35,7 @@ public class MeshConfigTestRecord extends RecordBase {
 		ArrayList<Integer> ids = new ArrayList<Integer>();
 		if(_ids != null) {
 			for(String id : _ids.split(",")) {
+				if(id.length() == 0) continue;
 				ids.add(Integer.parseInt(id));
 			}
 		}

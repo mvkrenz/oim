@@ -10,32 +10,16 @@ import org.apache.commons.lang.StringUtils;
 
 import com.divrep.DivRep;
 
-import edu.iu.grid.oim.model.UserContext;
-import edu.iu.grid.oim.model.db.MeshConfigGroupModel;
-import edu.iu.grid.oim.model.db.record.MeshConfigGroupRecord;
-
-public class HostGroupListEditor extends SelectionEditorBase {
+public abstract class HostGroupListEditor extends SelectionEditorBase {
 
 	private static final long serialVersionUID = 1L;
-	private MeshConfigGroupModel model;
-
-	public HostGroupListEditor(UserContext context, DivRep parent) {
+	
+	public HostGroupListEditor(DivRep parent) {
 		super(parent);
-		model = new MeshConfigGroupModel(context);
 	}
 
 	@Override
-	protected ItemInfo getDetailByID(Integer id) throws SQLException {
-		MeshConfigGroupRecord rec = model.get(id);
-		if(rec == null) return null; //is this the right behavior?
-		
-		ItemInfo info = new ItemInfo();
-		info.id = id;
-		info.name = rec.name;
-		info.detail = null;
-		info.disabled = false;
-		return info;
-	}
+	abstract protected ItemInfo getDetailByID(Integer id);
 
 	@Override
 	protected Collection<ItemInfo> searchByQuery(String query) throws SQLException {
@@ -103,24 +87,13 @@ public class HostGroupListEditor extends SelectionEditorBase {
 	}
 	
 	//takes comma delimited ids
-	public void setSelected(ArrayList<Integer> _ids) {
-		//TODO ... remove all items
-
-		
+	public void addSelected(ArrayList<Integer> _ids) {
 		if(_ids == null) return;
 		
 		//String[] ids = _ids.split(",");
 		for(Integer id : _ids) {
-			ItemInfo item = new ItemInfo();
-			item.id = id;
-			MeshConfigGroupRecord rec;
-			try {
-				rec = model.get(item.id);
-				item.name = rec.name;
-				this.addSelected(item);
-			} catch (SQLException e) {
-				log.error("Failed to load selected host group record",e);
-			}
+			ItemInfo item = getDetailByID(id);
+			addSelected(item);
 		}
 	}
 	

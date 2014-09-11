@@ -70,6 +70,7 @@ import edu.iu.grid.oim.view.divrep.ContactEditor;
 import edu.iu.grid.oim.view.divrep.HostGroupListEditor;
 import edu.iu.grid.oim.view.divrep.OIMResourceServiceListEditor;
 import edu.iu.grid.oim.view.divrep.WLCGResourceServiceListEditor;
+import edu.iu.grid.oim.view.divrep.SelectionEditorBase.ItemInfo;
 
 public class MeshConfigFormDE extends DivRepForm {
     static Logger log = Logger.getLogger(MeshConfigFormDE.class); 
@@ -139,8 +140,8 @@ public class MeshConfigFormDE extends DivRepForm {
 					
 					//reset to null
 					param.setValue(null); 
-					group_a.setSelected(new ArrayList<Integer>());
-					group_b.setSelected(new ArrayList<Integer>());
+					group_a.clear();
+					group_b.clear();
 					
 					showhide();
 					TestDiv.this.redraw();
@@ -159,10 +160,30 @@ public class MeshConfigFormDE extends DivRepForm {
 				}
 			});
 			
-			group_a = new HostGroupListEditor(context, this);
+			class MeshConfigHostGroupListEditor extends HostGroupListEditor {
+				public MeshConfigHostGroupListEditor(DivRep parent) {
+					super(parent);
+				}
+
+				protected ItemInfo getDetailByID(Integer id) {
+					for(GroupDiv group : groupsdiv.groups) {
+						if(group.id.equals(id)) {
+							ItemInfo info = new ItemInfo();
+							info.id = id;
+							info.name = group.name.getValue();
+							info.detail = null;
+							info.disabled = false;
+							return info;
+						}
+					}
+					return null;
+				}
+			}
+			
+			group_a = new MeshConfigHostGroupListEditor(this);
 			group_a.setLabel("Host Group A");
 			
-			group_b = new HostGroupListEditor(context, this);
+			group_b = new MeshConfigHostGroupListEditor(this);
 			group_b.setLabel("Host Group B");
 			
 			param = new DivRepSelectBox(this);
@@ -194,8 +215,8 @@ public class MeshConfigFormDE extends DivRepForm {
 				service.setValue(rec.service_id);
 				type.setValue(meshTypeStringToInteger(rec.type));
 				param.setValue(rec.param_id);
-				group_a.setSelected(rec.getGroupAIds());
-				group_b.setSelected(rec.getGroupBIds());
+				group_a.addSelected(rec.getGroupAIds());
+				group_b.addSelected(rec.getGroupBIds());
 				config.setValue(rec.mesh_config_id);
 			} else {
 				//*guess* what the next mysql id is. This is bad for following reasons.
