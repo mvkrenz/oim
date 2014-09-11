@@ -21,7 +21,6 @@ public class MeshConfigServlet extends ServletBase  {
 	private static final long serialVersionUID = 1L;
     static Logger log = Logger.getLogger(MeshConfigServlet.class);  
 
-    
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		UserContext context = new UserContext(request);
 		Authorization auth = context.getAuthorization();
