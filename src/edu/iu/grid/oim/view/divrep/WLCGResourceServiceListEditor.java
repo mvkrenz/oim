@@ -20,15 +20,11 @@ import com.divrep.common.DivRepButton;
 import com.divrep.common.DivRepFormElement;
 import com.divrep.validator.DivRepIValidator;
 
-import edu.iu.grid.oim.model.db.WLCGSiteModel;
-import edu.iu.grid.oim.model.db.record.MeshConfigOIMMemberRecord;
 import edu.iu.grid.oim.model.db.record.MeshConfigWLCGMemberRecord;
 import edu.iu.grid.oim.model.db.record.WLCGEndpointRecord;
-import edu.iu.grid.oim.model.db.record.WLCGSiteRecord;
-import edu.iu.grid.oim.view.divrep.OIMResourceServiceListEditor.ResourceDE;
 
 //Used by MeshConfigServlet
-//this requires modified version of jquery autocomplete plugin, and client side code to make the input area to be autocomplete
+//REFACTOR THIS and use SelectionEditorBase as a base class (see HostGroupListEditor for sample)
 abstract public class WLCGResourceServiceListEditor extends DivRepFormElement<ArrayList<WLCGResourceServiceListEditor.ResourceDE>> {
 	static Logger log = Logger.getLogger(WLCGResourceServiceListEditor.class);
 	

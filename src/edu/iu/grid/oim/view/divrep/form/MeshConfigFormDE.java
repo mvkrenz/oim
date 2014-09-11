@@ -61,15 +61,16 @@ import edu.iu.grid.oim.model.db.record.ResourceRecord;
 import edu.iu.grid.oim.model.db.record.ResourceServiceDetailRecord;
 import edu.iu.grid.oim.model.db.record.ResourceServiceRecord;
 import edu.iu.grid.oim.model.db.record.ServiceRecord;
-import edu.iu.grid.oim.model.db.record.VOContactRecord;
 import edu.iu.grid.oim.model.db.record.WLCGEndpointRecord;
 import edu.iu.grid.oim.model.db.record.WLCGSiteRecord;
 import edu.iu.grid.oim.view.BootTabView;
 import edu.iu.grid.oim.view.HtmlFileView;
 import edu.iu.grid.oim.view.IView;
 import edu.iu.grid.oim.view.divrep.ContactEditor;
+import edu.iu.grid.oim.view.divrep.HostGroupListEditor;
 import edu.iu.grid.oim.view.divrep.OIMResourceServiceListEditor;
 import edu.iu.grid.oim.view.divrep.WLCGResourceServiceListEditor;
+import edu.iu.grid.oim.view.divrep.SelectionEditorBase.ItemInfo;
 
 public class MeshConfigFormDE extends DivRepForm {
     static Logger log = Logger.getLogger(MeshConfigFormDE.class); 
@@ -103,8 +104,8 @@ public class MeshConfigFormDE extends DivRepForm {
 		DivRepSelectBox service;
 		DivRepSelectBox type;
 		DivRepSelectBox param;
-		DivRepSelectBox group_a;
-		DivRepSelectBox group_b;
+		HostGroupListEditor group_a;
+		HostGroupListEditor group_b;
 		
 		DivRepCheckBox disable;
 		DivRepButton remove;
@@ -139,8 +140,8 @@ public class MeshConfigFormDE extends DivRepForm {
 					
 					//reset to null
 					param.setValue(null); 
-					group_a.setValue(null);
-					group_b.setValue(null);
+					group_a.clear();
+					group_b.clear();
 					
 					showhide();
 					TestDiv.this.redraw();
@@ -159,10 +160,30 @@ public class MeshConfigFormDE extends DivRepForm {
 				}
 			});
 			
-			group_a = new DivRepSelectBox(this);
+			class MeshConfigHostGroupListEditor extends HostGroupListEditor {
+				public MeshConfigHostGroupListEditor(DivRep parent) {
+					super(parent);
+				}
+
+				protected ItemInfo getDetailByID(Integer id) {
+					for(GroupDiv group : groupsdiv.groups) {
+						if(group.id.equals(id)) {
+							ItemInfo info = new ItemInfo();
+							info.id = id;
+							info.name = group.name.getValue();
+							info.detail = null;
+							info.disabled = false;
+							return info;
+						}
+					}
+					return null;
+				}
+			}
+			
+			group_a = new MeshConfigHostGroupListEditor(this);
 			group_a.setLabel("Host Group A");
 			
-			group_b = new DivRepSelectBox(this);
+			group_b = new MeshConfigHostGroupListEditor(this);
 			group_b.setLabel("Host Group B");
 			
 			param = new DivRepSelectBox(this);
@@ -194,12 +215,14 @@ public class MeshConfigFormDE extends DivRepForm {
 				service.setValue(rec.service_id);
 				type.setValue(meshTypeStringToInteger(rec.type));
 				param.setValue(rec.param_id);
-				group_a.setValue(rec.groupa_id);
-				group_b.setValue(rec.groupb_id);
+				group_a.addSelected(rec.getGroupAIds());
+				group_b.addSelected(rec.getGroupBIds());
 				config.setValue(rec.mesh_config_id);
 			} else {
-				//come up with a new ID
-				Integer nextid = 0;
+				//*guess* what the next mysql id is. This is bad for following reasons.
+				//1) we should be asking mysql for this ID
+				//2) we don't know what order the records will be inserted (probably in right order, but I've made no such assumption while coding)
+				Integer nextid = 1;
 				for(TestDiv div : testsdiv.tests) {
 					if(nextid <= div.id) {
 						nextid = div.id+1;
@@ -326,8 +349,8 @@ public class MeshConfigFormDE extends DivRepForm {
 					groups_keyvalues.put(group.id, group.name.getValue());
 				}
 			}	
-			group_a.setValues(groups_keyvalues);	
-			group_b.setValues(groups_keyvalues);	
+			group_a.setAvailableValues(groups_keyvalues);	
+			group_b.setAvailableValues(groups_keyvalues);	
 			
 			LinkedHashMap<Integer, String> param_keyvalues = new LinkedHashMap();
 			for(ParamDiv param : paramsdiv.params) {
@@ -337,11 +360,6 @@ public class MeshConfigFormDE extends DivRepForm {
 				}
 			}	
 			param.setValues(param_keyvalues);	
-		}
-
-		public void save() {
-			// TODO Auto-generated method stub
-			
 		}
 
 		public MeshConfigTestRecord getRecord() {
@@ -360,8 +378,8 @@ public class MeshConfigFormDE extends DivRepForm {
 			rec.name = name.getValue();
 			rec.param_id = param.getValue();
 			rec.type = type_string;
-			rec.groupa_id = group_a.getValue();
-			rec.groupb_id = group_b.getValue();
+			rec.setGroupAIds(group_a.getSelectedIds());
+			rec.setGroupBIds(group_b.getSelectedIds());
 			rec.disable = disable.getValue();
 			return rec;
 		}		
@@ -444,8 +462,10 @@ public class MeshConfigFormDE extends DivRepForm {
 				disable.setValue(rec.disable);
 				desc.setValue(rec.desc);
 			} else {
-				//come up with a new ID
-				Integer nextid = 0;
+				//*guess* what the next mysql id is. This is bad for following reasons.
+				//1) we should be asking mysql for this ID
+				//2) we don't know what order the records will be inserted (probably in right order, but I've made no such assumption while coding)
+				Integer nextid = 1;
 				for(ConfigDiv div : configsdiv.configs) {
 					if(nextid <= div.id) {
 						nextid = div.id+1;
@@ -729,8 +749,10 @@ public class MeshConfigFormDE extends DivRepForm {
 				service.setValue(rec.service_id);
 				previous_service_id = rec.service_id;
 			} else {
-				//come up with a new ID (is this safe?)
-				Integer nextid = 0;
+				//*guess* what the next mysql id is. This is bad for following reasons.
+				//1) we should be asking mysql for this ID
+				//2) we don't know what order the records will be inserted (probably in right order, but I've made no such assumption while coding)
+				Integer nextid = 1;
 				for(ParamDiv div : paramsdiv.params) {
 					if(nextid <= div.id) {
 						nextid = div.id+1;
@@ -1043,6 +1065,11 @@ public class MeshConfigFormDE extends DivRepForm {
 		boolean isUsed() {
 			//make sure this group is not already used by any tests
 			for(TestDiv test : testsdiv.tests) {
+				ArrayList<Integer> aids = test.group_a.getSelectedIds();
+				if(aids != null && aids.contains(id)) return true;
+				ArrayList<Integer> bids = test.group_b.getSelectedIds();
+				if(bids != null && bids.contains(id)) return true;
+				/*
 				Integer group_a = test.group_a.getValue();
 				Integer group_b = test.group_b.getValue();
 				if(
@@ -1051,6 +1078,7 @@ public class MeshConfigFormDE extends DivRepForm {
 				) {
 					return true;
 				}
+				*/
 			}	
 			return false;
 		}
@@ -1212,8 +1240,10 @@ public class MeshConfigFormDE extends DivRepForm {
 					log.error("Failed to load resource info");
 				}
 			} else {
-				//come up with a new ID
-				Integer nextid = 0;
+				//*guess* what the next mysql id is. This is bad for following reasons.
+				//1) we should be asking mysql for this ID
+				//2) we don't know what order the records will be inserted (probably in right order, but I've made no such assumption while coding)
+				Integer nextid = 1;
 				for(GroupDiv div : groupsdiv.groups) {
 					if(nextid <= div.id) {
 						nextid = div.id+1;
