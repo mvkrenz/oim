@@ -5,13 +5,11 @@ import java.io.PrintWriter;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.StringEscapeUtils;
-import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.divrep.DivRep;
@@ -20,25 +18,30 @@ import com.divrep.common.DivRepButton;
 import com.divrep.common.DivRepFormElement;
 import com.divrep.validator.DivRepIValidator;
 
-import edu.iu.grid.oim.model.db.record.MeshConfigOIMMemberRecord;
-import edu.iu.grid.oim.model.db.record.ResourceRecord;
-
 //Used by MeshConfigServlet
-//REFACTOR THIS and use SelectionEditorBase as a base class (see HostGroupListEditor for sample)
-abstract public class OIMResourceServiceListEditor extends DivRepFormElement<ArrayList<OIMResourceServiceListEditor.ResourceDE>> {
-	static Logger log = Logger.getLogger(OIMResourceServiceListEditor.class);
+//this requires modified version of jquery autocomplete plugin, and client side code to make the input area to be autocomplete
+abstract public class SelectionEditorBase extends DivRepFormElement<ArrayList<SelectionEditorBase.ItemDE>> {
+	static Logger log = Logger.getLogger(SelectionEditorBase.class);
 	
-	private ArrayList<ResourceDE> selected;
-	private NewResourceDE newresource;
+	protected ArrayList<ItemDE> selected;
+	private NewItemDE newitem;
 	
-	public class ResourceInfo {
-		public ResourceRecord rec;
-		public String detail;
+	public class ItemInfo {
+		public Integer id;
+		public String name;
+		public String detail = null;
+		public Boolean disabled = false;
 	}
 	
+    /* replace multiple whitespaces between words with single blank */
+    protected String itrim(String source) {
+    	if(source == null) return null;
+        return source.replaceAll("\\b\\s{2,}\\b", " ");
+    }
+	
 	//you need to override this
-	abstract protected ResourceInfo getDetailByResourceID(Integer id) throws SQLException;
-	abstract protected Collection<ResourceInfo> getAvailableResourceRecords() throws SQLException;
+	abstract protected ItemInfo getDetailByID(Integer id) throws SQLException;
+	abstract protected Collection<ItemInfo> searchByQuery(String query) throws SQLException;
 	
 	// Default max contact limits - can be overridden 
 	private int max = 32;
@@ -48,19 +51,17 @@ abstract public class OIMResourceServiceListEditor extends DivRepFormElement<Arr
 	
 	public void setDisabled(Boolean b) { 
 		super.setDisabled(b);
-		newresource.setDisabled(b);
+		newitem.setDisabled(b);
 	}
 	
-	public OIMResourceServiceListEditor(DivRep parent) {
+	public SelectionEditorBase(DivRep parent) {
 		super(parent);
-		
-		selected = new ArrayList<ResourceDE>();
+		selected = new ArrayList<ItemDE>();
 		super.setValue(selected);//I need to do this so that DivRepFormElement correctly fire MinValidator
-		
-		newresource = new NewResourceDE(this);
+		newitem = new NewItemDE(this);
 	}
 	
-	class MinValidator implements DivRepIValidator<ArrayList<ResourceDE>>
+	class MinValidator implements DivRepIValidator<ArrayList<ItemDE>>
 	{
 		private int min;
 		
@@ -69,18 +70,18 @@ abstract public class OIMResourceServiceListEditor extends DivRepFormElement<Arr
 		}
 		
 		public String getErrorMessage() {
-			return "Please specify at least " + min + " resource(s)";
+			return "Please specify at least " + min + " item(s)";
 		}
 
-		public Boolean isValid(ArrayList<ResourceDE> recs) {
+		public Boolean isValid(ArrayList<ItemDE> recs) {
 			return (recs.size() >= min);
 		}
 	}
 	
 	//autocomplete area to add new contact
-	class NewResourceDE extends DivRepFormElement
+	class NewItemDE extends DivRepFormElement
 	{
-		public NewResourceDE(DivRep parent) {
+		public NewItemDE(DivRep parent) {
 			super(parent);
 		}
 		
@@ -92,92 +93,40 @@ abstract public class OIMResourceServiceListEditor extends DivRepFormElement<Arr
 		}
 		
 		protected void onEvent(DivRepEvent e) {
-			int resource_id = Integer.parseInt((String)e.value);
+
+			int id = Integer.parseInt((String)e.value);
 			try {
-				ResourceInfo info = getDetailByResourceID(resource_id);
+				ItemInfo info = getDetailByID(id);
 				addSelected(info);
 				setFormModified();
+				
 				js("$('#"+getNodeID()+" input').focus();");
 			} catch (SQLException e1) {
 				alert("Unknown contact_id");
 			}
 		}
-		
-	    /* replace multiple whitespaces between words with single blank */
-	    private String itrim(String source) {
-	    	if(source == null) return null;
-	        return source.replaceAll("\\b\\s{2,}\\b", " ");
-	    }
 	    
 		//this handles the list request from the autocomplete box.
 		protected void onRequest(HttpServletRequest request, HttpServletResponse response)
 		{
-			try {			
+			try {	
 				//support both new & old version of autocomplete
 				String query = itrim(request.getParameter("q"));		
 				int limit = Integer.parseInt(request.getParameter("limit")); //only returns records upto requested limit
-				Collection<ResourceInfo> all = getAvailableResourceRecords();
-				HashMap<Integer, ResourceInfo> recs = new HashMap();
-				ResourceInfo best_guess = null;
-				int best_guess_distance = 10000;
-				//filter records that matches the query upto limit
-				for(ResourceInfo info : all) {
-					if(recs.size() > limit) break;		
-					if(info.rec.name != null) {
-						String name = itrim(info.rec.name.toLowerCase());
-						if(name.contains(query.toLowerCase())) {
-							recs.put(info.rec.id, info);
-							continue;
-						}
-						
-						//calculate levenshtein distance per token
-						for(String token : info.rec.name.split(" ")) {
-							int distance = StringUtils.getLevenshteinDistance(token, query);
-							if(best_guess_distance > distance) {
-								best_guess = info;
-								best_guess_distance = distance;
-							}
-						}
-					}
-					if(info.detail != null) {
-						String name = info.detail.toLowerCase();
-						if(name.contains(query.toLowerCase())) {
-							recs.put(info.rec.id, info);
-							continue;
-						}
-					}
-					if(info.rec.fqdn != null) {
-						String name = info.rec.fqdn.toLowerCase();
-						if(name.contains(query.toLowerCase())) {
-							recs.put(info.rec.id, info);
-							continue;
-						}
-					}
-				}
-				
-				//if no match was found, pick the closest match
-				if(recs.size() == 0 && best_guess != null) {
-					recs.put(best_guess.rec.id, best_guess);	
-				}
-		
-				//remove resources that are already selected 
-				for(ResourceDE r : selected) {
-					recs.remove(r.info.rec.id);
-				}
-	
+				Collection<ItemInfo> recs = searchByQuery(query);	
 				String out = "[";
 				boolean first = true;
-				for(ResourceInfo info: recs.values()) {
+				for(ItemInfo rec: recs) {
 					if(first) {
 						first = false;
 					} else {
 						out += ",";
 					}
-					String detail = info.detail;
-					if(detail == null) {
-						detail = info.rec.fqdn;
+					if(rec.detail != null) {
+						out += "{\"id\":"+rec.id+", \"name\":\""+itrim(rec.name)+"\", \"email\":\""+rec.detail+"\"}\n";
+					} else {
+						out += "{\"id\":"+rec.id+", \"name\":\""+itrim(rec.name)+"\"}\n";
 					}
-					out += "{\"id\":"+info.rec.id+", \"name\":\""+itrim(info.rec.name)+"\", \"email\":\""+detail+"\"}\n";
 				}
 				out += "]";
 				response.setContentType("text/javascript");
@@ -191,14 +140,14 @@ abstract public class OIMResourceServiceListEditor extends DivRepFormElement<Arr
 		}
 	}
 	
-	class ResourceDE extends DivRepFormElement
+	class ItemDE extends DivRepFormElement
 	{
-		public ResourceInfo info;
+		public ItemInfo info;
 		
 		private DivRepButton removebutton;
-		private ResourceDE myself;
+		private ItemDE myself;
 		
-		ResourceDE(DivRep parent, ResourceInfo info) {
+		ItemDE(DivRep parent, ItemInfo info) {
 			super(parent);
 			this.info = info;
 			
@@ -206,7 +155,7 @@ abstract public class OIMResourceServiceListEditor extends DivRepFormElement<Arr
 			removebutton = new DivRepButton(this, "images/delete.png") {
 				@Override
 				public void onClick(DivRepEvent e) {
-					removeResource(myself);
+					removeItem(myself);
 					setFormModified();
 				}
 			};
@@ -216,17 +165,14 @@ abstract public class OIMResourceServiceListEditor extends DivRepFormElement<Arr
 		public void render(PrintWriter out)
 		{
 			out.print("<div class=\"divrep_inline contact divrep_round\" id=\""+getNodeID()+"\">");
-			if(info.rec.name == null) {
+			if(info.name == null) {
 				out.print("(No Name)");
 			} else {
-				out.print(StringEscapeUtils.escapeHtml(info.rec.name.trim()));
+				out.print(StringEscapeUtils.escapeHtml(info.name.trim()));
 				if(info.detail != null) {
 					out.print(" <code>"+StringEscapeUtils.escapeHtml("<"+info.detail+">")+"</code>");
-				} else if(info.rec.fqdn != null) {
-					//use fqdn if no detail is given
-					out.print(" <code>"+StringEscapeUtils.escapeHtml("<"+info.rec.fqdn+">")+"</code>");
 				}
-				if(info.rec.disable) {
+				if(info.disabled) {
 					out.print(" <span class=\"label label-important\">Disabled</span>");
 				}
 			}
@@ -243,7 +189,7 @@ abstract public class OIMResourceServiceListEditor extends DivRepFormElement<Arr
 		}
 	}
 	
-	public void removeResource(ResourceDE rec)
+	public void removeItem(ItemDE rec)
 	{	
 		selected.remove(rec);
 		validate();
@@ -256,9 +202,9 @@ abstract public class OIMResourceServiceListEditor extends DivRepFormElement<Arr
 		redraw();
 	}
 	
-	public void addSelected(ResourceInfo info)
+	public void addSelected(ItemInfo info)
 	{
-		ResourceDE newde = new ResourceDE(this, info);
+		ItemDE newde = new ItemDE(this, info);
 		selected.add(newde);
 		validate();
 		redraw();	
@@ -278,31 +224,31 @@ abstract public class OIMResourceServiceListEditor extends DivRepFormElement<Arr
 			} else {
 				out.print("<table class='contact_table'>");
 			}
-			renderList(out, newresource, selected, max);
+			renderList(out, newitem, selected, max);
 			out.print("</table>");
 			error.render(out);
 		}
 		out.print("</div>");
 	}
 	
-	public void renderList(PrintWriter out, NewResourceDE newresource, ArrayList<ResourceDE> selected, int max)
+	public void renderList(PrintWriter out, NewItemDE newitem, ArrayList<ItemDE> selected, int max)
 	{
 		out.print("<tr>");
 		if(selected.size() >= max || isDisabled()) {
 			//list is full or disabled
 			out.print("<td><div class=\"contact_editor\">");
-			for(ResourceDE resource : selected) {
-				resource.setDisabled(isDisabled());
-				resource.render(out);
+			for(ItemDE item : selected) {
+				item.setDisabled(isDisabled());
+				item.render(out);
 			}
 			out.print("</div></td>");
 		} else {
 			//user can add more contact
 			out.print("<td style=\"border: 1px solid #ccc; background-color: white;\"><div class=\"contact_editor\" onclick=\"$(this).find('.autocomplete').focus(); return false;\">");
-			for(ResourceDE resource: selected) {
-				resource.render(out);
+			for(ItemDE item: selected) {
+				item.render(out);
 			}
-			newresource.render(out);
+			newitem.render(out);
 			out.write("</div>");
 			
 			out.write("</td>");
@@ -314,15 +260,20 @@ abstract public class OIMResourceServiceListEditor extends DivRepFormElement<Arr
 	protected void onEvent(DivRepEvent e) {
 		// TODO Auto-generated method stub	
 	}
+	/*
 	public ArrayList<MeshConfigOIMMemberRecord> getRecords(Integer group_id, Integer service_id) {
 		ArrayList<MeshConfigOIMMemberRecord> recs = new ArrayList<MeshConfigOIMMemberRecord>();
-		for(ResourceDE de : selected) {
+		for(ItemDE de : selected) {
 			MeshConfigOIMMemberRecord rec = new MeshConfigOIMMemberRecord();
 			rec.group_id = group_id;
-			rec.resource_id = de.info.rec.id;
+			rec.item_id = de.info.rec.id;
 			rec.service_id = service_id;
 			recs.add(rec);
 		}
 		return recs;
+	}
+	*/
+	public ArrayList<ItemDE> getSelected() {
+		return selected;
 	}
 }

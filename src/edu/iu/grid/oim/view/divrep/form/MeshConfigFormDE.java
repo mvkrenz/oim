@@ -61,13 +61,13 @@ import edu.iu.grid.oim.model.db.record.ResourceRecord;
 import edu.iu.grid.oim.model.db.record.ResourceServiceDetailRecord;
 import edu.iu.grid.oim.model.db.record.ResourceServiceRecord;
 import edu.iu.grid.oim.model.db.record.ServiceRecord;
-import edu.iu.grid.oim.model.db.record.VOContactRecord;
 import edu.iu.grid.oim.model.db.record.WLCGEndpointRecord;
 import edu.iu.grid.oim.model.db.record.WLCGSiteRecord;
 import edu.iu.grid.oim.view.BootTabView;
 import edu.iu.grid.oim.view.HtmlFileView;
 import edu.iu.grid.oim.view.IView;
 import edu.iu.grid.oim.view.divrep.ContactEditor;
+import edu.iu.grid.oim.view.divrep.HostGroupListEditor;
 import edu.iu.grid.oim.view.divrep.OIMResourceServiceListEditor;
 import edu.iu.grid.oim.view.divrep.WLCGResourceServiceListEditor;
 
@@ -103,8 +103,8 @@ public class MeshConfigFormDE extends DivRepForm {
 		DivRepSelectBox service;
 		DivRepSelectBox type;
 		DivRepSelectBox param;
-		DivRepSelectBox group_a;
-		DivRepSelectBox group_b;
+		HostGroupListEditor group_a;
+		HostGroupListEditor group_b;
 		
 		DivRepCheckBox disable;
 		DivRepButton remove;
@@ -139,8 +139,8 @@ public class MeshConfigFormDE extends DivRepForm {
 					
 					//reset to null
 					param.setValue(null); 
-					group_a.setValue(null);
-					group_b.setValue(null);
+					group_a.setSelected(new ArrayList<Integer>());
+					group_b.setSelected(new ArrayList<Integer>());
 					
 					showhide();
 					TestDiv.this.redraw();
@@ -159,10 +159,10 @@ public class MeshConfigFormDE extends DivRepForm {
 				}
 			});
 			
-			group_a = new DivRepSelectBox(this);
+			group_a = new HostGroupListEditor(context, this);
 			group_a.setLabel("Host Group A");
 			
-			group_b = new DivRepSelectBox(this);
+			group_b = new HostGroupListEditor(context, this);
 			group_b.setLabel("Host Group B");
 			
 			param = new DivRepSelectBox(this);
@@ -194,8 +194,8 @@ public class MeshConfigFormDE extends DivRepForm {
 				service.setValue(rec.service_id);
 				type.setValue(meshTypeStringToInteger(rec.type));
 				param.setValue(rec.param_id);
-				group_a.setValue(rec.groupa_id);
-				group_b.setValue(rec.groupb_id);
+				group_a.setSelected(rec.getGroupAIds());
+				group_b.setSelected(rec.getGroupBIds());
 				config.setValue(rec.mesh_config_id);
 			} else {
 				//come up with a new ID
@@ -326,8 +326,8 @@ public class MeshConfigFormDE extends DivRepForm {
 					groups_keyvalues.put(group.id, group.name.getValue());
 				}
 			}	
-			group_a.setValues(groups_keyvalues);	
-			group_b.setValues(groups_keyvalues);	
+			group_a.setAvailableValues(groups_keyvalues);	
+			group_b.setAvailableValues(groups_keyvalues);	
 			
 			LinkedHashMap<Integer, String> param_keyvalues = new LinkedHashMap();
 			for(ParamDiv param : paramsdiv.params) {
@@ -360,8 +360,8 @@ public class MeshConfigFormDE extends DivRepForm {
 			rec.name = name.getValue();
 			rec.param_id = param.getValue();
 			rec.type = type_string;
-			rec.groupa_id = group_a.getValue();
-			rec.groupb_id = group_b.getValue();
+			rec.setGroupAIds(group_a.getSelectedIds());
+			rec.setGroupBIds(group_b.getSelectedIds());
 			rec.disable = disable.getValue();
 			return rec;
 		}		
@@ -1043,6 +1043,11 @@ public class MeshConfigFormDE extends DivRepForm {
 		boolean isUsed() {
 			//make sure this group is not already used by any tests
 			for(TestDiv test : testsdiv.tests) {
+				ArrayList<Integer> aids = test.group_a.getSelectedIds();
+				if(aids != null && aids.contains(id)) return true;
+				ArrayList<Integer> bids = test.group_b.getSelectedIds();
+				if(bids != null && bids.contains(id)) return true;
+				/*
 				Integer group_a = test.group_a.getValue();
 				Integer group_b = test.group_b.getValue();
 				if(
@@ -1051,6 +1056,7 @@ public class MeshConfigFormDE extends DivRepForm {
 				) {
 					return true;
 				}
+				*/
 			}	
 			return false;
 		}
