@@ -3,8 +3,10 @@ package edu.iu.grid.oim.model.db.record;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+
 import edu.iu.grid.oim.lib.StaticConfig;
 
 public class VORecord extends ConfirmableRecord {
@@ -28,6 +30,7 @@ public class VORecord extends ConfirmableRecord {
 	public String app_description;
 
 	public Boolean use_oasis;
+	public String oasis_repo_urls;
 	public Boolean cert_only;
 
 	//load from existing record
@@ -38,5 +41,24 @@ public class VORecord extends ConfirmableRecord {
 	}
 	public String getName() {
 		return name;
+	}
+	
+	public ArrayList<String> getOASISRepoUrls() {
+		ArrayList<String> urls = new ArrayList<String>();
+		if(oasis_repo_urls != null) {
+			for(String url : oasis_repo_urls.split("\\|")) {
+				if(url.length() == 0) continue;
+				urls.add(url);
+			}
+		}
+		return urls;
+	}
+	public void setOASISRepoUrls(ArrayList<String> urls) {
+		StringBuffer _urls = new StringBuffer();
+		for(String url : urls) {
+			_urls.append(url);
+			_urls.append("|");
+		}
+		oasis_repo_urls = _urls.toString();
 	}
 }

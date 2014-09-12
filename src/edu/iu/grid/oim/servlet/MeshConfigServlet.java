@@ -38,6 +38,7 @@ public class MeshConfigServlet extends ServletBase  {
 		contentview.add(new DivRepWrapper(form));
 				
 		BootPage page = new BootPage(context, new BootMenuView(context, "meshconfig"), contentview, null);
+		page.useChatJS(true);
 		page.render(response.getWriter());	
 	}	
 }

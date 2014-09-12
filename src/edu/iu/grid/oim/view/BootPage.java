@@ -37,6 +37,11 @@ public class BootPage implements IView {
 		css_ex.add(path);
 	}
 	
+	private Boolean show_chatjs = false;
+	public void useChatJS(Boolean f) {
+		show_chatjs = f;
+	}
+	
 	public BootPage(UserContext _context, IView _menu, IView _content, IView _side)
 	{
 		context = _context;
@@ -66,15 +71,6 @@ public class BootPage implements IView {
 	{
 		Authorization auth = context.getAuthorization();
 		
-		/*
-		if(auth.isSecure()) {
-			params.put("__BASE__", StaticConfig.getApplicationBase());
-			params.put("__GOCTICKET__", "https://ticket.grid.iu.edu/goc");
-		} else {
-			params.put("__BASE__", StaticConfig.conf.getProperty("application.guestbase"));	
-			params.put("__GOCTICKET__", "http://ticket.grid.iu.edu/goc");
-		}
-		*/
 		params.put("__BASE__", StaticConfig.conf.getProperty("application.base"));
 		params.put("__GOCTICKET__", "https://ticket.grid.iu.edu/goc");
 		
@@ -84,9 +80,7 @@ public class BootPage implements IView {
 			params.put("__APPNAME__", StaticConfig.getApplicationName());
 		}
 		params.put("__VERSION__", StaticConfig.getVersion());
-		//log.debug(StaticConfig.conf.getProperty("debug"));
-	
-		
+
 		try {
 			URL url = context.getRequestURL();
 			if(url != null) {
@@ -105,6 +99,9 @@ public class BootPage implements IView {
 		String exhead = new String();
 		for(String css : this.css_ex) {
 			exhead += "<link href=\"css/"+css+"\" rel=\"stylesheet\" type=\"text/css\"/>\n";
+		}
+		if(show_chatjs) {
+			exhead += "<script src=\""+StaticConfig.conf.getProperty("url.chatjs")+"/socket.io/socket.io.js\"></script>";
 		}
 		params.put("__EXHEAD__", exhead);
 		

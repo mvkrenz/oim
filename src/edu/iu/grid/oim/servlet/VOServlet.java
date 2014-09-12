@@ -287,6 +287,14 @@ public class VOServlet extends ServletBase implements Servlet {
 				}
 				users_str.append("</ul>");
 				table.addRow("OASIS Managers", new HtmlView(users_str.toString()));
+				
+				StringBuffer list = new StringBuffer();
+				list.append("<ul>");
+				for(String url : rec.getOASISRepoUrls()) {
+					list.append("<li><a target=\"_blank\" href=\""+url+"\">" + StringEscapeUtils.escapeHtml(url) + "</a></li>");
+				}
+				list.append("</ul>");
+				table.addRow("OASIS Repo. URLs", new HtmlView(list.toString()));
 			}
 			
 			table.addRow("Active", rec.active);
