@@ -265,6 +265,31 @@ function upsertEndpoint(ep, cb) {
     });
 }
 
+/* we can't just duplicate latency service to traceroute.. we don't know what the primary key will be, and guessing it will break the config later
+function add_traceroute(endpoints) {
+    var new_endpoints = [];
+    endpoints.forEach(function(endpoint) {
+        if(endpoint.SERVICE_TYPE == 'net.perfSONAR.Latency') {
+            //look for traceroute endpoint under this site
+            var found = false;
+            endpoints.forEach(function(other) {
+                if(other.SERVICE_TYPE == 'net.perfSONAR.Traceroute' && other.SITENAME == endpoint.SITENAME) {
+                    found = true;
+                }
+            });
+            if(!found) {
+                console.log("adding traceroute service for "+endpoint.SITENAME);
+                var new_endpoint = _.clone(endpoint, true);
+                new_endpoint.SERVICE_TYPE = 'net.perfSONAR.Traceroute';
+                new_endpoints.push(new_endpoint);
+            }
+        }
+    });
+    console.dir(new_endpoints);
+    return endpoints.concat(new_endpoints);
+}
+*/
+
 async.series([
     /*
     function(done) {
@@ -315,6 +340,9 @@ async.series([
                 var endpoints = _.map(data.results.SERVICE_ENDPOINT, parseEndpoint);
                 //store this for debugging purpose..
                 fs.writeFileSync('cache/service_endpoints.parsed.json', JSON.stringify(endpoints, null, 4));
+
+                //endpoints = add_traceroute(endpoints);
+
                 console.log("upserting endpoint table");
                 async.eachSeries(endpoints, upsertEndpoint, done);
             });
