@@ -10,38 +10,44 @@ import com.divrep.common.DivRepButton;
 import com.divrep.common.DivRepFormElement;
 import com.divrep.common.DivRepTextBox;
 
-public class ResourceAlias extends DivRepFormElement {
+public class URLListEditor extends DivRepFormElement {
 
-	//ArrayList<AliasEditor> aliases = new ArrayList<AliasEditor>();
 	private DivRepButton add_button;
-
-	class AliasEditor extends DivRepFormElement
+	private String url_samle = "ce.grid.iu.edu";
+	
+	public void setSampleURL(String sample) {
+		this.url_samle = sample;
+	}
+	
+	class URLEditor extends DivRepFormElement
 	{
-		private DivRepTextBox text;
+		private DivRepTextBox url;
 		private DivRepButton remove_button;
-		private AliasEditor myself;
+		private URLEditor myself;
 		
-		protected AliasEditor(DivRep parent) {
+		
+		protected URLEditor(DivRep parent) {
 			super(parent);
 			myself = this;
 			
-			text = new DivRepTextBox(this);
-			text.addClass("divrep_inline");
+			url = new DivRepTextBox(this);
+			url.setSampleValue(url_samle);
+			url.addClass("divrep_inline");
 			
 			remove_button = new DivRepButton(this, "images/delete.png");
 			remove_button.setStyle(DivRepButton.Style.IMAGE);
 			remove_button.addEventListener(new DivRepEventListener() {
 				public void handleEvent(DivRepEvent e) {
-					removeAlias(myself);	
+					removeUrl(myself);	
 				}
 			});
 		}
 
 		public void setValue(String value) {
-			text.setValue(value);
+			url.setValue(value);
 		}
 		public String getValue() {
-			return text.getValue();
+			return url.getValue();
 		}
 
 
@@ -54,46 +60,46 @@ public class ResourceAlias extends DivRepFormElement {
 		@Override
 		public void render(PrintWriter out) {
 			out.write("<div id=\""+getNodeID()+"\" class=\"resource_alias\">");
-			text.render(out);
+			url.render(out);
 			remove_button.render(out);
 			out.write("</div>");
 		}
 		
 	}
 	
-	public void removeAlias(AliasEditor alias)
+	public void removeUrl(URLEditor url)
 	{
-		remove(alias);
+		remove(url);
 		redraw();
 	}
 	
-	public void addAlias(String alias) { 
-		AliasEditor elem = new AliasEditor(this);
-		elem.setValue(alias);
+	public void addUrl(String url) { 
+		URLEditor elem = new URLEditor(this);
+		elem.setValue(url);
 		redraw();
 	}
 	
-	public ResourceAlias(DivRep parent) {
+	public URLListEditor(DivRep parent) {
 		super(parent);
-		add_button = new DivRepButton(this, "Add New Alias");
+		add_button = new DivRepButton(this, "Add New URL");
 		//add_button.setStyle(DivRepButton.Style.ALINK);
 		add_button.addClass("btn");
 		add_button.addEventListener(new DivRepEventListener() {
 			public void handleEvent(DivRepEvent e) {
-				addAlias("");
+				addUrl("");
 			}
 			
 		});
 	}
 
 	//Note: caller need to set the resource_id for each records
-	public ArrayList<String> getAliases()
+	public ArrayList<String> getURLs()
 	{
 		ArrayList<String> records = new ArrayList<String>();
 		for(DivRep node : childnodes) {
-			if(node instanceof AliasEditor) {
-				AliasEditor alias = (AliasEditor)node;
-				String str = alias.getValue();
+			if(node instanceof URLEditor) {
+				URLEditor url = (URLEditor)node;
+				String str = url.getValue();
 				if(str.length() > 0) {
 					records.add(str);
 				}
@@ -110,7 +116,7 @@ public class ResourceAlias extends DivRepFormElement {
 	public void render(PrintWriter out) {
 		out.print("<div id=\""+getNodeID()+"\" class=\"well\">");
 		for(DivRep node : childnodes) {
-			if(node instanceof AliasEditor) {
+			if(node instanceof URLEditor) {
 				node.render(out);
 			}
 		}

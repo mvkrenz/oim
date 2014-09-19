@@ -55,7 +55,7 @@ import edu.iu.grid.oim.view.ToolTip;
 import edu.iu.grid.oim.view.divrep.AUPConfirmation;
 import edu.iu.grid.oim.view.divrep.Confirmation;
 import edu.iu.grid.oim.view.divrep.ContactEditor;
-import edu.iu.grid.oim.view.divrep.ResourceAlias;
+import edu.iu.grid.oim.view.divrep.URLListEditor;
 import edu.iu.grid.oim.view.divrep.ResourceGroupSelector;
 import edu.iu.grid.oim.view.divrep.ResourceServices;
 import edu.iu.grid.oim.view.divrep.ResourceWLCG;
@@ -78,7 +78,7 @@ public class ResourceFormDE extends DivRepForm
 	private DivRepCheckBox active;
 	private DivRepCheckBox disable;
 	private ResourceGroupSelector resource_group_id;
-	private ResourceAlias aliases;
+	private URLListEditor aliases;
 	private ResourceServices resource_services;
 	private VOResourceOwnership owners;
 
@@ -153,11 +153,11 @@ public class ResourceFormDE extends DivRepForm
 		
 		new DivRepStaticContent(this, "<h3>Resource FQDN Aliases (If Applicable)</h3>");
 		new DivRepStaticContent(this, "<p>If you used a DNS alias as their main gatekeeper or SE head node FQDN (as defined above), then you can add real host name(s) here as reverse alias(es).</p>");
-		aliases = new ResourceAlias (this);
+		aliases = new URLListEditor (this);
 		ResourceAliasModel ramodel = new ResourceAliasModel(context);
 		if(id != null) {
 			for(ResourceAliasRecord rarec : ramodel.getAllByResourceID(id)) {
-				aliases.addAlias(rarec.resource_alias);
+				aliases.addUrl(rarec.resource_alias);
 			}
 		}
 		
@@ -369,7 +369,7 @@ public class ResourceFormDE extends DivRepForm
 		try {
 			if(rec.id == null) {
 				model.insertDetail(rec, 
-						aliases.getAliases(), 
+						aliases.getURLs(), 
 						getContactRecordsFromEditor(), 
 						wrec,
 						resource_services.getResourceServiceRecords(),
@@ -394,7 +394,7 @@ public class ResourceFormDE extends DivRepForm
 				}
 			} else {
 				model.updateDetail(rec, 
-						aliases.getAliases(), 
+						aliases.getURLs(), 
 						getContactRecordsFromEditor(),
 						wrec,
 						resource_services.getResourceServiceRecords(),
@@ -447,7 +447,7 @@ public class ResourceFormDE extends DivRepForm
 	public Boolean isValidResourceFQDN(String url)
 	{
 		if(fqdn.getValue().equals(url)) return true;
-		ArrayList<String> as = aliases.getAliases();
+		ArrayList<String> as = aliases.getURLs();
 		if(as.contains(url)) return true;
 		
 		return false;

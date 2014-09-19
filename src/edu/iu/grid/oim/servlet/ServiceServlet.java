@@ -10,34 +10,22 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 
-import com.divrep.DivRep;
-import com.divrep.DivRepEvent;
-import com.divrep.DivRepRoot;
-import com.divrep.common.DivRepButton;
-
 import edu.iu.grid.oim.lib.Authorization;
-import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.MetricModel;
 import edu.iu.grid.oim.model.db.MetricServiceModel;
-import edu.iu.grid.oim.model.db.ResourceDowntimeModel;
 import edu.iu.grid.oim.model.db.ServiceGroupModel;
 import edu.iu.grid.oim.model.db.ServiceModel;
 import edu.iu.grid.oim.model.db.record.MetricServiceRecord;
-import edu.iu.grid.oim.model.db.record.ResourceDowntimeRecord;
 import edu.iu.grid.oim.model.db.record.ServiceRecord;
 
 import edu.iu.grid.oim.view.BootBreadCrumbView;
 import edu.iu.grid.oim.view.BootMenuView;
 import edu.iu.grid.oim.view.BootPage;
-import edu.iu.grid.oim.view.BreadCrumbView;
 import edu.iu.grid.oim.view.ContentView;
-import edu.iu.grid.oim.view.DivRepWrapper;
 import edu.iu.grid.oim.view.GenericView;
 import edu.iu.grid.oim.view.HtmlView;
 import edu.iu.grid.oim.view.IView;
-import edu.iu.grid.oim.view.MenuView;
-import edu.iu.grid.oim.view.Page;
 import edu.iu.grid.oim.view.RecordTableView;
 import edu.iu.grid.oim.view.SideContentView;
 
@@ -101,21 +89,6 @@ public class ServiceServlet extends ServletBase implements Servlet {
 			}
 			table.addRow("Metrics", metric_view);
 		
-		 	/*
-			class EditButtonDE extends DivRepButton
-			{
-				String url;
-				public EditButtonDE(DivRep parent, String _url)
-				{
-					super(parent, "Edit");
-					url = _url;
-				}
-				protected void onEvent(DivRepEvent e) {
-					redirect(url);
-				}
-			};
-			table.add(new DivRepWrapper(new EditButtonDE(context.getPageRoot(), StaticConfig.getApplicationBase()+"/serviceedit?id=" + rec.id)));
-			*/
 			table.add(new HtmlView("<a class=\"btn\" href=\"serviceedit?id=" + rec.id +"\">Edit</a>"));
 		}
 		
@@ -146,24 +119,7 @@ public class ServiceServlet extends ServletBase implements Servlet {
 	private SideContentView createSideView()
 	{
 		SideContentView view = new SideContentView();
-		/*
-		class NewButtonDE extends DivRepButton
-		{
-			String url;
-			public NewButtonDE(DivRep parent, String _url)
-			{
-				super(parent, "Add New Service");
-				url = _url;
-			}
-			protected void onEvent(DivRepEvent e) {
-				redirect(url);
-			}
-		};
-		view.add("Operation", new NewButtonDE(context.getPageRoot(), "serviceedit"));
-		*/
-		view.add(new HtmlView("<a class=\"btn\" href=\"serviceedit\">Add New Service</a>"));		
-
-		//view.add("About", new HtmlView("Todo.."));		
+		view.add(new HtmlView("<a class=\"btn\" href=\"serviceedit\">Add New Service</a>"));			
 		return view;
 	}
 }

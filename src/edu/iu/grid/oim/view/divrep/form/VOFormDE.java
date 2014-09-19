@@ -44,6 +44,7 @@ import edu.iu.grid.oim.model.db.VOModel;
 import edu.iu.grid.oim.model.db.record.ContactTypeRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.FieldOfScienceRecord;
+import edu.iu.grid.oim.model.db.record.ResourceAliasRecord;
 import edu.iu.grid.oim.model.db.record.VOOasisUserRecord;
 import edu.iu.grid.oim.model.db.record.VOReportContactRecord;
 import edu.iu.grid.oim.model.db.record.VOReportNameRecord;
@@ -56,6 +57,7 @@ import edu.iu.grid.oim.view.ToolTip;
 import edu.iu.grid.oim.view.divrep.AUPConfirmation;
 import edu.iu.grid.oim.view.divrep.Confirmation;
 import edu.iu.grid.oim.view.divrep.ContactEditor;
+import edu.iu.grid.oim.view.divrep.URLListEditor;
 import edu.iu.grid.oim.view.divrep.VOReportNames;
 import edu.iu.grid.oim.view.divrep.FOSEditor;
 import edu.iu.grid.oim.view.divrep.form.validator.IncaseUniqueValidator;
@@ -114,7 +116,7 @@ public class VOFormDE extends DivRepForm
 	private DivRepTextBox support_url;	
 	
 	private DivRepCheckBox use_oasis;
-	private OASISManagerEditor oasis_users;
+	private OASISInfo oasis_info;
 	private DivRepCheckBox cert_only;
 
 	class ScienceVOInfo extends DivRepFormElement
@@ -271,21 +273,23 @@ public class VOFormDE extends DivRepForm
 		}
 	}
 	
-	class OASISManagerEditor extends DivRepFormElement {
-		ContactEditor editor;
+	class OASISInfo extends DivRepFormElement {
+		ContactEditor managers;
+		URLListEditor repo_urls;
 		Boolean table_hidden;
 		
-		OASISManagerEditor(DivRep parent, ArrayList<VOOasisUserRecord> users) {
+		OASISInfo(DivRep parent, ArrayList<VOOasisUserRecord> users, ArrayList<String> _repo_urls) {
 			super(parent);
 			
 			table_hidden = false;
 			
 			ContactModel pmodel = new ContactModel(context);	
-			editor = new ContactEditor(this, pmodel, false, false);
-			editor.setMaxContacts(ContactRank.Primary, 10);
-			//editor.setLabel("OASIS Managers");
-			//editor.addClass("indent");
-			editor.setShowRank(false);
+			managers = new ContactEditor(this, pmodel, false, false);
+			managers.setMaxContacts(ContactRank.Primary, 10);
+			managers.setShowRank(false);
+			
+			repo_urls = new URLListEditor(this);
+			repo_urls.setSampleURL("http://cvmfs.example.edu");
 			
 			//if provided, populate currently selected contacts
 			if(users != null) {
@@ -294,11 +298,15 @@ public class VOFormDE extends DivRepForm
 					keyrec.id = user.contact_id;
 					try {
 						ContactRecord person = pmodel.get(keyrec);
-						editor.addSelected(person, ContactRank.Primary);
+						managers.addSelected(person, ContactRank.Primary);
 					} catch (SQLException e) {
 						log.error("Failed to lookup contact information to populate on oasis manager", e);
 					}
 				}
+			}
+			
+			for(String url : _repo_urls) {
+				repo_urls.addUrl(url);
 			}
 		}
 		
@@ -310,25 +318,32 @@ public class VOFormDE extends DivRepForm
 
 		@Override
 		public void render(PrintWriter out) {
-			out.write("<div id=\""+getNodeID()+"\">");
+			out.write("<div id=\""+getNodeID()+"\" class=\"indent\">");
 			if(!isHidden()) {
-				out.write("<table class=\"contact_table\"><tr>");
-				out.write("<th>OASIS Managers</th>");
-				out.write("<td>");
-				editor.render(out);
-				out.write("</td>");
-				out.write("</tr></table>");
+				//out.write("<table class=\"contact_table\"><tr>");
+				out.write("<b>OASIS Managers</b>");
+				//out.write("<td>");
+				managers.render(out);
+				//out.write("</td>");
+				//out.write("</tr></table>");
+				
+				out.write("<b>OASIS Repo. URLs</b>");
+				repo_urls.render(out);
 			}
 			out.write("</div>");
 		}
 		
-		public ArrayList<ContactRecord> getContacts() {
-			return editor.getContactRecordsByRank(1);
+		public ArrayList<ContactRecord> getManagerContacts() {
+			return managers.getContactRecordsByRank(1);
+		}
+		public ArrayList<String> getRepoURLs() {
+			return repo_urls.getURLs();
 		}
 		
 		@Override 
 		public void setDisabled(Boolean b)  {
-			editor.setDisabled(b);
+			managers.setDisabled(b);
+			repo_urls.setDisabled(b);
 		}
 	}
 	
@@ -346,8 +361,8 @@ public class VOFormDE extends DivRepForm
 	
 	public void showHideOasisUsers() {
 		Boolean use = use_oasis.getValue();
-		oasis_users.setHidden(!use);
-		oasis_users.redraw();
+		oasis_info.setHidden(!use);
+		oasis_info.redraw();
 	}
 	
 	public VOFormDE(UserContext _context, VORecord rec, String origin_url) throws AuthorizationException, SQLException
@@ -479,10 +494,10 @@ public class VOFormDE extends DivRepForm
 			VOOasisUserModel vooumodel = new VOOasisUserModel(context);
 			users = vooumodel.getByVOID(rec.id);
 		}
-		oasis_users = new OASISManagerEditor(this, users);
+		oasis_info = new OASISInfo(this, users, rec.getOASISRepoUrls());
 		if(!auth.allows("admin_oasis")) {
 			use_oasis.setDisabled(true);
-			oasis_users.setDisabled(true);
+			oasis_info.setDisabled(true);
 		}
 		showHideOasisUsers();
 		
@@ -713,6 +728,7 @@ public class VOFormDE extends DivRepForm
 		rec.science_vo = science_vo.getValue();
 		rec.use_oasis = use_oasis.getValue();
 		rec.cert_only = cert_only.getValue();
+		rec.setOASISRepoUrls(oasis_info.getRepoURLs());
 
 		context.setComment(comment.getValue());
 		
@@ -736,7 +752,7 @@ public class VOFormDE extends DivRepForm
 						parent_vo.getValue(), 
 						foss,
 						vo_report_name_div.getVOReports(model),
-						oasis_users.getContacts());
+						oasis_info.getManagerContacts());
 				context.message(MessageType.SUCCESS, "Successfully registered new VO. You should receive a notification with an instruction on how to active your VO.");
 				
 				try {
@@ -756,7 +772,7 @@ public class VOFormDE extends DivRepForm
 						parent_vo.getValue(), 
 						foss,
 						vo_report_name_div.getVOReports(model),
-						oasis_users.getContacts());
+						oasis_info.getManagerContacts());
 				context.message(MessageType.SUCCESS, "Successfully updated a VO.");
 			}
 			return true;
