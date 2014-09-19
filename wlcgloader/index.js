@@ -193,16 +193,28 @@ function upsertSite(site, cb) {
                 con.escape(site.CONTACT_EMAIL)+
             ")", cb);
         } else {
-            //console.log("updating "+site.PRIMARY_KEY);
-            con.query("UPDATE wlcg_site SET "+
-                " short_name = "+con.escape(site.SHORT_NAME)+", "+
-                " official_name = "+con.escape(site.OFFICIAL_NAME)+", "+
-                " longitude = "+site.LONGITUDE+", "+
-                " latitude = "+site.LATITUDE+", "+
-                " country = "+con.escape(site.COUNTRY)+", "+
-                " timezone = "+con.escape(site.TIMEZONE)+", "+
-                " contact_email = "+con.escape(site.CONTACT_EMAIL)+
-            " WHERE primary_key = "+con.escape(site.PRIMARY_KEY), cb);
+            var old = rows[0];
+            if(
+                old.short_name != site.SHORT_NAME ||
+                old.official_name != site.OFFICIAL_NAME ||
+                old.longitude != site.LONGITUDE ||
+                old.latitude != site.LATITUDE ||
+                old.country != site.COUNTRY ||
+                old.timezone != site.TIMEZONE ||
+                old.contact_email != site.CONTACT_EMAIL) {
+                con.query("UPDATE wlcg_site SET "+
+                    " short_name = "+con.escape(site.SHORT_NAME)+", "+
+                    " official_name = "+con.escape(site.OFFICIAL_NAME)+", "+
+                    " longitude = "+site.LONGITUDE+", "+
+                    " latitude = "+site.LATITUDE+", "+
+                    " country = "+con.escape(site.COUNTRY)+", "+
+                    " timezone = "+con.escape(site.TIMEZONE)+", "+
+                    " contact_email = "+con.escape(site.CONTACT_EMAIL)+
+                " WHERE primary_key = "+con.escape(site.PRIMARY_KEY), cb);
+            } else {
+                //no change
+                cb(null);
+            }
         }
     });
     //console.log("inserting site:"+site.SHORT_NAME);
@@ -250,16 +262,28 @@ function upsertEndpoint(ep, cb) {
                     con.escape(ep.ROC_NAME)+
                 ")", cb);
             } else {
-                //console.log("updating endpoint "+ep.PRIMARY_KEY);
-                con.query("UPDATE wlcg_endpoint SET "+
-                    " site_id = "+con.escape(fkeys.site_id)+", "+
-                    " hostname = "+con.escape(ep.HOSTNAME)+", "+
-                    " host_ip = "+con.escape(ep.HOST_IP)+", "+
-                    " service_type = "+con.escape(ep.SERVICE_TYPE)+", "+
-                    " service_id = "+fkeys.service_id+", "+
-                    " in_production = "+in_prod+", "+
-                    " roc_name = "+con.escape(ep.ROC_NAME)+
-                " WHERE primary_key = "+con.escape(ep.PRIMARY_KEY), cb);
+                var old = rows[0];
+                if(
+                    old.site_id != fkeys.site_id  ||
+                    old.hostname != ep.HOSTNAME ||
+                    old.host_ip != ep.HOST_IP ||
+                    old.service_type != ep.SERVICE_TYPE ||
+                    old.service_id != fkeys.service_id ||
+                    old.in_production != in_prod ||
+                    old.roc_name != ep.ROC_NAME ) {
+                    con.query("UPDATE wlcg_endpoint SET "+
+                        " site_id = "+con.escape(fkeys.site_id)+", "+
+                        " hostname = "+con.escape(ep.HOSTNAME)+", "+
+                        " host_ip = "+con.escape(ep.HOST_IP)+", "+
+                        " service_type = "+con.escape(ep.SERVICE_TYPE)+", "+
+                        " service_id = "+fkeys.service_id+", "+
+                        " in_production = "+in_prod+", "+
+                        " roc_name = "+con.escape(ep.ROC_NAME)+
+                    " WHERE primary_key = "+con.escape(ep.PRIMARY_KEY), cb);
+                } else {
+                    //no change
+                    cb(null);
+                }
              }
         });
     });

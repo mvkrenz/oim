@@ -10,3 +10,4 @@ wlcgloader/config.json
 wlcgloader/cache/*
 
 pf_endpoint_crawler/config.json
+*.log
