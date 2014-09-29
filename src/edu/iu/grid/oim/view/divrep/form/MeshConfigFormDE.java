@@ -1159,6 +1159,7 @@ public class MeshConfigFormDE extends DivRepForm {
 				}
 			};
 			oim_resources.setLabel("OIM Resources");
+			oim_resources.setMax(128); 
 			//oim_resources.setRequired(true);
 			
 			final WLCGSiteModel wsmodel = new WLCGSiteModel(context);
@@ -1187,6 +1188,7 @@ public class MeshConfigFormDE extends DivRepForm {
 				}
 			};
 			wlcg_resources.setLabel("WLCG Resources");
+			wlcg_resources.setMax(128); 
 
 			remove = new DivRepButton(this, "images/delete.png") {
 				@Override
