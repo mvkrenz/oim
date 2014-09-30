@@ -35,7 +35,7 @@ exports.find_mas = function(hostname, cb) {
     var mas = [];
     async.series([
         function(next) {
-            //this find most of 3.2 endpoints
+            //this find most of 3.2/3.3 endpoints
             ps.ma.endpoint({host: hostname}, function(err, endpoints) {
                 if(err) return next();
                 if(endpoints.pinger != null) {
@@ -66,11 +66,13 @@ exports.find_mas = function(hostname, cb) {
                     });
                 }
 
-                //TODO - now test for 3.3 endpoints
-
                 next();
             });
-        }
+        },
+	function(next) {
+		//TODO find 3.4 endpoint
+		next();
+	}
     ], function(err) {
         cb(null, mas); 
     });
