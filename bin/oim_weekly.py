@@ -4,7 +4,8 @@ import httplib
 import json
 import sys
 
-conn = httplib.HTTPConnection("t520", 8080)
+#conn = httplib.HTTPConnection("t520", 8080)
+conn = httplib.HTTPConnection("localhost")
 conn.request("POST", "/oim/rest?action=notify_expiring_cert_request&version=1")
 response = conn.getresponse()
 if response.status != 200:
