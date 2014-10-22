@@ -37,7 +37,7 @@ exports.find_mas = function(hostname, cb) {
         function(next) {
             //this find most of 3.2/3.3 endpoints
             ps.ma.endpoint({host: hostname}, function(err, endpoints) {
-                if(err) return next();
+                if(err) return next(); //ignore it
                 if(endpoints.pinger != null) {
                     mas.push({
                         read_url: 'http://'+hostname+':8075/perfSONAR_PS/services/pinger/ma',

@@ -9,16 +9,17 @@ import simplejson
 import base64
 
 ctx = M2Crypto.SSL.Context()
-ctx.load_cert("/home/hayashis/.globus/soichi.2014.pem")
+ctx.load_cert("/home/hayashis/.globus/soichi.2014-2015.pem")
 
 headers = {'Content-type': "application/x-www-form-urlencoded", 'User-Agent': 'OIMGridAPIClient/0.1 (OIM Grid API)'}
 
-request_id = "25";
+serial_id = "03FE6B7F6D355317A5B8B87487197B5A"; #old
+#serial_id = "non-existing";
 
 print "renewing"
 conn = M2Crypto.httpslib.HTTPSConnection("oim-itb.grid.iu.edu", ssl_context=ctx)
 conn.set_debuglevel(1)
-params = urllib.urlencode({'user_request_id': request_id, 'password': 'new passwords needs to be strong #4096'}, doseq=True)
+params = urllib.urlencode({'serial_id': serial_id, 'password': 'new password needs to be strong #4069'}, doseq=True)
 conn.request('POST', "/oim/rest?action=user_cert_renew", params, headers)
 ssl_session = conn.get_session()
 response = conn.getresponse()
