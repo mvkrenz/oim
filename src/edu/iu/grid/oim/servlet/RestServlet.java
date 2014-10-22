@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -30,6 +31,7 @@ import edu.iu.grid.oim.model.db.ConfigModel;
 import edu.iu.grid.oim.model.db.CertificateRequestHostModel;
 import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.GridAdminModel;
+import edu.iu.grid.oim.model.db.LogModel;
 import edu.iu.grid.oim.model.db.SmallTableModelBase;
 import edu.iu.grid.oim.model.db.VOModel;
 import edu.iu.grid.oim.model.db.record.CertificateRequestHostRecord;
@@ -577,6 +579,10 @@ public class RestServlet extends ServletBase  {
 				rec = model.getBySerialID(serial_id);
 			}
 			if(rec == null) {
+				//see if the serial ID was previously renewed already
+				if(serial_id != null && model.findByOldSerialID(serial_id)) {
+					throw new RestException("The certificate with serial ID: "+serial_id+" has already been renewed");
+				}
 				throw new RestException("No such user certificate request ID or serial ID");
 			}
 			

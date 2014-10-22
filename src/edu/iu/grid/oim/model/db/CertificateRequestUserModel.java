@@ -51,6 +51,7 @@ import edu.iu.grid.oim.model.db.record.CertificateRequestUserRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.DNAuthorizationTypeRecord;
 import edu.iu.grid.oim.model.db.record.DNRecord;
+import edu.iu.grid.oim.model.db.record.LogRecord;
 import edu.iu.grid.oim.model.db.record.SCRecord;
 import edu.iu.grid.oim.model.db.record.VOContactRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
@@ -1624,5 +1625,22 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 	CertificateRequestUserRecord createRecord() throws SQLException {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	public boolean findByOldSerialID(String serial_id) throws SQLException {
+    	String sql = "select * from log where model = 'edu.iu.grid.oim.model.db.CertificateRequestUserModel' and xml like ?";
+    	Connection conn = connectOIM();
+		PreparedStatement stmt = conn.prepareStatement(sql); 
+		stmt.setString(1, "%<OldValue>"+serial_id+"</OldValue>%");
+		ResultSet rs = stmt.executeQuery();
+		if(rs.next()) {
+			//CertificateRequestUserRecord rec = new CertificateRequestUserRecord(rs);
+			stmt.close();
+			conn.close();
+			return true;
+		}
+		stmt.close();
+		conn.close();
+		return false;
 	}
 }
