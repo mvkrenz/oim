@@ -24,7 +24,7 @@ import edu.iu.grid.oim.model.db.record.CpuInfoRecord;
 import edu.iu.grid.oim.model.db.record.GridAdminRecord;
 import edu.iu.grid.oim.view.divrep.form.CpuInfoFormDE;
 import edu.iu.grid.oim.view.divrep.form.GridAdminFormDE;
-import edu.iu.grid.oim.view.divrep.form.QuotaConfigFormDE;
+import edu.iu.grid.oim.view.divrep.form.CertificateConfigFormDE;
 
 import edu.iu.grid.oim.view.BootBreadCrumbView;
 import edu.iu.grid.oim.view.BootMenuView;

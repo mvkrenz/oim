@@ -7,20 +7,22 @@ import org.apache.log4j.Logger;
 import com.divrep.DivRepEvent;
 import com.divrep.common.DivRepForm;
 import com.divrep.common.DivRepStaticContent;
+import com.divrep.common.DivRepTextArea;
 import com.divrep.common.DivRepTextBox;
-
 import com.divrep.validator.DivRepIntegerValidator;
 
 import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.UserContext.MessageType;
 import edu.iu.grid.oim.model.db.ConfigModel;
 
-public class QuotaConfigFormDE extends DivRepForm 
+public class CertificateConfigFormDE extends DivRepForm 
 {
-    static Logger log = Logger.getLogger(QuotaConfigFormDE.class); 
+    static Logger log = Logger.getLogger(CertificateConfigFormDE.class); 
     
     private UserContext context;
 	
+	private DivRepTextArea banner;	
+    
 	private DivRepTextBox global_usercert_max;
 	private DivRepTextBox global_usercert_count;
 	
@@ -31,7 +33,7 @@ public class QuotaConfigFormDE extends DivRepForm
 	private DivRepTextBox hostcert_max_year;
 	private DivRepTextBox hostcert_max_day;
 	
-	public QuotaConfigFormDE(UserContext _context) throws SQLException
+	public CertificateConfigFormDE(UserContext _context) throws SQLException
 	{	
 		super(_context.getPageRoot(), null);
 		context = _context;
@@ -86,6 +88,13 @@ public class QuotaConfigFormDE extends DivRepForm
 		hostcert_max_day.setRequired(true);
 		hostcert_max_day.addValidator(new DivRepIntegerValidator());
 		new DivRepStaticContent(this, "<p>* Per user counters are stored in user contact record.</p>");
+		
+		new DivRepStaticContent(this, "<h2>Page Banner</h2>");
+		new DivRepStaticContent(this, "<p class='muted'>Banner displayed on top of all certificate related pages</p>");
+		banner = new DivRepTextArea(this);
+		banner.setValue(config.CertificatePageBanner.getString());
+		banner.setHeight(50);
+		banner.setSampleValue("No Banner");
 	}
 	
 	protected Boolean doSubmit() 
@@ -102,7 +111,10 @@ public class QuotaConfigFormDE extends DivRepForm
 			config.QuotaUserHostDayMax.set(hostcert_max_day.getValue());
 			config.QuotaUserHostYearMax.set(hostcert_max_year.getValue());
 			
+			config.CertificatePageBanner.set(banner.getValue());
+			
 			context.message(MessageType.SUCCESS, "Successfully updated configuration.");
+			this.redirect("certificate");
 		} catch (SQLException e) {
 			log.error("Failed to update quota config", e);
 			alert(e.getMessage());

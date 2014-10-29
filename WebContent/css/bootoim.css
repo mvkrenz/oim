@@ -678,3 +678,6 @@ min-width: inherit;
 input.datepicker {
 width: 100px;	
 }
+.content-editor {
+margin-top: 10px;
+}

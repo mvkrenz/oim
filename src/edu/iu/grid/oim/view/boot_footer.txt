@@ -1,8 +1,11 @@
 
 	  <hr>
       <footer>
-		<p>OIM Version __VERSION__ | <a href="__GOCTICKET__/submit?app_issue_check=on&app_issue_type=goc&app_goc_url=__REF__" target="_blank">Report Bugs</a> | 
+		<p>
+		OIM Version __VERSION__ | 
+		<a href="__GOCTICKET__/submit?app_issue_check=on&app_issue_type=goc&app_goc_url=__REF__" target="_blank">Report Bugs</a> | 
 		<a href="https://twiki.grid.iu.edu/bin/view/Operations/IUPrivacyPolicy" target="_blank">Privacy Policy</a>
+		<a class="pull-right" href="__GOCTICKET__/submit?app_issue_check=on&app_issue_type=goc&app_goc_url=__REF__" target="_blank">Request for Assistance</a>
 		</p>
 		<p><img src="images/potato.png" align="top"/>&nbsp;Copyright 2011 The Trustees of Indiana University  - Developed for Open Science Grid</p>
       </footer>

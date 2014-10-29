@@ -37,11 +37,13 @@ public class EditableContent extends DivRepFormElement
 		html.setValue(content.getString());
 		html.setWidth(800);
 		html.setHeight(300);
+		html.addClass("content-editor");
 		
 		edit = new DivRepButton(this, "Update Content");
 		edit.setStyle(Style.BUTTON);
-		edit.addClass("pull-right");
+		//edit.addClass("pull-right");
 		edit.addClass("btn");
+		edit.addClass("btn-mini");
 		edit.addEventListener(new DivRepEventListener() {
 			@Override
 			public void handleEvent(DivRepEvent arg0) {

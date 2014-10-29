@@ -561,7 +561,7 @@ public class ContactFormDE extends DivRepForm
 		}
 		
 		//disable pki quota controllers
-		if(!auth.allows("admin_pki_quota")) {
+		if(!auth.allows("admin_pki_config")) {
 			count_hostcert_day.setDisabled(true);
 			count_hostcert_year.setDisabled(true);
 			count_usercert_year.setDisabled(true);

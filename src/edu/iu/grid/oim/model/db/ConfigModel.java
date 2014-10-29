@@ -80,6 +80,8 @@ public class ConfigModel extends ModelBase<ConfigRecord> {
 	public Config QuotaUserHostDayMax = new Config(this, "QuotaUserHostDayMax", "50");
 	public Config QuotaUserHostYearMax = new Config(this, "QuotaUserHostYearMax", "1000");
 	
+	public Config CertificatePageBanner = new Config(this, "certificate_page_banner", "");
+	
 	public ConfigModel(UserContext context)
 	{
 		super(context, "config");

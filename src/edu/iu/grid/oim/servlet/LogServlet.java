@@ -95,7 +95,7 @@ public class LogServlet extends ServletBase  {
 		
 		modeltypes.add(new ModelType(".GridAdmin", "GridAdmin", "admin_gridadmin"));
 		modeltypes.add(new ModelType(".CertificateRequest", "Certificate Requests", "view_certlog"));
-		modeltypes.add(new ModelType(".Config", "Certificate Quota (Config)", "admin_pki_quota"));
+		modeltypes.add(new ModelType(".Config", "Certificate Quota (Config)", "admin_pki_config"));
 		modeltypes.add(new ModelType(".Config", "Config", "admin")); 
 	}
    

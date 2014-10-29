@@ -6,10 +6,12 @@ import java.io.PrintWriter;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
 import org.apache.log4j.Logger;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.model.UserContext;
+import edu.iu.grid.oim.model.UserContext.MessageType;
 import edu.iu.grid.oim.model.db.ConfigModel;
 import edu.iu.grid.oim.model.db.ConfigModel.Config;
 import edu.iu.grid.oim.view.BootMenuView;
@@ -24,8 +26,6 @@ public class CertificateServlet extends ServletBase  {
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		UserContext context = new UserContext(request);
-		//Authorization auth = context.getAuthorization();
-		
 		BootMenuView menuview = new BootMenuView(context, "certificate");
 		BootPage page = new BootPage(context, menuview, createContent(context), null);
 		page.render(response.getWriter());		

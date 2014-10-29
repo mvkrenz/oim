@@ -764,12 +764,16 @@
     </servlet-mapping>    
     
     <servlet>
-        <servlet-name>QuotaAdminServlet</servlet-name>
-        <servlet-class>edu.iu.grid.oim.servlet.QuotaAdminServlet</servlet-class>
+        <servlet-name>CertificateConfigServlet</servlet-name>
+        <servlet-class>edu.iu.grid.oim.servlet.CertificateConfigServlet</servlet-class>
     </servlet>
     <servlet-mapping>
-        <servlet-name>QuotaAdminServlet</servlet-name>
+        <servlet-name>CertificateConfigServlet</servlet-name>
         <url-pattern>/quotaadmin</url-pattern>
+    </servlet-mapping>  
+    <servlet-mapping>
+        <servlet-name>CertificateConfigServlet</servlet-name>
+        <url-pattern>/certificateconfig</url-pattern>
     </servlet-mapping>  
     
     <servlet>

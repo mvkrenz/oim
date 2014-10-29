@@ -4,18 +4,17 @@ import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashMap;
-
 import java.net.URL;
 import java.net.URLEncoder;
 
-import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.model.UserContext;
-import edu.iu.grid.oim.model.UserContext.Message;
 import edu.iu.grid.oim.model.UserContext.MessageType;
+import edu.iu.grid.oim.model.db.ConfigModel;
+import edu.iu.grid.oim.model.db.ConfigModel.Config;
 
 public class BootPage implements IView {
 	static Logger log = Logger.getLogger(BootPage.class);  
@@ -49,16 +48,30 @@ public class BootPage implements IView {
 		footer = new HtmlFileView(getClass().getResourceAsStream("boot_footer.txt"));
 		menu = _menu;
 		
+		//handle banner
+		if(StaticConfig.isDebug()) {
+			context.message(MessageType.INFO, "Running in debug mode. For production use, please use https://oim.grid.iu.edu");
+		}
+		String path = context.getRequestURL().getPath();
+		if(path.startsWith("/oim/certificate")) {
+			ConfigModel config = new ConfigModel(context);
+			addBanner(MessageType.WARNING, config.CertificatePageBanner);
+		}
+		
 		//we should ask client to give us ContentView instead.. but it will be a lot of work
 		content = new ContentView(_context);
 		content.add(_content);
 		
 		side = _side;
-		
-		if(StaticConfig.isDebug()) {
-			context.message(MessageType.INFO, "Running in debug mode. For production use, please use https://oim.grid.iu.edu");
+	}
+	
+	private void addBanner(MessageType type, Config config) {
+		String value = config.getString();
+		if(value != null && !value.isEmpty()) {
+			context.message(type, config.getString());
 		}
 	}
+	
 	public void putSideViewLeft(boolean b) {
 		putsideviewleft = b;
 	}
@@ -150,5 +163,14 @@ public class BootPage implements IView {
 
 		footer.render(out);
 	}
+
+	/*
+	public void addBanner(MessageType type, Config config) {
+		String value = config.getString();
+		if(value != null && !value.isEmpty()) {
+			context.message(type, value);
+		}
+	}
+	*/
 	
 }
