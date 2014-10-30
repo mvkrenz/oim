@@ -55,7 +55,7 @@ public class BootPage implements IView {
 		String path = context.getRequestURL().getPath();
 		if(path.startsWith("/oim/certificate")) {
 			ConfigModel config = new ConfigModel(context);
-			addBanner(MessageType.WARNING, config.CertificatePageBanner);
+			addBanner(MessageType.ERROR, config.CertificatePageBanner);
 		}
 		
 		//we should ask client to give us ContentView instead.. but it will be a lot of work

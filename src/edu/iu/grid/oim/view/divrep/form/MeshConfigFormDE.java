@@ -70,7 +70,6 @@ import edu.iu.grid.oim.view.divrep.ContactEditor;
 import edu.iu.grid.oim.view.divrep.HostGroupListEditor;
 import edu.iu.grid.oim.view.divrep.OIMResourceServiceListEditor;
 import edu.iu.grid.oim.view.divrep.WLCGResourceServiceListEditor;
-import edu.iu.grid.oim.view.divrep.SelectionEditorBase.ItemInfo;
 
 public class MeshConfigFormDE extends DivRepForm {
     static Logger log = Logger.getLogger(MeshConfigFormDE.class); 
@@ -1069,16 +1068,6 @@ public class MeshConfigFormDE extends DivRepForm {
 				if(aids != null && aids.contains(id)) return true;
 				ArrayList<Integer> bids = test.group_b.getSelectedIds();
 				if(bids != null && bids.contains(id)) return true;
-				/*
-				Integer group_a = test.group_a.getValue();
-				Integer group_b = test.group_b.getValue();
-				if(
-					(group_a != null && group_a.equals(id)) || 
-					(group_b != null && group_b.equals(id))
-				) {
-					return true;
-				}
-				*/
 			}	
 			return false;
 		}
@@ -1160,7 +1149,6 @@ public class MeshConfigFormDE extends DivRepForm {
 			};
 			oim_resources.setLabel("OIM Resources");
 			oim_resources.setMax(128); 
-			//oim_resources.setRequired(true);
 			
 			final WLCGSiteModel wsmodel = new WLCGSiteModel(context);
 			final WLCGEndpointModel wemodel = new WLCGEndpointModel(context);
@@ -1223,7 +1211,7 @@ public class MeshConfigFormDE extends DivRepForm {
 					for(MeshConfigOIMMemberRecord mrec : model.getByGroupID(rec.id)) {
 						OIMResourceServiceListEditor.ResourceInfo info = oim_resources.new ResourceInfo();
 						info.rec = rmodel.get(mrec.resource_id);
-						ResourceServiceDetailRecord detail = dmodel.get(service.getValue(), rec.id, "endpoint");
+						ResourceServiceDetailRecord detail = dmodel.get(service.getValue(), mrec.resource_id, "endpoint");
 						if(detail != null) {
 							info.detail = detail.value;
 						}
