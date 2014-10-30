@@ -65,13 +65,74 @@ exports.find_mas = function(hostname, cb) {
                         type: 'perfsonarbuoy/bwctl'
                     });
                 }
-
                 next();
             });
         },
 	function(next) {
-		//TODO find 3.4 endpoint
-		next();
+            //find 3.4 endpoint
+            var url = "http://"+hostname+"/toolkit/?format=json";
+            //console.log("testing esdmond url:"+url);
+            http.get(url, function(res) {
+                //console.dir(res);
+                var body = "";
+                res.on('data', function(chunk) {
+                    body += chunk;
+                });
+                res.on('end', function() {
+                    //console.dir(res);
+                    if(res.statusCode == "200") {
+                        try {
+                            var info = JSON.parse(body);
+                            //iterate services
+                            var maurl = null;
+                            var running = [];
+                            info.services.forEach(function(service) {
+                                if(service.is_running == "yes") {
+                                    switch(service.name) {
+                                    case "esmond": 
+                                        maurl = service.addresses[service.addresses.length-1]; //grab the last one
+                                        break;
+                                    default:
+                                        running.push(service.name);
+                                    }
+                                }
+                            });
+                            //console.log("maurl:"+maurl);
+                            //console.dir(running);
+
+                            //construct ma urls
+                            running.forEach(function(service) {
+                                switch(service) {
+                                case "bwctl":
+                                    mas.push({ read_url: maurl, write_url: maurl, type: 'perfsonarbuoy/bwctl'});
+                                    break;
+                                case "owamp":
+                                    mas.push({ read_url: maurl, write_url: maurl, type: 'perfsonarbuoy/owamp'});
+                                    break;
+                                case "traceroute":
+                                    mas.push({ read_url: maurl, write_url: maurl, type: 'traceroute'});
+                                    break;
+                                case "pinger": //TODO right service name?
+                                    mas.push({ read_url: maurl, write_url: maurl, type: 'pinger'});
+                                    break;
+                                
+                                //don't know what to do with these services
+                                case "ndt":
+                                case "regular_testing":
+                                    break;
+                                }
+                            });
+                        } catch(SyntaxError) {
+                            //syntax error probably means this is 3.3 site returning html
+                        }
+                    }
+                    next();
+                });
+            }).on('error', function(e) {
+                //ignore
+                //console.log("failed to access:"+url);
+                next();
+            });
 	}
     ], function(err) {
         cb(null, mas); 
