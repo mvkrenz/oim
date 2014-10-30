@@ -515,6 +515,7 @@ public class MeshConfigFormDE extends DivRepForm {
 						break;
 					case 3://admin
 						editor.setMinContacts(ContactRank.Primary, 1); //required
+						editor.setMaxContacts(ContactRank.Secondary, 4);
 						break;
 					}
 					contact_editors.put(contact_type.id, editor);

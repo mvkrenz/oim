@@ -61,8 +61,8 @@ public class ContactEditor extends DivRepFormElement<HashMap<ContactRank, ArrayL
 	public void setShowRank(Boolean b) { show_rank = b; }
 	
 	@Deprecated
+	//TODO - this just adds MinValidator() without clearing previous validator.. use it as your own risk
 	public void setMinContacts(ContactRank rank, int min) {
-		//TODO - shouldn't I have to clear previous validator? It doesn't look like that I just stick new validator in here..
 		addValidator(new MinValidator(rank, min));
 	}
 	public void setMaxContacts(ContactRank rank, int max) {
@@ -467,6 +467,7 @@ public class ContactEditor extends DivRepFormElement<HashMap<ContactRank, ArrayL
 	}
 	
 	@Deprecated
+	//TODO add getMinContact 
 	public Boolean isRequired() { return false; }
 
 	@Deprecated
