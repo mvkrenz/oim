@@ -34,8 +34,9 @@ exports.find_mas = function(hostname, cb) {
     console.log("testing "+hostname);
     var mas = [];
     async.series([
+        /*
+        //this find most of 3.2/3.3 endpoints
         function(next) {
-            //this find most of 3.2/3.3 endpoints
             ps.ma.endpoint({host: hostname}, function(err, endpoints) {
                 if(err) return next(); //ignore it
                 if(endpoints.pinger != null) {
@@ -68,8 +69,10 @@ exports.find_mas = function(hostname, cb) {
                 next();
             });
         },
-	function(next) {
-            //find 3.4 endpoint
+        */
+        
+        //find 3.4 endpoint
+        function(next) {
             var url = "http://"+hostname+"/toolkit/?format=json";
             //console.log("testing esdmond url:"+url);
             http.get(url, function(res) {
@@ -133,7 +136,7 @@ exports.find_mas = function(hostname, cb) {
                 //console.log("failed to access:"+url);
                 next();
             });
-	}
+        }
     ], function(err) {
         cb(null, mas); 
     });
