@@ -107,16 +107,17 @@ exports.find_mas = function(hostname, cb) {
                             running.forEach(function(service) {
                                 switch(service) {
                                 case "bwctl":
-                                    mas.push({ read_url: maurl, write_url: maurl, type: 'perfsonarbuoy/bwctl'});
+                                    //andy lake says write_url is currrently not used
+                                    mas.push({ read_url: maurl, /*write_url: maurl,*/ type: 'perfsonarbuoy/bwctl'});
                                     break;
                                 case "owamp":
-                                    mas.push({ read_url: maurl, write_url: maurl, type: 'perfsonarbuoy/owamp'});
+                                    mas.push({ read_url: maurl, /*write_url: maurl,*/ type: 'perfsonarbuoy/owamp'});
                                     break;
                                 case "traceroute":
-                                    mas.push({ read_url: maurl, write_url: maurl, type: 'traceroute'});
+                                    mas.push({ read_url: maurl, /*write_url: maurl,*/ type: 'traceroute'});
                                     break;
                                 case "pinger": //TODO right service name?
-                                    mas.push({ read_url: maurl, write_url: maurl, type: 'pinger'});
+                                    mas.push({ read_url: maurl, /*write_url: maurl,*/ type: 'pinger'});
                                     break;
                                 
                                 //don't know what to do with these services
