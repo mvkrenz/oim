@@ -42,7 +42,7 @@ async.series([
                 return done(); //skip to next?
             } else {
                 console.dir(mas);
-		if(mas.length == 0) return done(); //skip if empty
+		if(mas == null) return done(); //skip if empty
                 oim.upsertMAs(hostname, mas, done);
             }
         });
