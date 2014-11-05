@@ -32,7 +32,7 @@ function testhead(hostname, port, path, cb) {
 
 exports.find_mas = function(hostname, cb) {
     console.log("testing "+hostname);
-    var mas = [];
+    var mas = null;
     async.series([
         /*
         //this find most of 3.2/3.3 endpoints
@@ -104,6 +104,7 @@ exports.find_mas = function(hostname, cb) {
                             //console.dir(running);
 
                             //construct ma urls
+                            mas = [];
                             running.forEach(function(service) {
                                 switch(service) {
                                 case "bwctl":
@@ -126,6 +127,10 @@ exports.find_mas = function(hostname, cb) {
                                     break;
                                 }
                             });
+                            if(mas.length == 0) {
+                                console.error(url + " shows no relevant service.. ignoring this result");
+                                mas = null;
+                            }
                         } catch(SyntaxError) {
                             //syntax error probably means this is 3.3 site returning html
                         }
