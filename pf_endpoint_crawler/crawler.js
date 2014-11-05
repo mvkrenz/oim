@@ -127,6 +127,10 @@ exports.find_mas = function(hostname, cb) {
                                     break;
                                 }
                             });
+                            if(mas.length == 0) {
+                                console.error(url + " shows no relevant service.. ignoring this result");
+                                mas = null;
+                            }
                         } catch(SyntaxError) {
                             //syntax error probably means this is 3.3 site returning html
                         }
