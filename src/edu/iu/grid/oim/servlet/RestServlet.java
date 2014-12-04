@@ -100,7 +100,6 @@ public class RestServlet extends ServletBase  {
 				doHostCertsIssue(request, reply);
 			} 
 			
-			
 			//user certificate api
 			else if(action.equals("user_cert_request")) {
 				doUserCertRequest(request, reply);
@@ -163,8 +162,14 @@ public class RestServlet extends ServletBase  {
 				doQuotaInfo(request, reply);
 			} else if(action.equals("user_info")) {
 				doUserInfo(request, reply);
+				/*
 			} else if(action.equals("hcvoid")) {
 				doHCVOID(request, reply);
+				*/
+			} else if(action.equals("clear_cache")) {
+				SmallTableModelBase.emptyAllCache();
+				reply.status = Status.OK;
+				reply.detail = "Cleared Cache";
 			} else {
 				reply.status = Status.FAILED;
 				reply.detail = "No such action";
@@ -935,17 +940,12 @@ public class RestServlet extends ServletBase  {
 			throw new RestException("SQLException while processing expired user certificates", e);
 		}
 	}
-	
+
+	/*
 	//this is used just once to populate missing VO ID on host certificate requests
 	private void doHCVOID(HttpServletRequest request, Reply reply) throws AuthorizationException, RestException {
 		UserContext context = new UserContext(request);	
-		/*
-		Authorization auth = context.getAuthorization();
-		if(!auth.isLocal()) {
-			throw new AuthorizationException("You can't access this interface from there");
-		}
-		*/
-		
+	
 		//pull all records that has no expiration dates set
 		CertificateRequestHostModel model = new CertificateRequestHostModel(context);
 		try  {
@@ -972,4 +972,5 @@ public class RestServlet extends ServletBase  {
 			throw new RestException("SQLException while running doHostCertExSQL", e);
 		}
 	}
+	*/
 }
