@@ -1,5 +1,5 @@
 
-var https = require('https');
+var http = require('http');
 var fs = require('fs');
 
 var _ = require('lodash');
@@ -11,7 +11,6 @@ var mysql = require('mysql');
 var config = require('./config.json');
 
 var con = mysql.createConnection(config.oim_dburl);
-
 
 //used to find reomved records
 var current_sites = [];
@@ -134,6 +133,7 @@ function parseEndpoint(inend) {
         case 'COUNTRY_CODE':
         case 'ROC_NAME':
         case 'URL':
+        case 'ENDPOINTS':
         case 'EXTENSIONS':
         case 'HOST_OS':
         case 'HOST_ARCH':
@@ -400,11 +400,29 @@ async.series([
     }
 ], function(err, cb) {
     if(err) throw err;
-    console.log("all done");
+    console.log("all done.. calling oim/clear_cache");
+    var ret = "";
+    http.get("http://localhost/oim/rest?action=clear_cache", function(res) {
+        if(res.statusCode != 200) {
+            console.error("oim/clear_cache returned "+res.statusCode);
+        }
+        close_mysql();
+    }).on('error', function(e) {
+        console.error("couldn't make clear_cache call");
+        console.error(e);
+        close_mysql();
+    }).on('data', function(chunk) {
+        ret += chunk;
+    }).on('end', function() {
+        console.log(ret);
+    });
+});
+
+function close_mysql() {
     con.end(function(err) {
         console.log("closed mysql");
     });
-});
+}
 
 /*
 setTimeout(10*1000, function() {
