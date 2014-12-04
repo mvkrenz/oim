@@ -121,9 +121,10 @@ public class CertificateHostServlet extends ServletBase  {
 					out.write("</div>"); //progress
 					out.write("</div>"); //alert
 									
+					out.write("<script>setTimeout(loadstatus, 1000);</script>"); //reload status in 3 sec
 				} else {
-					//not issuing anymore - redirect
-					out.write("<script>document.location='certificatehost?id="+rec.id+"';</script>");
+					//finished - reload page to refresh all fields
+					out.write("<script>document.location.reload(true);</script>"); //true -- force get instead of using cache
 				}
 			}
 		};
@@ -185,10 +186,19 @@ public class CertificateHostServlet extends ServletBase  {
 				out.write("<td>"+StringEscapeUtils.escapeHtml(rec.status));
 				if(rec.status.equals(CertificateRequestStatus.ISSUING)) {
 					out.write("<div id=\"status_progress\">Loading...</div>");
+					/*
 					out.write("<script>");
 					out.write("function loadstatus() { ");
 					out.write("$('#status_progress').load('certificatehost?id="+rec.id+"&status');");
 					out.write("setTimeout('loadstatus()', 2000);");
+					out.write("}");
+					out.write("loadstatus();");
+					out.write("</script>");
+					*/
+					out.write("<script type=\"text/javascript\">");
+					out.write("function loadstatus() { ");
+					//why adding new Date()? see http://stackoverflow.com/questions/1061525/jquerys-load-not-working-in-ie-but-fine-in-firefox-chrome-and-safari
+					out.write("    $('#status_progress').load('certificatehost?id="+rec.id+"&status&'+new Date().getTime() );"); 
 					out.write("}");
 					out.write("loadstatus();");
 					out.write("</script>");
