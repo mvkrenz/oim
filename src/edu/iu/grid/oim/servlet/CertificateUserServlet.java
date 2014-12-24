@@ -221,7 +221,7 @@ public class CertificateUserServlet extends ServletBase  {
 				out.write("<tbody>");
 
 				out.write("<tr>");
-				out.write("<th>Status</th>");
+				out.write("<th style=\"width: 150px;\">Status</th>");
 				out.write("<td>"+StringEscapeUtils.escapeHtml(rec.status));
 				if(rec.status.equals(CertificateRequestStatus.ISSUING)) {
 					out.write("<div id=\"status_progress\">Loading...</div>");
@@ -486,11 +486,8 @@ public class CertificateUserServlet extends ServletBase  {
 			note.setRequired(true);
 			pane.add(note);
 			
-			final DivRepButton button = new DivRepButton(context.getPageRoot(), "<button class=\"btn btn-primary\"><i class=\"icon-ok icon-white\"></i> Approve</button>");
-			button.setStyle(DivRepButton.Style.HTML);
-			button.addClass("inline");
-			button.addEventListener(new DivRepEventListener() {
-                public void handleEvent(DivRepEvent event) {
+			final DivRepButton button = new DivRepButton(context.getPageRoot(), "<button class=\"btn btn-primary\"><i class=\"icon-ok icon-white\"></i> Approve</button>") {
+				protected void onClick(DivRepEvent e) {
                 	if(note.validate()) {
                 		context.setComment(note.getValue());
                 		
@@ -506,16 +503,16 @@ public class CertificateUserServlet extends ServletBase  {
 									DNModel dnmodel = new DNModel(context);
 			                		DNRecord duplicate = dnmodel.getEnabledByDNString(rec.dn);
 			                		if(duplicate != null/* && !duplicate.contact_id.equals(rec.requester_contact_id)*/) {
-			                			button.alert("The same DN is already registered in OIM for user id:"+duplicate.contact_id + ". Please specify different CN");
+			                			alert("The same DN is already registered in OIM for user id:"+duplicate.contact_id + ". Please specify different CN");
 			                			return;
 			                		}
 								} catch (SQLException e1) {
 									log.error("Failed to test duplicate DN during approval process", e1);
-									button.alert("Failed to test duplicate DN.");
+									alert("Failed to test duplicate DN.");
 									return;
 								}	                		
                 			} else {
-                				button.alert("Failed to validate provided CN.");
+                				alert("Failed to validate provided CN.");
                 				return;
                 			}
                 		}
@@ -525,20 +522,29 @@ public class CertificateUserServlet extends ServletBase  {
                 			if(model.canApprove(rec)) {
                 				model.approve(rec);
 	                			context.message(MessageType.SUCCESS, "Successfully approved a request with ID: " + rec.id);
-								button.redirect(url);
+								redirect(url);
                 			} else {
-                				button.alert("Reques status has changed. Please reload.");
+                				alert("Reques status has changed. Please reload.");
                 			}
                 		} catch (CertificateRequestException ex) {
                 			String message = "Failed to approve request: " + ex.getMessage();
                 			if(ex.getCause() != null) {
                 				message += "\n\n" + ex.getCause().getMessage();
                 			}
-	                		button.alert(message);
+	                		alert(message);
 	                	}
-                	}
+                	}					
+				}
+			};
+			button.setStyle(DivRepButton.Style.HTML);
+			button.addClass("inline");
+			/*
+			button.addEventListener(new DivRepEventListener() {
+                public void handleEvent(DivRepEvent event) {
+
                 }
             });
+            */
 			pane.add(button);
 			tabview.addtab("Approve", pane);
 		}
@@ -589,21 +595,18 @@ public class CertificateUserServlet extends ServletBase  {
 				//list VOs that this user is RA of
 				ArrayList<VORecord> vos = model.getVOIApprove(auth.getContact().id);
 				if(vos.size() > 0) {
-					/*
-					pane.add(new HtmlView("<h3>RA Agreement</h3>"));
-					pane.add(new HtmlView("<p>You are currently RA for following VOs</p>"));
-					pane.add(new HtmlView("<p>"));
+					pane.add(new HtmlView("<div class=\"well\">"));
+					pane.add(new HtmlView("<p class=\"muted\">You are currently RA for following VOs: "));
 					for(VORecord vo : vos) {
-						pane.add(new HtmlView("<span class=\"label\">"+vo.name+"</span> "));
+						pane.add(new HtmlView("<span class=\"label label-info\">"+StringEscapeUtils.escapeHtml(vo.name)+"</span> "));
 					}
 					pane.add(new HtmlView("</p>"));
-					pane.add(new HtmlView("<p>Therefore, you must agree to following RA agreement before renewing your certificate.</p>"));
-					*/
-					pane.add(new HtmlView("<div class=\"well\">"));
-					pane.add(new HtmlFileView(getClass().getResourceAsStream("ra_agreement.html")));
+					pane.add(new HtmlFileView(getClass().getResourceAsStream("ra_agreement.html")));	
+					
 					ra_agree.setLabel("I have read and agree to above.");
 					ra_agree.addValidator(new MustbeCheckedValidator("You must agree before renewing your certificate."));			
 					pane.add(ra_agree);
+					
 					pane.add(new HtmlView("</div>"));
 				}
 				
@@ -611,6 +614,11 @@ public class CertificateUserServlet extends ServletBase  {
 				ArrayList<GridAdminRecord> gas = gamodel.getGridAdminsByContactID(auth.getContact().id);
 				if(gas.size() > 0) {
 					pane.add(new HtmlView("<div class=\"well\">"));
+					pane.add(new HtmlView("<p class=\"muted\">You are currently GridAdmin for following Domains: "));
+					for(GridAdminRecord ga : gas) {
+						pane.add(new HtmlView("<span class=\"label label-info\">"+StringEscapeUtils.escapeHtml(ga.domain)+"</span> "));
+					}
+					pane.add(new HtmlView("</p>"));
 					pane.add(new HtmlFileView(getClass().getResourceAsStream("ga_agreement.html")));
 					ga_agree.setLabel("I have read and agree to above.");
 					ga_agree.addValidator(new MustbeCheckedValidator("You must agree before renewing your certificate."));			
@@ -624,11 +632,8 @@ public class CertificateUserServlet extends ServletBase  {
 			
 			//TODO list domains that this user is GA of
 			
-			final DivRepButton button = new DivRepButton(context.getPageRoot(), "<button class=\"btn btn-success\"><i class=\"icon-refresh icon-white\"></i> Renew</button>");
-			button.setStyle(DivRepButton.Style.HTML);
-			button.addClass("inline");
-			button.addEventListener(new DivRepEventListener() {
-                public void handleEvent(DivRepEvent event) {
+			final DivRepButton button = new DivRepButton(context.getPageRoot(), "<button class=\"btn btn-success\"><i class=\"icon-refresh icon-white\"></i> Renew</button>") {
+				protected void onClick(DivRepEvent e) {
                 	if(pass.validate() && pass_confirm.validate() && ra_agree.validate() && ga_agree.validate()) {
                 		context.setComment("User requesting / issueing renewed user certificate");
                 		try {
@@ -636,20 +641,22 @@ public class CertificateUserServlet extends ServletBase  {
                 			if(model.canRenew(rec, logs)) {
                 				model.renew(rec, pass.getValue());
 	                			context.message(MessageType.SUCCESS, "Successfully renewed certificate request with ID: " + rec.id);
-								button.redirect(url);
+								redirect(url);
                 			} else {
-                				button.alert("Reques status has changed. Please reload.");
+                				alert("Reques status has changed. Please reload.");
                 			}
                 		} catch (CertificateRequestException ex) {
                 			String message = "Failed to renew certificate: " + ex.getMessage();
                 			if(ex.getCause() != null) {
                 				message += "\n\n" + ex.getCause().getMessage();
                 			}
-	                		button.alert(message);
+	                		alert(message);
 	                	}
-                	}
-                }
-            });
+                	}					
+				}	
+			};
+			button.setStyle(DivRepButton.Style.HTML);
+			button.addClass("inline");
 			pane.add(button);
 			
 			tabview.addtab("Renew", pane);
@@ -664,32 +671,37 @@ public class CertificateUserServlet extends ServletBase  {
 			note.setRequired(true);
 			pane.add(note);
 			
-			final DivRepButton button = new DivRepButton(context.getPageRoot(), "<button class=\"btn btn-primary\"><i class=\"icon-exclamation-sign icon-white\"></i> Request Revocation</button>");
+			final DivRepButton button = new DivRepButton(context.getPageRoot(), "<button class=\"btn btn-primary\"><i class=\"icon-exclamation-sign icon-white\"></i> Request Revocation</button>") {
+				protected void onClick(DivRepEvent e) {
+					if(note.validate()) {
+	            		context.setComment(note.getValue());
+	            		try {
+	            			//check access again - request status might have changed
+	            			if(model.canRequestRevoke(rec)) {
+	            				model.requestRevoke(rec);
+	                			context.message(MessageType.SUCCESS, "Successfully requested certificate revocation for a request with ID: " + rec.id);
+								redirect(url);
+	            			} else {
+	            				alert("Reques status has changed. Please reload.");
+	            			}
+	            		} catch (CertificateRequestException ex) {
+	            			String message = "Failed to request revocation: " + ex.getMessage();
+	            			if(ex.getCause() != null) {
+	            				message += "\n\n" + ex.getCause().getMessage();
+	            			}
+	                		alert(message);
+	                	}
+	            	}		
+				}
+			};
 			button.setStyle(DivRepButton.Style.HTML);
 			button.addClass("inline");
+			/*
 			button.addEventListener(new DivRepEventListener() {
                 public void handleEvent(DivRepEvent event) {
-                	if(note.validate()) {
-                		context.setComment(note.getValue());
-                		try {
-                			//check access again - request status might have changed
-                			if(model.canRequestRevoke(rec)) {
-                				model.requestRevoke(rec);
-	                			context.message(MessageType.SUCCESS, "Successfully requested certificate revocation for a request with ID: " + rec.id);
-								button.redirect(url);
-                			} else {
-                				button.alert("Reques status has changed. Please reload.");
-                			}
-                		} catch (CertificateRequestException ex) {
-                			String message = "Failed to request revocation: " + ex.getMessage();
-                			if(ex.getCause() != null) {
-                				message += "\n\n" + ex.getCause().getMessage();
-                			}
-	                		button.alert(message);
-	                	}
-                	}
                 }
             });
+            */
 			pane.add(button);
 			tabview.addtab("Request Revoke", pane);
 		}
@@ -758,11 +770,8 @@ public class CertificateUserServlet extends ServletBase  {
 					}});
 			}
 						
-			final DivRepButton button = new DivRepButton(context.getPageRoot(), "<button class=\"btn btn-primary\"><i class=\"icon-download-alt icon-white\"></i> Issue Certificate ...</button>");
-			button.setStyle(DivRepButton.Style.HTML);
-			button.addClass("inline");
-			button.addEventListener(new DivRepEventListener() {
-                public void handleEvent(DivRepEvent event) {
+			final DivRepButton button = new DivRepButton(context.getPageRoot(), "<button class=\"btn btn-primary\"><i class=\"icon-download-alt icon-white\"></i> Issue Certificate ...</button>") {
+				protected void onClick(DivRepEvent e) {
                 	if(pass.validate() && pass_confirm.validate()) {
                 		context.setComment("User requested to issue certificate");
                 		//start process thread 
@@ -771,9 +780,9 @@ public class CertificateUserServlet extends ServletBase  {
                 			if(model.canIssue(rec)) {
                 				model.startissue(rec, pass.getValue());
 	                			//context.message(MessageType.SUCCESS, "Successfully started issing a certificate for a request with ID: " + rec.id);
-								button.redirect(url);
+								redirect(url);
                 			} else {
-                				button.alert("Reques status has changed. Please reload.");
+                				alert("Reques status has changed. Please reload.");
                 			}
                     	} catch(CertificateRequestException ex) {
                     		log.warn("CertificateRequestException while issuging certificate -- request ID:"+rec.id, ex);
@@ -781,11 +790,19 @@ public class CertificateUserServlet extends ServletBase  {
                 			if(ex.getCause() != null) {
                 				message += "\n\n" + ex.getCause().getMessage();
                 			}
-	                		button.alert(message);
+	                		alert(message);
                     	}
                 	}
+				}
+			};
+			button.setStyle(DivRepButton.Style.HTML);
+			button.addClass("inline");
+			/*
+			button.addEventListener(new DivRepEventListener() {
+                public void handleEvent(DivRepEvent event) {
                 }
             });
+            */
 			pane.add(button);
 			tabview.addtab("Issue", pane);
 		}
@@ -800,11 +817,8 @@ public class CertificateUserServlet extends ServletBase  {
 			//pass.addValidator(new PKIPassStrengthValidator());
 			pane.add(pass);
 						
-			final DivRepButton button = new DivRepButton(context.getPageRoot(), "<button class=\"btn btn-primary\"><i class=\"icon-download-alt icon-white\"></i> Cancel Request</button>");
-			button.setStyle(DivRepButton.Style.HTML);
-			button.addClass("inline");
-			button.addEventListener(new DivRepEventListener() {
-                public void handleEvent(DivRepEvent event) {
+			final DivRepButton button = new DivRepButton(context.getPageRoot(), "<button class=\"btn btn-primary\"><i class=\"icon-download-alt icon-white\"></i> Cancel Request</button>") {
+				protected void onClick(DivRepEvent e) {
                 	if(pass.validate()/* && note.validate()*/) {
                 		//context.setComment(note.getValue());
                 		context.setComment("Submitter canceled request.");
@@ -813,9 +827,9 @@ public class CertificateUserServlet extends ServletBase  {
                 			if(model.canCancelWithPass(rec)) {
                 				model.cancelWithPass(rec, pass.getValue());
 	                			context.message(MessageType.SUCCESS, "Successfully canceled a certificate request with ID: " + rec.id);
-								button.redirect(url);
+								redirect(url);
                 			} else {
-                				button.alert("Reques status has changed. Please reload.");
+                				alert("Reques status has changed. Please reload.");
                 			}
                     	} catch(CertificateRequestException ex) {
                     		log.warn("CertificateRequestException while canceling certificate request:", ex);
@@ -823,11 +837,19 @@ public class CertificateUserServlet extends ServletBase  {
                 			if(ex.getCause() != null) {
                 				message += "\n\n" + ex.getCause().getMessage();
                 			}
-	                		button.alert(message);
+	                		alert(message);
                     	}
-                	}
+                	}				
+				}
+			};
+			button.setStyle(DivRepButton.Style.HTML);
+			button.addClass("inline");
+			/*
+			button.addEventListener(new DivRepEventListener() {
+                public void handleEvent(DivRepEvent event) {
                 }
             });
+            */
 			pane.add(button);
 			tabview.addtab("Cancel", pane);
 		}
@@ -841,11 +863,8 @@ public class CertificateUserServlet extends ServletBase  {
 			note.setRequired(true);
 			pane.add(note);
 			
-			final DivRepButton button = new DivRepButton(context.getPageRoot(), "<button class=\"btn\">Cancel Request</button>");
-			button.setStyle(DivRepButton.Style.HTML);
-			button.addClass("inline");
-			button.addEventListener(new DivRepEventListener() {
-                public void handleEvent(DivRepEvent event) {
+			final DivRepButton button = new DivRepButton(context.getPageRoot(), "<button class=\"btn\">Cancel Request</button>") {
+				protected void onClick(DivRepEvent e) {
                 	if(note.validate()) {
                 		context.setComment(note.getValue());
 	                	try {
@@ -853,9 +872,9 @@ public class CertificateUserServlet extends ServletBase  {
 		        			if(model.canCancel(rec)) {
 		                    	model.cancel(rec);
 	                			context.message(MessageType.SUCCESS, "Successfully canceled a certificate request with ID: " + rec.id);
-								button.redirect(url);
+								redirect(url);
 		        			} else {
-		        				button.alert("Reques status has changed. Please reload.");
+		        				alert("Reques status has changed. Please reload.");
 		        			}
 	                	} catch(CertificateRequestException ex) {
 	                		log.warn("CertificateRequestException while canceling certificate request:", ex);
@@ -863,11 +882,19 @@ public class CertificateUserServlet extends ServletBase  {
 	            			if(ex.getCause() != null) {
 	            				message += "\n\n" + ex.getCause().getMessage();
 	            			}
-	                		button.alert(message);
+	                		alert(message);
 	                	}
-                	}
+                	}					
+				}
+			};
+			button.setStyle(DivRepButton.Style.HTML);
+			button.addClass("inline");
+			/*
+			button.addEventListener(new DivRepEventListener() {
+                public void handleEvent(DivRepEvent event) {
                 }
             });
+            */
 			pane.add(button);
 			tabview.addtab("Cancel", pane);
 		}
@@ -881,11 +908,8 @@ public class CertificateUserServlet extends ServletBase  {
 			note.setRequired(true);
 			pane.add(note);
 		
-			final DivRepButton button = new DivRepButton(context.getPageRoot(), "<button class=\"btn btn-danger\"><i class=\"icon-remove icon-white\"></i> Reject Request</button>");
-			button.setStyle(DivRepButton.Style.HTML);
-			button.addClass("inline");
-			button.addEventListener(new DivRepEventListener() {
-                public void handleEvent(DivRepEvent event) {
+			final DivRepButton button = new DivRepButton(context.getPageRoot(), "<button class=\"btn btn-danger\"><i class=\"icon-remove icon-white\"></i> Reject Request</button>") {
+				protected void onClick(DivRepEvent e) {
                 	if(note.validate()) {
                 		context.setComment(note.getValue());
                 		try {
@@ -893,21 +917,29 @@ public class CertificateUserServlet extends ServletBase  {
                 			if(model.canReject(rec)) {
                 				model.reject(rec);
 	                			context.message(MessageType.SUCCESS, "Successfully rejected a certificate request with ID: " + rec.id);
-								button.redirect(url);
+								redirect(url);
                 			} else {
-    	        				button.alert("Reques status has changed. Please reload.");
+    	        				alert("Reques status has changed. Please reload.");
                 			}
-                		} catch (CertificateRequestException e) {
-                    		log.warn("CertificateRequestException while rejecting certificate request:", e);
-                			String message = "Failed to cancel request: " + e.getMessage();
-                			if(e.getCause() != null) {
-                				message += "\n\n" + e.getCause().getMessage();
+                		} catch (CertificateRequestException ex) {
+                    		log.warn("CertificateRequestException while rejecting certificate request:", ex);
+                			String message = "Failed to cancel request: " + ex.getMessage();
+                			if(ex.getCause() != null) {
+                				message += "\n\n" + ex.getCause().getMessage();
                 			}
-                    		button.alert(message);
+                    		alert(message);
                 		}
-                	}
+                	}					
+				}
+			};
+			button.setStyle(DivRepButton.Style.HTML);
+			button.addClass("inline");
+			/*
+			button.addEventListener(new DivRepEventListener() {
+                public void handleEvent(DivRepEvent event) {
                 }
             });
+            */
 			pane.add(button);
 			tabview.addtab("Reject", pane);
 		}
@@ -921,13 +953,8 @@ public class CertificateUserServlet extends ServletBase  {
 			note.setRequired(true);
 			pane.add(note);
 			
-			final DivRepButton button = new DivRepButton(context.getPageRoot(), "<button class=\"btn btn-danger\"><i class=\"icon-exclamation-sign icon-white\"></i> Revoke</button>");
-			button.setStyle(DivRepButton.Style.HTML);
-			button.addClass("inline");
-			button.addEventListener(new DivRepEventListener() {
-                public void handleEvent(DivRepEvent e) {
-                	//button.alert("Currently we can not revoke user certificate. We are waiting for DigiCert to provide us the user certificate revocation API.");
-                
+			final DivRepButton button = new DivRepButton(context.getPageRoot(), "<button class=\"btn btn-danger\"><i class=\"icon-exclamation-sign icon-white\"></i> Revoke</button>") {
+				protected void onClick(DivRepEvent e) {
                 	if(note.validate()) {
                 		context.setComment(note.getValue());
                 		try {
@@ -935,20 +962,30 @@ public class CertificateUserServlet extends ServletBase  {
                 			if(model.canRevoke(rec)) {
                 				model.revoke(rec);
 	                			context.message(MessageType.SUCCESS, "Successfully revoked a certificate request with ID: " + rec.id);
-								button.redirect(url);
+								redirect(url);
                 			} else {
-    	        				button.alert("Reques status has changed. Please reload.");
+    	        				alert("Reques status has changed. Please reload.");
                 			}
                 		} catch (CertificateRequestException ex) {
                 			String message = "Failed to revoke: " + ex.getMessage();
                 			if(ex.getCause() != null) {
                 				message += "\n\n" + ex.getCause().getMessage();
                 			}
-	                		button.alert(message);
+	                		alert(message);
 	                	}
-                	}
+                	}					
+				}
+			};
+			button.setStyle(DivRepButton.Style.HTML);
+			button.addClass("inline");
+			/*
+			button.addEventListener(new DivRepEventListener() {
+                public void handleEvent(DivRepEvent e) {
+                	//button.alert("Currently we can not revoke user certificate. We are waiting for DigiCert to provide us the user certificate revocation API.");
+                
                 }
             });
+            */
 			pane.add(button);
 			tabview.addtab("Revoke", pane);
 		}
@@ -971,11 +1008,8 @@ public class CertificateUserServlet extends ServletBase  {
 			note.setRequired(true);
 			pane.add(note);
 			
-			final DivRepButton button = new DivRepButton(context.getPageRoot(), "<button class=\"btn btn-primary\"><i class=\"icon-refresh icon-white\"></i> Re-request</button>");
-			button.setStyle(DivRepButton.Style.HTML);
-			button.addClass("inline");
-			button.addEventListener(new DivRepEventListener() {
-                public void handleEvent(DivRepEvent e) {
+			final DivRepButton button = new DivRepButton(context.getPageRoot(), "<button class=\"btn btn-primary\"><i class=\"icon-refresh icon-white\"></i> Re-request</button>") {
+				protected void onClick(DivRepEvent e) {
                 	if(note.validate()) {
                 		context.setComment(note.getValue());
                 		
@@ -989,16 +1023,24 @@ public class CertificateUserServlet extends ServletBase  {
     	        			if(model.canReRequest(rec)) {
     	        				model.rerequest(rec, pass.getValue());
 	                			context.message(MessageType.SUCCESS, "Successfully re-requested a certificate request with ID: " + rec.id);
-								button.redirect(url);
+								redirect(url);
     	        			} else {
-    	        				button.alert("Reques status has changed. Please reload.");
+    	        				alert("Reques status has changed. Please reload.");
     	        			}
                 		} catch (CertificateRequestException ex) {
-	                		button.alert("Failed to re-request: " + ex.getMessage());
+	                		alert("Failed to re-request: " + ex.getMessage());
 	                	}
-                	}
+                	}					
+				}
+			};
+			button.setStyle(DivRepButton.Style.HTML);
+			button.addClass("inline");
+			/*
+			button.addEventListener(new DivRepEventListener() {
+                public void handleEvent(DivRepEvent e) {
                 }
             });
+            */
 			pane.add(button);
 			tabview.addtab("Re-Request", pane);
 		}

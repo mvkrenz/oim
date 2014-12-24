@@ -223,9 +223,9 @@ public class DigicertCertificateSigner implements ICertificateSigner {
 			
 			throw new DigicertCPException("Unknown return code from grid_request_email_cert: " +result.getTextContent());	
 		} catch (HttpException e) {
-			throw new DigicertCPException("Failed to make grid_request_email_cert request", e);
+			throw new DigicertCPException("Failed to make grid_request_email_cert request:"+e.toString(), e);
 		} catch (IOException e) {
-			throw new DigicertCPException("Failed to make grid_request_email_certrequest", e);
+			throw new DigicertCPException("Failed to make grid_request_email_cert request: "+e.toString(), e);
 		} catch (ParserConfigurationException e) {
 			throw new DigicertCPException("Failed to parse returned String from grid_request_email_cert", e);
 		} catch (SAXException e) {
