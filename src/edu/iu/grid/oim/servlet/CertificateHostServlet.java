@@ -182,7 +182,7 @@ public class CertificateHostServlet extends ServletBase  {
 				out.write("<tbody>");
 						
 				out.write("<tr>");
-				out.write("<th>Request Status</th>");
+				out.write("<th style=\"width: 150px;\">Request Status</th>");
 				out.write("<td>"+StringEscapeUtils.escapeHtml(rec.status));
 				if(rec.status.equals(CertificateRequestStatus.ISSUING)) {
 					out.write("<div id=\"status_progress\">Loading...</div>");

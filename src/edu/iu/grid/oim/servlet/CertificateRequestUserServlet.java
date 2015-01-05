@@ -68,12 +68,10 @@ public class CertificateRequestUserServlet extends ServletBase  {
 				CertificateRequestUserForm form = new CertificateRequestUserForm(context, "certificateuser");
 				form.render(out);	
 
-
 				out.write("</div>"); //span9
 				out.write("</div>"); //row-fluid
 				out.write("</div>"); //content
 			}
 		};
 	}
-
 }

@@ -36,7 +36,7 @@ public class CILogonCertificateSigner implements ICertificateSigner {
     static Logger log = Logger.getLogger(CILogonCertificateSigner.class);  
 
     private KeyStore ks = null;
-    
+    /*
     public static KeyStore loadTrustStore() throws Exception {
         KeyStore trustStore = KeyStore.getInstance("jks");
         trustStore.load(new FileInputStream(new File("path-to-truststore")), "password".toCharArray());
@@ -49,6 +49,7 @@ public class CILogonCertificateSigner implements ICertificateSigner {
         tmf.init(trustStore);
         return tmf.getTrustManagers();
     }
+    */
 
     public CILogonCertificateSigner() {
     	//won't this interfare with anything else?
