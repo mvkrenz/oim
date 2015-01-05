@@ -115,7 +115,8 @@ public class Authorization {
 		String remoteaddr = request.getRemoteAddr();
 		log.debug("Request received from " + remoteaddr);
 		
-		if(StaticConfig.conf.getProperty("debug.as_user") == null 
+		String as_user = StaticConfig.conf.getProperty("debug.as_user");
+		if(as_user == null //if we are debugging as_user, then it don't assume we are local 
 				&& (remoteaddr.equals("127.0.0.1") || remoteaddr.startsWith("192.168.") || remoteaddr.endsWith("0:0:0:0:0:0:0:1"))) {
 			usertype = UserType.LOCAL;
 		} else {
@@ -186,7 +187,8 @@ public class Authorization {
 		try {
 			InetAddress addr = InetAddress.getLocalHost();
 	        String hostname = addr.getHostName();
-			if(hostname.equals("t520") || hostname.equals("hayashis-t520") || hostname.equals("s855") || hostname.equals("soichi-haswell")) {
+	        String as_user = StaticConfig.conf.getProperty("debug.as_user");
+	        if(as_user != null && as_user.equals("soichi")) {
 				if(request.isSecure()) {
 					request.setAttribute("SSL_CLIENT_VERIFY", "SUCCESS");
 					
@@ -198,8 +200,8 @@ public class Authorization {
 					log.debug("Using debuggin credential");
 				} else {
 					request.setAttribute("SSL_CLIENT_VERIFY", null);
-				}
-			}
+				}  
+	        }
 		} catch (UnknownHostException e) {
 			log.error("Couldn't figure out debug user hostname",e);
 		} 

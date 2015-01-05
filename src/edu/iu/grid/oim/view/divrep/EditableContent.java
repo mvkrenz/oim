@@ -41,7 +41,7 @@ public class EditableContent extends DivRepFormElement
 		
 		edit = new DivRepButton(this, "Update Content");
 		edit.setStyle(Style.BUTTON);
-		//edit.addClass("pull-right");
+		edit.addClass("pull-right");
 		edit.addClass("btn");
 		edit.addClass("btn-mini");
 		edit.addEventListener(new DivRepEventListener() {
