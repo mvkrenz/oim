@@ -1350,6 +1350,13 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 			FPTicket ticket = fp.new FPTicket();
 			ticket.description = "Dear " + rec.requester_name + ",\n\n";
 			ticket.description += "Your host certificates will expire on "+dformat.format(expiration_date)+"\n\n";
+			
+			//list CNs - per Horst's request.
+			for(String cn : rec.getCNs()) {
+				ticket.description += cn+"\n";
+			}
+			ticket.description+= "\n";
+			
 			ticket.description += "Please request for new host certificate(s) for replacements.\n\n";		
 			ticket.description += "Please visit "+getTicketUrl(rec.id)+" for more details.\n\n";
 			
