@@ -1335,8 +1335,7 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 		log.debug("Looking for host certificate expiring in " + days_less_than + " days");
 		for(CertificateRequestHostRecord rec : findExpiringIn(days_less_than)) {
 			log.debug("host cert: " + rec.id + " expires on " + dformat.format(rec.cert_notafter));
-			
-			//ContactRecord requester = cmodel.get(rec.requester_contact_id);
+			Date expiration_date = rec.cert_notafter;
 			
 			//user can't renew host certificate, so instead of keep notifying, let's just notify only once by limiting the time window
 			//when notification can be sent out
@@ -1350,11 +1349,8 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 			Footprints fp = new Footprints(context);
 			FPTicket ticket = fp.new FPTicket();
 			ticket.description = "Dear " + rec.requester_name + ",\n\n";
-			ticket.description += "Your host certificates requested in this ticket will expire in "+days_less_than+" days\n\n";
-			
-			//ArrayList<CertificateRequestModelBase<CertificateRequestHostRecord>.LogDetail> logs = getLogs(CertificateRequestHostModel.class, rec.id);
-			ticket.description += "Please request for new host certificate(s) for replacements.\n\n";
-			
+			ticket.description += "Your host certificates will expire on "+dformat.format(expiration_date)+"\n\n";
+			ticket.description += "Please request for new host certificate(s) for replacements.\n\n";		
 			ticket.description += "Please visit "+getTicketUrl(rec.id)+" for more details.\n\n";
 			
 			//don't send to CCs
