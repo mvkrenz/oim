@@ -228,7 +228,7 @@ public class Footprints
 			ticket.assignees.add("echism");
 			ticket.assignees.add("kagross");
             ticket.ccs.add("rquick@iu.edu");
-            ticket.ccs.add("Bauerdick@fnal.gov");
+            ticket.ccs.add("fkw@ucsd.edu");
             if(sc != null && sc.footprints_id != null) {
             	ticket.assignees.add(sc.footprints_id);
             	ticket.metadata.put("SUPPORTING_SC_ID", sc.id.toString());
@@ -271,7 +271,7 @@ public class Footprints
 			ticket.assignees.add("echism");
 			ticket.assignees.add("kagross");
             ticket.ccs.add("rquick@iu.edu");
-            ticket.ccs.add("Bauerdick@fnal.gov");
+            ticket.ccs.add("fkw@ucsd.edu");
 		}
 		
 		String id = open(ticket);
@@ -307,7 +307,7 @@ public class Footprints
 			ticket.assignees.add("echism");
 			ticket.assignees.add("kagross");
             ticket.ccs.add("rquick@iu.edu");
-            ticket.ccs.add("Bauerdick@fnal.gov");
+            ticket.ccs.add("fkw@ucsd.edu");
             ticket.ccs.add("osg-security-team@OPENSCIENCEGRID.ORG");
             if(sc != null && sc.footprints_id != null) {
             	ticket.assignees.add(sc.footprints_id);
