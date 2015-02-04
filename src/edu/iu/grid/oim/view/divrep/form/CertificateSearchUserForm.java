@@ -84,7 +84,6 @@ public class CertificateSearchUserForm extends DivRep
 		abstract ArrayList<CertificateRequestUserRecord> search(CertificateRequestUserModel model);
 	}
 	
-	
 	class OtherTab extends Tab {
 
 		public OtherTab() {
@@ -233,25 +232,6 @@ public class CertificateSearchUserForm extends DivRep
 		vo = new VOSelector(this, context);
 		vo.setLabel("VO");
 		vo.setNullLabel("(Any)");
-		/*
-		keyvalues = new LinkedHashMap();
-		VOModel vomodel = new VOModel(context);
-		ArrayList<VORecord> vorecs;
-		try {
-			vorecs = vomodel.getAll();
-			Collections.sort(vorecs, new Comparator<VORecord> () {
-				public int compare(VORecord a, VORecord b) {
-					return a.getName().compareToIgnoreCase(b.getName());
-				}
-			});
-			for(VORecord vrec : vorecs) {
-				keyvalues.put(vrec.id, vrec.getName());
-			}
-			vo.setValues(keyvalues);
-		} catch (SQLException e1) {
-			log.error("Failed to list all VOs", e1);
-		}
-		*/
 		
 		request_after = new DivRepDate(this);
 		//Calendar today = new GregorianCalendar();

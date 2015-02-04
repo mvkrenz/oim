@@ -8,8 +8,13 @@ public class BootTabView implements IView {
 	
 	LinkedHashMap<String, IView> tabs = new LinkedHashMap<String, IView>();
 	UUID uuid = UUID.randomUUID();
+	Boolean left = false;
 	
 	public BootTabView() {
+	}
+	
+	public void setLeftTabl(Boolean left) {
+		this.left = left;
 	}
 	
 	public void addtab(String name, IView tab) {
@@ -23,6 +28,10 @@ public class BootTabView implements IView {
 	public void render(PrintWriter out) {
 		//no tab, no show
 		if(tabs.size() == 0) return;
+		
+		if(left) {
+			out.write("<div class=\"tabbable tabs-left\">");
+		}
 		
 		String id = uuid.toString();
 		out.write("<ul class=\"nav nav-tabs\" id=\""+id.toString()+"\">\n");
@@ -56,5 +65,9 @@ public class BootTabView implements IView {
 	  		out.write("</div>\n");
 		}
   		out.write("</div>\n");
+  		
+		if(left) {
+			out.write("<div class=\"tabbable tabs-left\">");
+		}
 	}
 }
