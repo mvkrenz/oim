@@ -699,3 +699,7 @@ width: 100px;
 .content-editor {
 margin-top: 10px;
 }
+.table .no-border-top td,
+.table .no-border-top th {
+border-top: none;
+}

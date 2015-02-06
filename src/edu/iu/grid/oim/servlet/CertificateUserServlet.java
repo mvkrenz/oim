@@ -5,6 +5,7 @@ import java.io.PrintWriter;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.TimeZone;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -31,10 +32,13 @@ import edu.iu.grid.oim.model.db.record.VORecord;
 import edu.iu.grid.oim.view.BootBreadCrumbView;
 import edu.iu.grid.oim.view.BootMenuView;
 import edu.iu.grid.oim.view.BootPage;
+import edu.iu.grid.oim.view.BootTabView;
 import edu.iu.grid.oim.view.CertificateMenuView;
+import edu.iu.grid.oim.view.GenericView;
 import edu.iu.grid.oim.view.IView;
 import edu.iu.grid.oim.view.UserCertificateActionView;
 import edu.iu.grid.oim.view.UserCertificateTable;
+import edu.iu.grid.oim.view.certaction.UserCertRenew;
 import edu.iu.grid.oim.view.divrep.EditableContent;
 import edu.iu.grid.oim.view.divrep.UserCNEditor;
 
@@ -93,7 +97,7 @@ public class CertificateUserServlet extends ServletBase  {
 					if(request.getParameter("search") != null) {
 						submenu = "certificatesearchuser";
 					}
-					content = createDetailView(context, rec, logs, submenu);
+					content = detailView(context, rec, logs, submenu);
 				} catch (SQLException e) {
 					throw new ServletException("Failed to load specified certificate", e);
 				} catch (NumberFormatException e2) {
@@ -101,7 +105,7 @@ public class CertificateUserServlet extends ServletBase  {
 				}
 			} else {
 				//display list view
-				content = createListView(context);
+				content = listView(context);
 			}
 
 			BootPage page = new BootPage(context, menuview, content, null);
@@ -144,7 +148,7 @@ public class CertificateUserServlet extends ServletBase  {
 		};
 	}
 	
-	protected IView createDetailView(
+	protected IView detailView(
 			final UserContext context, 
 			final CertificateRequestUserRecord rec, 
 			final ArrayList<CertificateRequestModelBase<CertificateRequestUserRecord>.LogDetail> logs,
@@ -173,8 +177,8 @@ public class CertificateUserServlet extends ServletBase  {
 				bread_crumb.addCrumb("User Certificate Requests", "certificateuser");
 				bread_crumb.addCrumb(Integer.toString(rec.id),  null);
 				bread_crumb.render(out);	
-							
 				
+				/* I believe this is deprecated by admin/config/page banner
 				//editable content
 				ConfigModel config = new ConfigModel(context);
 				Config home_content = config.new Config(config, "certificate_user", "");
@@ -182,35 +186,42 @@ public class CertificateUserServlet extends ServletBase  {
 				if(auth.allows("admin") || auth.allows("admin_ra")) {
 					EditableContent content = new EditableContent(context.getPageRoot(), context, home_content);
 					content.render(out);
-					out.write("<br style=\"clear: both;\">");
+					//out.write("<br style=\"clear: both;\">");
 				} else {
 					out.write(home_content.getString());
 				}
+				*/
 								
 				//header
 				out.write("<div class=\"row-fluid\">");
 				out.write("<div class=\"span2\"><b>DN</b></div>");			
 				out.write("<div class=\"span10\">");
-				out.write("<p>"+StringEscapeUtils.escapeHtml(rec.dn)+"</p>");
+				//out.write("<pre style=\"background-color: inherit;\">"+StringEscapeUtils.escapeHtml(rec.dn)+"</pre>");
+				out.write(StringEscapeUtils.escapeHtml(rec.dn));
 				//out.write("<h3>Status"+rec.status+"</h3>");
 				out.write("</div>"); //span9
 				out.write("</div>"); //row-fluid
 				
 				out.write("<div class=\"row-fluid\">");
-				out.write("<div class=\"span2\"><b>Status</b></div>");			
+				out.write("<div class=\"span2\" style=\"margin-top: 4px;\"><b>Status</b></div>");			
 				out.write("<div class=\"span10\">");
-				out.write("<b>"+rec.status+"</b>");
+				out.write("<h3>"+rec.status+"</h3>");
 				//out.write("<h3>Status"+rec.status+"</h3>");
 				out.write("</div>"); //span9			
 				out.write("</div>"); //row-fluid
-				out.write("<hr>");
+				//out.write("<hr>");
+				out.write("<br>");
 
 				//renderBasicInfo(out);
 				
-				renderAction(out);
+				BootTabView tabview = new BootTabView();
+				tabview.addtab("Detail", new DetailView());
+				tabview.addtab("Log", new LogView());
+				tabview.addtab("Renew", new UserCertRenew(context.getPageRoot()));
 				
-				renderDetailInfo(out);
-				renderLog(out);
+				//renderAction(out);
+				
+				tabview.render(out);
 				
 				out.write("</div>"); //span9
 				out.write("</div>"); //row-fluid
@@ -281,226 +292,231 @@ public class CertificateUserServlet extends ServletBase  {
 			}
 			*/
 			
-			public void renderDetailInfo(PrintWriter out) {
-				CertificateRequestUserModel model = new CertificateRequestUserModel(context);
-				
-				out.write("<h2>Detail</h2>");
-				
-				out.write("<table class=\"table nohover\">");
-				out.write("<tbody>");
-								
-				//certificates
-				out.write("<tr>");
-				out.write("<th style=\"min-width: 150px;\">Public Certificates</th>");
-				out.write("<td>");
-				if(rec.status.equals(CertificateRequestStatus.ISSUED)) {
-					/*
-					if(model.getPrivateKey(rec.id) != null) {
-						//pkcs12 available
-						out.write("<p><a class=\"btn btn-primary btn-large\" href=\"certificatedownload?id="+rec.id+"&type=user&download=pkcs12\">Download Certificate &amp; Private Key (PKCS12)</a></p>");
-						out.write("<p class=\"alert alert-error\">You need to download your certificate and private key now, while your browser session is active. When your session times out, the server will delete your private key for security reasons and you will need to request a new certificate.</p>");
-					} else {
-						//only pkcs7
-						out.write("<p><a class=\"btn btn-primary\" href=\"certificatedownload?id="+rec.id+"&type=user&download=pkcs7\">Download Certificate (PKCS7 - For Browser)</a></p>");
-						out.write("<p><a class=\"btn\" href=\"certificatedownload?id="+rec.id+"&type=user&download=x509\">Download Certificate (X509 PEM - For Commandline)</a></p>");
-					}
-					*/
-					//only pkcs7
-					out.write("<p><a class=\"btn btn-small\" href=\"certificatedownload?id="+rec.id+"&type=user&download=pkcs7\">PKCS7 (For Browser)</a></p>");
-					out.write("<p><a class=\"btn btn-small\" href=\"certificatedownload?id="+rec.id+"&type=user&download=x509\">X509 PEM (For Commandline)</a></p>");
-
-					//help content.
-					out.write("<p><a target=\"_blank\" href=\"https://confluence.grid.iu.edu/pages/viewpage.action?pageId=3244066\">How to import user certificate on your browser</a></p>");
-					out.write("<p><a target=\"_blank\" href=\"https://confluence.grid.iu.edu/display/CENTRAL/Importing+User+Certificate+for+Command+Line+Use\">How to import user certificate for command line use (grid-proxy-init).</a></p>");
+			class DetailView extends GenericView {
+				public void render(PrintWriter out) {
+					CertificateRequestUserModel model = new CertificateRequestUserModel(context);
 					
-				} else {
-					out.write("<span class=\"muted\">Not yet issued</span>");
-				}
-				if(rec.csr != null) {
-					out.write("<a class=\"muted pull-right\" href=\"certificatedownload?id="+rec.id+"&type=user&download=pkcs10\">CSR</a>");
-				}
-				out.write("</td>");
-				out.write("</tr>");
-				
-				/*
-				GenericView action_control = nextActionControl(context, rec, cn_override, logs);
-				out.write("<tr>");
-				out.write("<th>Action</th>");
-				out.write("<td>");
-				action_control.render(out);
-				out.write("</td>");
-				out.write("</tr>");
-				*/
-				
-				out.write("<tr>");
-				out.write("<th>Valid Dates</th>");
-				out.write("<td>");
-				if(rec.cert_notafter != null && rec.cert_notbefore != null) {
-					out.write("Between " + rec.cert_notbefore.toString() + " and " + rec.cert_notafter.toString()); 
-				} else {
-					out.write("<span class=\"muted\">N/A</span>");
-				}
-				out.write("</td>");
-				out.write("</tr>");
-				
-				out.write("<tr>");
-				out.write("<th>Requester</th>");
-				try {
-					ContactModel cmodel = new ContactModel(context);
-					ContactRecord requester = cmodel.get(rec.requester_contact_id);
-					out.write("<td>");
-					if(requester.disable) {
-						out.write("<span class=\"label label-warning pull-right\">Guest</span>");
+					//out.write("<h2>Detail</h2>");
+					
+					out.write("<table class=\"table nohover\">");
+					out.write("<tbody>");
+									
+					if(rec.status.equals(CertificateRequestStatus.ISSUED)) {
+						out.write("<tr class=\"no-border-top\"><th>Serial Number</th><td>");
+						out.write(rec.cert_serial_id);
+						out.write("</td></tr>");
 					}
-					if(auth.isUser()) {
-						out.write("<b>"+StringEscapeUtils.escapeHtml(requester.name)+"</b>");
-						out.write(" <code><a href=\"mailto:"+requester.primary_email+"\">"+requester.primary_email+"</a></code>");
-						out.write(" Phone: "+requester.primary_phone);
+					
+					//certificates
+					out.write("<tr>");
+					out.write("<th style=\"min-width: 150px;\">Public Certificates</th>");
+					out.write("<td>");
+					if(rec.cert_certificate != null) {
+						/*
+						if(model.getPrivateKey(rec.id) != null) {
+							//pkcs12 available
+							out.write("<p><a class=\"btn btn-primary btn-large\" href=\"certificatedownload?id="+rec.id+"&type=user&download=pkcs12\">Download Certificate &amp; Private Key (PKCS12)</a></p>");
+							out.write("<p class=\"alert alert-error\">You need to download your certificate and private key now, while your browser session is active. When your session times out, the server will delete your private key for security reasons and you will need to request a new certificate.</p>");
+						} else {
+							//only pkcs7
+							out.write("<p><a class=\"btn btn-primary\" href=\"certificatedownload?id="+rec.id+"&type=user&download=pkcs7\">Download Certificate (PKCS7 - For Browser)</a></p>");
+							out.write("<p><a class=\"btn\" href=\"certificatedownload?id="+rec.id+"&type=user&download=x509\">Download Certificate (X509 PEM - For Commandline)</a></p>");
+						}
+						*/
+						//only pkcs7
+						out.write("<p class=\"pull-right\"><a class=\"muted\" target=\"_blank\" href=\"https://confluence.grid.iu.edu/pages/viewpage.action?pageId=3244066\">How to import user certificate on your browser</a></p>");
+						out.write("<p><a href=\"certificatedownload?id="+rec.id+"&type=user&download=pkcs7\">PKCS7 (For Browser)</a></p>");
+
+						out.write("<p class=\"pull-right\"><a class=\"muted\" target=\"_blank\" href=\"https://confluence.grid.iu.edu/display/CENTRAL/Importing+User+Certificate+for+Command+Line+Use\">How to import user certificate for command line use (grid-proxy-init).</a></p>");
+						out.write("<p><a href=\"certificatedownload?id="+rec.id+"&type=user&download=x509\">X509 PEM (For Commandline)</a></p>");						
 					} else {
-						out.write(StringEscapeUtils.escapeHtml(requester.name));
+						out.write("<p><span class=\"muted\">Not Issued</span></p>");
+					}
+					if(rec.csr != null) {
+						out.write("<a href=\"certificatedownload?id="+rec.id+"&type=user&download=pkcs10\">CSR</a>");
 					}
 					out.write("</td>");
-				} catch (SQLException e1) {
-					out.write("<td>(sql error)</td>");
-				}
-				out.write("</tr>");
-				
-				out.write("<tr>");
-				out.write("<th>Requested Time</th>");
-				out.write("<td>"+dformat.format(rec.request_time)+"</td>");
-				out.write("</tr>");
-				
-				out.write("<tr>");
-				out.write("<th>Last Approved Time</th>");
-				LogDetail approve_log = model.getLastLog(CertificateRequestStatus.APPROVED, logs);
-				if(approve_log != null) {
-					out.write("<td>"+dformat.format(approve_log.time)+"</td>");
-				} else {
-					out.write("<td>N/A</td>");
-				}
-
-				out.write("</tr>");
-				
-				out.write("<tr>");
-				out.write("<th>GOC Ticket</th>");
-				out.write("<td><a target=\"_blank\" href=\""+StaticConfig.conf.getProperty("url.gocticket")+"/"+rec.goc_ticket_id+"\">"+rec.goc_ticket_id+"</a></td>");
-				out.write("</tr>");			
-				
-				if(rec.status.equals(CertificateRequestStatus.ISSUED)) {
-					out.write("<tr><th>Serial Number</th><td>");
-					out.write(rec.cert_serial_id);
-					out.write("</td></tr>");
-				}
-				
-				out.write("<tr>");
-				out.write("<th>VO</th>");
-				VOModel vmodel = new VOModel(context);
-				VORecord vo;
-				try {
-					vo = vmodel.get(rec.vo_id);
-					out.write("<td>"+StringEscapeUtils.escapeHtml(vo.name)+"</td>");
-				} catch (SQLException e) {
-					log.error("Failed to find vo information for certificate view", e);
-					out.write("<td><span class=\"muted\">N/A</span></td>");
-				}
-				out.write("</tr>");
-				
-				try {
+					out.write("</tr>");
+					
+					/*
+					GenericView action_control = nextActionControl(context, rec, cn_override, logs);
 					out.write("<tr>");
-					out.write("<th>RA</th>");
-					CertificateRequestUserModel usermodel = new CertificateRequestUserModel(context);
-					ArrayList<ContactRecord> ras = usermodel.findRAs(rec);
-					if(ras.isEmpty()) {
-						out.write("<td><span class=\"muted\">N/A</span></td>");
+					out.write("<th>Action</th>");
+					out.write("<td>");
+					action_control.render(out);
+					out.write("</td>");
+					out.write("</tr>");
+					*/
+					
+					//valid dates
+					out.write("<tr>");
+					out.write("<th>Valid Dates</th>");
+					out.write("<td>");
+					if(rec.cert_notafter != null && rec.cert_notbefore != null) {
+						out.write("Between " + rec.cert_notbefore.toString() + " and " + rec.cert_notafter.toString()); 
 					} else {
-						out.write("<td>");
-						for(ContactRecord ra : ras) {
-							out.write("<p>");
-							out.write("<b>"+StringEscapeUtils.escapeHtml(ra.name)+"</b>");
-							if(auth.isUser()) {
-								out.write(" <code><a href=\"mailto:"+ra.primary_email+"\">"+ra.primary_email+"</a></code>");
-								out.write(" Phone: "+ra.primary_phone);
+						out.write("<span class=\"muted\">N/A</span>");
+					}
+					out.write("</td>");
+					out.write("</tr>");
+					
+					//GOC Ticket
+					out.write("<tr>");
+					out.write("<th>GOC Ticket</th>");
+					out.write("<td><a target=\"_blank\" href=\""+StaticConfig.conf.getProperty("url.gocticket")+"/"+rec.goc_ticket_id+"\">"+rec.goc_ticket_id+"</a></td>");
+					out.write("</tr>");			
+					
+					//VO
+					out.write("<tr>");
+					out.write("<th>VO</th>");
+					VOModel vmodel = new VOModel(context);
+					VORecord vo;
+					try {
+						vo = vmodel.get(rec.vo_id);
+						out.write("<td>"+StringEscapeUtils.escapeHtml(vo.name)+"</td>");
+					} catch (SQLException e) {
+						log.error("Failed to find vo information for certificate view", e);
+						out.write("<td><span class=\"muted\">N/A</span></td>");
+					}
+					out.write("</tr>");
+					
+					try {
+						out.write("<tr>");
+						out.write("<th>RA</th>");
+						CertificateRequestUserModel usermodel = new CertificateRequestUserModel(context);
+						ArrayList<ContactRecord> ras = usermodel.findRAs(rec);
+						if(ras.isEmpty()) {
+							out.write("<td><span class=\"muted\">N/A</span></td>");
+						} else {
+							out.write("<td>");
+							for(ContactRecord ra : ras) {
+								out.write("<p>");
+								out.write("<b>"+StringEscapeUtils.escapeHtml(ra.name)+"</b>");
+								if(auth.isUser()) {
+									out.write(" <code><a href=\"mailto:"+ra.primary_email+"\">"+ra.primary_email+"</a></code>");
+									out.write(" Phone: "+ra.primary_phone);
+								}
+								out.write("</p>");
+								
 							}
-							out.write("</p>");
+							out.write("</td>");	
 							
 						}
-						out.write("</td>");	
-						
+						out.write("</tr>");
+					} catch (SQLException e) {
+						out.write("<td>sql error</td>");
 					}
-					out.write("</tr>");
-				} catch (SQLException e) {
-					out.write("<td>sql error</td>");
-				}
-				/* -- sponsor field no longer makes sense - until we store user selected sponsor in db. we can't store this since we allow
-				 * user to manually enter name/email
-				try {
-					out.write("<tr>");
-					out.write("<th>Sponsors</th>");
-					CertificateRequestUserModel usermodel = new CertificateRequestUserModel(context);
-					ArrayList<ContactRecord> sponsors = usermodel.findSponsors(rec);
-					if(sponsors.isEmpty()) {
-						out.write("<td><span class=\"muted\">N/A</span></td>");
-					} else {
-						out.write("<td>");
-						out.write("<ul>");
-						for(ContactRecord sponsor : sponsors) {
-							if(auth.isUser()) {
-								out.write("<li>");
-								out.write("<a href=\"mailto:"+sponsor.primary_email+"\">"+StringEscapeUtils.escapeHtml(sponsor.name)+"</a>");
-								out.write(" Phone: "+sponsor.primary_phone+"</li>");
-							} else {
-								out.write("<li>"+sponsor.name+"</li>");
+					/* -- sponsor field no longer makes sense - until we store user selected sponsor in db. we can't store this since we allow
+					 * user to manually enter name/email
+					try {
+						out.write("<tr>");
+						out.write("<th>Sponsors</th>");
+						CertificateRequestUserModel usermodel = new CertificateRequestUserModel(context);
+						ArrayList<ContactRecord> sponsors = usermodel.findSponsors(rec);
+						if(sponsors.isEmpty()) {
+							out.write("<td><span class=\"muted\">N/A</span></td>");
+						} else {
+							out.write("<td>");
+							out.write("<ul>");
+							for(ContactRecord sponsor : sponsors) {
+								if(auth.isUser()) {
+									out.write("<li>");
+									out.write("<a href=\"mailto:"+sponsor.primary_email+"\">"+StringEscapeUtils.escapeHtml(sponsor.name)+"</a>");
+									out.write(" Phone: "+sponsor.primary_phone+"</li>");
+								} else {
+									out.write("<li>"+sponsor.name+"</li>");
+								}
 							}
+							out.write("</ul>");
+							out.write("</td>");	
 						}
-						out.write("</ul>");
-						out.write("</td>");	
+						out.write("</tr>");
+					} catch (SQLException e) {
+						out.write("<td>sql error</td>");
+					}
+					*/
+					
+					//Requester
+					out.write("<tr>");
+					out.write("<th>Requester</th>");
+					try {
+						ContactModel cmodel = new ContactModel(context);
+						ContactRecord requester = cmodel.get(rec.requester_contact_id);
+						out.write("<td>");
+						if(requester.disable) {
+							out.write("<span class=\"label label-warning pull-right\">Guest</span>");
+						}
+						if(auth.isUser()) {
+							out.write("<b>"+StringEscapeUtils.escapeHtml(requester.name)+"</b>");
+							out.write(" <code><a href=\"mailto:"+requester.primary_email+"\">"+requester.primary_email+"</a></code>");
+							out.write(" Phone: "+requester.primary_phone);
+						} else {
+							out.write(StringEscapeUtils.escapeHtml(requester.name));
+						}
+						out.write("</td>");
+					} catch (SQLException e1) {
+						out.write("<td>(sql error)</td>");
 					}
 					out.write("</tr>");
-				} catch (SQLException e) {
-					out.write("<td>sql error</td>");
-				}
-				*/
-				
-				out.write("</tbody>");
-				out.write("</table>");
+					
+					//Reuqested Time
+					out.write("<tr>");
+					out.write("<th>Requested Time</th>");
+					out.write("<td>"+dformat.format(rec.request_time)+"</td>");
+					out.write("</tr>");
+					
+					//Last Approved Time
+					out.write("<tr>");
+					out.write("<th>Last Approved Time</th>");
+					LogDetail approve_log = model.getLastLog(CertificateRequestStatus.APPROVED, logs);
+					if(approve_log != null) {
+						out.write("<td>"+dformat.format(approve_log.time)+"</td>");
+					} else {
+						out.write("<td>N/A</td>");
+					}
+					out.write("</tr>");
+					
+					out.write("</tbody>");
+					out.write("</table>");
+				}	
 			}
 			
-			public void renderLog(PrintWriter out) {
-				//logs
-				out.write("<h2>Log</h2>");
-				out.write("<table class=\"table nohover\">");
-				out.write("<thead><tr><th>By</th><th>IP</th><th>Status</th><th>Note</th><th>Timestamp</th></tr></thead>");
-				
-				out.write("<tbody>");
-				
-				boolean latest = true;
-				for(LogDetail log : logs) {
-					if(latest) {
-						out.write("<tr class=\"latest\">");
-						latest = false;
-					} else {
-						out.write("<tr>");
+			class LogView extends GenericView {
+				public void render(PrintWriter out) {
+					//logs
+					//out.write("<h2>Log</h2>");
+					out.write("<table class=\"table nohover\">");
+					out.write("<thead><tr><th>By</th><th>IP</th><th>Status</th><th>Note</th><th style=\"min-width: 130px;\">Timestamp</th></tr></thead>");
+					
+					out.write("<tbody>");
+					
+					boolean latest = true;
+					for(LogDetail log : logs) {
+						if(latest) {
+							out.write("<tr class=\"latest\">");
+							latest = false;
+						} else {
+							out.write("<tr>");
+						}
+						if(log.contact != null) {
+							out.write("<td>"+StringEscapeUtils.escapeHtml(log.contact.name)+"</td>");
+						} else {
+							out.write("<td>(Guest)</td>");
+						}
+						out.write("<td>"+log.ip+"</td>");
+						out.write("<td>"+log.status+"</td>");
+						out.write("<td>"+StringEscapeUtils.escapeHtml(log.comment)+"</td>");
+						out.write("<td>"+dformat.format(log.time)+" "+dformat.getTimeZone().getDisplayName(false, TimeZone.SHORT)+"</td>");
+						out.write("</tr>");			
 					}
-					if(log.contact != null) {
-						out.write("<td>"+StringEscapeUtils.escapeHtml(log.contact.name)+"</td>");
-					} else {
-						out.write("<td>(Guest)</td>");
-					}
-					out.write("<td>"+log.ip+"</td>");
-					out.write("<td>"+log.status+"</td>");
-					out.write("<td>"+StringEscapeUtils.escapeHtml(log.comment)+"</td>");
-					out.write("<td>"+dformat.format(log.time)+"</td>");
-					out.write("</tr>");			
+					out.write("</tbody>");
+					out.write("</table>");
 				}
-				out.write("</tbody>");
-				out.write("</table>");
 			}
 		};
 	}
 	
-
-	
-	protected IView createListView(final UserContext context) throws ServletException
+	protected IView listView(final UserContext context) throws ServletException
 	{
 		final Authorization auth = context.getAuthorization();
 		final SimpleDateFormat dformat = new SimpleDateFormat();

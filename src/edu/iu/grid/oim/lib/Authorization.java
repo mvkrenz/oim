@@ -116,7 +116,7 @@ public class Authorization {
 		log.debug("Request received from " + remoteaddr);
 		
 		String as_user = StaticConfig.conf.getProperty("debug.as_user");
-		if(as_user == null //if we are debugging as_user, then it don't assume we are local 
+		if(as_user == null //if we are debugging as_user, then don't assume we are local 
 				&& (remoteaddr.equals("127.0.0.1") || remoteaddr.startsWith("192.168.") || remoteaddr.endsWith("0:0:0:0:0:0:0:1"))) {
 			usertype = UserType.LOCAL;
 		} else {
