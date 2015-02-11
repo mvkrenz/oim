@@ -35,8 +35,8 @@ public class EditableContent extends DivRepFormElement
 		final ConfigModel config = new ConfigModel(context);
 		html = new DivRepTextArea(this);
 		html.setValue(content.getString());
-		html.setWidth(800);
-		html.setHeight(300);
+		//html.setWidth(800); //sometimes overflows
+		html.setHeight(200);
 		html.addClass("content-editor");
 		
 		edit = new DivRepButton(this, "Update Content");

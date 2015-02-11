@@ -35,8 +35,6 @@ public class CertificateRequestHostServlet extends ServletBase  {
 	
 	protected IView createContent(final UserContext context) throws ServletException
 	{
-		//final Authorization auth = context.getAuthorization();
-		
 		return new IView(){
 			@Override
 			public void render(PrintWriter out) {
@@ -69,9 +67,6 @@ public class CertificateRequestHostServlet extends ServletBase  {
 			
 				out.write("</div>"); //content
 			}
-			
-
 		};
 	}
-
 }

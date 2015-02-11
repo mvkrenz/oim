@@ -8,6 +8,7 @@ import org.apache.commons.lang.StringEscapeUtils;
 
 import com.divrep.DivRep;
 import com.divrep.DivRepEvent;
+import com.divrep.common.DivRepForm;
 
 import edu.iu.grid.oim.view.IView;
 
@@ -19,21 +20,71 @@ public class Wizard extends DivRep
 
 	private static final long serialVersionUID = 1L;
 
-	ArrayList<IView> step_views = new ArrayList<IView>();
-	HashMap<IView, String> step_labels = new HashMap<IView, String>();
-	public void addStep(String label, IView view) {
-		step_views.add(view);
-		step_labels.put(view, label);
+	public abstract class WizardPage extends DivRepForm {
+		
+		String name;
+		
+		public WizardPage(String name) {
+			super(Wizard.this, null);
+			this.name = name;
+			// TODO Auto-generated constructor stub
+			setSubmitLabel("Next");
+			init();
+			
+			/* disable submit button until page is valid?
+			if(!validate()) {
+				submitbutton.setDisabled(false);
+			}
+			*/
+			
+			pages.add(this);
+			//make first page added as active - by default
+			if(active == null) {
+				active = this;
+			}
+		}
+		@Override
+		protected Boolean doSubmit() {
+			onNext();
+			return false;
+		}
+		
+		//override these
+		protected abstract void onNext();
+		protected abstract void init();
+		public void disableNext() {
+			submitbutton.setDisabled(true);
+		}
+		
+	}
+	ArrayList<WizardPage> pages  = new ArrayList<WizardPage>();
+	
+	WizardPage active = null;
+	public void setActive(WizardPage page) {
+		active = page;
+		redraw();
 	}
 	
 	public void render(PrintWriter out) {
-		//render tab output
-		out.write("<ul>");
-		for(IView view : step_views) {
-			String label = step_labels.get(view);
-			out.write("<li>"+StringEscapeUtils.escapeHtml(label)+"</li>");
+		out.write("<div class=\"divrep_wizard\" id=\""+getNodeID()+"\">");
+		
+		//display tab
+		out.write("<ul class=\"divrep_wizard_tabs\">");
+		for(WizardPage page : pages) {
+			String cls = "";
+			if(active == page) {
+				cls = "divrep_wizard_tab_active";
+			}
+			out.write("<li class=\""+cls+"\"><a nohref>"+StringEscapeUtils.escapeHtml(page.name)+"</a></li>");
 		}
 		out.write("</ul>");
+		
+		//display active page
+		if(active != null) {
+			active.render(out);
+		}
+		
+		out.write("</div>");
 	}
 
 	@Override

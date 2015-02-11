@@ -658,7 +658,9 @@ width: 100%;
 height: 300px;
 overflow-y: scroll;
 margin-bottom: 15px;
-background-color: #f3f3f3;
+background-color: white;
+padding: 5px;
+/*pointer-events:none; this prevent user from scroll content via scrollbar also..*/
 }
 div.certificate_agreement_content {
 margin: 15px;
@@ -702,4 +704,31 @@ margin-top: 10px;
 .table .no-border-top td,
 .table .no-border-top th {
 border-top: none;
+}
+i.oim-criteria {
+display: inline-block;
+width: 24px;
+height: 24px;
+margin-top: 1px;
+line-height: 24px;
+vertical-align: text-top;
+}
+i.oim-criteria-pass {
+background-image:url(images/criteria_pass.png);
+}
+i.oim-criteria-fail {
+background-image:url(images/criteria_fail.png);
+}
+div.oim-criteria {
+border-bottom: 1px solid #eee;
+}
+div.oim-criteria > div {
+padding: 3px;	
+}
+div.oim-criteria:hover {
+background-color: #eee;
+}
+div.oim-criteria p.oim-criteria-label {
+/*font-weight: bold;*/	
+margin-top: 5px;
 }

@@ -39,6 +39,7 @@ import edu.iu.grid.oim.lib.BCrypt;
 import edu.iu.grid.oim.lib.Footprints;
 import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.lib.Footprints.FPTicket;
+import edu.iu.grid.oim.model.AuthorizationCriterias;
 import edu.iu.grid.oim.model.CertificateRequestStatus;
 import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.UserContext.MessageType;
@@ -200,61 +201,121 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 		return null;
 	}
 	
-	public boolean canRenew(CertificateRequestUserRecord rec, ArrayList<LogDetail> logs) {
-		if(!auth.isUser()) return false;	
-		return canRenew(rec, logs, auth.getContact());
-	}
-	//can a user renew the certificate immediately?
-	public boolean canRenew(CertificateRequestUserRecord rec, ArrayList<LogDetail> logs, ContactRecord contact) {
-		/*
-		//per Von's request https://docs.google.com/document/d/1hxKMIpW4vYecyzx_lg1eHk9RC2jjeyEyYNkj_jCFCWU/edit#
-		//I am disabling renew functionality until we implement re-key renew.
-		return false;
-		*/
+	//TODO should move to Authorization?
+	public AuthorizationCriterias isOIMUser() {
+		AuthorizationCriterias criterias = new AuthorizationCriterias();
 		
-		if(!canView(rec)) return false;
+		String label = "You have provided your x509 certificate";
+		if(auth.getUserDN() != null) {
+			label += " ("+auth.getUserDN()+")";
+		}
+		criterias.new AuthorizationCriteria(label, "is_secure") {
+			@Override
+			public Boolean test() {
+				return (auth.getUserDN()!=null);
+			}
+		};
+		
+		//make sure user is not disabled, unregistered, etc..
+		label = "Your x509 certificate is recognized as OIM user";
+		if(auth.isUser()) {
+			label += " ("+auth.getContact().name+")";
+		}
+		criterias.new AuthorizationCriteria(label, "oim_user") {
+			@Override
+			public Boolean test() {
+				return auth.isUser();
+			}
+		};
+		return criterias;
+	}
+	
+	public AuthorizationCriterias canRenew(CertificateRequestUserRecord rec, ArrayList<LogDetail> logs) {
+		AuthorizationCriterias criterias = isOIMUser();		
+		AuthorizationCriterias sub_criterias = canRenew(rec, logs, auth.getContact());
+		criterias.addAll(sub_criterias);
+		return criterias;
+	}
+	
+	//can a user renew the certificate immediately?
+	public AuthorizationCriterias canRenew(final CertificateRequestUserRecord rec, final ArrayList<LogDetail> logs, final ContactRecord contact) {
+		AuthorizationCriterias criterias = new AuthorizationCriterias();
+		
+		//canView always returns true.. let's not add it to criteria for now.
+		//if(!canView(rec)) return false;
 		
 		//only issued request can be renewed
-		if(!rec.status.equals(CertificateRequestStatus.ISSUED)) return false;
+		criterias.new AuthorizationCriteria("The certificate is in ISSUED status", null) {
+			@Override
+			public Boolean test() {
+				return rec.status.equals(CertificateRequestStatus.ISSUED);
+			}
+		};
 		
 		//original requester?
-		if(!rec.requester_contact_id.equals(contact.id)) return false;
-
+		//if(!rec.requester_contact_id.equals(contact.id)) return false;
+		criterias.new AuthorizationCriteria("You are the original requester of this certificate", "certificate_owner") {
+			@Override
+			public Boolean test() {
+				return rec.requester_contact_id.equals(contact.id);
+			}
+		};
+		
 		//approved within 5 years?
-		LogDetail last = getLastLog(CertificateRequestStatus.APPROVED, logs);
-		if(last == null) return false; //never approved
-		Calendar five_years_ago = Calendar.getInstance();
-		five_years_ago.add(Calendar.YEAR, -5);
-		if(last.time.before(five_years_ago.getTime())) return false;
-		
-		//will expire in less than 6 month?
-		Calendar six_month_future = Calendar.getInstance();
-		six_month_future.add(Calendar.MONTH, 6);
-		if(rec.cert_notafter.after(six_month_future.getTime()))  {
-			//nope... but, if it's in debug mode, let user(testers) renew it
-			if(!StaticConfig.isDebug()) {
-				return false;
+		criterias.new AuthorizationCriteria("This certificate was approved within the last 5 years", "certificate_maxage") {
+			@Override
+			public Boolean test() {
+				LogDetail last = getLastLog(CertificateRequestStatus.APPROVED, logs);
+				if(last == null) return false; //never approved
+				Calendar five_years_ago = Calendar.getInstance();
+				five_years_ago.add(Calendar.YEAR, -5);
+				if(last.time.before(five_years_ago.getTime())) return false; //older than 5 years.
+				
+				//all good
+				return true;
 			}
-		}
-		
-		//email hasn't changed since issue?
-		try {
-			ArrayList<Certificate> chain = CertificateManager.parsePKCS7(rec.cert_pkcs7);
-			X509Certificate c0 = CertificateManager.getIssuedX509Cert(chain);
-			Collection<List<?>> list = c0.getSubjectAlternativeNames();
-			Iterator<List<?>> it = list.iterator();
-			List<?> first = it.next();
-			String cert_email = (String)first.get(1);
-			if(!cert_email.equals(contact.primary_email) && !cert_email.equals(contact.secondary_email)) {
-				//doesn't match primary nor secondary email
-				return false;
-			}
-		} catch (Exception e) {
-			log.error("CertificateRequestUserModel::canRenw() :: Failed to parse pkcs7 to test email address (skipping this test). id:" + rec.id, e);
-		}
+		};
 	
-		//all good
-		return true;
+		//will expire in less than 6 month?
+		criterias.new AuthorizationCriteria("This certificate will expire in less than 6 month", "certificate_due_renewal") {
+			@Override
+			public Boolean test() {
+				Calendar six_month_future = Calendar.getInstance();
+				six_month_future.add(Calendar.MONTH, 6);
+				if(rec.cert_notafter.after(six_month_future.getTime()))  {
+					//nope... but, if it's in debug mode, let user(testers) renew it
+					if(!StaticConfig.isDebug()) {
+						return false;
+					}
+				}
+				//all good
+				return true;
+			}
+		};
+			
+		criterias.new AuthorizationCriteria("Your current email address matches the email address of the certificate previously issued.", "certificate_email_change") {
+			@Override
+			public Boolean test() {
+				try {
+					ArrayList<Certificate> chain = CertificateManager.parsePKCS7(rec.cert_pkcs7);
+					X509Certificate c0 = CertificateManager.getIssuedX509Cert(chain);
+					Collection<List<?>> list = c0.getSubjectAlternativeNames();
+					Iterator<List<?>> it = list.iterator();
+					List<?> first = it.next();
+					String cert_email = (String)first.get(1);
+					if(!cert_email.equals(contact.primary_email) && !cert_email.equals(contact.secondary_email)) {
+						//doesn't match primary nor secondary email
+						return false;
+					}
+				} catch (Exception e) {
+					log.error("CertificateRequestUserModel::canRenw() :: Failed to parse pkcs7 to test email address (skipping this test). id:" + rec.id, e);
+				}
+				//all good
+				return true;
+			}
+		};
+	
+		return criterias;
 	}
 	
 	/*
@@ -1101,14 +1162,16 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 			ticket.description = "Dear " + requester.name + ",\n\n";
 			ticket.description += "Your user certificate ("+rec.dn+") will expire on "+dformat.format(expiration_date)+"\n\n";
 			
-			//can user renew?
+			//can the requester actually renew this certificate?
 			ArrayList<CertificateRequestModelBase<CertificateRequestUserRecord>.LogDetail> logs =
-					getLogs(CertificateRequestUserModel.class, rec.id);
-			if(canRenew(rec, logs, requester)) {	
+				getLogs(CertificateRequestUserModel.class, rec.id);
+			AuthorizationCriterias criterias = canRenew(rec, logs, requester);
+			
+			if(criterias.passAll()) {	
 				ticket.description += "Please renew by visiting "+getTicketUrl(rec.id)+"\n\n";
 				ticket.status = "Engineering"; //reopen it - until user renew
 			} else {
-				ticket.description += "Please request for new user certificate by visiting https://oim.grid.iu.edu/oim/certificaterequestuser\n\n";
+				ticket.description += "Please request for new user certificate by visiting https://oim.grid.iu.edu/oim/certificaterequestuser?t=renew\n\n";
 			}
 
 			//OSGPKI-393 (updated to put this under both cases)

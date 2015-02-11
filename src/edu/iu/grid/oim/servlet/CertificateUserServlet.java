@@ -21,9 +21,7 @@ import edu.iu.grid.oim.model.CertificateRequestStatus;
 import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.CertificateRequestModelBase;
 import edu.iu.grid.oim.model.db.CertificateRequestModelBase.LogDetail;
-import edu.iu.grid.oim.model.db.ConfigModel.Config;
 import edu.iu.grid.oim.model.db.CertificateRequestUserModel;
-import edu.iu.grid.oim.model.db.ConfigModel;
 import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.VOModel;
 import edu.iu.grid.oim.model.db.record.CertificateRequestUserRecord;
@@ -36,11 +34,8 @@ import edu.iu.grid.oim.view.BootTabView;
 import edu.iu.grid.oim.view.CertificateMenuView;
 import edu.iu.grid.oim.view.GenericView;
 import edu.iu.grid.oim.view.IView;
-import edu.iu.grid.oim.view.UserCertificateActionView;
 import edu.iu.grid.oim.view.UserCertificateTable;
 import edu.iu.grid.oim.view.certaction.UserCertRenew;
-import edu.iu.grid.oim.view.divrep.EditableContent;
-import edu.iu.grid.oim.view.divrep.UserCNEditor;
 
 public class CertificateUserServlet extends ServletBase  {
 	private static final long serialVersionUID = 1L;
@@ -158,6 +153,8 @@ public class CertificateUserServlet extends ServletBase  {
 		final SimpleDateFormat dformat = new SimpleDateFormat();
 		dformat.setTimeZone(auth.getTimeZone());
 		
+		final CertificateRequestUserModel model = new CertificateRequestUserModel(context);
+		
 		return new IView(){
 			@Override
 			public void render(PrintWriter out) {
@@ -196,9 +193,7 @@ public class CertificateUserServlet extends ServletBase  {
 				out.write("<div class=\"row-fluid\">");
 				out.write("<div class=\"span2\"><b>DN</b></div>");			
 				out.write("<div class=\"span10\">");
-				//out.write("<pre style=\"background-color: inherit;\">"+StringEscapeUtils.escapeHtml(rec.dn)+"</pre>");
 				out.write(StringEscapeUtils.escapeHtml(rec.dn));
-				//out.write("<h3>Status"+rec.status+"</h3>");
 				out.write("</div>"); //span9
 				out.write("</div>"); //row-fluid
 				
@@ -206,20 +201,14 @@ public class CertificateUserServlet extends ServletBase  {
 				out.write("<div class=\"span2\" style=\"margin-top: 4px;\"><b>Status</b></div>");			
 				out.write("<div class=\"span10\">");
 				out.write("<h3>"+rec.status+"</h3>");
-				//out.write("<h3>Status"+rec.status+"</h3>");
 				out.write("</div>"); //span9			
 				out.write("</div>"); //row-fluid
-				//out.write("<hr>");
 				out.write("<br>");
-
-				//renderBasicInfo(out);
 				
 				BootTabView tabview = new BootTabView();
 				tabview.addtab("Detail", new DetailView());
 				tabview.addtab("Log", new LogView());
-				tabview.addtab("Renew", new UserCertRenew(context.getPageRoot()));
-				
-				//renderAction(out);
+				tabview.addtab("Renew", new UserCertRenew(context, rec, model.canRenew(rec, logs)));
 				
 				tabview.render(out);
 				
@@ -227,17 +216,17 @@ public class CertificateUserServlet extends ServletBase  {
 				out.write("</div>"); //row-fluid
 				out.write("</div>"); //content
 			}	
-			
+			/*
 			public void renderAction(PrintWriter out) {
 				//action view is a bit more complicated..
 				UserCertificateActionView actionview = new UserCertificateActionView(context, rec, logs);
 				//out.write("<h2>Action</h2>");
 				actionview.render(out);
 			}
+			*/
 			
 			/*
 			public void renderBasicInfo(PrintWriter out) {
-				CertificateRequestUserModel model = new CertificateRequestUserModel(context);
 				
 				out.write("<table class=\"table nohover\">");
 				out.write("<tbody>");
@@ -294,7 +283,6 @@ public class CertificateUserServlet extends ServletBase  {
 			
 			class DetailView extends GenericView {
 				public void render(PrintWriter out) {
-					CertificateRequestUserModel model = new CertificateRequestUserModel(context);
 					
 					//out.write("<h2>Detail</h2>");
 					
@@ -383,8 +371,7 @@ public class CertificateUserServlet extends ServletBase  {
 					try {
 						out.write("<tr>");
 						out.write("<th>RA</th>");
-						CertificateRequestUserModel usermodel = new CertificateRequestUserModel(context);
-						ArrayList<ContactRecord> ras = usermodel.findRAs(rec);
+						ArrayList<ContactRecord> ras = model.findRAs(rec);
 						if(ras.isEmpty()) {
 							out.write("<td><span class=\"muted\">N/A</span></td>");
 						} else {
@@ -411,7 +398,6 @@ public class CertificateUserServlet extends ServletBase  {
 					try {
 						out.write("<tr>");
 						out.write("<th>Sponsors</th>");
-						CertificateRequestUserModel usermodel = new CertificateRequestUserModel(context);
 						ArrayList<ContactRecord> sponsors = usermodel.findSponsors(rec);
 						if(sponsors.isEmpty()) {
 							out.write("<td><span class=\"muted\">N/A</span></td>");
@@ -521,6 +507,7 @@ public class CertificateUserServlet extends ServletBase  {
 		final Authorization auth = context.getAuthorization();
 		final SimpleDateFormat dformat = new SimpleDateFormat();
 		dformat.setTimeZone(auth.getTimeZone());
+		final CertificateRequestUserModel model = new CertificateRequestUserModel(context);
 		
 		return new IView(){
 			@Override
@@ -544,7 +531,6 @@ public class CertificateUserServlet extends ServletBase  {
 			}
 			
 			public void renderMyList(PrintWriter out) {
-				CertificateRequestUserModel model = new CertificateRequestUserModel(context);
 				
 				try {
 					ArrayList<CertificateRequestUserRecord> recs = model.getIApprove(auth.getContact().id);

@@ -44,7 +44,7 @@ import edu.iu.grid.oim.model.db.record.DNRecord;
 import edu.iu.grid.oim.model.db.record.VOContactRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
 import edu.iu.grid.oim.model.exceptions.CertificateRequestException;
-
+import edu.iu.grid.oim.view.divrep.form.validator.MustbeCheckedValidator;
 import edu.iu.grid.oim.view.divrep.UserCNEditor;
 import edu.iu.grid.oim.view.divrep.ChoosePassword;
 import edu.iu.grid.oim.view.divrep.form.validator.CNValidator;
@@ -75,7 +75,7 @@ public class CertificateRequestUserForm extends DivRepForm
 	private DivRepTextBox twiki_id;
 	
 	private ChoosePassword choose_password;
-	private DivRepCheckBox agreement;
+	//private DivRepCheckBox agreement;
 	
 	private DivRepSelectBox vo;
 	
@@ -454,27 +454,9 @@ public class CertificateRequestUserForm extends DivRepForm
 		request_comment.setLabel("Comments");
 		request_comment.setSampleValue("Please enter any comments, or request you'd like to make for RA agents / Sponsors.");
 		
-		new DivRepStaticContent(this, "<h2>OSG Policy Agreement</h2>");
+		//new DivRepStaticContent(this, "<h2>OSG Policy Agreement</h2>");
 		
-		//agreement doc comes from https://twiki.grid.iu.edu/twiki/pub/Operations/DigiCertAgreements/IGTF_Certificate_Subscriber_Agreement_-_Mar_26_2012.doc
-		InputStream aup_stream =getClass().getResourceAsStream("osg.certificate.agreement.html");
-		StringBuilder aup = ResourceReader.loadContent(aup_stream);
-		new DivRepStaticContent(this, aup.toString());
-		
-		agreement = new DivRepCheckBox(this);
-		agreement.setLabel("I AGREE");
-		agreement.setRequired(true);
-		agreement.addValidator(new DivRepIValidator<Boolean>() {
-			@Override
-			public Boolean isValid(Boolean value) {
-				return value;
-			}
-
-			@Override
-			public String getErrorMessage() {
-				return "You must agree to these policies";
-			}
-		});
+		new CertificateAUPDE(this);
 	}
 	
 	protected ArrayList<ContactRecord> getSponsor(Integer vo_id) throws SQLException {

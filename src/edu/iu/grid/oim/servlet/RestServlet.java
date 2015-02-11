@@ -23,6 +23,7 @@ import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.AuthorizationException;
 import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.lib.StringArray;
+import edu.iu.grid.oim.model.AuthorizationCriterias;
 import edu.iu.grid.oim.model.CertificateRequestStatus;
 import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.CertificateRequestModelBase;
@@ -593,7 +594,8 @@ public class RestServlet extends ServletBase  {
 			
 			//load log
 			ArrayList<CertificateRequestModelBase<CertificateRequestUserRecord>.LogDetail> logs = model.getLogs(CertificateRequestUserModel.class, rec.id);		
-			if(model.canRenew(rec, logs)) {
+			AuthorizationCriterias criterias = model.canRenew(rec, logs);
+			if(criterias.passAll()) {
 				model.renew(rec, password);
 				reply.params.put("request_id", rec.id);
 			} else {

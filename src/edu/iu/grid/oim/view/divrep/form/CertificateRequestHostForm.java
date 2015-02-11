@@ -251,6 +251,7 @@ public class CertificateRequestHostForm extends DivRepForm
 		DivRepToggler csr_help = new DivRepToggler(this) {
 			@Override
 			public DivRep createContent() {
+				//TODO - make this editable?
 				return new DivRepStaticContent(this, 
 					"<div class=\"well\"><p>You can create your CSR on your target hosts using tools such as openssl and copy & paste generated CSR below. </p>"+
 					"<p><code>umask 077; openssl req -new -newkey rsa:2048 -nodes -keyout hostkey.pem -subj \"/CN=osg-ce.example.edu\"</code></p>"+
