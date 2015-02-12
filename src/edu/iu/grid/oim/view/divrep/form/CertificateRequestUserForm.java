@@ -543,7 +543,7 @@ public class CertificateRequestUserForm extends DivRepForm
 			if(rec != null) {
 				redirect("certificateuser?id="+rec.id); //TODO - does this work? I haven't tested it
 			}
-			context.message(MessageType.SUCCESS, "Successfully requested new user certificate. Your RA will contact you to process your request.");
+			context.message(MessageType.SUCCESS, "Successfully requested a new user certificate. Your RA will contact you soon to process your request.");
 			return true;
 		} catch (CertificateRequestException e) {
 			log.warn("User failed to submit request", e);

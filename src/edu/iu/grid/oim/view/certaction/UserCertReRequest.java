@@ -63,7 +63,7 @@ public class UserCertReRequest implements IView {
             			//check access again - request status might have changed
 	        			if(model.canReRequest(rec)) {
 	        				model.rerequest(rec, pass.getValue());
-                			context.message(MessageType.SUCCESS, "Successfully re-requested a certificate request with ID: " + rec.id);
+                			context.message(MessageType.SUCCESS, "Successfully re-requested a certificate request with ID: " + rec.id + " You will be notified when your RA/sponsors approves or rejects your request.");   
 							js("location.reload();");
 	        			} else {
 	        				alert("Reques status has changed. Please reload.");
