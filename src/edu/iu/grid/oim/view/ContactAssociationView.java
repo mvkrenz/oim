@@ -7,11 +7,6 @@ import java.util.HashMap;
 
 import org.apache.log4j.Logger;
 
-import com.divrep.DivRep;
-import com.divrep.DivRepEvent;
-import com.divrep.common.DivRepButton;
-
-import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.ContactRank;
 import edu.iu.grid.oim.model.db.ContactTypeModel;
@@ -28,7 +23,6 @@ import edu.iu.grid.oim.model.db.record.SCContactRecord;
 import edu.iu.grid.oim.model.db.record.SCRecord;
 import edu.iu.grid.oim.model.db.record.VOContactRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
-import edu.iu.grid.oim.servlet.HomeServlet;
 
 public class ContactAssociationView extends GenericView {
     static Logger log = Logger.getLogger(ContactAssociationView.class);  

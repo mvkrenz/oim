@@ -24,6 +24,7 @@ public class ChoosePassword extends DivRepFormElement<String> {
 		this.context = context;
 		
 		passphrase = new DivRepPassword(this);
+		passphrase.setLabel("Password");
 		passphrase.addValidator(new PKIPassStrengthValidator());
 		passphrase.setRequired(true);
 		passphrase.addEventListener(new DivRepEventListener() {
@@ -64,7 +65,7 @@ public class ChoosePassword extends DivRepFormElement<String> {
 		Authorization auth = context.getAuthorization();
 		out.write("<p class=\"help-block\">Please choose a password to issue your certificate and encrypt your private key.</p>");
 		if(!auth.isUser()) {
-			out.write("<p class=\"help-block alert alert-error\"><b>IMPORTANT</b>: If you forget this password, you will not be able to issue your certificate and import it your browser after it is approved.</p>");
+			out.write("<p class=\"help-block alert alert-error\"><b>IMPORTANT</b>: If you forget this password, you will not be able to issue your certificate and import it to your browser after it is issued.</p>");
 		}
 		passphrase.render(out);
 		passphrase_confirm.render(out);

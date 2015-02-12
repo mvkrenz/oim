@@ -257,6 +257,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 		criterias.new AuthorizationCriteria("You are the original requester of this certificate", "certificate_owner") {
 			@Override
 			public Boolean test() {
+				if(contact == null) return false;
 				return rec.requester_contact_id.equals(contact.id);
 			}
 		};
@@ -280,6 +281,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 		criterias.new AuthorizationCriteria("This certificate will expire in less than 6 month", "certificate_due_renewal") {
 			@Override
 			public Boolean test() {
+				if(rec.cert_notafter == null) return false; //not issued yet
 				Calendar six_month_future = Calendar.getInstance();
 				six_month_future.add(Calendar.MONTH, 6);
 				if(rec.cert_notafter.after(six_month_future.getTime()))  {
@@ -293,10 +295,11 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 			}
 		};
 			
-		criterias.new AuthorizationCriteria("Your current email address matches the email address of the certificate previously issued.", "certificate_email_change") {
+		criterias.new AuthorizationCriteria("Your current email address matches the email address of the previously issued certificate.", "certificate_email_change") {
 			@Override
 			public Boolean test() {
 				try {
+					if(rec.cert_pkcs7 == null) return false; //not yet issued
 					ArrayList<Certificate> chain = CertificateManager.parsePKCS7(rec.cert_pkcs7);
 					X509Certificate c0 = CertificateManager.getIssuedX509Cert(chain);
 					Collection<List<?>> list = c0.getSubjectAlternativeNames();
@@ -314,43 +317,26 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 				return true;
 			}
 		};
-	
+		
+		criterias.new AuthorizationCriteria("Requester has not exceeded certificate quota.", "certificate_quota") {
+			@Override
+			public Boolean test() {
+				//check quota
+		    	CertificateQuotaModel quota = new CertificateQuotaModel(context);
+		    	if(!quota.canRequestUserCert(rec.requester_contact_id)) {
+		    		return false;
+		    	}
+		    	return true;
+			}
+		};
+			
 		return criterias;
 	}
 	
-	/*
-	public boolean canRequestRenew(CertificateRequestUserRecord rec, ArrayList<LogDetail> logs) {
-		if(!canView(rec)) return false;
-		
-		if(canRenew(rec, logs)) return false;//if user can renew it immediately, then no need for request.
-		
-		if(	rec.status.equals(CertificateRequestStatus.ISSUED)) {
-			if(auth.isUser()) {
-				return true;
-			}
-		}
-		return false;
-	}
-	*/
-	
+
 	public boolean canReRequest(CertificateRequestUserRecord rec) {
 		if(!canView(rec)) return false;
-/*
-		if(	rec.status.equals(CertificateRequestStatus.REJECTED) ||
-			rec.status.equals(CertificateRequestStatus.CANCELED) ||
-			rec.status.equals(CertificateRequestStatus.REVOKED) ||
-			rec.status.equals(CertificateRequestStatus.EXPIRED)) {
-			//requester can re-request
-			if(auth.isUser() && auth.getContact().id.equals(rec.requester_contact_id)) {
-				return true;
-			}
-		}		
-		
-		if (rec.status.equals(CertificateRequestStatus.EXPIRED) ) {
-			//guest user needs to be able to re-request expired cert..
-			return true;
-		}
-*/
+
 		if(	rec.status.equals(CertificateRequestStatus.REJECTED) ||
 				rec.status.equals(CertificateRequestStatus.CANCELED) ||
 				rec.status.equals(CertificateRequestStatus.REVOKED) ||
@@ -428,9 +414,38 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 	}
 	
 	//why can't we just issue certificate after it's been approved? because we might have to create pkcs12
-	public boolean canIssue(CertificateRequestUserRecord rec) {
-		if(!canView(rec)) return false;
+	public AuthorizationCriterias canIssue(final CertificateRequestUserRecord rec) {
+		AuthorizationCriterias criterias = new AuthorizationCriterias();
 		
+		//canView always return true.. let's ignore this test for now.
+		//if(!canView(rec)) return false;
+		
+		criterias.new AuthorizationCriteria("The certificate is in APPROVED status", null) {
+			@Override
+			public Boolean test() {
+				return rec.status.equals(CertificateRequestStatus.APPROVED);
+			}
+		};
+		
+		if(auth.isUser()) {
+			final ContactRecord contact = auth.getContact();
+			//if(rec.requester_contact_id.equals(contact.id)) return true;
+			criterias.new AuthorizationCriteria("User is the requester of this request", null) {
+				@Override
+				public Boolean test() {
+					return (rec.requester_contact_id.equals(contact.id));
+				}
+			};
+		} else {
+			criterias.new AuthorizationCriteria("User is guest and request has requester passphrase set", null) {
+				@Override
+				public Boolean test() {
+					return (rec.requester_passphrase != null);
+				}
+			};
+		}
+		
+		/*
 		if(	rec.status.equals(CertificateRequestStatus.APPROVED)) {			
 			//requester oneself can issue
 			if(auth.isUser()) {
@@ -443,7 +458,9 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 				}
 			}
 		}
-		return false;
+		*/
+		
+		return criterias;
 	}
 		
 	//NO-AC
@@ -544,44 +561,6 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 		ticket.status = "Resolved";
 		fp.update(ticket, rec.goc_ticket_id);
 	}
-	
-	/*
-	//NO-AC
-	//reuse previously used csr - only oim user can do this
-	public void requestRenew(CertificateRequestUserRecord rec) throws CertificateRequestException {
-		if(!auth.isUser()) {
-			throw new CertificateRequestException("only oim user can request renew");
-		}
-		
-		rec.status = CertificateRequestStatus.RENEW_REQUESTED;
-		
-		//clear previously issued cert
-    	rec.cert_certificate = null;
-    	rec.cert_intermediate = null;
-    	rec.cert_pkcs7 = null;
-    	rec.cert_serial_id = null;
-    	
-    	//we don't need passphrase - only requester can renew, and we are not creating private key
-    	rec.requester_passphrase = null;
-    	rec.requester_passphrase_salt = null;
-		
-		try {
-			super.update(get(rec.id), rec);
-			
-	    	//create notification ticket
-			Footprints fp = new Footprints(context);
-			FPTicket ticket = fp.new FPTicket();
-	    	prepareNewTicket(ticket, "User Certificate Renew Request", rec, auth.getContact());
-			rec.goc_ticket_id = fp.open(ticket);
-			context.setComment("Opened GOC Ticket " + rec.goc_ticket_id);
-			super.update(get(rec.id), rec);
-			
-		} catch (SQLException e) {
-			log.error("Failed to request user certificate request renewal: " + rec.id);
-			throw new CertificateRequestException("Failed to update request status", e);
-		}
-	}
-	*/
 	
 	//NO-AC
 	public void requestRevoke(CertificateRequestUserRecord rec) throws CertificateRequestException {
@@ -695,13 +674,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 	
 	//go directly from ISSUED > ISSUEING
 	public void renew(final CertificateRequestUserRecord rec, String password) throws CertificateRequestException {		
-		
-		//check quota
-    	CertificateQuotaModel quota = new CertificateQuotaModel(context);
-    	if(!quota.canRequestUserCert(rec.requester_contact_id)) {
-    		throw new CertificateRequestException("Quota Exceeded");
-    	}
-   	
+		   	
 		//notification -- just make a note on an existing ticket - we don't need to create new goc ticket - there is nobody we need to inform -
 		Footprints fp = new Footprints(context);
 		FPTicket ticket = fp.new FPTicket();
@@ -734,11 +707,12 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 		
 		//increment quota
 		try {
+	    	CertificateQuotaModel quota = new CertificateQuotaModel(context);
 			quota.incrementUserCertRequest(rec.requester_contact_id);
 		} catch (SQLException e) {
     		log.error("Failed to incremenet quota while renewing request id:"+rec.id);
 		}
-		context.message(MessageType.SUCCESS, "Successfully renewed a certificate. Please download & install your certificate.");
+		//context.message(MessageType.SUCCESS, "Successfully renewed a certificate. Please download & install your certificate.");
 	}
 	
 	//return true if matches

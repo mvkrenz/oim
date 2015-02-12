@@ -5,6 +5,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 
 import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.log4j.Logger;
 
 import com.divrep.DivRepEvent;
 import com.divrep.DivRepEventListener;
@@ -16,93 +17,46 @@ import com.divrep.validator.DivRepIValidator;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.model.AuthorizationCriterias;
+import edu.iu.grid.oim.model.CertificateRequestStatus;
 import edu.iu.grid.oim.model.UserContext;
-import edu.iu.grid.oim.model.UserContext.MessageType;
 import edu.iu.grid.oim.model.db.CertificateRequestUserModel;
 import edu.iu.grid.oim.model.db.GridAdminModel;
 import edu.iu.grid.oim.model.db.record.CertificateRequestUserRecord;
 import edu.iu.grid.oim.model.db.record.GridAdminRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
 import edu.iu.grid.oim.model.exceptions.CertificateRequestException;
+import edu.iu.grid.oim.servlet.CertificateUserServlet;
 import edu.iu.grid.oim.view.HtmlFileView;
 import edu.iu.grid.oim.view.IView;
+import edu.iu.grid.oim.view.divrep.AuthorizationCriteriasView;
 import edu.iu.grid.oim.view.divrep.Wizard;
 import edu.iu.grid.oim.view.divrep.Wizard.WizardPage;
 import edu.iu.grid.oim.view.divrep.form.CertificateAUPDE;
 import edu.iu.grid.oim.view.divrep.form.validator.MustbeCheckedValidator;
 import edu.iu.grid.oim.view.divrep.form.validator.PKIPassStrengthValidator;
 
-public class UserCertRenew implements IView {
-	CertificateRequestUserRecord rec;
+public class UserCertRenew extends UserCertIssue {
+    static Logger log = Logger.getLogger(UserCertRenew.class);
 	
-	Wizard wizard;
-	WizardPage page_begin;
 	WizardPage page_agreement;
-	WizardPage page_password;
-	WizardPage page_approve;
-	AuthorizationCriterias criterias;
-	UserContext context;
-	Authorization auth;
 	
 	public UserCertRenew(UserContext context, CertificateRequestUserRecord rec, AuthorizationCriterias criterias) {
-		this.context = context;
-		this.criterias = criterias;
-		this.rec = rec;
-		
-		auth = context.getAuthorization();
-		
-		wizard = new Wizard(context.getPageRoot());
-		page_begin = createBeginPage();
+		super(context, rec, criterias);
 		page_agreement = createAgreementPage();
-		page_password = createPasswordPage();
-		page_approve = createApprovePage();
+		wizard.addPage(0, page_agreement);
 	}
-	
-	private WizardPage createBeginPage() {
-		WizardPage page = wizard.new WizardPage("Begin Renewal") {
-			@Override
-			public void init() {
-				add(new DivRepStaticContent(wizard, "<p>In order to renew this user certificate, you must meet following criterias.</p>"));
-				add(new DivRepFormElement(wizard){
-					@Override
-					public void render(PrintWriter out) {
-						criterias.renderHtml(context, out);
-					}
 
-					@Override
-					protected void onEvent(DivRepEvent e) {
-						// TODO Auto-generated method stub
-						
-					}
-				});
-			}
-			@Override
-			protected void onNext() {
-				if(!criterias.passAll()) {
-					alert("Sorry, you do not meet all the criterias necessary to begin your renewal process.");
-				} else {
-					wizard.setActive(page_agreement);
-				}
-			}
-		};
-		/*
-		if(!criterias.passAll()) {
-			page.disableNext();
-		}
-		*/
-		return page;
-	}
-	
-	private WizardPage createAgreementPage() {
-		
+	private WizardPage createAgreementPage() {	
 		return wizard.new WizardPage("Agreements") {
 			@Override
 			public void init() {
 				//agreement doc comes from https://twiki.grid.iu.edu/twiki/pub/Operations/DigiCertAgreements/IGTF_Certificate_Subscriber_Agreement_-_Mar_26_2012.doc
-				add(new CertificateAUPDE(context.getPageRoot()));
+				//new DivRepStaticContent(this, "<p>You are eligible for renewing your user certificate.</p>");
+				new DivRepStaticContent(this, "<p>Plese agree to following agreements in order to start the user certificate renewal process.</p>");
+				new CertificateAUPDE(this);
 				
 				try {
-					add(new DivRepFormElement(context.getPageRoot()) {
+					new DivRepFormElement(this) {
 						CertificateRequestUserModel model = new CertificateRequestUserModel(context);
 						ArrayList<VORecord> vos = model.getVOIApprove(auth.getContact().id);
 						HtmlFileView fileview = new HtmlFileView(getClass().getResourceAsStream("ra_agreement.html"));
@@ -134,9 +88,9 @@ public class UserCertRenew implements IView {
 							// TODO Auto-generated method stub
 							
 						}	
-					});
+					};
 					
-					add(new DivRepFormElement(context.getPageRoot()) {
+					new DivRepFormElement(this) {
 						GridAdminModel gamodel = new GridAdminModel(context);
 						ArrayList<GridAdminRecord> gas = gamodel.getGridAdminsByContactID(auth.getContact().id);
 						HtmlFileView fileview = new HtmlFileView(getClass().getResourceAsStream("ga_agreement.html"));
@@ -168,7 +122,7 @@ public class UserCertRenew implements IView {
 							// TODO Auto-generated method stub
 							
 						}						
-					});	
+					};	
 						
 					
 				} catch (SQLException e1) {
@@ -182,113 +136,5 @@ public class UserCertRenew implements IView {
 				wizard.setActive(page_password);
 			}
 		};
-	}
-	
-	private WizardPage createPasswordPage() {
-		
-		
-		
-		
-		
-		return wizard.new WizardPage("Choose Password") {
-			
-			DivRepPassword pass;
-			DivRepPassword pass_confirm;
-			
-			@Override
-			public void init() {
-
-				pass = new DivRepPassword(context.getPageRoot());
-				pass.setLabel("Password");
-				pass.setRequired(true);
-				pass.addValidator(new PKIPassStrengthValidator());
-				pass.addEventListener(new DivRepEventListener() {
-					@Override
-					public void handleEvent(DivRepEvent event) {
-						if(pass_confirm.getValue() != null) {
-							pass_confirm.validate();
-						}
-					}
-				});
-				pass_confirm = new DivRepPassword(context.getPageRoot());
-				pass_confirm.setLabel("Re-enter password");
-				pass_confirm.setRequired(true);
-				pass_confirm.addValidator(new DivRepIValidator<String>() {
-					String message;
-					@Override
-					public Boolean isValid(String value) {
-						if(value.equals(pass.getValue())) return true;
-						message = "Password does not match";
-						return false;
-					}
-		
-					@Override
-					public String getErrorMessage() {
-						return message;
-					}
-				});
-				
-				if(context.isSecure()) {
-					pass.setRepopulate(true);
-					pass_confirm.setRepopulate(true);
-				}
-				
-				add(new DivRepFormElement(context.getPageRoot()) {
-					@Override
-					public void render(PrintWriter out) {
-						out.write("<div id=\""+getNodeID()+"\">");
-						out.write("<p>Please choose a password to encrypt your renewed certificate &amp; private key.</p>");
-						pass.render(out);
-						pass_confirm.render(out);
-						out.write("</div>");
-					}
-
-					@Override
-					protected void onEvent(DivRepEvent e) {
-						// TODO Auto-generated method stub
-					}
-				});
-			}
-			@Override
-			protected void onNext() {
-        		context.setComment("User requesting / issueing renewed user certificate");
-				CertificateRequestUserModel model = new CertificateRequestUserModel(context);
-        		try {
-        			//check access again - request status might have changed while processing the form
-        			//or.. a malicious user could open 10 different tabs and start renewal processes simultanously..
-        			criterias.retestAll();
-        			if(criterias.passAll()) {
-        				model.renew(rec, pass.getValue());
-            			context.message(MessageType.SUCCESS, "Successfully renewed certificate request with ID: " + rec.id);
-						wizard.setActive(page_approve);
-        			} else {
-        				alert("Reques status has changed. Please reload.");
-        			}
-        		} catch (CertificateRequestException ex) {
-        			String message = "Failed to renew certificate: " + ex.getMessage();
-        			if(ex.getCause() != null) {
-        				message += "\n\n" + ex.getCause().getMessage();
-        			}
-            		alert(message);
-            	}
-			}
-		};
-	}
-	
-	private WizardPage createApprovePage() {
-		return wizard.new WizardPage("Approval") {
-			@Override
-			public void init() {
-				add(new DivRepStaticContent(wizard, "<p>Approval</p>"));
-			}
-			@Override
-			protected void onNext() {
-			}
-		};
-	}
-	
-	@Override
-	public void render(PrintWriter out) {
-		wizard.render(out);
 	}
 }

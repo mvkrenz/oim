@@ -17,6 +17,7 @@ import org.apache.log4j.Logger;
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.AuthorizationException;
 import edu.iu.grid.oim.lib.StaticConfig;
+import edu.iu.grid.oim.model.AuthorizationCriterias;
 import edu.iu.grid.oim.model.CertificateRequestStatus;
 import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.CertificateRequestModelBase;
@@ -31,11 +32,21 @@ import edu.iu.grid.oim.view.BootBreadCrumbView;
 import edu.iu.grid.oim.view.BootMenuView;
 import edu.iu.grid.oim.view.BootPage;
 import edu.iu.grid.oim.view.BootTabView;
+import edu.iu.grid.oim.view.BootTabView.Tab;
 import edu.iu.grid.oim.view.CertificateMenuView;
 import edu.iu.grid.oim.view.GenericView;
 import edu.iu.grid.oim.view.IView;
 import edu.iu.grid.oim.view.UserCertificateTable;
+import edu.iu.grid.oim.view.certaction.UserCertApprove;
+import edu.iu.grid.oim.view.certaction.UserCertCancel;
+import edu.iu.grid.oim.view.certaction.UserCertCancelWithPass;
+import edu.iu.grid.oim.view.certaction.UserCertIssue;
+import edu.iu.grid.oim.view.certaction.UserCertReRequest;
+import edu.iu.grid.oim.view.certaction.UserCertReject;
 import edu.iu.grid.oim.view.certaction.UserCertRenew;
+import edu.iu.grid.oim.view.certaction.UserCertRequestRevoke;
+import edu.iu.grid.oim.view.certaction.UserCertRevoke;
+import edu.iu.grid.oim.view.divrep.Wizard.WizardPage;
 
 public class CertificateUserServlet extends ServletBase  {
 	private static final long serialVersionUID = 1L;
@@ -54,8 +65,10 @@ public class CertificateUserServlet extends ServletBase  {
 		BootMenuView menuview = new BootMenuView(context, "certificate");
 		IView content = null;
 		String dirty_id = request.getParameter("id");
-		String status = request.getParameter("status");
-		
+		String select_tab = request.getParameter("t");
+		if(select_tab == null) select_tab = "_none";
+		/*
+				String status = request.getParameter("status");
 		if(status != null && dirty_id != null) {
 			//display status
 			int id = Integer.parseInt(dirty_id);
@@ -76,38 +89,39 @@ public class CertificateUserServlet extends ServletBase  {
 				throw new ServletException("Failed to load specified certificate", e);
 			}
 		} else {
-			if(dirty_id != null) {
-				//display detail view
-				try {
-					int id = Integer.parseInt(dirty_id);
-					CertificateRequestUserRecord rec = model.get(id);
-					if(rec == null) {
-						throw new ServletException("No request found with a specified request ID.");
-					}
-					if(!model.canView(rec)) {
-						throw new AuthorizationException("You don't have access to view this certificate");
-					}
-					ArrayList<CertificateRequestModelBase<CertificateRequestUserRecord>.LogDetail> logs = model.getLogs(CertificateRequestUserModel.class, id);
-					String submenu = "certificateuser";
-					if(request.getParameter("search") != null) {
-						submenu = "certificatesearchuser";
-					}
-					content = detailView(context, rec, logs, submenu);
-				} catch (SQLException e) {
-					throw new ServletException("Failed to load specified certificate", e);
-				} catch (NumberFormatException e2) {
-					throw new ServletException("Prpobably failed to parse request id", e2);
+		*/
+		if(dirty_id != null) {
+			//display detail view
+			try {
+				int id = Integer.parseInt(dirty_id);
+				CertificateRequestUserRecord rec = model.get(id);
+				if(rec == null) {
+					throw new ServletException("No request found with a specified request ID.");
 				}
-			} else {
-				//display list view
-				content = listView(context);
+				if(!model.canView(rec)) {
+					throw new AuthorizationException("You don't have access to view this certificate");
+				}
+				ArrayList<CertificateRequestModelBase<CertificateRequestUserRecord>.LogDetail> logs = model.getLogs(CertificateRequestUserModel.class, id);
+				String submenu = "certificateuser";
+				if(request.getParameter("search") != null) {
+					submenu = "certificatesearchuser";
+				}
+				content = detailView(context, rec, logs, submenu, select_tab);
+			} catch (SQLException e) {
+				throw new ServletException("Failed to load specified certificate", e);
+			} catch (NumberFormatException e2) {
+				throw new ServletException("Prpobably failed to parse request id", e2);
 			}
-
-			BootPage page = new BootPage(context, menuview, content, null);
-			page.render(response.getWriter());
+		} else {
+			//display list view
+			content = listView(context);
 		}
+
+		BootPage page = new BootPage(context, menuview, content, null);
+		page.render(response.getWriter());
+		//}
 	}
-	
+	/*
 	protected IView statusView(final CertificateRequestUserRecord rec, final boolean generate_csr) {
 		return new IView() {
 
@@ -142,12 +156,13 @@ public class CertificateUserServlet extends ServletBase  {
 			}
 		};
 	}
-	
+	*/
 	protected IView detailView(
 			final UserContext context, 
 			final CertificateRequestUserRecord rec, 
 			final ArrayList<CertificateRequestModelBase<CertificateRequestUserRecord>.LogDetail> logs,
-			final String submenu) throws ServletException
+			final String submenu,
+			final String select_tab) throws ServletException
 	{
 		final Authorization auth = context.getAuthorization();
 		final SimpleDateFormat dformat = new SimpleDateFormat();
@@ -166,8 +181,7 @@ public class CertificateUserServlet extends ServletBase  {
  				CertificateMenuView menu = new CertificateMenuView(context, submenu);
 				menu.render(out);
 				out.write("</div>"); //span3
-				
-				
+		
 				out.write("<div class=\"span9\">");
 		
 				BootBreadCrumbView bread_crumb = new BootBreadCrumbView();
@@ -200,15 +214,117 @@ public class CertificateUserServlet extends ServletBase  {
 				out.write("<div class=\"row-fluid\">");
 				out.write("<div class=\"span2\" style=\"margin-top: 4px;\"><b>Status</b></div>");			
 				out.write("<div class=\"span10\">");
+				
+				//TODO - put come color on this
 				out.write("<h3>"+rec.status+"</h3>");
+				
+				//show the most recent log
+				if(logs.size() > 0) {
+					CertificateRequestModelBase<CertificateRequestUserRecord>.LogDetail lastlog = logs.get(0);
+					out.write("<p><i>"+StringEscapeUtils.escapeHtml(lastlog.comment)+"</i></p>");
+				}
+				
+				/*
+				//display chevlons
+				String cls = "";
+				out.write("<ul class=\"divrep_chevs\">");
+				
+				cls = "";
+				if(rec.status.equals(CertificateRequestStatus.REQUESTED)) cls = "active";
+				out.write("<li class=\""+cls+"\"><a nohref>Requested</a></li>");
+				
+				cls = "";
+				if(rec.status.equals(CertificateRequestStatus.CANCELED)) {
+					out.write("<li class=\"active\"><a nohref>Canceled</a></li>");
+				}
+				
+				cls = "";
+				if(rec.status.equals(CertificateRequestStatus.APPROVED)) cls = "active";
+				out.write("<li class=\""+cls+"\"><a nohref>Approved</a></li>");
+
+				cls = "";
+				if(rec.status.equals(CertificateRequestStatus.ISSUING)) cls = "active";
+				out.write("<li class=\""+cls+"\"><a nohref>Issuing</a></li>");
+				
+				cls = "";
+				if(rec.status.equals(CertificateRequestStatus.ISSUED)) cls = "active";
+				out.write("<li class=\""+cls+"\"><a nohref>Issued</a></li>");
+				
+				//revocation request puts it in the different track..
+				if(rec.status.equals(CertificateRequestStatus.REVOCATION_REQUESTED)) {
+					out.write("<li class=\"active\"><a nohref>Revocation Requested</a></li>");
+				}
+				//only show one terminal state
+				if(rec.status.equals(CertificateRequestStatus.REJECTED)) {
+					out.write("<li class=\"active\"><a nohref>Rejected</a></li>");	
+				} else if(rec.status.equals(CertificateRequestStatus.EXPIRED)) {
+					out.write("<li class=\"active\"><a nohref>Expired</a></li>");	
+				} else if(rec.status.equals(CertificateRequestStatus.REVOKED)) {
+					out.write("<li class=\"active\"><a nohref>Revoked</a></li>");	
+				} else if(rec.status.equals(CertificateRequestStatus.FAILED)) {
+					out.write("<li class=\"active\"><a nohref>FAILED</a></li>");	
+				} else {
+					//by default, show expired
+					cls = "";
+					if(rec.status.equals(CertificateRequestStatus.EXPIRED)) cls = "active";
+					out.write("<li class=\""+cls+"\"><a nohref>Expired</a></li>");	
+				}
+				out.write("</ul>");
+				*/
+				
 				out.write("</div>"); //span9			
 				out.write("</div>"); //row-fluid
 				out.write("<br>");
 				
 				BootTabView tabview = new BootTabView();
-				tabview.addtab("Detail", new DetailView());
-				tabview.addtab("Log", new LogView());
-				tabview.addtab("Renew", new UserCertRenew(context, rec, model.canRenew(rec, logs)));
+				Tab tab;
+				
+				/////////////////////////////////////////////////////////////////////////////
+				//RA item should probably come first..
+				if(model.canApprove(rec)) {
+					tab = tabview.addtab("Approve", new UserCertApprove(context, rec));
+					if(select_tab.equals("approve")) tabview.setActive(tab);
+				}
+				AuthorizationCriterias criterias = model.canIssue(rec);
+				if(criterias.passAll()) {
+					tab = tabview.addtab("Issue", new UserCertIssue(context, rec, criterias));
+					if(select_tab.equals("issue")) tabview.setActive(tab);
+				}
+				if(model.canReject(rec)) {
+					tab = tabview.addtab("Reject", new UserCertReject(context, rec));
+					if(select_tab.equals("Reject")) tabview.setActive(tab);
+				}
+				
+				/////////////////////////////////////////////////////////////////////////////
+				//the some user flow control
+				if(model.canCancelWithPass(rec)) {
+					tab = tabview.addtab("Cancel", new UserCertCancelWithPass(context, rec));
+					if(select_tab.equals("cancel_with_pass")) tabview.setActive(tab);
+				}
+				if(model.canCancel(rec)) {
+					tab = tabview.addtab("Cancel", new UserCertCancel(context, rec));
+					if(select_tab.equals("cancel")) tabview.setActive(tab);
+				}
+				
+				//always show this.. UserCertRenew can handle in case user can't renew
+				tab = tabview.addtab("Renew", new UserCertRenew(context, rec, model.canRenew(rec, logs)));
+				if(select_tab.equals("renew")) tabview.setActive(tab);
+				
+				if(model.canRequestRevoke(rec)) {
+					tab = tabview.addtab("Revocation Request", new UserCertRequestRevoke(context, rec));
+					if(select_tab.equals("request_revoke")) tabview.setActive(tab);
+				}
+				if(model.canRevoke(rec)) {
+					tab = tabview.addtab("Revoke", new UserCertRevoke(context, rec));
+					if(select_tab.equals("revoke")) tabview.setActive(tab);
+				}
+				if(model.canReRequest(rec)) {
+					tab = tabview.addtab("Re-Request", new UserCertReRequest(context, rec));
+					if(select_tab.equals("re_request")) tabview.setActive(tab);
+				}
+				
+				tabview.addtab("Log", new LogView(), true);
+				tabview.addtab("Detail", new DetailView(), true);
 				
 				tabview.render(out);
 				
@@ -300,17 +416,6 @@ public class CertificateUserServlet extends ServletBase  {
 					out.write("<th style=\"min-width: 150px;\">Public Certificates</th>");
 					out.write("<td>");
 					if(rec.cert_certificate != null) {
-						/*
-						if(model.getPrivateKey(rec.id) != null) {
-							//pkcs12 available
-							out.write("<p><a class=\"btn btn-primary btn-large\" href=\"certificatedownload?id="+rec.id+"&type=user&download=pkcs12\">Download Certificate &amp; Private Key (PKCS12)</a></p>");
-							out.write("<p class=\"alert alert-error\">You need to download your certificate and private key now, while your browser session is active. When your session times out, the server will delete your private key for security reasons and you will need to request a new certificate.</p>");
-						} else {
-							//only pkcs7
-							out.write("<p><a class=\"btn btn-primary\" href=\"certificatedownload?id="+rec.id+"&type=user&download=pkcs7\">Download Certificate (PKCS7 - For Browser)</a></p>");
-							out.write("<p><a class=\"btn\" href=\"certificatedownload?id="+rec.id+"&type=user&download=x509\">Download Certificate (X509 PEM - For Commandline)</a></p>");
-						}
-						*/
 						//only pkcs7
 						out.write("<p class=\"pull-right\"><a class=\"muted\" target=\"_blank\" href=\"https://confluence.grid.iu.edu/pages/viewpage.action?pageId=3244066\">How to import user certificate on your browser</a></p>");
 						out.write("<p><a href=\"certificatedownload?id="+rec.id+"&type=user&download=pkcs7\">PKCS7 (For Browser)</a></p>");

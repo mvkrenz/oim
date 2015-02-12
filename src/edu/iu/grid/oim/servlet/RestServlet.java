@@ -784,7 +784,9 @@ public class RestServlet extends ServletBase  {
 			if(rec == null) {
 				throw new RestException("No such user certificate request ID");
 			}
-			if(model.canIssue(rec)) {
+			//ArrayList<CertificateRequestModelBase<CertificateRequestUserRecord>.LogDetail> logs = model.getLogs(CertificateRequestUserModel.class, rec.id);		
+			AuthorizationCriterias criterias = model.canIssue(rec);
+			if(criterias.passAll()) {
 				model.startissue(rec, null);//command line doesn't provide any password
 			} else {
 				throw new AuthorizationException("You can't issue this request");

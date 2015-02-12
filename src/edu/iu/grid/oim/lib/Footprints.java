@@ -184,11 +184,15 @@ public class Footprints
 			cl.executeMethod(post);
 			Document ret = parseXML(post.getResponseBodyAsStream());
 			NodeList status_nl = ret.getElementsByTagName("Status");
-			Element status = (Element)status_nl.item(0);
-			if(status.getTextContent().equals("success")) {
-				return true;
+			if(status_nl.getLength() != 0) {
+				Element status = (Element)status_nl.item(0);
+				if(status.getTextContent().equals("success")) {
+					return true;
+				}
+				log.error("Unknown return code from goc ticket");
+			} else {
+				log.error("Failed to receive status code.");
 			}
-			log.error("Unknown return code from goc ticket");
 		} catch (IOException e) {
 			log.error("Failed to make open request" ,e);
 		} catch (ParserConfigurationException e) {

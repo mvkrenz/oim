@@ -188,12 +188,18 @@ public class Authorization {
 			InetAddress addr = InetAddress.getLocalHost();
 	        String hostname = addr.getHostName();
 	        String as_user = StaticConfig.conf.getProperty("debug.as_user");
-	        if(as_user != null && as_user.equals("soichi")) {
+	        if(as_user != null) {
 				if(request.isSecure()) {
 					request.setAttribute("SSL_CLIENT_VERIFY", "SUCCESS");
 					
-					request.setAttribute("SSL_CLIENT_S_DN", "/DC=com/DC=DigiCert-Grid/O=Open Science Grid/OU=People/CN=Soichi Hayashi 238");
-					//request.setAttribute("SSL_CLIENT_S_DN", "/DC=com/DC=DigiCert-Grid/O=Open Science Grid/OU=People/CN=Alain Deximo 15623");
+					switch(as_user) {
+					case "soichi":
+						request.setAttribute("SSL_CLIENT_S_DN", "/DC=com/DC=DigiCert-Grid/O=Open Science Grid/OU=People/CN=Soichi Hayashi 238");
+						break;
+					case "alain":
+						request.setAttribute("SSL_CLIENT_S_DN", "/DC=com/DC=DigiCert-Grid/O=Open Science Grid/OU=People/CN=Alain Deximo 15623");
+						break;
+					}
 					//request.setAttribute("SSL_CLIENT_S_DN", "/DC=com/DC=DigiCert-Grid/O=Open Science Grid/OU=People/CN=Tim Cartwright 192");
 					
 					request.setAttribute("SSL_CLIENT_I_DN_CN", "Test CA");
