@@ -225,7 +225,7 @@ public class UserCertIssue implements IView {
 		if(criterias.passAll()) {
 			wizard.render(out);
 		} else {
-			out.write("<p>In order to renew this user certificate, following criterias must be met.</p>");
+			out.write("<p>In order to renew this user certificate, the following criteria must be met.</p>");
 			AuthorizationCriteriasView authview = new AuthorizationCriteriasView(context.getPageRoot(), context, criterias);
 			authview.render(out);
 		}

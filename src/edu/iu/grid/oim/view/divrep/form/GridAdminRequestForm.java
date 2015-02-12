@@ -41,7 +41,7 @@ public class GridAdminRequestForm extends BootDialogForm {
 		
 		setTitle("GridAdmin Enrollment Request");
 		
-		new DivRepStaticContent(this, "<p class=\"help-block\">Please update following request detail template.</p>");
+		new DivRepStaticContent(this, "<p class=\"help-block\">Please edit the following request detail template.</p>");
 		desc = new DivRepTextArea(this);
 		//desc.setLabel("Request Detail");
 		InputStream template  = getClass().getResourceAsStream("osg.certificate.gridadmin.txt");

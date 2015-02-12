@@ -27,7 +27,7 @@ public class AUPConfirmation extends DivRepFormElement {
 	public void render(PrintWriter out) {
 			out.write("<div id=\""+getNodeID()+"\">");
 			out.write("<h2>Acceptable Use Policy (AUP) Agreement</h2>");
-			out.write("<p>You must agree to following OSG AUP agreements before submitting this entity.</p>");
+			out.write("<p>You must agree to the following OSG AUP agreements before submitting this entity.</p>");
 			out.write("<p>");
 			out.write("<a target=\"_blank\" href=\"http://osg-docdb.opensciencegrid.org/0000/000086/009/OSG-UsersAUP-V2.pdf\">OSG User AUP</a><br/>");
 			out.write("<a target=\"_blank\" href=\"http://osg-docdb.opensciencegrid.org/0000/000087/005/OSG-ServiceAUP-V104.pdf\">OSG Service AUP</a><br/>");

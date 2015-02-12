@@ -52,7 +52,7 @@ public class UserCertRenew extends UserCertIssue {
 			public void init() {
 				//agreement doc comes from https://twiki.grid.iu.edu/twiki/pub/Operations/DigiCertAgreements/IGTF_Certificate_Subscriber_Agreement_-_Mar_26_2012.doc
 				//new DivRepStaticContent(this, "<p>You are eligible for renewing your user certificate.</p>");
-				new DivRepStaticContent(this, "<p>Plese agree to following agreements in order to start the user certificate renewal process.</p>");
+				new DivRepStaticContent(this, "<p>Please agree to the following agreements in order to start the user certificate renewal process.</p>");
 				new CertificateAUPDE(this);
 				
 				try {
@@ -68,7 +68,7 @@ public class UserCertRenew extends UserCertIssue {
 							//list VOs that this user is RA of
 							if(vos.size() > 0) {
 								out.write("<div class=\"well\">");
-								out.write("<p class=\"muted\">You are currently RA for following VOs: ");
+								out.write("<p class=\"muted\">You are currently RA for the following VOs: ");
 								for(VORecord vo : vos) {
 									out.write("<span class=\"label label-info\">"+StringEscapeUtils.escapeHtml(vo.name)+"</span> ");
 								}
@@ -101,7 +101,7 @@ public class UserCertRenew extends UserCertIssue {
 							out.write("<div id=\""+getNodeID()+"\">");
 							if(gas.size() > 0) {
 								out.write("<div class=\"well\">");
-								out.write("<p class=\"muted\">You are currently GridAdmin for following Domains: ");
+								out.write("<p class=\"muted\">You are currently GridAdmin for the following Domains: ");
 								for(GridAdminRecord ga : gas) {
 									out.write("<span class=\"label label-info\">"+StringEscapeUtils.escapeHtml(ga.domain)+"</span>&nbsp;");
 								}

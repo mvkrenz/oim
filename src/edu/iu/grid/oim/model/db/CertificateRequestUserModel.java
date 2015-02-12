@@ -286,10 +286,13 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 				Calendar six_month_future = Calendar.getInstance();
 				six_month_future.add(Calendar.MONTH, 6);
 				if(rec.cert_notafter.after(six_month_future.getTime()))  {
+					/*
 					//nope... but, if it's in debug mode, let user(testers) renew it
 					if(!StaticConfig.isDebug()) {
 						return false;
 					}
+					*/
+					return false;
 				}
 				//all good
 				return true;

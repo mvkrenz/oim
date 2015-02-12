@@ -819,7 +819,7 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 				}
 			}
 			//oops.. didn't find specified vo..
-			throw new CertificateRequestException("Couldn't find GridAdmin group under specified VO. Please use one of following VOs:" + vonames);
+			throw new CertificateRequestException("Couldn't find GridAdmin group under specified VO. Please use one of the following VOs:" + vonames);
 		} catch (SQLException e) {
 			throw new CertificateRequestException("Failed to lookup gridadmin contacts for domain:" + gridadmin_domain, e);
 		}

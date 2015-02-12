@@ -178,7 +178,7 @@ public class ResourceServlet extends ServletBase implements Servlet {
 		
 		if(readonly_resources.size() != 0) {
 			contentview.add(new HtmlView("<br/><h1>Read-Only Resources</h1>"));
-			contentview.add(new HtmlView("<p>Following are the currently registered resources on OIM - you do not have edit access on these records.</p>"));
+			contentview.add(new HtmlView("<p>The following are the resources currently registered with OIM for which you do not have edit access</p>"));
 	
 			for(final ResourceRecord rec : readonly_resources) {
 				String name = rec.name;

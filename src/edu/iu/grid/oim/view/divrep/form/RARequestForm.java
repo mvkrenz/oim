@@ -38,7 +38,7 @@ public class RARequestForm extends BootDialogForm {
 		
 		setTitle("RA Enrollment Request");
 		
-		new DivRepStaticContent(this, "<p class=\"help-block\">Please update following request template and submit.</p>");
+		new DivRepStaticContent(this, "<p class=\"help-block\">Please update the following request template and submit.</p>");
 		
 		desc = new DivRepTextArea(this);
 		desc.setLabel("Request Detail");

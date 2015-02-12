@@ -76,7 +76,7 @@ public class RegisterServlet extends ServletBase  {
 		
 		contentview.add(new HtmlView("<h2>OIM Registration</h2>"));
 		//contentview.add(new HtmlView("<p>Your X509 certificate is not registered on OIM. </p>"));
-		contentview.add(new HtmlView("<p>You can register your certificate and gain access to OIM by submitting following form.</p>"));			
+		contentview.add(new HtmlView("<p>You can register your certificate and gain access to OIM by submitting the following form.</p>"));			
 		RegistraitonForm form = new RegistraitonForm(context);
 		contentview.add(new DivRepWrapper(form));
 	

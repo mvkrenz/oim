@@ -215,7 +215,7 @@ public class CertificateRequestHostForm extends DivRepForm
 		if(!auth.isUser()) {
 			new DivRepStaticContent(this, "<div class=\"alert\">This is a public host certificate request form. If you are already an OIM user, please login first.</div>");
 			new DivRepStaticContent(this, "<h3>Contact Information</h3>");
-			new DivRepStaticContent(this, "<p class=\"help-block\">Following information will be used to contact you during the approval process.</p>");
+			new DivRepStaticContent(this, "<p class=\"help-block\">The following information will be used to contact you during the approval process.</p>");
 					
 			fullname = new DivRepTextBox(this);
 			fullname.setLabel("Full Name");
@@ -255,7 +255,7 @@ public class CertificateRequestHostForm extends DivRepForm
 				return new DivRepStaticContent(this, 
 					"<div class=\"well\"><p>You can create your CSR on your target hosts using tools such as openssl and copy & paste generated CSR below. </p>"+
 					"<p><code>umask 077; openssl req -new -newkey rsa:2048 -nodes -keyout hostkey.pem -subj \"/CN=osg-ce.example.edu\"</code></p>"+
-					"<p>If you want to request a service certificate, you need to escape backslash for service name inside CN like following.</p>" +
+					"<p>If you want to request a service certificate, you need to escape backslash for service name inside CN like the following.</p>" +
 					"<p><code>umask 077; openssl req -new -newkey rsa:2048 -nodes -keyout rsvkey.pem -subj \"/CN=rsv\\/osg-ce.example.edu\"</code></p>"+
 					"<p class=\"alert alert-error\">Please be sure to move your private key to the correct location before running another openssl command with the same -keyout filename, to avoid overwriting an old key file with a new request..</p>"+
 					"</div>");

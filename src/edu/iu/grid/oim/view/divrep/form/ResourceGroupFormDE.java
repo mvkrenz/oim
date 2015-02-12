@@ -100,7 +100,7 @@ public class ResourceGroupFormDE extends DivRepForm
 		
 		/*
 		new DivRepStaticContent(this, "<h2>WLCG / APEL Information</h2>");
-		new DivRepStaticContent(this, "<p class=\"help-block\">Please populate following if this resource group has an MOU agreement with WLCG.</p>");
+		new DivRepStaticContent(this, "<p class=\"help-block\">Please populate the following if this resource group has an MOU agreement with WLCG.</p>");
 
 		new DivRepStaticContent(this, "<a class=\"pull-right\" target=\"_blank\" href=\"https://twiki.grid.iu.edu/bin/view/Accounting/GratiaInterfacesApelLcg#Normalization_Factor\">What is this?</a>");
 		normalization_factor = new DivRepTextBox(this);

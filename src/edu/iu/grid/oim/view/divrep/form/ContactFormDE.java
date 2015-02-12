@@ -485,7 +485,7 @@ public class ContactFormDE extends DivRepForm
 		}
 
 		new DivRepStaticContent(this, "<h2>Administrative</h2>");
-		new DivRepStaticContent(this, "<p>* Only GOC staff can modify following information</p>");
+		new DivRepStaticContent(this, "<p>* Only GOC staff can modify the following information</p>");
 		
 		//create DN selector
 		DNModel dnmodel = new DNModel(context);

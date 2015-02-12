@@ -67,7 +67,7 @@ public class FPTemplatesServlet extends ServletBase {
 	{	
 		ContentView contentview = new ContentView(context);	
 		//contentview.add(new HtmlView("<h1>Footprints Ticket Templates</h1>"));
-		contentview.add(new HtmlView("<p>Following templates will be used to generate Footprints tickets after each Resource, VO, and SC registrartion.</p>"));
+		contentview.add(new HtmlView("<p>The following templates will be used to generate Footprints tickets after each Resource, VO, and SC registrartion.</p>"));
 		
 		DivRepPage page = context.getPageRoot();
 		FPTemplatesForm form = new FPTemplatesForm(page, context);

@@ -164,7 +164,7 @@ public class CertificateRequestUserForm extends DivRepForm
 		public String getErrorMessage() {
 			StringBuffer msg = new StringBuffer();
 			if(dnrecs != null) {
-				msg.append("The email address is already registered to "+owner.name+" and it has following active DNs.");
+				msg.append("The email address is already registered to "+owner.name+" and it has the following active DNs.");
 				msg.append("<ul>");
 				for(DNRecord rec : dnrecs) {
 					msg.append("<li>"+rec.dn_string + "</li>");
@@ -187,7 +187,7 @@ public class CertificateRequestUserForm extends DivRepForm
 	
 		if(!auth.isUser()) {
 			new DivRepStaticContent(this, "<h3>Contact Information</h3>");
-			new DivRepStaticContent(this, "<p class=\"help-block\">Following information will be used to issue your new user certificate, and also used to contact you during the approval process.</p>");
+			new DivRepStaticContent(this, "<p class=\"help-block\">The following information will be used to issue your new user certificate, and also used to contact you during the approval process.</p>");
 					
 			fullname = new DivRepTextBox(this);
 			fullname.setLabel("Full Name");
@@ -220,7 +220,7 @@ public class CertificateRequestUserForm extends DivRepForm
 			*/
 			
 			new DivRepStaticContent(this, "<h3>Profile Information</h3>");
-			new DivRepStaticContent(this, "<p class=\"help-block\">Following information will be used to register you as a new OIM user.</p>");
+			new DivRepStaticContent(this, "<p class=\"help-block\">The following information will be used to register you as a new OIM user.</p>");
 			
 			city = new DivRepTextBox(this);
 			city.setLabel("City");

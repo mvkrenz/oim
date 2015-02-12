@@ -167,7 +167,7 @@ public class VOServlet extends ServletBase implements Servlet {
 			contentview.add(new HtmlView("<a href=\"voedit\" class=\"btn pull-right\"><i class=\"icon-plus-sign\"></i> Add New Virtual Organization</a>"));
 			contentview.add(new HtmlView("<h2>My Virtual Organizations <!--<small>that I can edit</p></small>--></h2>"));
 			if(editable_vos.size() == 0) {
-				contentview.add(new HtmlView("<p>You currently are not listed as a contact of any contact type (exept submitter) on any virtual organization - therefore you are not authorized to edit any VOs.</p>"));
+				contentview.add(new HtmlView("<p>You are currently not listed as a contact of any contact type (exept submitter) on any virtual organization - therefore you are not authorized to edit any VOs.</p>"));
 			}
 			ItemTableView table = new ItemTableView(6);
 			for(final VORecord rec : editable_vos) {

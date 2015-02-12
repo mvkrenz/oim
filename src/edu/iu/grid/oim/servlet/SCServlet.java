@@ -155,7 +155,7 @@ public class SCServlet extends ServletBase implements Servlet {
 			contentview.add(new HtmlView("<a href=\"scedit\" class=\"btn pull-right\"><i class=\"icon-plus-sign\"></i> Add New Support Center</a>"));
 			contentview.add(new HtmlView("<h2>My Support Centers</h2>"));
 			if(editable_scs.size() == 0) {
-				contentview.add(new HtmlView("<p>You currently are not listed as a contact of any contact type (except submitter) on any support center - therefore you are not authorized to edit any SCs.</p>"));
+				contentview.add(new HtmlView("<p>You are currently not listed as a contact of any contact type (except submitter) on any support center - therefore you are not authorized to edit any SCs.</p>"));
 			}
 			
 			ItemTableView table = new ItemTableView(5);
