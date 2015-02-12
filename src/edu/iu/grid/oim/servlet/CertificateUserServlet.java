@@ -51,6 +51,18 @@ import edu.iu.grid.oim.view.divrep.Wizard.WizardPage;
 public class CertificateUserServlet extends ServletBase  {
 	private static final long serialVersionUID = 1L;
     static Logger log = Logger.getLogger(CertificateUserServlet.class);  
+    
+    public class TabLabels {
+    	public final static String issue = "issue";
+    	public final static String renew = "renew";
+    	public final static String approve = "approve";
+    	public final static String reject = "reject";
+    	public final static String cancel_with_pass = "cancel_with_pass";
+    	public final static String cancel = "cancel";
+    	public final static String request_revoke = "request_revoke";
+    	public final static String revoke = "revoke";
+    	public final static String re_request = "re_request";
+    }
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{
@@ -283,44 +295,44 @@ public class CertificateUserServlet extends ServletBase  {
 				//RA item should probably come first..
 				if(model.canApprove(rec)) {
 					tab = tabview.addtab("Approve", new UserCertApprove(context, rec));
-					if(select_tab.equals("approve")) tabview.setActive(tab);
+					if(select_tab.equals(TabLabels.approve)) tabview.setActive(tab);
 				}
 				AuthorizationCriterias criterias = model.canIssue(rec);
 				if(criterias.passAll()) {
 					tab = tabview.addtab("Issue", new UserCertIssue(context, rec, criterias));
-					if(select_tab.equals("issue")) tabview.setActive(tab);
+					if(select_tab.equals(TabLabels.issue)) tabview.setActive(tab);
 				}
 				if(model.canReject(rec)) {
 					tab = tabview.addtab("Reject", new UserCertReject(context, rec));
-					if(select_tab.equals("Reject")) tabview.setActive(tab);
+					if(select_tab.equals(TabLabels.reject)) tabview.setActive(tab);
 				}
 				
 				/////////////////////////////////////////////////////////////////////////////
 				//the some user flow control
 				if(model.canCancelWithPass(rec)) {
 					tab = tabview.addtab("Cancel", new UserCertCancelWithPass(context, rec));
-					if(select_tab.equals("cancel_with_pass")) tabview.setActive(tab);
+					if(select_tab.equals(TabLabels.cancel_with_pass)) tabview.setActive(tab);
 				}
 				if(model.canCancel(rec)) {
 					tab = tabview.addtab("Cancel", new UserCertCancel(context, rec));
-					if(select_tab.equals("cancel")) tabview.setActive(tab);
+					if(select_tab.equals(TabLabels.cancel)) tabview.setActive(tab);
 				}
 				
 				//always show this.. UserCertRenew can handle in case user can't renew
 				tab = tabview.addtab("Renew", new UserCertRenew(context, rec, model.canRenew(rec, logs)));
-				if(select_tab.equals("renew")) tabview.setActive(tab);
+				if(select_tab.equals(TabLabels.renew)) tabview.setActive(tab);
 				
 				if(model.canRequestRevoke(rec)) {
 					tab = tabview.addtab("Revocation Request", new UserCertRequestRevoke(context, rec));
-					if(select_tab.equals("request_revoke")) tabview.setActive(tab);
+					if(select_tab.equals(TabLabels.request_revoke)) tabview.setActive(tab);
 				}
 				if(model.canRevoke(rec)) {
 					tab = tabview.addtab("Revoke", new UserCertRevoke(context, rec));
-					if(select_tab.equals("revoke")) tabview.setActive(tab);
+					if(select_tab.equals(TabLabels.revoke)) tabview.setActive(tab);
 				}
 				if(model.canReRequest(rec)) {
 					tab = tabview.addtab("Re-Request", new UserCertReRequest(context, rec));
-					if(select_tab.equals("re_request")) tabview.setActive(tab);
+					if(select_tab.equals(TabLabels.re_request)) tabview.setActive(tab);
 				}
 				
 				tabview.addtab("Log", new LogView(), true);

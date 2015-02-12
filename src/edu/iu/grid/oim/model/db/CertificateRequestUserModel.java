@@ -57,6 +57,7 @@ import edu.iu.grid.oim.model.db.record.SCRecord;
 import edu.iu.grid.oim.model.db.record.VOContactRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
 import edu.iu.grid.oim.model.exceptions.CertificateRequestException;
+import edu.iu.grid.oim.servlet.CertificateUserServlet.TabLabels;
 
 public class CertificateRequestUserModel extends CertificateRequestModelBase<CertificateRequestUserRecord> {
     static Logger log = Logger.getLogger(CertificateRequestUserModel.class);  
@@ -333,7 +334,6 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 		return criterias;
 	}
 	
-
 	public boolean canReRequest(CertificateRequestUserRecord rec) {
 		if(!canView(rec)) return false;
 
@@ -492,7 +492,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 				ticket.description = "Dear " + requester.name + ",\n\n";
 				ticket.description += "Your user certificate request has been approved.\n\n";
 				ticket.description += "> " + context.getComment();
-				ticket.description += "\n\nTo retrieve your certificate please visit " + getTicketUrl(rec.id) + " and click on Issue Certificate button.";
+				ticket.description += "\n\nTo issue and download your user certificate, please visit " + getTicketUrl(rec.id, TabLabels.issue);
 				ticket.nextaction = "Requester to download certificate"; // NAD will be set 7 days from today by default
 				fp.update(ticket, rec.goc_ticket_id);
 			} catch (SQLException e) {
@@ -605,7 +605,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 		} else {
 			ticket.description = "Guest user with IP:" + context.getRemoteAddr() + " has requested revocation of this certificate request.";		
 		}
-		ticket.description += "\n\nRA may revoke this request at " + getTicketUrl(rec.id);
+		ticket.description += "\n\nRA may revoke this request at " + getTicketUrl(rec.id, TabLabels.revoke);
 		ticket.nextaction = "RA to process"; //nad will be set to 7 days from today by default
 		ticket.status = "Engineering"; //probably need to reopen
 		fp.update(ticket, rec.goc_ticket_id);
@@ -674,7 +674,13 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 	
 	//go directly from ISSUED > ISSUEING
 	public void renew(final CertificateRequestUserRecord rec, String password) throws CertificateRequestException {		
-		   	
+		   
+		//check quota
+    	CertificateQuotaModel quota = new CertificateQuotaModel(context);
+    	if(!quota.canRequestUserCert(rec.requester_contact_id)) {
+    		throw new CertificateRequestException("Quota Exceeded");
+    	}
+    	
 		//notification -- just make a note on an existing ticket - we don't need to create new goc ticket - there is nobody we need to inform -
 		Footprints fp = new Footprints(context);
 		FPTicket ticket = fp.new FPTicket();
@@ -707,7 +713,6 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 		
 		//increment quota
 		try {
-	    	CertificateQuotaModel quota = new CertificateQuotaModel(context);
 			quota.incrementUserCertRequest(rec.requester_contact_id);
 		} catch (SQLException e) {
     		log.error("Failed to incremenet quota while renewing request id:"+rec.id);
@@ -1048,7 +1053,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 				
 				//send notification
 				ticket.description = "Dear " + requester.name + ",\n\n";
-				ticket.description += "Your user certificate ("+rec.dn+") has expired. Please visit "+getTicketUrl(rec.id)+" and submit re-request.\n\n";
+				ticket.description += "Your user certificate ("+rec.dn+") has expired. Please re-request your certificate at "+getTicketUrl(rec.id, TabLabels.re_request);
 				
 				fp.update(ticket, rec.goc_ticket_id);
 				
@@ -1079,7 +1084,11 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 				
 				//send notification
 				ticket.description = "Dear " + requester.name + ",\n\n";
-				ticket.description += "Your user certificate ("+rec.dn+") was approved 15 days ago. The request is scheduled to be automatically canceled within another 15 days. Please take this opportunity to download your approved certificate at your earliest convenience. If you are experiencing any trouble with the issuance of your certificate, please feel free to contact the GOC for further assistance. Please visit "+getTicketUrl(rec.id)+" to issue your user certificate.\n\n";
+				ticket.description += "Your user certificate ("+rec.dn+") was approved 15 days ago. ";
+				ticket.description += "The request is scheduled to be automatically canceled within another 15 days. ";
+				ticket.description += "Please take this opportunity to download your approved certificate at your earliest convenience. ";
+				ticket.description += "If you are experiencing any trouble with the issuance of your certificate, please feel free to contact the GOC for further assistance. ";
+				ticket.description += "Please visit "+getTicketUrl(rec.id, TabLabels.issue)+" to issue your user certificate.\n\n";
 				
 				fp.update(ticket, rec.goc_ticket_id);
 				log.info("sent approval expiration warning notification for user certificate request: " + rec.id + " (ticket id:"+rec.goc_ticket_id+")");
@@ -1105,7 +1114,8 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 				
 				//send notification
 				ticket.description = "Dear " + requester.name + ",\n\n";
-				ticket.description += "You did not issue your user certificate ("+rec.dn+") within 30 days from the approval. In compliance with OSG PKI policy, the request is being canceled. You are welcome to re-request if necessary at "+getTicketUrl(rec.id)+".\n\n";
+				ticket.description += "You did not issue your user certificate ("+rec.dn+") within 30 days from the approval. ";
+				ticket.description += "In compliance with OSG PKI policy, the request was canceled. You are welcome to re-request if necessary at "+getTicketUrl(rec.id, TabLabels.re_request)+".\n\n";
 				ticket.status = "Resolved";
 				
 				fp.update(ticket, rec.goc_ticket_id);
@@ -1137,15 +1147,14 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 			ticket.description += "Your user certificate ("+rec.dn+") will expire on "+dformat.format(expiration_date)+"\n\n";
 			
 			//can the requester actually renew this certificate?
-			ArrayList<CertificateRequestModelBase<CertificateRequestUserRecord>.LogDetail> logs =
-				getLogs(CertificateRequestUserModel.class, rec.id);
+			ArrayList<CertificateRequestModelBase<CertificateRequestUserRecord>.LogDetail> logs = 
+					getLogs(CertificateRequestUserModel.class, rec.id);
 			AuthorizationCriterias criterias = canRenew(rec, logs, requester);
-			
 			if(criterias.passAll()) {	
-				ticket.description += "Please renew by visiting "+getTicketUrl(rec.id)+"\n\n";
+				ticket.description += "Please renew your user certificate at "+getTicketUrl(rec.id, TabLabels.renew)+"\n\n";
 				ticket.status = "Engineering"; //reopen it - until user renew
 			} else {
-				ticket.description += "Please request for new user certificate by visiting https://oim.grid.iu.edu/oim/certificaterequestuser?t=renew\n\n";
+				ticket.description += "Please request for new user certificate by visiting https://oim.grid.iu.edu/oim/certificaterequestuser\n\n";
 			}
 
 			//OSGPKI-393 (updated to put this under both cases)
@@ -1309,14 +1318,16 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
         return x500NameBld.build();
     }
     
-    private String getTicketUrl(Integer ticket_id) {
-    	String base;
+    private String getTicketUrl(Integer ticket_id, String tab) {
+    	String url;
     	if(StaticConfig.isDebug()) {
-    		base = "https://oim-itb.grid.iu.edu/oim/";
+    		url = "https://oim-itb.grid.iu.edu/oim/";
     	} else {
-    		base = "https://oim.grid.iu.edu/oim/";
+    		url = "https://oim.grid.iu.edu/oim/";
     	}
-		return base + "certificateuser?id=" + ticket_id;
+    	url+="certificateuser?id=" + ticket_id;
+    	if(tab != null) url+="&t="+tab;
+		return url;
     }
     
     //NO-AC 
@@ -1462,7 +1473,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 		}
 		ticket.description = "Dear " + ranames + " (" + vrec.name + " VO RAs),\n\n";
 		ticket.description += auth_status + requester.name + " <"+requester.primary_email+"> has requested a user certificate. ";
-		ticket.description += "Please determine this request's authenticity, and approve / disapprove at " + getTicketUrl(rec.id) + "\n\n";
+		ticket.description += "Please determine this request's authenticity, and approve / disapprove at " + getTicketUrl(rec.id, null) + "\n\n";
 		
 		//if sponsor id is null, that means it doesn't exist in our contact DB.
 		if(sponsor.id == null) {
@@ -1570,10 +1581,10 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 			ticket.description = "Dear " + ranames + " (" + vrec.name + " VO RA/Sponsors),\n\n";
 			if(guest_passphrase != null) {
 				ticket.description += "A guest user has re-requested this user certificate request. Please contact the original requester; " + requester.name + 
-					" <"+requester.primary_email+"> and confirm authenticity of this re-request, and approve / disapprove at" + getTicketUrl(rec.id);
+					" <"+requester.primary_email+"> and confirm authenticity of this re-request, and approve / disapprove at" + getTicketUrl(rec.id, null);
 			} else {
 				ticket.description += "An OIM Authenticated user "  + requester.name + " <"+requester.primary_email+"> has re-requested this user certificate request. ";
-				ticket.description += "Please approve / disapprove this request at " + getTicketUrl(rec.id);
+				ticket.description += "Please approve / disapprove this request at " + getTicketUrl(rec.id, null);
 			}
 
 			ticket.assignees.add(StaticConfig.conf.getProperty("certrequest.user.assignee"));
@@ -1671,7 +1682,6 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 		stmt.setString(1, "%<OldValue>"+serial_id+"</OldValue>%");
 		ResultSet rs = stmt.executeQuery();
 		if(rs.next()) {
-			//CertificateRequestUserRecord rec = new CertificateRequestUserRecord(rs);
 			stmt.close();
 			conn.close();
 			return true;
