@@ -49,10 +49,10 @@ public class UserCertApprove implements IView {
 		note.setRequired(true);
 		pane.add(note);
 		
-		//pane.add(new DivRepStaticContent(context.getPageRoot(), "<p class=\"alert\">Please update this to requested CN</p>"));
+		//pane.add(new DivRepStaticContent(context.getPageRoot(), "<p class=\"alert pull-right\">Please update the CN to the CN requested by the requester.</p>"));
 		
 		final UserCNEditor cn_override = new UserCNEditor(context.getPageRoot());
-		cn_override.setLabel("CN Override");
+		cn_override.setLabel("CN (update to the CN requested by the requester)");
 		cn_override.setRequired(true);
 		cn_override.setValue(rec.getCN());
 		pane.add(cn_override);

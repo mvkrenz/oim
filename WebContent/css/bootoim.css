@@ -611,8 +611,8 @@ input[type=button].divrep_processing,
 div.divrep_processing button {
 background-image:url(../images/loading.gif);
 background-repeat:no-repeat;
-background-position: 5px;
-padding-left: 13px;
+background-position: 8px;
+padding-left: 30px;
 }
 .dn_selecter select {
 width: 100%;
