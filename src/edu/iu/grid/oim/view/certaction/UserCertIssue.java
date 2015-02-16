@@ -7,7 +7,6 @@ import org.apache.log4j.Logger;
 
 import com.divrep.DivRepEvent;
 import com.divrep.DivRepEventListener;
-
 import com.divrep.common.DivRepFormElement;
 import com.divrep.common.DivRepPassword;
 import com.divrep.common.DivRepStaticContent;
@@ -18,13 +17,13 @@ import edu.iu.grid.oim.model.AuthorizationCriterias;
 import edu.iu.grid.oim.model.CertificateRequestStatus;
 import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.CertificateRequestUserModel;
-
+import edu.iu.grid.oim.model.db.ConfigModel;
+import edu.iu.grid.oim.model.db.ConfigModel.Config;
 import edu.iu.grid.oim.model.db.record.CertificateRequestUserRecord;
-
 import edu.iu.grid.oim.model.exceptions.CertificateRequestException;
-
 import edu.iu.grid.oim.view.IView;
 import edu.iu.grid.oim.view.divrep.AuthorizationCriteriasView;
+import edu.iu.grid.oim.view.divrep.EditableContent;
 import edu.iu.grid.oim.view.divrep.Wizard;
 import edu.iu.grid.oim.view.divrep.Wizard.WizardPage;
 import edu.iu.grid.oim.view.divrep.form.validator.PKIPassStrengthValidator;
@@ -210,6 +209,14 @@ public class UserCertIssue implements IView {
 					out.write("<p><a class=\"btn\" href=\"certificatedownload?id="+rec.id+"&type=user&download=x509\">Download Certificate (X509 PEM - For Commandline)</a></p>");
 				}
 				*/
+				
+				ConfigModel config = new ConfigModel(context);
+				Config help_content = config.new Config(config, "howto_import_pkcs12", "");
+				if(auth.allows("admin") || auth.allows("admin_ra")) {
+					new EditableContent(context.getPageRoot(), context, help_content);
+				} else {
+					new DivRepStaticContent(context.getPageRoot(), help_content.getString());
+				}
 				
 				setSubmitLabel("Download Certificate (PKCS12)");
 			}
