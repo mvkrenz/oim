@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import org.apache.commons.lang.StringEscapeUtils;
 
 import com.divrep.DivRep;
-import com.divrep.DivRepEvent;
 import com.divrep.common.DivRepStaticContent;
 import com.divrep.common.DivRepToggler;
 
@@ -18,11 +17,12 @@ import edu.iu.grid.oim.model.db.ConfigModel;
 import edu.iu.grid.oim.model.db.ConfigModel.Config;
 
 public class AuthorizationCriteriasView extends DivRepLite {
-	
+
 	ArrayList<AuthorizationCriteriaView> criteria_views = new ArrayList<AuthorizationCriteriaView>();
 	class AuthorizationCriteriaView extends DivRepLite {
 		DivRepToggler help = null;
 		AuthorizationCriteria criteria;
+		@SuppressWarnings("serial")
 		public AuthorizationCriteriaView(final UserContext context, DivRep _parent, final AuthorizationCriteria criteria) {
 			super(_parent);
 			this.criteria = criteria;
