@@ -823,8 +823,9 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 					if(Math.abs(today.getTimeInMillis() - rec.cert_notbefore.getTime()) > 1000*3600*24) {
 						log.warn("User certificate issued for request "+rec.id+" has cert_notbefore set too distance from current timestamp");
 					}
+					
 					long dayrange = (rec.cert_notafter.getTime() - rec.cert_notbefore.getTime()) / (1000*3600*24);
-					if(dayrange < 385 || dayrange > 410) {
+					if(dayrange < 350 || dayrange > 450) {
 						log.warn("User certificate issued for request "+rec.id+ " has invalid range of "+dayrange+" days (too far from 395 days)");
 					}
 					
