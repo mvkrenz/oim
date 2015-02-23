@@ -422,11 +422,13 @@ public class CertificateUserServlet extends ServletBase  {
 					out.write("<table class=\"table nohover\">");
 					out.write("<tbody>");
 									
+					out.write("<tr class=\"no-border-top\"><th>Serial Number</th><td>");
 					if(rec.status.equals(CertificateRequestStatus.ISSUED)) {
-						out.write("<tr class=\"no-border-top\"><th>Serial Number</th><td>");
 						out.write(rec.cert_serial_id);
-						out.write("</td></tr>");
+					} else {
+						out.write("<p><span class=\"muted\">Not Issued</span></p>");
 					}
+					out.write("</td></tr>");
 					
 					//certificates
 					out.write("<tr>");
@@ -448,16 +450,6 @@ public class CertificateUserServlet extends ServletBase  {
 					out.write("</td>");
 					out.write("</tr>");
 					
-					/*
-					GenericView action_control = nextActionControl(context, rec, cn_override, logs);
-					out.write("<tr>");
-					out.write("<th>Action</th>");
-					out.write("<td>");
-					action_control.render(out);
-					out.write("</td>");
-					out.write("</tr>");
-					*/
-					
 					//valid dates
 					out.write("<tr>");
 					out.write("<th>Valid Dates</th>");
@@ -472,9 +464,13 @@ public class CertificateUserServlet extends ServletBase  {
 					
 					//GOC Ticket
 					out.write("<tr>");
-					out.write("<th>GOC Ticket</th>");
-					out.write("<td><a target=\"_blank\" href=\""+StaticConfig.conf.getProperty("url.gocticket")+"/"+rec.goc_ticket_id+"\">"+rec.goc_ticket_id+"</a></td>");
-					out.write("</tr>");			
+					out.write("<th>GOC Ticket</th><td>");
+					if(rec.goc_ticket_id != null) {
+						out.write("<a target=\"_blank\" href=\""+StaticConfig.conf.getProperty("url.gocticket")+"/"+rec.goc_ticket_id+"\">"+rec.goc_ticket_id+"</a>");
+					} else {
+						out.write("<span class=\"muted\">N/A</span>");
+					}
+					out.write("</td></tr>");			
 					
 					//VO
 					out.write("<tr>");
@@ -580,7 +576,7 @@ public class CertificateUserServlet extends ServletBase  {
 					if(approve_log != null) {
 						out.write("<td>"+dformat.format(approve_log.time)+"</td>");
 					} else {
-						out.write("<td>N/A</td>");
+						out.write("<td><span class=\"muted\">N/A</span></td>");
 					}
 					out.write("</tr>");
 					
