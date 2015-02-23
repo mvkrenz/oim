@@ -137,4 +137,21 @@ public class UserCertRenew extends UserCertIssue {
 			}
 		};
 	}
+	
+	@Override
+	public void render(PrintWriter out) {
+		if(criterias.passAll()) {
+			wizard.render(out);
+		} else {
+			out.write("<p>In order to renew this user certificate, the following criteria must be met.</p>");
+			AuthorizationCriteriasView authview = new AuthorizationCriteriasView(context.getPageRoot(), context, criterias);
+			authview.render(out);
+		}
+	}
+	
+
+	protected void doProcess(UserContext context, String pass) throws CertificateRequestException {
+		CertificateRequestUserModel model = new CertificateRequestUserModel(context);
+		model.renew(rec, pass);
+	}
 }
