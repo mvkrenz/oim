@@ -68,56 +68,90 @@ public class UserCertIssue implements IView {
 			
 			@Override
 			public void init() {
-
-				new DivRepStaticContent(this, "<p>Please choose a password to encrypt your new certificate &amp; private key.</p>");
+				
+				//password
+				if(rec.requester_passphrase == null) {
+					new DivRepStaticContent(this, "<p>Please choose a password to encrypt your new certificate &amp; private key.</p>");
+				} else {
+					new DivRepStaticContent(this, "<p>Please enter the password you chose during a request submission to retrieve your certificate &amp; encrypt your private key. If you don't remember, please read <a target=\"_blank\" href=\"https://confluence.grid.iu.edu/display/CENTRAL/Forgot+retrieval+password\">this doc.</a></p>");
+				}
 				
 				pass = new DivRepPassword(this);
 				pass.setLabel("Password");
 				pass.setRequired(true);
-				pass.addValidator(new PKIPassStrengthValidator());
-				pass.addEventListener(new DivRepEventListener() {
-					@Override
-					public void handleEvent(DivRepEvent event) {
-						if(pass_confirm.getValue() != null) {
-							pass_confirm.validate();
-						}
-					}
-				});
+
 				pass_confirm = new DivRepPassword(this);
 				pass_confirm.setLabel("Re-enter password");
-				pass_confirm.setRequired(true);
-				pass_confirm.addValidator(new DivRepIValidator<String>() {
-					String message;
-					@Override
-					public Boolean isValid(String value) {
-						if(value.equals(pass.getValue())) return true;
-						message = "Password does not match";
-						return false;
-					}
-		
-					@Override
-					public String getErrorMessage() {
-						return message;
-					}
-				});
+				//pass_confirm.setRequired(true);
+				pass_confirm.setHidden(true);
 				
 				if(context.isSecure()) {
 					pass.setRepopulate(true);
 					pass_confirm.setRepopulate(true);
 				}
-				
+
+				if(rec.requester_passphrase == null) {
+					//new password - need to validate
+					pass.addValidator(new PKIPassStrengthValidator());
+					
+					//let user confirm the new password.
+					pass.addEventListener(new DivRepEventListener() {
+						@Override
+						public void handleEvent(DivRepEvent event) {
+							if(pass_confirm.getValue() != null) {
+								pass_confirm.validate();
+							}
+						}
+					});
+					pass_confirm.setHidden(false);
+					pass_confirm.addValidator(new DivRepIValidator<String>() {
+						String message;
+						@Override
+						public Boolean isValid(String value) {
+							if(value.equals(pass.getValue())) return true;
+							message = "Password does not match";
+							return false;
+						}
+		
+						@Override
+						public String getErrorMessage() {
+							return message;
+						}
+					});
+					pass_confirm.setRequired(true);
+					//pane.add(pass_confirm);
+				} else {
+					//guest - password check
+					
+					pass.addValidator(new DivRepIValidator<String>(){
+						@Override
+						public Boolean isValid(String value) {
+							CertificateRequestUserModel model = new CertificateRequestUserModel(context);
+							if(model.checkPassphrase(rec, value)) {
+								return true;
+							} else {
+								return false;
+							}
+						}
+		
+						@Override
+						public String getErrorMessage() {
+							return "Passphrase is incorrect!";
+						}});
+				}
+							
 			}
 			@Override
 			protected void onNext() {
-        		context.setComment("User requesting / issueing a new user certificate");
-				CertificateRequestUserModel model = new CertificateRequestUserModel(context);
+        		context.setComment("User issueing a new user certificate");
+				
         		try {
         			//check access again - request status might have changed while processing the form
         			//or.. a malicious user could open 10 different tabs and start renewal processes simultanously..
         			criterias.retestAll();
         			if(criterias.passAll()) {
-        				model.renew(rec, pass.getValue());
-            			//context.message(MessageType.SUCCESS, "Successfully renewed certificate request with ID: " + rec.id);
+        				//not so OO-ish.
+         				doProcess(context, pass.getValue());
 						wizard.setActive(page_issue);
         			} else {
         				alert("Request status has changed. Please reload.");
@@ -132,7 +166,14 @@ public class UserCertIssue implements IView {
 			}
 		};
 	}
-	
+
+	protected void doProcess(UserContext context, String pass) throws CertificateRequestException {
+		CertificateRequestUserModel model = new CertificateRequestUserModel(context);
+		//model.renew(rec, pass);
+		model.startissue(rec, pass);
+	}
+		
+
 	private WizardPage createIssuePage() {
 		return wizard.new WizardPage("Issue Certificate") {
 			@Override
@@ -232,7 +273,7 @@ public class UserCertIssue implements IView {
 		if(criterias.passAll()) {
 			wizard.render(out);
 		} else {
-			out.write("<p>In order to renew this user certificate, the following criteria must be met.</p>");
+			out.write("<p>In order to issue this user certificate, the following criteria must be met.</p>");
 			AuthorizationCriteriasView authview = new AuthorizationCriteriasView(context.getPageRoot(), context, criterias);
 			authview.render(out);
 		}
