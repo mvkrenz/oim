@@ -309,27 +309,32 @@ public class CertificateUserServlet extends ServletBase  {
 				
 				/////////////////////////////////////////////////////////////////////////////
 				//the some user flow control
-				if(model.canCancelWithPass(rec)) {
-					tab = tabview.addtab("Cancel", new UserCertCancelWithPass(context, rec));
-					if(select_tab.equals(TabLabels.cancel_with_pass)) tabview.setActive(tab);
-				}
 				if(model.canCancel(rec)) {
 					tab = tabview.addtab("Cancel", new UserCertCancel(context, rec));
 					if(select_tab.equals(TabLabels.cancel)) tabview.setActive(tab);
+				} else {
+					//if user can cancel without pass, then no need to show cancel_with_pass
+					if(model.canCancelWithPass(rec)) {
+						tab = tabview.addtab("Cancel", new UserCertCancelWithPass(context, rec));
+						if(select_tab.equals(TabLabels.cancel_with_pass)) tabview.setActive(tab);
+					}
 				}
 				
 				//always show this.. UserCertRenew can handle in case user can't renew
 				tab = tabview.addtab("Renew", new UserCertRenew(context, rec, model.canRenew(rec, logs)));
 				if(select_tab.equals(TabLabels.renew)) tabview.setActive(tab);
 				
-				if(model.canRequestRevoke(rec)) {
-					tab = tabview.addtab("Revocation Request", new UserCertRequestRevoke(context, rec));
-					if(select_tab.equals(TabLabels.request_revoke)) tabview.setActive(tab);
-				}
 				if(model.canRevoke(rec)) {
 					tab = tabview.addtab("Revoke", new UserCertRevoke(context, rec));
 					if(select_tab.equals(TabLabels.revoke)) tabview.setActive(tab);
+				} else {
+					//if user can revoke immediately, no need to *request* revocation.
+					if(model.canRequestRevoke(rec)) {
+						tab = tabview.addtab("Revocation Request", new UserCertRequestRevoke(context, rec));
+						if(select_tab.equals(TabLabels.request_revoke)) tabview.setActive(tab);
+					}
 				}
+				
 				if(model.canReRequest(rec)) {
 					tab = tabview.addtab("Re-Request", new UserCertReRequest(context, rec));
 					if(select_tab.equals(TabLabels.re_request)) tabview.setActive(tab);
