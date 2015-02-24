@@ -76,6 +76,10 @@ public class MeshConfigFormDE extends DivRepForm {
 	UserContext context;
 	LinkedHashMap<Integer, String> service_types = new LinkedHashMap();
 	
+	//these model empties cache.. initialize only once
+	final WLCGSiteModel wsmodel;
+	final WLCGEndpointModel wemodel;
+	
     final Integer SERVICE_GROUP_PERFSONAR_MONIOTIRNG = 1003;
 	
 	GroupsDiv groupsdiv;
@@ -1151,8 +1155,6 @@ public class MeshConfigFormDE extends DivRepForm {
 			oim_resources.setLabel("OIM Resources");
 			oim_resources.setMax(128); 
 			
-			final WLCGSiteModel wsmodel = new WLCGSiteModel(context);
-			final WLCGEndpointModel wemodel = new WLCGEndpointModel(context);
 			wlcg_resources = new WLCGResourceServiceListEditor(this) {
 				protected WLCGResourceServiceListEditor.ResourceInfo getDetailByEndpointKey(String key) throws SQLException {
 					WLCGResourceServiceListEditor.ResourceInfo info = new  WLCGResourceServiceListEditor.ResourceInfo();
@@ -1376,6 +1378,9 @@ public class MeshConfigFormDE extends DivRepForm {
 	{	
 		super(context.getPageRoot(), origin_url);
 		this.context = context;
+		
+		wsmodel = new WLCGSiteModel(context);
+		wemodel = new WLCGEndpointModel(context);
 		
 		//load service_types
 		try {

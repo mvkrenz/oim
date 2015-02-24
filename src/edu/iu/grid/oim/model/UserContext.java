@@ -123,9 +123,9 @@ public class UserContext {
 		    	throw new RuntimeException( "Unable to aquire data source", ne );
 		    }	
 		}
-    	log.debug("Connecting..");
+    	//log.debug("Connecting..");
 		Connection oim = oimds.getConnection();
-    	log.debug(oim.toString());
+    	//log.debug(oim.toString());
 		return oim;
 	}
 	
