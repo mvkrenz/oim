@@ -1,16 +1,15 @@
 package edu.iu.grid.oim.servlet;
 
 import java.io.IOException;
-import java.util.Date;
+import java.net.URL;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.log4j.Logger;
+import org.apache.commons.lang.StringEscapeUtils;
 
-import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.AuthorizationException;
 import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.view.BootMenuView;
@@ -29,10 +28,11 @@ public class ErrorServlet extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
 	{
 		UserContext context = new UserContext(request);
-		BootMenuView menuview = new BootMenuView(UserContext.getGuestContext(), "_error_");
+		//BootMenuView menuview = new BootMenuView(UserContext.getGuestContext(), "_error_");
+		BootMenuView menuview = new BootMenuView(context, "_error_");
 		
 		ContentView contentview = createContentView(context, request);		
-		BootPage page = new BootPage(UserContext.getGuestContext(), menuview, contentview, new SideContentView());
+		BootPage page = new BootPage(context, menuview, contentview, new SideContentView());
 		page.render(response.getWriter());	
 	}
 	
@@ -54,22 +54,41 @@ public class ErrorServlet extends HttpServlet {
 	    	}
 	    }
 
+	    //construct full URL that caused the error (TODO - I still don't know how to put request parameter back..)
+	    String request_uri = (String)request.getAttribute("javax.servlet.error.request_uri");
+	    URL context_url = context.getRequestURL();
+	    request_uri = context_url.getProtocol()+"://"+context_url.getHost() + ":" + context_url.getPort() + request_uri;
+	    
+	    String ticket_url = "https://ticket.grid.iu.edu/submit?app_issue_check&app_issue_type=goc&app_goc_url="+StringEscapeUtils.escapeHtml(request_uri);
+	    
 	    if(throwable instanceof AuthorizationException) {
-	    	String request_uri = "n/a";
-	    	if(request.getSession().getAttribute("request_uri") != null) {
-	    		request_uri = request.getSession().getAttribute("request_uri").toString();
-	    	}
 			contentview.add(new HtmlView("<h2>Authorization Error</h2>"));
-			contentview.add(new HtmlView("<div class=\"alert\"><p>You are not authorized to access this page.</p>"));
-			contentview.add(new HtmlView("<p>Detail: "+throwable.getMessage()+"</p>"));
-			contentview.add(new HtmlView("<p>If you believe you should have an access to this page, <a target=\"_blank\" href=\"https://ticket.grid.iu.edu\">Open GOC ticket</a></p></div>"));
-	    } else {
+			contentview.add(new HtmlView("<p>You are not authorized to access this page.</p>"));
+			contentview.add(new HtmlView("<p>If you believe you should have an access to this page, please <a target=\"_blank\" href=\""+ticket_url+"\">open a GOC ticket</a> with the following detail and request for access.</p>"));
+			contentview.add(new HtmlView("<h3>Detail</h3>"));
+			contentview.add(new HtmlView("<pre>"+throwable.getMessage()+"</pre>"));
+	
+			contentview.add(new HtmlView("<h3>URL</h3>"));
+			contentview.add(new HtmlView("<pre>"+request_uri+"</pre>"));
+	    } else {    	
 			contentview.add(new HtmlView("<h2>Oops!</h2>"));
-			contentview.add(new HtmlView("<p>Sorry, OIM has encountered a problem. </p>"));
-			contentview.add(new HtmlView("<div class=\"alert\">"));
-			contentview.add(new HtmlView("<p>Detail: "+throwable.getMessage()+"</p></div>"));
-			contentview.add(new HtmlView("<p>The GOC has been notified about this error, however, you can also <a target=\"_blank\" href=\"https://ticket.grid.iu.edu\">Open GOC ticket</a></p>"));
+			contentview.add(new HtmlView("<p>Sorry, OIM has encountered a problem. </p>"));			
+			contentview.add(new HtmlView("<p>If this error occured outside GOC's scheduled maintenance days (normally 2nd and 4th Tuesday) time, " +
+				"please <a target=\"_blank\" href=\""+ticket_url+"\">open a GOC ticket</a> with following detail.</p>"));
 		
+			contentview.add(new HtmlView("<h3>URL</h3>"));
+			contentview.add(new HtmlView("<pre>"+request_uri+"</pre>"));
+			
+			contentview.add(new HtmlView("<h3>Exception</h3>"));
+			contentview.add(new HtmlView("<pre>"+throwable+"</pre>"));
+
+			contentview.add(new HtmlView("<h3>Call Stack</h3>"));
+			contentview.add(new HtmlView("<pre>"));
+			for (StackTraceElement ste : throwable.getStackTrace()) {
+				contentview.add(new HtmlView(ste.toString()+"\n"));
+			}
+			contentview.add(new HtmlView("</pre>"));
+			
 			//reportError(contentview, message);
 			//dump(request, throwable);
 	    }

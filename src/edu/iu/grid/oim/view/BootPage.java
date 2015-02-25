@@ -52,10 +52,13 @@ public class BootPage implements IView {
 		if(StaticConfig.isDebug()) {
 			context.message(MessageType.INFO, "Running in debug mode. For production use, please use https://oim.grid.iu.edu");
 		}
-		String path = context.getRequestURL().getPath();
-		if(path.startsWith("/oim/certificate")) {
-			ConfigModel config = new ConfigModel(context);
-			addBanner(MessageType.ERROR, config.CertificatePageBanner);
+		URL url = context.getRequestURL();
+		if(url != null) {
+			String path = url.getPath();
+			if(path.startsWith("/oim/certificate")) {
+				ConfigModel config = new ConfigModel(context);
+				addBanner(MessageType.ERROR, config.CertificatePageBanner);
+			}
 		}
 		
 		//we should ask client to give us ContentView instead.. but it will be a lot of work
@@ -82,7 +85,7 @@ public class BootPage implements IView {
 
 	public void render(PrintWriter out)
 	{
-		Authorization auth = context.getAuthorization();
+		//Authorization auth = context.getAuthorization();
 		
 		params.put("__BASE__", StaticConfig.conf.getProperty("application.base"));
 		params.put("__GOCTICKET__", "https://ticket.grid.iu.edu/goc");
@@ -162,15 +165,5 @@ public class BootPage implements IView {
 		out.println("</div>");//row-fuild
 
 		footer.render(out);
-	}
-
-	/*
-	public void addBanner(MessageType type, Config config) {
-		String value = config.getString();
-		if(value != null && !value.isEmpty()) {
-			context.message(type, value);
-		}
-	}
-	*/
-	
+	}	
 }

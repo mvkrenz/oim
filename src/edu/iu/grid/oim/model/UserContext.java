@@ -68,27 +68,7 @@ public class UserContext {
 		}
 		auth = new Authorization(request);
 
-		//parse request_url
-		try {
-			log.debug(request.getRequestURL());
-			log.debug(request.getRequestURI());
-			request_url = new URL(request.getRequestURL().toString() + "?" + request.getQueryString());
-		} catch (MalformedURLException e) {
-			log.error("Failed to parse request URL in order to compose secure URL");
-		}
-		
-		if(request.isSecure()) {
-			secure_url = request_url.toString();
-		} else {
-			secure_url = "https://" + request_url.getHost();
-			if(StaticConfig.conf.getProperty("application.secureport") != null) {
-				secure_url += ":"+StaticConfig.conf.getProperty("application.secureport");
-			}
-			secure_url += request.getRequestURI();
-			if(request.getQueryString() != null) {
-				secure_url += "?" + request.getQueryString();
-			}
-		}
+		setURLs(request);
 		
 		divrep_root = DivRepRoot.getInstance(session);
 		divrep_pageid = request.getRequestURI() + request.getQueryString();
@@ -111,6 +91,34 @@ public class UserContext {
 		issecure = request.isSecure();
 	}
 	
+	private void setURLs(HttpServletRequest request) {
+		//parse request_url
+		try {
+			//log.debug(request.getRequestURL());
+			//log.debug(request.getRequestURI());
+			String url = request.getRequestURL().toString();
+			if(request.getQueryString() != null) {
+				url += "?"+request.getQueryString();
+			}
+			request_url = new URL(url);
+		} catch (MalformedURLException e) {
+			log.error("Failed to parse request URL in order to compose secure URL");
+		}
+		
+		if(request.isSecure()) {
+			secure_url = request_url.toString();
+		} else {
+			secure_url = "https://" + request_url.getHost();
+			if(StaticConfig.conf.getProperty("application.secureport") != null) {
+				secure_url += ":"+StaticConfig.conf.getProperty("application.secureport");
+			}
+			secure_url += request.getRequestURI();
+			if(request.getQueryString() != null) {
+				secure_url += "?" + request.getQueryString();
+			}
+		}
+	}
+	
 	public Connection getConnection() throws SQLException {
 		if(oimds == null) {
 		    try {
@@ -129,9 +137,12 @@ public class UserContext {
 		return oim;
 	}
 	
-	public static UserContext getGuestContext()
+	private UserContext(){}	//used to create guest context
+	public static UserContext getGuestContext(HttpServletRequest request)
 	{
-		return new UserContext();
+		UserContext context = new UserContext();
+		context.setURLs(request);
+		return context;
 	}
 	public String getSecureUrl() {
 		return secure_url;
@@ -143,8 +154,6 @@ public class UserContext {
 	}
 	*/
 	
-	//used to create guest context
-	private UserContext(){}	
 	
 	public Authorization getAuthorization()
 	{

@@ -78,8 +78,11 @@ public class Authorization {
 	public void check(String action) throws AuthorizationException
 	{
 		if(!allows(action)) {
-			// TODO Need cleaner error message in these situations -agopu
-			throw new AuthorizationException("Action:"+action+" is not authorized for " + user_dn);
+			String dn = user_dn;
+			if(dn == null) {
+				dn = "(Guest)";
+			}
+			throw new AuthorizationException("Action:"+action+" is not authorized for " + dn);
 		}
 	}
 	public Boolean allows(String action)
@@ -98,7 +101,7 @@ public class Authorization {
 	//pull user_dn from Apache's SSL_CLIENT_S_DN
 	public Authorization(HttpServletRequest request) throws AuthorizationException 
 	{		
-		guest_context = UserContext.getGuestContext();
+		guest_context = UserContext.getGuestContext(request);
 		usertype = UserType._GUEST;
 		loadGuestAction();
 		
@@ -186,7 +189,7 @@ public class Authorization {
 	private void debugAuthOverride(HttpServletRequest request) {
 		try {
 			InetAddress addr = InetAddress.getLocalHost();
-	        String hostname = addr.getHostName();
+	        //String hostname = addr.getHostName();
 	        String as_user = StaticConfig.conf.getProperty("debug.as_user");
 	        if(as_user != null) {
 				if(request.isSecure()) {
