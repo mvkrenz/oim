@@ -34,10 +34,12 @@ import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.UserContext.MessageType;
 import edu.iu.grid.oim.model.db.CertificateRequestUserModel;
+import edu.iu.grid.oim.model.db.ConfigModel;
 import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.DNModel;
 import edu.iu.grid.oim.model.db.VOContactModel;
 import edu.iu.grid.oim.model.db.VOModel;
+import edu.iu.grid.oim.model.db.ConfigModel.Config;
 import edu.iu.grid.oim.model.db.record.CertificateRequestUserRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.DNRecord;
@@ -45,6 +47,7 @@ import edu.iu.grid.oim.model.db.record.VOContactRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
 import edu.iu.grid.oim.model.exceptions.CertificateRequestException;
 import edu.iu.grid.oim.view.divrep.form.validator.MustbeCheckedValidator;
+import edu.iu.grid.oim.view.divrep.EditableContent;
 import edu.iu.grid.oim.view.divrep.UserCNEditor;
 import edu.iu.grid.oim.view.divrep.ChoosePassword;
 import edu.iu.grid.oim.view.divrep.form.validator.CNValidator;
@@ -204,8 +207,6 @@ public class CertificateRequestUserForm extends DivRepForm
 			email.addValidator(new DivRepEmailValidator());
 			email.addValidator(new DuplicateEmailValidator());
 			new DivRepStaticContent(this, "<p class=\"help-block\">* Please use email address issued by your organization (like @fnal.gov), instead of a personal addresses like gmail, yahoo, etc.</p>");
-
-			
 			/*
 			email.addEventListener(new DivRepEventListener() {
 				@Override
@@ -303,10 +304,27 @@ public class CertificateRequestUserForm extends DivRepForm
 			new DivRepReCaptcha(this, 
 					StaticConfig.conf.getProperty("recaptcha.public_key"),
 					StaticConfig.conf.getProperty("recaptcha.private_key"));
-		} else {
+		} else {				
 			//OIM user can specify CN
-			new DivRepStaticContent(this, "<h3>DN</h3>");
+			//new DivRepStaticContent(this, "<h3>DN</h3>");
+			final ConfigModel config = new ConfigModel(context);
+			DivRepToggler help = new DivRepToggler(this) {
+				@Override
+				public DivRep createContent() {
+					Config help_content = config.new Config(config, "whatis_cn", "edit me");
+					if(auth.allows("admin") || auth.allows("admin_ra")) {
+						EditableContent content = new EditableContent(context.getPageRoot(), context, help_content);
+						return content;	
+					} else {
+						return new DivRepStaticContent(context.getPageRoot(), help_content.getString());
+					}
+				}
+			};
+			help.setShowHtml("<u class=\"pull-right\">What is CN?</u>");
+			help.setHideHtml("");
+			
 			cn = new UserCNEditor(this);
+			cn.setLabel("CN");
 			cn.setRequired(true);
 			if(auth.isUser()) {
 				ContactRecord contact = auth.getContact();

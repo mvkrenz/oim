@@ -3,13 +3,11 @@ package edu.iu.grid.oim.model.cert;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.StringReader;
-import java.nio.charset.StandardCharsets;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
-import java.security.cert.CertPath;
 import java.security.cert.X509Certificate;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -18,38 +16,60 @@ import javax.security.auth.x500.X500Principal;
 import javax.xml.bind.DatatypeConverter;
 
 import org.apache.commons.lang.StringUtils;
-import org.bouncycastle.asn1.ASN1Boolean;
-import org.bouncycastle.asn1.ASN1Encodable;
+import org.apache.log4j.Logger;
 import org.bouncycastle.asn1.ASN1InputStream;
-import org.bouncycastle.asn1.ASN1Object;
 import org.bouncycastle.asn1.ASN1Primitive;
-import org.bouncycastle.asn1.ASN1String;
-import org.bouncycastle.asn1.DEROctetString;
-import org.bouncycastle.asn1.DERSequence;
-import org.bouncycastle.asn1.DERUTF8String;
-import org.bouncycastle.asn1.DLSequence;
-import org.bouncycastle.asn1.x509.BasicConstraints;
 import org.bouncycastle.cert.X509CertificateHolder;
-import org.bouncycastle.cert.jcajce.JcaX509ExtensionUtils;
 import org.bouncycastle.cms.CMSException;
 import org.bouncycastle.cms.CMSSignedData;
 import org.bouncycastle.util.Store;
-import org.bouncycastle.util.encoders.Base64;
 
 import edu.iu.grid.oim.lib.StaticConfig;
+import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.cert.ICertificateSigner.CertificateBase;
 import edu.iu.grid.oim.model.cert.ICertificateSigner.CertificateProviderException;
 import edu.iu.grid.oim.model.cert.ICertificateSigner.IHostCertificatesCallBack;
+import edu.iu.grid.oim.model.db.CertificateRequestUserModel;
+import edu.iu.grid.oim.model.db.VOModel;
+import edu.iu.grid.oim.model.db.record.VORecord;
 
 public class CertificateManager {
+    static Logger log = Logger.getLogger(CertificateManager.class);  
+    
 	private ICertificateSigner cp;
-	public CertificateManager() {
-		String signer = StaticConfig.conf.getProperty("certificate.signer");
-		if(signer != null && signer.equals("CILogonCertificateSigner")) {
-			cp  = new CILogonCertificateSigner();
-		} else {
-			cp  = new DigicertCertificateSigner();
-		}		
+	public CertificateManager(ICertificateSigner cp) {
+		this.cp = cp;
+	}
+	
+	public static CertificateManager Factory(UserContext context, Integer vo_id) {
+		//determine the singer from vo_id (if provided)
+		String signer = null;
+		if(vo_id != null) {
+			try {
+				VOModel model = new VOModel(context);
+				VORecord vo = model.get(vo_id);
+				if(vo == null) {
+					log.error("Failed to find vo with vo_id:"+vo_id);
+				} else {
+					signer = vo.certificate_signer;
+				}
+			} catch (SQLException e) {
+				log.error("SQLException while looking for vo with vo_id:"+vo_id, e);
+			}
+		}	
+		
+		if(signer == null) {
+			log.error("CertificateManager.Factory failed to determine signer from provided vo_id:"+vo_id+" using default signer");
+			signer = StaticConfig.conf.getProperty("certificate.signer"); //set to default.
+		}
+	
+		switch(signer) {
+		case "CILogonCertificateSigner":
+			return new CertificateManager(new CILogonCertificateSigner());
+		case "DigicertCertificateSigner":
+		default://kiss
+			return new CertificateManager(new DigicertCertificateSigner());
+		}	
 	}
 	
 	public String getUserDNBase() {

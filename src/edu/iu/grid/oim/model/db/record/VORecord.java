@@ -19,7 +19,6 @@ public class VORecord extends ConfirmableRecord {
 	public Integer sc_id;
 	public Boolean active;
 	public Boolean disable;
-	//public String footprints_id;
 	
 	public Boolean science_vo;
 	public String primary_url;
@@ -32,6 +31,8 @@ public class VORecord extends ConfirmableRecord {
 	public Boolean use_oasis;
 	public String oasis_repo_urls;
 	public Boolean cert_only;
+	
+	public String certificate_signer;
 
 	//load from existing record
 	public VORecord(ResultSet rs) throws SQLException { super(rs); }

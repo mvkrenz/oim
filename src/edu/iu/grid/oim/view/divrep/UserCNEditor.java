@@ -27,11 +27,16 @@ public class UserCNEditor extends DivRepFormElement<String> {
 	public void render(PrintWriter out) {
 		out.write("<div class=\"cneditor\" id=\""+getNodeID()+"\">");
 		if(!isHidden()) {
+			/*
 			if(getLabel() != null) {
 				out.print("<label>"+StringEscapeUtils.escapeHtml(getLabel())+"</label><br/>");
 			}
 			String dn_base = StaticConfig.conf.getProperty("digicert.user_dn_base");
-			out.write("<div style=\"float: left;margin: 5px 4px\">"+dn_base+"/CN=</div>");		
+			out.write("<div style=\"float: left;margin: 5px 4px\">"+dn_base+"/CN=</div>");
+			*/
+			if(getLabel() != null) {
+				out.print("<label>"+StringEscapeUtils.escapeHtml(getLabel())+"</label><br/>");
+			}
 			cn.render(out);
 		}
 		out.write("</div>");

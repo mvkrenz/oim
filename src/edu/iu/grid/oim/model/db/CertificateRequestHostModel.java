@@ -202,7 +202,7 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 			
 			//should we use Quartz instead?
 			public void run() {
-				CertificateManager cm = new CertificateManager();
+				final CertificateManager cm = CertificateManager.Factory(context, rec.approver_vo_id);
 				try {
 					log.debug("Starting signing process");
 					cm.signHostCertificates(certs, new IHostCertificatesCallBack() {
@@ -253,13 +253,11 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 									log.warn("Host certificate issued for request "+rec.id+ "(idx:"+idx+")  has invalid range of "+dayrange+" days (too far from 395 days)");
 								}
 								
-
 								//make sure dn starts with correct base
 								X500Principal dn = c0.getSubjectX500Principal();
 								String apache_dn = CertificateManager.X500Principal_to_ApacheDN(dn);
-								String host_dn_base = StaticConfig.conf.getProperty("digicert.host_dn_base");
-								if(!apache_dn.startsWith(host_dn_base)) {
-									log.warn("Host certificate issued for request " + rec.id + "(idx:"+idx+")  has DN:"+apache_dn+" which doesn't have an expected DN base: "+host_dn_base);
+								if(!apache_dn.startsWith(cm.getHostDNBase())) {
+									log.error("Host certificate issued for request " + rec.id + "(idx:"+idx+")  has DN:"+apache_dn+" which doesn't have an expected DN base: "+cm.getHostDNBase());
 								}
 							} catch (CertificateException e1) {
 								log.error("Failed to validate host certificate (pkcs7) issued. ID:" + rec.id+"(idx:"+idx+")", e1);
@@ -312,7 +310,7 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 					rec.cert_notafter = cert.notafter;
 					rec.cert_notbefore = cert.notbefore;
 					
-					log.debug("Updating status");
+					//log.debug("Updating status");
 					
 					//update status
 					try {
@@ -601,9 +599,9 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 				ticket.description += "Please determine this request's authenticity, and approve / disapprove at " + getTicketUrl(request_id) + "\n\n";
 			}	
 			
-			ticket.description += "DNs requested:\n";
+			ticket.description += "CNs requested:\n";
 			for(String cn : cns_sa.getAll()) {
-				ticket.description += StaticConfig.conf.getProperty("digicert.host_dn_base") + "/CN=" + cn + "\n";
+				ticket.description += "/CN=" + cn + "\n";
 			}
 			
 			Authorization auth = context.getAuthorization();
@@ -936,7 +934,7 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 	//NO-AC
 	public void revoke(CertificateRequestHostRecord rec) throws CertificateRequestException {		
 		//revoke
-		CertificateManager cm = new CertificateManager();
+		CertificateManager cm = CertificateManager.Factory(context, rec.approver_vo_id);
 		try {
 			String[] cert_serial_ids = rec.getSerialIDs();
 			StringArray statuses = new StringArray(rec.cert_statuses);
@@ -996,7 +994,7 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 		*/
 		
 		//revoke one
-		CertificateManager cm = new CertificateManager();
+		CertificateManager cm = CertificateManager.Factory(context, rec.approver_vo_id);
 		try {
 			log.info("Revoking certificate with serial ID: " + cert_serial_id);
 			cm.revokeHostCertificate(cert_serial_id);

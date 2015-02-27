@@ -627,7 +627,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 	//NO-AC
 	public void revoke(CertificateRequestUserRecord rec) throws CertificateRequestException {
 		//revoke
-		CertificateManager cm = new CertificateManager();
+		CertificateManager cm = CertificateManager.Factory(context, rec.vo_id);
 		try {
 			cm.revokeUserCertificate(rec.cert_serial_id);
 			log.info("Revoked " + rec.dn + " with serial id:" + rec.cert_serial_id);
@@ -813,7 +813,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 					
 					//now we can sign it
 					String cn = rec.getCN();//TODO - check for null?
-					CertificateManager cm = new CertificateManager();
+					CertificateManager cm = CertificateManager.Factory(context, rec.vo_id);
 					CertificateBase cert = cm.signUserCertificate(rec.csr, cn, requester.primary_email);
 					rec.cert_certificate = cert.certificate;
 					rec.cert_intermediate = cert.intermediate;
@@ -845,9 +845,8 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 					rec.dn = apache_dn;
 					
 					//make sure dn starts with correct base
-					String user_dn_base = StaticConfig.conf.getProperty("digicert.user_dn_base");
-					if(!apache_dn.startsWith(user_dn_base)) {
-						log.warn("User certificate issued for request " + rec.id + " has DN:"+apache_dn+" which doesn't have an expected DN base: "+user_dn_base);
+					if(!apache_dn.startsWith(cm.getUserDNBase())) {
+						log.warn("User certificate issued for request " + rec.id + " has DN:"+apache_dn+" which doesn't have an expected DN base: "+cm.getUserDNBase());
 					}
 					
 					DNModel dnmodel = new DNModel(context);
