@@ -310,12 +310,22 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 					Iterator<List<?>> it = list.iterator();
 					List<?> first = it.next();
 					String cert_email = (String)first.get(1);
-					if(!cert_email.equals(contact.primary_email) && !cert_email.equals(contact.secondary_email)) {
-						//doesn't match primary nor secondary email
+		
+					//if not contact is given, we don't know.. (let's return true for no.. until this becomes a problem)
+					if(contact == null) {
+						return true;
+					}
+					
+					//let's primary first.. it should never be null.
+					if(!cert_email.equals(contact.primary_email)) {
+						//doesn't match primary.. let give secondary a chance (if not null)
+						if(contact.secondary_email != null && cert_email.equals(contact.secondary_email)) {
+							return true;
+						}
 						return false;
 					}
 				} catch (Exception e) {
-					log.error("CertificateRequestUserModel::canRenw() :: Failed to parse pkcs7 to test email address (skipping this test). id:" + rec.id, e);
+					log.error("Failed to parse pkcs7 to test email address (skipping this test). id:" + rec.id, e);
 				}
 				//all good
 				return true;

@@ -3,10 +3,7 @@ package edu.iu.grid.oim.servlet;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringWriter;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.KeyManagementException;
 import java.security.KeyStore;
@@ -15,6 +12,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.KeyManagerFactory;
@@ -27,20 +25,18 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.log4j.Logger;
 
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.StaticConfig;
+import edu.iu.grid.oim.model.AuthorizationCriterias;
 import edu.iu.grid.oim.model.UserContext;
-import edu.iu.grid.oim.model.cert.CILogonCertificateSigner;
-import edu.iu.grid.oim.model.cert.DigicertCertificateSigner;
-import edu.iu.grid.oim.model.cert.ICertificateSigner.CertificateProviderException;
+
 import edu.iu.grid.oim.model.db.CertificateRequestHostModel;
-import edu.iu.grid.oim.model.db.GridAdminModel;
-import edu.iu.grid.oim.view.divrep.form.validator.CNValidator;
-import static org.junit.Assert.*;
+import edu.iu.grid.oim.model.db.CertificateRequestModelBase;
+import edu.iu.grid.oim.model.db.CertificateRequestUserModel;
+import edu.iu.grid.oim.model.db.record.CertificateRequestUserRecord;
 
 //This class allows admin to run junit asserts 
 public class TestServlet extends ServletBase {
@@ -53,12 +49,9 @@ public class TestServlet extends ServletBase {
 		Authorization auth = context.getAuthorization();
 		String action = request.getParameter("action");
 		if(action.equals("reset_host_statuses")) {
-			
 			if(!auth.isLocal()) {
 				throw new ServletException("local only");
 			}
-
-			
 			CertificateRequestHostModel model = new CertificateRequestHostModel(context);
 			try {
 				response.setContentType("text/plain");
@@ -66,9 +59,26 @@ public class TestServlet extends ServletBase {
 			} catch (SQLException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-			}			
+			}
 		} else if(action.equals("cilogon")) {
 			testCILogin();
+		} else if(action.equals("parse_pkcs7bug")) {
+			parsePkcs7Bug(context);
+		}
+	}
+	
+	private void parsePkcs7Bug(UserContext context) {
+		CertificateRequestUserModel model = new CertificateRequestUserModel(context);
+		try {
+			CertificateRequestUserRecord rec = model.get(1437);
+			ArrayList<CertificateRequestModelBase<CertificateRequestUserRecord>.LogDetail> logs = model.getLogs(CertificateRequestUserModel.class, 1437);
+			AuthorizationCriterias criteria = model.canRenew(rec, logs);
+			if(criteria.passAll()) {
+				log.debug("passing testg");
+			}
+			
+		} catch (SQLException e) {
+			log.error(e);
 		}
 	}
 	
