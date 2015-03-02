@@ -351,6 +351,7 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 					}
 					
 					fp.update(ticket, rec.goc_ticket_id);
+					
 				} catch (CertificateProviderException e) {
 					failed("Failed to sign certificate -- CertificateProviderException ", e);
 				} catch(Exception e) {
@@ -1362,15 +1363,7 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 			
 			//don't send to CCs
 			ticket.mail_suppression_ccs = true;
-			
-			//I don't have to reopen the ticket since this is one time notification
-			if(StaticConfig.isDebug()) {
-				log.debug("skipping (this is debug) ticket update on ticket : " + rec.goc_ticket_id + " to notify expiring host certificate");
-				log.debug(ticket.description);
-			} else {
-				fp.update(ticket, rec.goc_ticket_id);
-				log.info("updated goc ticket : " + rec.goc_ticket_id + " to notify expiring host certificate");
-			}
+			fp.update(ticket, rec.goc_ticket_id);
 		}
 	}
 	

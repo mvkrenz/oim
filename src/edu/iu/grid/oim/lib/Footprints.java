@@ -144,10 +144,18 @@ public class Footprints
 	
 	//return true if successful
 	public Boolean update(FPTicket ticket, String ticket_id) {
+		if(StaticConfig.isDebug()) {
+			log.debug("skipping ticket update on ticket: " + ticket_id + " since debug flag is set");
+			log.debug(ticket.description);
+			return false;
+		}
+		
+		log.info("updated goc ticket : " + ticket_id);
+		log.debug(ticket.description);
+		
 		HttpClient cl = new HttpClient();
 		cl.getParams().setParameter("http.protocol.single-cookie-header", true);
 		cl.getParams().setCookiePolicy(CookiePolicy.BROWSER_COMPATIBILITY);
-	    //cl.getParams().setParameter("http.useragent", "OIM (OSG Information Management System)");
 		PostMethod post = new PostMethod(StaticConfig.conf.getProperty("api.gocticket")+"/rest/update?id="+ticket_id);
 		post.setParameter("description", ticket.description);
 		if(ticket.nextaction != null) {
