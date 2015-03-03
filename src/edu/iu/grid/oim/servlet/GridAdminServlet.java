@@ -99,7 +99,7 @@ public class GridAdminServlet extends ServletBase {
 				} else {
 					out.write("<table class=\"table nohover\">");	
 				}
-				out.write("<thead><tr><th></th><th>Domain</th><th>VO</th><th>GridAdmins</th><th></th></tr></thead>");	
+				out.write("<thead><tr><th></th><th>Domain</th><th>VO</th><th>CA</th><th>GridAdmins</th><th></th></tr></thead>");	
 				out.write("<tbody>");
 				
 				for(String domain : recs.keySet()) {
@@ -123,7 +123,7 @@ public class GridAdminServlet extends ServletBase {
 							out.write("<td rowspan=\""+groups.size()+"\">"+StringEscapeUtils.escapeHtml(domain) + "</td>");
 						}
 						out.write("<td>" + vo.name + "</td>");
-						
+						out.write("<td>" + vo.certificate_signer + "</td>");
 						//finally, the contact itself
 						out.write("<td>");
 						out.write("<ul>");

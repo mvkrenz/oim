@@ -789,6 +789,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 				message += " :: " + e.getMessage();
 				failed(message);
 				log.error(e);
+				log.error(e.getCause());
 			}
 			public void run() {
 				try {					
@@ -1311,26 +1312,14 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
     	request(vo_id, rec, requester, sponsor, null, request_comment);//cn is not known until we check the contact
     	return rec;
     } 
-    
-    public X500Name generateDN(String cn) {
-        X500NameBuilder x500NameBld = new X500NameBuilder(BCStyle.INSTANCE);
 
-        //DigiCert overrides the DN, so none of these matters - except CN which is used to send common_name parameter
-        //We are creating this so that we can create private key
-        x500NameBld.addRDN(BCStyle.DC, "com");
-        x500NameBld.addRDN(BCStyle.DC, "DigiCert-Grid");
-        if(StaticConfig.isDebug()) {
-        	//let's assume debug means we are using digicert pilot
-        	x500NameBld.addRDN(BCStyle.O, "OSG Pilot");
-        } else {
-        	x500NameBld.addRDN(BCStyle.O, "Open Science Grid");
-        }
-        x500NameBld.addRDN(BCStyle.OU, "People");   
-        x500NameBld.addRDN(BCStyle.CN, cn); //don't use "," or "/" which is used for DN delimiter
-        
-        return x500NameBld.build();
+    public String guessDN(Integer vo_id, String cn) {
+    	CertificateManager manager = CertificateManager.Factory(context, vo_id);
+    	//X500Name name = manager.generateX509Name(cn);
+		//return CertificateManager.RFC1779_to_ApacheDN(name.toString());
+    	return manager.getUserDNBase() + "/CN="+cn;
     }
-    
+  
     private String getTicketUrl(Integer ticket_id, String tab) {
     	String url;
     	if(StaticConfig.isDebug()) {
@@ -1355,8 +1344,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 		DNModel dnmodel = new DNModel(context);
 		if(auth.isUser()) {
 			//generate DN
-			X500Name name = generateDN(cn);
-			rec.dn = CertificateManager.RFC1779_to_ApacheDN(name.toString());
+			rec.dn = guessDN(vo_id, cn);
 			note += "NOTE: Additional user certificate request for OIM user\n";
 		} else {
 			//Guest request -- check contact record with the same email address
@@ -1369,15 +1357,13 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 				
 				//and generate dn
 		    	cn = requester.name + " " + requester.id;
-		    	X500Name name = generateDN(cn);
-				rec.dn = CertificateManager.RFC1779_to_ApacheDN(name.toString());
+				rec.dn = rec.dn = guessDN(vo_id, cn);
 				note += "NOTE: User is registering OIM contact & requesting new certificate: contact id:"+requester.id+"\n";
 			} else {
 				//Guest is attempting take over existing contact
 				//generate dn (with existing_crec id)
 		    	cn = requester.name + " " + existing_crec.id;
-		    	X500Name name = generateDN(cn);
-				rec.dn = CertificateManager.RFC1779_to_ApacheDN(name.toString());
+				rec.dn = rec.dn = guessDN(vo_id, cn);
 				
 				//find if the existing contact has any DN associated with the contact
 				ArrayList<DNRecord> dnrecs = dnmodel.getEnabledByContactID(existing_crec.id);

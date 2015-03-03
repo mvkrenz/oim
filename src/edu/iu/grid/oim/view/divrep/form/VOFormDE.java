@@ -26,10 +26,12 @@ import com.divrep.validator.DivRepUrlValidator;
 import edu.iu.grid.oim.lib.Authorization;
 import edu.iu.grid.oim.lib.Footprints;
 import edu.iu.grid.oim.lib.AuthorizationException;
+import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.model.ContactRank;
 import edu.iu.grid.oim.model.FOSRank;
 import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.UserContext.MessageType;
+import edu.iu.grid.oim.model.cert.CertificateManager;
 import edu.iu.grid.oim.model.db.ContactTypeModel;
 import edu.iu.grid.oim.model.db.ContactModel;
 import edu.iu.grid.oim.model.db.FieldOfScienceModel;
@@ -44,7 +46,6 @@ import edu.iu.grid.oim.model.db.VOModel;
 import edu.iu.grid.oim.model.db.record.ContactTypeRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
 import edu.iu.grid.oim.model.db.record.FieldOfScienceRecord;
-import edu.iu.grid.oim.model.db.record.ResourceAliasRecord;
 import edu.iu.grid.oim.model.db.record.VOOasisUserRecord;
 import edu.iu.grid.oim.model.db.record.VOReportContactRecord;
 import edu.iu.grid.oim.model.db.record.VOReportNameRecord;
@@ -79,6 +80,7 @@ public class VOFormDE extends DivRepForm
 	private DivRepCheckBox disable;
 	private DivRepCheckBox child_vo;
 	private DivRepSelectBox parent_vo;
+	private DivRepSelectBox certificate_signer;
 
 	private Confirmation confirmation;
 	private DivRepTextArea comment;
@@ -123,7 +125,6 @@ public class VOFormDE extends DivRepForm
 	{
 		protected void onEvent(DivRepEvent e) {
 			// TODO Auto-generated method stub
-			
 		}	
 		
 		ScienceVOInfo(DivRep _parent, VORecord rec) {
@@ -589,7 +590,22 @@ public class VOFormDE extends DivRepForm
 		confirmation = new Confirmation(this, rec, auth);
 		
 		if(auth.allows("admin")) {
-			new DivRepStaticContent(this, "<h2>Administrative Tasks</h2>");
+			new DivRepStaticContent(this, "<h2>Administrative</h2>");
+		}
+		
+		LinkedHashMap<Integer, String> signers = CertificateManager.getSigners();
+		certificate_signer = new DivRepSelectBox(this, signers);
+		certificate_signer.setLabel("Certificate Signer");
+		certificate_signer.setHidden(true);
+		if(id != null) {
+			certificate_signer.setValue(CertificateManager.Signers.valueOf(rec.certificate_signer).ordinal());
+		}	
+		
+		//keep this only available for debug for now.
+		if(StaticConfig.isDebug()) {
+			if(auth.allows("admin") || auth.allows("admin_ra")) {	
+				certificate_signer.setHidden(false);
+			}
 		}
 		
 		active = new DivRepCheckBox(this);
@@ -729,6 +745,9 @@ public class VOFormDE extends DivRepForm
 		rec.use_oasis = use_oasis.getValue();
 		rec.cert_only = cert_only.getValue();
 		rec.setOASISRepoUrls(oasis_info.getRepoURLs());
+		
+		CertificateManager.Signers[] signers = CertificateManager.Signers.values();
+		rec.certificate_signer = signers[certificate_signer.getValue()].name();
 
 		context.setComment(comment.getValue());
 		
@@ -748,11 +767,11 @@ public class VOFormDE extends DivRepForm
 		try {
 			if(rec.id == null) {
 				model.insertDetail(rec, 
-						contacts, 
-						parent_vo.getValue(), 
-						foss,
-						vo_report_name_div.getVOReports(model),
-						oasis_info.getManagerContacts());
+					contacts, 
+					parent_vo.getValue(), 
+					foss,
+					vo_report_name_div.getVOReports(model),
+					oasis_info.getManagerContacts());
 				context.message(MessageType.SUCCESS, "Successfully registered new VO. You should receive a notification with an instruction on how to active your VO.");
 				
 				try {
@@ -768,11 +787,11 @@ public class VOFormDE extends DivRepForm
 				}
 			} else {
 				model.updateDetail(rec, 
-						contacts, 
-						parent_vo.getValue(), 
-						foss,
-						vo_report_name_div.getVOReports(model),
-						oasis_info.getManagerContacts());
+					contacts, 
+					parent_vo.getValue(), 
+					foss,
+					vo_report_name_div.getVOReports(model),
+					oasis_info.getManagerContacts());
 				context.message(MessageType.SUCCESS, "Successfully updated a VO.");
 			}
 			return true;

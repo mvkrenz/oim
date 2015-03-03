@@ -66,8 +66,7 @@ public class UserCertApprove implements IView {
             		if(model.canOverrideCN(rec)) {
             			if(cn_override.validate()) {
 	                		//Regenerate DN using provided CN
-	                		X500Name name = model.generateDN(cn_override.getValue());
-	                		rec.dn = CertificateManager.RFC1779_to_ApacheDN(name.toString());
+	                		rec.dn = model.guessDN(rec.vo_id, cn_override.getValue());
 	                		
 	                		//make sure we don't have duplicate CN requested already.
 							try {

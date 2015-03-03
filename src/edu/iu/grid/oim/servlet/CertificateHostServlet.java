@@ -186,15 +186,7 @@ public class CertificateHostServlet extends ServletBase  {
 				out.write("<td>"+StringEscapeUtils.escapeHtml(rec.status));
 				if(rec.status.equals(CertificateRequestStatus.ISSUING)) {
 					out.write("<div id=\"status_progress\">Loading...</div>");
-					/*
-					out.write("<script>");
-					out.write("function loadstatus() { ");
-					out.write("$('#status_progress').load('certificatehost?id="+rec.id+"&status');");
-					out.write("setTimeout('loadstatus()', 2000);");
-					out.write("}");
-					out.write("loadstatus();");
-					out.write("</script>");
-					*/
+
 					out.write("<script type=\"text/javascript\">");
 					out.write("function loadstatus() { ");
 					//why adding new Date()? see http://stackoverflow.com/questions/1061525/jquerys-load-not-working-in-ie-but-fine-in-firefox-chrome-and-safari
@@ -212,11 +204,7 @@ public class CertificateHostServlet extends ServletBase  {
 				String[] cns = rec.getCNs();
 				String[] statuses = rec.getStatuses();
 				String[] serial_ids = rec.getSerialIDs();
-				/*
-				if(rec.status.equals(CertificateRequestStatus.ISSUED)) {
-					serial_ids = rec.getSerialIDs();
-				}
-				*/
+
 				out.write("<table class=\"table table-bordered table-striped\">");
 				out.write("<thead><tr><th>CN</th><th>Certificates</th><th>Serial Number</th></tr></thead>");
 				int i = 0;
@@ -345,6 +333,7 @@ public class CertificateHostServlet extends ServletBase  {
 						VOModel vmodel = new VOModel(context);
 						VORecord vo = vmodel.get(rec.approver_vo_id);
 						out.write(vo.name);
+						out.write(" ("+StringEscapeUtils.escapeHtml(vo.certificate_signer)+")");
 					} catch (SQLException e) {
 						log.error("Failed to lookup vo", e);
 					}
@@ -395,29 +384,7 @@ public class CertificateHostServlet extends ServletBase  {
 	
 	protected GenericView nextActionControl(final UserContext context, final CertificateRequestHostRecord rec) {
 		GenericView v = new GenericView();
-		
-		/*
-		if( //rec.status.equals(CertificateRequestStatus.RENEW_REQUESTED) ||
-			rec.status.equals(CertificateRequestStatus.REQUESTED)) {
-				v.add(new HtmlView("<p class=\"alert alert-info\">GridAdmin to approve request</p>"));
-			} else if(rec.status.equals(CertificateRequestStatus.APPROVED)) {
-				v.add(new HtmlView("<p class=\"alert alert-info\">Requester to issue certificate & download</p>"));
-			} else if(rec.status.equals(CertificateRequestStatus.ISSUED)) {
-				v.add(new HtmlView("<p class=\"alert alert-info\">Requester to download certificate</p>"));
-			} else if(rec.status.equals(CertificateRequestStatus.REJECTED) ||
-					rec.status.equals(CertificateRequestStatus.REVOKED) ||
-					rec.status.equals(CertificateRequestStatus.EXPIRED)
-					) {
-				v.add(new HtmlView("<p class=\"alert alert-info\">No further action.</p>"));
-			}  else if(rec.status.equals(CertificateRequestStatus.FAILED)) {
-				v.add(new HtmlView("<p class=\"alert alert-info\">GOC engineer to troubleshoot & resubmit</p>"));
-			} else if(rec.status.equals(CertificateRequestStatus.REVOCATION_REQUESTED)) {
-				v.add(new HtmlView("<p class=\"alert alert-info\">GridAdmin to revoke certificates</p>"));
-			} else if(rec.status.equals(CertificateRequestStatus.ISSUING)) {
-				v.add(new HtmlView("<p class=\"alert alert-info\">Please wait for a minute for signer to sign.</p>"));
-			}
-		*/
-		
+			
 		final String url = "certificatehost?id="+rec.id;
 		
 		BootTabView tabview = new BootTabView();
@@ -460,28 +427,6 @@ public class CertificateHostServlet extends ServletBase  {
 			pane.add(button);
 			tabview.addtab("Approve", pane);
 		}
-		/*
-		if(model.canRequestRenew(rec)) {
-			final DivRepButton button = new DivRepButton(context.getPageRoot(), "<button class=\"btn btn-primary\"><i class=\"icon-refresh icon-white\"></i> Request Renew</button>");
-			button.setStyle(DivRepButton.Style.HTML);
-			button.addClass("inline");
-			button.addEventListener(new DivRepEventListener() {
-                public void handleEvent(DivRepEvent e) {
-                	if(note.validate()) {
-                		context.setComment(note.getValue());
-	                  	try {
-	                  		model.requestRenew(rec);
-	                		button.redirect(url);
-	                	} catch (CertificateRequestException e1) {
-	                		button.alert("Failed to request renewal");
-	                	}
-                	}
-                }
-            });
-			v.add(button);
-			note.setHidden(false);
-		}
-		*/
 		
 		if(model.canRequestRevoke(rec)) {
 			GenericView pane = new GenericView();
@@ -674,54 +619,6 @@ public class CertificateHostServlet extends ServletBase  {
 		final Authorization auth = context.getAuthorization();
 		final SimpleDateFormat dformat = new SimpleDateFormat();
 		dformat.setTimeZone(auth.getTimeZone());
-		/*
-		class IDForm extends DivRep {
-			final DivRepTextBox id;
-			final DivRepButton open;
-			public IDForm(DivRep parent) {
-				super(parent);
-				id = new DivRepTextBox(this);
-				//id.setLabel("Open by Request ID");
-				id.setWidth(150);
-				open = new DivRepButton(this, "Open");
-				open.addEventListener(new DivRepEventListener() {
-					@Override
-					public void handleEvent(DivRepEvent e) {
-						if(id.getValue() == null || id.getValue().trim().isEmpty()) {
-							alert("Please enter request ID to open");
-						} else {
-							redirect("certificatehost?id="+id.getValue());
-						}
-					}
-				});
-				open.addClass("btn");
-			}
-	
-			@Override
-			public void render(PrintWriter out) {
-				out.write("<div id=\""+getNodeID()+"\" class=\"pull-right\">");
-				//out.write("<p>Please enter host certificate request ID to view details</p>");
-				
-				out.write("<table><tr>");
-				out.write("<td>Open By Request ID </td>");
-				out.write("<td>");
-				id.render(out);
-				out.write("</td>");
-				out.write("<td style=\"vertical-align: top;\">");
-				open.render(out);
-				out.write("</td>");
-				out.write("</tr></table>");
-				
-				out.write("</div>");
-			}
-
-			@Override
-			protected void onEvent(DivRepEvent e) {
-				// TODO Auto-generated method stub
-				
-			}
-		};
-		*/
 		
 		return new IView(){
 			@Override
@@ -736,10 +633,6 @@ public class CertificateHostServlet extends ServletBase  {
 				out.write("</div>"); //span3
 				
 				out.write("<div class=\"span9\">");
-				/*
-				IDForm form = new IDForm(context.getPageRoot());
-				form.render(out);
-				*/
 				if(auth.isUser()) {
 					renderMyList(out);
 				}
@@ -775,8 +668,7 @@ public class CertificateHostServlet extends ServletBase  {
 					out.write("<div class=\"alert\">Failed to load my user certificate requests</div>");
 					log.error(e1);
 				}
-				
-				
+
 				out.write("</div>");//content
 			}
 		};

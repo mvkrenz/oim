@@ -1,7 +1,5 @@
 package edu.iu.grid.oim.model.cert;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.security.KeyStore;
@@ -11,21 +9,21 @@ import java.security.cert.X509Certificate;
 import java.security.cert.Certificate;
 import java.util.ArrayList;
 
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.TrustManagerFactory;
-
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.cookie.CookiePolicy;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.log4j.Logger;
+
 import org.bouncycastle.asn1.x500.RDN;
 import org.bouncycastle.asn1.x500.X500Name;
+import org.bouncycastle.asn1.x500.X500NameBuilder;
 import org.bouncycastle.asn1.x500.style.BCStyle;
 import org.bouncycastle.cms.CMSException;
 import org.bouncycastle.pkcs.PKCS10CertificationRequest;
-import org.bouncycastle.util.encoders.Base64;
 
 import edu.iu.grid.oim.lib.StaticConfig;
 
@@ -52,7 +50,7 @@ public class CILogonCertificateSigner implements ICertificateSigner {
     */
 
     public CILogonCertificateSigner() {
-    	//won't this interfare with anything else?
+    	//won't this interfare with something else?
         System.setProperty("javax.net.ssl.keyStore", StaticConfig.conf.getProperty("cilogon.api.user.pkcs12"));
         System.setProperty("javax.net.ssl.keyStorePassword", StaticConfig.conf.getProperty("cilogon.api.user.pkcs12_password"));
         System.setProperty("javax.net.ssl.keyStoreType", "PKCS12");  
@@ -66,6 +64,27 @@ public class CILogonCertificateSigner implements ICertificateSigner {
 			super("From CILogon: " + msg);
 		}
 	};
+	/*
+	@Override
+    public X500NameBuilder generateX500NameBuilder() {
+        X500NameBuilder x500NameBld = new X500NameBuilder(BCStyle.INSTANCE);
+
+        //DigiCert overrides the DN, so none of these matters - except CN which is used to send common_name parameter
+        //We are creating this so that we can create private key
+        x500NameBld.addRDN(BCStyle.O, "org");
+        x500NameBld.addRDN(BCStyle.DC, "Open Science Grid");
+        if(StaticConfig.isDebug()) {
+        	//let's assume debug means we are using digicert pilot
+        	x500NameBld.addRDN(BCStyle.O, "Test");
+        } else {
+        	x500NameBld.addRDN(BCStyle.O, "Production");
+        }
+        x500NameBld.addRDN(BCStyle.OU, "People");   
+        
+        return x500NameBld;
+        //return x500NameBld.build();
+    }
+    */
 	
 	public CertificateBase signUserCertificate(String csr, String dn, String email_address) throws CertificateProviderException {
 		return requestUserCert(csr, dn, email_address);
@@ -87,7 +106,7 @@ public class CILogonCertificateSigner implements ICertificateSigner {
 			String cn;
 			String csr = cert.csr;
 			try {
-				PKCS10CertificationRequest pkcs10 = new PKCS10CertificationRequest(Base64.decode(csr));
+				PKCS10CertificationRequest pkcs10 = new PKCS10CertificationRequest(Base64.decodeBase64(csr));
 				X500Name name = pkcs10.getSubject();
 				RDN[] cn_rdn = name.getRDNs(BCStyle.CN);
 				cn = cn_rdn[0].getFirst().getValue().toString(); //wtf?
@@ -160,7 +179,15 @@ public class CILogonCertificateSigner implements ICertificateSigner {
 				X509Certificate c0 = CertificateManager.getIssuedX509Cert(chain);
 				cert.notafter = c0.getNotAfter();
 				cert.notbefore = c0.getNotBefore();
-				cert.intermediate = "NO-INT";
+				
+				//convert issued cert to pem (why don't we do this at CertificateDownload??)
+		        String pem = "-----BEGIN CERTIFICATE-----\n";
+		        pem += new String(Base64.encodeBase64Chunked(c0.getEncoded()));
+		        pem += "-----END CERTIFICATE-----";
+		        cert.certificate = pem;
+		        
+		        //do we need this stuff?
+				cert.intermediate = "(cilogin cert doesn't have intermediate)";
 				
 				//convert to hex.. to be consistent with Digicert?
 				cert.serial = c0.getSerialNumber().toString(16);
@@ -170,13 +197,13 @@ public class CILogonCertificateSigner implements ICertificateSigner {
 				throw new CILogonCertificateSignerException("Unknown status code from cilogon: " +post.getStatusCode());	
 			}		
 		} catch (HttpException e) {
-			throw new CILogonCertificateSignerException("Failed to make cilogon/rest request", e);
+			throw new CILogonCertificateSignerException("Failed to make cilogon/rest request: "+e, e);
 		} catch (IOException e) {
-			throw new CILogonCertificateSignerException("Failed to make cilogon/rest request", e);
+			throw new CILogonCertificateSignerException("Failed to make cilogon/rest request: "+e, e);
 		} catch (CertificateException e) {
-			throw new CILogonCertificateSignerException("Failed to parse certificate", e);
+			throw new CILogonCertificateSignerException("Failed to parse certificate: "+e, e);
 		} catch (CMSException e) {
-			throw new CILogonCertificateSignerException("Failed to parse certificate", e);
+			throw new CILogonCertificateSignerException("Failed to parse certificate: "+e, e);
 		}
 	}
 	
@@ -235,13 +262,13 @@ public class CILogonCertificateSigner implements ICertificateSigner {
 				throw new CILogonCertificateSignerException("Unknown status code from cilogon: " +post.getStatusCode());	
 			}	
 		} catch (HttpException e) {
-			throw new CILogonCertificateSignerException("Failed to make cilogon/rest request", e);
+			throw new CILogonCertificateSignerException("Failed to make cilogon/rest request: "+e, e);
 		} catch (IOException e) {
-			throw new CILogonCertificateSignerException("Failed to make cilogon/rest request", e);
+			throw new CILogonCertificateSignerException("Failed to make cilogon/rest request: "+e, e);
 		} catch (CertificateException e) {
-			throw new CILogonCertificateSignerException("Failed to make cilogon/rest request", e);
+			throw new CILogonCertificateSignerException("Failed to make cilogon/rest request: "+e, e);
 		} catch (CMSException e) {
-			throw new CILogonCertificateSignerException("Failed to make cilogon/rest request", e);
+			throw new CILogonCertificateSignerException("Failed to make cilogon/rest request "+e, e);
 		}
 	}
 	
@@ -262,9 +289,9 @@ public class CILogonCertificateSigner implements ICertificateSigner {
 				throw new CILogonCertificateSignerException("Unknown status code from cilogon: " +post.getStatusCode());	
 			}	
 		} catch (HttpException e) {
-			throw new CILogonCertificateSignerException("Failed to make cilogon/rest request", e);
+			throw new CILogonCertificateSignerException("Failed to make cilogon/rest request: "+e, e);
 		} catch (IOException e) {
-			throw new CILogonCertificateSignerException("Failed to make cilogon/rest request", e);
+			throw new CILogonCertificateSignerException("Failed to make cilogon/rest request: "+e, e);
 		}
 	}
 

@@ -296,7 +296,7 @@ public class VOServlet extends ServletBase implements Servlet {
 				list.append("</ul>");
 				table.addRow("OASIS Repo. URLs", new HtmlView(list.toString()));
 			}
-			
+			table.addRow("Certificate Signer", rec.certificate_signer);
 			table.addRow("Active", rec.active);
 			table.addRow("Disable", rec.disable);
 		} catch (SQLException e) {

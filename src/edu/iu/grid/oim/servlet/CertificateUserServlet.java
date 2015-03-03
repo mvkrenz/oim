@@ -472,19 +472,23 @@ public class CertificateUserServlet extends ServletBase  {
 					}
 					out.write("</td></tr>");			
 					
-					//VO
+					//VO / CA
 					out.write("<tr>");
 					out.write("<th>VO</th>");
 					VOModel vmodel = new VOModel(context);
 					VORecord vo;
 					try {
 						vo = vmodel.get(rec.vo_id);
-						out.write("<td>"+StringEscapeUtils.escapeHtml(vo.name)+"</td>");
+						out.write("<td>");
+						out.write(StringEscapeUtils.escapeHtml(vo.name));
+						out.write(" ("+StringEscapeUtils.escapeHtml(vo.certificate_signer)+")");
+						out.write("</td>");
 					} catch (SQLException e) {
 						log.error("Failed to find vo information for certificate view", e);
 						out.write("<td><span class=\"muted\">N/A</span></td>");
 					}
 					out.write("</tr>");
+					
 					
 					try {
 						out.write("<tr>");

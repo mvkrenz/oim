@@ -126,7 +126,7 @@ public class Footprints
 			Document ret = parseXML(post.getResponseBodyAsStream());
 			NodeList status_nl = ret.getElementsByTagName("Status");
 			Element status = (Element)status_nl.item(0);
-			if(status.getTextContent().equals("success")) {
+			if(status != null && status.getTextContent().equals("success")) {
 				Element ticket_id_e = (Element) ret.getElementsByTagName("TicketID").item(0);
 				return ticket_id_e.getTextContent();
 			}

@@ -15,6 +15,7 @@ import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.log4j.Logger;
 import org.bouncycastle.asn1.x500.RDN;
 import org.bouncycastle.asn1.x500.X500Name;
+import org.bouncycastle.asn1.x500.X500NameBuilder;
 import org.bouncycastle.asn1.x500.style.BCStyle;
 import org.bouncycastle.pkcs.PKCS10CertificationRequest;
 import org.bouncycastle.util.encoders.Base64;
@@ -39,6 +40,28 @@ public class DigicertCertificateSigner implements ICertificateSigner {
 	public CertificateBase signUserCertificate(String csr, String dn, String email_address) throws CertificateProviderException {
 		return requestUserCert(csr, dn, email_address);
 	}
+	
+	/*
+	@Override
+    public X500NameBuilder generateX500NameBuilder() {
+        X500NameBuilder x500NameBld = new X500NameBuilder(BCStyle.INSTANCE);
+
+        //DigiCert overrides the DN, so none of these matters - except CN which is used to send common_name parameter
+        //We are creating this so that we can create private key
+        x500NameBld.addRDN(BCStyle.DC, "com");
+        x500NameBld.addRDN(BCStyle.DC, "DigiCert-Grid");
+        if(StaticConfig.isDebug()) {
+        	//let's assume debug means we are using digicert pilot
+        	x500NameBld.addRDN(BCStyle.O, "OSG Pilot");
+        } else {
+        	x500NameBld.addRDN(BCStyle.O, "Open Science Grid");
+        }
+        x500NameBld.addRDN(BCStyle.OU, "People");   
+        
+        return x500NameBld;
+        //return x500NameBld.build();
+    }
+    */
 	
 	//pass csrs, and 
 	public void signHostCertificates(CertificateBase[] certs, IHostCertificatesCallBack callback) throws CertificateProviderException {
@@ -223,13 +246,13 @@ public class DigicertCertificateSigner implements ICertificateSigner {
 			
 			throw new DigicertCPException("Unknown return code from grid_request_email_cert: " +result.getTextContent());	
 		} catch (HttpException e) {
-			throw new DigicertCPException("Failed to make grid_request_email_cert request:"+e.toString(), e);
+			throw new DigicertCPException("Failed to make grid_request_email_cert request:"+e, e);
 		} catch (IOException e) {
-			throw new DigicertCPException("Failed to make grid_request_email_cert request: "+e.toString(), e);
+			throw new DigicertCPException("Failed to make grid_request_email_cert request: "+e, e);
 		} catch (ParserConfigurationException e) {
-			throw new DigicertCPException("Failed to parse returned String from grid_request_email_cert", e);
+			throw new DigicertCPException("Failed to parse returned String from grid_request_email_cert: "+e, e);
 		} catch (SAXException e) {
-			throw new DigicertCPException("Failed to parse returned String from grid_request_email_cert", e);
+			throw new DigicertCPException("Failed to parse returned String from grid_request_email_cert: "+e, e);
 		}
 	}
 	
@@ -277,13 +300,13 @@ public class DigicertCertificateSigner implements ICertificateSigner {
 			}
 			throw new DigicertCPException("Unknown return code from grid_request_host_cert: " +result.getTextContent());
 		} catch (HttpException e) {
-			throw new DigicertCPException("Failed to make grid_request_host_cert request", e);
+			throw new DigicertCPException("Failed to make grid_request_host_cert request: "+e, e);
 		} catch (IOException e) {
-			throw new DigicertCPException("Failed to make grid_request_host_cert request", e);
+			throw new DigicertCPException("Failed to make grid_request_host_cert request: "+e, e);
 		} catch (ParserConfigurationException e) {
-			throw new DigicertCPException("Failed to parse returned String from grid_request_host_cert", e);
+			throw new DigicertCPException("Failed to parse returned String from grid_request_host_cert: "+e, e);
 		} catch (SAXException e) {
-			throw new DigicertCPException("Failed to parse returned String from grid_request_host_cert", e);
+			throw new DigicertCPException("Failed to parse returned String from grid_request_host_cert: "+e, e);
 		}
 	}
 	
@@ -331,13 +354,13 @@ public class DigicertCertificateSigner implements ICertificateSigner {
 			
 			throw new DigicertCPException("Unknown return code from grid_approve_request: " +result.getTextContent());	
 		} catch (HttpException e) {
-			throw new DigicertCPException("Failed to make grid_approve_request request", e);
+			throw new DigicertCPException("Failed to make grid_approve_request request: "+e, e);
 		} catch (IOException e) {
-			throw new DigicertCPException("Failed to make grid_approve_request request", e);
+			throw new DigicertCPException("Failed to make grid_approve_request request: "+e, e);
 		} catch (ParserConfigurationException e) {
-			throw new DigicertCPException("Failed to parse returned String from grid_approve_request", e);
+			throw new DigicertCPException("Failed to parse returned String from grid_approve_request: "+e, e);
 		} catch (SAXException e) {
-			throw new DigicertCPException("Failed to parse returned String from grid_approve_request", e);
+			throw new DigicertCPException("Failed to parse returned String from grid_approve_request: "+e, e);
 		}
 	}
 	
@@ -391,13 +414,13 @@ public class DigicertCertificateSigner implements ICertificateSigner {
 			
 			throw new DigicertCPException("Unknown return code for grid_retrieve_host_cert: " +result.getTextContent());	
 		} catch (HttpException e) {
-			throw new DigicertCPException("Failed to make grid_retrieve_host_cert request", e);
+			throw new DigicertCPException("Failed to make grid_retrieve_host_cert request: "+e, e);
 		} catch (IOException e) {
-			throw new DigicertCPException("Failed to make grid_retrieve_host_cert request", e);
+			throw new DigicertCPException("Failed to make grid_retrieve_host_cert request: "+e, e);
 		} catch (ParserConfigurationException e) {
-			throw new DigicertCPException("Failed to parse returned String from grid_retrieve_host_cert", e);
+			throw new DigicertCPException("Failed to parse returned String from grid_retrieve_host_cert: "+e, e);
 		} catch (SAXException e) {
-			throw new DigicertCPException("Failed to parse returned String from grid_retrieve_host_cert", e);
+			throw new DigicertCPException("Failed to parse returned String from grid_retrieve_host_cert: "+e, e);
 		}
 	}
 
@@ -448,13 +471,13 @@ public class DigicertCertificateSigner implements ICertificateSigner {
 				throw new DigicertCPException("Unknown return code from grid_request_host_revoke: " +result.getTextContent());
 			}
 		} catch (HttpException e) {
-			throw new DigicertCPException("Failed to make grid_request_host_revoke request", e);
+			throw new DigicertCPException("Failed to make grid_request_host_revoke request: "+e, e);
 		} catch (IOException e) {
-			throw new DigicertCPException("Failed to make grid_request_host_revoke request", e);
+			throw new DigicertCPException("Failed to make grid_request_host_revoke request: "+e, e);
 		} catch (ParserConfigurationException e) {
-			throw new DigicertCPException("Failed to parse returned String from grid_request_host_revoke", e);
+			throw new DigicertCPException("Failed to parse returned String from grid_request_host_revoke: "+e, e);
 		} catch (SAXException e) {
-			throw new DigicertCPException("Failed to parse returned String from grid_request_host_revoke", e);
+			throw new DigicertCPException("Failed to parse returned String from grid_request_host_revoke: "+e, e);
 		}
 	}
 
@@ -494,13 +517,13 @@ public class DigicertCertificateSigner implements ICertificateSigner {
 				throw new DigicertCPException("Unknown return code from grid_email_revoke: " +result.getTextContent());
 			}
 		} catch (HttpException e) {
-			throw new DigicertCPException("Failed to make grid_email_revoke request", e);
+			throw new DigicertCPException("Failed to make grid_email_revoke request: "+e, e);
 		} catch (IOException e) {
-			throw new DigicertCPException("Failed to make grid_email_revoke request", e);
+			throw new DigicertCPException("Failed to make grid_email_revoke request: "+e, e);
 		} catch (ParserConfigurationException e) {
-			throw new DigicertCPException("Failed to parse returned String from grid_email_revoke", e);
+			throw new DigicertCPException("Failed to parse returned String from grid_email_revoke: "+e, e);
 		} catch (SAXException e) {
-			throw new DigicertCPException("Failed to parse returned String from grid_email_revoke", e);
+			throw new DigicertCPException("Failed to parse returned String from grid_email_revoke: "+e, e);
 		}
 	}
 	

@@ -2,6 +2,8 @@ package edu.iu.grid.oim.model.cert;
 
 import java.util.Date;
 
+import org.bouncycastle.asn1.x500.X500NameBuilder;
+
 //Interface for certificate authority
 public interface ICertificateSigner {
 	
@@ -49,4 +51,5 @@ public interface ICertificateSigner {
 	
 	public String getUserDNBase();
 	public String getHostDNBase();
+	//public X500NameBuilder generateX500NameBuilder();
 }
