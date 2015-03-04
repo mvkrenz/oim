@@ -62,6 +62,8 @@ public class CertificateUserServlet extends ServletBase  {
     	public final static String request_revoke = "request_revoke";
     	public final static String revoke = "revoke";
     	public final static String re_request = "re_request";
+    	public final static String detail = "detail";
+    	public final static String log = "log";
     }
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException 
@@ -340,8 +342,11 @@ public class CertificateUserServlet extends ServletBase  {
 					if(select_tab.equals(TabLabels.re_request)) tabview.setActive(tab);
 				}
 				
-				tabview.addtab("Log", new LogView(), true);
-				tabview.addtab("Detail", new DetailView(), true);
+				tab = tabview.addtab("Log", new LogView(), true);
+				if(select_tab.equals(TabLabels.log)) tabview.setActive(tab);
+				
+				tab = tabview.addtab("Detail", new DetailView(), true);
+				if(select_tab.equals(TabLabels.detail)) tabview.setActive(tab);
 				
 				tabview.render(out);
 				

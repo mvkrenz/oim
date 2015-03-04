@@ -597,6 +597,7 @@ public class VOFormDE extends DivRepForm
 		certificate_signer = new DivRepSelectBox(this, signers);
 		certificate_signer.setLabel("Certificate Signer");
 		certificate_signer.setHidden(true);
+		certificate_signer.setHasNull(false);
 		if(id != null) {
 			certificate_signer.setValue(CertificateManager.Signers.valueOf(rec.certificate_signer).ordinal());
 		}	
