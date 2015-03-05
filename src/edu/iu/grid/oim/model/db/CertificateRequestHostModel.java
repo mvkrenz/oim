@@ -609,7 +609,6 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 			ticket.description += "Requester IP:" + context.getRemoteAddr() + "\n";
 			if(auth.isUser()) {
 				ContactRecord user = auth.getContact();
-				//ticket.description += "OIM User Name:" + user.name + "\n";
 				ticket.description += "Submitter is OIM authenticated with DN:" + auth.getUserDN() + "\n";
 			}
 			
@@ -666,8 +665,6 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 			throw new CertificateRequestException("Please specify exactly one CN containing the hostname. You have provided DN: " + name.toString());
 		}
 		String cn = cn_rdn[0].getFirst().getValue().toString(); //wtf?
-		
-    	//log.debug("cn found: " + cn);
     	return cn;
     }
     
@@ -688,14 +685,6 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
         Attribute[] attributes = csr.getAttributes(PKCSObjectIdentifiers.pkcs_9_at_extensionRequest);
         for(Attribute attribute : attributes) {
         	DERSet set = (DERSet)attribute.getAttrValues();
-        	/*
-        	DERSequence it = (DERSequence) set.getObjectAt(0);
-        	Enumeration e = it.getObjects();
-        	for (Enumeration<DERSequence> en = it.getObjects(); en.hasMoreElements();) {
-        		DERSequence item = en.nextElement();
-        		System.out.println(item);
-        	}
-        	*/
         	for (Enumeration<DERSequence> en = set.getObjects(); en.hasMoreElements();) {
         		DERSequence parent = en.nextElement();
             	for (Enumeration<DERSequence> en2 = parent.getObjects(); en2.hasMoreElements();) {
@@ -707,46 +696,9 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
             		}
             	}	
         	}
-        		
-        	//X509Extensions extensions = new X509Extensions(set);
-        	//X509Extension extension = extensions.getExtension(X509Extensions.SubjectAlternativeName);
         }
-    	
     	return sans;
-    } 
-    
-    /*
-    private String getExtensionValue(X509Certificate X509Certificate, String oid) throws IOException
-    {
-        String decoded = null;
-        byte[] extensionValue = X509Certificate.getExtensionValue(oid);
-
-        if (extensionValue != null)
-        {
-            ASN1Primitive derObject = toDERObject(extensionValue);
-            if (derObject instanceof DEROctetString)
-            {
-                DEROctetString derOctetString = (DEROctetString) derObject;
-
-                derObject = toDERObject(derOctetString.getOctets());
-                if (derObject instanceof ASN1String)
-                {
-                    ASN1String s = (ASN1String)derObject;
-                    decoded = s.getString();
-                }
-
-            }
-        }
-        return decoded;
-    }
-
-    private ASN1Primitive toDERObject(byte[] data) throws IOException
-    {
-        ByteArrayInputStream inStream = new ByteArrayInputStream(data);
-        ASN1InputStream asnInputStream = new ASN1InputStream(inStream);
-        return asnInputStream.readObject();
-    }
-    */
+    }  
     
     //find gridadmin who should process the request - identify domain from csrs
     //if there are more than 1 vos group, then user must specify approver_vo_id 
@@ -839,16 +791,7 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 	//NO-AC
 	public void requestRevoke(CertificateRequestHostRecord rec) throws CertificateRequestException {
 		rec.status = CertificateRequestStatus.REVOCATION_REQUESTED;
-		
-		/* - I feel I should not do blanket status update - let cert status take precedence
-		//mark all certificate as revocation_requested
-    	StringArray statuses = new StringArray(rec.getCertificates().length);
-		for(int c = 0; c < statuses.length(); ++c) {
-			statuses.set(c, CertificateRequestStatus.REVOCATION_REQUESTED);
-		}
-    	rec.cert_statuses = statuses.toXML();
-    	*/
-    	
+	    	
 		try {
 			super.update(get(rec.id), rec);
 		} catch (SQLException e) {
@@ -987,12 +930,6 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 		if(idx >= cert_serial_ids.length) {
 			throw new CertificateRequestException("Invalid certififcate index:"+idx);
 		}
-		/* - should be already checked
-		//make sure it's not already revoked
-		if(!statuses.get(idx).equals(CertificateRequestStatus.ISSUED)) {
-			throw new CertificateRequestException("Certififcate is not in issued state and can not be revoked.");
-		}
-		*/
 		
 		//revoke one
 		CertificateManager cm = CertificateManager.Factory(context, rec.approver_vo_id);
@@ -1078,39 +1015,6 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 		}
 		return null;
 	}
-	/*
-	//true if user can approve request
-	public boolean canRenew(CertificateRequestHostRecord rec, ArrayList<LogDetail> logs) {
-		if(!canView(rec)) return false;
-		
-		//only issued request can be renewed
-		if(!rec.status.equals(CertificateRequestStatus.ISSUED)) return false;
-		
-		//logged in?
-		if(!auth.isUser()) return false;
-		
-		//original requester or gridadmin?
-		ContactRecord contact = auth.getContact();
-		if(!rec.requester_contact_id.equals(contact.id) && !canApprove(rec)) return false;
-
-		//approved within 5 years?
-		LogDetail last = getLastApproveLog(logs);
-		if(last == null) return false; //never approved
-		Calendar five_years_ago = Calendar.getInstance();
-		five_years_ago.add(Calendar.YEAR, -5);
-		if(last.time.before(five_years_ago.getTime())) return false;
-	
-		
-		//TODO -- will expire in less than 6 month? (can I gurantee that all certificates has the same expiration date?)
-		//Calendar six_month_future = Calendar.getInstance();
-		//six_month_future.add(Calendar.MONTH, 6);
-		//if(rec.cert_notafter.after(six_month_future.getTime())) return false;
-		
-		
-		//all good
-		return true;
-	}
-	*/
 	
 	public boolean canReject(CertificateRequestHostRecord rec) {
 		return canApprove(rec); //same rule as approval
@@ -1167,19 +1071,6 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 		}
 		return false;
 	}
-	
-	/*
-	public boolean canRequestRenew(CertificateRequestHostRecord rec) {
-		if(!canView(rec)) return false;
-		
-		if(	rec.status.equals(CertificateRequestStatus.ISSUED)) {
-			if(auth.isUser()) {
-				return true;
-			}
-		}
-		return false;
-	}
-	*/
 	
 	public boolean canRequestRevoke(CertificateRequestHostRecord rec) {
 		if(!canView(rec)) return false;
@@ -1253,7 +1144,6 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 	    pstmt.close();
 	    conn.close();
 	    return rec;
-		
 	}
 	
 	//pass null to not filter
@@ -1308,23 +1198,6 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 		// TODO Auto-generated method stub
 		return null;
 	}
-	/*
-	public ArrayList<CertificateRequestHostRecord> findUpdatedIn(Integer morethan, Integer lessthan) throws SQLException {
-		ArrayList<CertificateRequestHostRecord> recs = new ArrayList<CertificateRequestHostRecord>();
-		
-		ResultSet rs = null;
-		Connection conn = connectOIM();
-		Statement stmt = conn.createStatement();
-		stmt.execute("SELECT * FROM "+table_name + " WHERE status = 'ISSUED' AND -----condition for expiration date-------");
-    	rs = stmt.getResultSet();
-    	while(rs.next()) {
-    		recs.add(new CertificateRequestHostRecord(rs));
-    	}
-	    stmt.close();
-	    conn.close();
-	    return recs;
-	}
-	*/
 	
 	public void notifyExpiringIn(Integer days_less_than) throws SQLException {
 		final SimpleDateFormat dformat = new SimpleDateFormat();
@@ -1363,7 +1236,14 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 			
 			//don't send to CCs
 			ticket.mail_suppression_ccs = true;
-			fp.update(ticket, rec.goc_ticket_id);
+			if(StaticConfig.isDebug()) {
+				log.debug("skipping (this is debug) ticket update on ticket : " + rec.goc_ticket_id + " to notify expiring host certificate");
+				log.debug(ticket.description);
+				log.debug(ticket.status);
+			} else {
+				fp.update(ticket, rec.goc_ticket_id);
+				log.info("updated goc ticket : " + rec.goc_ticket_id + " to notify expiring host certificate");
+			}
 		}
 	}
 	
@@ -1409,7 +1289,14 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 				Footprints fp = new Footprints(context);
 				FPTicket ticket = fp.new FPTicket();
 				ticket.description = "Certificate(s) has been expired.";
-				fp.update(ticket, rec.goc_ticket_id);
+				if(StaticConfig.isDebug()) {
+					log.debug("skipping (this is debug) ticket update on ticket : " + rec.goc_ticket_id + " to notify expired host certificate");
+					log.debug(ticket.description);
+					log.debug(ticket.status);
+				} else {
+					fp.update(ticket, rec.goc_ticket_id);
+					log.info("updated goc ticket : " + rec.goc_ticket_id + " to notify expired host certificate");
+				}
 				
 				log.info("sent expiration notification for user certificate request: " + rec.id + " (ticket id:"+rec.goc_ticket_id+")");
 			}
@@ -1434,13 +1321,19 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 				FPTicket ticket = fp.new FPTicket();
 				
 				ContactModel cmodel = new ContactModel(context);
-				//ContactRecord requester = cmodel.get(rec.requester_contact_id);
-				
+
 				//send notification
 				ticket.description = "Dear " + rec.requester_name + ",\n\n";
 				ticket.description += "Your host certificate (id: "+rec.id+") was approved 15 days ago. The request is scheduled to be automatically canceled within another 15 days. Please take this opportunity to download your approved certificate at your earliest convenience. If you are experiencing any trouble with the issuance of your certificate, please feel free to contact the GOC for further assistance. Please visit "+getTicketUrl(rec.id)+" to issue your host certificate.\n\n";
 				
-				fp.update(ticket, rec.goc_ticket_id);
+				if(StaticConfig.isDebug()) {
+					log.debug("skipping (this is debug) ticket update on ticket : " + rec.goc_ticket_id + " to notify expiring status for host certificate");
+					log.debug(ticket.description);
+					log.debug(ticket.status);
+				} else {
+					fp.update(ticket, rec.goc_ticket_id);
+					log.info("updated goc ticket : " + rec.goc_ticket_id + " to notify expiring status for host certificate");
+				}
 				log.info("sent approval expiration warning notification for host certificate request: " + rec.id + " (ticket id:"+rec.goc_ticket_id+")");
 			}
 	    }	
@@ -1460,13 +1353,20 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 				FPTicket ticket = fp.new FPTicket();
 				
 				ContactModel cmodel = new ContactModel(context);
-				//ContactRecord requester = cmodel.get(rec.requester_contact_id);
-				
+
 				//send notification
 				ticket.description = "Dear " + rec.requester_name + ",\n\n";
 				ticket.description += "You did not issue your host certificate (id: "+rec.id+") within 30 days from the approval. In compliance with OSG PKI policy, the request is being canceled. You are welcome to re-request if necessary at "+getTicketUrl(rec.id)+".\n\n";
 				ticket.status = "Resolved";
-				fp.update(ticket, rec.goc_ticket_id);
+
+				if(StaticConfig.isDebug()) {
+					log.debug("skipping (this is debug) ticket update on ticket : " + rec.goc_ticket_id + " to notify expired status for host certificate");
+					log.debug(ticket.description);
+					log.debug(ticket.status);
+				} else {
+					fp.update(ticket, rec.goc_ticket_id);
+					log.info("updated goc ticket : " + rec.goc_ticket_id + " to notify expired status for host certificate");
+				}
 				
 				log.info("sent approval calelation notification for host certificate request: " + rec.id + " (ticket id:"+rec.goc_ticket_id+")");
 			}
@@ -1475,23 +1375,6 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 	    stmt.close();
 	    conn.close();		
 	}
-	/*
-	public  ArrayList<CertificateRequestHostRecord>  findNullIssuedExpiration() throws SQLException {
-		ArrayList<CertificateRequestHostRecord> recs = new ArrayList<CertificateRequestHostRecord>();
-		
-		ResultSet rs = null;
-		Connection conn = connectOIM();
-		Statement stmt = conn.createStatement();
-		stmt.execute("SELECT * FROM "+table_name + " WHERE status = '"+CertificateRequestStatus.ISSUED+"' AND (cert_notafter is NULL or cert_notbefore is NULL)");
-    	rs = stmt.getResultSet();
-    	while(rs.next()) {
-    		recs.add(new CertificateRequestHostRecord(rs));
-    	}
-	    stmt.close();
-	    conn.close();
-	    return recs;
-	}
-	*/
 	
 	//used by RestServlet only once to reset approver_vo_id
 	public  ArrayList<CertificateRequestHostRecord>  findNullVO() throws SQLException {
@@ -1513,9 +1396,7 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 	//one time function to reset cert_statuses field for all records
 	public void resetStatuses(PrintWriter out) throws SQLException {
 		out.write("CertificateRequestHostModel::resetStatuses\n");
-		
-		//ArrayList<CertificateRequestHostRecord> recs = new ArrayList<CertificateRequestHostRecord>();
-		
+	
 		ResultSet rs = null;
 		Connection conn = connectOIM();
 		Statement stmt = conn.createStatement();

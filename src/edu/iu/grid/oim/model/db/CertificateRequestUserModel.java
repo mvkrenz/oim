@@ -1069,7 +1069,14 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 				ticket.description = "Dear " + requester.name + ",\n\n";
 				ticket.description += "Your user certificate ("+rec.dn+") has expired. Please re-request your certificate at "+getTicketUrl(rec.id, TabLabels.re_request);
 				
-				fp.update(ticket, rec.goc_ticket_id);
+				if(StaticConfig.isDebug()) {
+					log.debug("skipping (this is debug) ticket update on ticket : " + rec.goc_ticket_id + " to notify expired user certificate");
+					log.debug(ticket.description);
+					log.debug(ticket.status);
+				} else {
+					fp.update(ticket, rec.goc_ticket_id);
+					log.info("updated goc ticket : " + rec.goc_ticket_id + " to notify expired user certificate");
+				}
 				
 				log.info("sent expiration notification for user certificate request: " + rec.id + " (ticket id:"+rec.goc_ticket_id+")");
 			}
@@ -1104,7 +1111,14 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 				ticket.description += "If you are experiencing any trouble with the issuance of your certificate, please feel free to contact the GOC for further assistance. ";
 				ticket.description += "Please visit "+getTicketUrl(rec.id, TabLabels.issue)+" to issue your user certificate.\n\n";
 				
-				fp.update(ticket, rec.goc_ticket_id);
+				if(StaticConfig.isDebug()) {
+					log.debug("skipping (this is debug) ticket update on ticket : " + rec.goc_ticket_id + " to notify approval expiration for user certificate");
+					log.debug(ticket.description);
+					log.debug(ticket.status);
+				} else {
+					fp.update(ticket, rec.goc_ticket_id);
+					log.info("updated goc ticket : " + rec.goc_ticket_id + " to notify approval expiration for user certificate");
+				}
 				log.info("sent approval expiration warning notification for user certificate request: " + rec.id + " (ticket id:"+rec.goc_ticket_id+")");
 			}
 	    }	
@@ -1132,7 +1146,14 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 				ticket.description += "In compliance with OSG PKI policy, the request was canceled. You are welcome to re-request if necessary at "+getTicketUrl(rec.id, TabLabels.re_request)+".\n\n";
 				ticket.status = "Resolved";
 				
-				fp.update(ticket, rec.goc_ticket_id);
+				if(StaticConfig.isDebug()) {
+					log.debug("skipping (this is debug) ticket update on ticket : " + rec.goc_ticket_id + " to notify expired approval for user certificate");
+					log.debug(ticket.description);
+					log.debug(ticket.status);
+				} else {
+					fp.update(ticket, rec.goc_ticket_id);
+					log.info("updated goc ticket : " + rec.goc_ticket_id + " to notify expired approval for user certificate");
+				}
 				
 				log.info("sent approval calelation notification for user certificate request: " + rec.id + " (ticket id:"+rec.goc_ticket_id+")");
 			}
@@ -1177,7 +1198,6 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 			ticket.description += "If it is not, then please install your DigiCert user certificate and restart the browser. ";
 			ticket.description += "PKI renewal documentation can be found here: https://twiki.grid.iu.edu/bin/view/Documentation/OSGPKICertificateRenewal\n\n";
 
-			
 			//don't send to CCs
 			ticket.mail_suppression_ccs = true;
 			

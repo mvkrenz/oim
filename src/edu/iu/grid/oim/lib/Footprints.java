@@ -144,11 +144,13 @@ public class Footprints
 	
 	//return true if successful
 	public Boolean update(FPTicket ticket, String ticket_id) {
+		/*
 		if(StaticConfig.isDebug()) {
 			log.debug("skipping ticket update on ticket: " + ticket_id + " since debug flag is set");
 			log.debug(ticket.description);
 			return false;
 		}
+		*/
 		
 		log.info("updated goc ticket : " + ticket_id);
 		log.debug(ticket.description);
