@@ -55,7 +55,8 @@ public class CertificateRequestHostForm extends DivRepForm
 	private CSRs csrs;
 	private DivRepSelectBox vo;
 	
-	private DivRepCheckBox agreement;
+	//private DivRepCheckBox agreement;
+	private CertificateAUPDE aup;
 	
 	public class CSRs extends DivRepFormElement {
 
@@ -278,7 +279,10 @@ public class CertificateRequestHostForm extends DivRepForm
 		request_comment.setSampleValue("Please enter any comments, or request you'd like to make for GridAdmin");
 		request_comment.setWidth(600);
 		
-		new DivRepStaticContent(this, "<h2>OSG Policy Agreement</h2>");
+		aup = new CertificateAUPDE(this);
+		
+		/*
+		//new DivRepStaticContent(this, "<h2>OSG Policy Agreement</h2>");
 		//agreement doc comes from https://twiki.grid.iu.edu/twiki/pub/Operations/DigiCertAgreements/IGTF_Certificate_Subscriber_Agreement_-_Mar_26_2012.doc
 		InputStream aup_stream =getClass().getResourceAsStream("osg.certificate.agreement.html");
 		StringBuilder aup = ResourceReader.loadContent(aup_stream);
@@ -298,6 +302,8 @@ public class CertificateRequestHostForm extends DivRepForm
 				return "You must agree to these policies";
 			}
 		});
+		*/
+		
 	
 	}
 
