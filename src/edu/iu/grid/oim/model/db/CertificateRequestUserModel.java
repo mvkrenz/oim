@@ -1665,7 +1665,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 			sql += " AND dn like \"%"+StringEscapeUtils.escapeSql(dn_contains)+"%\"";
 		}
 		if(status != null) {
-			sql += " AND status = \""+status+"\"";
+			sql += " AND status = \""+StringEscapeUtils.escapeSql(status)+"\"";
 		}
 		if(vo_id != null) {
 			sql += " AND vo_id = "+vo_id;

@@ -1156,7 +1156,7 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 			sql += " AND cns like \"%"+StringEscapeUtils.escapeSql(cns_contains)+"%\"";
 		}
 		if(status != null) {
-			sql += " AND status = \""+status+"\"";
+			sql += " AND status = \""+StringEscapeUtils.escapeSql(status)+"\"";
 		}
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		if(request_after != null) {
