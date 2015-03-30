@@ -33,6 +33,7 @@ public class ResourceWLCG extends DivRepFormElement {
 		private DivRepTextBox ksi2k_minimum;
 		private DivRepTextBox ksi2k_maximum;
 		private DivRepTextBox hepspec;
+		private DivRepTextBox apel_normal_factor;
 		private DivRepTextBox storage_capacity_minimum;
 		private DivRepTextBox storage_capacity_maximum;
 		private DivRepTextBox tape_capacity;
@@ -91,6 +92,12 @@ public class ResourceWLCG extends DivRepFormElement {
 			hepspec.addValidator(DivRepDoubleValidator.getInstance());
 			hepspec.setSampleValue("85.0");
 			hepspec.setRequired(true);
+			
+			apel_normal_factor = new DivRepTextBox(this);
+			apel_normal_factor.setLabel("APEL Normalization Factor");
+			apel_normal_factor.addValidator(DivRepDoubleValidator.getInstance());
+			apel_normal_factor.setSampleValue("0.0");
+			apel_normal_factor.setRequired(true);
 
 			storage_capacity_minimum = new DivRepTextBox(this);
 			storage_capacity_minimum.setLabel("Storage Capacity Minimum (in TeraBytes)");
@@ -128,6 +135,9 @@ public class ResourceWLCG extends DivRepFormElement {
 					ksi2k_maximum.setValue(wrec.ksi2k_maximum.toString());
 				}
 				if(wrec.hepspec != null) {
+					hepspec.setValue(wrec.hepspec.toString());
+				}
+				if(wrec.apel_normal_factor != null) {
 					hepspec.setValue(wrec.hepspec.toString());
 				}
 				if(wrec.storage_capacity_minimum != null) {

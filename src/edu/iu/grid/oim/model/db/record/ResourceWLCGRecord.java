@@ -17,6 +17,7 @@ public class ResourceWLCGRecord extends RecordBase {
 	public Double storage_capacity_minimum;
 	public Double storage_capacity_maximum;
 	public Double tape_capacity;
+	public Double apel_normal_factor;
 
 	//load from existing record
 	public ResourceWLCGRecord(ResultSet rs) throws SQLException { super(rs); }
