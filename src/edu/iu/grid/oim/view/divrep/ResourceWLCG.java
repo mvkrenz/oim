@@ -138,7 +138,7 @@ public class ResourceWLCG extends DivRepFormElement {
 					hepspec.setValue(wrec.hepspec.toString());
 				}
 				if(wrec.apel_normal_factor != null) {
-					hepspec.setValue(wrec.hepspec.toString());
+					apel_normal_factor.setValue(wrec.apel_normal_factor.toString());
 				}
 				if(wrec.storage_capacity_minimum != null) {
 					storage_capacity_minimum.setValue(wrec.storage_capacity_minimum.toString());
@@ -200,6 +200,7 @@ public class ResourceWLCG extends DivRepFormElement {
 			rec.ksi2k_minimum      = ksi2k_minimum.getValueAsDouble();
 			rec.ksi2k_maximum      = ksi2k_maximum.getValueAsDouble();
 			rec.hepspec			   = hepspec.getValueAsDouble();
+			rec.apel_normal_factor = apel_normal_factor.getValueAsDouble();
 			rec.storage_capacity_minimum = storage_capacity_minimum.getValueAsDouble();
 			rec.storage_capacity_maximum = storage_capacity_maximum.getValueAsDouble();
 			rec.tape_capacity = tape_capacity.getValueAsDouble();
