@@ -98,44 +98,9 @@ public class ResourceGroupFormDE extends DivRepForm
 		description.setValue(rec.description);
 		description.setRequired(true);
 		
-		/*
-		new DivRepStaticContent(this, "<h2>WLCG / APEL Information</h2>");
-		new DivRepStaticContent(this, "<p class=\"help-block\">Please populate the following if this resource group has an MOU agreement with WLCG.</p>");
-
-		new DivRepStaticContent(this, "<a class=\"pull-right\" target=\"_blank\" href=\"https://twiki.grid.iu.edu/bin/view/Accounting/GratiaInterfacesApelLcg#Normalization_Factor\">What is this?</a>");
-		normalization_factor = new DivRepTextBox(this);
-		normalization_factor.setLabel("Normalization Factor (HEPSpec2006)");
-		normalization_factor.setValue("999");
-
-		apel_resources = new ArrayList<DivRepCheckBox>();
-		if(id != null) {
-			new DivRepStaticContent(this, "<p class=\"help-block\">Select resources that above normalization factor applies to.</p>");
-			ResourceModel rmodel = new ResourceModel(context);
-			ResourceServiceModel rsmodel = new ResourceServiceModel(context);
-			ArrayList<ResourceRecord> rrecs = rmodel.getByGroupID(id);
-			for(ResourceRecord rrec : rrecs) {
-				DivRepCheckBox box = new DivRepCheckBox(this);
-				box.setLabel(rrec.name);
-				apel_resources.add(box);
-			}
-		} else {
-			new DivRepStaticContent(this, "<p class=\"alert alert-warning\">You need to register at least one resource before specifying resouces that should use this information.</p>");
-		}
-		*/
-		
-
 		if(auth.allows("admin")) {
 			new DivRepStaticContent(this, "<h2>Administrative Tasks</h2>");
 		}
-
-		/*
-		active = new DivRepCheckBox(this);
-		active.setLabel("Active");
-		active.setValue(rec.active);
-		if(!auth.allows("admin")) {
-			active.setHidden(true);
-		}
-		*/
 		
 		disable = new DivRepCheckBox(this);
 		disable.setLabel("Disable");
