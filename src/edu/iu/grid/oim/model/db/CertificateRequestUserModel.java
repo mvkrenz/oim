@@ -1642,6 +1642,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 		CertificateRequestUserRecord rec = null;
 		ResultSet rs = null;
 		Connection conn = connectOIM();
+		//TODO - potential sql-injection vulnerability
 		PreparedStatement pstmt = conn.prepareStatement("SELECT * FROM "+table_name+ " WHERE cert_serial_id = ?");
 		pstmt.setString(1, serial_id);
 	    if (pstmt.executeQuery() != null) {
@@ -1698,6 +1699,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
     	String sql = "select * from log where model = 'edu.iu.grid.oim.model.db.CertificateRequestUserModel' and xml like ?";
     	Connection conn = connectOIM();
 		PreparedStatement stmt = conn.prepareStatement(sql); 
+		//TODO - potential sql-injection vulnerability
 		stmt.setString(1, "%<OldValue>"+serial_id+"</OldValue>%");
 		ResultSet rs = stmt.executeQuery();
 		if(rs.next()) {

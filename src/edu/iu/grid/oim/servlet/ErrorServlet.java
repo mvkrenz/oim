@@ -57,7 +57,11 @@ public class ErrorServlet extends HttpServlet {
 	    //construct full URL that caused the error (TODO - I still don't know how to put request parameter back..)
 	    String request_uri = (String)request.getAttribute("javax.servlet.error.request_uri");
 	    URL context_url = context.getRequestURL();
-	    request_uri = context_url.getProtocol()+"://"+context_url.getHost() + ":" + context_url.getPort() + request_uri;
+	    request_uri = context_url.getProtocol()+"://"+context_url.getHost();
+	    if(context_url.getPort() != -1) {
+	    	request_uri += ":" + context_url.getPort();
+	    }
+	    request_uri += request_uri;
 	    
 	    String ticket_url = "https://ticket.grid.iu.edu/submit?app_issue_check&app_issue_type=goc&app_goc_url="+StringEscapeUtils.escapeHtml(request_uri);
 	    
