@@ -598,9 +598,7 @@ public class VOFormDE extends DivRepForm
 		certificate_signer.setLabel("Certificate Signer");
 		certificate_signer.setHidden(true);
 		certificate_signer.setHasNull(false);
-		if(id != null) {
-			certificate_signer.setValue(CertificateManager.Signers.valueOf(rec.certificate_signer).ordinal());
-		}	
+		certificate_signer.setValue(CertificateManager.Signers.valueOf(rec.certificate_signer).ordinal());
 		
 		//keep this only available for debug for now.
 		if(StaticConfig.isDebug()) {
@@ -749,7 +747,7 @@ public class VOFormDE extends DivRepForm
 		
 		CertificateManager.Signers[] signers = CertificateManager.Signers.values();
 		rec.certificate_signer = signers[certificate_signer.getValue()].name();
-
+		
 		context.setComment(comment.getValue());
 		
 		ArrayList<VOContactRecord> contacts = getContactRecordsFromEditor();

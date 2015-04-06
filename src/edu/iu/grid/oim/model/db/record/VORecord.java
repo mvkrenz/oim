@@ -39,6 +39,10 @@ public class VORecord extends ConfirmableRecord {
 	//for creating new record
 	public VORecord() {
 		confirmed = new Timestamp(Calendar.getInstance().getTimeInMillis());
+
+		//I can't just set it to null and expect it to use mysql column default.. 
+		//probably due to oim's model explicitly setting it to null instead of letting it be default
+		certificate_signer = "Digicert"; 
 	}
 	public String getName() {
 		return name;
