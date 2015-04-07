@@ -61,7 +61,7 @@ public class ErrorServlet extends HttpServlet {
 	    if(context_url.getPort() != -1) {
 	    	request_uri += ":" + context_url.getPort();
 	    }
-	    request_uri += request_uri;
+	    request_uri += context_url.getPath();
 	    
 	    String ticket_url = "https://ticket.grid.iu.edu/submit?app_issue_check&app_issue_type=goc&app_goc_url="+StringEscapeUtils.escapeHtml(request_uri);
 	    
