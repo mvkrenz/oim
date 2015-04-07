@@ -57,13 +57,13 @@ public class ErrorServlet extends HttpServlet {
 	    //construct full URL that caused the error (TODO - I still don't know how to put request parameter back..)
 	    String request_uri = (String)request.getAttribute("javax.servlet.error.request_uri");
 	    URL context_url = context.getRequestURL();
-	    request_uri = context_url.getProtocol()+"://"+context_url.getHost();
+	    String request_uri_full = context_url.getProtocol()+"://"+context_url.getHost();
 	    if(context_url.getPort() != -1) {
-	    	request_uri += ":" + context_url.getPort();
+	    	request_uri_full += ":" + context_url.getPort();
 	    }
-	    request_uri += context_url.getPath();
+	    request_uri_full += request_uri;
 	    
-	    String ticket_url = "https://ticket.grid.iu.edu/submit?app_issue_check&app_issue_type=goc&app_goc_url="+StringEscapeUtils.escapeHtml(request_uri);
+	    String ticket_url = "https://ticket.grid.iu.edu/submit?app_issue_check&app_issue_type=goc&app_goc_url="+StringEscapeUtils.escapeHtml(request_uri_full);
 	    
 	    if(throwable instanceof AuthorizationException) {
 			contentview.add(new HtmlView("<h2>Authorization Error</h2>"));
@@ -73,7 +73,7 @@ public class ErrorServlet extends HttpServlet {
 			contentview.add(new HtmlView("<pre>"+throwable.getMessage()+"</pre>"));
 	
 			contentview.add(new HtmlView("<h3>URL</h3>"));
-			contentview.add(new HtmlView("<pre>"+request_uri+"</pre>"));
+			contentview.add(new HtmlView("<pre>"+request_uri_full+"</pre>"));
 	    } else {    	
 			contentview.add(new HtmlView("<h2>Oops!</h2>"));
 			contentview.add(new HtmlView("<p>Sorry, OIM has encountered a problem. </p>"));			
@@ -81,7 +81,7 @@ public class ErrorServlet extends HttpServlet {
 				"please <a target=\"_blank\" href=\""+ticket_url+"\">open a GOC ticket</a> with following detail.</p>"));
 		
 			contentview.add(new HtmlView("<h3>URL</h3>"));
-			contentview.add(new HtmlView("<pre>"+request_uri+"</pre>"));
+			contentview.add(new HtmlView("<pre>"+request_uri_full+"</pre>"));
 			
 			contentview.add(new HtmlView("<h3>Exception</h3>"));
 			contentview.add(new HtmlView("<pre>"+throwable+"</pre>"));
