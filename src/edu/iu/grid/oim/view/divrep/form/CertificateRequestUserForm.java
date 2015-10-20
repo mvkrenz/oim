@@ -186,7 +186,7 @@ public class CertificateRequestUserForm extends DivRepForm
 		this.context = context;
 		auth = context.getAuthorization();
 		
-		new DivRepStaticContent(this, "<h2>User Certificate Request</h2>");
+		new DivRepStaticContent(this, "<h2>User Certificate Request<br>ATLAS users please request directly from CERN</h2>");
 	
 		if(!auth.isUser()) {
 			new DivRepStaticContent(this, "<h3>Contact Information</h3>");

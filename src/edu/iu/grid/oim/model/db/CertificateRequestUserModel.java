@@ -1185,6 +1185,12 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 			ArrayList<CertificateRequestModelBase<CertificateRequestUserRecord>.LogDetail> logs = 
 					getLogs(CertificateRequestUserModel.class, rec.id);
 			AuthorizationCriterias criterias = canRenew(rec, logs, requester);
+			if(rec.vo_id == 35) { //ATLAS for OSGPKI-399
+				ticket.description += "In 2016, US ATLAS will cease to use OSG-supplied certificates, in favor of certificates issued by the CERN certificate authority (CA). ";
+				ticket.description += "To ensure minimal impact to your ATLAS privileges through this transition, US ATLAS encourages you to obtain a personal certificate from the CERN CA (if you don't yet have one), and add it to your existing ATLAS VO membership.\n\n";
+				ticket.description +="Issued OSG DigiCert certificates will remain valid and honored until their stated expiration dates. The Chrome browser is incompatible with the CERN CA service and will return an error ('Key not valid for use in specified state.').";
+				ticket.description += " Please use another browser, such as Firefox, to interact with the CERN CA site.";
+			}
 			if(criterias.passAll()) {	
 				ticket.description += "Please renew your user certificate at "+getTicketUrl(rec.id, TabLabels.renew)+"\n\n";
 				ticket.status = "Engineering"; //reopen it - until user renew
