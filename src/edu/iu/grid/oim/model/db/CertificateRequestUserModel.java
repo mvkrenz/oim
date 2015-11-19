@@ -1188,8 +1188,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 			if(rec.vo_id == 35) { //ATLAS for OSGPKI-399
 				ticket.description += "In 2016, US ATLAS will cease to use OSG-supplied certificates, in favor of certificates issued by the CERN certificate authority (CA). ";
 				ticket.description += "To ensure minimal impact to your ATLAS privileges through this transition, US ATLAS encourages you to obtain a personal certificate from the CERN CA (if you don't yet have one), and add it to your existing ATLAS VO membership.\n\n";
-				ticket.description +="Issued OSG DigiCert certificates will remain valid and honored until their stated expiration dates. The Chrome browser is incompatible with the CERN CA service and will return an error ('Key not valid for use in specified state.').";
-				ticket.description += " Please use another browser, such as Firefox, to interact with the CERN CA site.";
+				ticket.description += "For details on the OSG certificate CA migration, click https://www.racf.bnl.gov/docs/howto/grid/osg-ca-migration\n";
 			}
 			if(criterias.passAll()) {	
 				ticket.description += "Please renew your user certificate at "+getTicketUrl(rec.id, TabLabels.renew)+"\n\n";
