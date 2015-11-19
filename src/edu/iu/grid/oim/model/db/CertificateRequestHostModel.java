@@ -31,6 +31,10 @@ import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers;
 import org.bouncycastle.asn1.x500.RDN;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x500.style.BCStyle;
+import org.bouncycastle.asn1.x509.Extension;
+import org.bouncycastle.asn1.x509.Extensions;
+import org.bouncycastle.asn1.x509.GeneralName;
+import org.bouncycastle.asn1.x509.GeneralNames;
 import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
 import org.bouncycastle.cms.CMSException;
 import org.bouncycastle.crypto.params.RSAKeyParameters;
@@ -530,9 +534,11 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
     	for(String csr_string : csrs) {
         	log.debug("processing csr: " + csr_string);
     		String cn;
+    		ArrayList<String> sans;
 			try {
-	    		PKCS10CertificationRequest csr = parseCSR(csr_string);
-	    		cn = pullCNFromCSR(csr);
+	    		PKCS10CertificationRequest csr = CertificateManager.parseCSR(csr_string);
+	    		cn = CertificateManager.pullCNFromCSR(csr);
+	    		sans = CertificateManager.pullSANFromCSR(csr);
 	    		
 	    		//validate CN
 	    		//if(!cn.matches("^([-0-9a-zA-Z\\.]*/)?[-0-9a-zA-Z\\.]*$")) { //OSGPKI-255
@@ -540,6 +546,11 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 	    		//}
 	    		if(!cnv.isValid(cn)) {
 	    			throw new CertificateRequestException("CN specified is invalid: " + cn + " .. " + cnv.getErrorMessage());
+	    		}
+	    		for(String san : sans) {
+		    		if(!cnv.isValid(san)) {
+		    			throw new CertificateRequestException("SAN specified is invalid: " + san + " .. " + cnv.getErrorMessage());
+		    		}
 	    		}
 	    		
 	    		//check private key strength
@@ -645,61 +656,6 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
     	return rec;
     }
     
-	public PKCS10CertificationRequest parseCSR(String csr_string) throws IOException {
-		PKCS10CertificationRequest csr = new PKCS10CertificationRequest(Base64.decode(csr_string));
-		return csr;
-	}
-	
-    public String pullCNFromCSR(PKCS10CertificationRequest csr) throws CertificateRequestException {
-		//pull CN from pkcs10
-		X500Name name;
-		RDN[] cn_rdn;
-		try {
-			name = csr.getSubject();
-			cn_rdn = name.getRDNs(BCStyle.CN);
-		} catch(Exception e) {
-			throw new CertificateRequestException("Failed to decode CSR", e);
-		}
-		
-		if(cn_rdn.length != 1) {
-			throw new CertificateRequestException("Please specify exactly one CN containing the hostname. You have provided DN: " + name.toString());
-		}
-		String cn = cn_rdn[0].getFirst().getValue().toString(); //wtf?
-    	return cn;
-    }
-    
-    public ArrayList<String> pullSANFromCSR(PKCS10CertificationRequest csr) throws CertificateRequestException {
-    	ArrayList<String> sans = new ArrayList<String>();
-    	/*
-        GeneralNames subjectAltName = new GeneralNames(new GeneralName(GeneralName.rfc822Name, "test@test.test"));
-
-        // create the extensions object and add it as an attribute
-        Vector oids = new Vector();
-        Vector values = new Vector();
-        oids.add(X509Extensions.SubjectAlternativeName);
-        values.add(new X509Extension(false, new DEROctetString(subjectAltName)));
-        X509Extensions extensions = new X509Extensions(oids, values);
-        Attribute attribute = new Attribute(PKCSObjectIdentifiers.pkcs_9_at_extensionRequest, new DERSet(extensions));
-        */
-    	
-        Attribute[] attributes = csr.getAttributes(PKCSObjectIdentifiers.pkcs_9_at_extensionRequest);
-        for(Attribute attribute : attributes) {
-        	DERSet set = (DERSet)attribute.getAttrValues();
-        	for (Enumeration<DERSequence> en = set.getObjects(); en.hasMoreElements();) {
-        		DERSequence parent = en.nextElement();
-            	for (Enumeration<DERSequence> en2 = parent.getObjects(); en2.hasMoreElements();) {
-            		DERSequence item = en2.nextElement();
-            		ASN1ObjectIdentifier id = (ASN1ObjectIdentifier)item.getObjectAt(0);
-            		if(id.equals(new ASN1ObjectIdentifier("2.5.29.17"))) {
-            			DEROctetString sans_der = (DEROctetString)item.getObjectAt(1);
-            			//TODO... not sure where to go from here..
-            		}
-            	}	
-        	}
-        }
-    	return sans;
-    }  
-    
     //find gridadmin who should process the request - identify domain from csrs
     //if there are more than 1 vos group, then user must specify approver_vo_id 
     //   * it could be null for gridadmin with only 1 vo group, and approver_vo_id will be reset to the correct VO ID
@@ -716,10 +672,11 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
     	for(String csr_string : csrs) {
     		//parse CSR and pull CN
     		String cn;
+    		ArrayList<String> sans;
 			try {
-	    		PKCS10CertificationRequest csr = parseCSR(csr_string);
-	    		cn = pullCNFromCSR(csr);
-	    		//ArrayList<String> sans = pullSANFromCSR(csr);
+	    		PKCS10CertificationRequest csr = CertificateManager.parseCSR(csr_string);
+	    		cn = CertificateManager.pullCNFromCSR(csr);
+	    		sans = CertificateManager.pullSANFromCSR(csr);
 	    		
 			} catch (IOException e) {
 				log.error("Failed to base64 decode CSR", e);
@@ -748,6 +705,18 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 			} else {
 				if(!gridadmin_domain.equals(domain)) {
 					throw new CertificateRequestException("All host certificates must be approved by the same set of gridadmins. Different for " + cn);	
+				}
+			}
+			
+			//make sure SANs are also approved by the same domain
+			for(String san : sans) {
+				try {
+					String san_domain = gamodel.getDomainByFQDN(san);
+					if(!gridadmin_domain.equals(san_domain)) {
+						throw new CertificateRequestException("All SAN must be approved by the same set of gridadmins. Different for " + san);	
+					}
+				} catch (SQLException e) {
+					throw new CertificateRequestException("Failed to lookup GridAdmin for SAN:" + san, e);	
 				}
 			}
     	}

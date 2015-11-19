@@ -8,7 +8,6 @@ import org.bouncycastle.asn1.x500.X500NameBuilder;
 public interface ICertificateSigner {
 	
 	class CertificateProviderException extends Exception {
-
 		public CertificateProviderException(Exception e) {
 			super(e);
 		}
@@ -24,10 +23,8 @@ public interface ICertificateSigner {
 	
 	public class CertificateBase {
 		public CertificateBase() {
-			//this.issuer = issuer;
 		}
 		public String serial; //isser specific serial
-		//public String issuer;
 		public String csr; //csr used to request this certificate
 		
 		//returned by signer
@@ -51,5 +48,4 @@ public interface ICertificateSigner {
 	
 	public String getUserDNBase();
 	public String getHostDNBase();
-	//public X500NameBuilder generateX500NameBuilder();
 }

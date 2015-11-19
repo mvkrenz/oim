@@ -890,6 +890,12 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 						
 					//all done at this point
 					rec.status = CertificateRequestStatus.ISSUED;
+
+					//TODO - need to reset this so that OIM won't ask for passphrase when user renew this next year.
+					//https://ticket.opensciencegrid.org/26041
+					rec.requester_passphrase = null;
+					rec.requester_passphrase_salt = null;
+					
 					context.setComment("Certificate has been issued by signer. serial number: " + rec.cert_serial_id);
 					CertificateRequestUserModel.super.update(get(rec.id), rec);
 	
