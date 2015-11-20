@@ -67,12 +67,12 @@ public class CILogonCertificateSigner implements ICertificateSigner {
     }
     */
 	
-	public CertificateBase signUserCertificate(String csr, String dn, String email_address) throws CertificateProviderException {
-		return requestUserCert(csr, dn, email_address);
+	public CertificateBase signUserCertificate(String csr, String cn, String email_address) throws CertificateProviderException {
+		return requestUserCert(csr, cn, email_address);
 	}
 	
 	//pass csrs, and 
-	public void signHostCertificates(CertificateBase[] certs, IHostCertificatesCallBack callback) throws CertificateProviderException {
+	public void signHostCertificates(CertificateBase[] certs, IHostCertificatesCallBack callback, String email_address) throws CertificateProviderException {
 		
 		//cilogin request & sign immediately.. to simulate digicert behavior, let's pretent we've requested first.
 		callback.certificateRequested();
@@ -122,7 +122,7 @@ public class CILogonCertificateSigner implements ICertificateSigner {
 				throw new CertificateProviderException("Failed to parse Service Name from CN");
 			}
 			
-			CertificateBase issued_cert = requestHostCert(cert.csr, service_name, thecn, sans);
+			CertificateBase issued_cert = requestHostCert(cert.csr, service_name, thecn, sans, email_address);
 			log.debug("Requested host certificate. Digicert Request ID:" + issued_cert.serial);
 		
 			cert.serial = issued_cert.serial;
@@ -140,7 +140,7 @@ public class CILogonCertificateSigner implements ICertificateSigner {
 	    return cl;
 	}
 	
-	public CertificateBase requestUserCert(String csr, String dn, String email_address) throws CILogonCertificateSignerException {
+	public CertificateBase requestUserCert(String csr, String cn, String email_address) throws CILogonCertificateSignerException {
 		HttpClient cl = createHttpClient();
 		
 		PostMethod post = new PostMethod(StaticConfig.conf.getProperty("cilogon.api.host")+"/getusercert");
@@ -154,7 +154,7 @@ public class CILogonCertificateSigner implements ICertificateSigner {
 		}
 
 		post.setParameter("email", email_address);
-		post.setParameter("username", dn); //TODO - should use just the CN part?
+		post.setParameter("username", cn); 
 		post.setParameter("cert_request", payload);
 		post.setParameter("cert_lifetime", "34128000000"); //TODO - how long is this?		
 		post.getParams().setCookiePolicy(CookiePolicy.IGNORE_COOKIES);
@@ -213,7 +213,7 @@ public class CILogonCertificateSigner implements ICertificateSigner {
 		 return pemCert;
 	}
 	
-	private CertificateBase requestHostCert(String csr, String service_name, String cn, ArrayList<String> sans) throws CILogonCertificateSignerException {
+	private CertificateBase requestHostCert(String csr, String service_name, String cn, ArrayList<String> sans, String email_address) throws CILogonCertificateSignerException {
 		HttpClient cl = createHttpClient();
 		
 		PostMethod post;
@@ -223,7 +223,7 @@ public class CILogonCertificateSigner implements ICertificateSigner {
 			post = new PostMethod(StaticConfig.conf.getProperty("cilogon.api.host")+"/getservicecert");
 			post.setParameter("srvname", service_name);
 		}
-		post.setParameter("email", "required@cilogon.org");
+		post.setParameter("email", email_address);
 		post.setParameter("hostname", cn);
 		post.setParameter("cert_request", csr);
 		post.setParameter("cert_lifetime", "34128000000");

@@ -41,7 +41,7 @@ public interface ICertificateSigner {
 		public void certificateRequested();
 		public void certificateSigned(CertificateBase cert, int idx);
 	}
-	public void signHostCertificates(CertificateBase[] certs,  IHostCertificatesCallBack callback) throws CertificateProviderException;
+	public void signHostCertificates(CertificateBase[] certs,  IHostCertificatesCallBack callback, String email_address) throws CertificateProviderException;
 	public CertificateBase signUserCertificate(String csr, String dn, String email_address) throws CertificateProviderException;
 	public void revokeHostCertificate(String serial_id) throws CertificateProviderException;
 	public void revokeUserCertificate(String serial_id) throws CertificateProviderException;

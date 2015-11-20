@@ -161,7 +161,7 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 			log.error("Failed to update certificate request status for request:" + rec.id);
 			throw new CertificateRequestException("Failed to update certificate request status");
 		};
-		
+			
 		//reconstruct cert array from db
 		final StringArray csrs = new StringArray(rec.csrs);
 		final StringArray serial_ids = new StringArray(rec.cert_serial_ids);
@@ -205,9 +205,13 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 			}
 			
 			//should we use Quartz instead?
-			public void run() {
-				final CertificateManager cm = CertificateManager.Factory(context, rec.approver_vo_id);
+			public void run() {			
+				final CertificateManager cm = CertificateManager.Factory(context, rec.approver_vo_id);				
 				try {
+					//lookup requester contact information
+					ContactModel cmodel = new ContactModel(context);
+					ContactRecord requester = cmodel.get(rec.requester_contact_id);
+	
 					log.debug("Starting signing process");
 					cm.signHostCertificates(certs, new IHostCertificatesCallBack() {
 						
@@ -283,7 +287,7 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 								log.error("Failed to update certificate update while monitoring issue progress:" + rec.id);
 							}
 						}
-					});
+					}, requester.primary_email);
 					
 					log.debug("Finishing up issue process");
 
@@ -358,6 +362,8 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 					
 				} catch (CertificateProviderException e) {
 					failed("Failed to sign certificate -- CertificateProviderException ", e);
+				} catch (SQLException e) {
+					failed("Failed to sign certificate -- most likely couldn't lookup requester contact info", e);
 				} catch(Exception e) {
 					failed("Failed to sign certificate -- unhandled", e);	
 				}

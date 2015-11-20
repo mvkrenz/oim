@@ -113,8 +113,8 @@ public class CertificateManager {
 	}
 
 	//use user provided CSR
-	public void signHostCertificates(CertificateBase[] certs, IHostCertificatesCallBack callback) throws CertificateProviderException {
-		cp.signHostCertificates(certs, callback);
+	public void signHostCertificates(CertificateBase[] certs, IHostCertificatesCallBack callback, String email_address) throws CertificateProviderException {
+		cp.signHostCertificates(certs, callback, email_address);
 	}
 	
 	public CertificateBase signUserCertificate(String csr, String cn, String email_address) throws CertificateProviderException {

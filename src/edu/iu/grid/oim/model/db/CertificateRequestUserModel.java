@@ -820,7 +820,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 					rec.cert_intermediate = cert.intermediate;
 					rec.cert_pkcs7 = cert.pkcs7;
 					rec.cert_serial_id = cert.serial;
-					log.info("user cert issued by digicert: serial_id:" + cert.serial);
+					log.info("user cert issued by CA: serial_id:" + cert.serial);
 					log.info("pkcs7:" + cert.pkcs7);
 					
 					//get some information we need from the issued certificate
@@ -840,7 +840,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 						log.warn("User certificate issued for request "+rec.id+ " has invalid range of "+dayrange+" days (too far from 395 days)");
 					}
 					
-					//update dn with the one returned by DigiCert
+					//update dn with the one returned by CA
 					X500Principal dn = c0.getSubjectX500Principal();
 					String apache_dn = CertificateManager.X500Principal_to_ApacheDN(dn);
 					rec.dn = apache_dn;
@@ -1199,9 +1199,9 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 			}
 
 			//OSGPKI-393 (updated to put this under both cases)
-			ticket.description += "Note: Check to make sure that your soon to expire DigiCert user certificate is currently installed on your browser. ";
+			ticket.description += "Note: Check to make sure that your soon to expire user certificate is currently installed on your browser. ";
 			ticket.description += "Your full name should show up in the upper right-hand corner of the OIM page. ";
-			ticket.description += "If it is not, then please install your DigiCert user certificate and restart the browser. ";
+			ticket.description += "If it is not, then please install your user certificate and restart the browser. ";
 			ticket.description += "PKI renewal documentation can be found here: https://twiki.grid.iu.edu/bin/view/Documentation/OSGPKICertificateRenewal\n\n";
 
 			//don't send to CCs
