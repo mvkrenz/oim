@@ -20,13 +20,22 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.bouncycastle.asn1.ASN1InputStream;
 import org.bouncycastle.asn1.ASN1Primitive;
+import org.bouncycastle.asn1.pkcs.Attribute;
+import org.bouncycastle.asn1.pkcs.PKCSObjectIdentifiers;
+import org.bouncycastle.asn1.x500.RDN;
 import org.bouncycastle.asn1.x500.X500Name;
 import org.bouncycastle.asn1.x500.X500NameBuilder;
 import org.bouncycastle.asn1.x500.style.BCStyle;
+import org.bouncycastle.asn1.x509.Extension;
+import org.bouncycastle.asn1.x509.Extensions;
+import org.bouncycastle.asn1.x509.GeneralName;
+import org.bouncycastle.asn1.x509.GeneralNames;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cms.CMSException;
 import org.bouncycastle.cms.CMSSignedData;
+import org.bouncycastle.pkcs.PKCS10CertificationRequest;
 import org.bouncycastle.util.Store;
+import org.bouncycastle.util.encoders.Base64;
 
 import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.model.UserContext;
@@ -35,6 +44,7 @@ import edu.iu.grid.oim.model.cert.ICertificateSigner.CertificateProviderExceptio
 import edu.iu.grid.oim.model.cert.ICertificateSigner.IHostCertificatesCallBack;
 import edu.iu.grid.oim.model.db.VOModel;
 import edu.iu.grid.oim.model.db.record.VORecord;
+import edu.iu.grid.oim.model.exceptions.CertificateRequestException;
 
 public class CertificateManager {
     static Logger log = Logger.getLogger(CertificateManager.class);  
@@ -103,8 +113,8 @@ public class CertificateManager {
 	}
 
 	//use user provided CSR
-	public void signHostCertificates(CertificateBase[] certs, IHostCertificatesCallBack callback) throws CertificateProviderException {
-		cp.signHostCertificates(certs, callback);
+	public void signHostCertificates(CertificateBase[] certs, IHostCertificatesCallBack callback, String email_address) throws CertificateProviderException {
+		cp.signHostCertificates(certs, callback, email_address);
 	}
 	
 	public CertificateBase signUserCertificate(String csr, String cn, String email_address) throws CertificateProviderException {
@@ -224,11 +234,59 @@ public class CertificateManager {
 	    }
 	    return buf.toString();
 	}
-	/*
-	public X500Name generateX509Name(String cn) {
-		X500NameBuilder bld = cp.generateX500NameBuilder();
-		bld.addRDN(BCStyle.CN, cn); //don't use "," or "/" which is used for DN delimiter
-		return bld.build();
+	public static PKCS10CertificationRequest parseCSR(String csr_string) throws IOException {
+		PKCS10CertificationRequest csr = new PKCS10CertificationRequest(Base64.decode(csr_string));
+		return csr;
 	}
-	*/
+	
+    public static String pullCNFromCSR(PKCS10CertificationRequest csr) throws CertificateRequestException {
+		//pull CN from pkcs10
+		X500Name name;
+		RDN[] cn_rdn;
+		try {
+			name = csr.getSubject();
+			cn_rdn = name.getRDNs(BCStyle.CN);
+		} catch(Exception e) {
+			throw new CertificateRequestException("Failed to decode CSR", e);
+		}
+		
+		if(cn_rdn.length != 1) {
+			throw new CertificateRequestException("Please specify exactly one CN containing the hostname. You have provided DN: " + name.toString());
+		}
+		String cn = cn_rdn[0].getFirst().getValue().toString(); //wtf?
+    	return cn;
+    }
+    
+    
+    public static ArrayList<String> pullSANFromCSR(PKCS10CertificationRequest pkcs10) throws CertificateRequestException {
+    	ArrayList<String> sans = new ArrayList<String>();
+    	
+		Attribute[] attrs = pkcs10.getAttributes(PKCSObjectIdentifiers.pkcs_9_at_extensionRequest);
+		for(Attribute attr : attrs) {
+			Extensions extensions = Extensions.getInstance(attr.getAttrValues().getObjectAt(0));
+			GeneralNames gns = GeneralNames.fromExtensions(extensions,Extension.subjectAlternativeName);
+	        GeneralName[] names = gns.getNames();
+	        for(GeneralName name : names) {
+	        	//name.getTagNo() -- check for GeneralName.dNSName?
+	        	sans.add(name.getName().toString());
+	        }
+	        /*
+	         for(int k=0; k < names.length; k++) {
+	             String title = "";
+	             if(names[k].getTagNo() == GeneralName.dNSName) {
+	                 title = "dNSName";
+	             }
+	             else if(names[k].getTagNo() == GeneralName.iPAddress) {
+	                 title = "iPAddress";
+	                 names[k].toASN1Object();
+	             }
+	             else if(names[k].getTagNo() == GeneralName.otherName) {
+	                 title = "otherName";
+	             }
+	             System.out.println(title + ": "+ names[k].getName());
+	         }
+	         */
+		}
+    	return sans;
+    }  
 }
