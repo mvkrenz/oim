@@ -1,7 +1,6 @@
 package edu.iu.grid.oim.view.divrep.form;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.PrintWriter;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -14,7 +13,6 @@ import com.divrep.DivRep;
 import com.divrep.DivRepEvent;
 import com.divrep.DivRepEventListener;
 import com.divrep.common.DivRepButton;
-import com.divrep.common.DivRepCheckBox;
 import com.divrep.common.DivRepForm;
 import com.divrep.common.DivRepFormElement;
 import com.divrep.common.DivRepReCaptcha;
@@ -26,10 +24,10 @@ import com.divrep.common.DivRepToggler;
 import com.divrep.validator.DivRepIValidator;
 
 import edu.iu.grid.oim.lib.Authorization;
-import edu.iu.grid.oim.lib.ResourceReader;
 import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.UserContext.MessageType;
+import edu.iu.grid.oim.model.cert.CertificateManager;
 import edu.iu.grid.oim.model.db.CertificateRequestHostModel;
 import edu.iu.grid.oim.model.db.GridAdminModel;
 import edu.iu.grid.oim.model.db.record.CertificateRequestHostRecord;
@@ -63,6 +61,7 @@ public class CertificateRequestHostForm extends DivRepForm
 		ArrayList<DivRepTextArea> csrs = new ArrayList<DivRepTextArea>();
 		DivRepButton add;
 		String domain;
+		
 		protected CSRs(DivRep parent) {
 			super(parent);
 			add = new DivRepButton(this, "Add Another CSR");
@@ -132,10 +131,11 @@ public class CertificateRequestHostForm extends DivRepForm
 					//parse CSR and check to make sure it's valid
 					try {
 						//we need to display approver VO field, so we need to do bit of validation here
-						CertificateRequestHostModel certmodel = new CertificateRequestHostModel(context);
+						//CertificateRequestHostModel certmodel = new CertificateRequestHostModel(context);
 						String csr_string = stripCSRString(dirty_csr);
-						PKCS10CertificationRequest pkcs10 = certmodel.parseCSR(csr_string);
-						String cn = certmodel.pullCNFromCSR(pkcs10);
+						PKCS10CertificationRequest pkcs10 = CertificateManager.parseCSR(csr_string);
+						String cn = CertificateManager.pullCNFromCSR(pkcs10);
+						ArrayList<String> sans = CertificateManager.pullSANFromCSR(pkcs10);
 						
 						//check for CN structure
 						CNValidator cnv = new CNValidator(CNValidator.Type.HOST);
@@ -168,8 +168,19 @@ public class CertificateRequestHostForm extends DivRepForm
 							vo.setLabel("Virtual Organization that should approve this request ("+domain+")");
 						} else {
 							if(a_domain != domain) {	
-								error_message = "All CSRs must be approved by the same GridAdmin (domain:" + domain + ") This CSR has CN:"+cn +" with is approved by a different GridAdmin";
+								error_message = "All CSRs must be approved by the same GridAdmin (domain:" + domain + ") This CSR has CN:"+cn+" with is approved by a different GridAdmin";
 								return false;
+							}
+						}
+						
+						//check GridAdmin for SAN
+						//pulling SAN experimentorg.bouncycastle.asn1.pkcs.Attribute
+						for(String san : sans) {
+							String san_domain = gamodel.getDomainByFQDN(san);
+							System.out.println(san + " "+san_domain);
+							if(a_domain != san_domain) {
+								error_message = "All SANs must be approved by the same GridAdmin. This CSR has SAN:"+san+" with is approved by a different GridAdmin from "+domain;
+								return false;								
 							}
 						}
 						
@@ -278,33 +289,7 @@ public class CertificateRequestHostForm extends DivRepForm
 		request_comment.setLabel("Comments");
 		request_comment.setSampleValue("Please enter any comments, or request you'd like to make for GridAdmin");
 		request_comment.setWidth(600);
-		
-		aup = new CertificateAUPDE(this);
-		
-		/*
-		//new DivRepStaticContent(this, "<h2>OSG Policy Agreement</h2>");
-		//agreement doc comes from https://twiki.grid.iu.edu/twiki/pub/Operations/DigiCertAgreements/IGTF_Certificate_Subscriber_Agreement_-_Mar_26_2012.doc
-		InputStream aup_stream =getClass().getResourceAsStream("osg.certificate.agreement.html");
-		StringBuilder aup = ResourceReader.loadContent(aup_stream);
-		new DivRepStaticContent(this, aup.toString());
-		agreement = new DivRepCheckBox(this);
-		agreement.setLabel("I AGREE");
-		agreement.setRequired(true);
-		agreement.addValidator(new DivRepIValidator<Boolean>(){
-
-			@Override
-			public Boolean isValid(Boolean value) {
-				return value;
-			}
-
-			@Override
-			public String getErrorMessage() {
-				return "You must agree to these policies";
-			}
-		});
-		*/
-		
-	
+		aup = new CertificateAUPDE(this);	
 	}
 
 	private String stripCSRString(String csr_string) {

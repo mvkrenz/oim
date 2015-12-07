@@ -8,7 +8,6 @@ import org.bouncycastle.asn1.x500.X500NameBuilder;
 public interface ICertificateSigner {
 	
 	class CertificateProviderException extends Exception {
-
 		public CertificateProviderException(Exception e) {
 			super(e);
 		}
@@ -24,10 +23,8 @@ public interface ICertificateSigner {
 	
 	public class CertificateBase {
 		public CertificateBase() {
-			//this.issuer = issuer;
 		}
 		public String serial; //isser specific serial
-		//public String issuer;
 		public String csr; //csr used to request this certificate
 		
 		//returned by signer
@@ -44,12 +41,11 @@ public interface ICertificateSigner {
 		public void certificateRequested();
 		public void certificateSigned(CertificateBase cert, int idx);
 	}
-	public void signHostCertificates(CertificateBase[] certs,  IHostCertificatesCallBack callback) throws CertificateProviderException;
+	public void signHostCertificates(CertificateBase[] certs,  IHostCertificatesCallBack callback, String email_address) throws CertificateProviderException;
 	public CertificateBase signUserCertificate(String csr, String dn, String email_address) throws CertificateProviderException;
 	public void revokeHostCertificate(String serial_id) throws CertificateProviderException;
 	public void revokeUserCertificate(String serial_id) throws CertificateProviderException;
 	
 	public String getUserDNBase();
 	public String getHostDNBase();
-	//public X500NameBuilder generateX500NameBuilder();
 }
