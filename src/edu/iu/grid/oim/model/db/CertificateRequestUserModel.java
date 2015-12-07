@@ -1067,8 +1067,15 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 				
 				//send notification
 				ticket.description = "Dear " + requester.name + ",\n\n";
-				ticket.description += "Your user certificate ("+rec.dn+") has expired. Please re-request your certificate at "+getTicketUrl(rec.id, TabLabels.re_request);
-				
+                       		 if(rec.vo_id == 35) { //ATLAS for OSGPKI-399
+                                	ticket.description += "In 2016, US ATLAS will cease to use OSG-supplied certificates, in favor of certificates issued by the CERN certificate authority (CA). ";
+                                	ticket.description += "To ensure minimal impact to your ATLAS privileges through this transition, US ATLAS encourages y
+ou to obtain a personal certificate from the CERN CA (if you don't yet have one), and add it to your existing ATLAS VO membership.\n\n";
+                                	ticket.description += "For details on the OSG certificate CA migration, visit https://www.racf.bnl.gov/docs/howto/grid/osg-ca-migration.";
+                        	}	
+				else {
+					ticket.description += "Your user certificate ("+rec.dn+") has expired. Please re-request your certificate at "+getTicketUrl(rec.id, TabLabels.re_request);
+				}	
 				if(StaticConfig.isDebug()) {
 					log.debug("skipping (this is debug) ticket update on ticket : " + rec.goc_ticket_id + " to notify expired user certificate");
 					log.debug(ticket.description);
@@ -1188,21 +1195,24 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 			if(rec.vo_id == 35) { //ATLAS for OSGPKI-399
 				ticket.description += "In 2016, US ATLAS will cease to use OSG-supplied certificates, in favor of certificates issued by the CERN certificate authority (CA). ";
 				ticket.description += "To ensure minimal impact to your ATLAS privileges through this transition, US ATLAS encourages you to obtain a personal certificate from the CERN CA (if you don't yet have one), and add it to your existing ATLAS VO membership.\n\n";
-				ticket.description +="Issued OSG DigiCert certificates will remain valid and honored until their stated expiration dates. The Chrome browser is incompatible with the CERN CA service and will return an error ('Key not valid for use in specified state.').";
-				ticket.description += " Please use another browser, such as Firefox, to interact with the CERN CA site.";
+				ticket.description += "For details on the OSG certificate CA migration, visit https://www.racf.bnl.gov/docs/howto/grid/osg-ca-migration.";
 			}
-			if(criterias.passAll()) {	
-				ticket.description += "Please renew your user certificate at "+getTicketUrl(rec.id, TabLabels.renew)+"\n\n";
-				ticket.status = "Engineering"; //reopen it - until user renew
-			} else {
-				ticket.description += "Please request for new user certificate by visiting https://oim.grid.iu.edu/oim/certificaterequestuser\n\n";
-			}
+			else {
+				if(criterias.passAll()) {	
+					ticket.description += "Please renew your user certificate at "+getTicketUrl(rec.id, TabLabels.renew)+"\n\n";
+					ticket.status = "Engineering"; //reopen it - until user renew
+					else {
+						ticket.description += "Please request for new user certificate by visiting https://oim.grid.iu.edu/oim/certificaterequestuser\n\n";
+					}
+				}
+			
 
-			//OSGPKI-393 (updated to put this under both cases)
-			ticket.description += "Note: Check to make sure that your soon to expire DigiCert user certificate is currently installed on your browser. ";
-			ticket.description += "Your full name should show up in the upper right-hand corner of the OIM page. ";
-			ticket.description += "If it is not, then please install your DigiCert user certificate and restart the browser. ";
-			ticket.description += "PKI renewal documentation can be found here: https://twiki.grid.iu.edu/bin/view/Documentation/OSGPKICertificateRenewal\n\n";
+				//OSGPKI-393 (updated to put this under both cases)
+				ticket.description += "Note: Check to make sure that your soon to expire DigiCert user certificate is currently installed on your browser. ";
+				ticket.description += "Your full name should show up in the upper right-hand corner of the OIM page. ";
+				ticket.description += "If it is not, then please install your DigiCert user certificate and restart the browser. ";
+				ticket.description += "PKI renewal documentation can be found here: https://twiki.grid.iu.edu/bin/view/Documentation/OSGPKICertificateRenewal\n\n";
+			}
 
 			//don't send to CCs
 			ticket.mail_suppression_ccs = true;
