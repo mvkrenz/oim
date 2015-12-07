@@ -601,8 +601,10 @@ public class VOFormDE extends DivRepForm
 		certificate_signer.setValue(CertificateManager.Signers.valueOf(rec.certificate_signer).ordinal());
 		
 		//keep this only available for debug for now.
-		if(auth.allows("admin") || auth.allows("admin_ra")) {	
-			certificate_signer.setHidden(false);
+		if(StaticConfig.isDebug()) {
+			if(auth.allows("admin") || auth.allows("admin_ra")) {	
+				certificate_signer.setHidden(false);
+			}
 		}
 		
 		active = new DivRepCheckBox(this);
