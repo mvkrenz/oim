@@ -15,6 +15,7 @@ public class CertificateRequestHostRecord extends RecordBase {
 	
 	//guest contact info (used for goc ticket)
 	public String requester_name;
+	public String requester_email;
 	
 	public String csrs; //StringArray xml
 	public String cns; //StringArray xml

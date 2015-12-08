@@ -209,8 +209,13 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 				final CertificateManager cm = CertificateManager.Factory(context, rec.approver_vo_id);				
 				try {
 					//lookup requester contact information
-					ContactModel cmodel = new ContactModel(context);
-					ContactRecord requester = cmodel.get(rec.requester_contact_id);
+					String requester_email = rec.requester_email; //for guest request
+					if(rec.requester_contact_id != null) {
+						//for user request
+						ContactModel cmodel = new ContactModel(context);
+						ContactRecord requester = cmodel.get(rec.requester_contact_id);
+						requester_email = requester.primary_email;
+					}
 	
 					log.debug("Starting signing process");
 					cm.signHostCertificates(certs, new IHostCertificatesCallBack() {
@@ -287,7 +292,7 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 								log.error("Failed to update certificate update while monitoring issue progress:" + rec.id);
 							}
 						}
-					}, requester.primary_email);
+					}, requester_email);
 					
 					log.debug("Finishing up issue process");
 
@@ -478,6 +483,7 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 		//Date current = new Date();
     	rec.approver_vo_id = approver_vo_id;
 	 	rec.requester_name = requester_name;
+	 	rec.requester_email = requester_email;
     	
 		Footprints fp = new Footprints(context);
 		FPTicket ticket = fp.new FPTicket();
