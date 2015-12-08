@@ -449,7 +449,7 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
     	rec.requester_contact_id = requester.id;
 	 	rec.requester_name = requester.name;
 	 	rec.approver_vo_id = approver_vo_id;
-    	//rec.requester_email = requester.primary_email;
+    	rec.requester_email = requester.primary_email;
     	//rec.requester_phone = requester.primary_phone;
     	
 		Footprints fp = new Footprints(context);
