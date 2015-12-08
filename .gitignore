@@ -11,3 +11,7 @@ wlcgloader/cache/*
 
 pf_endpoint_crawler/config.json
 *.log
+
+reload.sh
+reset_expiration.sh
+reset_status.sh
