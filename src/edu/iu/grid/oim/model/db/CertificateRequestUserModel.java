@@ -1206,12 +1206,9 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 				if(criterias.passAll()) {	
 					ticket.description += "Please renew your user certificate at "+getTicketUrl(rec.id, TabLabels.renew)+"\n\n";
 					ticket.status = "Engineering"; //reopen it - until user renew
-					}
-					else {
-						ticket.description += "Please request new user certificate by visiting https://oim.grid.iu.edu/oim/certificaterequestuser\n\n";
-					}
-				
-			
+				} else {
+					ticket.description += "Please request new user certificate by visiting https://oim.grid.iu.edu/oim/certificaterequestuser\n\n";
+				}
 
 				//OSGPKI-393 (updated to put this under both cases)
 				ticket.description += "Note: Check to make sure that your soon to expire DigiCert user certificate is currently installed on your browser. ";
