@@ -14,18 +14,14 @@ import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.cookie.CookiePolicy;
 import org.apache.commons.httpclient.methods.PostMethod;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.log4j.Logger;
-
-import org.bouncycastle.asn1.x500.RDN;
-import org.bouncycastle.asn1.x500.X500Name;
-import org.bouncycastle.asn1.x500.X500NameBuilder;
-import org.bouncycastle.asn1.x500.style.BCStyle;
 import org.bouncycastle.cms.CMSException;
 import org.bouncycastle.pkcs.PKCS10CertificationRequest;
 
 import edu.iu.grid.oim.lib.StaticConfig;
+import edu.iu.grid.oim.model.exceptions.CertificateRequestException;
 
 //Uses CILogin OSG CA APIs
 //https://docs.google.com/document/d/1c5BaQSTyHEJtOIF66mqrKh52sfaSCBnxTbqPEniMtkE/edit#heading=h.m82hlr8uhzkm
@@ -34,21 +30,6 @@ public class CILogonCertificateSigner implements ICertificateSigner {
     static Logger log = Logger.getLogger(CILogonCertificateSigner.class);  
 
     private KeyStore ks = null;
-    /*
-    public static KeyStore loadTrustStore() throws Exception {
-        KeyStore trustStore = KeyStore.getInstance("jks");
-        trustStore.load(new FileInputStream(new File("path-to-truststore")), "password".toCharArray());
-        return trustStore;
-    }
-    
-    protected static TrustManager[] getTrustManagers() throws Exception {
-        KeyStore trustStore = loadTrustStore();
-        TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
-        tmf.init(trustStore);
-        return tmf.getTrustManagers();
-    }
-    */
-
     public CILogonCertificateSigner() {
     	//won't this interfare with something else?
         System.setProperty("javax.net.ssl.keyStore", StaticConfig.conf.getProperty("cilogon.api.user.pkcs12"));
@@ -86,12 +67,12 @@ public class CILogonCertificateSigner implements ICertificateSigner {
     }
     */
 	
-	public CertificateBase signUserCertificate(String csr, String dn, String email_address) throws CertificateProviderException {
-		return requestUserCert(csr, dn, email_address);
+	public CertificateBase signUserCertificate(String csr, String cn, String email_address) throws CertificateProviderException {
+		return requestUserCert(csr, cn, email_address);
 	}
 	
 	//pass csrs, and 
-	public void signHostCertificates(CertificateBase[] certs, IHostCertificatesCallBack callback) throws CertificateProviderException {
+	public void signHostCertificates(CertificateBase[] certs, IHostCertificatesCallBack callback, String email_address) throws CertificateProviderException {
 		
 		//cilogin request & sign immediately.. to simulate digicert behavior, let's pretent we've requested first.
 		callback.certificateRequested();
@@ -102,6 +83,7 @@ public class CILogonCertificateSigner implements ICertificateSigner {
 			 //don't request if it's already requested
 			if(cert.serial != null) continue;
 			
+			/*
 			//pull CN
 			String cn;
 			String csr = cert.csr;
@@ -113,7 +95,20 @@ public class CILogonCertificateSigner implements ICertificateSigner {
 			} catch (IOException e2) {
 				throw new CertificateProviderException("Failed to obtain cn from given csr:" + csr, e2);
 			}
+			*/
 			
+			String cn;
+			ArrayList<String> sans;
+			try {
+				PKCS10CertificationRequest pkcs10 = CertificateManager.parseCSR(cert.csr);
+				cn = CertificateManager.pullCNFromCSR(pkcs10);
+				sans = CertificateManager.pullSANFromCSR(pkcs10);
+			} catch (IOException e) {
+				throw new CertificateProviderException("Failed to parse csr:" + cert.csr, e);
+			} catch (CertificateRequestException e) {
+				throw new CertificateProviderException("Failed to obtain cn/sans from given csr:" + cert.csr, e);
+			}
+
 			//split optional service name (like.. rsv/ce.grid.iu.edu)
 			String tokens[] = cn.split("/");
 			String service_name = null;
@@ -127,7 +122,7 @@ public class CILogonCertificateSigner implements ICertificateSigner {
 				throw new CertificateProviderException("Failed to parse Service Name from CN");
 			}
 			
-			CertificateBase issued_cert = requestHostCert(csr, service_name, thecn);
+			CertificateBase issued_cert = requestHostCert(cert.csr, service_name, thecn, sans, email_address);
 			log.debug("Requested host certificate. Digicert Request ID:" + issued_cert.serial);
 		
 			cert.serial = issued_cert.serial;
@@ -145,10 +140,10 @@ public class CILogonCertificateSigner implements ICertificateSigner {
 	    return cl;
 	}
 	
-	public CertificateBase requestUserCert(String csr, String dn, String email_address) throws CILogonCertificateSignerException {
+	public CertificateBase requestUserCert(String csr, String cn, String email_address) throws CILogonCertificateSignerException {
 		HttpClient cl = createHttpClient();
 		
-		PostMethod post = new PostMethod("https://osg.cilogon.org/getusercert");
+		PostMethod post = new PostMethod(StaticConfig.conf.getProperty("cilogon.api.host")+"/getusercert");
 		
 		//need to strip first and last line (-----BEGIN CERTIFICATE REQUEST-----, -----END CERTIFICATE REQUEST-----)
 		String []lines = csr.split("\n");
@@ -159,7 +154,7 @@ public class CILogonCertificateSigner implements ICertificateSigner {
 		}
 
 		post.setParameter("email", email_address);
-		post.setParameter("username", dn); //TODO - should use just the CN part?
+		post.setParameter("username", cn); 
 		post.setParameter("cert_request", payload);
 		post.setParameter("cert_lifetime", "34128000000"); //TODO - how long is this?		
 		post.getParams().setCookiePolicy(CookiePolicy.IGNORE_COOKIES);
@@ -207,7 +202,6 @@ public class CILogonCertificateSigner implements ICertificateSigner {
 		}
 	}
 	
-	
 	protected String convertToPem(X509Certificate cert) throws CertificateEncodingException {
 		 org.apache.commons.codec.binary.Base64 encoder = new org.apache.commons.codec.binary.Base64(64);
 		 String cert_begin = "-----BEGIN CERTIFICATE-----\n";
@@ -219,20 +213,21 @@ public class CILogonCertificateSigner implements ICertificateSigner {
 		 return pemCert;
 	}
 	
-	private CertificateBase requestHostCert(String csr, String service_name, String cn) throws CILogonCertificateSignerException {
+	private CertificateBase requestHostCert(String csr, String service_name, String cn, ArrayList<String> sans, String email_address) throws CILogonCertificateSignerException {
 		HttpClient cl = createHttpClient();
 		
 		PostMethod post;
 		if(service_name == null) {
-			post = new PostMethod("https://osg.cilogon.org/gethostcert");
+			post = new PostMethod(StaticConfig.conf.getProperty("cilogon.api.host")+"/gethostcert");
 		} else {
-			post = new PostMethod("https://osg.cilogon.org/getservicecert");
+			post = new PostMethod(StaticConfig.conf.getProperty("cilogon.api.host")+"/getservicecert");
 			post.setParameter("srvname", service_name);
 		}
-		post.setParameter("email", "noemail@example.com");
+		post.setParameter("email", email_address);
 		post.setParameter("hostname", cn);
 		post.setParameter("cert_request", csr);
 		post.setParameter("cert_lifetime", "34128000000");
+		post.setParameter("alt_hostnames", StringUtils.join(sans, ","));
 		post.getParams().setCookiePolicy(CookiePolicy.IGNORE_COOKIES);
 		try {
 			cl.executeMethod(post);
@@ -276,7 +271,7 @@ public class CILogonCertificateSigner implements ICertificateSigner {
 	public void revokeHostCertificate(String serial_id) throws CertificateProviderException {
 		HttpClient cl = createHttpClient();
 		
-		PostMethod post = new PostMethod("https://osg.cilogon.org/revoke");
+		PostMethod post = new PostMethod(StaticConfig.conf.getProperty("cilogon.api.host")+"/revoke");
 		post.setParameter("serial",serial_id);
 		post.getParams().setCookiePolicy(CookiePolicy.IGNORE_COOKIES);
 		try {

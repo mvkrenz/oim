@@ -64,7 +64,7 @@ public class DigicertCertificateSigner implements ICertificateSigner {
     */
 	
 	//pass csrs, and 
-	public void signHostCertificates(CertificateBase[] certs, IHostCertificatesCallBack callback) throws CertificateProviderException {
+	public void signHostCertificates(CertificateBase[] certs, IHostCertificatesCallBack callback, String email_address) throws CertificateProviderException {
 		
 		//request & approve all
 		for(CertificateBase cert : certs) {
@@ -97,7 +97,7 @@ public class DigicertCertificateSigner implements ICertificateSigner {
 			}
 			
 			//do request & approve
-			String request_id = requestHostCert(csr, service_name, thecn);
+			String request_id = requestHostCert(csr, service_name, thecn, email_address);
 			log.debug("Requested host certificate. Digicert Request ID:" + request_id);
 			String order_id = approve(request_id, "Approving for test purpose"); //like 00295828
 			log.debug("Approved host certificate. Digicert Order ID:" + order_id);
@@ -256,7 +256,7 @@ public class DigicertCertificateSigner implements ICertificateSigner {
 		}
 	}
 	
-	private String requestHostCert(String csr, String service_name, String cn) throws DigicertCPException {
+	private String requestHostCert(String csr, String service_name, String cn, String email_address) throws DigicertCPException {
 		HttpClient cl = createHttpClient();
 		
 		PostMethod post = new PostMethod("https://www.digicert.com/enterprise/api/?action=grid_request_host_cert");
@@ -265,6 +265,7 @@ public class DigicertCertificateSigner implements ICertificateSigner {
 		post.setParameter("response_type", "xml");
 		post.setParameter("validity", "1"); //security by obscurity -- from the DigiCert dev team
 		post.setParameter("common_name", cn);
+		//TODO - what about email_address?
 
 		if(service_name != null) {
 			post.setParameter("service_name", service_name);
