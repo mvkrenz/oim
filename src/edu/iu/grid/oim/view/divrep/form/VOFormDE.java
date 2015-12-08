@@ -604,7 +604,7 @@ public class VOFormDE extends DivRepForm
 		if(auth.allows("admin") || auth.allows("admin_ra")) {	
 			certificate_signer.setHidden(false);
 		}
-		
+	
 		active = new DivRepCheckBox(this);
 		active.setLabel("Active");
 		active.setValue(rec.active);
