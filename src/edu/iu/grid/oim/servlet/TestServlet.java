@@ -87,6 +87,7 @@ public class TestServlet extends ServletBase {
         System.setProperty("javax.net.ssl.keyStore", StaticConfig.conf.getProperty("cilogon.api.user.pkcs12"));
         System.setProperty("javax.net.ssl.keyStorePassword", StaticConfig.conf.getProperty("cilogon.api.user.pkcs12_password"));
         System.setProperty("javax.net.ssl.keyStoreType", "PKCS12");
+	System.setProperty("https.protocols", "TLSv1");
 		PostMethod post = new PostMethod("https://osg.cilogon.org/getusercert");
 		HttpClient cl = new HttpClient();
 		try {
