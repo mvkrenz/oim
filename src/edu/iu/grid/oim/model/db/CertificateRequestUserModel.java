@@ -1073,9 +1073,9 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 				
 				//send notification
 				ticket.description = "Dear " + requester.name + ",\n\n";
-                if(rec.vo_id == 35) { //ATLAS for OSGPKI-399
-                    ticket.description += "Your user certificate ("+rec.dn+") has expired. In 2016, US ATLAS will cease to use OSG-supplied certificates, in favor of certificates issued by the CERN certificate authority (CA). ";
-                    ticket.description += "To ensure minimal impact to your ATLAS privileges through this transition, US ATLAS encourages you to obtain a user grid certificate from the CERN CA (if you don't yet have one), and add it to your existing ATLAS VO membership.\n\n";
+                if(rec.vo_id == 35 || rec.vo_id == 3 ) { //ATLAS for OSGPKI-399
+                    ticket.description += "Your user certificate ("+rec.dn+") has expired. In 2016, US ATLAS and CMS will cease to use OSG-supplied certificates, in favor of certificates issued by the CERN certificate authority (CA). ";
+                    ticket.description += "To ensure minimal impact to your privileges through this transition, we encourage you to obtain a user grid certificate from the CERN CA (if you don't yet have one), and add it to your existing membership.\n\n";
                     ticket.description += "For details on the OSG certificate CA migration, click https://www.racf.bnl.gov/docs/howto/grid/osg-ca-migration\n";
                 
                 	}
@@ -1122,7 +1122,14 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 				ticket.description += "The request is scheduled to be automatically canceled within another 15 days. ";
 				ticket.description += "Please take this opportunity to download your approved certificate at your earliest convenience. ";
 				ticket.description += "If you are experiencing any trouble with the issuance of your certificate, please feel free to contact the GOC for further assistance. ";
-				ticket.description += "Please visit "+getTicketUrl(rec.id, TabLabels.issue)+" to issue your user certificate.\n\n";
+				if(rec.vo_id == 35 || rec.vo_id == 3 ) { //ATLAS for OSGPKI-399
+					ticket.description += "In 2016, US ATLAS and CMS will cease to use OSG-supplied certificates, in favor of certificates issued by the CERN certificate authority (CA). ";
+					ticket.description += "To ensure minimal impact to your privileges through this transition, we encourage you to obtain a user grid certificate from the CERN CA (if you don't yet have one), and add it to your existing membership.\n\n";
+					ticket.description += "For details on the OSG certificate CA migration, click https://www.racf.bnl.gov/docs/howto/grid/osg-ca-migration\n";
+				}
+				else {
+					ticket.description += "Please visit "+getTicketUrl(rec.id, TabLabels.issue)+" to issue your user certificate.\n\n";
+				}
 				
 				if(StaticConfig.isDebug()) {
 					log.debug("skipping (this is debug) ticket update on ticket : " + rec.goc_ticket_id + " to notify approval expiration for user certificate");
@@ -1156,7 +1163,14 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 				//send notification
 				ticket.description = "Dear " + requester.name + ",\n\n";
 				ticket.description += "You did not issue your user certificate ("+rec.dn+") within 30 days from the approval. ";
-				ticket.description += "In compliance with OSG PKI policy, the request was canceled. You are welcome to re-request if necessary at "+getTicketUrl(rec.id, TabLabels.re_request)+".\n\n";
+				if(rec.vo_id == 35 || rec.vo_id == 3 ) { //ATLAS for OSGPKI-399
+					ticket.description += "In 2016, US ATLAS and CMS will cease to use OSG-supplied certificates, in favor of certificates issued by the CERN certificate authority (CA). ";
+					ticket.description += "To ensure minimal impact to your privileges through this transition, we encourage you to obtain a user grid certificate from the CERN CA (if you don't yet have one), and add it to your existing membership.\n\n";
+					ticket.description += "For details on the OSG certificate CA migration, click https://www.racf.bnl.gov/docs/howto/grid/osg-ca-migration\n";
+				}
+				else {
+					ticket.description += "In compliance with OSG PKI policy, the request was canceled. You are welcome to re-request if necessary at "+getTicketUrl(rec.id, TabLabels.re_request)+".\n\n";
+				}
 				ticket.status = "Resolved";
 				
 				if(StaticConfig.isDebug()) {
@@ -1198,9 +1212,9 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 			ArrayList<CertificateRequestModelBase<CertificateRequestUserRecord>.LogDetail> logs = 
 					getLogs(CertificateRequestUserModel.class, rec.id);
 			AuthorizationCriterias criterias = canRenew(rec, logs, requester);
-			if(rec.vo_id == 35) { //ATLAS for OSGPKI-399
-				ticket.description += "In 2016, US ATLAS will cease to use OSG-supplied certificates, in favor of certificates issued by the CERN certificate authority (CA). ";
-				ticket.description += "To ensure minimal impact to your ATLAS privileges through this transition, US ATLAS encourages you to obtain a user grid certificate from the CERN CA (if you don't yet have one), and add it to your existing ATLAS VO membership.\n\n";
+			if(rec.vo_id == 35 || rec.vo_id == 3 ) { //ATLAS for OSGPKI-399
+				ticket.description += "In 2016, US ATLAS and CMS will cease to use OSG-supplied certificates, in favor of certificates issued by the CERN certificate authority (CA). ";
+				ticket.description += "To ensure minimal impact to your privileges through this transition, we encourage you to obtain a user grid certificate from the CERN CA (if you don't yet have one), and add it to your existing membership.\n\n";
 				ticket.description += "For details on the OSG certificate CA migration, click https://www.racf.bnl.gov/docs/howto/grid/osg-ca-migration\n";
 			}
 			else {
