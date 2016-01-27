@@ -59,7 +59,7 @@ public class SCEditServlet extends ServletBase implements Servlet {
 				
 				//pull logs
 				LogModel logmodel = new LogModel(context);
-				logs = logmodel.search("edu.iu.grid.oim.model.db.SC%", String.valueOf(sc_id)+"%");
+				logs = logmodel.search("edu.iu.grid.oim.model.db.SC%", String.valueOf(sc_id));
 			} catch (SQLException e) {
 				throw new ServletException(e);
 			}	

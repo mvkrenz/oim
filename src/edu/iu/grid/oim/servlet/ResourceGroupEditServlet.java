@@ -59,7 +59,7 @@ public class ResourceGroupEditServlet extends ServletBase implements Servlet {
 				
 				//pull logs
 				LogModel logmodel = new LogModel(context);
-				logs = logmodel.search("edu.iu.grid.oim.model.db.ResourceGroup%", String.valueOf(id)+"%");
+				logs = logmodel.search("edu.iu.grid.oim.model.db.ResourceGroup%", String.valueOf(id));
 			} else {
 				rec = new ResourceGroupRecord();
 				title = "New Resource Group";	

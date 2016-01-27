@@ -67,7 +67,7 @@ public class FacilityEditServlet extends ServletBase {
 				
 				//pull logs
 				LogModel logmodel = new LogModel(context);
-				logs = logmodel.search("edu.iu.grid.oim.model.db.Facility%", String.valueOf(facility_id)+"%");
+				logs = logmodel.search("edu.iu.grid.oim.model.db.Facility%", String.valueOf(facility_id));
 				
 			} else {
 				rec = new FacilityRecord();

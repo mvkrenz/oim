@@ -65,7 +65,7 @@ public class ProjectEditServlet extends ServletBase implements Servlet {
 			try {
 				rec = model.get(id);
 				LogModel logmodel = new LogModel(context);
-				logs = logmodel.search("edu.iu.grid.oim.model.db.Project%", String.valueOf(id)+"%");
+				logs = logmodel.search("edu.iu.grid.oim.model.db.Project%", String.valueOf(id));
 				
 			} catch (SQLException e) {
 				throw new ServletException(e);

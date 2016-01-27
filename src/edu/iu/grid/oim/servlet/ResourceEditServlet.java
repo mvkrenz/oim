@@ -69,7 +69,7 @@ public class ResourceEditServlet extends ServletBase implements Servlet {
 				
 				//pull logs
 				LogModel logmodel = new LogModel(context);
-				logs = logmodel.search("edu.iu.grid.oim.model.db.Resource%", String.valueOf(resource_id)+"%");
+				logs = logmodel.search("edu.iu.grid.oim.model.db.Resource%", String.valueOf(resource_id));
 			} catch (SQLException e) {
 				throw new ServletException(e);
 			}	

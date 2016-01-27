@@ -68,7 +68,7 @@ public class VOEditServlet extends ServletBase implements Servlet {
 				
 				//pull logs
 				LogModel logmodel = new LogModel(context);
-				logs = logmodel.search("edu.iu.grid.oim.model.db.VO%", String.valueOf(vo_id)+"%");
+				logs = logmodel.search("edu.iu.grid.oim.model.db.VO%", String.valueOf(vo_id));
 				
 			} catch (SQLException e) {
 				throw new ServletException(e);

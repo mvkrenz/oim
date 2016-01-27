@@ -62,7 +62,7 @@ public class SiteEditServlet extends ServletBase implements Servlet {
 				
 				//pull logs
 				LogModel logmodel = new LogModel(context);
-				logs = logmodel.search("edu.iu.grid.oim.model.db.Site%", String.valueOf(site_id)+"%");
+				logs = logmodel.search("edu.iu.grid.oim.model.db.Site%", String.valueOf(site_id));
 			} else {
 				rec = new SiteRecord();
 				title = "New Site";	
