@@ -43,6 +43,7 @@ import edu.iu.grid.oim.model.cert.ICertificateSigner.CertificateBase;
 import edu.iu.grid.oim.model.cert.ICertificateSigner.CertificateProviderException;
 import edu.iu.grid.oim.model.cert.ICertificateSigner.IHostCertificatesCallBack;
 import edu.iu.grid.oim.model.db.VOModel;
+import edu.iu.grid.oim.model.db.record.DNRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
 import edu.iu.grid.oim.model.exceptions.CertificateRequestException;
 
@@ -105,6 +106,36 @@ public class CertificateManager {
 		}	
 	}
 	
+	
+	public static CertificateManager Factory(DNRecord dnrecord) {
+		//determine the singer from vo_id (if provided)
+		String dn = dnrecord.dn_string;
+		String signer = null;
+		if(dn != null) {
+			try {
+				if(dn.contains("DigiCert-Grid")) {
+					signer = "Digicert";
+				} else {
+					signer = "CILogon";
+				}
+			} catch (Exception e) {
+				log.error("Exception while looking for dc with dn:"+dn, e);
+			}
+		}	
+		
+		if(signer == null) {
+			log.error("CertificateManager.Factory failed to determine signer from provided dn"+ dn +" using default signer");
+			signer = StaticConfig.conf.getProperty("certificate.signer"); //set to default.
+		}
+	
+		switch(signer) {
+		case "CILogon":
+			return new CertificateManager(new CILogonCertificateSigner());
+		case "Digicert":
+		default://kiss
+			return new CertificateManager(new DigicertCertificateSigner());
+		}	
+	}
 	public String getUserDNBase() {
 		return cp.getUserDNBase();
 	}

@@ -57,6 +57,7 @@ import edu.iu.grid.oim.model.cert.ICertificateSigner.CertificateProviderExceptio
 import edu.iu.grid.oim.model.cert.ICertificateSigner.IHostCertificatesCallBack;
 import edu.iu.grid.oim.model.db.record.CertificateRequestHostRecord;
 import edu.iu.grid.oim.model.db.record.ContactRecord;
+import edu.iu.grid.oim.model.db.record.DNRecord;
 import edu.iu.grid.oim.model.db.record.GridAdminRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
 import edu.iu.grid.oim.model.exceptions.CertificateRequestException;
@@ -859,7 +860,19 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 	//NO-AC
 	public void revoke(CertificateRequestHostRecord rec) throws CertificateRequestException {		
 		//revoke
-		CertificateManager cm = CertificateManager.Factory(context, rec.approver_vo_id);
+		//CertificateManager cm = CertificateManager.Factory(context, rec.approver_vo_id);
+
+		
+		//get some information we need from the issued certificate
+		ArrayList<Certificate> chain = CertificateManager.parsePKCS7(rec.cert_pkcs7);
+		X509Certificate c0 = CertificateManager.getIssuedX509Cert(chain);
+		X500Principal dn = c0.getSubjectX500Principal();
+		String apache_dn = CertificateManager.X500Principal_to_ApacheDN(dn);
+
+		
+		DNModel dnmodel = new DNModel(context);
+		DNRecord dnrec = dnmodel.getByDNString(rec.dn);
+		CertificateManager cm = CertificateManager.Factory(dnrecord);
 		try {
 			String[] cert_serial_ids = rec.getSerialIDs();
 			StringArray statuses = new StringArray(rec.cert_statuses);

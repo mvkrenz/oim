@@ -627,7 +627,9 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 	//NO-AC
 	public void revoke(CertificateRequestUserRecord rec) throws CertificateRequestException {
 		//revoke
-		CertificateManager cm = CertificateManager.Factory(context, rec.vo_id);
+		DNModel dnmodel = new DNModel(context);
+		DNRecord dnrec = dnmodel.getByDNString(rec.dn);
+		CertificateManager cm = CertificateManager.Factory(dnrec);
 		try {
 			cm.revokeUserCertificate(rec.cert_serial_id);
 			log.info("Revoked " + rec.dn + " with serial id:" + rec.cert_serial_id);
