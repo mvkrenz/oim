@@ -863,6 +863,7 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 		//CertificateManager cm = CertificateManager.Factory(context, rec.approver_vo_id);
 
 		
+
 	
 		ArrayList<Certificate> chain = null;
 		try {
@@ -882,6 +883,7 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 		String issuer_dn = CertificateManager.X500Principal_to_ApacheDN(issuer);
 
 		CertificateManager cm = CertificateManager.Factory(issuer_dn);
+
 		try {
 			String[] cert_serial_ids = rec.getSerialIDs();
 			StringArray statuses = new StringArray(rec.cert_statuses);

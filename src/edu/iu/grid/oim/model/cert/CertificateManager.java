@@ -136,6 +136,7 @@ public class CertificateManager {
 			return new CertificateManager(new DigicertCertificateSigner());
 		}	
 	}
+
 	
 	public static CertificateManager Factory(String dn) {
 		//determine the singer from vo_id (if provided)
@@ -166,6 +167,7 @@ public class CertificateManager {
 			return new CertificateManager(new DigicertCertificateSigner());
 		}	
 	}
+
 	public String getUserDNBase() {
 		return cp.getUserDNBase();
 	}
