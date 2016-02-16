@@ -627,7 +627,15 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 	//NO-AC
 	public void revoke(CertificateRequestUserRecord rec) throws CertificateRequestException {
 		//revoke
-		CertificateManager cm = CertificateManager.Factory(context, rec.vo_id);
+		DNModel dnmodel = new DNModel(context);
+		DNRecord dnrec = null;
+		try {
+			dnrec = dnmodel.getByDNString(rec.dn);
+		} catch (SQLException e2) {
+			// TODO Auto-generated catch block
+			e2.printStackTrace();
+		}
+		CertificateManager cm = CertificateManager.Factory(dnrec);
 		try {
 			cm.revokeUserCertificate(rec.cert_serial_id);
 			log.info("Revoked " + rec.dn + " with serial id:" + rec.cert_serial_id);
@@ -645,8 +653,8 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 			
 			//disable associated dn (if any)
 			try {
-				DNModel dnmodel = new DNModel(context);
-				DNRecord dnrec = dnmodel.getByDNString(rec.dn);
+				//DNModel dnmodel = new DNModel(context);
+				//DNRecord dnrec = dnmodel.getByDNString(rec.dn);
 				if(rec != null) {
 					log.info("Disabling associated DN record");
 					dnrec.disable = true;
