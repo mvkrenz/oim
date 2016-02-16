@@ -864,7 +864,19 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 
 		
 	
-		ArrayList<Certificate> chain = CertificateManager.parsePKCS7(rec.cert_pkcs7);
+		ArrayList<Certificate> chain = null;
+		try {
+			chain = CertificateManager.parsePKCS7(rec.cert_pkcs7);
+		} catch (CertificateException e2) {
+			// TODO Auto-generated catch block
+			e2.printStackTrace();
+		} catch (CMSException e2) {
+			// TODO Auto-generated catch block
+			e2.printStackTrace();
+		} catch (IOException e2) {
+			// TODO Auto-generated catch block
+			e2.printStackTrace();
+		}
 		X509Certificate c0 = CertificateManager.getIssuedX509Cert(chain);
 		X500Principal issuer = c0.getIssuerX500Principal();
 		String issuer_dn = CertificateManager.X500Principal_to_ApacheDN(issuer);
