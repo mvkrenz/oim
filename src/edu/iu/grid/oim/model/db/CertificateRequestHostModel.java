@@ -677,6 +677,7 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 		GridAdminModel gamodel = new GridAdminModel(context);
     	String gridadmin_domain = null;
     	int idx = 0;
+    	ArrayList<String> domains = new ArrayList<String>();
     
     	String[] csrs = rec.getCSRs();
     	if(csrs.length == 0) {
@@ -712,21 +713,28 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 				throw new CertificateRequestException("The hostname you have provided in the CSR/CN=" + cn + " does not match any domain OIM is currently configured to issue certificates for.\n\nPlease double check the CN you have specified. If you'd like to be a GridAdmin for this domain, please open GOC Ticket at https://ticket.grid.iu.edu ");	
 			}
 			
+			
 			//make sure same set of gridadmin approves all host
 			if(gridadmin_domain == null) {
 				gridadmin_domain = domain;
+				log.debug("first domain is " + gridadmin_domain);
+				
 			} else {
 				if(!gridadmin_domain.equals(domain)) {
-					throw new CertificateRequestException("All host certificates must be approved by the same set of gridadmins. Different for " + cn);	
+					//throw new CertificateRequestException("All host certificates must be approved by the same set of gridadmins. Different for " + cn);
+					domains.add(domain);
+					log.debug("Next domain is " + domain);
 				}
 			}
 			
-			//make sure SANs are also approved by the same domain
+			//make sure SANs are also approved by the same domain or share a common GridAdmin
 			for(String san : sans) {
 				try {
 					String san_domain = gamodel.getDomainByFQDN(san);
 					if(!gridadmin_domain.equals(san_domain)) {
-						throw new CertificateRequestException("All SAN must be approved by the same set of gridadmins. Different for " + san);	
+						//throw new CertificateRequestException("All SAN must be approved by the same set of gridadmins. Different for " + san);	
+						domains.add(san_domain);
+						log.debug("san domain is " + san_domain);
 					}
 				} catch (SQLException e) {
 					throw new CertificateRequestException("Failed to lookup GridAdmin for SAN:" + san, e);	
@@ -734,6 +742,8 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 			}
     	}
 		try {
+			//for first domain in the list, add the grid admins. For each additional domain remove all non-matching grid-admins
+			ArrayList<ContactRecord> gas = new ArrayList<ContactRecord> ();
 			HashMap<VORecord, ArrayList<GridAdminRecord>> groups = gamodel.getByDomainGroupedByVO(gridadmin_domain);
 			if(groups.size() == 0) {
 				throw new CertificateRequestException("No gridadmin exists for domain: " + gridadmin_domain);
@@ -749,12 +759,50 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 				vonames += vo.name + ", "; //just in case we might need to report error message later
 				if(vo.id.equals(rec.approver_vo_id)) {
 					//found a match.. return the list
-					ArrayList<GridAdminRecord> gas = groups.get(vo);
-					return GAsToContacts(gas);
+					 gas.addAll(GAsToContacts(groups.get(vo)));
+					
+			
 				}
 			}
+			for (String domain : domains) {
+				//HashMap<VORecord, ArrayList<GridAdminRecord>> groups = gamodel.getByDomainGroupedByVO(gridadmin_domain);
+				groups = gamodel.getByDomainGroupedByVO(domain);
+				if(groups.size() == 0) {
+					throw new CertificateRequestException("No gridadmin exists for domain: " + domain);
+				}
+				if(groups.size() == 1 && rec.approver_vo_id == null) {
+					//set approver_vo_id to the one and only one vogroup's vo id
+					Iterator<VORecord> it = groups.keySet().iterator();  
+					VORecord vorec = it.next();
+					rec.approver_vo_id = vorec.id;
+				}
+				vonames = "";
+				for(VORecord vo : groups.keySet()) {
+					vonames += vo.name + ", "; //just in case we might need to report error message later
+					if(vo.id.equals(rec.approver_vo_id)) {
+						//found a match.. return the list
+						ArrayList<ContactRecord> newgas = GAsToContacts(groups.get(vo));
+						for(ContactRecord contact: newgas) {
+							log.debug("checking contact name " + contact.name);
+							if (!gas.contains(contact)) {
+								newgas.remove(contact);
+								log.debug("removing " + contact.name);
+							}
+	
+							
+						}
+						gas = newgas; 
+						//return GAsToContacts(gas);
+					}
+				}
+			}
+			if (!gas.isEmpty()) {
+				return gas;
+			}
+			else {
 			//oops.. didn't find specified vo..
-			throw new CertificateRequestException("Couldn't find GridAdmin group under specified VO. Please use one of the following VOs:" + vonames);
+				throw new CertificateRequestException("Couldn't find GridAdmin group under specified VO. Please use one of the following VOs:" + vonames);
+			}
 		} catch (SQLException e) {
 			throw new CertificateRequestException("Failed to lookup gridadmin contacts for domain:" + gridadmin_domain, e);
 		}
