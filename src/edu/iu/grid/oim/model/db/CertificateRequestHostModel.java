@@ -758,7 +758,7 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 			for(VORecord vo : groups.keySet()) {
 				vonames += vo.name + ", "; //just in case we might need to report error message later
 				if(vo.id.equals(rec.approver_vo_id)) {
-					//found a match.. return the list
+					log.debug("found a match.. return the list " + vo.name);
 					 gas.addAll(GAsToContacts(groups.get(vo)));
 					
 			
@@ -766,6 +766,7 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 			}
 			for (String domain : domains) {
 				//HashMap<VORecord, ArrayList<GridAdminRecord>> groups = gamodel.getByDomainGroupedByVO(gridadmin_domain);
+				log.debug("looking up approvers for domain " + domain);
 				groups = gamodel.getByDomainGroupedByVO(domain);
 				if(groups.size() == 0) {
 					throw new CertificateRequestException("No gridadmin exists for domain: " + domain);
@@ -780,7 +781,7 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 				for(VORecord vo : groups.keySet()) {
 					vonames += vo.name + ", "; //just in case we might need to report error message later
 					if(vo.id.equals(rec.approver_vo_id)) {
-						//found a match.. return the list
+						log.debug("found a match.. return the list " + vo.name);
 						ArrayList<ContactRecord> newgas = GAsToContacts(groups.get(vo));
 						for(ContactRecord contact: newgas) {
 							log.debug("checking contact name " + contact.name);
