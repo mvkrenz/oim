@@ -169,7 +169,7 @@ public class CertificateRequestHostForm extends DivRepForm
 						} else {
 							if(a_domain != domain) {	
 								error_message = "All CSRs must be approved by the same GridAdmin (domain:" + domain + ") This CSR has CN:"+cn+" with is approved by a different GridAdmin";
-								return false;
+								//return false;
 							}
 						}
 						
@@ -180,7 +180,7 @@ public class CertificateRequestHostForm extends DivRepForm
 							System.out.println(san + " "+san_domain);
 							if(a_domain != san_domain) {
 								error_message = "All SANs must be approved by the same GridAdmin. This CSR has SAN:"+san+" with is approved by a different GridAdmin from "+domain;
-								return false;								
+								//return false;								
 							}
 						}
 						
