@@ -772,10 +772,12 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 					throw new CertificateRequestException("No gridadmin exists for domain: " + domain);
 				}
 				if(groups.size() == 1 && rec.approver_vo_id == null) {
-					//set approver_vo_id to the one and only one vogroup's vo id
+					
 					Iterator<VORecord> it = groups.keySet().iterator();  
 					VORecord vorec = it.next();
 					rec.approver_vo_id = vorec.id;
+
+					log.debug("set approver_vo_id to the one and only one vogroup's vo id " + rec.approver_vo_id);
 				}
 				vonames = "";
 				for(VORecord vo : groups.keySet()) {

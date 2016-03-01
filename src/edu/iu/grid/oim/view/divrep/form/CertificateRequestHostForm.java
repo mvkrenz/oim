@@ -151,7 +151,7 @@ public class CertificateRequestHostForm extends DivRepForm
 							error_message = "Failed to find any GridAdmin who can approve certificates for CN: " + cn;
 							return false;
 						}
-						if(first) {
+						//if(first) {
 							domain = a_domain;
 							HashMap<VORecord, ArrayList<GridAdminRecord>> groups = gamodel.getByDomainGroupedByVO(domain);					
 							HashMap<Integer, String> keyvalues = new HashMap<Integer, String>();
@@ -166,12 +166,12 @@ public class CertificateRequestHostForm extends DivRepForm
 								vo.setRequired(true);
 							}
 							vo.setLabel("Virtual Organization that should approve this request ("+domain+")");
-						} else {
-							if(a_domain != domain) {	
-								error_message = "All CSRs must be approved by the same GridAdmin (domain:" + domain + ") This CSR has CN:"+cn+" with is approved by a different GridAdmin";
+						//} else {
+							//if(a_domain != domain) {	
+								//error_message = "All CSRs must be approved by the same GridAdmin (domain:" + domain + ") This CSR has CN:"+cn+" with is approved by a different GridAdmin";
 								//return false;
-							}
-						}
+							//}
+						//}
 						
 						//check GridAdmin for SAN
 						//pulling SAN experimentorg.bouncycastle.asn1.pkcs.Attribute
