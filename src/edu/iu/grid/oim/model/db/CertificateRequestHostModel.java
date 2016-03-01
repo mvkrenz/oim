@@ -785,6 +785,9 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 					if(vo.id.equals(rec.approver_vo_id)) {
 						log.debug("found a match.. return the list " + vo.name);
 						ArrayList<ContactRecord> newgas = GAsToContacts(groups.get(vo));
+						if (newgas.isEmpty()) {
+							log.debug("no contacts for " + vo.name);
+						}
 						for(ContactRecord contact: newgas) {
 							log.debug("checking contact name " + contact.name);
 							if (!gas.contains(contact)) {
