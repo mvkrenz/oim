@@ -814,6 +814,7 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 		ArrayList<ContactRecord> contacts = new ArrayList<ContactRecord>();
 		ContactModel cmodel = new ContactModel(context);
 		for(GridAdminRecord ga : gas) {
+			log.debug("adding contact id " + ga.contact_id);
 			contacts.add(cmodel.get(ga.contact_id));
 		}
 		return contacts;
