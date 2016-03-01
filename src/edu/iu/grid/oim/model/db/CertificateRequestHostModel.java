@@ -780,9 +780,11 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 					log.debug("set approver_vo_id to the one and only one vogroup's vo id " + rec.approver_vo_id);
 				}
 				vonames = "";
+				log.debug("For each vo record for " + domain);
 				for(VORecord vo : groups.keySet()) {
+					log.debug(vo.name);
 					vonames += vo.name + ", "; //just in case we might need to report error message later
-					if(vo.id.equals(rec.approver_vo_id)) {
+					//if(vo.id.equals(rec.approver_vo_id)) {
 						log.debug("found a match.. return the list " + vo.name);
 						ArrayList<ContactRecord> newgas = GAsToContacts(groups.get(vo));
 						if (newgas.isEmpty()) {
@@ -799,7 +801,7 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 						}
 						gas = newgas; 
 						//return GAsToContacts(gas);
-					}
+					//}
 				}
 			}
 			if (!gas.isEmpty()) {
