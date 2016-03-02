@@ -790,16 +790,17 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 						if (newgas.isEmpty()) {
 							log.debug("no contacts for " + vo.name);
 						}
+						ArrayList<ContactRecord> sharedgas = new ArrayList<ContactRecord>();
 						for(ContactRecord contact: newgas) {
 							log.debug("checking contact name " + contact.name);
-							if (!gas.contains(contact)) {
-								newgas.remove(contact);
+							if (gas.contains(contact)) {
+								sharedgas.add(contact);
 								log.debug("removing " + contact.name);
 							}
 	
 							
 						}
-						gas = newgas; 
+						gas = sharedgas; 
 						//return GAsToContacts(gas);
 					//}
 				}
