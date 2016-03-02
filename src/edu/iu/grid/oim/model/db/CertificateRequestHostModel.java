@@ -795,7 +795,7 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 							log.debug("checking contact name " + contact.name);
 							if (gas.contains(contact)) {
 								sharedgas.add(contact);
-								log.debug("removing " + contact.name);
+								log.debug("adding " + contact.name);
 							}
 	
 							
@@ -810,7 +810,7 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 			}
 			else {
 			//oops.. didn't find specified vo..
-				throw new CertificateRequestException("Couldn't find GridAdmin group under specified VO. Please use one of the following VOs:" + vonames);
+				throw new CertificateRequestException("Couldn't find GridAdmin group under specified VO.");
 			}
 		} catch (SQLException e) {
 			throw new CertificateRequestException("Failed to lookup gridadmin contacts for domain:" + gridadmin_domain, e);
