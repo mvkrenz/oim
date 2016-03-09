@@ -359,7 +359,16 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 			//however, sometime user expires *while* going through the request process.
 			//in that case, RA will cancel the cert, and guest user can re-request
 			//TODO Once everyone transition to DigiCert, I believe we should only allow guest user to re-request if the request is in EXPIRED state.
-			
+			VOContactModel model = new VOContactModel(context);
+			ArrayList<VOContactRecord> crecs;
+			try {
+				crecs = model.getByVOID(rec.vo_id);
+				if (crecs.isEmpty()) {
+					return false;
+				}
+			} catch (SQLException e1) {
+				log.error("Failed to lookup RA/sponsor information", e1);
+			}
 			if(auth.isUser()) {
 				//user can re-request his own cert .
 				if(auth.getContact().id.equals(rec.requester_contact_id)) {
