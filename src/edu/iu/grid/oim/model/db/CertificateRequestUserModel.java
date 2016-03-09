@@ -364,7 +364,9 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 			try {
 				crecs = model.getByVOID(rec.vo_id);
 				if (crecs.isEmpty()) {
+					log.debug("No RAs found, can not rerequest");
 					return false;
+				
 				}
 			} catch (SQLException e1) {
 				log.error("Failed to lookup RA/sponsor information", e1);
