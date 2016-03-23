@@ -238,14 +238,14 @@ public class CertificateSearchUserForm extends DivRep
 		vo.setNullLabel("(Any)");
 		
 		signer = new DivRepSelectBox(this);
-		status.setLabel("Signer");
-		status.setNullLabel("(Any)");
+		signer.setLabel("Signer");
+		signer.setNullLabel("(Any)");
 		LinkedHashMap<Integer, String> keyvalues2 = new LinkedHashMap();
 
 			keyvalues2.put(0, "CILogon");
 			keyvalues2.put(1, "Digicert");
 
-		status.setValues(keyvalues2);
+			signer.setValues(keyvalues2);
 		
 		request_after = new DivRepDate(this);
 		//Calendar today = new GregorianCalendar();
