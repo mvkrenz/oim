@@ -101,6 +101,7 @@ public class CertificateSearchUserForm extends DivRep
 			dn_contains.render(out);
 			status.render(out);
 			vo.render(out);
+			status.render(out);
 			out.write("</div>"); //span4
 			
 			out.write("<div class=\"span4 duration\">");
