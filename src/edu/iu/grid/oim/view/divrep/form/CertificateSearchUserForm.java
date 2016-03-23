@@ -24,6 +24,7 @@ import com.divrep.common.DivRepSelectBox;
 import com.divrep.common.DivRepStaticContent;
 import com.divrep.common.DivRepTextBox;
 
+
 import edu.iu.grid.oim.model.CertificateRequestStatus;
 import edu.iu.grid.oim.model.UserContext;
 import edu.iu.grid.oim.model.db.CertificateRequestUserModel;
@@ -31,6 +32,7 @@ import edu.iu.grid.oim.model.db.VOModel;
 import edu.iu.grid.oim.model.db.record.CertificateRequestUserRecord;
 import edu.iu.grid.oim.model.db.record.VORecord;
 import edu.iu.grid.oim.view.divrep.VOSelector;
+
 
 public class CertificateSearchUserForm extends DivRep
 {
@@ -48,6 +50,7 @@ public class CertificateSearchUserForm extends DivRep
 	private VOSelector vo;
 	private DivRepDate request_after;
 	private DivRepDate request_before;
+	private DivRepSelectBox signer;
 	
 	private DivRepButton submit;
 	
@@ -232,6 +235,16 @@ public class CertificateSearchUserForm extends DivRep
 		vo = new VOSelector(this, context);
 		vo.setLabel("VO");
 		vo.setNullLabel("(Any)");
+		
+		signer = new DivRepSelectBox(this);
+		status.setLabel("Signer");
+		status.setNullLabel("(Any)");
+		LinkedHashMap<Integer, String> keyvalues2 = new LinkedHashMap();
+
+			keyvalues2.put(0, "CILogon");
+			keyvalues2.put(1, "Digicert");
+
+		status.setValues(keyvalues2);
 		
 		request_after = new DivRepDate(this);
 		//Calendar today = new GregorianCalendar();
