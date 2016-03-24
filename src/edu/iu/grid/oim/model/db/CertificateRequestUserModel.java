@@ -1728,10 +1728,10 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 		}
 		if(signer != null) {
 			if (signer == 0) {
-				sql += " AND dn like  \"%"+StringEscapeUtils.escapeSql("CILogon")+"\"%";
+				sql += " AND dn like  \"%CILogon%\"";
 			}
 			if (signer == 1) {
-				sql += " AND dn like  \"%"+StringEscapeUtils.escapeSql("Digicert")+"\"%";
+				sql += " AND dn like  \"%Digicert%\"";
 			}
 		}
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
