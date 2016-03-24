@@ -1712,7 +1712,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 	}
 	
 	//pass null to not filter
-	public ArrayList<CertificateRequestUserRecord> search(String dn_contains, String status, Integer vo_id, Date request_after, Date request_before) throws SQLException {
+	public ArrayList<CertificateRequestUserRecord> search(String dn_contains, String status, Integer vo_id, Date request_after, Date request_before, Integer signer) throws SQLException {
 		ArrayList<CertificateRequestUserRecord> recs = new ArrayList<CertificateRequestUserRecord>();
 		ResultSet rs = null;
 		Connection conn = connectOIM();
@@ -1725,6 +1725,14 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 		}
 		if(vo_id != null) {
 			sql += " AND vo_id = "+vo_id;
+		}
+		if(signer != null) {
+			if (signer == 0) {
+				sql += " AND dn like  \""+StringEscapeUtils.escapeSql("CILogon")+"\"";
+			}
+			if (signer == 1) {
+				sql += " AND dn like  \""+StringEscapeUtils.escapeSql("Digicert")+"\"";
+			}
 		}
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		if(request_after != null) {

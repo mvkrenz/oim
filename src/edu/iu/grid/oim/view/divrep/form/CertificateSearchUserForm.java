@@ -127,7 +127,7 @@ public class CertificateSearchUserForm extends DivRep
 					dn_str = dn_contains.getValue();
 				}
 
-				recs = model.search(dn_str, status_str, vo.getValue(), request_after.getValue(), request_before.getValue());
+				recs = model.search(dn_str, status_str, vo.getValue(), request_after.getValue(), request_before.getValue(), signer.getValue());
 				if(recs.isEmpty()) {	
 					message.setHtml("<p class=\"alert\">No matching user certificates.</p>");
 				}

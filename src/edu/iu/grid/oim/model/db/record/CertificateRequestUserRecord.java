@@ -30,6 +30,7 @@ public class CertificateRequestUserRecord extends RecordBase {
 	public String status;
 	public Integer vo_id;
 	public String goc_ticket_id;
+	public String signer;
 	
 	public Date cert_notbefore;
 	public Date cert_notafter;
