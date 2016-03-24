@@ -74,8 +74,13 @@ public class UserCertificateTable implements IView {
 			} catch (SQLException e) {
 				out.write("<td>sql error</td>");
 			}
-			//out.write("<td>"+rec.signer+"</td>");
-			out.write("signer");
+			if(rec.dn.contains("DigiCert-Grid")) {
+				out.write("<td>Digicert</td>");
+			} else {
+				out.write("<td>CILogon</td>");
+			}
+	
+
 			//this link causes search page to forward to detail page, and it becomes confusing 
 			//out.write("<td><a target=\"_blank\" onclick=\"document.location='"+StaticConfig.conf.getProperty("url.gocticket")+"/"+rec.goc_ticket_id+"'; return false;\">"+rec.goc_ticket_id+"</a></td>");
 		
