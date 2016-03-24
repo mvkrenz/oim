@@ -10,6 +10,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -48,6 +49,7 @@ public class CertificateSearchHostForm extends DivRep
 	private DivRepSelectBox status;
 	private DivRepDate request_after;
 	private DivRepDate request_before;
+	private DivRepSelectBox signer;
 	
 	private DivRepButton submit;
 	
@@ -98,6 +100,7 @@ public class CertificateSearchHostForm extends DivRep
 			out.write("<div class=\"span4\">");
 			cn_contains.render(out);
 			status.render(out);
+			signer.render(out);
 			out.write("</div>"); //span4
 			
 			out.write("<div class=\"span4 duration\">");
@@ -228,6 +231,16 @@ public class CertificateSearchHostForm extends DivRep
 			++i;
 		}
 		status.setValues(keyvalues);
+		
+		signer = new DivRepSelectBox(this);
+		signer.setLabel("Signer");
+		signer.setNullLabel("(Any)");
+		LinkedHashMap<Integer, String> keyvalues2 = new LinkedHashMap();
+
+			keyvalues2.put(0, "CILogon");
+			keyvalues2.put(1, "Digicert");
+
+			signer.setValues(keyvalues2);
 		
 		/*
 		vo = new DivRepSelectBox(this);
