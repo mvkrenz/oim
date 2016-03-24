@@ -1728,7 +1728,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 		}
 		if(signer != null) {
 			if (signer == 0) {
-				sql += " AND dn like  \"%CILogon%\"";
+				sql += " AND dn not like  \"%Digicert%\"";
 			}
 			if (signer == 1) {
 				sql += " AND dn like  \"%Digicert%\"";
