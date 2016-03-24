@@ -293,6 +293,9 @@ public class CertificateSearchUserForm extends DivRep
 				if(vo.getValue() != null) {
 					url.append("vo="+vo.getValue()+"&");
 				}
+				if(signer.getValue() != null) {
+					url.append("signer="+signer.getValue()+"&");
+				}
 				if(request_after.getValue() != null) {
 					url.append("request_after="+request_after.getValue().getTime()+"&");
 				}
@@ -315,6 +318,9 @@ public class CertificateSearchUserForm extends DivRep
 		dn_contains.setValue(request.getParameter("dn_contains"));
 		if(request.getParameter("vo") != null) {
 			vo.setValue(Integer.parseInt(request.getParameter("vo")));
+		}
+		if(request.getParameter("signer") != null) {
+			signer.setValue(Integer.parseInt(request.getParameter("signer")));
 		}
 		//DateFormat df = new SimpleDateFormat("EEE MMM dd kk:mm:ss z yyyy");
 		if(request.getParameter("request_after") != null) {
