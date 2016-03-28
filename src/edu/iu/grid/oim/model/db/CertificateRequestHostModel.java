@@ -807,7 +807,7 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 						//return GAsToContacts(gas);
 					}
 				}
-				if (match_id != 0) {
+				if (match_id = 0) {
 					for(VORecord vo : groups.keySet()) {
 						log.debug(vo.name);
 						vonames += vo.name + ", "; //just in case we might need to report error message later
