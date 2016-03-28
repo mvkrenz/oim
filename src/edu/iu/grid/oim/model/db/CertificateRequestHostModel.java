@@ -781,11 +781,14 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 				}
 				vonames = "";
 				log.debug("For each vo record for " + domain);
+				int match_id = 0;
 				for(VORecord vo : groups.keySet()) {
 					log.debug(vo.name);
 					vonames += vo.name + ", "; //just in case we might need to report error message later
-					//if(vo.id.equals(rec.approver_vo_id)) {
-						log.debug("found a match.. return the list " + vo.name);
+
+					if(vo.id.equals(rec.approver_vo_id)) {
+						match_id = vo.id;					
+						log.debug("found an exact match.. return the list " + vo.name);
 						ArrayList<ContactRecord> newgas = GAsToContacts(groups.get(vo));
 						if (newgas.isEmpty()) {
 							log.debug("no contacts for " + vo.name);
@@ -802,7 +805,32 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 						}
 						gas = sharedgas; 
 						//return GAsToContacts(gas);
-					//}
+					}
+				}
+				if (match_id != 0) {
+					for(VORecord vo : groups.keySet()) {
+						log.debug(vo.name);
+						vonames += vo.name + ", "; //just in case we might need to report error message later
+						//if(vo.id.equals(rec.approver_vo_id)) {
+							log.debug("matching using the list " + vo.name);
+							ArrayList<ContactRecord> newgas = GAsToContacts(groups.get(vo));
+							if (newgas.isEmpty()) {
+								log.debug("no contacts for " + vo.name);
+							}
+							ArrayList<ContactRecord> sharedgas = new ArrayList<ContactRecord>();
+							for(ContactRecord contact: newgas) {
+								log.debug("checking contact name " + contact.name);
+								if (gas.contains(contact)) {
+									sharedgas.add(contact);
+									log.debug("adding " + contact.name);
+								}
+		
+								
+							}
+							gas = sharedgas; 
+							//return GAsToContacts(gas);
+						//}
+					}
 				}
 			}
 			if (!gas.isEmpty()) {
