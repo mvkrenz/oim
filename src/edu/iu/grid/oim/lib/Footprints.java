@@ -122,11 +122,16 @@ public class Footprints
 		}
 		
 		try {
+			log.debug("executing post");
 			cl.executeMethod(post);
+			log.debug("parsing xml");
 			Document ret = parseXML(post.getResponseBodyAsStream());
+			log.debug("getting element status");
 			NodeList status_nl = ret.getElementsByTagName("Status");
+			log.debug("getting first item");
 			Element status = (Element)status_nl.item(0);
 			if(status != null && status.getTextContent().equals("success")) {
+				log.debug("getting ticketid");
 				Element ticket_id_e = (Element) ret.getElementsByTagName("TicketID").item(0);
 				return ticket_id_e.getTextContent();
 			}
@@ -138,7 +143,7 @@ public class Footprints
 		} catch (SAXException e) {
 			log.error("Failed to parse returned message" ,e);
 		}
-		
+		log.debug("returning null");
 		return null;
 	}
 	
