@@ -465,7 +465,7 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 				ticket.ccs.add(cc);
 			}
 		}
-		
+		log.debug("submitting request as user");
     	return request(csrs, rec, ticket, request_comment);
     }
     
@@ -662,10 +662,11 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 			rec.goc_ticket_id = ticket_id;
 			context.setComment("Opened GOC Ticket " + ticket_id);
 			super.update(get(request_id), rec);
+			log.debug("request updated");
 		} catch (SQLException e) {
 			throw new CertificateRequestException("Failed to insert host certificate request record", e);	
 		}
-		
+		log.debug("returnign rec");
     	return rec;
     }
     
