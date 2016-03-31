@@ -107,9 +107,9 @@ public class HostCertificateTable implements IView {
 			for(String cn : cns) {
 				out.write("<li>");
 				if(cn.contains("DigiCert-Grid")) {
-					out.write("<td>Digicert</td>");
+					out.write("Digicert");
 				} else {
-					out.write("<td>CILogon</td>");
+					out.write("CILogon");
 				}
 				out.write("</li>");
 
