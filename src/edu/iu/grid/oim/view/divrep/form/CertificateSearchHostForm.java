@@ -292,6 +292,9 @@ public class CertificateSearchHostForm extends DivRep
 				if(status.getValue() != null) {
 					url.append("status="+status.getValue()+"&");
 				}
+				if(signer.getValue() != null) {
+					url.append("signer="+signer.getValue()+"&");
+				}
 				if(request_after.getValue() != null) {
 					url.append("request_after="+request_after.getValue().getTime()+"&");
 				}
@@ -325,6 +328,9 @@ public class CertificateSearchHostForm extends DivRep
 		}
 		if(request.getParameter("status") != null) {
 			status.setValue(Integer.parseInt(request.getParameter("status")));
+		}
+		if(request.getParameter("signer") != null) {
+			signer.setValue(Integer.parseInt(request.getParameter("signer")));
 		}
 		if(request.getParameter("active") != null) {
 			active_tab = findTab(request.getParameter("active"));

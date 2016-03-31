@@ -33,7 +33,7 @@ public class HostCertificateTable implements IView {
 
 	public void render(PrintWriter out)  {
 		out.write("<table class=\"table table-hover certificate\">");
-		out.write("<thead><tr><th width=\"40px\">ID</th><th width=\"100px\">Status</th><th width=\"120px\">Request Date</th><th width=\"250px\">FQDNs</th><th>VO</th><th>Grid Admins</th></tr></thead>");
+		out.write("<thead><tr><th width=\"40px\">ID</th><th width=\"100px\">Status</th><th width=\"120px\">Request Date</th><th width=\"250px\">FQDNs</th><th>VO</th><th>Grid Admins</th><th>Signer</th></tr></thead>");
 		out.write("<tbody>");
 		CertificateRequestHostModel model = new CertificateRequestHostModel(context);
 		
@@ -100,6 +100,23 @@ public class HostCertificateTable implements IView {
 			} catch (CertificateRequestException ce) {
 				out.write("<td><span class=\"label label-important\">No GridAdmin</span></td>");
 			}
+			
+			//signers
+
+			out.write("<td><ul>");
+			for(String cn : cns) {
+				out.write("<li>");
+				if(cn.contains("DigiCert-Grid")) {
+					out.write("<td>Digicert</td>");
+				} else {
+					out.write("<td>CILogon</td>");
+				}
+				out.write("</li>");
+
+				
+			}
+			out.write("</ul></td>");
+			
 			out.write("</tr>");	
 		}
 		out.write("</tbody>");
