@@ -33,7 +33,7 @@ public class HostCertificateTable implements IView {
 
 	public void render(PrintWriter out)  {
 		out.write("<table class=\"table table-hover certificate\">");
-		out.write("<thead><tr><th width=\"40px\">ID</th><th width=\"100px\">Status</th><th width=\"120px\">Request Date</th><th width=\"250px\">FQDNs</th><th>VO</th><th>Grid Admins</th><th>Signer</th></tr></thead>");
+		out.write("<thead><tr><th width=\"40px\">ID</th><th width=\"100px\">Status</th><th width=\"120px\">Request Date</th><th width=\"250px\">FQDNs</th><th>VO</th><th>Grid Admins</th></tr></thead>");
 		out.write("<tbody>");
 		CertificateRequestHostModel model = new CertificateRequestHostModel(context);
 		
@@ -101,21 +101,7 @@ public class HostCertificateTable implements IView {
 				out.write("<td><span class=\"label label-important\">No GridAdmin</span></td>");
 			}
 			
-			//signers
 
-			out.write("<td><ul>");
-			for(String cn : cns) {
-				out.write("<li>");
-				if(cn.contains("DigiCert-Grid")) {
-					out.write("Digicert");
-				} else {
-					out.write("CILogon");
-				}
-				out.write("</li>");
-
-				
-			}
-			out.write("</ul></td>");
 			
 			out.write("</tr>");	
 		}

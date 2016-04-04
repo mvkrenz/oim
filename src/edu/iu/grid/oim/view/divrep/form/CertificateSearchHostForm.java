@@ -49,7 +49,7 @@ public class CertificateSearchHostForm extends DivRep
 	private DivRepSelectBox status;
 	private DivRepDate request_after;
 	private DivRepDate request_before;
-	private DivRepSelectBox signer;
+
 	
 	private DivRepButton submit;
 	
@@ -100,7 +100,7 @@ public class CertificateSearchHostForm extends DivRep
 			out.write("<div class=\"span4\">");
 			cn_contains.render(out);
 			status.render(out);
-			signer.render(out);
+
 			out.write("</div>"); //span4
 			
 			out.write("<div class=\"span4 duration\">");
@@ -126,7 +126,7 @@ public class CertificateSearchHostForm extends DivRep
 					dn_str = cn_contains.getValue();
 				}
 
-				recs = model.search(dn_str, status_str, request_after.getValue(), request_before.getValue(), signer.getValue());
+				recs = model.search(dn_str, status_str, request_after.getValue(), request_before.getValue());
 				if(recs.isEmpty()) {	
 					message.setHtml("<p class=\"alert\">No matching user certificates.</p>");
 				}
@@ -232,15 +232,7 @@ public class CertificateSearchHostForm extends DivRep
 		}
 		status.setValues(keyvalues);
 		
-		signer = new DivRepSelectBox(this);
-		signer.setLabel("Signer");
-		signer.setNullLabel("(Any)");
-		LinkedHashMap<Integer, String> keyvalues2 = new LinkedHashMap();
 
-			keyvalues2.put(0, "CILogon");
-			keyvalues2.put(1, "Digicert");
-
-			signer.setValues(keyvalues2);
 		
 		/*
 		vo = new DivRepSelectBox(this);
@@ -292,9 +284,7 @@ public class CertificateSearchHostForm extends DivRep
 				if(status.getValue() != null) {
 					url.append("status="+status.getValue()+"&");
 				}
-				if(signer.getValue() != null) {
-					url.append("signer="+signer.getValue()+"&");
-				}
+
 				if(request_after.getValue() != null) {
 					url.append("request_after="+request_after.getValue().getTime()+"&");
 				}
@@ -329,9 +319,7 @@ public class CertificateSearchHostForm extends DivRep
 		if(request.getParameter("status") != null) {
 			status.setValue(Integer.parseInt(request.getParameter("status")));
 		}
-		if(request.getParameter("signer") != null) {
-			signer.setValue(Integer.parseInt(request.getParameter("signer")));
-		}
+
 		if(request.getParameter("active") != null) {
 			active_tab = findTab(request.getParameter("active"));
 		} else {

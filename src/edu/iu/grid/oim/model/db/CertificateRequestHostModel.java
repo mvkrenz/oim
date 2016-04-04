@@ -1239,7 +1239,7 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 	}
 	
 	//pass null to not filter
-	public ArrayList<CertificateRequestHostRecord> search(String cns_contains, String status, Date request_after, Date request_before, Integer signer) throws SQLException {
+	public ArrayList<CertificateRequestHostRecord> search(String cns_contains, String status, Date request_after, Date request_before) throws SQLException {
 		ArrayList<CertificateRequestHostRecord> recs = new ArrayList<CertificateRequestHostRecord>();
 		ResultSet rs = null;
 		Connection conn = connectOIM();
@@ -1250,14 +1250,7 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 		if(status != null) {
 			sql += " AND status = \""+StringEscapeUtils.escapeSql(status)+"\"";
 		}
-		if(signer != null) {
-			if (signer == 0) {
-				sql += " AND cns not like  \"%Digicert%\"";
-			}
-			if (signer == 1) {
-				sql += " AND csn like  \"%Digicert%\"";
-			}
-		}
+
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 		if(request_after != null) {
 			sql += " AND request_time >= \""+sdf.format(request_after) + "\"";
