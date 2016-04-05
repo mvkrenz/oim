@@ -1472,7 +1472,7 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 				}
 			}	
 		}
-		 if(rec.vo_id == 35 || rec.vo_id == 3) {
+		 if(vo_id == 35 || vo_id == 3) {
 			 throw new CertificateRequestException("ATLAS users must request a certificate via CERN. See https://www.racf.bnl.gov/docs/howto/grid/osg-ca-migration");
 		 }
 		//make sure we won't collide with existing dn
