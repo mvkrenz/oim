@@ -343,6 +343,16 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 		    	return true;
 			}
 		};
+		
+		criterias.new AuthorizationCriteria("Requester is not an ATLAS user.", "certificate_signer") {
+			@Override
+			public Boolean test() {
+				 if(rec.vo_id == 35 || rec.vo_id == 3) {
+					 return false;				 
+					 }
+				 return true;
+			}
+		};
 			
 		return criterias;
 	}
@@ -1462,7 +1472,9 @@ public class CertificateRequestUserModel extends CertificateRequestModelBase<Cer
 				}
 			}	
 		}
-		
+		 if(rec.vo_id == 35 || rec.vo_id == 3) {
+			 throw new CertificateRequestException("ATLAS users must request a certificate via CERN. See https://www.racf.bnl.gov/docs/howto/grid/osg-ca-migration");
+		 }
 		//make sure we won't collide with existing dn
 		DNRecord existing_rec = dnmodel.getEnabledByDNString(rec.dn);
 		if(existing_rec != null) {
