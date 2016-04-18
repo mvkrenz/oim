@@ -287,7 +287,6 @@ public class VOFormDE extends DivRepForm
 			ContactModel pmodel = new ContactModel(context);	
 			managers = new ContactEditor(this, pmodel, false, false);
 			managers.setMaxContacts(ContactRank.Primary, 10);
-			managers.setMaxContacts(ContactRank.Secondary, 3);
 			managers.setShowRank(false);
 			
 			repo_urls = new URLListEditor(this);
@@ -562,9 +561,11 @@ public class VOFormDE extends DivRepForm
 				break;
 			case 2://security contact
 				editor.setMinContacts(ContactRank.Primary, 1); //required
+				editor.setMaxContacts(ContactRank.Secondary, 3);
 				break;
 			case 3://admin
 				editor.setMinContacts(ContactRank.Primary, 1); //required
+				editor.setMaxContacts(ContactRank.Secondary, 3);
 				break;
 			case 5://misc
 				break;
