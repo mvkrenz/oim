@@ -247,6 +247,9 @@ public class ResourceFormDE extends DivRepForm
 			if(contact_type.id != 5 && contact_type.id != 9) { //5 = misc, 9 = resource report
 				editor.setMinContacts(ContactRank.Primary, 1);
 			}
+			if(contact_type.id == 2 || contact_type.id == 3) {
+				editor.setMaxContacts(ContactRank.Secondary, 3);
+			}
 			contact_editors.put(contact_type.id, editor);
 		}
 		
