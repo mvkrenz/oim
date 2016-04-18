@@ -287,6 +287,7 @@ public class VOFormDE extends DivRepForm
 			ContactModel pmodel = new ContactModel(context);	
 			managers = new ContactEditor(this, pmodel, false, false);
 			managers.setMaxContacts(ContactRank.Primary, 10);
+			managers.setMaxContacts(ContactRank.Secondary, 3);
 			managers.setShowRank(false);
 			
 			repo_urls = new URLListEditor(this);
