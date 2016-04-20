@@ -970,6 +970,7 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 		String issuer_dn = CertificateManager.X500Principal_to_ApacheDN(issuer);
 
 		CertificateManager cm = CertificateManager.Factory(issuer_dn);
+		log.debug("Issuer dn " + issuer_dn);
 
 		try {
 			String[] cert_serial_ids = rec.getSerialIDs();
