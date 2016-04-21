@@ -968,10 +968,13 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 		X509Certificate c0 = CertificateManager.getIssuedX509Cert(chain);
 		X500Principal issuer = c0.getIssuerX500Principal();
 		String issuer_dn = CertificateManager.X500Principal_to_ApacheDN(issuer);
-
-		CertificateManager cm = CertificateManager.Factory(issuer_dn);
-		log.debug("Issuer dn " + issuer_dn);
-
+		if (issuer_dn == null) {
+			log.debug("issuer dn is null");
+		}
+		else {
+			CertificateManager cm = CertificateManager.Factory(issuer_dn);
+			log.debug("Issuer dn " + issuer_dn);
+		}
 		try {
 			String[] cert_serial_ids = rec.getSerialIDs();
 			StringArray statuses = new StringArray(rec.cert_statuses);
