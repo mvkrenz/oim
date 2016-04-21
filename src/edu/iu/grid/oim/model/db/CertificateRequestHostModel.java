@@ -972,9 +972,10 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 			log.debug("issuer dn is null");
 		}
 		else {
-			CertificateManager cm = CertificateManager.Factory(issuer_dn);
+
 			log.debug("Issuer dn " + issuer_dn);
 		}
+		CertificateManager cm = CertificateManager.Factory(issuer_dn);
 		try {
 			String[] cert_serial_ids = rec.getSerialIDs();
 			StringArray statuses = new StringArray(rec.cert_statuses);
