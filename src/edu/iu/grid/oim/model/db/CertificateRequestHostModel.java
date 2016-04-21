@@ -951,10 +951,14 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 
 		
 
-	
+		String issuer_dn = "CILogon"; //by default
 		ArrayList<Certificate> chain = null;
 		try {
+			//for digicert
 			chain = CertificateManager.parsePKCS7(rec.cert_pkcs7);
+			X509Certificate c0 = CertificateManager.getIssuedX509Cert(chain);
+			X500Principal issuer = c0.getIssuerX500Principal();
+			issuer_dn = CertificateManager.X500Principal_to_ApacheDN(issuer);
 		} catch (CertificateException e2) {
 			// TODO Auto-generated catch block
 			e2.printStackTrace();
@@ -963,18 +967,11 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 			e2.printStackTrace();
 		} catch (IOException e2) {
 			// TODO Auto-generated catch block
-			e2.printStackTrace();
+			//e2.printStackTrace(); -this will error for cilogon
+			
 		}
-		X509Certificate c0 = CertificateManager.getIssuedX509Cert(chain);
-		X500Principal issuer = c0.getIssuerX500Principal();
-		String issuer_dn = CertificateManager.X500Principal_to_ApacheDN(issuer);
-		if (issuer_dn == null) {
-			log.debug("issuer dn is null");
-		}
-		else {
 
-			log.debug("Issuer dn " + issuer_dn);
-		}
+
 		CertificateManager cm = CertificateManager.Factory(issuer_dn);
 		try {
 			String[] cert_serial_ids = rec.getSerialIDs();
