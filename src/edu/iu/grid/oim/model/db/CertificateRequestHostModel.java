@@ -2,7 +2,6 @@ package edu.iu.grid.oim.model.db;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
@@ -42,7 +41,6 @@ import org.bouncycastle.crypto.params.RSAKeyParameters;
 import org.bouncycastle.crypto.util.PublicKeyFactory;
 import org.bouncycastle.pkcs.PKCS10CertificationRequest;
 import org.bouncycastle.util.encoders.Base64;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 
@@ -951,15 +949,12 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 		//revoke
 		//CertificateManager cm = CertificateManager.Factory(context, rec.approver_vo_id);
 
+		
 
-		String issuer_dn = ""; //by default
+	
 		ArrayList<Certificate> chain = null;
 		try {
-			log.debug("pkcs7 is " + rec.getPKCS7s()[0]);
-			chain = CertificateManager.parsePKCS7(rec.getPKCS7s()[0]);
-			X509Certificate c0 = CertificateManager.getIssuedX509Cert(chain);
-			X500Principal issuer = c0.getIssuerX500Principal();
-			issuer_dn = CertificateManager.X500Principal_to_ApacheDN(issuer);
+			chain = CertificateManager.parsePKCS7(rec.cert_pkcs7);
 		} catch (CertificateException e2) {
 			// TODO Auto-generated catch block
 			e2.printStackTrace();
@@ -968,12 +963,14 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 			e2.printStackTrace();
 		} catch (IOException e2) {
 			// TODO Auto-generated catch block
-			//e2.printStackTrace(); -this will error for cilogon
-			
+			e2.printStackTrace();
 		}
-
+		X509Certificate c0 = CertificateManager.getIssuedX509Cert(chain);
+		X500Principal issuer = c0.getIssuerX500Principal();
+		String issuer_dn = CertificateManager.X500Principal_to_ApacheDN(issuer);
 
 		CertificateManager cm = CertificateManager.Factory(issuer_dn);
+
 		try {
 			String[] cert_serial_ids = rec.getSerialIDs();
 			StringArray statuses = new StringArray(rec.cert_statuses);
