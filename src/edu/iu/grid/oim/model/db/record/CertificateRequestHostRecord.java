@@ -84,6 +84,7 @@ public class CertificateRequestHostRecord extends RecordBase {
 		String issuer_dn = ""; //by default
 		ArrayList<Certificate> chain = null;
 		try {
+			log.debug("id is " + this.id.toString());
 			log.debug("pkcs7 is " + this.getPKCS7s()[0]);
 			chain = CertificateManager.parsePKCS7(this.getPKCS7s()[0]);
 			X509Certificate c0 = CertificateManager.getIssuedX509Cert(chain);
