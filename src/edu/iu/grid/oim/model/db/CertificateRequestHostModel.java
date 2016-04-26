@@ -1267,6 +1267,7 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 	    while(rs.next()) {
 	    	CertificateRequestHostRecord cr = new CertificateRequestHostRecord(rs);
 	    	if (signer != null) {
+	    		log.debug("cr pkcs7" + cr.getPKCS7s());
 	    		if ((signer == 0 && cr.getSigner() == "CILogon") || (signer == 1 && cr.getSigner() == "Digicert-Grid")) {
 	    			recs.add(cr);
 	    		}
