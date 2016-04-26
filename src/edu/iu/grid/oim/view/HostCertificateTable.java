@@ -111,11 +111,12 @@ public class HostCertificateTable implements IView {
 			String issuer_dn = ""; //by default
 			ArrayList<Certificate> chain = null;
 			try {
-				
-				chain = CertificateManager.parsePKCS7(rec.getPKCS7s()[0]);
-				X509Certificate c0 = CertificateManager.getIssuedX509Cert(chain);
-				X500Principal issuer = c0.getIssuerX500Principal();
-				issuer_dn = CertificateManager.X500Principal_to_ApacheDN(issuer);
+				if (rec.getPKCS7s()[0] != null) {
+					chain = CertificateManager.parsePKCS7(rec.getPKCS7s()[0]);
+					X509Certificate c0 = CertificateManager.getIssuedX509Cert(chain);
+					X500Principal issuer = c0.getIssuerX500Principal();
+					issuer_dn = CertificateManager.X500Principal_to_ApacheDN(issuer);
+				}
 			} catch (CertificateException e2) {
 				// TODO Auto-generated catch block
 				e2.printStackTrace();
@@ -129,8 +130,11 @@ public class HostCertificateTable implements IView {
 			}
 			if(issuer_dn.contains("DigiCert")) {
 				out.write("<td>Digicert</td>");
-			} else {
+			} else if (issuer_dn.contains("CILogon")){
 				out.write("<td>CILogon</td>");
+			}
+			else {
+				out.write("<td></td>");
 			}
 			
 			out.write("</tr>");	

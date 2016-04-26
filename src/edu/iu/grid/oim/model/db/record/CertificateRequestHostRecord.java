@@ -84,13 +84,13 @@ public class CertificateRequestHostRecord extends RecordBase {
 		String issuer_dn = ""; //by default
 		ArrayList<Certificate> chain = null;
 		try {
-			log.debug("id is " + this.id.toString());
-			log.debug("pkcs7 is " + this.getPKCS7s()[0]);
-			chain = CertificateManager.parsePKCS7(this.getPKCS7s()[0]);
-			X509Certificate c0 = CertificateManager.getIssuedX509Cert(chain);
-			X500Principal issuer = c0.getIssuerX500Principal();
-			issuer_dn = CertificateManager.X500Principal_to_ApacheDN(issuer);
-			log.debug("signer is " + issuer_dn);
+			if (this.getPKCS7s()[0] != null) {
+				chain = CertificateManager.parsePKCS7(this.getPKCS7s()[0]);
+				X509Certificate c0 = CertificateManager.getIssuedX509Cert(chain);
+				X500Principal issuer = c0.getIssuerX500Principal();
+				issuer_dn = CertificateManager.X500Principal_to_ApacheDN(issuer);
+				log.debug("signer is " + issuer_dn);
+			}
 		} catch (CertificateException e2) {
 			// TODO Auto-generated catch block
 			e2.printStackTrace();

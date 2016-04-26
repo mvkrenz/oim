@@ -955,11 +955,12 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 		String issuer_dn = ""; //by default
 		ArrayList<Certificate> chain = null;
 		try {
-			log.debug("pkcs7 is " + rec.getPKCS7s()[0]);
-			chain = CertificateManager.parsePKCS7(rec.getPKCS7s()[0]);
-			X509Certificate c0 = CertificateManager.getIssuedX509Cert(chain);
-			X500Principal issuer = c0.getIssuerX500Principal();
-			issuer_dn = CertificateManager.X500Principal_to_ApacheDN(issuer);
+			if (rec.getPKCS7s()[0] != null) {
+				chain = CertificateManager.parsePKCS7(rec.getPKCS7s()[0]);
+				X509Certificate c0 = CertificateManager.getIssuedX509Cert(chain);
+				X500Principal issuer = c0.getIssuerX500Principal();
+				issuer_dn = CertificateManager.X500Principal_to_ApacheDN(issuer);
+			}
 		} catch (CertificateException e2) {
 			// TODO Auto-generated catch block
 			e2.printStackTrace();
