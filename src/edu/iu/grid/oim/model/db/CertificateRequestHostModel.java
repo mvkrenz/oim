@@ -1269,7 +1269,7 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 	    	CertificateRequestHostRecord cr = new CertificateRequestHostRecord(rs);
 	    	if (signer != null) {
 	    		log.debug("cr signer " + cr.getSigner());
-	    		if ((signer == 0 && cr.getSigner() == "CILogon") || (signer == 1 && cr.getSigner() == "Digicert-Grid")) {
+	    		if ((signer == 0 && cr.getSigner().matches("*CILogon*")) || (signer == 1 && cr.getSigner().matches("*Digicert*"))) {
 	    			recs.add(cr);
 	    		}
 	    	}
