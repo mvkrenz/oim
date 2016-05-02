@@ -134,7 +134,7 @@ public class HostCertificateTable implements IView {
 				out.write("<td>CILogon</td>");
 			}
 			else {
-				out.write("<td></td>");
+				out.write("<td>Not Issued</td>");
 			}
 			
 			out.write("</tr>");	
