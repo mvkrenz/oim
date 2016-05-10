@@ -75,9 +75,12 @@ public class UserCertificateTable implements IView {
 				out.write("<td>sql error</td>");
 			}
 			if(rec.dn.contains("DigiCert-Grid")) {
-				out.write("<td>Digicert</td>");
-			} else {
-				out.write("<td>CILogon</td>");
+				out.write("<td style=\"color:red\">Digicert</td>");
+			} else if (rec.dn.contains("CILogon")){
+				out.write("<td style=\"color:green\">CILogon</td>");
+			}
+			else {
+				out.write("<td style=\"color:gray\">Not Issued</td>");
 			}
 	
 
