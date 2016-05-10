@@ -353,6 +353,7 @@ public class ResourceServlet extends ServletBase implements Servlet {
 		table.addRow("Storage Capacity Minimum (TB)", rec.storage_capacity_minimum);
 		table.addRow("Storage Capacity Maximum (TB)", rec.storage_capacity_maximum);
 		table.addRow("Tape Capacity (TB)", rec.tape_capacity);
+		table.addRow("Max Wallclock time",rec.GLUE2ComputingShareMaxWallTime);
 		
 		view.add(table);
 		return view;

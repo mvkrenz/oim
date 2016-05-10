@@ -98,4 +98,5 @@ public class RecordTableView extends TableView {
 		}
 		return addRow(header, str);
 	}
+
 }
