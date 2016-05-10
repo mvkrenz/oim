@@ -118,7 +118,7 @@ public class ResourceWLCG extends DivRepFormElement {
 			tape_capacity.setSampleValue("5.5");
 			
 			GLUE2ComputingShareMaxWallTime = new DivRepTextBox(this);
-			GLUE2ComputingShareMaxWallTime.setLabel("APEL Normalization Factor");
+			GLUE2ComputingShareMaxWallTime.setLabel("Max Wallclock time");
 			GLUE2ComputingShareMaxWallTime.addValidator(DivRepDoubleValidator.getInstance());
 			GLUE2ComputingShareMaxWallTime.setSampleValue("0.0");
 			GLUE2ComputingShareMaxWallTime.setRequired(true);
