@@ -37,7 +37,6 @@ public class ResourceWLCG extends DivRepFormElement {
 		private DivRepTextBox storage_capacity_minimum;
 		private DivRepTextBox storage_capacity_maximum;
 		private DivRepTextBox tape_capacity;
-		private DivRepTextBox GLUE2ComputingShareMaxWallTime;
 
 		private WLCGEditor myself;
 		
@@ -117,12 +116,6 @@ public class ResourceWLCG extends DivRepFormElement {
 			tape_capacity.addValidator(DivRepDoubleValidator.getInstance());
 			tape_capacity.setSampleValue("5.5");
 			
-			GLUE2ComputingShareMaxWallTime = new DivRepTextBox(this);
-			GLUE2ComputingShareMaxWallTime.setLabel("Max Wallclock time");
-			GLUE2ComputingShareMaxWallTime.addValidator(DivRepDoubleValidator.getInstance());
-			GLUE2ComputingShareMaxWallTime.setSampleValue("0.0");
-			GLUE2ComputingShareMaxWallTime.setRequired(true);
-			
 			hideWLCGAccountingName(true);
 			
 			ResourceWLCGModel wmodel = new ResourceWLCGModel(context);
@@ -155,9 +148,6 @@ public class ResourceWLCG extends DivRepFormElement {
 				}
 				if(wrec.tape_capacity != null) {
 					tape_capacity.setValue(wrec.tape_capacity.toString());
-				}
-				if(wrec.GLUE2ComputingShareMaxWallTime != null) {
-					GLUE2ComputingShareMaxWallTime.setValue(wrec.GLUE2ComputingShareMaxWallTime.toString());
 				}
 				
 				if(wrec.interop_accounting) {

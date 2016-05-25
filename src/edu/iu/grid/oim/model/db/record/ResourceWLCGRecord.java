@@ -18,7 +18,6 @@ public class ResourceWLCGRecord extends RecordBase {
 	public Double storage_capacity_maximum;
 	public Double tape_capacity;
 	public Double apel_normal_factor;
-	public Double GLUE2ComputingShareMaxWallTime;
 
 	//load from existing record
 	public ResourceWLCGRecord(ResultSet rs) throws SQLException { super(rs); }
