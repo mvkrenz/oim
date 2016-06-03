@@ -425,6 +425,9 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 			ticket.description = "Dear " + rec.requester_name + ",\n\n";
 			ticket.description += "Your host certificate request has been approved. \n\n";
 		}
+		for(String cn : cns) {
+			ticket.description += "/CN=" + cn + "\n";
+		}
 		ticket.description += "To retrieve the certificate please visit " + getTicketUrl(rec.id) + " and click on Issue Certificate button.\n\n";
     	if(StaticConfig.isDebug()) {
     		ticket.description += "Or if you are using the command-line: osg-cert-retrieve -T -i "+rec.id+"\n\n";
@@ -910,6 +913,9 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 		} else {
 			//Guest can still cancel by providing the password used to submit the request.
 		}
+		for(String cn : rec.getCNs()) {
+			ticket.description += "/CN=" + cn + "\n";
+		}
 		ticket.description += "\n\n> " + context.getComment();
 		ticket.status = "Resolved";
 		fp.update(ticket, rec.goc_ticket_id);
@@ -938,6 +944,9 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 		if(auth.isUser()) {
 			ContactRecord contact = auth.getContact();
 			ticket.description = contact.name + " has rejected this certificate request.\n\n";
+			for(String cn : rec.getCNs()) {
+				ticket.description += "/CN=" + cn + "\n";
+			}
 		} else {
 			throw new CertificateRequestException("Guest shouldn't be rejecting request");
 		}
@@ -1009,6 +1018,9 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 		if(auth.isUser()) {
 			ContactRecord contact = auth.getContact();
 			ticket.description = contact.name + " has revoked this certificate.\n\n";
+			for(String cn : rec.getCNs()) {
+				ticket.description += "/CN=" + cn + "\n";
+			}
 		} else {
 			throw new CertificateRequestException("Guest shouldn't be revoking certificate");
 		}
@@ -1065,6 +1077,9 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 		if(auth.isUser()) {
 			ContactRecord contact = auth.getContact();
 			ticket.description = contact.name + " has revoked a certificate with serial ID:"+cert_serial_id+".\n\n";
+			for(String cn : rec.getCNs()) {
+				ticket.description += "/CN=" + cn + "\n";
+			}
 		} else {
 			throw new CertificateRequestException("Guest shouldn't be revoking certificate!");
 		}
@@ -1395,6 +1410,9 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 				Footprints fp = new Footprints(context);
 				FPTicket ticket = fp.new FPTicket();
 				ticket.description = "Certificate(s) has been expired.";
+				for(String cn : rec.getCNs()) {
+					ticket.description += "/CN=" + cn + "\n";
+				}
 				if(StaticConfig.isDebug()) {
 					log.debug("skipping (this is debug) ticket update on ticket : " + rec.goc_ticket_id + " to notify expired host certificate");
 					log.debug(ticket.description);
@@ -1431,7 +1449,9 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 				//send notification
 				ticket.description = "Dear " + rec.requester_name + ",\n\n";
 				ticket.description += "Your host certificate (id: "+rec.id+") was approved 15 days ago. The request is scheduled to be automatically canceled within another 15 days. Please take this opportunity to download your approved certificate at your earliest convenience. If you are experiencing any trouble with the issuance of your certificate, please feel free to contact the GOC for further assistance. Please visit "+getTicketUrl(rec.id)+" to issue your host certificate.\n\n";
-				
+				for(String cn : rec.getCNs()) {
+					ticket.description += "/CN=" + cn + "\n";
+				}
 				if(StaticConfig.isDebug()) {
 					log.debug("skipping (this is debug) ticket update on ticket : " + rec.goc_ticket_id + " to notify expiring status for host certificate");
 					log.debug(ticket.description);
