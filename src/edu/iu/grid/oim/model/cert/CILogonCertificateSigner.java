@@ -6,6 +6,7 @@ import java.security.KeyStore;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
+import java.text.ParseException;
 import java.security.cert.Certificate;
 import java.util.ArrayList;
 
@@ -22,6 +23,8 @@ import org.bouncycastle.pkcs.PKCS10CertificationRequest;
 
 import edu.iu.grid.oim.lib.StaticConfig;
 import edu.iu.grid.oim.model.exceptions.CertificateRequestException;
+
+import org.json.*;
 
 //Uses CILogin OSG CA APIs
 //https://docs.google.com/document/d/1c5BaQSTyHEJtOIF66mqrKh52sfaSCBnxTbqPEniMtkE/edit#heading=h.m82hlr8uhzkm
@@ -160,6 +163,15 @@ public class CILogonCertificateSigner implements ICertificateSigner {
 		post.getParams().setCookiePolicy(CookiePolicy.IGNORE_COOKIES);
 		try {
 			cl.executeMethod(post);
+			String response = post.getResponseBodyAsString();
+			JSONObject obj = null;
+			try {
+				 obj = new JSONObject(response);
+			} catch (ParseException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			String errorMessage = obj.getString("message");
 			
 			switch(post.getStatusCode()) {
 			case 200:
@@ -189,7 +201,8 @@ public class CILogonCertificateSigner implements ICertificateSigner {
 				
 				return cert;
 			default:
-				throw new CILogonCertificateSignerException("Unknown status code from cilogon: " +post.getStatusCode());	
+
+				throw new CILogonCertificateSignerException("Unknown status code from cilogon: " +post.getStatusCode() + response);	
 			}		
 		} catch (HttpException e) {
 			throw new CILogonCertificateSignerException("Failed to make cilogon/rest request: "+e, e);

@@ -204,8 +204,9 @@ public class UserCertIssue implements IView {
 							//somehow, I need to have divrep wrapped in timeout, or it won't work..
 							out.write("<script>setTimeout(\"divrep('"+getNodeID()+"', null, null, 'download');\", 0);</script>");
 						} else {
-							out.write("<p class=\"alert alert-danger\"><strong>Oops..</strong> Something went wrong while issueing you certificate.\n");
+							out.write("<p class=\"alert alert-danger\">Something went wrong while issuing your certificate.\n");
 							out.write("OSG support staff will investigate and contact you shortly. If you have any questions, please feel free to contact us at <a href=\"mailto:goc@opensciencegrid.org\">goc@opensciencegrid.org</a></p>");
+
 						}
 							
 						out.write("</div>");
