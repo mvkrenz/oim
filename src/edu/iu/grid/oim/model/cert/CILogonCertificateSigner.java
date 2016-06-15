@@ -153,7 +153,7 @@ public class CILogonCertificateSigner implements ICertificateSigner {
 			payload += line;
 		}
 
-		post.setParameter("email", email_address);
+		//post.setParameter("email", email_address);
 		post.setParameter("username", cn); 
 		post.setParameter("cert_request", payload);
 		post.setParameter("cert_lifetime", "34128000000"); //TODO - how long is this?		
