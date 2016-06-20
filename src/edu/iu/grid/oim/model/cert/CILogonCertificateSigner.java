@@ -166,15 +166,7 @@ public class CILogonCertificateSigner implements ICertificateSigner {
 		post.getParams().setCookiePolicy(CookiePolicy.IGNORE_COOKIES);
 		try {
 			cl.executeMethod(post);
-			String response = post.getResponseBodyAsString();
-			JSONObject obj = null;
-			try {
-				 obj = new JSONObject(response);
-			} catch (ParseException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			String errorMessage = obj.getString("message");
+
 			
 			switch(post.getStatusCode()) {
 			case 200:
@@ -204,7 +196,15 @@ public class CILogonCertificateSigner implements ICertificateSigner {
 				
 				return cert;
 			default:
-
+				String response = post.getResponseBodyAsString();
+				JSONObject obj = null;
+				try {
+					 obj = new JSONObject(response);
+				} catch (ParseException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				String errorMessage = obj.getString("message");
 				throw new CILogonCertificateSignerException("Unknown status code from cilogon: " +post.getStatusCode() + response);	
 			}		
 		} catch (HttpException e) {
