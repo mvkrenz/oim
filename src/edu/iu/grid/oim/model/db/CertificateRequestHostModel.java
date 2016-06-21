@@ -386,6 +386,7 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
     	//get number of certificate requested for this request
     	String [] cns = rec.getCNs();
     	int count = cns.length;
+    	log.debug("length" + cns.length);
     	
     	//check quota
     	CertificateQuotaModel quota = new CertificateQuotaModel(context);
