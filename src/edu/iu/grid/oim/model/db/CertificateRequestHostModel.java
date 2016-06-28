@@ -363,7 +363,7 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 					if(submitter_is_ga) {
 						ticket.mail_suppression_assignees = true;
 						ticket.mail_suppression_submitter = true;
-						ticket.mail_suppression_ccs = true;
+						//ticket.mail_suppression_ccs = true;
 					}
 					
 					fp.update(ticket, rec.goc_ticket_id);
@@ -419,7 +419,7 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 		if(submitter_is_ga) {
 			ticket.description = rec.requester_name + " has approved this host certificate request.\n\n";
 			ticket.mail_suppression_assignees = false; //Per Von/Alain's request, we will send notification to Alain when request is approved
-			ticket.mail_suppression_ccs = true;
+			//ticket.mail_suppression_ccs = true;
 			ticket.mail_suppression_submitter = true;
 		} else {
 			ticket.description = "Dear " + rec.requester_name + ",\n\n";
@@ -617,7 +617,7 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 				ticket.description = "Host certificate request has been submitted by a GridAdmin.\n\n";
 				ticket.mail_suppression_assignees = true;
 				ticket.mail_suppression_submitter = true;
-				ticket.mail_suppression_ccs = true;
+				//ticket.mail_suppression_ccs = true;
 			} else {
 	        	ticket.description = "Dear GridAdmin; ";
 				for(ContactRecord ga : gas) {
