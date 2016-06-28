@@ -349,6 +349,11 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 					} else {
 						ticket.description = "Someone with IP address: " + context.getRemoteAddr() + " has issued certificate. Resolving this ticket.";
 					}
+			    	//get number of certificate requested for this request
+			    	String [] cns = rec.getCNs();
+					for(String cn : cns) {
+						ticket.description += "/CN=" + cn + "\n";
+					}
 					ticket.status = "Resolved";
 					
 					//suppressing notification if submitter is GA
