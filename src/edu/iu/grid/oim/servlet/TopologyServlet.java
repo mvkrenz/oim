@@ -175,10 +175,9 @@ public class TopologyServlet extends ServletBase implements Servlet {
 		});
 		
 		contentview.add(new HtmlView("<br>Hide Disabled Resources/Groups "));
-		/*
-		//contentview.add(hideDisabled);
+	contentview.add(hideDisabled);
 
-*/
+
 		
 		contentview.add(new HtmlView("<div id=\"topology\">"));
 		
