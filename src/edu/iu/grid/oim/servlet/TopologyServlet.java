@@ -21,6 +21,7 @@ import com.divrep.DivRep;
 import com.divrep.DivRepEvent;
 import com.divrep.DivRepEventListener;
 import com.divrep.common.DivRepButton;
+import com.divrep.common.DivRepCheckBox;
 import com.divrep.common.DivRepSelectBox;
 import com.divrep.common.DivRepStaticContent;
 import com.divrep.common.DivRepToggler;
@@ -161,6 +162,10 @@ public class TopologyServlet extends ServletBase implements Servlet {
 		//contentview.add(new HtmlView("Facility  "));
 		contentview.add(facility_selector);
 		//contentview.add(new HtmlView("</td></tr></table>"));
+
+		DivRepCheckBox showDisabled = new DivRepCheckBox(context.getPageRoot());
+		contentview.add(new HtmlView("<br>Show Disabled Resources/Groups"));
+		contentview.add(showDisabled);
 
 		
 		contentview.add(new HtmlView("<div id=\"topology\">"));
