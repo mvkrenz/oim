@@ -163,7 +163,15 @@ public class TopologyServlet extends ServletBase implements Servlet {
 		contentview.add(facility_selector);
 		//contentview.add(new HtmlView("</td></tr></table>"));
 
-		DivRepCheckBox hideDisabled = new DivRepCheckBox(context.getPageRoot());
+		final DivRepCheckBox hideDisabled = new DivRepCheckBox(context.getPageRoot());
+		hideDisabled.addEventListener(new DivRepEventListener() {
+
+			@Override
+			public void handleEvent(DivRepEvent e) {
+
+					hideDisabled.redirect("topology");
+			}
+		});
 		contentview.add(new HtmlView("<br>Hide Disabled Resources/Groups "));
 		contentview.add(hideDisabled);
 
