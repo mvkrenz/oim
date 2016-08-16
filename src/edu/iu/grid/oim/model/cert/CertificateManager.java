@@ -110,6 +110,7 @@ public class CertificateManager {
 	public static CertificateManager Factory(DNRecord dnrecord) {
 		//determine the singer from vo_id (if provided)
 		String dn = dnrecord.dn_string;
+		log.debug("dn is " + dn);
 		String signer = null;
 		if(dn != null) {
 			try {
@@ -122,7 +123,7 @@ public class CertificateManager {
 				log.error("Exception while looking for dc with dn:"+dn, e);
 			}
 		}	
-		
+		log.debug("signer is " + signer);
 		if(signer == null) {
 			log.error("CertificateManager.Factory failed to determine signer from provided dn"+ dn +" using default signer");
 			signer = StaticConfig.conf.getProperty("certificate.signer"); //set to default.

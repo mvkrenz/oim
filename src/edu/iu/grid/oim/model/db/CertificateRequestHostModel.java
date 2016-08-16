@@ -974,6 +974,7 @@ public class CertificateRequestHostModel extends CertificateRequestModelBase<Cer
 				X509Certificate c0 = CertificateManager.getIssuedX509Cert(chain);
 				X500Principal issuer = c0.getIssuerX500Principal();
 				issuer_dn = CertificateManager.X500Principal_to_ApacheDN(issuer);
+				log.debug("issuer dn is " + issuer_dn);
 			}
 		} catch (CertificateException e2) {
 			// TODO Auto-generated catch block
